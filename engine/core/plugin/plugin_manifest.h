@@ -1,8 +1,11 @@
 #pragma once
 
+#include <algorithm>
+#include <cctype>
 #include <map>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <set>
 #include <vector>
 
 namespace urpg::plugin {
@@ -40,18 +43,34 @@ struct PluginManifest {
         m.description = j.value("description", "");
 
         if (j.contains("dependencies") && j["dependencies"].is_array()) {
+            std::set<std::string> seenDependencies;
             for (const auto& dep : j["dependencies"]) {
+                PluginDependency dependency;
                 if (dep.is_string()) {
-                    m.dependencies.push_back({dep.get<std::string>(), "*", false});
+                    dependency = {dep.get<std::string>(), "*", false};
                 } else if (dep.is_object()) {
-                    m.dependencies.push_back(
-                        {dep.value("id", ""), dep.value("version", "*"), dep.value("optional", false)});
+                    dependency = {dep.value("id", ""), dep.value("version", "*"), dep.value("optional", false)};
+                } else {
+                    continue;
                 }
+                if (isBlank(dependency.pluginId) || !seenDependencies.insert(dependency.pluginId).second) {
+                    continue;
+                }
+                m.dependencies.push_back(std::move(dependency));
             }
+            std::sort(m.dependencies.begin(), m.dependencies.end(), [](const auto& left, const auto& right) {
+                return left.pluginId < right.pluginId;
+            });
         }
 
         if (j.contains("permissions") && j["permissions"].is_array()) {
-            m.permissions = j["permissions"].get<std::vector<std::string>>();
+            for (const auto& permission : j["permissions"]) {
+                if (permission.is_string() && !isBlank(permission.get<std::string>())) {
+                    m.permissions.push_back(permission.get<std::string>());
+                }
+            }
+            std::sort(m.permissions.begin(), m.permissions.end());
+            m.permissions.erase(std::unique(m.permissions.begin(), m.permissions.end()), m.permissions.end());
         }
 
         if (j.contains("parameters") && j["parameters"].is_object()) {
@@ -61,6 +80,11 @@ struct PluginManifest {
         }
 
         return m;
+    }
+
+  private:
+    static bool isBlank(const std::string& value) {
+        return std::all_of(value.begin(), value.end(), [](unsigned char ch) { return std::isspace(ch) != 0; });
     }
 };
 

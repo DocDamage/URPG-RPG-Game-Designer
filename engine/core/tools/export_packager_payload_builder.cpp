@@ -90,6 +90,14 @@ std::string makePayloadIntegrityScope(const BundlePayload& payload) {
            (payload.obfuscated ? "1" : "0") + "|" + std::to_string(payload.rawSize);
 }
 
+bool isPathWithinRoot(const std::filesystem::path& root, const std::filesystem::path& candidate) {
+    const auto normalizedRoot = root.lexically_normal();
+    const auto normalizedCandidate = candidate.lexically_normal();
+    const auto mismatch = std::mismatch(normalizedRoot.begin(), normalizedRoot.end(), normalizedCandidate.begin(),
+                                        normalizedCandidate.end());
+    return mismatch.first == normalizedRoot.end();
+}
+
 std::filesystem::path repoRootPath() {
     return std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().parent_path();
 }
@@ -108,7 +116,7 @@ std::filesystem::path normalizedAssetRoot(const ExportConfig& config) {
     return repoRootPath() / "imports" / "normalized";
 }
 
-std::vector<AssetDiscoveryRoot> assetDiscoveryRoots(const ExportConfig& config) {
+std::vector<AssetDiscoveryRoot> assetDiscoveryRoots(const ExportConfig& config, std::vector<std::string>& errors) {
     std::vector<AssetDiscoveryRoot> roots;
     if (!config.enableAutoAssetDiscovery) {
         return roots;
@@ -127,6 +135,10 @@ std::vector<AssetDiscoveryRoot> assetDiscoveryRoots(const ExportConfig& config) 
         const std::filesystem::path configuredPath(configuredRoots[index]);
         const bool absolute = configuredPath.is_absolute();
         const auto resolvedPath = absolute ? configuredPath : (repoRoot / configuredPath).lexically_normal();
+        if (!absolute && !isPathWithinRoot(repoRoot, resolvedPath)) {
+            errors.push_back("Asset discovery root escapes repository: " + configuredRoots[index]);
+            continue;
+        }
 
         std::string configuredLabel;
         std::string bundlePrefix;
@@ -176,14 +188,6 @@ bool fileFitsBundleLimits(const std::filesystem::path& path, std::vector<std::st
         return false;
     }
     return true;
-}
-
-bool isPathWithinRoot(const std::filesystem::path& root, const std::filesystem::path& candidate) {
-    const auto normalizedRoot = root.lexically_normal();
-    const auto normalizedCandidate = candidate.lexically_normal();
-    const auto mismatch = std::mismatch(normalizedRoot.begin(), normalizedRoot.end(), normalizedCandidate.begin(),
-                                        normalizedCandidate.end());
-    return mismatch.first == normalizedRoot.end();
 }
 
 std::vector<BundlePayload> collectRepoOwnedPayloads() {
@@ -393,7 +397,7 @@ nlohmann::json buildAssetDiscoveryManifest(const ExportConfig& config,
 std::vector<BundlePayload> collectAutoDiscoveredProjectAssetPayloads(const ExportConfig& config,
                                                                      nlohmann::json& discoveryManifest,
                                                                      std::vector<std::string>& errors) {
-    const auto discoveryRoots = assetDiscoveryRoots(config);
+    const auto discoveryRoots = assetDiscoveryRoots(config, errors);
     std::vector<BundlePayload> payloads;
     std::set<std::string> seenBundlePaths;
 

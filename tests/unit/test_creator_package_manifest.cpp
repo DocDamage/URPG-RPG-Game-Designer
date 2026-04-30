@@ -36,3 +36,43 @@ TEST_CASE("creator package manifest rejects absent license evidence", "[export][
 
     REQUIRE(errors == std::vector<std::string>{"missing_license_evidence"});
 }
+
+TEST_CASE("creator package manifest rejects blank fields and duplicate dependencies",
+          "[export][creator_package][robustness]") {
+    const urpg::exporting::CreatorPackageManifest manifest{
+        "  ",
+        "\t",
+        "   ",
+        "",
+        {"base-content", "  ", "base-content"},
+        "\n",
+    };
+
+    const auto errors = urpg::exporting::ValidateCreatorPackageManifest(manifest);
+
+    REQUIRE(errors == std::vector<std::string>{
+                          "missing_package_id",
+                          "missing_package_type",
+                          "missing_license_evidence",
+                          "missing_compatibility_target",
+                          "missing_validation_summary",
+                          "invalid_dependency",
+                          "duplicate_dependency",
+                      });
+}
+
+TEST_CASE("creator package manifest JSON emits sorted unique dependencies",
+          "[export][creator_package][robustness]") {
+    const urpg::exporting::CreatorPackageManifest manifest{
+        "creator-pack-3",
+        "tileset",
+        "licenses/creator-pack-3.md",
+        "URPG>=0.7",
+        {"zeta-content", "base-content", "zeta-content"},
+        "validated",
+    };
+
+    const auto json = urpg::exporting::CreatorPackageManifestToJson(manifest);
+
+    REQUIRE(json["dependencies"] == nlohmann::json::array({"base-content", "zeta-content"}));
+}

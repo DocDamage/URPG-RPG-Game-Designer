@@ -1429,6 +1429,23 @@ TEST_CASE("PluginManager: Dependencies", "[plugin_manager]") {
         pm.unregisterPlugin("MissingDepPlugin");
     }
 
+    SECTION("Dependency metadata is normalized before dependency checks") {
+        PluginInfo info;
+        info.name = "NoisyDepPlugin";
+        info.dependencies = {"", "  ", "MissingDepB", "MissingDepA", "MissingDepA"};
+
+        pm.registerPlugin(info);
+
+        const auto* stored = pm.getPluginInfo("NoisyDepPlugin");
+        REQUIRE(stored != nullptr);
+        REQUIRE(stored->dependencies == std::vector<std::string>{"MissingDepA", "MissingDepB"});
+
+        const auto missing = pm.getMissingDependencies("NoisyDepPlugin");
+        REQUIRE(missing == std::vector<std::string>{"MissingDepA", "MissingDepB"});
+
+        pm.unregisterPlugin("NoisyDepPlugin");
+    }
+
     SECTION("Get dependents") {
         PluginInfo core;
         core.name = "CorePlugin2";

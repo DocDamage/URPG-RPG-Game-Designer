@@ -4,7 +4,7 @@ C:/Program Files/CMake/share/cmake-4.3/Modules/ExternalProject.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/ExternalProject/shared_internal_commands.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/GNUInstallDirs.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/WriteBasicConfigVersionFile.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-src/CMakeLists.txt
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-src/cmake/config.cmake.in
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-src/cmake/nlohmann_jsonConfigVersion.cmake.in
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-src/cmake/pkg-config.pc.in
+C:/dev/URPG Maker/build-local/_deps/nlohmann_json-src/CMakeLists.txt
+C:/dev/URPG Maker/build-local/_deps/nlohmann_json-src/cmake/config.cmake.in
+C:/dev/URPG Maker/build-local/_deps/nlohmann_json-src/cmake/nlohmann_jsonConfigVersion.cmake.in
+C:/dev/URPG Maker/build-local/_deps/nlohmann_json-src/cmake/pkg-config.pc.in

@@ -1,30 +1,74 @@
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_core.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_migrate.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_project_audit.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_presentation_release_validation.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_tests.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_integration_tests.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_snapshot_tests.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_compat_tests.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/Experimental.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/Nightly.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/Continuous.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/NightlyMemoryCheck.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/RUN_TESTS.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/ALL_BUILD.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/ZERO_CHECK.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-build/CMakeFiles/RUN_TESTS.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-build/CMakeFiles/ALL_BUILD.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-build/src/CMakeFiles/Catch2.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-build/src/CMakeFiles/Catch2WithMain.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-build/src/CMakeFiles/RUN_TESTS.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-build/CMakeFiles/RUN_TESTS.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-build/CMakeFiles/ALL_BUILD.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-build/CMakeFiles/sdl_headers_copy.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-build/CMakeFiles/SDL2main.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-build/CMakeFiles/SDL2.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-build/CMakeFiles/SDL2-static.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-build/CMakeFiles/SDL2_test.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-build/CMakeFiles/uninstall.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-build/CMakeFiles/RUN_TESTS.dir
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-build/CMakeFiles/ALL_BUILD.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_runtime_core_objects.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_editor_core_objects.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_editor_panels_objects.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_compat_mz_objects.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_rendering_objects.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_audio_objects.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_export_objects.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_project_tools_objects.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_testing_support_objects.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_runtime_core.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_editor_core.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_editor_panels.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_compat_mz.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_rendering.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_audio.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_export.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_project_tools.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_testing_support.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/imgui.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_runtime.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_editor.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_audio_smoke.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_migrate.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_project_audit.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_pack_cli.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_presentation_release_validation.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_profile_arena.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_export_smoke_app.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_tests.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_integration_tests.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_snapshot_tests.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/urpg_compat_tests.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/Experimental.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/Nightly.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/Continuous.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/NightlyMemoryCheck.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/PACKAGE.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/RUN_TESTS.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/INSTALL.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/ALL_BUILD.dir
+C:/dev/URPG Maker/build-local/CMakeFiles/ZERO_CHECK.dir
+C:/dev/URPG Maker/build-local/_deps/catch2-build/CMakeFiles/PACKAGE.dir
+C:/dev/URPG Maker/build-local/_deps/catch2-build/CMakeFiles/RUN_TESTS.dir
+C:/dev/URPG Maker/build-local/_deps/catch2-build/CMakeFiles/INSTALL.dir
+C:/dev/URPG Maker/build-local/_deps/catch2-build/CMakeFiles/ALL_BUILD.dir
+C:/dev/URPG Maker/build-local/_deps/catch2-build/src/CMakeFiles/Catch2.dir
+C:/dev/URPG Maker/build-local/_deps/catch2-build/src/CMakeFiles/Catch2WithMain.dir
+C:/dev/URPG Maker/build-local/_deps/catch2-build/src/CMakeFiles/PACKAGE.dir
+C:/dev/URPG Maker/build-local/_deps/catch2-build/src/CMakeFiles/RUN_TESTS.dir
+C:/dev/URPG Maker/build-local/_deps/catch2-build/src/CMakeFiles/INSTALL.dir
+C:/dev/URPG Maker/build-local/_deps/nlohmann_json-build/CMakeFiles/PACKAGE.dir
+C:/dev/URPG Maker/build-local/_deps/nlohmann_json-build/CMakeFiles/RUN_TESTS.dir
+C:/dev/URPG Maker/build-local/_deps/nlohmann_json-build/CMakeFiles/INSTALL.dir
+C:/dev/URPG Maker/build-local/_deps/nlohmann_json-build/CMakeFiles/ALL_BUILD.dir
+C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/CMakeFiles/qjs.dir
+C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/CMakeFiles/qjsc.dir
+C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/CMakeFiles/qjs_exe.dir
+C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/CMakeFiles/run-test262.dir
+C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/CMakeFiles/api-test.dir
+C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/CMakeFiles/unicode_gen.dir
+C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/CMakeFiles/function_source.dir
+C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/CMakeFiles/PACKAGE.dir
+C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/CMakeFiles/RUN_TESTS.dir
+C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/CMakeFiles/INSTALL.dir
+C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/CMakeFiles/ALL_BUILD.dir
+C:/dev/URPG Maker/build-local/_deps/sdl2-build/CMakeFiles/sdl_headers_copy.dir
+C:/dev/URPG Maker/build-local/_deps/sdl2-build/CMakeFiles/SDL2main.dir
+C:/dev/URPG Maker/build-local/_deps/sdl2-build/CMakeFiles/SDL2-static.dir
+C:/dev/URPG Maker/build-local/_deps/sdl2-build/CMakeFiles/SDL2_test.dir
+C:/dev/URPG Maker/build-local/_deps/sdl2-build/CMakeFiles/uninstall.dir
+C:/dev/URPG Maker/build-local/_deps/sdl2-build/CMakeFiles/PACKAGE.dir
+C:/dev/URPG Maker/build-local/_deps/sdl2-build/CMakeFiles/RUN_TESTS.dir
+C:/dev/URPG Maker/build-local/_deps/sdl2-build/CMakeFiles/INSTALL.dir
+C:/dev/URPG Maker/build-local/_deps/sdl2-build/CMakeFiles/ALL_BUILD.dir

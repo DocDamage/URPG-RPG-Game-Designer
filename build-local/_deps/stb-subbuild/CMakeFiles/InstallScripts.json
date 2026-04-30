@@ -1,7 +1,7 @@
 {
 	"InstallScripts" : 
 	[
-		"C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/cmake_install.cmake"
+		"C:/dev/URPG Maker/build-local/_deps/stb-subbuild/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

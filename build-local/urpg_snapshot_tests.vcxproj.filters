@@ -1,19 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\snapshot\test_snapshot_canonical_outputs.cpp">
+    <ClCompile Include="C:\dev\URPG Maker\tests\snapshot\test_snapshot_canonical_outputs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\dev\URPG Maker\tests\snapshot\test_renderer_backed_visual_capture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Users\dferr\dev\URPG - RPG Game Maker\CMakeLists.txt" />
+    <CustomBuild Include="C:\dev\URPG Maker\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\nlohmann_json.natvis" />
+    <Natvis Include="C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\nlohmann_json.natvis" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{F0EFE517-62A7-3DFB-A636-BA1FD15D248F}</UniqueIdentifier>
+      <UniqueIdentifier>{C35EC068-DD33-3697-91A9-B40AB03F0702}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

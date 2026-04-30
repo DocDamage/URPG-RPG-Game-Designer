@@ -10,8 +10,8 @@
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/scene/tileset_registry.h"
 #include "engine/core/settings/app_settings_store.h"
-#include <catch2/catch_test_macros.hpp>
 #include <algorithm>
+#include <catch2/catch_test_macros.hpp>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -217,6 +217,41 @@ TEST_CASE("MapScene: Coordinate and Collision Authority", "[scene][map]") {
     }
 }
 
+TEST_CASE("MapScene: invalid dimensions create an empty collision-safe map", "[scene][map][robustness]") {
+    std::unique_ptr<MapScene> map;
+    REQUIRE_NOTHROW(map = std::make_unique<MapScene>("invalid", -3, 2));
+    REQUIRE(map != nullptr);
+    REQUIRE(map->getWidth() == 0);
+    REQUIRE(map->getHeight() == 2);
+    REQUIRE(map->checkCollision(0, 0));
+
+    std::unique_ptr<MapScene> empty;
+    REQUIRE_NOTHROW(empty = std::make_unique<MapScene>("empty", -3, -2));
+    REQUIRE(empty != nullptr);
+    REQUIRE(empty->getWidth() == 0);
+    REQUIRE(empty->getHeight() == 0);
+    REQUIRE(empty->checkCollision(0, 0));
+}
+
+TEST_CASE("TilemapRenderer ignores invalid layer indices", "[scene][map][render][robustness]") {
+    urpg::TilemapRenderer renderer(1, 1);
+
+    REQUIRE_NOTHROW(renderer.setLayer(-1, {1}));
+    REQUIRE_NOTHROW(renderer.setLayer(0, {1}));
+}
+
+TEST_CASE("TilemapRenderer ignores invalid texture dimensions", "[scene][map][render][robustness]") {
+    urpg::TilemapRenderer renderer(1, 1);
+    renderer.setLayer(0, {1});
+    renderer.setTileset(std::make_shared<urpg::Texture>());
+
+    urpg::SpriteBatcher batcher;
+    batcher.begin();
+    REQUIRE_NOTHROW(renderer.draw(batcher));
+    batcher.end();
+    REQUIRE(batcher.getBatches().empty());
+}
+
 TEST_CASE("MapScene: AI audio commands use injected AudioCore service", "[scene][map][audio]") {
     MapScene map("001", 10, 10);
     auto audio = std::make_shared<urpg::audio::AudioCore>();
@@ -345,6 +380,46 @@ TEST_CASE("MapScene: tile and prop interaction bindings activate targeted abilit
     REQUIRE(map.activateInteractionAbilityForProp("inspect_prop", "rock_01"));
     REQUIRE(map.playerAbilitySystem().getAttribute("MagicDefense", 0.0f) == 108.0f);
     REQUIRE(map.playerAbilitySystem().getAbilityExecutionHistory().back().ability_id == "skill.prop_trigger");
+}
+
+TEST_CASE("MapScene: prop interaction bindings prefer stable instance ids with asset fallback",
+          "[scene][map][ability][interaction_targets]") {
+    MapScene map("001", 10, 10);
+
+    urpg::ability::AuthoredAbilityAsset instanceAsset;
+    instanceAsset.ability_id = "skill.prop_instance_trigger";
+    instanceAsset.effect_id = "effect.prop_instance_trigger";
+    instanceAsset.effect_attribute = "MagicDefense";
+    instanceAsset.effect_value = 5.0f;
+
+    urpg::ability::AuthoredAbilityAsset legacyAsset;
+    legacyAsset.ability_id = "skill.prop_legacy_trigger";
+    legacyAsset.effect_id = "effect.prop_legacy_trigger";
+    legacyAsset.effect_attribute = "Attack";
+    legacyAsset.effect_value = 3.0f;
+
+    REQUIRE(map.bindPropInstanceInteractionAbility("inspect_prop", "001:rock_01:0", "rock_01",
+                                                   "content/abilities/prop_instance_trigger.json", instanceAsset));
+    REQUIRE(map.bindPropInteractionAbility("inspect_prop", "rock_01", "content/abilities/prop_legacy_trigger.json",
+                                           legacyAsset));
+
+    REQUIRE(map.interactionAbilityBindings().size() == 2);
+    REQUIRE(map.interactionAbilityBindings()[0].prop_instance_id == "001:rock_01:0");
+    REQUIRE(map.interactionAbilityBindings()[0].prop_asset_id == "rock_01");
+    REQUIRE(map.interactionAbilityBindings()[1].prop_instance_id.empty());
+    REQUIRE(map.interactionAbilityBindings()[1].prop_asset_id == "rock_01");
+
+    map.playerAbilitySystem().setAttribute("MP", 30.0f);
+    map.playerAbilitySystem().setAttribute("MagicDefense", 100.0f);
+    map.playerAbilitySystem().setAttribute("Attack", 100.0f);
+
+    REQUIRE(map.activateInteractionAbilityForPropInstance("inspect_prop", "001:rock_01:0", "rock_01"));
+    REQUIRE(map.playerAbilitySystem().getAttribute("MagicDefense", 0.0f) == 105.0f);
+    REQUIRE(map.playerAbilitySystem().getAttribute("Attack", 0.0f) == 100.0f);
+
+    map.playerAbilitySystem().setCooldown("skill.prop_instance_trigger", 0.0f);
+    REQUIRE(map.activateInteractionAbilityForPropInstance("inspect_prop", "001:rock_01:1", "rock_01"));
+    REQUIRE(map.playerAbilitySystem().getAttribute("Attack", 0.0f) == 103.0f);
 }
 
 TEST_CASE("MapScene: region interaction bindings activate for tiles inside the painted area",
@@ -512,8 +587,7 @@ TEST_CASE("MapScene emits diagnostics before rendering asset placeholders", "[sc
     const auto diagnostics = urpg::diagnostics::RuntimeDiagnostics::snapshot();
     REQUIRE(std::count_if(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
                 return diagnostic.subsystem == "scene.map" &&
-                       (diagnostic.code == "map.player_sprite_missing" ||
-                        diagnostic.code == "map.tileset_missing");
+                       (diagnostic.code == "map.player_sprite_missing" || diagnostic.code == "map.tileset_missing");
             }) == 2);
 }
 
@@ -845,12 +919,12 @@ TEST_CASE("RuntimeTitleScene runtime input reports disabled selected command", "
     REQUIRE(title.lastCommandResult().message == "No save data found");
 }
 
-TEST_CASE("RuntimeTitleScene exposes startup warnings and errors for title UI", "[scene][runtime][title][diagnostics]") {
+TEST_CASE("RuntimeTitleScene exposes startup warnings and errors for title UI",
+          "[scene][runtime][title][diagnostics]") {
     RuntimeTitleScene title;
     urpg::RuntimeStartupReport report;
     report.subsystems.push_back({"LocaleCatalog", urpg::RuntimeStartupSubsystemStatus::Warning,
-                                 "localization.catalog_missing",
-                                 "No locale catalog was found under project content."});
+                                 "localization.catalog_missing", "No locale catalog was found under project content."});
     report.subsystems.push_back({"PerfProfiler", urpg::RuntimeStartupSubsystemStatus::Initialized, "profiler.ready",
                                  "PerfProfiler initialized."});
     report.subsystems.push_back({"RuntimeBundleLoader", urpg::RuntimeStartupSubsystemStatus::Error,
@@ -1005,7 +1079,7 @@ TEST_CASE("RuntimeTitleScene emits visible title and disabled command labels", "
             const auto* rect = renderCommandAs<urpg::RectRenderData>(command);
             REQUIRE(rect != nullptr);
             sawFocusHighlight = sawFocusHighlight || (command.x == 56.0f && command.y == 112.0f && rect->w == 528.0f &&
-                                                       rect->h == 30.0f && command.zOrder == 1);
+                                                      rect->h == 30.0f && command.zOrder == 1);
             continue;
         }
         if (renderCommandType(command) != urpg::RenderCmdType::Text) {
@@ -1037,8 +1111,7 @@ TEST_CASE("RuntimeTitleScene renders startup diagnostics on the title screen", "
     RuntimeTitleScene title;
     urpg::RuntimeStartupReport report;
     report.subsystems.push_back({"LocaleCatalog", urpg::RuntimeStartupSubsystemStatus::Warning,
-                                 "localization.catalog_missing",
-                                 "No locale catalog was found under project content."});
+                                 "localization.catalog_missing", "No locale catalog was found under project content."});
     title.setStartupReport(report);
     title.onUpdate(0.016f);
 
@@ -1051,9 +1124,9 @@ TEST_CASE("RuntimeTitleScene renders startup diagnostics on the title screen", "
         const auto* text = renderCommandAs<urpg::TextRenderData>(command);
         REQUIRE(text != nullptr);
         sawDiagnosticsHeading = sawDiagnosticsHeading || text->text == "Startup Diagnostics";
-        sawLocalizationWarning = sawLocalizationWarning ||
-                                 text->text.find("Startup warning [LocaleCatalog:localization.catalog_missing]") !=
-                                     std::string::npos;
+        sawLocalizationWarning =
+            sawLocalizationWarning ||
+            text->text.find("Startup warning [LocaleCatalog:localization.catalog_missing]") != std::string::npos;
     }
 
     REQUIRE(sawDiagnosticsHeading);

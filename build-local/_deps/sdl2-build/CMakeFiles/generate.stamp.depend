@@ -1,8 +1,5 @@
 # CMake generation dependency list for this directory.
-C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeCInformation.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeCommonLanguageInclude.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeDependentOption.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeLanguageInformation.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeParseArguments.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/CMakePushCheckState.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/CheckCCompilerFlag.cmake
@@ -17,36 +14,23 @@ C:/Program Files/CMake/share/cmake-4.3/Modules/CheckLibraryExists.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/CheckSourceCompiles.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/CheckStructHasMember.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/CheckSymbolExists.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Compiler/CMakeCommonCompilerMacros.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Compiler/MSVC-C.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Compiler/MSVC.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/FindGit.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/FindPackageHandleStandardArgs.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/FindPackageMessage.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/FindPkgConfig.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/GNUInstallDirs.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CMakeCLinkerInformation.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CMakeCommonLinkerInformation.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CheckCompilerFlag.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CheckSourceCompiles.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CheckSourceRuns.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Linker/MSVC-C.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Linker/MSVC.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Linker/Windows-MSVC-C.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Linker/Windows-MSVC.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Windows-MSVC-C.cmake
-C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Windows-MSVC.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/4.3.1/CMakeCCompiler.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-build/SDL_config.h.intermediate
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/CMakeLists.txt
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/SDL2.spec.in
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/cmake/CheckCPUArchitecture.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/cmake/macros.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/cmake/sdlchecks.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/cmake/sdlfind.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/cmake/sdlplatform.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/cmake_uninstall.cmake.in
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/include/SDL_config.h.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/include/SDL_revision.h.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/sdl2-config.in
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src/sdl2.pc.in
+C:/dev/URPG Maker/build-local/_deps/sdl2-build/SDL_config.h.intermediate
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/CMakeLists.txt
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/SDL2.spec.in
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/cmake/CheckCPUArchitecture.cmake
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/cmake/macros.cmake
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/cmake/sdlchecks.cmake
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/cmake/sdlfind.cmake
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/cmake/sdlplatform.cmake
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/cmake_uninstall.cmake.in
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/include/SDL_config.h.cmake
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/include/SDL_revision.h.cmake
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/sdl2-config.in
+C:/dev/URPG Maker/build-local/_deps/sdl2-src/sdl2.pc.in

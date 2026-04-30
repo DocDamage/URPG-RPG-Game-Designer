@@ -2,6 +2,7 @@
 #include "engine/core/security/resource_protector.h"
 #include "engine/core/tools/export_packager.h"
 #include "engine/core/tools/export_packager_bundle_writer.h"
+#include "engine/core/tools/export_packager_payload_builder.h"
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
@@ -1028,6 +1029,30 @@ TEST_CASE("ExportPackager auto-discovers configured project asset roots and writ
     REQUIRE(discoveryManifest["assets"][1]["path"] == "project_assets/root_02/battle_theme.ogg");
 
     std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager rejects relative auto-discovery roots that escape the repository",
+          "[export][packager][discovery][security]") {
+    const auto escapeRoot = std::filesystem::path(URPG_SOURCE_DIR).parent_path() / "urpg_asset_escape_fixture";
+    std::filesystem::remove_all(escapeRoot);
+    WriteFile(escapeRoot / "assets" / "escape.txt", "should_not_bundle");
+
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.compressAssets = false;
+    config.assetDiscoveryRoots = {"../urpg_asset_escape_fixture/assets"};
+
+    const auto result = urpg::tools::export_packager_detail::buildBundlePayloads(config);
+
+    REQUIRE_FALSE(result.errors.empty());
+    REQUIRE(std::find(result.errors.begin(), result.errors.end(),
+                      "Asset discovery root escapes repository: ../urpg_asset_escape_fixture/assets") !=
+            result.errors.end());
+    for (const auto& payload : result.payloads) {
+        REQUIRE(payload.path.find("escape.txt") == std::string::npos);
+    }
+
+    std::filesystem::remove_all(escapeRoot);
 }
 
 TEST_CASE("ExportPackager fails closed when discovered assets have malformed license evidence",

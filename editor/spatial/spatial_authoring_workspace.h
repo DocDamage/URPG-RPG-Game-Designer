@@ -1,6 +1,9 @@
 #pragma once
 
 #include "editor/spatial/elevation_brush_panel.h"
+#include "editor/spatial/grid_part_inspector_panel.h"
+#include "editor/spatial/grid_part_palette_panel.h"
+#include "editor/spatial/grid_part_placement_panel.h"
 #include "editor/spatial/map_ability_binding_panel.h"
 #include "editor/spatial/prop_placement_panel.h"
 #include "editor/spatial/spatial_ability_canvas_panel.h"
@@ -16,12 +19,13 @@ class MapScene;
 namespace urpg::editor {
 
 class SpatialAuthoringWorkspace : public EditorPanel {
-public:
+  public:
     enum class ToolMode {
         Composite = 0,
         Elevation = 1,
         Props = 2,
         Abilities = 3,
+        Parts = 4,
     };
 
     struct ToolbarAction {
@@ -54,6 +58,9 @@ public:
         ToolbarSnapshot toolbar;
         ElevationBrushPanel::RenderSnapshot elevation;
         PropPlacementPanel::RenderSnapshot props;
+        GridPartPalettePanel::RenderSnapshot parts_palette;
+        GridPartPlacementPanel::RenderSnapshot parts_placement;
+        GridPartInspectorPanel::RenderSnapshot parts_inspector;
         MapAbilityBindingPanel::RenderSnapshot bindings;
         SpatialAbilityCanvasPanel::RenderSnapshot canvas;
     };
@@ -62,6 +69,7 @@ public:
 
     void Render(const urpg::FrameContext& context) override;
     void SetTargets(urpg::scene::MapScene* scene, urpg::presentation::SpatialMapOverlay* overlay);
+    void SetGridPartTargets(urpg::map::GridPartDocument* document, const urpg::map::GridPartCatalog* catalog);
     bool SetProjectRoot(const std::string& root_path);
     void SetProjectionSettings(const PropPlacementPanel::ScreenProjectionSettings& settings);
     void SetAvailableTriggers(std::vector<std::string> trigger_ids);
@@ -71,25 +79,34 @@ public:
     bool RouteCanvasPrimaryAction(float screen_x, float screen_y);
     bool RouteCanvasSecondaryAction(float screen_x, float screen_y);
     bool RouteCanvasHover(float screen_x, float screen_y);
+    bool SelectGridPart(const std::string& part_id);
     ToolMode activeMode() const { return active_mode_; }
 
     ElevationBrushPanel& elevationPanel() { return elevation_panel_; }
     PropPlacementPanel& propPanel() { return prop_panel_; }
+    GridPartPalettePanel& gridPartPalettePanel() { return grid_part_palette_panel_; }
+    GridPartPlacementPanel& gridPartPlacementPanel() { return grid_part_placement_panel_; }
+    GridPartInspectorPanel& gridPartInspectorPanel() { return grid_part_inspector_panel_; }
     MapAbilityBindingPanel& bindingPanel() { return binding_panel_; }
     SpatialAbilityCanvasPanel& canvasPanel() { return canvas_panel_; }
 
     const RenderSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }
 
-private:
+  private:
     void captureRenderSnapshot();
     void syncPanelVisibility();
     static const char* modeName(ToolMode mode);
 
     urpg::scene::MapScene* m_target_scene = nullptr;
     urpg::presentation::SpatialMapOverlay* m_target_overlay = nullptr;
+    urpg::map::GridPartDocument* grid_part_document_ = nullptr;
+    const urpg::map::GridPartCatalog* grid_part_catalog_ = nullptr;
     ToolMode active_mode_ = ToolMode::Composite;
     ElevationBrushPanel elevation_panel_;
     PropPlacementPanel prop_panel_;
+    GridPartPalettePanel grid_part_palette_panel_;
+    GridPartPlacementPanel grid_part_placement_panel_;
+    GridPartInspectorPanel grid_part_inspector_panel_;
     MapAbilityBindingPanel binding_panel_;
     SpatialAbilityCanvasPanel canvas_panel_;
     PropPlacementPanel::ScreenProjectionSettings projection_settings_;

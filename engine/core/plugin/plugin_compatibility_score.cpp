@@ -1,6 +1,7 @@
 #include "engine/core/plugin/plugin_compatibility_score.h"
 
 #include <algorithm>
+#include <cctype>
 #include <functional>
 #include <fstream>
 #include <iterator>
@@ -12,6 +13,12 @@
 namespace urpg::plugin {
 
 namespace {
+
+bool isBlank(const std::string& value) {
+    return std::all_of(value.begin(), value.end(), [](unsigned char ch) {
+        return std::isspace(ch) != 0;
+    });
+}
 
 std::string stringValue(const nlohmann::json& object, std::initializer_list<const char*> keys, std::string fallback = {}) {
     if (!object.is_object()) {
@@ -38,7 +45,10 @@ std::vector<std::string> stringArrayValue(const nlohmann::json& object, std::ini
         }
         for (const auto& row : *it) {
             if (row.is_string()) {
-                values.push_back(row.get<std::string>());
+                const auto value = row.get<std::string>();
+                if (!isBlank(value)) {
+                    values.push_back(value);
+                }
             }
         }
     }
@@ -297,15 +307,21 @@ PluginCompatibilityManifest ParsePluginCompatibilityManifest(const nlohmann::jso
             manifest.malformed = true;
             manifest.malformed_reason = "Manifest dependencies must be an array.";
         } else {
+            std::set<std::string> seen_dependencies;
             for (const auto& dep : *deps_it) {
+                PluginCompatibilityDependency dependency;
                 if (dep.is_string()) {
-                    manifest.dependencies.push_back({dep.get<std::string>(), "*", false});
+                    dependency = {dep.get<std::string>(), "*", false};
                 } else if (dep.is_object()) {
-                    manifest.dependencies.push_back({
+                    dependency = {
                         stringValue(dep, {"id", "pluginId", "name"}),
                         stringValue(dep, {"version", "versionRange"}, "*"),
                         dep.value("optional", false),
-                    });
+                    };
+                }
+
+                if (!isBlank(dependency.plugin_id) && seen_dependencies.insert(dependency.plugin_id).second) {
+                    manifest.dependencies.push_back(std::move(dependency));
                 }
             }
         }

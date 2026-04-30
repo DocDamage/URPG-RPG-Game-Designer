@@ -4,6 +4,8 @@
 #include "presentation_types.h"
 #include <cstdint>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace urpg::presentation {
@@ -39,9 +41,20 @@ struct ElevationGrid {
  * @brief Prop instance placement (Section 12.1).
  */
 struct PropInstance {
+    PropInstance() = default;
+    PropInstance(std::string asset_id, float x, float y, float z, float rotation_y, float instance_scale)
+        : assetId(std::move(asset_id)), posX(x), posY(y), posZ(z), rotY(rotation_y), scale(instance_scale) {}
+    PropInstance(std::string instance_id, std::string asset_id, float x, float y, float z, float rotation_y,
+                 float instance_scale)
+        : instanceId(std::move(instance_id)), assetId(std::move(asset_id)), posX(x), posY(y), posZ(z), rotY(rotation_y),
+          scale(instance_scale) {}
+
+    std::string instanceId;
     std::string assetId;
-    float posX, posY, posZ;
-    float rotY;
+    float posX = 0.0f;
+    float posY = 0.0f;
+    float posZ = 0.0f;
+    float rotY = 0.0f;
     float scale = 1.0f;
 };
 
@@ -90,6 +103,19 @@ struct SpatialMapOverlay {
     FogProfile fog;
     PostFXProfile postFX;
 };
+
+inline void EnsureStablePropInstanceIds(SpatialMapOverlay& overlay) {
+    std::unordered_map<std::string, int32_t> counts;
+
+    for (auto& prop : overlay.props) {
+        const int32_t index = counts[prop.assetId]++;
+        if (!prop.instanceId.empty()) {
+            continue;
+        }
+
+        prop.instanceId = overlay.mapId + ":" + prop.assetId + ":" + std::to_string(index);
+    }
+}
 
 /**
  * @brief Actor presentation profile (Section 12.1).

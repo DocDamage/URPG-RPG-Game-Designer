@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\5a91e519c09f90f623eff1a57f1403f2\RUN_TESTS_force.rule">
+    <CustomBuild Include="C:\dev\URPG Maker\build-local\CMakeFiles\3627db4f3bd266e8558859de4202b315\RUN_TESTS_force.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{B1363BBF-41E1-36AA-BC76-EFBDDB320341}</UniqueIdentifier>
+      <UniqueIdentifier>{1D976B1A-5156-3F26-9DF9-99D8F564AE0F}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

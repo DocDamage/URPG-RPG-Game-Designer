@@ -1,9 +1,9 @@
 #pragma once
 
+#include "editor/spatial/prop_placement_panel.h"
 #include "editor/ui/editor_panel.h"
 #include "engine/core/ability/authored_ability_asset.h"
 #include "engine/core/presentation/presentation_schema.h"
-#include "editor/spatial/prop_placement_panel.h"
 
 #include <filesystem>
 #include <optional>
@@ -11,13 +11,13 @@
 #include <vector>
 
 namespace urpg::scene {
-    class MapScene;
+class MapScene;
 }
 
 namespace urpg::editor {
 
 class MapAbilityBindingPanel : public EditorPanel {
-public:
+  public:
     struct PaintedRegion {
         int min_x = 0;
         int min_y = 0;
@@ -29,6 +29,7 @@ public:
     struct PlacementTarget {
         int tile_x = 0;
         int tile_y = 0;
+        std::string prop_instance_id;
         std::string prop_asset_id;
         int region_start_x = 0;
         int region_start_y = 0;
@@ -55,11 +56,13 @@ public:
         int region_min_y = -1;
         int region_max_x = -1;
         int region_max_y = -1;
+        std::string prop_instance_id;
         std::string prop_asset_id;
     };
 
     struct PropHandleEntry {
         size_t prop_index = 0;
+        std::string instance_id;
         std::string asset_id;
         float world_x = 0.0f;
         float world_y = 0.0f;
@@ -131,18 +134,13 @@ public:
     bool SetSelectedPropAssetId(const std::string& prop_asset_id);
     bool SetActiveRegionBounds(int min_x, int min_y, int max_x, int max_y);
     bool SelectPropHandle(size_t index);
-    bool BindSelectedAbilityToTileFromScreen(float screenX,
-                                             float screenY,
+    bool BindSelectedAbilityToTileFromScreen(float screenX, float screenY,
                                              const PropPlacementPanel::ScreenProjectionSettings& settings);
-    bool SelectPropFromScreen(float screenX,
-                              float screenY,
-                              const PropPlacementPanel::ScreenProjectionSettings& settings,
-                              float max_distance = 0.75f);
-    bool BeginPaintRegionFromScreen(float screenX,
-                                    float screenY,
+    bool SelectPropFromScreen(float screenX, float screenY,
+                              const PropPlacementPanel::ScreenProjectionSettings& settings, float max_distance = 0.75f);
+    bool BeginPaintRegionFromScreen(float screenX, float screenY,
                                     const PropPlacementPanel::ScreenProjectionSettings& settings);
-    bool UpdatePaintRegionFromScreen(float screenX,
-                                     float screenY,
+    bool UpdatePaintRegionFromScreen(float screenX, float screenY,
                                      const PropPlacementPanel::ScreenProjectionSettings& settings);
     bool CommitPaintedRegion();
     bool SelectPaintedRegion(size_t index);
@@ -154,60 +152,28 @@ public:
     bool BindSelectedAbilityToCommittedRegions();
     bool MoveTileBinding(int from_tile_x, int from_tile_y, int to_tile_x, int to_tile_y);
     bool MovePropBinding(const std::string& from_prop_asset_id, const std::string& to_prop_asset_id);
-    bool ResizeRegionBinding(int from_min_x,
-                             int from_min_y,
-                             int from_max_x,
-                             int from_max_y,
-                             int to_min_x,
-                             int to_min_y,
-                             int to_max_x,
-                             int to_max_y);
-    bool SwitchTileBindingTrigger(int tile_x, int tile_y, const std::string& from_trigger_id, const std::string& to_trigger_id);
-    bool SwitchPropBindingTrigger(const std::string& prop_asset_id,
-                                  const std::string& from_trigger_id,
+    bool ResizeRegionBinding(int from_min_x, int from_min_y, int from_max_x, int from_max_y, int to_min_x, int to_min_y,
+                             int to_max_x, int to_max_y);
+    bool SwitchTileBindingTrigger(int tile_x, int tile_y, const std::string& from_trigger_id,
                                   const std::string& to_trigger_id);
-    bool SwitchRegionBindingTrigger(int min_x,
-                                    int min_y,
-                                    int max_x,
-                                    int max_y,
-                                    const std::string& from_trigger_id,
+    bool SwitchPropBindingTrigger(const std::string& prop_asset_id, const std::string& from_trigger_id,
+                                  const std::string& to_trigger_id);
+    bool SwitchRegionBindingTrigger(int min_x, int min_y, int max_x, int max_y, const std::string& from_trigger_id,
                                     const std::string& to_trigger_id);
-    bool ReplaceTileBindingAsset(int tile_x,
-                                 int tile_y,
-                                 const std::string& trigger_id,
+    bool ReplaceTileBindingAsset(int tile_x, int tile_y, const std::string& trigger_id, const std::string& asset_path);
+    bool ReplacePropBindingAsset(const std::string& prop_asset_id, const std::string& trigger_id,
                                  const std::string& asset_path);
-    bool ReplacePropBindingAsset(const std::string& prop_asset_id,
-                                 const std::string& trigger_id,
-                                 const std::string& asset_path);
-    bool ReplaceRegionBindingAsset(int min_x,
-                                   int min_y,
-                                   int max_x,
-                                   int max_y,
-                                   const std::string& trigger_id,
+    bool ReplaceRegionBindingAsset(int min_x, int min_y, int max_x, int max_y, const std::string& trigger_id,
                                    const std::string& asset_path);
-    bool SwapTileBindingTriggers(int tile_x,
-                                 int tile_y,
-                                 const std::string& first_trigger_id,
+    bool SwapTileBindingTriggers(int tile_x, int tile_y, const std::string& first_trigger_id,
                                  const std::string& second_trigger_id);
-    bool SwapPropBindingTriggers(const std::string& prop_asset_id,
-                                 const std::string& first_trigger_id,
+    bool SwapPropBindingTriggers(const std::string& prop_asset_id, const std::string& first_trigger_id,
                                  const std::string& second_trigger_id);
-    bool SwapRegionBindingTriggers(int min_x,
-                                   int min_y,
-                                   int max_x,
-                                   int max_y,
-                                   const std::string& first_trigger_id,
+    bool SwapRegionBindingTriggers(int min_x, int min_y, int max_x, int max_y, const std::string& first_trigger_id,
                                    const std::string& second_trigger_id);
-    bool SwapRegionBindingTriggersBetween(int first_min_x,
-                                          int first_min_y,
-                                          int first_max_x,
-                                          int first_max_y,
-                                          const std::string& first_trigger_id,
-                                          int second_min_x,
-                                          int second_min_y,
-                                          int second_max_x,
-                                          int second_max_y,
-                                          const std::string& second_trigger_id);
+    bool SwapRegionBindingTriggersBetween(int first_min_x, int first_min_y, int first_max_x, int first_max_y,
+                                          const std::string& first_trigger_id, int second_min_x, int second_min_y,
+                                          int second_max_x, int second_max_y, const std::string& second_trigger_id);
     bool RemoveTileBinding(int tile_x, int tile_y, const std::string& trigger_id);
     bool RemovePropBinding(const std::string& prop_asset_id, const std::string& trigger_id);
     bool RemoveRegionBinding(int min_x, int min_y, int max_x, int max_y, const std::string& trigger_id);
@@ -217,7 +183,7 @@ public:
 
     const RenderSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }
 
-private:
+  private:
     void captureRenderSnapshot();
 
     urpg::scene::MapScene* m_target_scene = nullptr;

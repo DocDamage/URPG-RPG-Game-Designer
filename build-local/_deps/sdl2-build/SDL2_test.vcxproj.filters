@@ -1,61 +1,61 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_assert.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_assert.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_common.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_common.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_compare.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_compare.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_crc32.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_crc32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_font.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_font.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_fuzzer.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_fuzzer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_harness.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_harness.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_imageBlit.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_imageBlit.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_imageBlitBlend.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_imageBlitBlend.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_imageFace.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_imageFace.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_imagePrimitives.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_imagePrimitives.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_imagePrimitivesBlend.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_imagePrimitivesBlend.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_log.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_log.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_md5.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_md5.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_memory.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_memory.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\src\test\SDL_test_random.c">
+    <ClCompile Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\src\test\SDL_test_random.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-src\CMakeLists.txt" />
+    <CustomBuild Include="C:\dev\URPG Maker\build-local\_deps\sdl2-src\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{F0EFE517-62A7-3DFB-A636-BA1FD15D248F}</UniqueIdentifier>
+      <UniqueIdentifier>{C35EC068-DD33-3697-91A9-B40AB03F0702}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

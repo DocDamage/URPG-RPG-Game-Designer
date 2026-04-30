@@ -165,6 +165,20 @@ TEST_CASE("ExportValidator: Report JSON contains errors array and target name", 
     REQUIRE(report["errors"][0] == "Missing required file: index.html");
 }
 
+TEST_CASE("ExportValidator: report JSON emits sorted unique errors", "[export][validation][robustness]") {
+    ExportValidator validator;
+    std::vector<std::string> errors = {
+        "Missing required file: z",
+        "Missing required file: a",
+        "Missing required file: z",
+    };
+
+    const auto report = validator.buildReportJson(errors, ExportTarget::Windows_x64);
+
+    REQUIRE(report["passed"] == false);
+    REQUIRE(report["errors"] == nlohmann::json::array({"Missing required file: a", "Missing required file: z"}));
+}
+
 TEST_CASE("ExportValidator: directory report JSON surfaces bundle discovery summary", "[export][validation]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_validator_report_summary";
     std::filesystem::remove_all(base);

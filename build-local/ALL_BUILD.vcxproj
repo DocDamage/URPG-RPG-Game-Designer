@@ -25,7 +25,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1163958A-52E2-3302-A5B5-828EAFA4F5AD}</ProjectGuid>
+    <ProjectGuid>{780D2AF0-C97A-3B7D-8BEF-7856CCCA4A37}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <Platform>x64</Platform>
@@ -108,11 +108,11 @@
     </Midl>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Users\dferr\dev\URPG - RPG Game Maker\CMakeLists.txt">
+    <CustomBuild Include="C:\dev\URPG Maker\CMakeLists.txt">
       <UseUtf8Encoding>Always</UseUtf8Encoding>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/dferr/dev/URPG - RPG Game Maker/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/dev/URPG Maker/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local" --check-stamp-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/generate.stamp"
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/dev/URPG Maker" "-BC:/dev/URPG Maker/build-local" --check-stamp-file "C:/dev/URPG Maker/build-local/CMakeFiles/generate.stamp"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -120,12 +120,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\extras\Catch.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython\Support.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython3.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\dev\URPG Maker\build-local\_deps\catch2-src\extras\Catch.cmake;C:\dev\URPG Maker\cmake\packaging.cmake;C:\dev\URPG Maker\cmake\urpg_version.h.in;C:\dev\URPG Maker\resources\windows\urpg_editor.rc.in;C:\dev\URPG Maker\resources\windows\urpg_runtime.rc.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\dev\URPG Maker\build-local\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/dferr/dev/URPG - RPG Game Maker/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/dev/URPG Maker/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local" --check-stamp-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/generate.stamp"
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/dev/URPG Maker" "-BC:/dev/URPG Maker/build-local" --check-stamp-file "C:/dev/URPG Maker/build-local/CMakeFiles/generate.stamp"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -133,12 +133,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\extras\Catch.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython\Support.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython3.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\dev\URPG Maker\build-local\_deps\catch2-src\extras\Catch.cmake;C:\dev\URPG Maker\cmake\packaging.cmake;C:\dev\URPG Maker\cmake\urpg_version.h.in;C:\dev\URPG Maker\resources\windows\urpg_editor.rc.in;C:\dev\URPG Maker\resources\windows\urpg_runtime.rc.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\dev\URPG Maker\build-local\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/dferr/dev/URPG - RPG Game Maker/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/dev/URPG Maker/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local" --check-stamp-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/generate.stamp"
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/dev/URPG Maker" "-BC:/dev/URPG Maker/build-local" --check-stamp-file "C:/dev/URPG Maker/build-local/CMakeFiles/generate.stamp"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -146,12 +146,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\extras\Catch.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython\Support.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython3.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\dev\URPG Maker\build-local\_deps\catch2-src\extras\Catch.cmake;C:\dev\URPG Maker\cmake\packaging.cmake;C:\dev\URPG Maker\cmake\urpg_version.h.in;C:\dev\URPG Maker\resources\windows\urpg_editor.rc.in;C:\dev\URPG Maker\resources\windows\urpg_runtime.rc.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\dev\URPG Maker\build-local\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/dferr/dev/URPG - RPG Game Maker/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/dev/URPG Maker/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local" --check-stamp-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/generate.stamp"
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/dev/URPG Maker" "-BC:/dev/URPG Maker/build-local" --check-stamp-file "C:/dev/URPG Maker/build-local/CMakeFiles/generate.stamp"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -159,8 +159,8 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\extras\Catch.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython\Support.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython3.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\dev\URPG Maker\build-local\_deps\catch2-src\extras\Catch.cmake;C:\dev\URPG Maker\cmake\packaging.cmake;C:\dev\URPG Maker\cmake\urpg_version.h.in;C:\dev\URPG Maker\resources\windows\urpg_editor.rc.in;C:\dev\URPG Maker\resources\windows\urpg_runtime.rc.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\dev\URPG Maker\build-local\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
     </CustomBuild>
   </ItemGroup>
@@ -168,66 +168,200 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\ZERO_CHECK.vcxproj">
-      <Project>{1763C92B-4908-349B-9F74-29ED5C3E9B4B}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\ZERO_CHECK.vcxproj">
+      <Project>{CB475DBC-68D0-3608-9404-8D3DCC1F042C}</Project>
       <Name>ZERO_CHECK</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\src\Catch2.vcxproj">
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\catch2-build\src\Catch2.vcxproj">
       <Project>{8d538cbe-01bf-4a2e-a98a-6c368fdf13d7}</Project>
       <Name>Catch2</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\src\Catch2WithMain.vcxproj">
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\catch2-build\src\Catch2WithMain.vcxproj">
       <Project>{8bd3552a-2cfb-4a59-ab15-2031b97ada1e}</Project>
       <Name>Catch2WithMain</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\SDL2.vcxproj">
-      <Project>{ABA3159F-F6C2-3AFF-85E0-6A9595638B6D}</Project>
-      <Name>SDL2</Name>
-    </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\SDL2-static.vcxproj">
-      <Project>{E7925AF0-538D-3938-A5B8-BB09AE20B7DE}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\sdl2-build\SDL2-static.vcxproj">
+      <Project>{4531BB00-429F-362C-95F1-96817E35FB32}</Project>
       <Name>SDL2-static</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\SDL2_test.vcxproj">
-      <Project>{43273F26-F16A-32C4-8A94-6C27003966FF}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\sdl2-build\SDL2_test.vcxproj">
+      <Project>{AEEE08EB-EDFC-3BCA-943A-B1E54E216ACE}</Project>
       <Name>SDL2_test</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\SDL2main.vcxproj">
-      <Project>{A8FF9276-531F-32CE-8A76-377327715B28}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\sdl2-build\SDL2main.vcxproj">
+      <Project>{56B10007-C209-31FD-B002-4E26DB9F3B82}</Project>
       <Name>SDL2main</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_compat_tests.vcxproj">
-      <Project>{1DC113B6-31D0-3BC0-B4C4-1FAE3C985701}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\quickjs_ng-build\api-test.vcxproj">
+      <Project>{A98033ED-74D8-31E5-B136-83E954D68242}</Project>
+      <Name>api-test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\quickjs_ng-build\function_source.vcxproj">
+      <Project>{14D73D4D-41BF-354F-B6AC-51D124962993}</Project>
+      <Name>function_source</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\imgui.vcxproj">
+      <Project>{8751D5D7-7979-3C81-8C95-ABCB165811B6}</Project>
+      <Name>imgui</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\quickjs_ng-build\qjs.vcxproj">
+      <Project>{68EC1E26-C819-37B8-9A01-4DBD32840227}</Project>
+      <Name>qjs</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\quickjs_ng-build\qjs_exe.vcxproj">
+      <Project>{67F9143F-12D8-359C-A344-B611D2B8D742}</Project>
+      <Name>qjs_exe</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\quickjs_ng-build\qjsc.vcxproj">
+      <Project>{829A71C2-130A-3556-9C6A-5829A5DB74AA}</Project>
+      <Name>qjsc</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\quickjs_ng-build\run-test262.vcxproj">
+      <Project>{850FAC58-9F88-3B79-87E0-6975098CE4DA}</Project>
+      <Name>run-test262</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_audio.vcxproj">
+      <Project>{19CF2E19-87B1-3A91-A2B0-AA094DB52CA7}</Project>
+      <Name>urpg_audio</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_audio_objects.vcxproj">
+      <Project>{79355BD7-DFC1-3E35-8468-F3F096D8DC37}</Project>
+      <Name>urpg_audio_objects</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_audio_smoke.vcxproj">
+      <Project>{492EA388-FEF6-3075-818F-CE2D3E6136E1}</Project>
+      <Name>urpg_audio_smoke</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_compat_mz.vcxproj">
+      <Project>{A4BF82E4-95DF-3F8F-9CF4-8695F705B182}</Project>
+      <Name>urpg_compat_mz</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_compat_mz_objects.vcxproj">
+      <Project>{71E7C5E7-F0A6-34F3-8009-5A223AF82C34}</Project>
+      <Name>urpg_compat_mz_objects</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_compat_tests.vcxproj">
+      <Project>{6517B500-0F21-30D8-B210-73FDE9AF8A43}</Project>
       <Name>urpg_compat_tests</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_core.vcxproj">
-      <Project>{0173D180-03B5-3D1C-913C-966B3CAAA380}</Project>
-      <Name>urpg_core</Name>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_editor.vcxproj">
+      <Project>{AD4082E9-A16F-3844-BBBF-43DA26A0E5B7}</Project>
+      <Name>urpg_editor</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_integration_tests.vcxproj">
-      <Project>{29DDE16A-A298-3716-830F-FD5D41025DE5}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_editor_core.vcxproj">
+      <Project>{4C75EF6D-B160-3A0F-A1EC-14EB3C8602D6}</Project>
+      <Name>urpg_editor_core</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_editor_core_objects.vcxproj">
+      <Project>{989BE574-0300-3901-867A-DA9B9A28C9A7}</Project>
+      <Name>urpg_editor_core_objects</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_editor_panels.vcxproj">
+      <Project>{494D776F-D581-30ED-A9E5-9835355C47AB}</Project>
+      <Name>urpg_editor_panels</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_editor_panels_objects.vcxproj">
+      <Project>{033C2E4A-023D-3F6A-9C1E-78D0C8684A15}</Project>
+      <Name>urpg_editor_panels_objects</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_export.vcxproj">
+      <Project>{D85DAEF4-8EC3-3D34-8542-1FD54A37A069}</Project>
+      <Name>urpg_export</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_export_objects.vcxproj">
+      <Project>{BD9D01A2-BE99-3EA3-86C2-E07EFBF98DAB}</Project>
+      <Name>urpg_export_objects</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_export_smoke_app.vcxproj">
+      <Project>{85D4D941-0CBE-3113-8FC7-FB495199A6C2}</Project>
+      <Name>urpg_export_smoke_app</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_integration_tests.vcxproj">
+      <Project>{0675F94A-E789-34D2-82A1-739851655A35}</Project>
       <Name>urpg_integration_tests</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_migrate.vcxproj">
-      <Project>{A301C017-68AF-33BA-8E42-F5E09EDC49DC}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_migrate.vcxproj">
+      <Project>{B2723C50-CFAF-340F-AB4B-45AA0F32A45A}</Project>
       <Name>urpg_migrate</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_presentation_release_validation.vcxproj">
-      <Project>{1D6E2441-03C6-3C3D-83CA-7F85937FFC79}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_pack_cli.vcxproj">
+      <Project>{FAFDAFEB-6ADC-3539-B8E2-AF1A961631F1}</Project>
+      <Name>urpg_pack_cli</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_presentation_release_validation.vcxproj">
+      <Project>{8B97B3B5-4A9A-3040-848D-4126C430C7D8}</Project>
       <Name>urpg_presentation_release_validation</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_project_audit.vcxproj">
-      <Project>{802805D4-1B7F-3F54-A99F-FE7D5046A166}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_profile_arena.vcxproj">
+      <Project>{71F05871-CDBA-39AC-A680-53797DA0107B}</Project>
+      <Name>urpg_profile_arena</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_project_audit.vcxproj">
+      <Project>{28C3B174-4EB7-366F-BBEC-E8C551944C58}</Project>
       <Name>urpg_project_audit</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_snapshot_tests.vcxproj">
-      <Project>{D857EB2D-BB02-3EAD-BF0D-7ED46E149294}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_project_tools.vcxproj">
+      <Project>{818C1E26-1A25-3C8B-9FD4-9A9B35D97DF4}</Project>
+      <Name>urpg_project_tools</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_project_tools_objects.vcxproj">
+      <Project>{47F6EFAA-F089-3F6B-9DFC-62C915F5E902}</Project>
+      <Name>urpg_project_tools_objects</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_rendering.vcxproj">
+      <Project>{40FF3A63-C928-31F7-BE5E-690EA58F939F}</Project>
+      <Name>urpg_rendering</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_rendering_objects.vcxproj">
+      <Project>{DBB647EC-BFB0-395E-98A6-1538356D0968}</Project>
+      <Name>urpg_rendering_objects</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_runtime.vcxproj">
+      <Project>{717067C1-C4CD-3CE3-B2B4-4B97B0641FB8}</Project>
+      <Name>urpg_runtime</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_runtime_core.vcxproj">
+      <Project>{14B14383-5F55-3358-858A-6EEB64B912CE}</Project>
+      <Name>urpg_runtime_core</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_runtime_core_objects.vcxproj">
+      <Project>{023044F8-E665-3137-9E12-EB2C9B4C5B40}</Project>
+      <Name>urpg_runtime_core_objects</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_snapshot_tests.vcxproj">
+      <Project>{1D451DDF-406B-33C7-99F2-D836B4098035}</Project>
       <Name>urpg_snapshot_tests</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.vcxproj">
-      <Project>{01D864BE-1635-35DB-B569-A2B2B1D7621A}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_testing_support.vcxproj">
+      <Project>{F0A4BD6F-DD63-3329-BCBE-7F5856277CB6}</Project>
+      <Name>urpg_testing_support</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_testing_support_objects.vcxproj">
+      <Project>{5C0050D4-B47C-338D-8160-BBEEA4CFE338}</Project>
+      <Name>urpg_testing_support_objects</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_tests.vcxproj">
+      <Project>{4ACB6CBB-7CB7-3986-A28D-4CCBDE61A323}</Project>
       <Name>urpg_tests</Name>
     </ProjectReference>
   </ItemGroup>

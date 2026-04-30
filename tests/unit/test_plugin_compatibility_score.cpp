@@ -54,6 +54,36 @@ TEST_CASE("PluginCompatibilityScore reports missing dependencies exactly", "[plu
     REQUIRE(addon.issues[0].target == "MissingTarget");
 }
 
+TEST_CASE("PluginCompatibilityScore normalizes malformed dependency metadata",
+          "[plugin][compatibility][robustness]") {
+    PluginCompatibilityAnalysisInput input;
+    input.manifests = {
+        manifest({
+            {"name", "Addon"},
+            {"dependencies",
+             nlohmann::json::array({
+                 "CoreEngine",
+                 " ",
+                 "CoreEngine",
+                 nlohmann::json{{"id", "MissingTarget"}},
+                 nlohmann::json{{"id", "MissingTarget"}, {"optional", true}},
+                 nlohmann::json{{"id", ""}},
+                 7,
+             })},
+        }),
+        manifest({{"name", "CoreEngine"}}),
+    };
+
+    const auto report = AnalyzePluginCompatibility(input);
+
+    REQUIRE(report.dependency_edges.size() == 2);
+    REQUIRE(report.dependency_edges[0].to_plugin == "CoreEngine");
+    REQUIRE(report.dependency_edges[1].to_plugin == "MissingTarget");
+    const auto& addon = findPlugin(report, "Addon");
+    REQUIRE(addon.dependencies == std::vector<std::string>{"CoreEngine", "MissingTarget"});
+    REQUIRE(addon.missing_dependencies == std::vector<std::string>{"MissingTarget"});
+}
+
 TEST_CASE("PluginCompatibilityScore turns denied sandbox permission into blocking issue",
           "[plugin][compatibility][ffs04]") {
     PluginCompatibilityAnalysisInput input;

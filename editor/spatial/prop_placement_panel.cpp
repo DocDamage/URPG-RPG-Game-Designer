@@ -16,7 +16,15 @@ void PropPlacementPanel::AddProp(const std::string& assetId, float x, float y, f
         return;
     }
 
-    m_targetOverlay->props.push_back({assetId, x, y, z, 0.0f, 1.0f});
+    int32_t assetInstanceIndex = 0;
+    for (const auto& prop : m_targetOverlay->props) {
+        if (prop.assetId == assetId) {
+            ++assetInstanceIndex;
+        }
+    }
+
+    const std::string instanceId = m_targetOverlay->mapId + ":" + assetId + ":" + std::to_string(assetInstanceIndex);
+    m_targetOverlay->props.push_back({instanceId, assetId, x, y, z, 0.0f, 1.0f});
     captureRenderSnapshot();
 }
 

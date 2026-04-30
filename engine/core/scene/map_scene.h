@@ -62,6 +62,7 @@ class MapScene : public GameScene {
         int region_min_y = -1;
         int region_max_x = -1;
         int region_max_y = -1;
+        std::string prop_instance_id;
         std::string prop_asset_id;
     };
 
@@ -181,6 +182,9 @@ class MapScene : public GameScene {
                                     const std::string& asset_path, const urpg::ability::AuthoredAbilityAsset& asset);
     bool bindPropInteractionAbility(const std::string& trigger_id, const std::string& prop_asset_id,
                                     const std::string& asset_path, const urpg::ability::AuthoredAbilityAsset& asset);
+    bool bindPropInstanceInteractionAbility(const std::string& trigger_id, const std::string& prop_instance_id,
+                                            const std::string& prop_asset_id, const std::string& asset_path,
+                                            const urpg::ability::AuthoredAbilityAsset& asset);
     bool bindRegionInteractionAbility(const std::string& trigger_id, int min_tile_x, int min_tile_y, int max_tile_x,
                                       int max_tile_y, const std::string& asset_path,
                                       const urpg::ability::AuthoredAbilityAsset& asset);
@@ -191,6 +195,8 @@ class MapScene : public GameScene {
     bool activateInteractionAbility(const std::string& trigger_id);
     bool activateInteractionAbilityAtTile(const std::string& trigger_id, int tile_x, int tile_y);
     bool activateInteractionAbilityForProp(const std::string& trigger_id, const std::string& prop_asset_id);
+    bool activateInteractionAbilityForPropInstance(const std::string& trigger_id, const std::string& prop_instance_id,
+                                                   const std::string& prop_asset_id = "");
     bool hasInteractionAbilityBinding(const std::string& trigger_id) const;
     const std::vector<InteractionAbilityBinding>& interactionAbilityBindings() const {
         return m_interaction_ability_bindings;
@@ -227,7 +233,6 @@ class MapScene : public GameScene {
     std::vector<InteractionAbilityBinding> m_interaction_ability_bindings;
 };
 
-MapAssetReferences loadRuntimeMapAssetReferences(const std::filesystem::path& project_root,
-                                                 const std::string& map_id);
+MapAssetReferences loadRuntimeMapAssetReferences(const std::filesystem::path& project_root, const std::string& map_id);
 
 } // namespace urpg::scene

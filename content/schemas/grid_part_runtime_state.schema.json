@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/grid_part_runtime_state.schema.json",
+  "title": "Grid Part Runtime State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "states"],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "states": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/instanceState"
+      }
+    }
+  },
+  "$defs": {
+    "instanceState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["instanceId"],
+      "properties": {
+        "instanceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "visible": {
+          "type": "boolean",
+          "default": true
+        },
+        "consumed": {
+          "type": "boolean",
+          "default": false
+        },
+        "state": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -16,6 +16,34 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `grid_part_authoring` (`grid_part_authoring.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-29`
+- Summary: initial schema for persisted grid-part authoring documents, including stable placed-part IDs, grid coordinates, lock/hidden flags, properties, and chunk size
+- Migration Impact: none; additive schema for the new grid-part authoring document serializer
+
+### `grid_part_catalog` (`grid_part_catalog.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-29`
+- Summary: initial schema for grid-part catalog definitions used by maker-style map authoring palettes
+- Migration Impact: none; additive schema for the new grid-part authoring layer
+
+### `grid_part_runtime_state` (`grid_part_runtime_state.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-29`
+- Summary: initial schema for instance-id keyed grid-part runtime state such as opened chests, collected quest items, unlocked doors, defeated enemies, and fired triggers
+- Migration Impact: none; additive schema for the new grid-part save/runtime state layer
+
+### `presentation_schema` (`presentation_schema.json`)
+
+- Version: `1.1.0`
+- Date: `2026-04-29`
+- Summary: adds optional `instanceId` to spatial prop instances so prop bindings and runtime state can target a stable placed prop instead of only an asset id
+- Migration Impact: additive optional field; legacy prop records without `instanceId` are upgraded deterministically from map id, asset id, and per-asset index
+
 ### `export_preview` (`export_preview.schema.json`)
 
 - Version: `1.1.0`

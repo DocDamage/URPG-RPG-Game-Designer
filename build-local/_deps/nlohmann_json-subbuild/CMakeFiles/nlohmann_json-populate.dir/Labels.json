@@ -2,37 +2,37 @@
 	"sources" : 
 	[
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/nlohmann_json-populate"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/nlohmann_json-populate"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/ea1585637c5484c047bf98ca1237334b/nlohmann_json-populate.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/75e874cef4e68c06eff501e91e51457f/nlohmann_json-populate.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/4becfcfe7ef06cc90a5a97448f5d0f08/nlohmann_json-populate-complete.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/2e799b77feada26f6ad721d352410cd7/nlohmann_json-populate-complete.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/0e1f52ad717abe3801855423c3dc25df/nlohmann_json-populate-build.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/ac519b1ec3ce0b14c862da811ae460f9/nlohmann_json-populate-build.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/0e1f52ad717abe3801855423c3dc25df/nlohmann_json-populate-configure.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/ac519b1ec3ce0b14c862da811ae460f9/nlohmann_json-populate-configure.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/0e1f52ad717abe3801855423c3dc25df/nlohmann_json-populate-download.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/ac519b1ec3ce0b14c862da811ae460f9/nlohmann_json-populate-download.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/0e1f52ad717abe3801855423c3dc25df/nlohmann_json-populate-install.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/ac519b1ec3ce0b14c862da811ae460f9/nlohmann_json-populate-install.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/0e1f52ad717abe3801855423c3dc25df/nlohmann_json-populate-mkdir.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/ac519b1ec3ce0b14c862da811ae460f9/nlohmann_json-populate-mkdir.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/0e1f52ad717abe3801855423c3dc25df/nlohmann_json-populate-patch.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/ac519b1ec3ce0b14c862da811ae460f9/nlohmann_json-populate-patch.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/0e1f52ad717abe3801855423c3dc25df/nlohmann_json-populate-test.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/ac519b1ec3ce0b14c862da811ae460f9/nlohmann_json-populate-test.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/0e1f52ad717abe3801855423c3dc25df/nlohmann_json-populate-update.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/nlohmann_json-subbuild/CMakeFiles/ac519b1ec3ce0b14c862da811ae460f9/nlohmann_json-populate-update.rule"
 		}
 	],
 	"target" : 

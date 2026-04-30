@@ -28,8 +28,8 @@ set_property(GLOBAL PROPERTY _CMAKE_FindGit_GIT_EXECUTABLE_VERSION
 include(ExternalProject)
 ExternalProject_Add(sdl2-populate
                      "UPDATE_DISCONNECTED" "False" "GIT_REPOSITORY" "https://github.com/libsdl-org/SDL.git" "EXTERNALPROJECT_INTERNAL_ARGUMENT_SEPARATOR" "GIT_TAG" "release-2.30.0"
-                    SOURCE_DIR          "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-src"
-                    BINARY_DIR          "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-build"
+                    SOURCE_DIR          "C:/dev/URPG Maker/build-local/_deps/sdl2-src"
+                    BINARY_DIR          "C:/dev/URPG Maker/build-local/_deps/sdl2-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

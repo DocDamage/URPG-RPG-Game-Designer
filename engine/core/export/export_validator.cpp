@@ -74,6 +74,12 @@ std::vector<std::uint8_t> readFileBytes(const std::filesystem::path& path) {
     return std::vector<std::uint8_t>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
+std::vector<std::string> normalizedErrors(std::vector<std::string> errors) {
+    std::sort(errors.begin(), errors.end());
+    errors.erase(std::unique(errors.begin(), errors.end()), errors.end());
+    return errors;
+}
+
 } // namespace
 
 namespace urpg::exporting {
@@ -145,10 +151,11 @@ std::vector<PlatformRequirement> ExportValidator::getRequirementsForTarget(tools
 
 nlohmann::json ExportValidator::buildReportJson(const std::vector<std::string>& errors,
                                                 tools::ExportTarget target) const {
+    const auto normalized = normalizedErrors(errors);
     nlohmann::json report;
     report["target"] = targetToString(target);
-    report["passed"] = errors.empty();
-    report["errors"] = errors;
+    report["passed"] = normalized.empty();
+    report["errors"] = normalized;
     return report;
 }
 

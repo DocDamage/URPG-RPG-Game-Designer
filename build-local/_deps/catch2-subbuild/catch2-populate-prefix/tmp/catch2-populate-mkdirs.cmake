@@ -6,22 +6,22 @@ cmake_minimum_required(VERSION ${CMAKE_VERSION}) # this file comes with cmake
 # If CMAKE_DISABLE_SOURCE_CHANGES is set to true and the source directory is an
 # existing directory in our source tree, calling file(MAKE_DIRECTORY) on it
 # would cause a fatal error, even though it would be a no-op.
-if(NOT EXISTS "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-src")
-  file(MAKE_DIRECTORY "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-src")
+if(NOT EXISTS "C:/dev/URPG Maker/build-local/_deps/catch2-src")
+  file(MAKE_DIRECTORY "C:/dev/URPG Maker/build-local/_deps/catch2-src")
 endif()
 file(MAKE_DIRECTORY
-  "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-build"
-  "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix"
-  "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/tmp"
-  "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp"
-  "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src"
-  "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp"
+  "C:/dev/URPG Maker/build-local/_deps/catch2-build"
+  "C:/dev/URPG Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix"
+  "C:/dev/URPG Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/tmp"
+  "C:/dev/URPG Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp"
+  "C:/dev/URPG Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src"
+  "C:/dev/URPG Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp"
 )
 
 set(configSubDirs Debug)
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/${subDir}")
+    file(MAKE_DIRECTORY "C:/dev/URPG Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "C:/dev/URPG Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp${cfgdir}") # cfgdir has leading slash
 endif()

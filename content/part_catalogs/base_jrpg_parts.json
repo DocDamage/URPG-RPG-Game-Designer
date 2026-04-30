@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "base_jrpg_parts",
+  "displayName": "Base JRPG Grid Parts",
+  "description": "Starter top-down JRPG parts for grid-part authoring.",
+  "parts": [
+    {
+      "partId": "cutscene.zone.basic",
+      "displayName": "Cutscene Zone",
+      "description": "Rectangular zone that starts a map event or cutscene.",
+      "category": "CutsceneZone",
+      "defaultLayer": "Region",
+      "collisionPolicy": "TriggerOnly",
+      "supportedRulesets": ["TopDownJRPG", "TownHub", "DungeonRoomBuilder"],
+      "footprint": {
+        "width": 2,
+        "height": 2,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "tags": ["event", "region", "trigger"],
+      "defaultProperties": {
+        "eventId": ""
+      }
+    },
+    {
+      "partId": "door.locked.wood",
+      "displayName": "Locked Wooden Door",
+      "description": "Solid door that can be unlocked by key or switch state.",
+      "category": "Door",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": ["TopDownJRPG", "DungeonRoomBuilder"],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "prop.door.wood.locked",
+      "tags": ["door", "lock", "interactable"],
+      "defaultProperties": {
+        "locked": "true",
+        "requiredKey": ""
+      }
+    },
+    {
+      "partId": "enemy.slime",
+      "displayName": "Slime",
+      "description": "Basic enemy spawn for early JRPG maps.",
+      "category": "Enemy",
+      "defaultLayer": "Actor",
+      "collisionPolicy": "None",
+      "supportedRulesets": ["TopDownJRPG", "DungeonRoomBuilder", "BattleArena"],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "enemy.slime",
+      "tags": ["enemy", "starter"],
+      "defaultProperties": {
+        "enemyId": "slime"
+      }
+    },
+    {
+      "partId": "hazard.spikes",
+      "displayName": "Floor Spikes",
+      "description": "Damaging floor hazard.",
+      "category": "Hazard",
+      "defaultLayer": "Region",
+      "collisionPolicy": "Hazard",
+      "supportedRulesets": ["TopDownJRPG", "DungeonRoomBuilder"],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "hazard.spikes",
+      "tags": ["hazard", "damage"],
+      "defaultProperties": {
+        "damage": "10"
+      }
+    },
+    {
+      "partId": "npc.villager",
+      "displayName": "Villager NPC",
+      "description": "Basic talkable NPC placeholder.",
+      "category": "Npc",
+      "defaultLayer": "Actor",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": ["TopDownJRPG", "TownHub", "DungeonRoomBuilder"],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "npc.villager",
+      "tags": ["npc", "dialogue"],
+      "defaultProperties": {
+        "dialogueId": ""
+      }
+    },
+    {
+      "partId": "save.crystal",
+      "displayName": "Save Crystal",
+      "description": "Interactable save point.",
+      "category": "SavePoint",
+      "defaultLayer": "Object",
+      "collisionPolicy": "None",
+      "supportedRulesets": ["TopDownJRPG", "TownHub", "DungeonRoomBuilder"],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "prop.save_crystal",
+      "tags": ["save", "interactable"],
+      "defaultProperties": {
+        "saveEnabled": "true"
+      }
+    },
+    {
+      "partId": "shop.counter.basic",
+      "displayName": "Shop Counter",
+      "description": "Shop interaction point with a table dependency.",
+      "category": "Shop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": ["TopDownJRPG", "TownHub"],
+      "footprint": {
+        "width": 2,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "prop.shop_counter",
+      "tags": ["shop", "vendor", "interactable"],
+      "defaultProperties": {
+        "shopTableId": ""
+      }
+    },
+    {
+      "partId": "tile.grass",
+      "displayName": "Grass Tile",
+      "description": "Passable grass terrain tile.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": ["TopDownJRPG", "TownHub", "WorldMap"],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "tileId": 1,
+      "tags": ["terrain", "grass"]
+    },
+    {
+      "partId": "treasure.chest.basic",
+      "displayName": "Treasure Chest",
+      "description": "Interactable loot chest with instance runtime state.",
+      "category": "TreasureChest",
+      "defaultLayer": "Object",
+      "collisionPolicy": "None",
+      "supportedRulesets": ["TopDownJRPG", "DungeonRoomBuilder"],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "prop.chest.basic",
+      "tags": ["loot", "interactable", "stateful"],
+      "defaultProperties": {
+        "lootTableId": ""
+      }
+    },
+    {
+      "partId": "wall.stone",
+      "displayName": "Stone Wall",
+      "description": "Solid wall tile that blocks navigation.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": ["TopDownJRPG", "DungeonRoomBuilder"],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "tileId": 2,
+      "tags": ["terrain", "wall", "collision"]
+    }
+  ]
+}

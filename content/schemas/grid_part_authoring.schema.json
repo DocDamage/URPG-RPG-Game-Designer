@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/grid_part_authoring.schema.json",
+  "title": "Grid Part Authoring Document",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "mapId", "width", "height", "parts"],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "mapId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "width": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "height": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "chunkSize": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "parts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/placedPart"
+      }
+    }
+  },
+  "$defs": {
+    "placedPart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["instanceId", "partId", "category", "layer", "x", "y", "width", "height"],
+      "properties": {
+        "instanceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "partId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "Tile",
+            "Wall",
+            "Platform",
+            "Hazard",
+            "Door",
+            "Npc",
+            "Enemy",
+            "TreasureChest",
+            "SavePoint",
+            "Trigger",
+            "CutsceneZone",
+            "Shop",
+            "QuestItem",
+            "Prop",
+            "LevelBlock"
+          ]
+        },
+        "layer": {
+          "type": "string",
+          "enum": ["Terrain", "Decoration", "Collision", "Object", "Actor", "Trigger", "Region", "Overlay"]
+        },
+        "x": {
+          "type": "integer"
+        },
+        "y": {
+          "type": "integer"
+        },
+        "z": {
+          "type": "integer"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rotY": {
+          "type": "number"
+        },
+        "scale": {
+          "type": "number"
+        },
+        "locked": {
+          "type": "boolean"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

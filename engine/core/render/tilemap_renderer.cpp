@@ -1,15 +1,20 @@
 #include "tilemap_renderer.h"
 
+#include <algorithm>
+
 namespace urpg {
 
 TilemapRenderer::TilemapRenderer(int width, int height, int tileSize)
-    : m_width(width), m_height(height), m_tileSize(tileSize) {}
+    : m_width(std::max(0, width)), m_height(std::max(0, height)), m_tileSize(std::max(1, tileSize)) {}
 
 void TilemapRenderer::setTileset(const std::shared_ptr<Texture>& tileset) {
     m_tileset = tileset;
 }
 
 void TilemapRenderer::setLayer(int index, const std::vector<int>& data) {
+    if (index < 0) {
+        return;
+    }
     if (index >= (int)m_layers.size()) {
         m_layers.resize(index + 1);
     }
@@ -23,9 +28,12 @@ void TilemapRenderer::draw(SpriteBatcher& batcher) {
     uint32_t texID = m_tileset->getId();
     int texW = m_tileset->getWidth();
     int texH = m_tileset->getHeight();
+    if (texW <= 0 || texH <= 0) {
+        return;
+    }
 
     // Calculate how many tiles wide the tileset is
-    int tilesetWidthInTiles = texW / m_tileSize;
+    int tilesetWidthInTiles = std::max(1, texW / m_tileSize);
 
     for (int layerIdx = 0; layerIdx < (int)m_layers.size(); ++layerIdx) {
         const auto& layer = m_layers[layerIdx];

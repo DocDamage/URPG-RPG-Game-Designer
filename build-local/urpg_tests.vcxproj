@@ -22,7 +22,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{01D864BE-1635-35DB-B569-A2B2B1D7621A}</ProjectGuid>
+    <ProjectGuid>{4ACB6CBB-7CB7-3986-A28D-4CCBDE61A323}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <Platform>x64</Platform>
@@ -59,25 +59,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\Debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\dev\URPG Maker\build-local\Debug\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">urpg_tests.dir\Debug\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">urpg_tests</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\Release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\dev\URPG Maker\build-local\Release\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">urpg_tests.dir\Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">urpg_tests</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\MinSizeRel\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\dev\URPG Maker\build-local\MinSizeRel\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">urpg_tests.dir\MinSizeRel\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">urpg_tests</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\RelWithDebInfo\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\dev\URPG Maker\build-local\RelWithDebInfo\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">urpg_tests.dir\RelWithDebInfo\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">urpg_tests</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
@@ -86,7 +86,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-debug\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-debug\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /FS</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -106,16 +106,17 @@
       <SupportJustMyCode></SupportJustMyCode>
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;URPG_SOURCE_DIR="C:/Users/dferr/dev/URPG - RPG Game Maker";CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;URPG_SOURCE_DIR="C:/dev/URPG Maker";URPG_PROJECT_AUDIT_PATH="C:/dev/URPG Maker/build-local/Debug/urpg_project_audit.exe";URPG_POWERSHELL_EXE="C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe";URPG_EXPORT_SMOKE_APP_PATH="C:/dev/URPG Maker/build-local/Debug/urpg_export_smoke_app.exe";URPG_PACK_CLI_PATH="C:/dev/URPG Maker/build-local/Debug/urpg_pack_cli.exe";URPG_QUICKJS_ENABLED=1;URPG_IMGUI_ENABLED=1;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;URPG_SOURCE_DIR=\"C:/Users/dferr/dev/URPG - RPG Game Maker\";CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-debug\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;URPG_SOURCE_DIR=\"C:/dev/URPG Maker\";URPG_PROJECT_AUDIT_PATH=\"C:/dev/URPG Maker/build-local/Debug/urpg_project_audit.exe\";URPG_POWERSHELL_EXE=\"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe\";URPG_EXPORT_SMOKE_APP_PATH=\"C:/dev/URPG Maker/build-local/Debug/urpg_export_smoke_app.exe\";URPG_PACK_CLI_PATH=\"C:/dev/URPG Maker/build-local/Debug/urpg_pack_cli.exe\";URPG_QUICKJS_ENABLED=1;URPG_IMGUI_ENABLED=1;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-debug\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-debug\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-debug\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -125,7 +126,7 @@
     <PreLinkEvent>
       <Message></Message>
       <Command>setlocal
-"C:\Program Files\PowerShell\7\pwsh.exe" -NoProfile -ExecutionPolicy Bypass -File "C:/Users/dferr/dev/URPG - RPG Game Maker/tools/ci/unlock-test-binary.ps1" -ProcessName urpg_tests -BinaryPath "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/Debug/urpg_tests.exe"
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:/dev/URPG Maker/tools/ci/unlock-test-binary.ps1" -ProcessName urpg_tests -BinaryPath "C:/dev/URPG Maker/build-local/Debug/urpg_tests.exe"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -135,16 +136,16 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>Debug\urpg_core.lib;_deps\catch2-build\src\Debug\Catch2Maind.lib;_deps\sdl2-build\Debug\SDL2d.lib;opengl32.lib;_deps\catch2-build\src\Debug\Catch2d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>_deps\catch2-build\src\Debug\Catch2Maind.lib;Debug\urpg_editor_panels.lib;Debug\urpg_compat_mz.lib;Debug\urpg_audio.lib;Debug\urpg_project_tools.lib;Debug\urpg_export.lib;Debug\urpg_editor_core.lib;Debug\urpg_testing_support.lib;Debug\urpg_rendering.lib;Debug\urpg_runtime_core.lib;Debug\imgui.lib;_deps\quickjs_ng-build\Debug\qjs.lib;_deps\sdl2-build\Debug\SDL2-staticd.lib;kernel32.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;advapi32.lib;setupapi.lib;shell32.lib;dinput8.lib;opengl32.lib;_deps\catch2-build\src\Debug\Catch2d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
-      <ImportLibrary>C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/Debug/urpg_tests.lib</ImportLibrary>
+      <ImportLibrary>C:/dev/URPG Maker/build-local/Debug/urpg_tests.lib</ImportLibrary>
       <LinkErrorReporting></LinkErrorReporting>
-      <ProgramDataBaseFile>C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/Debug/urpg_tests.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>C:/dev/URPG Maker/build-local/Debug/urpg_tests.pdb</ProgramDataBaseFile>
       <RandomizedBaseAddress></RandomizedBaseAddress>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -154,7 +155,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-release\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-release\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /FS</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -173,18 +174,19 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <SupportJustMyCode></SupportJustMyCode>
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR="C:/Users/dferr/dev/URPG - RPG Game Maker";CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR="C:/dev/URPG Maker";URPG_PROJECT_AUDIT_PATH="C:/dev/URPG Maker/build-local/Release/urpg_project_audit.exe";URPG_POWERSHELL_EXE="C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe";URPG_EXPORT_SMOKE_APP_PATH="C:/dev/URPG Maker/build-local/Release/urpg_export_smoke_app.exe";URPG_PACK_CLI_PATH="C:/dev/URPG Maker/build-local/Release/urpg_pack_cli.exe";URPG_QUICKJS_ENABLED=1;URPG_IMGUI_ENABLED=1;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR=\"C:/Users/dferr/dev/URPG - RPG Game Maker\";CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-release\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR=\"C:/dev/URPG Maker\";URPG_PROJECT_AUDIT_PATH=\"C:/dev/URPG Maker/build-local/Release/urpg_project_audit.exe\";URPG_POWERSHELL_EXE=\"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe\";URPG_EXPORT_SMOKE_APP_PATH=\"C:/dev/URPG Maker/build-local/Release/urpg_export_smoke_app.exe\";URPG_PACK_CLI_PATH=\"C:/dev/URPG Maker/build-local/Release/urpg_pack_cli.exe\";URPG_QUICKJS_ENABLED=1;URPG_IMGUI_ENABLED=1;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-release\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-release\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-release\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -194,7 +196,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <PreLinkEvent>
       <Message></Message>
       <Command>setlocal
-"C:\Program Files\PowerShell\7\pwsh.exe" -NoProfile -ExecutionPolicy Bypass -File "C:/Users/dferr/dev/URPG - RPG Game Maker/tools/ci/unlock-test-binary.ps1" -ProcessName urpg_tests -BinaryPath "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/Release/urpg_tests.exe"
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:/dev/URPG Maker/tools/ci/unlock-test-binary.ps1" -ProcessName urpg_tests -BinaryPath "C:/dev/URPG Maker/build-local/Release/urpg_tests.exe"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -204,16 +206,16 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>Release\urpg_core.lib;_deps\catch2-build\src\Release\Catch2Main.lib;_deps\sdl2-build\Release\SDL2.lib;opengl32.lib;_deps\catch2-build\src\Release\Catch2.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>_deps\catch2-build\src\Release\Catch2Main.lib;Release\urpg_editor_panels.lib;Release\urpg_compat_mz.lib;Release\urpg_audio.lib;Release\urpg_project_tools.lib;Release\urpg_export.lib;Release\urpg_editor_core.lib;Release\urpg_testing_support.lib;Release\urpg_rendering.lib;Release\urpg_runtime_core.lib;Release\imgui.lib;_deps\quickjs_ng-build\Release\qjs.lib;_deps\sdl2-build\Release\SDL2-static.lib;kernel32.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;advapi32.lib;setupapi.lib;shell32.lib;dinput8.lib;opengl32.lib;_deps\catch2-build\src\Release\Catch2.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
-      <ImportLibrary>C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/Release/urpg_tests.lib</ImportLibrary>
+      <ImportLibrary>C:/dev/URPG Maker/build-local/Release/urpg_tests.lib</ImportLibrary>
       <LinkErrorReporting></LinkErrorReporting>
-      <ProgramDataBaseFile>C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/Release/urpg_tests.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>C:/dev/URPG Maker/build-local/Release/urpg_tests.pdb</ProgramDataBaseFile>
       <RandomizedBaseAddress></RandomizedBaseAddress>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -223,7 +225,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-minsizerel\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-minsizerel\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /FS</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -242,18 +244,19 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <SupportJustMyCode></SupportJustMyCode>
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR="C:/Users/dferr/dev/URPG - RPG Game Maker";CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR="C:/dev/URPG Maker";URPG_PROJECT_AUDIT_PATH="C:/dev/URPG Maker/build-local/MinSizeRel/urpg_project_audit.exe";URPG_POWERSHELL_EXE="C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe";URPG_EXPORT_SMOKE_APP_PATH="C:/dev/URPG Maker/build-local/MinSizeRel/urpg_export_smoke_app.exe";URPG_PACK_CLI_PATH="C:/dev/URPG Maker/build-local/MinSizeRel/urpg_pack_cli.exe";URPG_QUICKJS_ENABLED=1;URPG_IMGUI_ENABLED=1;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR=\"C:/Users/dferr/dev/URPG - RPG Game Maker\";CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-minsizerel\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR=\"C:/dev/URPG Maker\";URPG_PROJECT_AUDIT_PATH=\"C:/dev/URPG Maker/build-local/MinSizeRel/urpg_project_audit.exe\";URPG_POWERSHELL_EXE=\"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe\";URPG_EXPORT_SMOKE_APP_PATH=\"C:/dev/URPG Maker/build-local/MinSizeRel/urpg_export_smoke_app.exe\";URPG_PACK_CLI_PATH=\"C:/dev/URPG Maker/build-local/MinSizeRel/urpg_pack_cli.exe\";URPG_QUICKJS_ENABLED=1;URPG_IMGUI_ENABLED=1;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-minsizerel\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-minsizerel\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-minsizerel\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -263,7 +266,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <PreLinkEvent>
       <Message></Message>
       <Command>setlocal
-"C:\Program Files\PowerShell\7\pwsh.exe" -NoProfile -ExecutionPolicy Bypass -File "C:/Users/dferr/dev/URPG - RPG Game Maker/tools/ci/unlock-test-binary.ps1" -ProcessName urpg_tests -BinaryPath "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/MinSizeRel/urpg_tests.exe"
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:/dev/URPG Maker/tools/ci/unlock-test-binary.ps1" -ProcessName urpg_tests -BinaryPath "C:/dev/URPG Maker/build-local/MinSizeRel/urpg_tests.exe"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -273,16 +276,16 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>MinSizeRel\urpg_core.lib;_deps\catch2-build\src\MinSizeRel\Catch2Main.lib;_deps\sdl2-build\MinSizeRel\SDL2.lib;opengl32.lib;_deps\catch2-build\src\MinSizeRel\Catch2.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>_deps\catch2-build\src\MinSizeRel\Catch2Main.lib;MinSizeRel\urpg_editor_panels.lib;MinSizeRel\urpg_compat_mz.lib;MinSizeRel\urpg_audio.lib;MinSizeRel\urpg_project_tools.lib;MinSizeRel\urpg_export.lib;MinSizeRel\urpg_editor_core.lib;MinSizeRel\urpg_testing_support.lib;MinSizeRel\urpg_rendering.lib;MinSizeRel\urpg_runtime_core.lib;MinSizeRel\imgui.lib;_deps\quickjs_ng-build\MinSizeRel\qjs.lib;_deps\sdl2-build\MinSizeRel\SDL2-static.lib;kernel32.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;advapi32.lib;setupapi.lib;shell32.lib;dinput8.lib;opengl32.lib;_deps\catch2-build\src\MinSizeRel\Catch2.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
-      <ImportLibrary>C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/MinSizeRel/urpg_tests.lib</ImportLibrary>
+      <ImportLibrary>C:/dev/URPG Maker/build-local/MinSizeRel/urpg_tests.lib</ImportLibrary>
       <LinkErrorReporting></LinkErrorReporting>
-      <ProgramDataBaseFile>C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/MinSizeRel/urpg_tests.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>C:/dev/URPG Maker/build-local/MinSizeRel/urpg_tests.pdb</ProgramDataBaseFile>
       <RandomizedBaseAddress></RandomizedBaseAddress>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -292,7 +295,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-relwithdebinfo\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-relwithdebinfo\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /FS</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -312,16 +315,17 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <SupportJustMyCode></SupportJustMyCode>
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR="C:/Users/dferr/dev/URPG - RPG Game Maker";CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR="C:/dev/URPG Maker";URPG_PROJECT_AUDIT_PATH="C:/dev/URPG Maker/build-local/RelWithDebInfo/urpg_project_audit.exe";URPG_POWERSHELL_EXE="C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe";URPG_EXPORT_SMOKE_APP_PATH="C:/dev/URPG Maker/build-local/RelWithDebInfo/urpg_export_smoke_app.exe";URPG_PACK_CLI_PATH="C:/dev/URPG Maker/build-local/RelWithDebInfo/urpg_pack_cli.exe";URPG_QUICKJS_ENABLED=1;URPG_IMGUI_ENABLED=1;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR=\"C:/Users/dferr/dev/URPG - RPG Game Maker\";CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-relwithdebinfo\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;URPG_SOURCE_DIR=\"C:/dev/URPG Maker\";URPG_PROJECT_AUDIT_PATH=\"C:/dev/URPG Maker/build-local/RelWithDebInfo/urpg_project_audit.exe\";URPG_POWERSHELL_EXE=\"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe\";URPG_EXPORT_SMOKE_APP_PATH=\"C:/dev/URPG Maker/build-local/RelWithDebInfo/urpg_export_smoke_app.exe\";URPG_PACK_CLI_PATH=\"C:/dev/URPG Maker/build-local/RelWithDebInfo/urpg_pack_cli.exe\";URPG_QUICKJS_ENABLED=1;URPG_IMGUI_ENABLED=1;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-relwithdebinfo\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\dferr\dev\URPG - RPG Game Maker;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\include-config-relwithdebinfo\SDL2;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\src\catch2\..;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\URPG Maker;C:\dev\URPG Maker\build-local\generated;C:\dev\URPG Maker\build-local\_deps\stb-src;C:\dev\URPG Maker\build-local\_deps\imgui-src;C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\include;C:\dev\URPG Maker\build-local\_deps\quickjs_ng-src;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include\SDL2;C:\dev\URPG Maker\build-local\_deps\sdl2-build\include-config-relwithdebinfo\SDL2;C:\dev\URPG Maker\build-local\_deps\catch2-src\src\catch2\..;C:\dev\URPG Maker\build-local\_deps\catch2-build\generated-includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -331,7 +335,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <PreLinkEvent>
       <Message></Message>
       <Command>setlocal
-"C:\Program Files\PowerShell\7\pwsh.exe" -NoProfile -ExecutionPolicy Bypass -File "C:/Users/dferr/dev/URPG - RPG Game Maker/tools/ci/unlock-test-binary.ps1" -ProcessName urpg_tests -BinaryPath "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/RelWithDebInfo/urpg_tests.exe"
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:/dev/URPG Maker/tools/ci/unlock-test-binary.ps1" -ProcessName urpg_tests -BinaryPath "C:/dev/URPG Maker/build-local/RelWithDebInfo/urpg_tests.exe"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -341,16 +345,16 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>RelWithDebInfo\urpg_core.lib;_deps\catch2-build\src\RelWithDebInfo\Catch2Main.lib;_deps\sdl2-build\RelWithDebInfo\SDL2.lib;opengl32.lib;_deps\catch2-build\src\RelWithDebInfo\Catch2.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>_deps\catch2-build\src\RelWithDebInfo\Catch2Main.lib;RelWithDebInfo\urpg_editor_panels.lib;RelWithDebInfo\urpg_compat_mz.lib;RelWithDebInfo\urpg_audio.lib;RelWithDebInfo\urpg_project_tools.lib;RelWithDebInfo\urpg_export.lib;RelWithDebInfo\urpg_editor_core.lib;RelWithDebInfo\urpg_testing_support.lib;RelWithDebInfo\urpg_rendering.lib;RelWithDebInfo\urpg_runtime_core.lib;RelWithDebInfo\imgui.lib;_deps\quickjs_ng-build\RelWithDebInfo\qjs.lib;_deps\sdl2-build\RelWithDebInfo\SDL2-static.lib;kernel32.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;advapi32.lib;setupapi.lib;shell32.lib;dinput8.lib;opengl32.lib;_deps\catch2-build\src\RelWithDebInfo\Catch2.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
-      <ImportLibrary>C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/RelWithDebInfo/urpg_tests.lib</ImportLibrary>
+      <ImportLibrary>C:/dev/URPG Maker/build-local/RelWithDebInfo/urpg_tests.lib</ImportLibrary>
       <LinkErrorReporting></LinkErrorReporting>
-      <ProgramDataBaseFile>C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/RelWithDebInfo/urpg_tests.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>C:/dev/URPG Maker/build-local/RelWithDebInfo/urpg_tests.pdb</ProgramDataBaseFile>
       <RandomizedBaseAddress></RandomizedBaseAddress>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -359,11 +363,11 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Users\dferr\dev\URPG - RPG Game Maker\CMakeLists.txt">
+    <CustomBuild Include="C:\dev\URPG Maker\CMakeLists.txt">
       <UseUtf8Encoding>Always</UseUtf8Encoding>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/dferr/dev/URPG - RPG Game Maker/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/dev/URPG Maker/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local" --check-stamp-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/generate.stamp"
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/dev/URPG Maker" "-BC:/dev/URPG Maker/build-local" --check-stamp-file "C:/dev/URPG Maker/build-local/CMakeFiles/generate.stamp"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -371,12 +375,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\extras\Catch.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython\Support.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython3.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\dev\URPG Maker\build-local\_deps\catch2-src\extras\Catch.cmake;C:\dev\URPG Maker\cmake\packaging.cmake;C:\dev\URPG Maker\cmake\urpg_version.h.in;C:\dev\URPG Maker\resources\windows\urpg_editor.rc.in;C:\dev\URPG Maker\resources\windows\urpg_runtime.rc.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\dev\URPG Maker\build-local\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/dferr/dev/URPG - RPG Game Maker/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/dev/URPG Maker/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local" --check-stamp-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/generate.stamp"
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/dev/URPG Maker" "-BC:/dev/URPG Maker/build-local" --check-stamp-file "C:/dev/URPG Maker/build-local/CMakeFiles/generate.stamp"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -384,12 +388,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\extras\Catch.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython\Support.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython3.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\dev\URPG Maker\build-local\_deps\catch2-src\extras\Catch.cmake;C:\dev\URPG Maker\cmake\packaging.cmake;C:\dev\URPG Maker\cmake\urpg_version.h.in;C:\dev\URPG Maker\resources\windows\urpg_editor.rc.in;C:\dev\URPG Maker\resources\windows\urpg_runtime.rc.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\dev\URPG Maker\build-local\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/dferr/dev/URPG - RPG Game Maker/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/dev/URPG Maker/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local" --check-stamp-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/generate.stamp"
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/dev/URPG Maker" "-BC:/dev/URPG Maker/build-local" --check-stamp-file "C:/dev/URPG Maker/build-local/CMakeFiles/generate.stamp"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -397,12 +401,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\extras\Catch.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython\Support.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython3.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\dev\URPG Maker\build-local\_deps\catch2-src\extras\Catch.cmake;C:\dev\URPG Maker\cmake\packaging.cmake;C:\dev\URPG Maker\cmake\urpg_version.h.in;C:\dev\URPG Maker\resources\windows\urpg_editor.rc.in;C:\dev\URPG Maker\resources\windows\urpg_runtime.rc.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\dev\URPG Maker\build-local\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/dferr/dev/URPG - RPG Game Maker/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/dev/URPG Maker/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local" --check-stamp-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/generate.stamp"
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/dev/URPG Maker" "-BC:/dev/URPG Maker/build-local" --check-stamp-file "C:/dev/URPG Maker/build-local/CMakeFiles/generate.stamp"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -410,182 +414,333 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src\extras\Catch.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTest.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestTargets.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CTestUseLaunchers.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\DartConfiguration.tcl.in;C:\Program Files\CMake\share\cmake-4.3\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython\Support.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\FindPython3.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-4.3\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-4.3\Templates\CTestScript.cmake.in;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;C:\dev\URPG Maker\build-local\CMakeFiles\4.3.1\CMakeSystem.cmake;C:\dev\URPG Maker\build-local\_deps\catch2-src\extras\Catch.cmake;C:\dev\URPG Maker\cmake\packaging.cmake;C:\dev\URPG Maker\cmake\urpg_version.h.in;C:\dev\URPG Maker\resources\windows\urpg_editor.rc.in;C:\dev\URPG Maker\resources\windows\urpg_runtime.rc.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\dev\URPG Maker\build-local\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_engine_shell.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_global_state.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_semver.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_fixed32.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_frame_budget.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_perf_profiler.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_perf_diagnostics_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ecs_world.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ai_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_movement_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_player_control_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_collision_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_lighting_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_camera_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_camera_follow_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_camera_shake_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_character_identity.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_character_identity_ecs.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_character_creator_model.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_character_creator_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_animation_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_system_orchestrator.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_interaction_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_health_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_progression_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_status_effects.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_trigger_system.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_combat_calc.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_core.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_bridge_roundtrip.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_thread_roles.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_render_tier.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_journal.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_canonical_json.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_migration_runner.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_source_authority.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_diagnostics_facade.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_project_audit_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_catalog.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_inspector_model.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_inspector_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_lzstring_decompressor.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_rpgmaker_save_reader.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_recovery.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_runtime.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_migration.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_serialization.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_inspector_model.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_preview_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_inspector_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_edit_guard.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_authority_diagnostics.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_authority_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_diagnostics_workspace.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_runtime.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_debug_session.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_quickjs_runtime.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_window_compat.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_compat_report_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battlemgr.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_mod_registry.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_mod_manager_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_effect_cues.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_scene_native.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_data_manager.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_manager.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_manager.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_plugin_manager.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_plugin_api.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_core.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_orchestration.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_core.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_remap_store.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_core.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_mix_presets.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_text_core.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_migration.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_schema_contracts.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_locale_catalog.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_completeness_checker.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_schema_contracts.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_policy_governance.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_inspector_model.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_inspector_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_inspector_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_inspector_model.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_preview_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_legacy_import.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_state_audio_sync.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_scene_manager.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_gameplay_tags.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_presentation_bridge.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_presentation_runtime.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_presentation_effect_translation.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_project_audit_cli.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_effect_cue.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_spatial_editor.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_huggingface_curated_assets.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ability_activation.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_pattern_field.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_effect_resolver.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_wave3_gaf.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_level_assembly.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_sprite_animator.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_sprite_animation_preview_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_procedural_toolkit.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_optional_lanes.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_debug_crash.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_inspector.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_resolver.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_state_sync.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_migration.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_migration_logic.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_migration_wizard.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ai_bridge_regex.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_achievement_registry.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_achievement_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_achievement_triggers.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_accessibility_auditor.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_accessibility_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_export_validator.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_export_packager.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_export_diagnostics_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_visual_regression_harness.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_truth_reconciler.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_analytics_dispatcher.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_analytics_panel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\engine\core\test_render_assets.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_asset_license_audit.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_copilot_kernel.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_headless_play_mode.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_plugin_manifest.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_snapshot_validator.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_ability_inspector.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_ability_pattern_integration.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_ability_state_machine.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_ability_tasks.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_effect_modifiers.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_pattern_field_editor.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_pattern_serialization.cpp" />
-    <Natvis Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\nlohmann_json.natvis">
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_engine_shell.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_global_state.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_semver.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_fixed32.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_frame_budget.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_future_feature_16.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_future_feature_17.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_ai_knowledge_base.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_creator_command_planner.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_openai_compatible_chat_service.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_perf_profiler.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_perf_diagnostics_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_ecs_world.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_ai_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_movement_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_player_control_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_collision_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_lighting_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_camera_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_camera_follow_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_camera_shake_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_character_identity.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_character_identity_ecs.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_character_creator_model.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_character_creator_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_character_creation_screen.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_animation_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_system_orchestrator.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_interaction_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_health_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_progression_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_status_effects.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_trigger_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_combat_calc.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_battle_core.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_bridge_roundtrip.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_thread_roles.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_choice_consequence_tracker.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_dialogue_graph.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_ending_route_manager.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_narrative_continuity_checker.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_quest_registry.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_relationship_registry.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_render_tier.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_project_snapshot_store.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_compatibility_preview.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_corruption_lab.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_debugger.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_journal.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_canonical_json.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_migration_runner.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_source_authority.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_diagnostics_facade.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_editor_shell.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_project_audit_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_project_health_model.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_project_health_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_project_template_generator.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_new_project_wizard_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_plugin_compatibility_score.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_plugin_inspector_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_asset_library.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_asset_cleanup_planner.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_asset_library_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_controller_binding_runtime.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_controller_binding_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_catalog.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_inspector_model.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_inspector_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_lzstring_decompressor.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_rpgmaker_save_reader.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_recovery.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_runtime.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_migration.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_serialization.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_battle_inspector_model.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_battle_authoring_suite.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_battle_preview_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_battle_inspector_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_event_edit_guard.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_event_document.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_event_dependency_graph.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_event_debugger.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_event_authoring_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_event_authority_diagnostics.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_event_authority_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_diagnostics_workspace.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_event_runtime.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_editor_panel_registry.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_debug_session.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_quickjs_runtime.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_window_compat.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_compat_report_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_battlemgr.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_mod_registry.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_mod_loader.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_mod_manager_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_battle_effect_cues.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_battle_scene_native.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_data_manager.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_audio_manager.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_input_manager.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_plugin_manager.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_plugin_api.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_menu_core.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_menu_orchestration.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_input_core.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_input_remap_store.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_audio_core.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_audio_mixer.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_audio_mix_presets.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_message_text_core.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_message_migration.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_dialogue_project_loader.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_dialogue_command_handlers.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_message_schema_contracts.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_locale_catalog.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_completeness_checker.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_schema_contracts.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_policy_governance.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_message_inspector_model.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_message_inspector_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_menu_inspector_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_menu_inspector_model.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_menu_preview_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_menu_legacy_import.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_state_audio_sync.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_scene_manager.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_gameplay_tags.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_presentation_bridge.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_presentation_runtime.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_presentation_effect_translation.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_project_audit_cli.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_effect_cue.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_dungeon3d_world.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_spatial_editor.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_map_worldbuilding_suite.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_huggingface_curated_assets.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_ability_activation.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_ability_e2e.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_ability_battle_integration.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_pattern_field.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_effect_resolver.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_wave3_gaf.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_level_assembly.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_document.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_catalog.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_commands.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_validator.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_runtime_compiler.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_runtime_state.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_editor.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_ruleset.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_objective.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_reachability.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_dependency_graph.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_playtest_pipeline.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_grid_part_stamp.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_sprite_animator.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_sprite_animation_preview_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_procedural_toolkit.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_optional_lanes.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_debug_crash.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_audio_inspector.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_audio_resolver.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_save_state_sync.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_battle_migration.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_menu_migration_logic.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_migration_wizard.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_ai_bridge_regex.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_ai_sync_coordinator.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_diagnostics_workspace_migration.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_diagnostics_workspace_audio_event.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_diagnostics_workspace_message_menu.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_diagnostics_workspace_battle.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_achievement_registry.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_achievement_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_achievement_triggers.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_accessibility_auditor.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_accessibility_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_creator_package_manifest.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_export_artifact_compare.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_export_validator.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_export_packager.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_export_diagnostics_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_patch_manifest.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_runtime_bundle_loader.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_visual_regression_harness.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_truth_reconciler.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_governance_regression.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_analytics_dispatcher.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_analytics_panel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_app_cli.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_app_settings_store.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_template_acceptance.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_template_bar_quality.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_dev_room_generator.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_tutorial_lesson.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_timeline_player.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_cutscene_timeline.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_event_macro_recorder.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_gameplay_wysiwyg_systems.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_community_wysiwyg_features.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_maker_wysiwyg_features.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_replay_recorder.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_timeline_replay_panels.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_rpg_database_suite.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_economy_simulator.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_encounter_table.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_vendor_catalog.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_rest_point.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_loot_affix_generator.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_class_progression.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_skill_combo_rules.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_database_balance_panels.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_world_simulation_suite.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_crafting_registry.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_monster_collection.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_metroidvania_ability_gates.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_bestiary_registry.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_calendar_runtime.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_npc_schedule.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_puzzle_registry.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_runtime_hint_system.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_startup_diagnostics.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_player_experience_platform_suite.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_capture_theme_presentation_suite.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_s31_template_evidence_snapshots.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\unit\test_s32_wysiwyg_lanes.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\engine\core\test_render_assets.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_asset_license_audit.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_copilot_kernel.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_headless_play_mode.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_plugin_manifest.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_snapshot_validator.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_ability_inspector.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_ability_pattern_integration.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_ability_state_machine.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_ability_tasks.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_effect_modifiers.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_pattern_field_editor.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tests\test_pattern_serialization.cpp" />
+    <ClCompile Include="C:\dev\URPG Maker\tools\audit\project_completeness_score.cpp" />
+    <Natvis Include="C:\dev\URPG Maker\build-local\_deps\nlohmann_json-src\nlohmann_json.natvis">
     </Natvis>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\ZERO_CHECK.vcxproj">
-      <Project>{1763C92B-4908-349B-9F74-29ED5C3E9B4B}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\ZERO_CHECK.vcxproj">
+      <Project>{CB475DBC-68D0-3608-9404-8D3DCC1F042C}</Project>
       <Name>ZERO_CHECK</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\src\Catch2.vcxproj">
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\catch2-build\src\Catch2.vcxproj">
       <Project>{8d538cbe-01bf-4a2e-a98a-6c368fdf13d7}</Project>
       <Name>Catch2</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build\src\Catch2WithMain.vcxproj">
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\catch2-build\src\Catch2WithMain.vcxproj">
       <Project>{8bd3552a-2cfb-4a59-ab15-2031b97ada1e}</Project>
       <Name>Catch2WithMain</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-build\SDL2.vcxproj">
-      <Project>{ABA3159F-F6C2-3AFF-85E0-6A9595638B6D}</Project>
-      <Name>SDL2</Name>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\sdl2-build\SDL2-static.vcxproj">
+      <Project>{4531BB00-429F-362C-95F1-96817E35FB32}</Project>
+      <Name>SDL2-static</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_core.vcxproj">
-      <Project>{0173D180-03B5-3D1C-913C-966B3CAAA380}</Project>
-      <Name>urpg_core</Name>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\imgui.vcxproj">
+      <Project>{8751D5D7-7979-3C81-8C95-ABCB165811B6}</Project>
+      <Name>imgui</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_project_audit.vcxproj">
-      <Project>{802805D4-1B7F-3F54-A99F-FE7D5046A166}</Project>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\_deps\quickjs_ng-build\qjs.vcxproj">
+      <Project>{68EC1E26-C819-37B8-9A01-4DBD32840227}</Project>
+      <Name>qjs</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_audio.vcxproj">
+      <Project>{19CF2E19-87B1-3A91-A2B0-AA094DB52CA7}</Project>
+      <Name>urpg_audio</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_compat_mz.vcxproj">
+      <Project>{A4BF82E4-95DF-3F8F-9CF4-8695F705B182}</Project>
+      <Name>urpg_compat_mz</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_editor_core.vcxproj">
+      <Project>{4C75EF6D-B160-3A0F-A1EC-14EB3C8602D6}</Project>
+      <Name>urpg_editor_core</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_editor_panels.vcxproj">
+      <Project>{494D776F-D581-30ED-A9E5-9835355C47AB}</Project>
+      <Name>urpg_editor_panels</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_export.vcxproj">
+      <Project>{D85DAEF4-8EC3-3D34-8542-1FD54A37A069}</Project>
+      <Name>urpg_export</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_export_smoke_app.vcxproj">
+      <Project>{85D4D941-0CBE-3113-8FC7-FB495199A6C2}</Project>
+      <Name>urpg_export_smoke_app</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_pack_cli.vcxproj">
+      <Project>{FAFDAFEB-6ADC-3539-B8E2-AF1A961631F1}</Project>
+      <Name>urpg_pack_cli</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_project_audit.vcxproj">
+      <Project>{28C3B174-4EB7-366F-BBEC-E8C551944C58}</Project>
       <Name>urpg_project_audit</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_project_tools.vcxproj">
+      <Project>{818C1E26-1A25-3C8B-9FD4-9A9B35D97DF4}</Project>
+      <Name>urpg_project_tools</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_rendering.vcxproj">
+      <Project>{40FF3A63-C928-31F7-BE5E-690EA58F939F}</Project>
+      <Name>urpg_rendering</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_runtime_core.vcxproj">
+      <Project>{14B14383-5F55-3358-858A-6EEB64B912CE}</Project>
+      <Name>urpg_runtime_core</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\URPG Maker\build-local\urpg_testing_support.vcxproj">
+      <Project>{F0A4BD6F-DD63-3329-BCBE-7F5856277CB6}</Project>
+      <Name>urpg_testing_support</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

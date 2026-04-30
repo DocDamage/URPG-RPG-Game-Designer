@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-subbuild\CMakeFiles\ea1585637c5484c047bf98ca1237334b\generate.stamp.rule">
+    <CustomBuild Include="C:\dev\URPG Maker\build-local\_deps\nlohmann_json-subbuild\CMakeFiles\75e874cef4e68c06eff501e91e51457f\generate.stamp.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{DE7D8C28-4A00-3786-A900-645285F4F5DD}</UniqueIdentifier>
+      <UniqueIdentifier>{B7D90977-A2AA-32FF-AFB9-B8F7DAF80316}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

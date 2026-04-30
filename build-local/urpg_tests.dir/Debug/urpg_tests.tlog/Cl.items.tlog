@@ -1,140 +1,243 @@
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_engine_shell.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_engine_shell.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_global_state.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_global_state.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_semver.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_semver.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_fixed32.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_fixed32.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_frame_budget.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_frame_budget.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_perf_profiler.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_perf_profiler.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_perf_diagnostics_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_perf_diagnostics_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ecs_world.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_ecs_world.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ai_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_ai_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_movement_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_movement_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_player_control_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_player_control_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_collision_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_collision_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_lighting_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_lighting_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_camera_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_camera_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_camera_follow_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_camera_follow_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_camera_shake_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_camera_shake_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_character_identity.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_character_identity.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_character_identity_ecs.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_character_identity_ecs.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_character_creator_model.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_character_creator_model.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_character_creator_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_character_creator_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_animation_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_animation_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_system_orchestrator.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_system_orchestrator.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_interaction_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_interaction_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_health_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_health_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_progression_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_progression_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_status_effects.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_status_effects.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_trigger_system.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_trigger_system.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_combat_calc.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_combat_calc.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_core.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_battle_core.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_bridge_roundtrip.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_bridge_roundtrip.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_thread_roles.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_thread_roles.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_render_tier.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_render_tier.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_journal.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_save_journal.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_canonical_json.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_canonical_json.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_migration_runner.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_migration_runner.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_source_authority.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_source_authority.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_diagnostics_facade.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_diagnostics_facade.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_project_audit_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_project_audit_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_catalog.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_save_catalog.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_inspector_model.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_save_inspector_model.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_inspector_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_save_inspector_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_lzstring_decompressor.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_lzstring_decompressor.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_rpgmaker_save_reader.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_rpgmaker_save_reader.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_recovery.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_save_recovery.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_runtime.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_save_runtime.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_migration.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_save_migration.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_serialization.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_save_serialization.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_inspector_model.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_battle_inspector_model.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_preview_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_battle_preview_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_inspector_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_battle_inspector_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_edit_guard.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_event_edit_guard.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_authority_diagnostics.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_event_authority_diagnostics.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_authority_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_event_authority_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_diagnostics_workspace.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_diagnostics_workspace.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_runtime.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_event_runtime.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_debug_session.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_debug_session.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_quickjs_runtime.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_quickjs_runtime.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_window_compat.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_window_compat.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_compat_report_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_compat_report_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battlemgr.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_battlemgr.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_mod_registry.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_mod_registry.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_mod_manager_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_mod_manager_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_effect_cues.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_battle_effect_cues.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_scene_native.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_battle_scene_native.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_data_manager.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_data_manager.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_manager.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_audio_manager.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_manager.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_input_manager.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_plugin_manager.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_plugin_manager.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_plugin_api.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_plugin_api.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_core.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_menu_core.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_orchestration.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_menu_orchestration.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_core.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_input_core.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_remap_store.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_input_remap_store.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_core.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_audio_core.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_mix_presets.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_audio_mix_presets.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_text_core.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_message_text_core.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_migration.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_message_migration.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_schema_contracts.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_message_schema_contracts.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_locale_catalog.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_locale_catalog.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_completeness_checker.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_completeness_checker.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_schema_contracts.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_save_schema_contracts.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_policy_governance.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_save_policy_governance.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_inspector_model.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_message_inspector_model.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_inspector_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_message_inspector_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_inspector_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_menu_inspector_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_inspector_model.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_menu_inspector_model.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_preview_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_menu_preview_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_legacy_import.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_menu_legacy_import.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_state_audio_sync.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_state_audio_sync.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_scene_manager.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_scene_manager.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_gameplay_tags.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_gameplay_tags.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_presentation_bridge.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_presentation_bridge.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_presentation_runtime.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_presentation_runtime.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_presentation_effect_translation.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_presentation_effect_translation.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_project_audit_cli.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_project_audit_cli.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_effect_cue.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_effect_cue.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_spatial_editor.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_spatial_editor.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_huggingface_curated_assets.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_huggingface_curated_assets.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ability_activation.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_ability_activation.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_pattern_field.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_pattern_field.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_effect_resolver.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_effect_resolver.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_wave3_gaf.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_wave3_gaf.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_level_assembly.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_level_assembly.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_sprite_animator.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_sprite_animator.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_sprite_animation_preview_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_sprite_animation_preview_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_procedural_toolkit.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_procedural_toolkit.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_optional_lanes.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_optional_lanes.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_debug_crash.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_debug_crash.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_inspector.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_audio_inspector.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_resolver.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_audio_resolver.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_state_sync.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_save_state_sync.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_migration.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_battle_migration.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_migration_logic.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_menu_migration_logic.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_migration_wizard.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_migration_wizard.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ai_bridge_regex.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_ai_bridge_regex.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_achievement_registry.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_achievement_registry.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_achievement_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_achievement_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_achievement_triggers.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_achievement_triggers.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_accessibility_auditor.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_accessibility_auditor.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_accessibility_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_accessibility_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_export_validator.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_export_validator.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_export_packager.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_export_packager.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_export_diagnostics_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_export_diagnostics_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_visual_regression_harness.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_visual_regression_harness.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_truth_reconciler.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_truth_reconciler.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_analytics_dispatcher.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_analytics_dispatcher.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_analytics_panel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_analytics_panel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\engine\core\test_render_assets.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_render_assets.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_asset_license_audit.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_asset_license_audit.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_copilot_kernel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_copilot_kernel.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_headless_play_mode.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_headless_play_mode.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_plugin_manifest.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_plugin_manifest.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_snapshot_validator.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_snapshot_validator.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_ability_inspector.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_ability_inspector.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_ability_pattern_integration.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_ability_pattern_integration.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_ability_state_machine.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_ability_state_machine.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_ability_tasks.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_ability_tasks.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_effect_modifiers.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_effect_modifiers.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_pattern_field_editor.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_pattern_field_editor.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_pattern_serialization.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_pattern_serialization.obj
+C:\dev\URPG Maker\tests\unit\test_engine_shell.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_engine_shell.obj
+C:\dev\URPG Maker\tests\unit\test_global_state.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_global_state.obj
+C:\dev\URPG Maker\tests\unit\test_semver.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_semver.obj
+C:\dev\URPG Maker\tests\unit\test_fixed32.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_fixed32.obj
+C:\dev\URPG Maker\tests\unit\test_frame_budget.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_frame_budget.obj
+C:\dev\URPG Maker\tests\unit\test_future_feature_16.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_future_feature_16.obj
+C:\dev\URPG Maker\tests\unit\test_future_feature_17.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_future_feature_17.obj
+C:\dev\URPG Maker\tests\unit\test_ai_knowledge_base.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ai_knowledge_base.obj
+C:\dev\URPG Maker\tests\unit\test_creator_command_planner.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_creator_command_planner.obj
+C:\dev\URPG Maker\tests\unit\test_openai_compatible_chat_service.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_openai_compatible_chat_service.obj
+C:\dev\URPG Maker\tests\unit\test_perf_profiler.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_perf_profiler.obj
+C:\dev\URPG Maker\tests\unit\test_perf_diagnostics_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_perf_diagnostics_panel.obj
+C:\dev\URPG Maker\tests\unit\test_ecs_world.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ecs_world.obj
+C:\dev\URPG Maker\tests\unit\test_ai_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ai_system.obj
+C:\dev\URPG Maker\tests\unit\test_movement_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_movement_system.obj
+C:\dev\URPG Maker\tests\unit\test_player_control_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_player_control_system.obj
+C:\dev\URPG Maker\tests\unit\test_collision_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_collision_system.obj
+C:\dev\URPG Maker\tests\unit\test_lighting_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_lighting_system.obj
+C:\dev\URPG Maker\tests\unit\test_camera_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_camera_system.obj
+C:\dev\URPG Maker\tests\unit\test_camera_follow_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_camera_follow_system.obj
+C:\dev\URPG Maker\tests\unit\test_camera_shake_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_camera_shake_system.obj
+C:\dev\URPG Maker\tests\unit\test_character_identity.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_character_identity.obj
+C:\dev\URPG Maker\tests\unit\test_character_identity_ecs.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_character_identity_ecs.obj
+C:\dev\URPG Maker\tests\unit\test_character_creator_model.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_character_creator_model.obj
+C:\dev\URPG Maker\tests\unit\test_character_creator_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_character_creator_panel.obj
+C:\dev\URPG Maker\tests\unit\test_character_creation_screen.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_character_creation_screen.obj
+C:\dev\URPG Maker\tests\unit\test_animation_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_animation_system.obj
+C:\dev\URPG Maker\tests\unit\test_system_orchestrator.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_system_orchestrator.obj
+C:\dev\URPG Maker\tests\unit\test_interaction_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_interaction_system.obj
+C:\dev\URPG Maker\tests\unit\test_health_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_health_system.obj
+C:\dev\URPG Maker\tests\unit\test_progression_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_progression_system.obj
+C:\dev\URPG Maker\tests\unit\test_status_effects.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_status_effects.obj
+C:\dev\URPG Maker\tests\unit\test_trigger_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_trigger_system.obj
+C:\dev\URPG Maker\tests\unit\test_combat_calc.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_combat_calc.obj
+C:\dev\URPG Maker\tests\unit\test_battle_core.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_battle_core.obj
+C:\dev\URPG Maker\tests\unit\test_bridge_roundtrip.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_bridge_roundtrip.obj
+C:\dev\URPG Maker\tests\unit\test_thread_roles.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_thread_roles.obj
+C:\dev\URPG Maker\tests\unit\test_choice_consequence_tracker.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_choice_consequence_tracker.obj
+C:\dev\URPG Maker\tests\unit\test_dialogue_graph.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_dialogue_graph.obj
+C:\dev\URPG Maker\tests\unit\test_ending_route_manager.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ending_route_manager.obj
+C:\dev\URPG Maker\tests\unit\test_narrative_continuity_checker.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_narrative_continuity_checker.obj
+C:\dev\URPG Maker\tests\unit\test_quest_registry.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_quest_registry.obj
+C:\dev\URPG Maker\tests\unit\test_relationship_registry.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_relationship_registry.obj
+C:\dev\URPG Maker\tests\unit\test_render_tier.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_render_tier.obj
+C:\dev\URPG Maker\tests\unit\test_project_snapshot_store.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_project_snapshot_store.obj
+C:\dev\URPG Maker\tests\unit\test_save_compatibility_preview.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_compatibility_preview.obj
+C:\dev\URPG Maker\tests\unit\test_save_corruption_lab.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_corruption_lab.obj
+C:\dev\URPG Maker\tests\unit\test_save_debugger.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_debugger.obj
+C:\dev\URPG Maker\tests\unit\test_save_journal.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_journal.obj
+C:\dev\URPG Maker\tests\unit\test_canonical_json.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_canonical_json.obj
+C:\dev\URPG Maker\tests\unit\test_migration_runner.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_migration_runner.obj
+C:\dev\URPG Maker\tests\unit\test_source_authority.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_source_authority.obj
+C:\dev\URPG Maker\tests\unit\test_diagnostics_facade.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_diagnostics_facade.obj
+C:\dev\URPG Maker\tests\unit\test_editor_shell.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_editor_shell.obj
+C:\dev\URPG Maker\tests\unit\test_project_audit_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_project_audit_panel.obj
+C:\dev\URPG Maker\tests\unit\test_project_health_model.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_project_health_model.obj
+C:\dev\URPG Maker\tests\unit\test_project_health_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_project_health_panel.obj
+C:\dev\URPG Maker\tests\unit\test_project_template_generator.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_project_template_generator.obj
+C:\dev\URPG Maker\tests\unit\test_new_project_wizard_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_new_project_wizard_panel.obj
+C:\dev\URPG Maker\tests\unit\test_plugin_compatibility_score.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_plugin_compatibility_score.obj
+C:\dev\URPG Maker\tests\unit\test_plugin_inspector_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_plugin_inspector_panel.obj
+C:\dev\URPG Maker\tests\unit\test_asset_library.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_asset_library.obj
+C:\dev\URPG Maker\tests\unit\test_asset_cleanup_planner.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_asset_cleanup_planner.obj
+C:\dev\URPG Maker\tests\unit\test_asset_library_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_asset_library_panel.obj
+C:\dev\URPG Maker\tests\unit\test_controller_binding_runtime.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_controller_binding_runtime.obj
+C:\dev\URPG Maker\tests\unit\test_controller_binding_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_controller_binding_panel.obj
+C:\dev\URPG Maker\tests\unit\test_save_catalog.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_catalog.obj
+C:\dev\URPG Maker\tests\unit\test_save_inspector_model.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_inspector_model.obj
+C:\dev\URPG Maker\tests\unit\test_save_inspector_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_inspector_panel.obj
+C:\dev\URPG Maker\tests\unit\test_lzstring_decompressor.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_lzstring_decompressor.obj
+C:\dev\URPG Maker\tests\unit\test_rpgmaker_save_reader.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_rpgmaker_save_reader.obj
+C:\dev\URPG Maker\tests\unit\test_save_recovery.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_recovery.obj
+C:\dev\URPG Maker\tests\unit\test_save_runtime.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_runtime.obj
+C:\dev\URPG Maker\tests\unit\test_save_migration.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_migration.obj
+C:\dev\URPG Maker\tests\unit\test_save_serialization.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_serialization.obj
+C:\dev\URPG Maker\tests\unit\test_battle_inspector_model.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_battle_inspector_model.obj
+C:\dev\URPG Maker\tests\unit\test_battle_authoring_suite.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_battle_authoring_suite.obj
+C:\dev\URPG Maker\tests\unit\test_battle_preview_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_battle_preview_panel.obj
+C:\dev\URPG Maker\tests\unit\test_battle_inspector_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_battle_inspector_panel.obj
+C:\dev\URPG Maker\tests\unit\test_event_edit_guard.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_event_edit_guard.obj
+C:\dev\URPG Maker\tests\unit\test_event_document.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_event_document.obj
+C:\dev\URPG Maker\tests\unit\test_event_dependency_graph.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_event_dependency_graph.obj
+C:\dev\URPG Maker\tests\unit\test_event_debugger.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_event_debugger.obj
+C:\dev\URPG Maker\tests\unit\test_event_authoring_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_event_authoring_panel.obj
+C:\dev\URPG Maker\tests\unit\test_event_authority_diagnostics.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_event_authority_diagnostics.obj
+C:\dev\URPG Maker\tests\unit\test_event_authority_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_event_authority_panel.obj
+C:\dev\URPG Maker\tests\unit\test_diagnostics_workspace.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_diagnostics_workspace.obj
+C:\dev\URPG Maker\tests\unit\test_event_runtime.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_event_runtime.obj
+C:\dev\URPG Maker\tests\unit\test_editor_panel_registry.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_editor_panel_registry.obj
+C:\dev\URPG Maker\tests\unit\test_debug_session.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_debug_session.obj
+C:\dev\URPG Maker\tests\unit\test_quickjs_runtime.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_quickjs_runtime.obj
+C:\dev\URPG Maker\tests\unit\test_window_compat.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_window_compat.obj
+C:\dev\URPG Maker\tests\unit\test_compat_report_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_compat_report_panel.obj
+C:\dev\URPG Maker\tests\unit\test_battlemgr.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_battlemgr.obj
+C:\dev\URPG Maker\tests\unit\test_mod_registry.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_mod_registry.obj
+C:\dev\URPG Maker\tests\unit\test_mod_loader.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_mod_loader.obj
+C:\dev\URPG Maker\tests\unit\test_mod_manager_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_mod_manager_panel.obj
+C:\dev\URPG Maker\tests\unit\test_battle_effect_cues.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_battle_effect_cues.obj
+C:\dev\URPG Maker\tests\unit\test_battle_scene_native.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_battle_scene_native.obj
+C:\dev\URPG Maker\tests\unit\test_data_manager.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_data_manager.obj
+C:\dev\URPG Maker\tests\unit\test_audio_manager.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_audio_manager.obj
+C:\dev\URPG Maker\tests\unit\test_input_manager.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_input_manager.obj
+C:\dev\URPG Maker\tests\unit\test_plugin_manager.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_plugin_manager.obj
+C:\dev\URPG Maker\tests\unit\test_plugin_api.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_plugin_api.obj
+C:\dev\URPG Maker\tests\unit\test_menu_core.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_menu_core.obj
+C:\dev\URPG Maker\tests\unit\test_menu_orchestration.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_menu_orchestration.obj
+C:\dev\URPG Maker\tests\unit\test_input_core.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_input_core.obj
+C:\dev\URPG Maker\tests\unit\test_input_remap_store.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_input_remap_store.obj
+C:\dev\URPG Maker\tests\unit\test_audio_core.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_audio_core.obj
+C:\dev\URPG Maker\tests\unit\test_audio_mixer.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_audio_mixer.obj
+C:\dev\URPG Maker\tests\unit\test_audio_mix_presets.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_audio_mix_presets.obj
+C:\dev\URPG Maker\tests\unit\test_message_text_core.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_message_text_core.obj
+C:\dev\URPG Maker\tests\unit\test_message_migration.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_message_migration.obj
+C:\dev\URPG Maker\tests\unit\test_dialogue_project_loader.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_dialogue_project_loader.obj
+C:\dev\URPG Maker\tests\unit\test_dialogue_command_handlers.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_dialogue_command_handlers.obj
+C:\dev\URPG Maker\tests\unit\test_message_schema_contracts.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_message_schema_contracts.obj
+C:\dev\URPG Maker\tests\unit\test_locale_catalog.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_locale_catalog.obj
+C:\dev\URPG Maker\tests\unit\test_completeness_checker.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_completeness_checker.obj
+C:\dev\URPG Maker\tests\unit\test_save_schema_contracts.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_schema_contracts.obj
+C:\dev\URPG Maker\tests\unit\test_save_policy_governance.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_policy_governance.obj
+C:\dev\URPG Maker\tests\unit\test_message_inspector_model.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_message_inspector_model.obj
+C:\dev\URPG Maker\tests\unit\test_message_inspector_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_message_inspector_panel.obj
+C:\dev\URPG Maker\tests\unit\test_menu_inspector_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_menu_inspector_panel.obj
+C:\dev\URPG Maker\tests\unit\test_menu_inspector_model.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_menu_inspector_model.obj
+C:\dev\URPG Maker\tests\unit\test_menu_preview_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_menu_preview_panel.obj
+C:\dev\URPG Maker\tests\unit\test_menu_legacy_import.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_menu_legacy_import.obj
+C:\dev\URPG Maker\tests\unit\test_state_audio_sync.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_state_audio_sync.obj
+C:\dev\URPG Maker\tests\unit\test_scene_manager.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_scene_manager.obj
+C:\dev\URPG Maker\tests\unit\test_gameplay_tags.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_gameplay_tags.obj
+C:\dev\URPG Maker\tests\unit\test_presentation_bridge.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_presentation_bridge.obj
+C:\dev\URPG Maker\tests\unit\test_presentation_runtime.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_presentation_runtime.obj
+C:\dev\URPG Maker\tests\unit\test_presentation_effect_translation.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_presentation_effect_translation.obj
+C:\dev\URPG Maker\tests\unit\test_project_audit_cli.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_project_audit_cli.obj
+C:\dev\URPG Maker\tests\unit\test_effect_cue.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_effect_cue.obj
+C:\dev\URPG Maker\tests\unit\test_dungeon3d_world.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_dungeon3d_world.obj
+C:\dev\URPG Maker\tests\unit\test_spatial_editor.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_spatial_editor.obj
+C:\dev\URPG Maker\tests\unit\test_map_worldbuilding_suite.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_map_worldbuilding_suite.obj
+C:\dev\URPG Maker\tests\unit\test_huggingface_curated_assets.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_huggingface_curated_assets.obj
+C:\dev\URPG Maker\tests\unit\test_ability_activation.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ability_activation.obj
+C:\dev\URPG Maker\tests\unit\test_ability_e2e.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ability_e2e.obj
+C:\dev\URPG Maker\tests\unit\test_ability_battle_integration.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ability_battle_integration.obj
+C:\dev\URPG Maker\tests\unit\test_pattern_field.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_pattern_field.obj
+C:\dev\URPG Maker\tests\unit\test_effect_resolver.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_effect_resolver.obj
+C:\dev\URPG Maker\tests\unit\test_wave3_gaf.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_wave3_gaf.obj
+C:\dev\URPG Maker\tests\unit\test_level_assembly.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_level_assembly.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_document.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_document.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_catalog.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_catalog.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_commands.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_commands.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_validator.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_validator.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_runtime_compiler.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_runtime_compiler.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_runtime_state.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_runtime_state.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_editor.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_editor.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_ruleset.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_ruleset.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_objective.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_objective.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_reachability.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_reachability.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_dependency_graph.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_dependency_graph.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_playtest_pipeline.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_playtest_pipeline.obj
+C:\dev\URPG Maker\tests\unit\test_grid_part_stamp.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_grid_part_stamp.obj
+C:\dev\URPG Maker\tests\unit\test_sprite_animator.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_sprite_animator.obj
+C:\dev\URPG Maker\tests\unit\test_sprite_animation_preview_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_sprite_animation_preview_panel.obj
+C:\dev\URPG Maker\tests\unit\test_procedural_toolkit.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_procedural_toolkit.obj
+C:\dev\URPG Maker\tests\unit\test_optional_lanes.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_optional_lanes.obj
+C:\dev\URPG Maker\tests\unit\test_debug_crash.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_debug_crash.obj
+C:\dev\URPG Maker\tests\unit\test_audio_inspector.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_audio_inspector.obj
+C:\dev\URPG Maker\tests\unit\test_audio_resolver.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_audio_resolver.obj
+C:\dev\URPG Maker\tests\unit\test_save_state_sync.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_save_state_sync.obj
+C:\dev\URPG Maker\tests\unit\test_battle_migration.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_battle_migration.obj
+C:\dev\URPG Maker\tests\unit\test_menu_migration_logic.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_menu_migration_logic.obj
+C:\dev\URPG Maker\tests\unit\test_migration_wizard.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_migration_wizard.obj
+C:\dev\URPG Maker\tests\unit\test_ai_bridge_regex.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ai_bridge_regex.obj
+C:\dev\URPG Maker\tests\unit\test_ai_sync_coordinator.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ai_sync_coordinator.obj
+C:\dev\URPG Maker\tests\unit\test_diagnostics_workspace_migration.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_diagnostics_workspace_migration.obj
+C:\dev\URPG Maker\tests\unit\test_diagnostics_workspace_audio_event.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_diagnostics_workspace_audio_event.obj
+C:\dev\URPG Maker\tests\unit\test_diagnostics_workspace_message_menu.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_diagnostics_workspace_message_menu.obj
+C:\dev\URPG Maker\tests\unit\test_diagnostics_workspace_battle.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_diagnostics_workspace_battle.obj
+C:\dev\URPG Maker\tests\unit\test_achievement_registry.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_achievement_registry.obj
+C:\dev\URPG Maker\tests\unit\test_achievement_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_achievement_panel.obj
+C:\dev\URPG Maker\tests\unit\test_achievement_triggers.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_achievement_triggers.obj
+C:\dev\URPG Maker\tests\unit\test_accessibility_auditor.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_accessibility_auditor.obj
+C:\dev\URPG Maker\tests\unit\test_accessibility_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_accessibility_panel.obj
+C:\dev\URPG Maker\tests\unit\test_creator_package_manifest.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_creator_package_manifest.obj
+C:\dev\URPG Maker\tests\unit\test_export_artifact_compare.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_export_artifact_compare.obj
+C:\dev\URPG Maker\tests\unit\test_export_validator.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_export_validator.obj
+C:\dev\URPG Maker\tests\unit\test_export_packager.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_export_packager.obj
+C:\dev\URPG Maker\tests\unit\test_export_diagnostics_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_export_diagnostics_panel.obj
+C:\dev\URPG Maker\tests\unit\test_patch_manifest.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_patch_manifest.obj
+C:\dev\URPG Maker\tests\unit\test_runtime_bundle_loader.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_runtime_bundle_loader.obj
+C:\dev\URPG Maker\tests\unit\test_visual_regression_harness.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_visual_regression_harness.obj
+C:\dev\URPG Maker\tests\unit\test_truth_reconciler.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_truth_reconciler.obj
+C:\dev\URPG Maker\tests\unit\test_governance_regression.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_governance_regression.obj
+C:\dev\URPG Maker\tests\unit\test_analytics_dispatcher.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_analytics_dispatcher.obj
+C:\dev\URPG Maker\tests\unit\test_analytics_panel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_analytics_panel.obj
+C:\dev\URPG Maker\tests\unit\test_app_cli.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_app_cli.obj
+C:\dev\URPG Maker\tests\unit\test_app_settings_store.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_app_settings_store.obj
+C:\dev\URPG Maker\tests\unit\test_template_acceptance.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_template_acceptance.obj
+C:\dev\URPG Maker\tests\unit\test_template_bar_quality.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_template_bar_quality.obj
+C:\dev\URPG Maker\tests\unit\test_dev_room_generator.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_dev_room_generator.obj
+C:\dev\URPG Maker\tests\unit\test_tutorial_lesson.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_tutorial_lesson.obj
+C:\dev\URPG Maker\tests\unit\test_timeline_player.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_timeline_player.obj
+C:\dev\URPG Maker\tests\unit\test_cutscene_timeline.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_cutscene_timeline.obj
+C:\dev\URPG Maker\tests\unit\test_event_macro_recorder.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_event_macro_recorder.obj
+C:\dev\URPG Maker\tests\unit\test_gameplay_wysiwyg_systems.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_gameplay_wysiwyg_systems.obj
+C:\dev\URPG Maker\tests\unit\test_community_wysiwyg_features.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_community_wysiwyg_features.obj
+C:\dev\URPG Maker\tests\unit\test_maker_wysiwyg_features.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_maker_wysiwyg_features.obj
+C:\dev\URPG Maker\tests\unit\test_replay_recorder.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_replay_recorder.obj
+C:\dev\URPG Maker\tests\unit\test_timeline_replay_panels.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_timeline_replay_panels.obj
+C:\dev\URPG Maker\tests\unit\test_rpg_database_suite.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_rpg_database_suite.obj
+C:\dev\URPG Maker\tests\unit\test_economy_simulator.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_economy_simulator.obj
+C:\dev\URPG Maker\tests\unit\test_encounter_table.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_encounter_table.obj
+C:\dev\URPG Maker\tests\unit\test_vendor_catalog.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_vendor_catalog.obj
+C:\dev\URPG Maker\tests\unit\test_rest_point.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_rest_point.obj
+C:\dev\URPG Maker\tests\unit\test_loot_affix_generator.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_loot_affix_generator.obj
+C:\dev\URPG Maker\tests\unit\test_class_progression.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_class_progression.obj
+C:\dev\URPG Maker\tests\unit\test_skill_combo_rules.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_skill_combo_rules.obj
+C:\dev\URPG Maker\tests\unit\test_database_balance_panels.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_database_balance_panels.obj
+C:\dev\URPG Maker\tests\unit\test_world_simulation_suite.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_world_simulation_suite.obj
+C:\dev\URPG Maker\tests\unit\test_crafting_registry.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_crafting_registry.obj
+C:\dev\URPG Maker\tests\unit\test_monster_collection.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_monster_collection.obj
+C:\dev\URPG Maker\tests\unit\test_metroidvania_ability_gates.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_metroidvania_ability_gates.obj
+C:\dev\URPG Maker\tests\unit\test_bestiary_registry.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_bestiary_registry.obj
+C:\dev\URPG Maker\tests\unit\test_calendar_runtime.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_calendar_runtime.obj
+C:\dev\URPG Maker\tests\unit\test_npc_schedule.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_npc_schedule.obj
+C:\dev\URPG Maker\tests\unit\test_puzzle_registry.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_puzzle_registry.obj
+C:\dev\URPG Maker\tests\unit\test_runtime_hint_system.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_runtime_hint_system.obj
+C:\dev\URPG Maker\tests\unit\test_startup_diagnostics.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_startup_diagnostics.obj
+C:\dev\URPG Maker\tests\unit\test_player_experience_platform_suite.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_player_experience_platform_suite.obj
+C:\dev\URPG Maker\tests\unit\test_capture_theme_presentation_suite.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_capture_theme_presentation_suite.obj
+C:\dev\URPG Maker\tests\unit\test_s31_template_evidence_snapshots.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_s31_template_evidence_snapshots.obj
+C:\dev\URPG Maker\tests\unit\test_s32_wysiwyg_lanes.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_s32_wysiwyg_lanes.obj
+C:\dev\URPG Maker\tests\engine\core\test_render_assets.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_render_assets.obj
+C:\dev\URPG Maker\tests\test_asset_license_audit.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_asset_license_audit.obj
+C:\dev\URPG Maker\tests\test_copilot_kernel.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_copilot_kernel.obj
+C:\dev\URPG Maker\tests\test_headless_play_mode.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_headless_play_mode.obj
+C:\dev\URPG Maker\tests\test_plugin_manifest.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_plugin_manifest.obj
+C:\dev\URPG Maker\tests\test_snapshot_validator.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_snapshot_validator.obj
+C:\dev\URPG Maker\tests\test_ability_inspector.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ability_inspector.obj
+C:\dev\URPG Maker\tests\test_ability_pattern_integration.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ability_pattern_integration.obj
+C:\dev\URPG Maker\tests\test_ability_state_machine.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ability_state_machine.obj
+C:\dev\URPG Maker\tests\test_ability_tasks.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_ability_tasks.obj
+C:\dev\URPG Maker\tests\test_effect_modifiers.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_effect_modifiers.obj
+C:\dev\URPG Maker\tests\test_pattern_field_editor.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_pattern_field_editor.obj
+C:\dev\URPG Maker\tests\test_pattern_serialization.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\test_pattern_serialization.obj
+C:\dev\URPG Maker\tools\audit\project_completeness_score.cpp;C:\dev\URPG Maker\build-local\urpg_tests.dir\Debug\project_completeness_score.obj

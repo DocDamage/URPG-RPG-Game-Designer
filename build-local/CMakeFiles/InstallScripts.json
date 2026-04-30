@@ -1,11 +1,12 @@
 {
 	"InstallScripts" : 
 	[
-		"C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/cmake_install.cmake",
-		"C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-build/cmake_install.cmake",
-		"C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-build/src/cmake_install.cmake",
-		"C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-build/cmake_install.cmake",
-		"C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-build/cmake_install.cmake"
+		"C:/dev/URPG Maker/build-local/cmake_install.cmake",
+		"C:/dev/URPG Maker/build-local/_deps/catch2-build/cmake_install.cmake",
+		"C:/dev/URPG Maker/build-local/_deps/catch2-build/src/cmake_install.cmake",
+		"C:/dev/URPG Maker/build-local/_deps/nlohmann_json-build/cmake_install.cmake",
+		"C:/dev/URPG Maker/build-local/_deps/quickjs_ng-build/cmake_install.cmake",
+		"C:/dev/URPG Maker/build-local/_deps/sdl2-build/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

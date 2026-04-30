@@ -66,6 +66,9 @@ class PresentationMigrationTool {
         nlohmann::json props = nlohmann::json::array();
         for (const auto& prop : overlay.props) {
             nlohmann::json p;
+            if (!prop.instanceId.empty()) {
+                p["instanceId"] = prop.instanceId;
+            }
             p["assetId"] = prop.assetId;
             p["posX"] = prop.posX;
             p["posY"] = prop.posY;
@@ -121,6 +124,7 @@ class PresentationMigrationTool {
         if (j.contains("props") && j["props"].is_array()) {
             for (const auto& p : j["props"]) {
                 PropInstance instance;
+                instance.instanceId = p.value("instanceId", "");
                 instance.assetId = p.value("assetId", "");
                 instance.posX = p.value("posX", 0.0f);
                 instance.posY = p.value("posY", 0.0f);
@@ -129,6 +133,7 @@ class PresentationMigrationTool {
                 instance.scale = p.value("scale", 1.0f);
                 overlay.props.push_back(instance);
             }
+            EnsureStablePropInstanceIds(overlay);
         }
 
         if (j.contains("lights") && j["lights"].is_array()) {

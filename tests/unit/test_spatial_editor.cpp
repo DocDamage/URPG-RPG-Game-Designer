@@ -77,17 +77,37 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
 
     SECTION("PropPlacement adds instances") {
         PropPlacementPanel placement;
+        overlay.mapId = "001";
         placement.SetTarget(&overlay);
         placement.SetSelectedAssetId("rock_01");
 
         placement.AddProp("rock_01", 1.5f, 0.0f, 2.5f);
         REQUIRE(overlay.props.size() == 1);
+        REQUIRE(overlay.props[0].instanceId == "001:rock_01:0");
         REQUIRE(overlay.props[0].assetId == "rock_01");
         REQUIRE(overlay.props[0].posX == 1.5f);
         REQUIRE(placement.lastRenderSnapshot().has_target);
         REQUIRE(placement.lastRenderSnapshot().selected_asset_id == "rock_01");
         REQUIRE(placement.lastRenderSnapshot().prop_count == 1);
         REQUIRE(placement.lastRenderSnapshot().last_added_asset_id == std::optional<std::string>{"rock_01"});
+
+        placement.AddProp("tree_01", 2.5f, 0.0f, 3.5f);
+        placement.AddProp("rock_01", 3.5f, 0.0f, 4.5f);
+        REQUIRE(overlay.props[1].instanceId == "001:tree_01:0");
+        REQUIRE(overlay.props[2].instanceId == "001:rock_01:1");
+    }
+
+    SECTION("Spatial overlay migration assigns deterministic prop instance ids") {
+        overlay.mapId = "001";
+        overlay.props.push_back({"banner_01", 6.1f, 0.0f, 5.9f, 0.0f, 1.0f});
+        overlay.props.push_back({"chest_01", 8.1f, 0.0f, 5.9f, 0.0f, 1.0f});
+        overlay.props.push_back({"banner_01", 7.1f, 0.0f, 5.9f, 0.0f, 1.0f});
+
+        urpg::presentation::EnsureStablePropInstanceIds(overlay);
+
+        REQUIRE(overlay.props[0].instanceId == "001:banner_01:0");
+        REQUIRE(overlay.props[1].instanceId == "001:chest_01:0");
+        REQUIRE(overlay.props[2].instanceId == "001:banner_01:1");
     }
 
     SECTION("MapAbilityBinding panel discovers project abilities and binds them to map interaction runtime") {
@@ -772,7 +792,11 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(snapshot.canvas.hover_affordance_count >= 2);
         REQUIRE(snapshot.toolbar.active_mode == "abilities");
         REQUIRE(snapshot.toolbar.has_conflicts == snapshot.canvas.has_conflicts);
-        REQUIRE(snapshot.toolbar.actions.size() == 5);
+        REQUIRE(snapshot.toolbar.actions.size() == 6);
+        const auto partsAction = std::find_if(snapshot.toolbar.actions.begin(), snapshot.toolbar.actions.end(),
+                                              [](const auto& action) { return action.id == "parts"; });
+        REQUIRE(partsAction != snapshot.toolbar.actions.end());
+        REQUIRE_FALSE(partsAction->enabled);
         REQUIRE_FALSE(snapshot.elevation.visible);
         REQUIRE_FALSE(snapshot.props.visible);
         REQUIRE(snapshot.bindings.visible);

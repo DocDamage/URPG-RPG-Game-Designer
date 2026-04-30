@@ -1,6 +1,6 @@
-^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKELISTS.TXT
+^C:\DEV\URPG MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKELISTS.TXT
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild" --check-stamp-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/CMakeFiles/generate.stamp"
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/dev/URPG Maker/build-local/_deps/catch2-subbuild" "-BC:/dev/URPG Maker/build-local/_deps/catch2-subbuild" --check-stamp-file "C:/dev/URPG Maker/build-local/_deps/catch2-subbuild/CMakeFiles/generate.stamp"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone

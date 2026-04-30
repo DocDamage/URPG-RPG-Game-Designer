@@ -1,8 +1,8 @@
-if (NOT EXISTS "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/install_manifest.txt")
-    message(FATAL_ERROR "Cannot find install manifest: \"C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/install_manifest.txt\"")
-endif(NOT EXISTS "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/install_manifest.txt")
+if (NOT EXISTS "C:/dev/URPG Maker/build-local/install_manifest.txt")
+    message(FATAL_ERROR "Cannot find install manifest: \"C:/dev/URPG Maker/build-local/install_manifest.txt\"")
+endif(NOT EXISTS "C:/dev/URPG Maker/build-local/install_manifest.txt")
 
-file(READ "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/install_manifest.txt" files)
+file(READ "C:/dev/URPG Maker/build-local/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 foreach (file ${files})
     message(STATUS "Uninstalling \"$ENV{DESTDIR}${file}\"")

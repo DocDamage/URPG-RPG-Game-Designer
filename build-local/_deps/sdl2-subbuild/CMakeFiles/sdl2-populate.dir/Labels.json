@@ -2,37 +2,37 @@
 	"sources" : 
 	[
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/sdl2-populate"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/sdl2-populate"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/9e88324f6b2c95384ded212faa55923e/sdl2-populate.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/2bb8d2e8a23a358e5ac47df134550fef/sdl2-populate.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/8c80cc49be20fb9306727a1858ec4b24/sdl2-populate-complete.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/e5d00aae5b961b1abc97f44e026a65ea/sdl2-populate-complete.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/d8205fcad4c38cca1b60792a57d1bf37/sdl2-populate-build.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/80521f561e14a9089f5d44d23f7b4f39/sdl2-populate-build.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/d8205fcad4c38cca1b60792a57d1bf37/sdl2-populate-configure.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/80521f561e14a9089f5d44d23f7b4f39/sdl2-populate-configure.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/d8205fcad4c38cca1b60792a57d1bf37/sdl2-populate-download.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/80521f561e14a9089f5d44d23f7b4f39/sdl2-populate-download.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/d8205fcad4c38cca1b60792a57d1bf37/sdl2-populate-install.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/80521f561e14a9089f5d44d23f7b4f39/sdl2-populate-install.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/d8205fcad4c38cca1b60792a57d1bf37/sdl2-populate-mkdir.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/80521f561e14a9089f5d44d23f7b4f39/sdl2-populate-mkdir.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/d8205fcad4c38cca1b60792a57d1bf37/sdl2-populate-patch.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/80521f561e14a9089f5d44d23f7b4f39/sdl2-populate-patch.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/d8205fcad4c38cca1b60792a57d1bf37/sdl2-populate-test.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/80521f561e14a9089f5d44d23f7b4f39/sdl2-populate-test.rule"
 		},
 		{
-			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/d8205fcad4c38cca1b60792a57d1bf37/sdl2-populate-update.rule"
+			"file" : "C:/dev/URPG Maker/build-local/_deps/sdl2-subbuild/CMakeFiles/80521f561e14a9089f5d44d23f7b4f39/sdl2-populate-update.rule"
 		}
 	],
 	"target" : 

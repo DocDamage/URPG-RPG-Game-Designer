@@ -27,9 +27,9 @@ set_property(GLOBAL PROPERTY _CMAKE_FindGit_GIT_EXECUTABLE_VERSION
 
 include(ExternalProject)
 ExternalProject_Add(stb-populate
-                     "UPDATE_DISCONNECTED" "False" "GIT_REPOSITORY" "https://github.com/nothings/stb.git" "EXTERNALPROJECT_INTERNAL_ARGUMENT_SEPARATOR" "GIT_TAG" "master"
-                    SOURCE_DIR          "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-src"
-                    BINARY_DIR          "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-build"
+                     "UPDATE_DISCONNECTED" "False" "GIT_REPOSITORY" "https://github.com/nothings/stb.git" "EXTERNALPROJECT_INTERNAL_ARGUMENT_SEPARATOR" "GIT_TAG" "f58f558c120e9b32c217290b80bad1a0729fbb2c"
+                    SOURCE_DIR          "C:/dev/URPG Maker/build-local/_deps/stb-src"
+                    BINARY_DIR          "C:/dev/URPG Maker/build-local/_deps/stb-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

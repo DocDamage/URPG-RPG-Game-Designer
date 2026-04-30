@@ -43,3 +43,27 @@ TEST_CASE("PluginManifest parses JSON correcty", "[plugin]") {
     REQUIRE(m.parameters.size() == 2);
     REQUIRE(m.parameters.at("maxLevel") == "99");
 }
+
+TEST_CASE("PluginManifest normalizes dependency and permission metadata", "[plugin][robustness]") {
+    json j = R"({
+      "id": "robust_plugin",
+      "dependencies": [
+        "z_core",
+        "  ",
+        "z_core",
+        { "id": "a_core", "version": "^1.0.0", "optional": true },
+        { "id": "a_core", "version": "^2.0.0", "optional": false },
+        { "id": "" }
+      ],
+      "permissions": ["net.http", " ", "fs.read", "net.http", 7]
+    })"_json;
+
+    PluginManifest m = PluginManifest::fromJson(j);
+
+    REQUIRE(m.dependencies.size() == 2);
+    REQUIRE(m.dependencies[0].pluginId == "a_core");
+    REQUIRE(m.dependencies[0].versionRange == "^1.0.0");
+    REQUIRE(m.dependencies[0].isOptional);
+    REQUIRE(m.dependencies[1].pluginId == "z_core");
+    REQUIRE(m.permissions == std::vector<std::string>{"fs.read", "net.http"});
+}

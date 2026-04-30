@@ -5,6 +5,6 @@ C:/Program Files/CMake/share/cmake-4.3/Modules/CheckCXXSourceCompiles.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CheckCompilerFlag.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CheckFlagCommonConfig.cmake
 C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CheckSourceCompiles.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-src/CMake/CatchMiscFunctions.cmake
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-src/src/CMakeLists.txt
-C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-src/src/catch2/catch_user_config.hpp.in
+C:/dev/URPG Maker/build-local/_deps/catch2-src/CMake/CatchMiscFunctions.cmake
+C:/dev/URPG Maker/build-local/_deps/catch2-src/src/CMakeLists.txt
+C:/dev/URPG Maker/build-local/_deps/catch2-src/src/catch2/catch_user_config.hpp.in

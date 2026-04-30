@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/grid_part_catalog.schema.json",
+  "title": "Grid Part Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "catalogId", "displayName", "parts"],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "catalogId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "parts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/gridPartDefinition"
+      }
+    }
+  },
+  "$defs": {
+    "gridPartDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["partId", "displayName", "category", "defaultLayer", "collisionPolicy", "footprint"],
+      "properties": {
+        "partId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "Tile",
+            "Wall",
+            "Platform",
+            "Hazard",
+            "Door",
+            "Npc",
+            "Enemy",
+            "TreasureChest",
+            "SavePoint",
+            "Trigger",
+            "CutsceneZone",
+            "Shop",
+            "QuestItem",
+            "Prop",
+            "LevelBlock"
+          ]
+        },
+        "defaultLayer": {
+          "type": "string",
+          "enum": ["Terrain", "Decoration", "Collision", "Object", "Actor", "Trigger", "Region", "Overlay"]
+        },
+        "collisionPolicy": {
+          "type": "string",
+          "enum": ["None", "Solid", "Hazard", "TriggerOnly", "Custom"]
+        },
+        "supportedRulesets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "TopDownJRPG",
+              "SideScrollerAction",
+              "TacticalGrid",
+              "DungeonRoomBuilder",
+              "WorldMap",
+              "TownHub",
+              "BattleArena",
+              "CutsceneStage"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "footprint": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["width", "height"],
+          "properties": {
+            "width": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "allowOverlap": {
+              "type": "boolean"
+            },
+            "blocksNavigation": {
+              "type": "boolean"
+            }
+          }
+        },
+        "assetId": {
+          "type": "string"
+        },
+        "prefabPath": {
+          "type": "string"
+        },
+        "tileId": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "defaultProperties": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

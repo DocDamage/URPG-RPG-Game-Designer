@@ -3,11 +3,11 @@
 
 cmake_minimum_required(VERSION ${CMAKE_VERSION}) # this file comes with cmake
 
-if(EXISTS "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitclone-lastrun.txt" AND EXISTS "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitinfo.txt" AND
-  "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitclone-lastrun.txt" IS_NEWER_THAN "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitinfo.txt")
+if(EXISTS "C:/dev/URPG Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitclone-lastrun.txt" AND EXISTS "C:/dev/URPG Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitinfo.txt" AND
+  "C:/dev/URPG Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitclone-lastrun.txt" IS_NEWER_THAN "C:/dev/URPG Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitinfo.txt")
   message(VERBOSE
     "Avoiding repeated git clone, stamp file is up to date: "
-    "'C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitclone-lastrun.txt'"
+    "'C:/dev/URPG Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitclone-lastrun.txt'"
   )
   return()
 endif()
@@ -22,12 +22,12 @@ else()
 endif()
 
 execute_process(
-  COMMAND ${CMAKE_COMMAND} -E rm -rf "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-src"
+  COMMAND ${CMAKE_COMMAND} -E rm -rf "C:/dev/URPG Maker/build-local/_deps/stb-src"
   RESULT_VARIABLE error_code
   ${maybe_show_command}
 )
 if(error_code)
-  message(FATAL_ERROR "Failed to remove directory: 'C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-src'")
+  message(FATAL_ERROR "Failed to remove directory: 'C:/dev/URPG Maker/build-local/_deps/stb-src'")
 endif()
 
 # try the clone 3 times in case there is an odd git clone issue
@@ -37,7 +37,7 @@ while(error_code AND number_of_tries LESS 3)
   execute_process(
     COMMAND "C:/Program Files/Git/cmd/git.exe"
             clone --no-checkout --config "advice.detachedHead=false" "https://github.com/nothings/stb.git" "stb-src"
-    WORKING_DIRECTORY "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps"
+    WORKING_DIRECTORY "C:/dev/URPG Maker/build-local/_deps"
     RESULT_VARIABLE error_code
     ${maybe_show_command}
   )
@@ -52,13 +52,13 @@ endif()
 
 execute_process(
   COMMAND "C:/Program Files/Git/cmd/git.exe"
-          checkout "master" --
-  WORKING_DIRECTORY "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-src"
+          checkout "f58f558c120e9b32c217290b80bad1a0729fbb2c" --
+  WORKING_DIRECTORY "C:/dev/URPG Maker/build-local/_deps/stb-src"
   RESULT_VARIABLE error_code
   ${maybe_show_command}
 )
 if(error_code)
-  message(FATAL_ERROR "Failed to checkout tag: 'master'")
+  message(FATAL_ERROR "Failed to checkout tag: 'f58f558c120e9b32c217290b80bad1a0729fbb2c'")
 endif()
 
 set(init_submodules TRUE)
@@ -66,22 +66,22 @@ if(init_submodules)
   execute_process(
     COMMAND "C:/Program Files/Git/cmd/git.exe" 
             submodule update --recursive --init 
-    WORKING_DIRECTORY "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-src"
+    WORKING_DIRECTORY "C:/dev/URPG Maker/build-local/_deps/stb-src"
     RESULT_VARIABLE error_code
     ${maybe_show_command}
   )
 endif()
 if(error_code)
-  message(FATAL_ERROR "Failed to update submodules in: 'C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-src'")
+  message(FATAL_ERROR "Failed to update submodules in: 'C:/dev/URPG Maker/build-local/_deps/stb-src'")
 endif()
 
 # Complete success, update the script-last-run stamp file:
 #
 execute_process(
-  COMMAND ${CMAKE_COMMAND} -E copy "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitinfo.txt" "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitclone-lastrun.txt"
+  COMMAND ${CMAKE_COMMAND} -E copy "C:/dev/URPG Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitinfo.txt" "C:/dev/URPG Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitclone-lastrun.txt"
   RESULT_VARIABLE error_code
   ${maybe_show_command}
 )
 if(error_code)
-  message(FATAL_ERROR "Failed to copy script-last-run stamp file: 'C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitclone-lastrun.txt'")
+  message(FATAL_ERROR "Failed to copy script-last-run stamp file: 'C:/dev/URPG Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/stb-populate-gitclone-lastrun.txt'")
 endif()

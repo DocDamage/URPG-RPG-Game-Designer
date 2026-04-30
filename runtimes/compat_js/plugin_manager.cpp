@@ -8,6 +8,7 @@
 #include "plugin_manager_support.h"
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <condition_variable>
 #include <deque>
 #include <filesystem>
@@ -40,6 +41,20 @@ std::string trimPluginHeaderValue(std::string_view value) {
         value.remove_suffix(1);
     }
     return std::string(value);
+}
+
+bool isBlankString(const std::string& value) {
+    return std::all_of(value.begin(), value.end(), [](unsigned char ch) {
+        return std::isspace(ch) != 0;
+    });
+}
+
+void normalizeDependencyIds(std::vector<std::string>& dependencies) {
+    dependencies.erase(std::remove_if(dependencies.begin(), dependencies.end(),
+                                      [](const std::string& value) { return isBlankString(value); }),
+                       dependencies.end());
+    std::sort(dependencies.begin(), dependencies.end());
+    dependencies.erase(std::unique(dependencies.begin(), dependencies.end()), dependencies.end());
 }
 
 void applyPluginHeaderMetadata(const std::string& source, PluginInfo& info) {
@@ -400,6 +415,7 @@ bool PluginManager::loadPlugin(const std::string& path) {
                 }
                 info.dependencies.push_back(dep.get<std::string>());
             }
+            normalizeDependencyIds(info.dependencies);
         }
         impl_->plugins_[name] = std::move(info);
         impl_->pluginSourcePaths_[name] = path;
@@ -720,6 +736,7 @@ bool PluginManager::loadPlugin(const std::string& path) {
         info.loaded = true;
         info.enabled = true;
         applyPluginHeaderMetadata(jsSource, info);
+        normalizeDependencyIds(info.dependencies);
 
         impl_->plugins_[name] = std::move(info);
         impl_->pluginSourcePaths_[name] = path;
@@ -955,8 +972,10 @@ bool PluginManager::registerPlugin(const PluginInfo& info) {
         return false;
     }
 
-    impl_->plugins_[info.name] = info;
-    impl_->plugins_[info.name].loaded = true;
+    PluginInfo normalized = info;
+    normalizeDependencyIds(normalized.dependencies);
+    normalized.loaded = true;
+    impl_->plugins_[normalized.name] = std::move(normalized);
 
     triggerEvent(info.name, PluginEvent::ON_LOAD);
 
@@ -1329,11 +1348,12 @@ std::vector<std::string> PluginManager::getMissingDependencies(const std::string
     }
 
     for (const auto& dep : it->second.dependencies) {
-        if (!isPluginLoaded(dep)) {
+        if (!isBlankString(dep) && !isPluginLoaded(dep)) {
             missing.push_back(dep);
         }
     }
 
+    normalizeDependencyIds(missing);
     return missing;
 }
 

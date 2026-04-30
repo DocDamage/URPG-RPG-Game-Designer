@@ -345,6 +345,19 @@ set(URPG_CORE_SOURCES
     engine/core/map/procedural_map_generator.cpp
     engine/core/map/spawn_table.cpp
     engine/core/map/tactical_grid_preview.cpp
+    engine/core/map/grid_part_document.cpp
+    engine/core/map/grid_part_catalog.cpp
+    engine/core/map/grid_part_commands.cpp
+    engine/core/map/grid_part_validator.cpp
+    engine/core/map/grid_part_runtime_compiler.cpp
+    engine/core/map/grid_part_runtime_state.cpp
+    engine/core/map/grid_part_ruleset.cpp
+    engine/core/map/grid_part_objective.cpp
+    engine/core/map/grid_part_reachability.cpp
+    engine/core/map/grid_part_dependency_graph.cpp
+    engine/core/map/grid_part_stamp.cpp
+    engine/core/map/grid_part_package_governance.cpp
+    engine/core/map/grid_part_serializer.cpp
     engine/core/character/character_identity.cpp
     engine/core/character/character_identity_catalog.cpp
     engine/core/character/character_appearance_composition.cpp
@@ -482,6 +495,10 @@ set(URPG_CORE_SOURCES
     editor/spatial/map_environment_preview_panel.cpp
     editor/spatial/procedural_map_panel.cpp
     editor/spatial/prop_placement_panel.cpp
+    editor/spatial/grid_part_palette_panel.cpp
+    editor/spatial/grid_part_placement_panel.cpp
+    editor/spatial/grid_part_inspector_panel.cpp
+    editor/spatial/grid_part_playtest_panel.cpp
     editor/spatial/map_ability_binding_panel.cpp
     editor/spatial/spatial_ability_canvas_panel.cpp
     editor/spatial/spatial_authoring_workspace.cpp
@@ -989,7 +1006,7 @@ if(WIN32)
     endif()
 endif()
 
-if(WIN32)
+if(WIN32 AND NOT MSVC)
     foreach(_urpg_app_target IN ITEMS urpg_runtime urpg_editor urpg_audio_smoke)
         add_custom_command(
             TARGET ${_urpg_app_target}
@@ -1173,7 +1190,7 @@ add_executable(urpg_export_smoke_app
 target_link_libraries(urpg_export_smoke_app PRIVATE urpg_core)
 target_include_directories(urpg_export_smoke_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(WIN32)
+if(WIN32 AND NOT MSVC)
     add_custom_command(
         TARGET urpg_export_smoke_app
         POST_BUILD
@@ -1331,6 +1348,21 @@ add_executable(urpg_tests
     tests/unit/test_effect_resolver.cpp
     tests/unit/test_wave3_gaf.cpp
     tests/unit/test_level_assembly.cpp
+    tests/unit/test_grid_part_document.cpp
+    tests/unit/test_grid_part_catalog.cpp
+    tests/unit/test_grid_part_commands.cpp
+    tests/unit/test_grid_part_validator.cpp
+    tests/unit/test_grid_part_runtime_compiler.cpp
+    tests/unit/test_grid_part_runtime_state.cpp
+    tests/unit/test_grid_part_editor.cpp
+    tests/unit/test_grid_part_ruleset.cpp
+    tests/unit/test_grid_part_objective.cpp
+    tests/unit/test_grid_part_reachability.cpp
+    tests/unit/test_grid_part_dependency_graph.cpp
+    tests/unit/test_grid_part_playtest_pipeline.cpp
+    tests/unit/test_grid_part_stamp.cpp
+    tests/unit/test_grid_part_package_governance.cpp
+    tests/unit/test_grid_part_serializer.cpp
     tests/unit/test_sprite_animator.cpp
     tests/unit/test_sprite_animation_preview_panel.cpp
     tests/unit/test_procedural_toolkit.cpp
@@ -1434,6 +1466,7 @@ target_compile_definitions(urpg_tests PRIVATE URPG_PACK_CLI_PATH="$<TARGET_FILE:
 urpg_enable_windows_test_binary_unlock(urpg_tests)
 
 add_executable(urpg_integration_tests
+    tests/integration/test_grid_part_map_scene_integration.cpp
     tests/integration/test_integration_runtime_recovery.cpp
     tests/integration/test_runtime_startup_save_flow.cpp
     tests/integration/test_runtime_startup_services.cpp
@@ -1705,6 +1738,24 @@ add_test(
 set_tests_properties(
     urpg_spatial_editor_lane
     PROPERTIES LABELS "pr;presentation;editor"
+)
+
+add_test(
+    NAME urpg_grid_part_unit_lane
+    COMMAND urpg_tests "[grid_part]"
+)
+set_tests_properties(
+    urpg_grid_part_unit_lane
+    PROPERTIES LABELS "pr;grid_part"
+)
+
+add_test(
+    NAME urpg_grid_part_integration_lane
+    COMMAND urpg_integration_tests "[grid_part]"
+)
+set_tests_properties(
+    urpg_grid_part_integration_lane
+    PROPERTIES LABELS "nightly;grid_part"
 )
 endif()
 

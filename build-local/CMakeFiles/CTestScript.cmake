@@ -5,8 +5,8 @@
 cmake_minimum_required(VERSION 4.3.1)
 
 # CTest Start Step
-set(CTEST_SOURCE_DIRECTORY "C:/Users/dferr/dev/URPG - RPG Game Maker")
-set(CTEST_BINARY_DIRECTORY "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local")
+set(CTEST_SOURCE_DIRECTORY "C:/dev/URPG Maker")
+set(CTEST_BINARY_DIRECTORY "C:/dev/URPG Maker/build-local")
 
 # CTest Update Step
 set(CTEST_UPDATE_COMMAND "C:/Program Files/Git/cmd/git.exe")
@@ -50,7 +50,7 @@ set(CTEST_TEST_LOAD "")
 set(CTEST_TEST_TIMEOUT "1500")
 
 # CTest Coverage Step
-set(CTEST_COVERAGE_COMMAND "C:/Users/dferr/AppData/Local/Microsoft/WinGet/Packages/BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe/mingw64/bin/gcov.exe")
+set(CTEST_COVERAGE_COMMAND "C:/ProgramData/mingw64/mingw64/bin/gcov.exe")
 set(CTEST_COVERAGE_EXTRA_FLAGS "-l")
 
 # CTest MemCheck Step
@@ -61,7 +61,7 @@ set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "")
 set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE "")
 
 # CTest Submit Step
-set(CTEST_SITE "DocDamage")
+set(CTEST_SITE "DESKTOP-JD67PJL")
 set(CTEST_BUILD_NAME "Win32-MSBuild")
 set(CTEST_SUBMIT_URL "http://")
 set(CTEST_SUBMIT_INACTIVITY_TIMEOUT "")

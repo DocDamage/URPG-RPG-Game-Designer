@@ -33,44 +33,36 @@ MapAbilityBindingPanel::PaintedRegion NormalizeRegion(int start_x, int start_y, 
     return region;
 }
 
-bool RegionMatches(const MapAbilityBindingPanel::PaintedRegion& lhs,
-                   const MapAbilityBindingPanel::PaintedRegion& rhs) {
-    return lhs.min_x == rhs.min_x &&
-           lhs.min_y == rhs.min_y &&
-           lhs.max_x == rhs.max_x &&
-           lhs.max_y == rhs.max_y;
+bool RegionMatches(const MapAbilityBindingPanel::PaintedRegion& lhs, const MapAbilityBindingPanel::PaintedRegion& rhs) {
+    return lhs.min_x == rhs.min_x && lhs.min_y == rhs.min_y && lhs.max_x == rhs.max_x && lhs.max_y == rhs.max_y;
 }
 
-std::optional<urpg::ability::AuthoredAbilityAsset> LoadAssetForBinding(
-    const std::filesystem::path& project_root,
-    const urpg::scene::MapScene::InteractionAbilityBinding& binding) {
+std::optional<urpg::ability::AuthoredAbilityAsset>
+LoadAssetForBinding(const std::filesystem::path& project_root,
+                    const urpg::scene::MapScene::InteractionAbilityBinding& binding) {
     if (binding.asset_path.empty()) {
         return std::nullopt;
     }
 
-    const std::filesystem::path absolute_path = project_root.empty()
-                                                    ? std::filesystem::path(binding.asset_path)
-                                                    : (project_root / binding.asset_path);
+    const std::filesystem::path absolute_path =
+        project_root.empty() ? std::filesystem::path(binding.asset_path) : (project_root / binding.asset_path);
     return urpg::ability::loadAuthoredAbilityAssetFromFile(absolute_path);
 }
 
-std::optional<urpg::ability::AuthoredAbilityAsset> LoadAssetFromRelativePath(
-    const std::filesystem::path& project_root,
-    const std::string& asset_path) {
+std::optional<urpg::ability::AuthoredAbilityAsset> LoadAssetFromRelativePath(const std::filesystem::path& project_root,
+                                                                             const std::string& asset_path) {
     if (asset_path.empty()) {
         return std::nullopt;
     }
 
-    const std::filesystem::path absolute_path = project_root.empty()
-                                                    ? std::filesystem::path(asset_path)
-                                                    : (project_root / asset_path);
+    const std::filesystem::path absolute_path =
+        project_root.empty() ? std::filesystem::path(asset_path) : (project_root / asset_path);
     return urpg::ability::loadAuthoredAbilityAssetFromFile(absolute_path);
 }
 
-template <typename Predicate>
-std::optional<urpg::scene::MapScene::InteractionAbilityBinding> FindBindingCopy(
-    const urpg::scene::MapScene* scene,
-    Predicate&& predicate) {
+template<typename Predicate>
+std::optional<urpg::scene::MapScene::InteractionAbilityBinding> FindBindingCopy(const urpg::scene::MapScene* scene,
+                                                                                Predicate&& predicate) {
     if (scene == nullptr) {
         return std::nullopt;
     }
@@ -84,7 +76,7 @@ std::optional<urpg::scene::MapScene::InteractionAbilityBinding> FindBindingCopy(
     return std::nullopt;
 }
 
-}
+} // namespace
 
 void MapAbilityBindingPanel::Render(const urpg::FrameContext& context) {
     (void)context;
@@ -121,9 +113,8 @@ bool MapAbilityBindingPanel::RefreshProjectAssets() {
         previously_selected_path = m_assets[*m_selected_asset_index].relative_path;
     }
 
-    m_assets = m_project_root.empty()
-                   ? std::vector<urpg::ability::AuthoredAbilityAssetRecord>{}
-                   : urpg::ability::discoverAuthoredAbilityAssets(m_project_root);
+    m_assets = m_project_root.empty() ? std::vector<urpg::ability::AuthoredAbilityAssetRecord>{}
+                                      : urpg::ability::discoverAuthoredAbilityAssets(m_project_root);
     m_selected_asset_index.reset();
 
     if (previously_selected_path.has_value()) {
@@ -197,6 +188,7 @@ bool MapAbilityBindingPanel::SetSelectedPropAssetId(const std::string& prop_asse
         return false;
     }
 
+    m_placement.prop_instance_id.clear();
     m_placement.prop_asset_id = prop_asset_id;
     m_selected_prop_index.reset();
     m_placement.selected_prop_index = static_cast<size_t>(-1);
@@ -206,10 +198,8 @@ bool MapAbilityBindingPanel::SetSelectedPropAssetId(const std::string& prop_asse
 
 bool MapAbilityBindingPanel::SetActiveRegionBounds(int min_x, int min_y, int max_x, int max_y) {
     const PaintedRegion normalized = NormalizeRegion(min_x, min_y, max_x, max_y);
-    if (m_placement.region_start_x == normalized.min_x &&
-        m_placement.region_start_y == normalized.min_y &&
-        m_placement.region_end_x == normalized.max_x &&
-        m_placement.region_end_y == normalized.max_y) {
+    if (m_placement.region_start_x == normalized.min_x && m_placement.region_start_y == normalized.min_y &&
+        m_placement.region_end_x == normalized.max_x && m_placement.region_end_y == normalized.max_y) {
         return false;
     }
 
@@ -231,15 +221,14 @@ bool MapAbilityBindingPanel::SelectPropHandle(size_t index) {
 
     m_selected_prop_index = index;
     m_placement.selected_prop_index = index;
+    m_placement.prop_instance_id = m_target_overlay->props[index].instanceId;
     m_placement.prop_asset_id = m_target_overlay->props[index].assetId;
     captureRenderSnapshot();
     return true;
 }
 
 bool MapAbilityBindingPanel::BindSelectedAbilityToTileFromScreen(
-    float screenX,
-    float screenY,
-    const PropPlacementPanel::ScreenProjectionSettings& settings) {
+    float screenX, float screenY, const PropPlacementPanel::ScreenProjectionSettings& settings) {
     if (m_target_overlay == nullptr) {
         return false;
     }
@@ -247,7 +236,8 @@ bool MapAbilityBindingPanel::BindSelectedAbilityToTileFromScreen(
     float worldX = 0.0f;
     float worldY = 0.0f;
     float worldZ = 0.0f;
-    if (!PropPlacementPanel::TryProjectScreenToGround(*m_target_overlay, screenX, screenY, settings, worldX, worldY, worldZ)) {
+    if (!PropPlacementPanel::TryProjectScreenToGround(*m_target_overlay, screenX, screenY, settings, worldX, worldY,
+                                                      worldZ)) {
         return false;
     }
 
@@ -255,11 +245,9 @@ bool MapAbilityBindingPanel::BindSelectedAbilityToTileFromScreen(
     return BindSelectedAbilityToPlacementTile();
 }
 
-bool MapAbilityBindingPanel::SelectPropFromScreen(
-    float screenX,
-    float screenY,
-    const PropPlacementPanel::ScreenProjectionSettings& settings,
-    float max_distance) {
+bool MapAbilityBindingPanel::SelectPropFromScreen(float screenX, float screenY,
+                                                  const PropPlacementPanel::ScreenProjectionSettings& settings,
+                                                  float max_distance) {
     if (m_target_overlay == nullptr) {
         return false;
     }
@@ -267,7 +255,8 @@ bool MapAbilityBindingPanel::SelectPropFromScreen(
     float worldX = 0.0f;
     float worldY = 0.0f;
     float worldZ = 0.0f;
-    if (!PropPlacementPanel::TryProjectScreenToGround(*m_target_overlay, screenX, screenY, settings, worldX, worldY, worldZ)) {
+    if (!PropPlacementPanel::TryProjectScreenToGround(*m_target_overlay, screenX, screenY, settings, worldX, worldY,
+                                                      worldZ)) {
         return false;
     }
 
@@ -291,10 +280,8 @@ bool MapAbilityBindingPanel::SelectPropFromScreen(
     return SelectPropHandle(*best_prop_index);
 }
 
-bool MapAbilityBindingPanel::BeginPaintRegionFromScreen(
-    float screenX,
-    float screenY,
-    const PropPlacementPanel::ScreenProjectionSettings& settings) {
+bool MapAbilityBindingPanel::BeginPaintRegionFromScreen(float screenX, float screenY,
+                                                        const PropPlacementPanel::ScreenProjectionSettings& settings) {
     if (m_target_overlay == nullptr) {
         return false;
     }
@@ -302,7 +289,8 @@ bool MapAbilityBindingPanel::BeginPaintRegionFromScreen(
     float worldX = 0.0f;
     float worldY = 0.0f;
     float worldZ = 0.0f;
-    if (!PropPlacementPanel::TryProjectScreenToGround(*m_target_overlay, screenX, screenY, settings, worldX, worldY, worldZ)) {
+    if (!PropPlacementPanel::TryProjectScreenToGround(*m_target_overlay, screenX, screenY, settings, worldX, worldY,
+                                                      worldZ)) {
         return false;
     }
 
@@ -314,10 +302,8 @@ bool MapAbilityBindingPanel::BeginPaintRegionFromScreen(
     return true;
 }
 
-bool MapAbilityBindingPanel::UpdatePaintRegionFromScreen(
-    float screenX,
-    float screenY,
-    const PropPlacementPanel::ScreenProjectionSettings& settings) {
+bool MapAbilityBindingPanel::UpdatePaintRegionFromScreen(float screenX, float screenY,
+                                                         const PropPlacementPanel::ScreenProjectionSettings& settings) {
     if (m_target_overlay == nullptr) {
         return false;
     }
@@ -325,7 +311,8 @@ bool MapAbilityBindingPanel::UpdatePaintRegionFromScreen(
     float worldX = 0.0f;
     float worldY = 0.0f;
     float worldZ = 0.0f;
-    if (!PropPlacementPanel::TryProjectScreenToGround(*m_target_overlay, screenX, screenY, settings, worldX, worldY, worldZ)) {
+    if (!PropPlacementPanel::TryProjectScreenToGround(*m_target_overlay, screenX, screenY, settings, worldX, worldY,
+                                                      worldZ)) {
         return false;
     }
 
@@ -336,11 +323,8 @@ bool MapAbilityBindingPanel::UpdatePaintRegionFromScreen(
 }
 
 bool MapAbilityBindingPanel::CommitPaintedRegion() {
-    const PaintedRegion committed = NormalizeRegion(
-        m_placement.region_start_x,
-        m_placement.region_start_y,
-        m_placement.region_end_x,
-        m_placement.region_end_y);
+    const PaintedRegion committed = NormalizeRegion(m_placement.region_start_x, m_placement.region_start_y,
+                                                    m_placement.region_end_x, m_placement.region_end_y);
 
     for (size_t i = 0; i < m_placement.painted_regions.size(); ++i) {
         if (RegionMatches(m_placement.painted_regions[i], committed)) {
@@ -423,12 +407,8 @@ bool MapAbilityBindingPanel::BindSelectedAbilityToPlacementTile() {
         return false;
     }
 
-    const bool bound = m_target_scene->bindTileInteractionAbility(
-        m_selected_trigger_id,
-        m_placement.tile_x,
-        m_placement.tile_y,
-        record.relative_path,
-        *asset);
+    const bool bound = m_target_scene->bindTileInteractionAbility(m_selected_trigger_id, m_placement.tile_x,
+                                                                  m_placement.tile_y, record.relative_path, *asset);
     captureRenderSnapshot();
     return bound;
 }
@@ -444,11 +424,13 @@ bool MapAbilityBindingPanel::BindSelectedAbilityToSelectedProp() {
         return false;
     }
 
-    const bool bound = m_target_scene->bindPropInteractionAbility(
-        m_selected_trigger_id,
-        m_placement.prop_asset_id,
-        record.relative_path,
-        *asset);
+    const bool bound =
+        m_placement.prop_instance_id.empty()
+            ? m_target_scene->bindPropInteractionAbility(m_selected_trigger_id, m_placement.prop_asset_id,
+                                                         record.relative_path, *asset)
+            : m_target_scene->bindPropInstanceInteractionAbility(m_selected_trigger_id, m_placement.prop_instance_id,
+                                                                 m_placement.prop_asset_id, record.relative_path,
+                                                                 *asset);
     captureRenderSnapshot();
     return bound;
 }
@@ -465,13 +447,8 @@ bool MapAbilityBindingPanel::BindSelectedAbilityToPaintedRegion() {
     }
 
     const bool bound = m_target_scene->bindRegionInteractionAbility(
-        m_selected_trigger_id,
-        m_placement.region_start_x,
-        m_placement.region_start_y,
-        m_placement.region_end_x,
-        m_placement.region_end_y,
-        record.relative_path,
-        *asset);
+        m_selected_trigger_id, m_placement.region_start_x, m_placement.region_start_y, m_placement.region_end_x,
+        m_placement.region_end_y, record.relative_path, *asset);
     captureRenderSnapshot();
     return bound;
 }
@@ -489,15 +466,10 @@ bool MapAbilityBindingPanel::BindSelectedAbilityToCommittedRegions() {
 
     bool bound_any = false;
     for (const auto& region : m_placement.painted_regions) {
-        bound_any = m_target_scene->bindRegionInteractionAbility(
-                        m_selected_trigger_id,
-                        region.min_x,
-                        region.min_y,
-                        region.max_x,
-                        region.max_y,
-                        record.relative_path,
-                        *asset) ||
-                    bound_any;
+        bound_any =
+            m_target_scene->bindRegionInteractionAbility(m_selected_trigger_id, region.min_x, region.min_y,
+                                                         region.max_x, region.max_y, record.relative_path, *asset) ||
+            bound_any;
     }
 
     captureRenderSnapshot();
@@ -511,8 +483,7 @@ bool MapAbilityBindingPanel::MoveTileBinding(int from_tile_x, int from_tile_y, i
 
     for (const auto& binding : m_target_scene->interactionAbilityBindings()) {
         if (binding.scope != urpg::scene::MapScene::InteractionBindingScope::Tile ||
-            binding.trigger_id != m_selected_trigger_id ||
-            binding.tile_x != from_tile_x ||
+            binding.trigger_id != m_selected_trigger_id || binding.tile_x != from_tile_x ||
             binding.tile_y != from_tile_y) {
             continue;
         }
@@ -523,12 +494,8 @@ bool MapAbilityBindingPanel::MoveTileBinding(int from_tile_x, int from_tile_y, i
         }
 
         m_target_scene->unbindTileInteractionAbility(binding.trigger_id, from_tile_x, from_tile_y);
-        const bool rebound = m_target_scene->bindTileInteractionAbility(
-            binding.trigger_id,
-            to_tile_x,
-            to_tile_y,
-            binding.asset_path,
-            *asset);
+        const bool rebound = m_target_scene->bindTileInteractionAbility(binding.trigger_id, to_tile_x, to_tile_y,
+                                                                        binding.asset_path, *asset);
         if (rebound) {
             SetPlacementTile(to_tile_x, to_tile_y);
         }
@@ -539,7 +506,8 @@ bool MapAbilityBindingPanel::MoveTileBinding(int from_tile_x, int from_tile_y, i
     return false;
 }
 
-bool MapAbilityBindingPanel::MovePropBinding(const std::string& from_prop_asset_id, const std::string& to_prop_asset_id) {
+bool MapAbilityBindingPanel::MovePropBinding(const std::string& from_prop_asset_id,
+                                             const std::string& to_prop_asset_id) {
     if (m_target_scene == nullptr || from_prop_asset_id.empty() || to_prop_asset_id.empty() ||
         from_prop_asset_id == to_prop_asset_id) {
         return false;
@@ -547,8 +515,7 @@ bool MapAbilityBindingPanel::MovePropBinding(const std::string& from_prop_asset_
 
     for (const auto& binding : m_target_scene->interactionAbilityBindings()) {
         if (binding.scope != urpg::scene::MapScene::InteractionBindingScope::Prop ||
-            binding.trigger_id != m_selected_trigger_id ||
-            binding.prop_asset_id != from_prop_asset_id) {
+            binding.trigger_id != m_selected_trigger_id || binding.prop_asset_id != from_prop_asset_id) {
             continue;
         }
 
@@ -558,11 +525,8 @@ bool MapAbilityBindingPanel::MovePropBinding(const std::string& from_prop_asset_
         }
 
         m_target_scene->unbindPropInteractionAbility(binding.trigger_id, from_prop_asset_id);
-        const bool rebound = m_target_scene->bindPropInteractionAbility(
-            binding.trigger_id,
-            to_prop_asset_id,
-            binding.asset_path,
-            *asset);
+        const bool rebound = m_target_scene->bindPropInteractionAbility(binding.trigger_id, to_prop_asset_id,
+                                                                        binding.asset_path, *asset);
         if (rebound) {
             SetSelectedPropAssetId(to_prop_asset_id);
         }
@@ -573,14 +537,8 @@ bool MapAbilityBindingPanel::MovePropBinding(const std::string& from_prop_asset_
     return false;
 }
 
-bool MapAbilityBindingPanel::ResizeRegionBinding(int from_min_x,
-                                                 int from_min_y,
-                                                 int from_max_x,
-                                                 int from_max_y,
-                                                 int to_min_x,
-                                                 int to_min_y,
-                                                 int to_max_x,
-                                                 int to_max_y) {
+bool MapAbilityBindingPanel::ResizeRegionBinding(int from_min_x, int from_min_y, int from_max_x, int from_max_y,
+                                                 int to_min_x, int to_min_y, int to_max_x, int to_max_y) {
     if (m_target_scene == nullptr) {
         return false;
     }
@@ -593,10 +551,8 @@ bool MapAbilityBindingPanel::ResizeRegionBinding(int from_min_x,
 
     for (const auto& binding : m_target_scene->interactionAbilityBindings()) {
         if (binding.scope != urpg::scene::MapScene::InteractionBindingScope::Region ||
-            binding.trigger_id != m_selected_trigger_id ||
-            binding.region_min_x != from_region.min_x ||
-            binding.region_min_y != from_region.min_y ||
-            binding.region_max_x != from_region.max_x ||
+            binding.trigger_id != m_selected_trigger_id || binding.region_min_x != from_region.min_x ||
+            binding.region_min_y != from_region.min_y || binding.region_max_x != from_region.max_x ||
             binding.region_max_y != from_region.max_y) {
             continue;
         }
@@ -606,20 +562,11 @@ bool MapAbilityBindingPanel::ResizeRegionBinding(int from_min_x,
             return false;
         }
 
-        m_target_scene->unbindRegionInteractionAbility(
-            binding.trigger_id,
-            from_region.min_x,
-            from_region.min_y,
-            from_region.max_x,
-            from_region.max_y);
-        const bool rebound = m_target_scene->bindRegionInteractionAbility(
-            binding.trigger_id,
-            to_region.min_x,
-            to_region.min_y,
-            to_region.max_x,
-            to_region.max_y,
-            binding.asset_path,
-            *asset);
+        m_target_scene->unbindRegionInteractionAbility(binding.trigger_id, from_region.min_x, from_region.min_y,
+                                                       from_region.max_x, from_region.max_y);
+        const bool rebound =
+            m_target_scene->bindRegionInteractionAbility(binding.trigger_id, to_region.min_x, to_region.min_y,
+                                                         to_region.max_x, to_region.max_y, binding.asset_path, *asset);
         if (rebound) {
             SetActiveRegionBounds(to_region.min_x, to_region.min_y, to_region.max_x, to_region.max_y);
         }
@@ -630,19 +577,16 @@ bool MapAbilityBindingPanel::ResizeRegionBinding(int from_min_x,
     return false;
 }
 
-bool MapAbilityBindingPanel::SwitchTileBindingTrigger(int tile_x,
-                                                      int tile_y,
-                                                      const std::string& from_trigger_id,
+bool MapAbilityBindingPanel::SwitchTileBindingTrigger(int tile_x, int tile_y, const std::string& from_trigger_id,
                                                       const std::string& to_trigger_id) {
-    if (m_target_scene == nullptr || from_trigger_id.empty() || to_trigger_id.empty() || from_trigger_id == to_trigger_id) {
+    if (m_target_scene == nullptr || from_trigger_id.empty() || to_trigger_id.empty() ||
+        from_trigger_id == to_trigger_id) {
         return false;
     }
 
     for (const auto& binding : m_target_scene->interactionAbilityBindings()) {
         if (binding.scope != urpg::scene::MapScene::InteractionBindingScope::Tile ||
-            binding.trigger_id != from_trigger_id ||
-            binding.tile_x != tile_x ||
-            binding.tile_y != tile_y) {
+            binding.trigger_id != from_trigger_id || binding.tile_x != tile_x || binding.tile_y != tile_y) {
             continue;
         }
 
@@ -652,12 +596,8 @@ bool MapAbilityBindingPanel::SwitchTileBindingTrigger(int tile_x,
         }
 
         m_target_scene->unbindTileInteractionAbility(from_trigger_id, tile_x, tile_y);
-        const bool rebound = m_target_scene->bindTileInteractionAbility(
-            to_trigger_id,
-            tile_x,
-            tile_y,
-            binding.asset_path,
-            *asset);
+        const bool rebound =
+            m_target_scene->bindTileInteractionAbility(to_trigger_id, tile_x, tile_y, binding.asset_path, *asset);
         if (rebound) {
             m_selected_trigger_id = to_trigger_id;
         }
@@ -678,8 +618,7 @@ bool MapAbilityBindingPanel::SwitchPropBindingTrigger(const std::string& prop_as
 
     for (const auto& binding : m_target_scene->interactionAbilityBindings()) {
         if (binding.scope != urpg::scene::MapScene::InteractionBindingScope::Prop ||
-            binding.trigger_id != from_trigger_id ||
-            binding.prop_asset_id != prop_asset_id) {
+            binding.trigger_id != from_trigger_id || binding.prop_asset_id != prop_asset_id) {
             continue;
         }
 
@@ -689,11 +628,8 @@ bool MapAbilityBindingPanel::SwitchPropBindingTrigger(const std::string& prop_as
         }
 
         m_target_scene->unbindPropInteractionAbility(from_trigger_id, prop_asset_id);
-        const bool rebound = m_target_scene->bindPropInteractionAbility(
-            to_trigger_id,
-            prop_asset_id,
-            binding.asset_path,
-            *asset);
+        const bool rebound =
+            m_target_scene->bindPropInteractionAbility(to_trigger_id, prop_asset_id, binding.asset_path, *asset);
         if (rebound) {
             m_selected_trigger_id = to_trigger_id;
         }
@@ -704,23 +640,19 @@ bool MapAbilityBindingPanel::SwitchPropBindingTrigger(const std::string& prop_as
     return false;
 }
 
-bool MapAbilityBindingPanel::SwitchRegionBindingTrigger(int min_x,
-                                                        int min_y,
-                                                        int max_x,
-                                                        int max_y,
+bool MapAbilityBindingPanel::SwitchRegionBindingTrigger(int min_x, int min_y, int max_x, int max_y,
                                                         const std::string& from_trigger_id,
                                                         const std::string& to_trigger_id) {
-    if (m_target_scene == nullptr || from_trigger_id.empty() || to_trigger_id.empty() || from_trigger_id == to_trigger_id) {
+    if (m_target_scene == nullptr || from_trigger_id.empty() || to_trigger_id.empty() ||
+        from_trigger_id == to_trigger_id) {
         return false;
     }
 
     const PaintedRegion region = NormalizeRegion(min_x, min_y, max_x, max_y);
     for (const auto& binding : m_target_scene->interactionAbilityBindings()) {
         if (binding.scope != urpg::scene::MapScene::InteractionBindingScope::Region ||
-            binding.trigger_id != from_trigger_id ||
-            binding.region_min_x != region.min_x ||
-            binding.region_min_y != region.min_y ||
-            binding.region_max_x != region.max_x ||
+            binding.trigger_id != from_trigger_id || binding.region_min_x != region.min_x ||
+            binding.region_min_y != region.min_y || binding.region_max_x != region.max_x ||
             binding.region_max_y != region.max_y) {
             continue;
         }
@@ -730,20 +662,10 @@ bool MapAbilityBindingPanel::SwitchRegionBindingTrigger(int min_x,
             return false;
         }
 
-        m_target_scene->unbindRegionInteractionAbility(
-            from_trigger_id,
-            region.min_x,
-            region.min_y,
-            region.max_x,
-            region.max_y);
+        m_target_scene->unbindRegionInteractionAbility(from_trigger_id, region.min_x, region.min_y, region.max_x,
+                                                       region.max_y);
         const bool rebound = m_target_scene->bindRegionInteractionAbility(
-            to_trigger_id,
-            region.min_x,
-            region.min_y,
-            region.max_x,
-            region.max_y,
-            binding.asset_path,
-            *asset);
+            to_trigger_id, region.min_x, region.min_y, region.max_x, region.max_y, binding.asset_path, *asset);
         if (rebound) {
             m_selected_trigger_id = to_trigger_id;
         }
@@ -754,9 +676,7 @@ bool MapAbilityBindingPanel::SwitchRegionBindingTrigger(int min_x,
     return false;
 }
 
-bool MapAbilityBindingPanel::ReplaceTileBindingAsset(int tile_x,
-                                                     int tile_y,
-                                                     const std::string& trigger_id,
+bool MapAbilityBindingPanel::ReplaceTileBindingAsset(int tile_x, int tile_y, const std::string& trigger_id,
                                                      const std::string& asset_path) {
     if (m_target_scene == nullptr || trigger_id.empty() || asset_path.empty()) {
         return false;
@@ -772,8 +692,7 @@ bool MapAbilityBindingPanel::ReplaceTileBindingAsset(int tile_x,
     return rebound;
 }
 
-bool MapAbilityBindingPanel::ReplacePropBindingAsset(const std::string& prop_asset_id,
-                                                     const std::string& trigger_id,
+bool MapAbilityBindingPanel::ReplacePropBindingAsset(const std::string& prop_asset_id, const std::string& trigger_id,
                                                      const std::string& asset_path) {
     if (m_target_scene == nullptr || prop_asset_id.empty() || trigger_id.empty() || asset_path.empty()) {
         return false;
@@ -789,12 +708,8 @@ bool MapAbilityBindingPanel::ReplacePropBindingAsset(const std::string& prop_ass
     return rebound;
 }
 
-bool MapAbilityBindingPanel::ReplaceRegionBindingAsset(int min_x,
-                                                       int min_y,
-                                                       int max_x,
-                                                       int max_y,
-                                                       const std::string& trigger_id,
-                                                       const std::string& asset_path) {
+bool MapAbilityBindingPanel::ReplaceRegionBindingAsset(int min_x, int min_y, int max_x, int max_y,
+                                                       const std::string& trigger_id, const std::string& asset_path) {
     if (m_target_scene == nullptr || trigger_id.empty() || asset_path.empty()) {
         return false;
     }
@@ -805,43 +720,27 @@ bool MapAbilityBindingPanel::ReplaceRegionBindingAsset(int min_x,
         return false;
     }
 
-    const bool rebound = m_target_scene->bindRegionInteractionAbility(
-        trigger_id,
-        region.min_x,
-        region.min_y,
-        region.max_x,
-        region.max_y,
-        asset_path,
-        *asset);
+    const bool rebound = m_target_scene->bindRegionInteractionAbility(trigger_id, region.min_x, region.min_y,
+                                                                      region.max_x, region.max_y, asset_path, *asset);
     captureRenderSnapshot();
     return rebound;
 }
 
-bool MapAbilityBindingPanel::SwapTileBindingTriggers(int tile_x,
-                                                     int tile_y,
-                                                     const std::string& first_trigger_id,
+bool MapAbilityBindingPanel::SwapTileBindingTriggers(int tile_x, int tile_y, const std::string& first_trigger_id,
                                                      const std::string& second_trigger_id) {
     if (m_target_scene == nullptr || first_trigger_id.empty() || second_trigger_id.empty() ||
         first_trigger_id == second_trigger_id) {
         return false;
     }
 
-    const auto first_binding = FindBindingCopy(
-        m_target_scene,
-        [&](const auto& binding) {
-            return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Tile &&
-                   binding.tile_x == tile_x &&
-                   binding.tile_y == tile_y &&
-                   binding.trigger_id == first_trigger_id;
-        });
-    const auto second_binding = FindBindingCopy(
-        m_target_scene,
-        [&](const auto& binding) {
-            return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Tile &&
-                   binding.tile_x == tile_x &&
-                   binding.tile_y == tile_y &&
-                   binding.trigger_id == second_trigger_id;
-        });
+    const auto first_binding = FindBindingCopy(m_target_scene, [&](const auto& binding) {
+        return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Tile && binding.tile_x == tile_x &&
+               binding.tile_y == tile_y && binding.trigger_id == first_trigger_id;
+    });
+    const auto second_binding = FindBindingCopy(m_target_scene, [&](const auto& binding) {
+        return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Tile && binding.tile_x == tile_x &&
+               binding.tile_y == tile_y && binding.trigger_id == second_trigger_id;
+    });
     if (!first_binding.has_value() || !second_binding.has_value()) {
         return false;
     }
@@ -854,18 +753,10 @@ bool MapAbilityBindingPanel::SwapTileBindingTriggers(int tile_x,
 
     m_target_scene->unbindTileInteractionAbility(first_trigger_id, tile_x, tile_y);
     m_target_scene->unbindTileInteractionAbility(second_trigger_id, tile_x, tile_y);
-    const bool rebound_first = m_target_scene->bindTileInteractionAbility(
-        second_trigger_id,
-        tile_x,
-        tile_y,
-        first_binding->asset_path,
-        *first_asset);
-    const bool rebound_second = m_target_scene->bindTileInteractionAbility(
-        first_trigger_id,
-        tile_x,
-        tile_y,
-        second_binding->asset_path,
-        *second_asset);
+    const bool rebound_first = m_target_scene->bindTileInteractionAbility(second_trigger_id, tile_x, tile_y,
+                                                                          first_binding->asset_path, *first_asset);
+    const bool rebound_second = m_target_scene->bindTileInteractionAbility(first_trigger_id, tile_x, tile_y,
+                                                                           second_binding->asset_path, *second_asset);
     captureRenderSnapshot();
     return rebound_first && rebound_second;
 }
@@ -878,20 +769,14 @@ bool MapAbilityBindingPanel::SwapPropBindingTriggers(const std::string& prop_ass
         return false;
     }
 
-    const auto first_binding = FindBindingCopy(
-        m_target_scene,
-        [&](const auto& binding) {
-            return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Prop &&
-                   binding.prop_asset_id == prop_asset_id &&
-                   binding.trigger_id == first_trigger_id;
-        });
-    const auto second_binding = FindBindingCopy(
-        m_target_scene,
-        [&](const auto& binding) {
-            return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Prop &&
-                   binding.prop_asset_id == prop_asset_id &&
-                   binding.trigger_id == second_trigger_id;
-        });
+    const auto first_binding = FindBindingCopy(m_target_scene, [&](const auto& binding) {
+        return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Prop &&
+               binding.prop_asset_id == prop_asset_id && binding.trigger_id == first_trigger_id;
+    });
+    const auto second_binding = FindBindingCopy(m_target_scene, [&](const auto& binding) {
+        return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Prop &&
+               binding.prop_asset_id == prop_asset_id && binding.trigger_id == second_trigger_id;
+    });
     if (!first_binding.has_value() || !second_binding.has_value()) {
         return false;
     }
@@ -904,24 +789,15 @@ bool MapAbilityBindingPanel::SwapPropBindingTriggers(const std::string& prop_ass
 
     m_target_scene->unbindPropInteractionAbility(first_trigger_id, prop_asset_id);
     m_target_scene->unbindPropInteractionAbility(second_trigger_id, prop_asset_id);
-    const bool rebound_first = m_target_scene->bindPropInteractionAbility(
-        second_trigger_id,
-        prop_asset_id,
-        first_binding->asset_path,
-        *first_asset);
-    const bool rebound_second = m_target_scene->bindPropInteractionAbility(
-        first_trigger_id,
-        prop_asset_id,
-        second_binding->asset_path,
-        *second_asset);
+    const bool rebound_first = m_target_scene->bindPropInteractionAbility(second_trigger_id, prop_asset_id,
+                                                                          first_binding->asset_path, *first_asset);
+    const bool rebound_second = m_target_scene->bindPropInteractionAbility(first_trigger_id, prop_asset_id,
+                                                                           second_binding->asset_path, *second_asset);
     captureRenderSnapshot();
     return rebound_first && rebound_second;
 }
 
-bool MapAbilityBindingPanel::SwapRegionBindingTriggers(int min_x,
-                                                       int min_y,
-                                                       int max_x,
-                                                       int max_y,
+bool MapAbilityBindingPanel::SwapRegionBindingTriggers(int min_x, int min_y, int max_x, int max_y,
                                                        const std::string& first_trigger_id,
                                                        const std::string& second_trigger_id) {
     if (m_target_scene == nullptr || first_trigger_id.empty() || second_trigger_id.empty() ||
@@ -930,26 +806,18 @@ bool MapAbilityBindingPanel::SwapRegionBindingTriggers(int min_x,
     }
 
     const auto region = NormalizeRegion(min_x, min_y, max_x, max_y);
-    const auto first_binding = FindBindingCopy(
-        m_target_scene,
-        [&](const auto& binding) {
-            return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Region &&
-                   binding.region_min_x == region.min_x &&
-                   binding.region_min_y == region.min_y &&
-                   binding.region_max_x == region.max_x &&
-                   binding.region_max_y == region.max_y &&
-                   binding.trigger_id == first_trigger_id;
-        });
-    const auto second_binding = FindBindingCopy(
-        m_target_scene,
-        [&](const auto& binding) {
-            return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Region &&
-                   binding.region_min_x == region.min_x &&
-                   binding.region_min_y == region.min_y &&
-                   binding.region_max_x == region.max_x &&
-                   binding.region_max_y == region.max_y &&
-                   binding.trigger_id == second_trigger_id;
-        });
+    const auto first_binding = FindBindingCopy(m_target_scene, [&](const auto& binding) {
+        return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Region &&
+               binding.region_min_x == region.min_x && binding.region_min_y == region.min_y &&
+               binding.region_max_x == region.max_x && binding.region_max_y == region.max_y &&
+               binding.trigger_id == first_trigger_id;
+    });
+    const auto second_binding = FindBindingCopy(m_target_scene, [&](const auto& binding) {
+        return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Region &&
+               binding.region_min_x == region.min_x && binding.region_min_y == region.min_y &&
+               binding.region_max_x == region.max_x && binding.region_max_y == region.max_y &&
+               binding.trigger_id == second_trigger_id;
+    });
     if (!first_binding.has_value() || !second_binding.has_value()) {
         return false;
     }
@@ -960,64 +828,42 @@ bool MapAbilityBindingPanel::SwapRegionBindingTriggers(int min_x,
         return false;
     }
 
-    m_target_scene->unbindRegionInteractionAbility(first_trigger_id, region.min_x, region.min_y, region.max_x, region.max_y);
-    m_target_scene->unbindRegionInteractionAbility(second_trigger_id, region.min_x, region.min_y, region.max_x, region.max_y);
-    const bool rebound_first = m_target_scene->bindRegionInteractionAbility(
-        second_trigger_id,
-        region.min_x,
-        region.min_y,
-        region.max_x,
-        region.max_y,
-        first_binding->asset_path,
-        *first_asset);
-    const bool rebound_second = m_target_scene->bindRegionInteractionAbility(
-        first_trigger_id,
-        region.min_x,
-        region.min_y,
-        region.max_x,
-        region.max_y,
-        second_binding->asset_path,
-        *second_asset);
+    m_target_scene->unbindRegionInteractionAbility(first_trigger_id, region.min_x, region.min_y, region.max_x,
+                                                   region.max_y);
+    m_target_scene->unbindRegionInteractionAbility(second_trigger_id, region.min_x, region.min_y, region.max_x,
+                                                   region.max_y);
+    const bool rebound_first =
+        m_target_scene->bindRegionInteractionAbility(second_trigger_id, region.min_x, region.min_y, region.max_x,
+                                                     region.max_y, first_binding->asset_path, *first_asset);
+    const bool rebound_second =
+        m_target_scene->bindRegionInteractionAbility(first_trigger_id, region.min_x, region.min_y, region.max_x,
+                                                     region.max_y, second_binding->asset_path, *second_asset);
     captureRenderSnapshot();
     return rebound_first && rebound_second;
 }
 
-bool MapAbilityBindingPanel::SwapRegionBindingTriggersBetween(int first_min_x,
-                                                              int first_min_y,
-                                                              int first_max_x,
-                                                              int first_max_y,
-                                                              const std::string& first_trigger_id,
-                                                              int second_min_x,
-                                                              int second_min_y,
-                                                              int second_max_x,
-                                                              int second_max_y,
-                                                              const std::string& second_trigger_id) {
+bool MapAbilityBindingPanel::SwapRegionBindingTriggersBetween(int first_min_x, int first_min_y, int first_max_x,
+                                                              int first_max_y, const std::string& first_trigger_id,
+                                                              int second_min_x, int second_min_y, int second_max_x,
+                                                              int second_max_y, const std::string& second_trigger_id) {
     if (m_target_scene == nullptr || first_trigger_id.empty() || second_trigger_id.empty()) {
         return false;
     }
 
     const PaintedRegion first_region = NormalizeRegion(first_min_x, first_min_y, first_max_x, first_max_y);
     const PaintedRegion second_region = NormalizeRegion(second_min_x, second_min_y, second_max_x, second_max_y);
-    const auto first_binding = FindBindingCopy(
-        m_target_scene,
-        [&](const auto& binding) {
-            return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Region &&
-                   binding.region_min_x == first_region.min_x &&
-                   binding.region_min_y == first_region.min_y &&
-                   binding.region_max_x == first_region.max_x &&
-                   binding.region_max_y == first_region.max_y &&
-                   binding.trigger_id == first_trigger_id;
-        });
-    const auto second_binding = FindBindingCopy(
-        m_target_scene,
-        [&](const auto& binding) {
-            return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Region &&
-                   binding.region_min_x == second_region.min_x &&
-                   binding.region_min_y == second_region.min_y &&
-                   binding.region_max_x == second_region.max_x &&
-                   binding.region_max_y == second_region.max_y &&
-                   binding.trigger_id == second_trigger_id;
-        });
+    const auto first_binding = FindBindingCopy(m_target_scene, [&](const auto& binding) {
+        return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Region &&
+               binding.region_min_x == first_region.min_x && binding.region_min_y == first_region.min_y &&
+               binding.region_max_x == first_region.max_x && binding.region_max_y == first_region.max_y &&
+               binding.trigger_id == first_trigger_id;
+    });
+    const auto second_binding = FindBindingCopy(m_target_scene, [&](const auto& binding) {
+        return binding.scope == urpg::scene::MapScene::InteractionBindingScope::Region &&
+               binding.region_min_x == second_region.min_x && binding.region_min_y == second_region.min_y &&
+               binding.region_max_x == second_region.max_x && binding.region_max_y == second_region.max_y &&
+               binding.trigger_id == second_trigger_id;
+    });
     if (!first_binding.has_value() || !second_binding.has_value()) {
         return false;
     }
@@ -1028,34 +874,16 @@ bool MapAbilityBindingPanel::SwapRegionBindingTriggersBetween(int first_min_x,
         return false;
     }
 
-    m_target_scene->unbindRegionInteractionAbility(
-        first_trigger_id,
-        first_region.min_x,
-        first_region.min_y,
-        first_region.max_x,
-        first_region.max_y);
-    m_target_scene->unbindRegionInteractionAbility(
-        second_trigger_id,
-        second_region.min_x,
-        second_region.min_y,
-        second_region.max_x,
-        second_region.max_y);
+    m_target_scene->unbindRegionInteractionAbility(first_trigger_id, first_region.min_x, first_region.min_y,
+                                                   first_region.max_x, first_region.max_y);
+    m_target_scene->unbindRegionInteractionAbility(second_trigger_id, second_region.min_x, second_region.min_y,
+                                                   second_region.max_x, second_region.max_y);
     const bool rebound_first = m_target_scene->bindRegionInteractionAbility(
-        second_trigger_id,
-        first_region.min_x,
-        first_region.min_y,
-        first_region.max_x,
-        first_region.max_y,
-        first_binding->asset_path,
-        *first_asset);
+        second_trigger_id, first_region.min_x, first_region.min_y, first_region.max_x, first_region.max_y,
+        first_binding->asset_path, *first_asset);
     const bool rebound_second = m_target_scene->bindRegionInteractionAbility(
-        first_trigger_id,
-        second_region.min_x,
-        second_region.min_y,
-        second_region.max_x,
-        second_region.max_y,
-        second_binding->asset_path,
-        *second_asset);
+        first_trigger_id, second_region.min_x, second_region.min_y, second_region.max_x, second_region.max_y,
+        second_binding->asset_path, *second_asset);
     captureRenderSnapshot();
     return rebound_first && rebound_second;
 }
@@ -1080,10 +908,7 @@ bool MapAbilityBindingPanel::RemovePropBinding(const std::string& prop_asset_id,
     return removed;
 }
 
-bool MapAbilityBindingPanel::RemoveRegionBinding(int min_x,
-                                                 int min_y,
-                                                 int max_x,
-                                                 int max_y,
+bool MapAbilityBindingPanel::RemoveRegionBinding(int min_x, int min_y, int max_x, int max_y,
                                                  const std::string& trigger_id) {
     if (m_target_scene == nullptr || trigger_id.empty()) {
         return false;
@@ -1109,10 +934,8 @@ bool MapAbilityBindingPanel::ActivatePlacementTileInteraction() {
         return false;
     }
 
-    const bool activated = m_target_scene->activateInteractionAbilityAtTile(
-        m_selected_trigger_id,
-        m_placement.tile_x,
-        m_placement.tile_y);
+    const bool activated =
+        m_target_scene->activateInteractionAbilityAtTile(m_selected_trigger_id, m_placement.tile_x, m_placement.tile_y);
     captureRenderSnapshot();
     return activated;
 }
@@ -1122,9 +945,11 @@ bool MapAbilityBindingPanel::ActivateSelectedPropInteraction() {
         return false;
     }
 
-    const bool activated = m_target_scene->activateInteractionAbilityForProp(
-        m_selected_trigger_id,
-        m_placement.prop_asset_id);
+    const bool activated =
+        m_placement.prop_instance_id.empty()
+            ? m_target_scene->activateInteractionAbilityForProp(m_selected_trigger_id, m_placement.prop_asset_id)
+            : m_target_scene->activateInteractionAbilityForPropInstance(
+                  m_selected_trigger_id, m_placement.prop_instance_id, m_placement.prop_asset_id);
     captureRenderSnapshot();
     return activated;
 }
@@ -1155,6 +980,7 @@ void MapAbilityBindingPanel::captureRenderSnapshot() {
             const auto& prop = m_target_overlay->props[i];
             PropHandleEntry handle;
             handle.prop_index = i;
+            handle.instance_id = prop.instanceId;
             handle.asset_id = prop.assetId;
             handle.world_x = prop.posX;
             handle.world_y = prop.posY;
@@ -1225,6 +1051,7 @@ void MapAbilityBindingPanel::captureRenderSnapshot() {
             binding.region_min_y,
             binding.region_max_x,
             binding.region_max_y,
+            binding.prop_instance_id,
             binding.prop_asset_id,
         });
 
@@ -1269,7 +1096,8 @@ void MapAbilityBindingPanel::captureRenderSnapshot() {
     for (auto& handle : last_render_snapshot_.prop_handles) {
         for (const auto& binding : bindings) {
             if (binding.scope == urpg::scene::MapScene::InteractionBindingScope::Prop &&
-                binding.prop_asset_id == handle.asset_id) {
+                ((!binding.prop_instance_id.empty() && binding.prop_instance_id == handle.instance_id) ||
+                 (binding.prop_instance_id.empty() && binding.prop_asset_id == handle.asset_id))) {
                 handle.has_binding = true;
                 break;
             }

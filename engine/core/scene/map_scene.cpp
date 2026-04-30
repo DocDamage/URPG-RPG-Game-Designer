@@ -6,6 +6,7 @@
 #include "engine/core/render/asset_loader.h"
 #include "engine/core/save/save_runtime.h"
 #include "engine/core/save/save_serialization_hub.h"
+#include <algorithm>
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <utility>
@@ -18,7 +19,8 @@ constexpr const char* kMissingPlayerSpriteId = "missing_player_sprite";
 constexpr const char* kMissingTilesetId = "missing_tileset";
 
 bool BindingMatches(const MapScene::InteractionAbilityBinding& binding, const std::string& trigger_id,
-                    std::optional<std::pair<int, int>> tile, std::optional<std::string_view> prop_asset_id) {
+                    std::optional<std::pair<int, int>> tile, std::optional<std::string_view> prop_asset_id,
+                    std::optional<std::string_view> prop_instance_id = std::nullopt) {
     if (binding.trigger_id != trigger_id) {
         return false;
     }
@@ -29,6 +31,9 @@ bool BindingMatches(const MapScene::InteractionAbilityBinding& binding, const st
     case MapScene::InteractionBindingScope::Tile:
         return tile.has_value() && binding.tile_x == tile->first && binding.tile_y == tile->second;
     case MapScene::InteractionBindingScope::Prop:
+        if (!binding.prop_instance_id.empty()) {
+            return prop_instance_id.has_value() && binding.prop_instance_id == *prop_instance_id;
+        }
         return prop_asset_id.has_value() && binding.prop_asset_id == *prop_asset_id;
     case MapScene::InteractionBindingScope::Region:
         return tile.has_value() && tile->first >= binding.region_min_x && tile->first <= binding.region_max_x &&
@@ -40,7 +45,8 @@ bool BindingMatches(const MapScene::InteractionAbilityBinding& binding, const st
 
 bool BindingKeyMatches(const MapScene::InteractionAbilityBinding& binding, MapScene::InteractionBindingScope scope,
                        const std::string& trigger_id, std::optional<std::pair<int, int>> tile,
-                       std::optional<std::string_view> prop_asset_id) {
+                       std::optional<std::string_view> prop_asset_id,
+                       std::optional<std::string_view> prop_instance_id = std::nullopt) {
     if (binding.scope != scope || binding.trigger_id != trigger_id) {
         return false;
     }
@@ -51,7 +57,10 @@ bool BindingKeyMatches(const MapScene::InteractionAbilityBinding& binding, MapSc
     case MapScene::InteractionBindingScope::Tile:
         return tile.has_value() && binding.tile_x == tile->first && binding.tile_y == tile->second;
     case MapScene::InteractionBindingScope::Prop:
-        return prop_asset_id.has_value() && binding.prop_asset_id == *prop_asset_id;
+        if (prop_instance_id.has_value()) {
+            return binding.prop_instance_id == *prop_instance_id;
+        }
+        return binding.prop_instance_id.empty() && prop_asset_id.has_value() && binding.prop_asset_id == *prop_asset_id;
     case MapScene::InteractionBindingScope::Region:
         return tile.has_value() && binding.region_min_x == tile->first && binding.region_min_y == tile->second &&
                binding.region_max_x == tile->first && binding.region_max_y == tile->second;
@@ -108,9 +117,10 @@ const nlohmann::json* findMapAssets(const nlohmann::json& project, const std::st
 
 } // namespace
 
-MapScene::MapScene(const std::string& mapId, int width, int height) : m_mapId(mapId), m_width(width), m_height(height) {
-    m_tiles.resize(width * height, {0, true});
-    m_renderer = std::make_unique<TilemapRenderer>(width, height);
+MapScene::MapScene(const std::string& mapId, int width, int height)
+    : m_mapId(mapId), m_width(std::max(0, width)), m_height(std::max(0, height)) {
+    m_tiles.resize(static_cast<size_t>(m_width * m_height), {0, true});
+    m_renderer = std::make_unique<TilemapRenderer>(m_width, m_height);
 
     // Initialize player movement component
     m_playerMovement.gridPos = {0, 0};
@@ -420,8 +430,7 @@ void MapScene::validateRenderAssetReferences() {
         }
     };
 
-    validate(m_assetReferences.player_sprite, "player_sprite", "map.player_sprite_missing",
-             "player_sprite_id_missing");
+    validate(m_assetReferences.player_sprite, "player_sprite", "map.player_sprite_missing", "player_sprite_id_missing");
     validate(m_assetReferences.tileset, "tileset", "map.tileset_missing", "tileset_id_missing");
 }
 
@@ -599,6 +608,36 @@ bool MapScene::bindPropInteractionAbility(const std::string& trigger_id, const s
     return true;
 }
 
+bool MapScene::bindPropInstanceInteractionAbility(const std::string& trigger_id, const std::string& prop_instance_id,
+                                                  const std::string& prop_asset_id, const std::string& asset_path,
+                                                  const urpg::ability::AuthoredAbilityAsset& asset) {
+    if (trigger_id.empty() || prop_instance_id.empty() || asset.ability_id.empty()) {
+        return false;
+    }
+
+    grantPlayerAbility(asset);
+
+    for (auto& binding : m_interaction_ability_bindings) {
+        if (BindingKeyMatches(binding, InteractionBindingScope::Prop, trigger_id, std::nullopt, prop_asset_id,
+                              prop_instance_id)) {
+            binding.asset_path = asset_path;
+            binding.ability_id = asset.ability_id;
+            binding.prop_asset_id = prop_asset_id;
+            return true;
+        }
+    }
+
+    InteractionAbilityBinding binding;
+    binding.scope = InteractionBindingScope::Prop;
+    binding.trigger_id = trigger_id;
+    binding.asset_path = asset_path;
+    binding.ability_id = asset.ability_id;
+    binding.prop_instance_id = prop_instance_id;
+    binding.prop_asset_id = prop_asset_id;
+    m_interaction_ability_bindings.push_back(std::move(binding));
+    return true;
+}
+
 bool MapScene::bindRegionInteractionAbility(const std::string& trigger_id, int min_tile_x, int min_tile_y,
                                             int max_tile_x, int max_tile_y, const std::string& asset_path,
                                             const urpg::ability::AuthoredAbilityAsset& asset) {
@@ -706,6 +745,22 @@ bool MapScene::activateInteractionAbilityForProp(const std::string& trigger_id, 
         }
     }
 
+    return false;
+}
+
+bool MapScene::activateInteractionAbilityForPropInstance(const std::string& trigger_id,
+                                                         const std::string& prop_instance_id,
+                                                         const std::string& prop_asset_id) {
+    for (const auto& binding : m_interaction_ability_bindings) {
+        if (!binding.prop_instance_id.empty() &&
+            BindingMatches(binding, trigger_id, std::nullopt, prop_asset_id, prop_instance_id)) {
+            return tryActivatePlayerAbility(binding.ability_id);
+        }
+    }
+
+    if (!prop_asset_id.empty()) {
+        return activateInteractionAbilityForProp(trigger_id, prop_asset_id);
+    }
     return false;
 }
 

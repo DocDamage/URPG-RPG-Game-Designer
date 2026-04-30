@@ -1,6 +1,6 @@
-^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\5D8C9CD3775EB5024AB13E27A724B28E\GENERATE.STAMP.RULE
+^C:\DEV\URPG MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\F1169AE9237678FAB162F7637E60ED21\GENERATE.STAMP.RULE
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate.sln"
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/dev/URPG Maker/build-local/_deps/stb-subbuild" "-BC:/dev/URPG Maker/build-local/_deps/stb-subbuild" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/dev/URPG Maker/build-local/_deps/stb-subbuild/stb-populate.sln"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
