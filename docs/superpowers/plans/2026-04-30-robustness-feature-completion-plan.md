@@ -663,7 +663,7 @@ git commit -m "feat: evaluate bounded ability conditions"
 - `play_cue`
 - `branch_on_condition`
 
-- [ ] **Step 1: Add failing orchestration tests**
+- [x] **Step 1: Add failing orchestration tests**
 
 Add a test that builds JSON like:
 
@@ -686,7 +686,7 @@ Test expectations:
 - `branch_on_condition` uses the evaluator from Task 2.1.
 - Diagnostics report missing `on_true` or `on_false` ids.
 
-- [ ] **Step 2: Run focused tests and confirm failure**
+- [x] **Step 2: Run focused tests and confirm failure**
 
 Run:
 
@@ -696,7 +696,9 @@ ctest --preset dev-all -R "AbilityTask|Ability end-to-end|AbilityOrchestration" 
 
 Expected: FAIL for missing task kinds or missing preview rows.
 
-- [ ] **Step 3: Add task document fields**
+Actual: `cmake --build --preset dev-debug --target urpg_tests` failed because `AbilityOrchestrationDocument::tasks` and panel task preview rows did not exist yet.
+
+- [x] **Step 3: Add task document fields**
 
 Extend task representation with:
 
@@ -712,7 +714,7 @@ std::string target;
 std::vector<std::string> diagnostics;
 ```
 
-- [ ] **Step 4: Add runtime preview rows**
+- [x] **Step 4: Add runtime preview rows**
 
 Panel snapshots must expose:
 
@@ -727,7 +729,7 @@ struct AbilityTaskPreviewRow {
 };
 ```
 
-- [ ] **Step 5: Implement branch validation**
+- [x] **Step 5: Implement branch validation**
 
 Validation rules:
 
@@ -737,7 +739,7 @@ Validation rules:
 - Missing branch target emits `ability_task_branch_missing_target`.
 - Unsupported condition emits `ability_task_branch_condition_invalid`.
 
-- [ ] **Step 6: Re-run focused tests**
+- [x] **Step 6: Re-run focused tests**
 
 Run:
 
@@ -747,7 +749,7 @@ ctest --preset dev-all -R "AbilityTask|Ability end-to-end|AbilityOrchestration" 
 
 Expected: PASS.
 
-- [ ] **Step 7: Update docs and readiness**
+- [x] **Step 7: Update docs and readiness**
 
 Update:
 

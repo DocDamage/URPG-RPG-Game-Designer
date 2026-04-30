@@ -49,6 +49,13 @@
     },
     "battle_priority": {
       "type": "integer"
+    },
+    "tasks": {
+      "type": "array",
+      "description": "Creator-authored task composition rows for preview, validation, and future runtime sequencing.",
+      "items": {
+        "$ref": "#/$defs/task"
+      }
     }
   },
   "$defs": {
@@ -80,6 +87,53 @@
           }
         }
       }
+    },
+    "task": {
+      "type": "object",
+      "required": ["id", "kind"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "wait_input",
+            "wait_event",
+            "wait_projectile_collision",
+            "apply_effect",
+            "play_cue",
+            "branch_on_condition"
+          ]
+        },
+        "action": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "condition": {
+          "type": "string",
+          "description": "Bounded ability condition grammar shared with gameplay_ability.schema.json."
+        },
+        "on_true": {
+          "type": "string"
+        },
+        "on_false": {
+          "type": "string"
+        },
+        "effect_id": {
+          "type": "string"
+        },
+        "cue_id": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

@@ -546,6 +546,88 @@ TEST_CASE("Ability orchestration panel exposes saved data, live preview, and dia
     REQUIRE(panel.snapshot().runtime_result_json["activationExecuted"] == true);
 }
 
+TEST_CASE("Ability orchestration task composition round-trips and previews creator rows",
+          "[ability][orchestration][task]") {
+    nlohmann::json json = {
+        {"schema", "urpg.ability_orchestration.v1"},
+        {"id", "chain_lightning_orchestration"},
+        {"mode", "map"},
+        {"ability",
+         {{"ability_id", "skill.chain_lightning"},
+          {"cooldown_seconds", 2.0},
+          {"mp_cost", 5.0},
+          {"effect_id", "state.shocked"},
+          {"effect_attribute", "HP"},
+          {"effect_operation", "Add"},
+          {"effect_value", -12.0},
+          {"effect_duration", 3.0},
+          {"pattern", {{"name", "single"}, {"points", {{{"x", 0}, {"y", 0}}}}}}}},
+        {"source", {{"id", "actor.mage"}, {"mp", 12.0}, {"effect_attribute_base", 40.0}, {"tags", nlohmann::json::array()}}},
+        {"targets", {{{"id", "enemy.slime"}, {"mp", 0.0}, {"effect_attribute_base", 30.0}, {"tags", nlohmann::json::array()}}}},
+        {"tasks",
+         {{{"id", "await_confirm"}, {"kind", "wait_input"}, {"action", "Confirm"}, {"timeout_ms", 1000}},
+          {{"id", "branch_mp"},
+           {"kind", "branch_on_condition"},
+           {"condition", "source.mp >= 5"},
+           {"on_true", "apply_shock"},
+           {"on_false", "play_fizzle"}},
+          {{"id", "apply_shock"}, {"kind", "apply_effect"}, {"effect_id", "state.shocked"}, {"target", "primary"}},
+          {{"id", "play_fizzle"}, {"kind", "play_cue"}, {"cue_id", "ability.fizzle"}}}},
+    };
+
+    const auto document = AbilityOrchestrationDocument::fromJson(json);
+    REQUIRE(document.tasks.size() == 4);
+    REQUIRE(document.tasks[0].id == "await_confirm");
+    REQUIRE(document.tasks[1].kind == "branch_on_condition");
+    REQUIRE(document.tasks[1].on_true == "apply_shock");
+    REQUIRE(document.tasks[1].on_false == "play_fizzle");
+
+    const auto saved = document.toJson();
+    REQUIRE(saved["tasks"].size() == 4);
+    REQUIRE(saved["tasks"][0]["kind"] == "wait_input");
+    REQUIRE(saved["tasks"][1]["condition"] == "source.mp >= 5");
+
+    AbilityOrchestrationPanel panel;
+    panel.loadDocument(document);
+    panel.render();
+
+    REQUIRE(panel.snapshot().task_count == 4);
+    REQUIRE(panel.snapshot().task_preview_rows.size() == 4);
+    REQUIRE(panel.snapshot().task_preview_rows[0].id == "await_confirm");
+    REQUIRE(panel.snapshot().task_preview_rows[0].kind == "wait_input");
+    REQUIRE(panel.snapshot().task_preview_rows[0].status == "ready");
+    REQUIRE(panel.snapshot().task_preview_rows[1].detail.find("source.mp >= 5") != std::string::npos);
+    REQUIRE(panel.snapshot().runtime_result_json["taskPreviewRows"].size() == 4);
+}
+
+TEST_CASE("Ability orchestration task composition validates branch targets and conditions",
+          "[ability][orchestration][task]") {
+    AbilityOrchestrationDocument document;
+    document.id = "bad_task_graph";
+    document.mode = AbilityOrchestrationMode::Map;
+    document.ability.ability_id = "skill.branch";
+    document.ability.cooldown_seconds = 1.0f;
+    document.ability.mp_cost = 5.0f;
+    document.ability.effect_id = "effect.branch";
+    document.ability.effect_attribute = "HP";
+    document.ability.effect_value = -10.0f;
+    document.source.id = "actor.mage";
+    document.source.mp = 10.0f;
+    document.targets.push_back({"enemy.slime", 0.0f, 30.0f, 0, 0, {}});
+    document.tasks.push_back({"branch", "branch_on_condition", "", 0, "source.hp + source.mp > 10", "missing_true",
+                              "missing_false", "", "", ""});
+
+    const auto diagnostics = document.validate();
+    const auto hasCode = [&diagnostics](const std::string& code) {
+        return std::any_of(diagnostics.begin(), diagnostics.end(), [&code](const auto& diagnostic) {
+            return diagnostic.code == code;
+        });
+    };
+
+    REQUIRE(hasCode("ability_task_branch_missing_target"));
+    REQUIRE(hasCode("ability_task_branch_condition_invalid"));
+}
+
 TEST_CASE("Ability orchestration reports map pattern and tag gate diagnostics",
           "[ability][orchestration][wysiwyg]") {
     AbilityOrchestrationDocument document;

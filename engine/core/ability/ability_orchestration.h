@@ -27,6 +27,28 @@ struct AbilityOrchestrationDiagnostic {
     std::string target;
 };
 
+struct AbilityOrchestrationTask {
+    std::string id;
+    std::string kind;
+    std::string action;
+    int32_t timeout_ms = 0;
+    std::string condition;
+    std::string on_true;
+    std::string on_false;
+    std::string effect_id;
+    std::string cue_id;
+    std::string target;
+};
+
+struct AbilityTaskPreviewRow {
+    std::string id;
+    std::string kind;
+    std::string status;
+    std::string detail;
+    bool executable = false;
+    std::string disabled_reason;
+};
+
 struct AbilityOrchestrationDocument {
     std::string id;
     AbilityOrchestrationMode mode = AbilityOrchestrationMode::Battle;
@@ -38,6 +60,7 @@ struct AbilityOrchestrationDocument {
     int32_t battle_turn = 1;
     int32_t battle_speed = 0;
     int32_t battle_priority = 0;
+    std::vector<AbilityOrchestrationTask> tasks;
 
     std::vector<AbilityOrchestrationDiagnostic> validate() const;
     nlohmann::json toJson() const;
@@ -68,6 +91,7 @@ struct AbilityOrchestrationResult {
     size_t battle_commands_executed = 0;
     size_t battle_commands_blocked = 0;
     std::vector<AbilityOrchestrationTargetResult> targets;
+    std::vector<AbilityTaskPreviewRow> task_preview_rows;
     std::vector<AbilityOrchestrationDiagnostic> diagnostics;
     nlohmann::json battle_snapshot = nlohmann::json::object();
 };

@@ -20,8 +20,10 @@ public:
         float source_mp_after = 0.0f;
         float cooldown_after = 0.0f;
         size_t target_count = 0;
+        size_t task_count = 0;
         size_t diagnostic_count = 0;
         std::string status_message;
+        std::vector<urpg::ability::AbilityTaskPreviewRow> task_preview_rows;
         nlohmann::json saved_project_json = nlohmann::json::object();
         nlohmann::json runtime_result_json = nlohmann::json::object();
     };

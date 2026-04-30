@@ -1,6 +1,10 @@
 #include "engine/core/ability/ability_orchestration.h"
 
+#include "engine/core/ability/ability_condition_evaluator.h"
+
 #include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
 #include <memory>
 #include <utility>
 
@@ -124,6 +128,134 @@ void addTags(AbilitySystemComponent& asc, const std::vector<std::string>& tags) 
     }
 }
 
+AbilityOrchestrationTask taskFromJson(const nlohmann::json& json) {
+    AbilityOrchestrationTask task;
+    if (!json.is_object()) {
+        return task;
+    }
+    task.id = json.value("id", "");
+    task.kind = json.value("kind", "");
+    task.action = json.value("action", "");
+    task.timeout_ms = json.value("timeout_ms", task.timeout_ms);
+    task.condition = json.value("condition", "");
+    task.on_true = json.value("on_true", "");
+    task.on_false = json.value("on_false", "");
+    task.effect_id = json.value("effect_id", "");
+    task.cue_id = json.value("cue_id", "");
+    task.target = json.value("target", "");
+    return task;
+}
+
+nlohmann::json taskToJson(const AbilityOrchestrationTask& task) {
+    nlohmann::json json = {
+        {"id", task.id},
+        {"kind", task.kind},
+    };
+    if (!task.action.empty()) {
+        json["action"] = task.action;
+    }
+    if (task.timeout_ms > 0) {
+        json["timeout_ms"] = task.timeout_ms;
+    }
+    if (!task.condition.empty()) {
+        json["condition"] = task.condition;
+    }
+    if (!task.on_true.empty()) {
+        json["on_true"] = task.on_true;
+    }
+    if (!task.on_false.empty()) {
+        json["on_false"] = task.on_false;
+    }
+    if (!task.effect_id.empty()) {
+        json["effect_id"] = task.effect_id;
+    }
+    if (!task.cue_id.empty()) {
+        json["cue_id"] = task.cue_id;
+    }
+    if (!task.target.empty()) {
+        json["target"] = task.target;
+    }
+    return json;
+}
+
+bool hasTaskId(const std::unordered_set<std::string>& ids, const std::string& id) {
+    return !id.empty() && ids.find(id) != ids.end();
+}
+
+AbilitySystemComponent buildConditionSource(const AbilityOrchestrationDocument& document) {
+    AbilitySystemComponent asc;
+    asc.setAttribute("MP", document.source.mp);
+    asc.setAttribute("HP", document.source.effect_attribute_base);
+    asc.setAttribute(document.ability.effect_attribute, document.source.effect_attribute_base);
+    addTags(asc, document.source.tags);
+    return asc;
+}
+
+std::vector<std::unique_ptr<AbilitySystemComponent>>
+buildConditionTargets(const AbilityOrchestrationDocument& document,
+                      GameplayAbility::AbilityExecutionContext& context) {
+    std::vector<std::unique_ptr<AbilitySystemComponent>> targets;
+    for (const auto& target : document.targets) {
+        auto asc = std::make_unique<AbilitySystemComponent>();
+        asc->setAttribute("MP", target.mp);
+        asc->setAttribute("HP", target.effect_attribute_base);
+        asc->setAttribute(document.ability.effect_attribute, target.effect_attribute_base);
+        addTags(*asc, target.tags);
+        context.targets.push_back({asc.get(), nullptr, target.id});
+        targets.push_back(std::move(asc));
+    }
+    return targets;
+}
+
+std::vector<AbilityTaskPreviewRow> buildTaskPreviewRows(const AbilityOrchestrationDocument& document) {
+    std::vector<AbilityTaskPreviewRow> rows;
+    rows.reserve(document.tasks.size());
+    for (const auto& task : document.tasks) {
+        AbilityTaskPreviewRow row;
+        row.id = task.id;
+        row.kind = task.kind;
+        row.status = "ready";
+        row.executable = true;
+
+        if (task.kind == "wait_input") {
+            row.detail = "Wait for input action '" + task.action + "'";
+        } else if (task.kind == "wait_event") {
+            row.detail = "Wait for event action '" + task.action + "'";
+        } else if (task.kind == "wait_projectile_collision") {
+            row.detail = "Wait for projectile collision target '" + task.target + "'";
+        } else if (task.kind == "branch_on_condition") {
+            row.detail = "Branch on " + task.condition + " true=" + task.on_true + " false=" + task.on_false;
+        } else if (task.kind == "apply_effect") {
+            row.detail = "Apply effect '" + task.effect_id + "' to " + task.target;
+        } else if (task.kind == "play_cue") {
+            row.detail = "Play cue '" + task.cue_id + "'";
+        } else {
+            row.status = "blocked";
+            row.executable = false;
+            row.disabled_reason = "Unsupported ability task kind.";
+            row.detail = task.kind;
+        }
+
+        rows.push_back(std::move(row));
+    }
+    return rows;
+}
+
+nlohmann::json taskPreviewRowsToJson(const std::vector<AbilityTaskPreviewRow>& rows) {
+    nlohmann::json json = nlohmann::json::array();
+    for (const auto& row : rows) {
+        json.push_back({
+            {"id", row.id},
+            {"kind", row.kind},
+            {"status", row.status},
+            {"detail", row.detail},
+            {"executable", row.executable},
+            {"disabledReason", row.disabled_reason},
+        });
+    }
+    return json;
+}
+
 std::vector<AbilityOrchestrationDiagnostic> patternDiagnostics(const AbilityOrchestrationDocument& document,
                                                                const OrchestratedAbility& ability) {
     std::vector<AbilityOrchestrationDiagnostic> diagnostics;
@@ -225,6 +357,54 @@ std::vector<AbilityOrchestrationDiagnostic> AbilityOrchestrationDocument::valida
             diagnostics.push_back({"missing_target_id", "Ability orchestration target requires an id.", id});
         }
     }
+    std::unordered_set<std::string> taskIds;
+    std::unordered_map<std::string, AbilityOrchestrationTask> taskById;
+    for (const auto& task : tasks) {
+        if (task.id.empty()) {
+            diagnostics.push_back({"ability_task_missing_id", "Ability orchestration task requires an id.", id});
+            continue;
+        }
+        if (!taskIds.insert(task.id).second) {
+            diagnostics.push_back({"ability_task_duplicate_id", "Ability orchestration task id must be unique.", task.id});
+        }
+        taskById[task.id] = task;
+    }
+
+    AbilityConditionEvaluator evaluator;
+    auto sourceAsc = buildConditionSource(*this);
+    GameplayAbility::AbilityExecutionContext context;
+    const auto conditionTargets = buildConditionTargets(*this, context);
+    (void)conditionTargets;
+
+    for (const auto& task : tasks) {
+        if (task.kind == "branch_on_condition") {
+            if (!hasTaskId(taskIds, task.on_true) || !hasTaskId(taskIds, task.on_false)) {
+                diagnostics.push_back({"ability_task_branch_missing_target",
+                                       "Branch task on_true and on_false must reference task ids in the same document.",
+                                       task.id});
+            }
+            const auto condition = evaluator.evaluate(task.condition, sourceAsc, &context);
+            if (!condition.parsed) {
+                diagnostics.push_back({"ability_task_branch_condition_invalid",
+                                       "Branch task condition uses unsupported grammar.", task.id});
+            }
+            const auto trueIt = taskById.find(task.on_true);
+            const auto falseIt = taskById.find(task.on_false);
+            const auto pointsBack = [&task](const AbilityOrchestrationTask& next) {
+                return next.kind == "branch_on_condition" && (next.on_true == task.id || next.on_false == task.id);
+            };
+            if ((trueIt != taskById.end() && pointsBack(trueIt->second)) ||
+                (falseIt != taskById.end() && pointsBack(falseIt->second))) {
+                diagnostics.push_back({"ability_task_branch_cycle",
+                                       "Branch task cannot create an immediate two-node cycle.", task.id});
+            }
+        } else if (task.kind != "wait_input" && task.kind != "wait_event" &&
+                   task.kind != "wait_projectile_collision" && task.kind != "apply_effect" &&
+                   task.kind != "play_cue") {
+            diagnostics.push_back({"ability_task_kind_unsupported",
+                                   "Ability orchestration task kind is unsupported.", task.id});
+        }
+    }
     return diagnostics;
 }
 
@@ -233,6 +413,10 @@ nlohmann::json AbilityOrchestrationDocument::toJson() const {
     nlohmann::json targetJson = nlohmann::json::array();
     for (const auto& target : targets) {
         targetJson.push_back(actorToJson(target));
+    }
+    nlohmann::json taskJson = nlohmann::json::array();
+    for (const auto& task : tasks) {
+        taskJson.push_back(taskToJson(task));
     }
     return {
         {"schema", "urpg.ability_orchestration.v1"},
@@ -246,6 +430,7 @@ nlohmann::json AbilityOrchestrationDocument::toJson() const {
         {"battle_turn", battle_turn},
         {"battle_speed", battle_speed},
         {"battle_priority", battle_priority},
+        {"tasks", taskJson},
     };
 }
 
@@ -273,6 +458,12 @@ AbilityOrchestrationDocument AbilityOrchestrationDocument::fromJson(const nlohma
     document.battle_turn = json.value("battle_turn", document.battle_turn);
     document.battle_speed = json.value("battle_speed", document.battle_speed);
     document.battle_priority = json.value("battle_priority", document.battle_priority);
+    if (const auto tasks = json.find("tasks"); tasks != json.end() && tasks->is_array()) {
+        document.tasks.clear();
+        for (const auto& task : *tasks) {
+            document.tasks.push_back(taskFromJson(task));
+        }
+    }
     return document;
 }
 
@@ -282,6 +473,7 @@ AbilityOrchestrationResult runAbilityOrchestration(const AbilityOrchestrationDoc
     result.ability_id = document.ability.ability_id;
     result.mode = document.mode;
     result.source_mp_before = document.source.mp;
+    result.task_preview_rows = buildTaskPreviewRows(document);
 
     result.diagnostics = document.validate();
     if (!result.diagnostics.empty()) {
@@ -383,6 +575,7 @@ nlohmann::json abilityOrchestrationResultToJson(const AbilityOrchestrationResult
         {"battleCommandsExecuted", result.battle_commands_executed},
         {"battleCommandsBlocked", result.battle_commands_blocked},
         {"targets", targetJson},
+        {"taskPreviewRows", taskPreviewRowsToJson(result.task_preview_rows)},
         {"diagnostics", diagnosticsJson},
         {"battleSnapshot", result.battle_snapshot},
     };

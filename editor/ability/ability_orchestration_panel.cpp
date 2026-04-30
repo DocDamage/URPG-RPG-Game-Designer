@@ -32,6 +32,8 @@ void AbilityOrchestrationPanel::refreshPreview() {
     snapshot_.source_mp_after = result_.source_mp_after;
     snapshot_.cooldown_after = result_.cooldown_after;
     snapshot_.target_count = result_.targets.size();
+    snapshot_.task_count = result_.task_preview_rows.size();
+    snapshot_.task_preview_rows = result_.task_preview_rows;
     snapshot_.diagnostic_count = result_.diagnostics.size();
     snapshot_.saved_project_json = document_.toJson();
     snapshot_.runtime_result_json = urpg::ability::abilityOrchestrationResultToJson(result_);
