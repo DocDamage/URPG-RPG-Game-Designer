@@ -1,0 +1,362 @@
+# Global Asset Library Import Design
+
+Status: approved design direction, pending implementation plan
+Date: 2026-04-30
+
+## Goal
+
+Add an easy external asset ingestion system where a creator can point URPG Maker at a file, folder, or archive, have URPG copy the contents into a managed global library, classify and prepare the usable assets, then attach selected assets to one or more projects.
+
+The first implementation should make user-owned asset packs practical without bundling third-party game assets in the URPG release. It should be safer than blind auto-import, but much easier than manual folder wrangling.
+
+## Product Shape
+
+The feature is a Global Asset Library plus Project Import Wizard.
+
+Creators build a reusable library once, then attach approved assets to projects as needed. URPG owns the managed copy, metadata, dedupe state, thumbnails, diagnostics, and promotion records. Projects should not depend on the user's original download folder staying in place.
+
+The wizard should use smart defaults, but promotion remains review-gated. URPG can preselect likely-safe assets and suggest conversions, but the user explicitly approves what becomes project/runtime/export-ready.
+
+## Non-Goals
+
+- Do not auto-promote every discovered file.
+- Do not execute imported tools, scripts, installers, or generators.
+- Do not treat raw archive contents as release-ready.
+- Do not require bundled third-party game assets for URPG itself to ship.
+- Do not solve every asset format in the first pass.
+- Do not make legal claims beyond user-provided license/attribution metadata.
+
+## Supported First-Pass Inputs
+
+Phase 1 should support:
+
+- folders
+- loose files
+- `.zip` archives
+- common image files used for sprites, UI, textures, tiles, and previews
+- WAV audio for runtime-ready playback
+- broader audio files as cataloged or conversion-needed records, when metadata tooling can inspect them
+
+Phase 1 may catalog but should not fully promote:
+
+- `.rar` and `.7z` archives unless a local extractor is configured
+- source art files such as `.psd`, `.kra`, `.aseprite`, `.blend`
+- executables, installers, scripts, project generators, plugins, and tools
+- very large animation-frame drops that need aggregate sequence handling
+
+RAR and 7z should be designed as pluggable extractor support. If 7-Zip is present, URPG can use it later through a bounded extraction adapter. If not present, the wizard should show a clear unsupported-extractor diagnostic.
+
+## User Flow
+
+1. Add Source
+
+   The user chooses a folder, loose file, or archive. URPG creates a new library import session with source name, timestamp, original path, selected import mode, and destination managed-library root.
+
+2. Quarantine Copy Or Extract
+
+   URPG copies loose/folder inputs or extracts archives into a managed global library quarantine area. The original source remains untouched. Extraction must reject path traversal, absolute paths, oversized outputs, and executable auto-run behavior.
+
+3. Scan And Classify
+
+   URPG walks the quarantined copy and records file metadata:
+
+   - relative path
+   - normalized path candidate
+   - extension and media kind
+   - size
+   - hash
+   - dimensions for images
+   - duration/waveform metadata where available
+   - likely category
+   - pack/group hints
+   - duplicate state
+   - unsupported/junk/source-only state
+
+4. Normalize
+
+   URPG creates stable asset IDs and clean internal paths without immediately making assets runtime-ready. The normalization stage should be deterministic and preserve source provenance.
+
+5. Review
+
+   The Asset Library UI shows grouped review rows:
+
+   - Ready to promote
+   - Needs conversion
+   - Duplicate
+   - Missing license note
+   - Unsupported
+   - Source/tooling only
+   - Error
+
+   Each row exposes recommended action, preview state, reason codes, and whether it can be promoted into the active project.
+
+6. Promote To Global Library
+
+   The user promotes selected records into the global curated library. Promotion requires at least a source record, hash, managed path, category, and user-provided license/attribution note. Runtime-ready promotion requires a supported runtime payload or a successful conversion.
+
+7. Attach To Project
+
+   The user attaches selected global assets to the active project. URPG copies project-ready payloads into the project asset area and writes project-local promotion manifests or bundle references. Attached assets become visible to relevant pickers such as Level Builder, sprite selectors, audio selectors, UI/theme selectors, and export validation.
+
+8. Package And Validate
+
+   Project export and release validation consume only attached, promoted, package-eligible assets. Raw quarantine files and unapproved library records are not packaged.
+
+## Architecture
+
+### Global Library Roots
+
+Use a managed root under `.urpg/asset-library/` for local development and user installs by default. The exact user-install location can be platform-specific later, but the model should not assume the repo root is the permanent user data path.
+
+Suggested first-pass structure:
+
+```text
+.urpg/asset-library/
+  sources/
+    <source-id>/
+      original/
+      extracted/
+      source_manifest.json
+  catalog/
+    asset_catalog.db
+    import_sessions/
+      <session-id>.json
+  promoted/
+    <asset-id-or-pack-id>/
+      payloads/
+      previews/
+      asset_promotion_manifest.json
+```
+
+Reuse `.urpg/asset-index/asset_catalog.db` through a new `GlobalAssetLibraryStore` facade for Phase 1. Do not move the database format in the first pass. The facade becomes the stable boundary so a later migration to `.urpg/asset-library/catalog/asset_catalog.db` does not affect editor or project-attachment callers.
+
+### Core Components
+
+`AssetImportSession`
+: Tracks one import run: source path, managed root, extractor used, counts, diagnostics, and generated catalog paths.
+
+`AssetSourceIngestor`
+: Copies folders/files and dispatches archive extraction. It owns quarantine safety, path normalization, and source manifest creation.
+
+`ArchiveExtractor`
+: Interface for archive support. Implement ZIP first. Add external 7-Zip-backed RAR/7z support later behind diagnostics.
+
+`AssetScanner`
+: Walks quarantined files, records metadata, hashes, dimensions, duration, and basic media type.
+
+`AssetClassifier`
+: Assigns category, media kind, source-only/tooling-only flags, and likely promotion lane from paths, extensions, dimensions, and folder names.
+
+`AssetNormalizer`
+: Creates stable normalized IDs and proposed managed library paths.
+
+`AssetPromotionPlanner`
+: Builds review rows and recommended actions. It does not mutate project content.
+
+`GlobalAssetLibraryStore`
+: Persists global catalog records, import sessions, dedupe groups, previews, provenance, and promoted library records.
+
+`ProjectAssetAttachmentService`
+: Copies or references promoted global assets into the active project and writes project-local manifests.
+
+### UI Surfaces
+
+Add or extend the existing Asset Library panel with:
+
+- Add Source button
+- Import Sessions list
+- Review queue grouped by readiness state
+- filters for media kind, category, status, duplicate state, and project-attached state
+- previews for images and audio metadata
+- Promote selected
+- Attach selected to current project
+- diagnostics panel with actionable reason codes
+
+The first version should expose a visible Asset Library panel workflow state, but the actual source path can be provided through model/CLI/test entrypoints until a native file dialog is wired. This keeps the feature demonstrable in the editor without blocking Phase 1 on platform file-dialog work.
+
+## Data Model
+
+The implementation should reuse existing concepts where possible:
+
+- `AssetLibrary`
+- `AssetRecord`
+- `AssetPromotionManifest`
+- asset action rows
+- promotion catalogs
+- source and bundle manifests
+
+New data should fill the gap between raw external input and promotion:
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "sessionId": "import_20260430_001",
+  "sourceKind": "zip",
+  "sourcePath": "C:/Users/Creator/Downloads/fantasy_pack.zip",
+  "managedSourceRoot": ".urpg/asset-library/sources/import_20260430_001/extracted",
+  "status": "review_ready",
+  "createdAt": "2026-04-30T00:00:00Z",
+  "summary": {
+    "filesScanned": 1234,
+    "readyCount": 412,
+    "needsConversionCount": 18,
+    "duplicateCount": 104,
+    "unsupportedCount": 23,
+    "sourceOnlyCount": 6,
+    "errorCount": 0
+  },
+  "diagnostics": []
+}
+```
+
+Project attachment creates project-owned records that remain valid even if the global library is later moved. Phase 1 copies payloads into the active project instead of storing global-library references.
+
+## Format Policy
+
+Images:
+
+- promote common raster images that the runtime renderer can load
+- preserve source dimensions and preview metadata
+- classify sprites, tiles, UI, backgrounds, portraits, and VFX by path and dimensions where possible
+
+Audio:
+
+- promote WAV as runtime-ready
+- catalog OGG/MP3/FLAC/M4A as conversion-needed unless runtime decode support is added and verified
+- provide a future conversion path using the existing audio conversion tooling
+
+Archives:
+
+- ZIP first
+- RAR/7z later through optional external extractor detection
+- nested archives should be cataloged but not recursively extracted by default
+
+Source/tool files:
+
+- catalog as source-only or tooling-only
+- never package unless a later explicit workflow supports that class
+
+## Safety And Diagnostics
+
+The system must be fail-closed:
+
+- Block path traversal during extraction.
+- Reject absolute archive paths.
+- Enforce max file count and max extracted bytes per import session.
+- Do not execute imported files.
+- Detect duplicates by hash.
+- Preserve provenance to the original source session.
+- Require user license/attribution notes before runtime/export promotion.
+- Require supported runtime format before project attachment.
+- Surface missing files, unsupported formats, conversion-needed state, and duplicate state as explicit reason codes.
+
+Every failed or skipped asset should have a stable diagnostic code. This keeps the editor UI, tests, and future chatbot guidance aligned.
+
+## Integration Points
+
+Existing code and tools that should be reused or wrapped:
+
+- `tools/assets/asset_db.py` for SQLite cataloging and duplicate/hash metadata
+- `tools/assets/asset_hygiene.py` for duplicate, oversize, and junk concepts
+- `tools/assets/ingest_more_assets.ps1` for archive intake precedent
+- `tools/assets/promote_urpg_stuff_assets.py` for catalog-normalized records
+- `tools/assets/catalog_animation_asset_drop.py` for aggregate animation-frame handling later
+- `tools/assets/convert_audio_to_ogg.py` as a reference for future conversion flows
+- `engine/core/assets/asset_library.*`
+- `engine/core/assets/asset_promotion_manifest.*`
+- `editor/assets/asset_library_model.*`
+- `editor/assets/asset_library_panel.*`
+- `tools/ci/check_release_required_assets.ps1`
+
+The design should not make engine/runtime code depend on Python tooling. Tooling can generate reports and manifests; engine/editor C++ should consume structured manifests and catalog records.
+
+## Testing Strategy
+
+Unit tests:
+
+- import session serialization
+- classifier categories
+- duplicate planning
+- promotion planner reason codes
+- project attachment manifest output
+- archive extraction safety paths
+
+Integration tests:
+
+- folder import with images and duplicates
+- ZIP import with nested folders
+- unsupported RAR without extractor produces clear diagnostic
+- WAV asset can be promoted and attached
+- OGG asset is cataloged as conversion-needed unless runtime support lands
+- missing license note blocks runtime/export promotion
+
+Editor/model tests:
+
+- Asset Library panel exposes import session state
+- review rows group assets by status
+- promote selected updates global library records
+- attach selected updates project asset records
+- empty/error states are explicit
+
+Gate tests:
+
+- raw quarantine files are not packaged
+- only attached project-ready assets enter package manifests
+- existing release-required asset checks continue to pass when no user assets are bundled
+
+## Phased Delivery
+
+### Phase 1: Managed Folder/ZIP Import Foundation
+
+- Add import session model and schema.
+- Add managed global library root.
+- Implement folder/file copy and ZIP extraction with safety checks.
+- Produce catalog records for images/audio/source-only files.
+- Add duplicate and unsupported diagnostics.
+- Expose session/review rows in Asset Library model tests.
+
+### Phase 2: Review-Gated Promotion
+
+- Add promotion planner.
+- Reuse `AssetPromotionManifest` for promoted global records.
+- Require license/attribution note for runtime/export promotion.
+- Add promote selected behavior and diagnostics.
+- Add editor snapshot coverage for review states.
+
+### Phase 3: Project Attachment
+
+- Add project attachment service.
+- Copy selected promoted assets into project-local asset roots.
+- Write project-local manifests.
+- Make Level Builder and relevant pickers consume attached assets.
+- Ensure package/export validation sees only attached, package-eligible records.
+
+### Phase 4: Conversions And Advanced Packs
+
+- Add audio conversion workflow.
+- Add optional 7-Zip-backed `.rar`/`.7z` extraction.
+- Add aggregate animation sequence assembly.
+- Add RPG Maker folder convention mapping.
+- Add richer tileset/sprite/portrait/UI classification.
+
+## Success Criteria
+
+- A user can import a ZIP or folder into a managed global library.
+- URPG preserves the original source and does not mutate it.
+- URPG detects duplicates, unsupported files, and source-only/tooling-only files.
+- The Asset Library shows reviewable rows with previews or clear no-preview diagnostics.
+- The user can promote selected safe assets with license notes.
+- The user can attach selected promoted assets to the active project.
+- Attached assets are visible to project authoring surfaces.
+- Release/package gates exclude unapproved quarantine content.
+- URPG remains releasable with no bundled third-party game assets.
+
+## Implementation Defaults
+
+- Store global catalog records through a `GlobalAssetLibraryStore` facade over the existing `.urpg/asset-index/asset_catalog.db` in Phase 1.
+- Copy attached project assets under `content/assets/imported/<pack-or-session-id>/`.
+- Write project-local promotion manifests under `content/assets/manifests/`.
+- Implement ZIP extraction as a bounded tooling helper first, reusing repository scripting patterns; C++ editor/runtime code consumes the generated session manifests and never imports Python modules directly.
+- Classify first-pass images by path and dimensions into `sprite`, `tileset`, `ui`, `background`, `portrait`, `vfx`, or `image/uncategorized`.
+- Classify first-pass audio by path into `audio/bgm`, `audio/bgs`, `audio/se`, `audio/me`, `audio/ui`, or `audio/uncategorized`.
+- Expose Phase 1 in the Asset Library panel as import-session and review-row state, with model/test entrypoints supplying the source path until a native picker is added.
