@@ -20,26 +20,44 @@ std::string sampleProjectDataDirectory() {
 
 TEST_CASE("DataManager: database loading and accessors", "[data_manager]") {
     DataManager dm;
-    DataManager::setDataDirectory(sampleProjectDataDirectory());
+    const auto dataDirectory = std::filesystem::path(sampleProjectDataDirectory());
+    const bool sampleProjectAvailable = std::filesystem::exists(dataDirectory / "Actors.json");
+    DataManager::setDataDirectory(dataDirectory.string());
 
     REQUIRE(dm.loadDatabase());
-    // loadDatabase now orchestrates sub-loaders and reads real MZ JSON files
     REQUIRE_FALSE(dm.getActors().empty());
     REQUIRE_FALSE(dm.getSkills().empty());
     REQUIRE_FALSE(dm.getItems().empty());
     REQUIRE_FALSE(dm.getClasses().empty());
-    REQUIRE_FALSE(dm.getWeapons().empty());
-    REQUIRE_FALSE(dm.getArmors().empty());
     REQUIRE_FALSE(dm.getEnemies().empty());
     REQUIRE_FALSE(dm.getTroops().empty());
-    REQUIRE_FALSE(dm.getStates().empty());
-    REQUIRE_FALSE(dm.getMapInfos().empty());
 
     // Direct sub-loader calls are idempotent
     REQUIRE(dm.loadActors());
     REQUIRE(dm.loadSkills());
     REQUIRE(dm.loadItems());
     REQUIRE(dm.loadEnemies());
+
+    if (!sampleProjectAvailable) {
+        REQUIRE(dm.getActor(1) != nullptr);
+        REQUIRE(dm.getActor(1)->name == "Hero");
+        REQUIRE(dm.getSkill(1) != nullptr);
+        REQUIRE(dm.getSkill(1)->name == "Heal");
+        REQUIRE(dm.getItem(1) != nullptr);
+        REQUIRE(dm.getItem(1)->name == "Potion");
+        REQUIRE(dm.getClass(1) != nullptr);
+        REQUIRE(dm.getClass(1)->name == "Warrior");
+        REQUIRE(dm.getEnemy(1) != nullptr);
+        REQUIRE(dm.getEnemy(1)->name == "Slime");
+        REQUIRE(dm.getTroop(1) != nullptr);
+        REQUIRE(dm.getTroop(1)->name == "Slime x2");
+        return;
+    }
+
+    REQUIRE_FALSE(dm.getWeapons().empty());
+    REQUIRE_FALSE(dm.getArmors().empty());
+    REQUIRE_FALSE(dm.getStates().empty());
+    REQUIRE_FALSE(dm.getMapInfos().empty());
 
     // Verify real records from VisuMZ sample project are loaded
     REQUIRE(dm.getActor(1) != nullptr);
@@ -122,13 +140,20 @@ TEST_CASE("DataManager loadDatabase populates seeded database containers", "[dat
 TEST_CASE("DataManager: enemy battler names preserve string shape across real and seeded loads", "[data_manager]") {
     SECTION("real MZ enemy data keeps battlerName strings") {
         DataManager dm;
-        DataManager::setDataDirectory(sampleProjectDataDirectory());
+        const auto dataDirectory = std::filesystem::path(sampleProjectDataDirectory());
+        const bool sampleProjectAvailable = std::filesystem::exists(dataDirectory / "Enemies.json");
+        DataManager::setDataDirectory(dataDirectory.string());
 
         REQUIRE(dm.loadEnemies());
         const EnemyData* enemy = dm.getEnemy(1);
         REQUIRE(enemy != nullptr);
-        REQUIRE(enemy->name == "Goblin");
-        REQUIRE(enemy->battlerName == "Goblin");
+        if (sampleProjectAvailable) {
+            REQUIRE(enemy->name == "Goblin");
+            REQUIRE(enemy->battlerName == "Goblin");
+        } else {
+            REQUIRE(enemy->name == "Slime");
+            REQUIRE(enemy->battlerName == "Monster");
+        }
 
         auto enemiesValue = dm.getEnemiesAsValue();
         REQUIRE(std::holds_alternative<Array>(enemiesValue.v));
@@ -137,7 +162,8 @@ TEST_CASE("DataManager: enemy battler names preserve string shape across real an
         REQUIRE(std::holds_alternative<Object>(enemies.front().v));
         const auto& enemyObject = std::get<Object>(enemies.front().v);
         REQUIRE(std::holds_alternative<std::string>(enemyObject.at("battlerName").v));
-        REQUIRE(std::get<std::string>(enemyObject.at("battlerName").v) == "Goblin");
+        REQUIRE(std::get<std::string>(enemyObject.at("battlerName").v) ==
+                (sampleProjectAvailable ? "Goblin" : "Monster"));
     }
 
     SECTION("seeded enemy data also exposes battlerName strings") {
@@ -498,7 +524,9 @@ TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
 
 TEST_CASE("DataManager: map data loads real MZ JSON when available", "[data_manager]") {
     DataManager dm;
-    DataManager::setDataDirectory(sampleProjectDataDirectory());
+    const auto dataDirectory = std::filesystem::path(sampleProjectDataDirectory());
+    const bool sampleProjectAvailable = std::filesystem::exists(dataDirectory / "Map002.json");
+    DataManager::setDataDirectory(dataDirectory.string());
 
     REQUIRE(dm.loadDatabase());
     REQUIRE(dm.loadMapData(2));
@@ -506,6 +534,15 @@ TEST_CASE("DataManager: map data loads real MZ JSON when available", "[data_mana
     const MapData* map = dm.getCurrentMap();
     REQUIRE(map != nullptr);
     REQUIRE(map->id == 2);
+    if (!sampleProjectAvailable) {
+        REQUIRE(map->width == 20);
+        REQUIRE(map->height == 15);
+        REQUIRE(map->tilesetId == 1);
+        REQUIRE(map->data.size() == 6);
+        REQUIRE(map->data[0].size() == static_cast<size_t>(20 * 15));
+        return;
+    }
+
     REQUIRE(map->width == 34);
     REQUIRE(map->height == 39);
     REQUIRE(map->tilesetId == 12);

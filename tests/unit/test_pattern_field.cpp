@@ -212,7 +212,19 @@ TEST_CASE("PatternFieldPanel snapshot carries preview and validation issues", "[
     REQUIRE(snapshot.grid_rows.size() == 3);
     REQUIRE(snapshot.viewport_size == 3);
     REQUIRE(snapshot.active_point_count == 1);
+    REQUIRE(snapshot.status == "error");
+    REQUIRE(snapshot.error_message == "Pattern must include the origin point (0,0).");
     REQUIRE(snapshot.controls.size() == 5);
+}
+
+TEST_CASE("PatternFieldPanel snapshot exposes empty state when no points are selected", "[ability][pattern][panel][empty]") {
+    urpg::editor::PatternFieldPanel panel;
+    REQUIRE_FALSE(panel.clearPattern());
+
+    const auto& snapshot = panel.getRenderSnapshot();
+    REQUIRE(snapshot.status == "empty");
+    REQUIRE(snapshot.empty_reason == "No pattern points are selected.");
+    REQUIRE(snapshot.active_point_count == 0);
 }
 
 TEST_CASE("PatternFieldSerializer preserves deterministic point ordering", "[ability][pattern][serializer]") {

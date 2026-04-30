@@ -1170,6 +1170,12 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         }
         projectContent["assets"] = std::move(assets);
         activeTabDetail["project_content"] = std::move(projectContent);
+        activeTabDetail["last_io"] = {
+            {"operation", ability_last_io_result_.operation},
+            {"success", ability_last_io_result_.success},
+            {"path", ability_last_io_result_.path},
+            {"message", ability_last_io_result_.message},
+        };
         break;
     }
     case DiagnosticsTab::ProjectAudit: {

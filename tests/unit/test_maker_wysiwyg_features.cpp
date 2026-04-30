@@ -148,7 +148,7 @@ TEST_CASE("Maker WYSIWYG features expose runtime editor saved-data and registry 
 
         const auto* entry = urpg::editor::findEditorPanelRegistryEntry(feature);
         REQUIRE(entry != nullptr);
-        REQUIRE(entry->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
+        REQUIRE(entry->exposure == urpg::editor::EditorPanelExposure::Deferred);
 
         urpg::maker::MakerFeatureRuntimeState state;
         const auto trigger = document.actions.front().trigger;

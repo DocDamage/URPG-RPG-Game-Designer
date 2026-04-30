@@ -677,28 +677,52 @@ bool DiagnosticsWorkspace::selectAbilityProjectAsset(size_t index) {
 
 bool DiagnosticsWorkspace::loadSelectedAbilityProjectAsset() {
     if (!ability_selected_project_asset_index_.has_value()) {
+        ability_last_io_result_.operation = "load_project_asset";
+        ability_last_io_result_.success = false;
+        ability_last_io_result_.path.clear();
+        ability_last_io_result_.message = "No ability project asset is selected.";
         return false;
     }
 
     const auto& record = ability_project_assets_[*ability_selected_project_asset_index_];
-    const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(record.absolute_path);
+    std::string error;
+    const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(record.absolute_path, &error);
     if (!asset.has_value()) {
+        ability_last_io_result_.operation = "load_project_asset";
+        ability_last_io_result_.success = false;
+        ability_last_io_result_.path = record.absolute_path.generic_string();
+        ability_last_io_result_.message =
+            error.empty() ? "Selected ability project asset could not be loaded." : std::move(error);
         return false;
     }
 
     ability_panel_.setDraftFromAsset(*asset);
     rebuildAbilityDraftPreviewRuntime();
+    ability_last_io_result_.operation = "load_project_asset";
+    ability_last_io_result_.success = true;
+    ability_last_io_result_.path = record.absolute_path.generic_string();
+    ability_last_io_result_.message = "Selected ability project asset loaded.";
     return true;
 }
 
 bool DiagnosticsWorkspace::applySelectedAbilityProjectAssetToRuntime() {
     if (ability_runtime_ == nullptr || !ability_runtime_mutable_ || !ability_selected_project_asset_index_.has_value()) {
+        ability_last_io_result_.operation = "apply_project_asset";
+        ability_last_io_result_.success = false;
+        ability_last_io_result_.path.clear();
+        ability_last_io_result_.message = "A mutable ability runtime and selected project asset are required.";
         return false;
     }
 
     const auto& record = ability_project_assets_[*ability_selected_project_asset_index_];
-    const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(record.absolute_path);
+    std::string error;
+    const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(record.absolute_path, &error);
     if (!asset.has_value()) {
+        ability_last_io_result_.operation = "apply_project_asset";
+        ability_last_io_result_.success = false;
+        ability_last_io_result_.path = record.absolute_path.generic_string();
+        ability_last_io_result_.message =
+            error.empty() ? "Selected ability project asset could not be applied." : std::move(error);
         return false;
     }
 
@@ -707,16 +731,32 @@ bool DiagnosticsWorkspace::applySelectedAbilityProjectAssetToRuntime() {
     ability_panel_.update(*ability_runtime_);
     const bool selected = ability_panel_.selectDraftAbility(*ability_runtime_);
     refreshActiveSnapshotBackedTabIfVisible();
+    ability_last_io_result_.operation = "apply_project_asset";
+    ability_last_io_result_.success = selected;
+    ability_last_io_result_.path = record.absolute_path.generic_string();
+    ability_last_io_result_.message =
+        selected ? "Selected ability project asset applied to runtime."
+                 : "Selected ability project asset was applied but could not be selected in runtime.";
     return selected;
 }
 
 bool DiagnosticsWorkspace::saveAbilityDraftToProjectContent(const std::string& file_name) {
     if (ability_project_root_.empty() || file_name.empty()) {
+        ability_last_io_result_.operation = "save_project_asset";
+        ability_last_io_result_.success = false;
+        ability_last_io_result_.path.clear();
+        ability_last_io_result_.message = "Ability project root and file name are required.";
         return false;
     }
 
     const auto target_path = urpg::ability::canonicalAbilityContentDirectory(ability_project_root_) / file_name;
-    if (!urpg::ability::saveAuthoredAbilityAssetToFile(ability_panel_.getDraftAsset(), target_path)) {
+    std::string error;
+    if (!urpg::ability::saveAuthoredAbilityAssetToFile(ability_panel_.getDraftAsset(), target_path, &error)) {
+        ability_last_io_result_.operation = "save_project_asset";
+        ability_last_io_result_.success = false;
+        ability_last_io_result_.path = target_path.generic_string();
+        ability_last_io_result_.message =
+            error.empty() ? "Ability draft could not be saved to project content." : std::move(error);
         return false;
     }
 
@@ -729,6 +769,10 @@ bool DiagnosticsWorkspace::saveAbilityDraftToProjectContent(const std::string& f
         }
     }
     refreshActiveSnapshotBackedTabIfVisible();
+    ability_last_io_result_.operation = "save_project_asset";
+    ability_last_io_result_.success = true;
+    ability_last_io_result_.path = target_path.generic_string();
+    ability_last_io_result_.message = "Ability draft saved to project content.";
     return true;
 }
 

@@ -18,6 +18,7 @@ Use the narrowest command that covers the changed surface. If a release plan spe
 | Presentation/spatial/rendering | `.\tools\ci\run_presentation_gate.ps1` |
 | Native Level Builder / grid-part editor | `.\build\dev-ninja-debug\urpg_tests.exe "[grid_part][editor]"`; then `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure` |
 | Grid-part runtime/compiler/package governance | `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure` |
+| Release authoring persistence / save-load paths | `ctest --preset dev-all -R "settings|persistence|save|load|grid_part|Ability" --output-on-failure` |
 | WYSIWYG readiness/done-rule changes | `ctest --preset dev-all -R "WYSIWYG|readiness_status" --output-on-failure` |
 | Native package layout | `.\tools\ci\check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke` |
 | Full local gate | `.\tools\ci\run_local_gates.ps1` |

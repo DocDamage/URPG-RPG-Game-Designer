@@ -208,6 +208,13 @@ class DiagnosticsWorkspace {
     void update();
 
   private:
+    struct AbilityIoResult {
+        std::string operation = "none";
+        bool success = false;
+        std::string path;
+        std::string message = "No ability IO action has run.";
+    };
+
     void syncPanelVisibility();
     void refreshActiveSnapshotBackedTabIfVisible();
     void refreshEventAuthoritySnapshotIfActive();
@@ -242,6 +249,7 @@ class DiagnosticsWorkspace {
     std::filesystem::path ability_project_root_;
     std::vector<urpg::ability::AuthoredAbilityAssetRecord> ability_project_assets_;
     std::optional<size_t> ability_selected_project_asset_index_;
+    mutable AbilityIoResult ability_last_io_result_;
     MigrationWizardPanel migration_wizard_panel_;
     ProjectAuditPanel project_audit_panel_;
     ProjectHealthPanel project_health_panel_;

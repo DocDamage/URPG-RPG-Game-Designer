@@ -1684,6 +1684,44 @@ TEST_CASE("DiagnosticsWorkspace - ability draft state save and load round-trip",
     std::filesystem::remove(temp_path);
 }
 
+TEST_CASE("DiagnosticsWorkspace - ability draft IO reports paths and preserves valid drafts on failure",
+          "[editor][diagnostics][integration][abilities][draft_io][error]") {
+    const auto temp_root = std::filesystem::temp_directory_path() / "urpg_workspace_ability_draft_io_errors";
+    std::filesystem::remove_all(temp_root);
+
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Abilities);
+    workspace.beginAbilityDraftPreview();
+    REQUIRE(workspace.setAbilityDraftId("skill.valid_before_failed_load"));
+    REQUIRE(workspace.setAbilityDraftEffectAttribute("MagicDefense"));
+
+    const auto nested_path = (temp_root / "nested" / "drafts" / "saved.json").string();
+    REQUIRE(workspace.saveAbilityDraftStateToFile(nested_path));
+    REQUIRE(std::filesystem::exists(nested_path));
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["last_io"]["operation"] == "save_draft_state");
+    REQUIRE(exported["active_tab_detail"]["last_io"]["success"] == true);
+    REQUIRE(exported["active_tab_detail"]["last_io"]["path"] == (temp_root / "nested" / "drafts" / "saved.json").generic_string());
+
+    const auto invalid_path = temp_root / "nested" / "drafts" / "invalid.json";
+    {
+        std::ofstream invalid(invalid_path);
+        invalid << "{not-json";
+    }
+    REQUIRE_FALSE(workspace.loadAbilityDraftStateFromFile(invalid_path.string()));
+
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["draft"]["ability_id"] == "skill.valid_before_failed_load");
+    REQUIRE(exported["active_tab_detail"]["draft"]["effect_attribute"] == "MagicDefense");
+    REQUIRE(exported["active_tab_detail"]["last_io"]["operation"] == "load_draft_state");
+    REQUIRE(exported["active_tab_detail"]["last_io"]["success"] == false);
+    REQUIRE(exported["active_tab_detail"]["last_io"]["path"] == invalid_path.generic_string());
+    REQUIRE(exported["active_tab_detail"]["last_io"]["message"].get<std::string>().find(invalid_path.generic_string()) !=
+            std::string::npos);
+
+    std::filesystem::remove_all(temp_root);
+}
+
 TEST_CASE("DiagnosticsWorkspace - authored ability can be applied to a live battle participant runtime",
           "[editor][diagnostics][integration][abilities][battle_apply]") {
     urpg::scene::BattleScene battle({"1"});
@@ -1841,6 +1879,10 @@ TEST_CASE(
     REQUIRE(std::filesystem::exists(project_root / "content" / "abilities" / "saved" / "content_saved.json"));
 
     exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["last_io"]["operation"] == "save_project_asset");
+    REQUIRE(exported["active_tab_detail"]["last_io"]["success"] == true);
+    REQUIRE(exported["active_tab_detail"]["last_io"]["path"] ==
+            (project_root / "content" / "abilities" / "saved" / "content_saved.json").generic_string());
     REQUIRE(exported["active_tab_detail"]["project_content"]["asset_count"] == 2);
     REQUIRE(exported["active_tab_detail"]["project_content"]["assets"][1]["relative_path"] ==
             "content/abilities/saved/content_saved.json");

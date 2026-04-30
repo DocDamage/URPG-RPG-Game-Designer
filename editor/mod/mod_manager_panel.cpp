@@ -107,6 +107,10 @@ void ModManagerPanel::render() {
     const bool actionsEnabled = registry_ != nullptr && loader_ != nullptr;
     const bool hotLoadActionsEnabled = registry_ != nullptr && hot_loader_ != nullptr;
     const bool storeActionsEnabled = loader_ != nullptr && store_catalog_ != nullptr;
+    snapshot["status"] = registry_ == nullptr ? "disabled" : "empty";
+    snapshot["disabled_reason"] = registry_ == nullptr ? "No mod registry is bound." : "";
+    snapshot["empty_reason"] = registry_ == nullptr ? "" : "No mods are registered.";
+    snapshot["error_message"] = "";
     snapshot["status_messages"] = nlohmann::json::array();
     if (registry_ == nullptr) {
         snapshot["status_messages"].push_back("No mod registry is bound.");
@@ -228,6 +232,18 @@ void ModManagerPanel::render() {
     } catch (const std::runtime_error& e) {
         snapshot["cycle_warning"] = e.what();
         snapshot["registered_count"] = manifests.size();
+    }
+    if (!snapshot["cycle_warning"].is_null()) {
+        snapshot["status"] = "error";
+        snapshot["empty_reason"] = "";
+        snapshot["error_message"] = snapshot["cycle_warning"];
+    } else if (!issues.empty()) {
+        snapshot["status"] = "error";
+        snapshot["empty_reason"] = "";
+        snapshot["error_message"] = issues.front().message;
+    } else if (!manifests.empty()) {
+        snapshot["status"] = "ready";
+        snapshot["empty_reason"] = "";
     }
 
     last_render_snapshot_ = snapshot;

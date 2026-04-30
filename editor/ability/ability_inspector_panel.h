@@ -56,6 +56,10 @@ class AbilityInspectorPanel {
 
         bool visible = true;
         bool has_rendered_frame = false;
+        std::string status = "disabled";
+        std::string disabled_reason = "No ability runtime is bound.";
+        std::string empty_reason;
+        std::string error_message;
         std::vector<std::string> diagnostic_lines;
         size_t diagnostic_count = 0;
         std::string latest_ability_id;

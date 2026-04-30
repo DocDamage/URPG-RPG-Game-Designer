@@ -347,11 +347,11 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Run `rg -n "RenderSnapshot|disabled|empty|error|loading|lastRenderSnapshot|recordCommandResult" editor tests/unit`.
-- [ ] For each release panel, add or verify snapshot fields for `status`, `disabledReason`, `emptyReason`, `errorMessage`, and enabled/disabled action states using the local naming pattern already present in that panel.
-- [ ] For every button or command in `EDITOR_CONTROL_INVENTORY.md`, verify disabled-state evidence exists.
-- [ ] Add failing tests for any missing empty or error state before implementation.
-- [ ] Implement the minimal snapshot/status changes to pass tests.
+- [x] Run `rg -n "RenderSnapshot|disabled|empty|error|loading|lastRenderSnapshot|recordCommandResult" editor tests/unit`.
+- [x] For each release panel, add or verify snapshot fields for `status`, `disabledReason`, `emptyReason`, `errorMessage`, and enabled/disabled action states using the local naming pattern already present in that panel.
+- [x] For every button or command in `EDITOR_CONTROL_INVENTORY.md`, verify disabled-state evidence exists.
+- [x] Add failing tests for any missing empty or error state before implementation.
+- [x] Implement the minimal snapshot/status changes to pass tests.
 
 **Acceptance criteria:**
 - Missing runtime bindings, missing project roots, empty datasets, failed loads, and disabled handlers are visible in snapshots and user-facing panel state.
@@ -360,6 +360,15 @@
 **Verification command or manual test:**
 - `ctest --preset dev-all -R "editor|empty|loading|error" --output-on-failure`
 - `ctest --test-dir build\dev-ninja-debug -R "AssetLibrary|Analytics|Ability|Pattern|grid_part" --output-on-failure`
+
+**Progress note (2026-04-30):** Implemented and verified release-panel state evidence for Ability, Pattern, and Mod snapshots, and documented state evidence for all release top-level panels. Focused verification passes:
+- `ctest --test-dir build\dev-ninja-debug -R "ModManagerPanel|PatternFieldPanel|Ability execution history captures|Panel snapshot exposes empty runtime" --output-on-failure`
+- `ctest --test-dir build\dev-ninja-debug -R "AssetLibrary|Analytics|Ability|Pattern|grid_part" --output-on-failure`
+
+Follow-up broad-gate cleanup resolved on 2026-04-30:
+- Updated Maker and Gameplay WYSIWYG registry tests to assert `Deferred` for feature-family panels after release navigation demotion.
+- Updated `DataManager: database loading and accessors` to use strict VisuMZ sample assertions only when the optional external sample data is present, and otherwise assert the seeded database contract.
+- `ctest --preset dev-all -R "editor|empty|loading|error" --output-on-failure` now passes.
 
 ### Task P3-002: Normalize handler feedback for buttons, menu items, and commands
 
@@ -380,11 +389,11 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Run the ImGui control query from `EDITOR_CONTROL_INVENTORY.md`.
-- [ ] For each release-surface control, verify there is a handler path and a test that proves it mutates state, records feedback, or is disabled with a reason.
-- [ ] Add missing command-result fields using existing panel patterns such as `recordCommandResult`.
-- [ ] Add tests for controls that currently render but do not mutate state.
-- [ ] Update inventory rows with the verified behavior and disabled-state evidence.
+- [x] Run the ImGui control query from `EDITOR_CONTROL_INVENTORY.md`.
+- [x] For each release-surface control, verify there is a handler path and a test that proves it mutates state, records feedback, or is disabled with a reason.
+- [x] Add missing command-result fields using existing panel patterns such as `recordCommandResult`.
+- [x] Add tests for controls that currently render but do not mutate state.
+- [x] Update inventory rows with the verified behavior and disabled-state evidence.
 
 **Acceptance criteria:**
 - No release control exists without a handler or disabled-state contract.
@@ -421,17 +430,24 @@
 **Risk level:** High. Save/load defects can corrupt authoring work.
 
 **Exact implementation steps:**
-- [ ] List release authoring actions: ability save/load/apply, pattern edit, Level Builder save/load/export/playtest/package, analytics consent/settings.
-- [ ] For each action, write or update a round-trip test that saves to a temp project root, reloads into a fresh panel/runtime, and asserts semantic equality.
-- [ ] Ensure file writes create parent directories and report path-specific errors.
-- [ ] Ensure failed loads preserve the last valid in-memory document unless the panel explicitly clears with feedback.
-- [ ] Ensure settings persistence updates are saved after editor shutdown and do not depend on window-size mutation in headless mode.
+- [x] List release authoring actions: ability save/load/apply, pattern edit, Level Builder save/load/export/playtest/package, analytics consent/settings.
+- [x] For each action, write or update a round-trip test that saves to a temp project root, reloads into a fresh panel/runtime, and asserts semantic equality.
+- [x] Ensure file writes create parent directories and report path-specific errors.
+- [x] Ensure failed loads preserve the last valid in-memory document unless the panel explicitly clears with feedback.
+- [x] Ensure settings persistence updates are saved after editor shutdown and do not depend on window-size mutation in headless mode.
 
 **Acceptance criteria:**
 - All release authoring surfaces have deterministic save/load/export tests.
 - Failed persistence paths emit errors without data loss.
 
 **Verification command or manual test:**
+- `ctest --preset dev-all -R "settings|persistence|save|load|grid_part|Ability" --output-on-failure`
+
+**Progress note (2026-04-30):** Completed P4-001 persistence coverage for release authoring actions. Ability draft save/load/project-content paths now expose `last_io` with operation, success, path, and message fields while preserving the existing boolean APIs. Authored ability asset file IO reports path-specific write/read/parse/schema errors and still creates parent directories. Added regression coverage for nested draft saves, malformed-load preservation of the previous draft, project-content save paths, and optional DataManager fixture fallback contracts. Existing Level Builder save/load/export/playtest/package, analytics local JSONL/settings, pattern edit, and app settings persistence coverage passed under the required gate:
+- `cmake --build --preset dev-debug --target urpg_tests`
+- `git diff --check`
+- `ctest --test-dir build\dev-ninja-debug -R "DiagnosticsWorkspace - ability draft IO|DiagnosticsWorkspace - ability draft state save|selected project ability asset" --output-on-failure`
+- `ctest --test-dir build\dev-ninja-debug -R "AnalyticsPanel reports release local export handler|Level Builder saves canonical|Level Builder loads canonical|Level Builder load command rejects|Level Builder exposes native validation playtest" --output-on-failure`
 - `ctest --preset dev-all -R "settings|persistence|save|load|grid_part|Ability" --output-on-failure`
 
 ### Task P4-002: Audit input consistency, pause/resume, and scene transition persistence

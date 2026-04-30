@@ -22,6 +22,9 @@ class PatternFieldPanel {
 
         bool visible = true;
         bool has_rendered_frame = false;
+        std::string status = "empty";
+        std::string empty_reason;
+        std::string error_message;
         std::string name;
         bool is_valid = true;
         std::vector<std::string> issues;

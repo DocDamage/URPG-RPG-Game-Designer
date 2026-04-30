@@ -22,6 +22,10 @@ This file is a pointer map, not the debt database.
 - Keep bootstrap/dev surfaces visibly marked as non-production.
 - Keep any future compat and migration limitations diagnostic-rich and documented; current public compat manager registries are closed for the claimed bridge scope.
 - Keep editor release navigation aligned with `docs/release/EDITOR_CONTROL_INVENTORY.md`.
+- Treat release authoring persistence as a guarded surface: ability draft IO must
+  keep path-specific `last_io` diagnostics, failed loads must preserve the last
+  valid draft, and Level Builder load/export safeguards must keep rejecting
+  unsafe documents without replacing the bound document.
 - Convert repeated review feedback into scripts or docs under `tools/` and `docs/agent/`.
 
 ## What Not To Do

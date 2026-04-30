@@ -69,20 +69,67 @@ void AnalyticsPanel::render() {
     }
 
     bool optIn = m_dispatcher != nullptr && m_dispatcher->isOptIn();
-    if (ImGui::Checkbox("Opt In", &optIn)) {
+    const auto actionEnabled = [this](const char* id) {
+        if (m_lastSnapshot.contains("actionDetails") && m_lastSnapshot["actionDetails"].contains(id)) {
+            return m_lastSnapshot["actionDetails"][id].value("enabled", false);
+        }
+        return m_lastSnapshot.contains("actions") && m_lastSnapshot["actions"].value(id, false);
+    };
+    const auto disabledTooltip = [this](const char* id) {
+        if (m_lastSnapshot.contains("actionDetails") && m_lastSnapshot["actionDetails"].contains(id)) {
+            const auto reason = m_lastSnapshot["actionDetails"][id].value("disabledReason", std::string{});
+            if (!reason.empty() && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+                ImGui::SetTooltip("%s", reason.c_str());
+            }
+        }
+    };
+
+    const bool canSetOptIn = actionEnabled("setOptIn");
+    if (!canSetOptIn) {
+        ImGui::BeginDisabled();
+    }
+    if (ImGui::Checkbox("Opt In", &optIn) && canSetOptIn) {
         (void)setOptIn(optIn);
     }
+    if (!canSetOptIn) {
+        disabledTooltip("setOptIn");
+        ImGui::EndDisabled();
+    }
 
-    if (ImGui::Button("Clear Queue")) {
+    const bool canClearQueue = actionEnabled("clearQueue");
+    if (!canClearQueue) {
+        ImGui::BeginDisabled();
+    }
+    if (ImGui::Button("Clear Queue") && canClearQueue) {
         (void)clearQueuedEvents();
     }
-    ImGui::SameLine();
-    if (ImGui::Button("Apply Endpoint Profile")) {
-        (void)applyEndpointProfile();
+    if (!canClearQueue) {
+        disabledTooltip("clearQueue");
+        ImGui::EndDisabled();
     }
     ImGui::SameLine();
-    if (ImGui::Button("Flush Upload")) {
+    const bool canApplyEndpointProfile = actionEnabled("applyEndpointProfile");
+    if (!canApplyEndpointProfile) {
+        ImGui::BeginDisabled();
+    }
+    if (ImGui::Button("Apply Endpoint Profile") && canApplyEndpointProfile) {
+        (void)applyEndpointProfile();
+    }
+    if (!canApplyEndpointProfile) {
+        disabledTooltip("applyEndpointProfile");
+        ImGui::EndDisabled();
+    }
+    ImGui::SameLine();
+    const bool canFlushUpload = actionEnabled("flushUpload");
+    if (!canFlushUpload) {
+        ImGui::BeginDisabled();
+    }
+    if (ImGui::Button("Flush Upload") && canFlushUpload) {
         (void)flushQueuedEvents();
+    }
+    if (!canFlushUpload) {
+        disabledTooltip("flushUpload");
+        ImGui::EndDisabled();
     }
 
     ImGui::Text("Privacy: %s", m_lastSnapshot.value("privacyStatus", "unknown").c_str());
@@ -252,6 +299,12 @@ void AnalyticsPanel::rebuildSnapshot() {
             {"clearQueue", false},
             {"flushUpload", false},
         };
+        snapshot["actionDetails"] = {
+            {"setOptIn", {{"enabled", false}, {"disabledReason", "No analytics dispatcher is bound."}}},
+            {"applyEndpointProfile", {{"enabled", false}, {"disabledReason", "No analytics uploader is bound."}}},
+            {"clearQueue", {{"enabled", false}, {"disabledReason", "No analytics dispatcher is bound."}}},
+            {"flushUpload", {{"enabled", false}, {"disabledReason", "No analytics dispatcher is bound."}}},
+        };
         m_lastSnapshot = std::move(snapshot);
         return;
     }
@@ -360,11 +413,30 @@ void AnalyticsPanel::rebuildSnapshot() {
 
     snapshot["uploadStatus"] = disabledMessage.empty() ? "ready" : "disabled";
     snapshot["disabledUploadMessage"] = disabledMessage;
+    const bool canApplyEndpointProfile = m_uploader != nullptr && m_endpointProfile != nullptr;
+    const bool canClearQueue = m_dispatcher->getQueuedEventCount() > 0;
+    const auto endpointProfileDisabledReason = [this]() -> std::string {
+        if (m_uploader == nullptr) {
+            return "No analytics uploader is bound.";
+        }
+        if (m_endpointProfile == nullptr) {
+            return "No analytics endpoint profile is bound.";
+        }
+        return "";
+    };
     snapshot["actions"] = {
         {"setOptIn", true},
-        {"applyEndpointProfile", m_uploader != nullptr && m_endpointProfile != nullptr},
-        {"clearQueue", m_dispatcher->getQueuedEventCount() > 0},
+        {"applyEndpointProfile", canApplyEndpointProfile},
+        {"clearQueue", canClearQueue},
         {"flushUpload", disabledMessage.empty()},
+    };
+    snapshot["actionDetails"] = {
+        {"setOptIn", {{"enabled", true}, {"disabledReason", ""}}},
+        {"applyEndpointProfile", {{"enabled", canApplyEndpointProfile}, {"disabledReason", endpointProfileDisabledReason()}}},
+        {"clearQueue",
+         {{"enabled", canClearQueue},
+          {"disabledReason", canClearQueue ? "" : "No queued analytics events to clear."}}},
+        {"flushUpload", {{"enabled", disabledMessage.empty()}, {"disabledReason", disabledMessage}}},
     };
     m_lastSnapshot = std::move(snapshot);
 }

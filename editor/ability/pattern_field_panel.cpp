@@ -207,6 +207,15 @@ void PatternFieldPanel::rebuildSnapshot() {
     if (const auto pattern = model().getCurrentPattern()) {
         m_snapshot.active_point_count = pattern->getPoints().size();
     }
+    if (m_snapshot.active_point_count == 0) {
+        m_snapshot.status = "empty";
+        m_snapshot.empty_reason = "No pattern points are selected.";
+    } else if (!m_snapshot.is_valid) {
+        m_snapshot.status = "error";
+        m_snapshot.error_message = m_snapshot.issues.empty() ? "Pattern validation failed." : m_snapshot.issues.front();
+    } else {
+        m_snapshot.status = "ready";
+    }
     rebuildControlState();
 }
 

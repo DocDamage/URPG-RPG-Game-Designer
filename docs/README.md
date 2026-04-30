@@ -5,8 +5,10 @@ This folder is organized by document purpose. Use the active sprint pointer for 
 ## Current Execution
 
 - [Active Sprint Pointer](./superpowers/plans/ACTIVE_SPRINT.md)
+- [Release Surface Audit Execution Plan](./superpowers/plans/2026-04-30-release-surface-audit-execution-plan.md)
 - [AAA Release Readiness Execution Plan](./superpowers/plans/2026-04-26-aaa-release-readiness-execution-plan.md)
 - [AAA Release Readiness Report](./release/AAA_RELEASE_READINESS_REPORT.md)
+- [Editor Control Inventory](./release/EDITOR_CONTROL_INVENTORY.md)
 
 ## Current Reference Folders
 

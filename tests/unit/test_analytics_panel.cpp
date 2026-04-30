@@ -34,6 +34,10 @@ TEST_CASE("AnalyticsPanel empty snapshot when no dispatcher bound", "[analytics]
     REQUIRE(snapshot["recentEvents"].empty());
     REQUIRE(snapshot["dispatcherBound"] == false);
     REQUIRE(snapshot["actions"]["setOptIn"] == false);
+    REQUIRE(snapshot["actionDetails"]["setOptIn"]["enabled"] == false);
+    REQUIRE(snapshot["actionDetails"]["setOptIn"]["disabledReason"] == "No analytics dispatcher is bound.");
+    REQUIRE(snapshot["actionDetails"]["clearQueue"]["disabledReason"] == "No analytics dispatcher is bound.");
+    REQUIRE(snapshot["actionDetails"]["applyEndpointProfile"]["disabledReason"] == "No analytics uploader is bound.");
     REQUIRE(snapshot["uploadStatus"] == "disabled");
     REQUIRE(snapshot["disabledUploadMessage"] == "No analytics dispatcher is bound.");
     REQUIRE(snapshot["statusMessages"].size() == 2);
@@ -62,6 +66,8 @@ TEST_CASE("AnalyticsPanel snapshot reflects events after dispatch", "[analytics]
     REQUIRE(snapshot["recentEvents"][0]["eventName"] == "editor_event");
     REQUIRE(snapshot["recentEvents"][0]["category"] == "editor_category");
     REQUIRE(snapshot["queuedEventCount"] == 1);
+    REQUIRE(snapshot["actions"]["clearQueue"] == true);
+    REQUIRE(snapshot["actionDetails"]["clearQueue"]["enabled"] == true);
     REQUIRE(snapshot["statusMessages"].size() == 3);
     REQUIRE(snapshot["statusMessages"][0] ==
             "No analytics privacy controller is bound; dispatcher opt-in is used as fallback.");
@@ -157,6 +163,9 @@ TEST_CASE("AnalyticsPanel clear queue action removes buffered events without res
     REQUIRE(snapshot["sessionEventCount"] == 1);
     REQUIRE(snapshot["lastAction"]["action"] == "clear_queue");
     REQUIRE(snapshot["lastAction"]["affectedEvents"] == 1);
+    REQUIRE(snapshot["actions"]["clearQueue"] == false);
+    REQUIRE(snapshot["actionDetails"]["clearQueue"]["enabled"] == false);
+    REQUIRE(snapshot["actionDetails"]["clearQueue"]["disabledReason"] == "No queued analytics events to clear.");
 }
 
 TEST_CASE("AnalyticsPanel flush upload respects disabled states and consent", "[analytics][editor][panel][controls]") {
@@ -176,12 +185,17 @@ TEST_CASE("AnalyticsPanel flush upload respects disabled states and consent", "[
     auto snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot["uploadStatus"] == "disabled");
     REQUIRE(snapshot["lastAction"]["message"] == "Upload disabled: no upload handler configured.");
+    REQUIRE(snapshot["actionDetails"]["flushUpload"]["enabled"] == false);
+    REQUIRE(snapshot["actionDetails"]["flushUpload"]["disabledReason"] ==
+            "Upload disabled: no upload handler configured.");
 
     uploader.setUploadHandler([](const std::string&) { return true; });
     privacy.recordConsentDecision(ConsentState::Denied);
     REQUIRE_FALSE(panel.flushQueuedEvents());
     snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot["lastAction"]["message"] == "Upload disabled: analytics consent is not granted.");
+    REQUIRE(snapshot["actionDetails"]["flushUpload"]["disabledReason"] ==
+            "Upload disabled: analytics consent is not granted.");
 }
 
 TEST_CASE("AnalyticsPanel requires explicit consent before upload is enabled",
@@ -321,6 +335,8 @@ TEST_CASE("AnalyticsPanel applies reviewed endpoint profile before upload",
     REQUIRE(snapshot["endpointProfile"]["profileId"] == "reviewed-http");
     REQUIRE(snapshot["endpointProfilePrivacyApproved"] == true);
     REQUIRE(snapshot["actions"]["applyEndpointProfile"] == true);
+    REQUIRE(snapshot["actionDetails"]["applyEndpointProfile"]["enabled"] == true);
+    REQUIRE(snapshot["actionDetails"]["applyEndpointProfile"]["disabledReason"] == "");
 
     REQUIRE(panel.applyEndpointProfile());
     snapshot = panel.lastRenderSnapshot();
@@ -350,4 +366,27 @@ TEST_CASE("AnalyticsPanel reports endpoint profile privacy diagnostics",
     REQUIRE_FALSE(snapshot["endpointProfileDiagnostics"].empty());
     REQUIRE(snapshot["lastAction"]["action"] == "apply_endpoint_profile");
     REQUIRE(snapshot["lastAction"]["success"] == false);
+}
+
+TEST_CASE("AnalyticsPanel endpoint profile action exposes disabled reasons",
+          "[analytics][editor][panel][controls]") {
+    AnalyticsDispatcher dispatcher;
+    AnalyticsPanel panel;
+    panel.bindDispatcher(&dispatcher);
+    panel.render();
+
+    auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["actions"]["applyEndpointProfile"] == false);
+    REQUIRE(snapshot["actionDetails"]["applyEndpointProfile"]["enabled"] == false);
+    REQUIRE(snapshot["actionDetails"]["applyEndpointProfile"]["disabledReason"] == "No analytics uploader is bound.");
+
+    AnalyticsUploader uploader;
+    panel.bindUploader(&uploader);
+    panel.render();
+
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["actions"]["applyEndpointProfile"] == false);
+    REQUIRE(snapshot["actionDetails"]["applyEndpointProfile"]["enabled"] == false);
+    REQUIRE(snapshot["actionDetails"]["applyEndpointProfile"]["disabledReason"] ==
+            "No analytics endpoint profile is bound.");
 }

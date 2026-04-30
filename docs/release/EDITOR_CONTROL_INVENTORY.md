@@ -32,6 +32,28 @@ Exhaustive compiled-panel ownership is enforced by `tests/unit/test_editor_panel
 
 Regression evidence: `tests/unit/test_grid_part_editor.cpp` and the CTest `grid_part` label lane.
 
+## Release Panel State Evidence
+
+The release top-level panels expose deterministic headless state evidence for Phase 3 empty, disabled, and error review:
+
+- `analytics`: JSON snapshot reports dispatcher/uploader/profile binding, status messages, upload status, disabled upload reason, validation issues, and the latest action.
+- `assets`: `AssetLibraryModelSnapshot` reports `status`, `status_message`, `error_message`, `remediation`, filter controls, asset action rows, and action history.
+- `ability`: `AbilityInspectorPanel::RenderSnapshot` reports `status`, `disabled_reason`, `empty_reason`, `error_message`, command controls, draft validation issues, and latest command result.
+- `patterns`: `PatternFieldPanel::RenderSnapshot` reports `status`, `empty_reason`, `error_message`, validation issues, active point count, and per-control disabled reasons.
+- `mod`: JSON snapshot reports `status`, `disabled_reason`, `empty_reason`, `error_message`, binding state, action enablement, status messages, validation issues, cycle warning, hot-load events, and latest action.
+- `level_builder`: `LevelBuilderWorkspace::RenderSnapshot` reports disabled/error/ready status, remediation, toolbar action state, validation diagnostics, readiness state, and command result snapshots.
+- `diagnostics`: `DiagnosticsWorkspace::exportAsJson()` reports visible/active tab state, active-tab summary, and the active child panel snapshot; child panels carry their own empty/error/disabled evidence.
+
+## Release Persistence Evidence
+
+Phase 4 verifies release authoring actions through deterministic round-trip tests and path-specific failure feedback:
+
+- Ability draft IO saves to nested paths, reloads into fresh workspaces, reports `last_io.operation`, `last_io.success`, `last_io.path`, and `last_io.message`, and preserves the previous valid draft after malformed loads.
+- Ability project-content IO creates parent directories under `content/abilities`, refreshes the picker, selects the saved asset, and reports the saved project-content path through `last_io`.
+- Level Builder save/load/export/playtest/package paths are covered by `tests/unit/test_grid_part_editor.cpp`; failed loads reject malformed or map-mismatched drafts without replacing the bound document.
+- Analytics consent/settings and local JSONL export paths are covered by `tests/unit/test_analytics_panel.cpp` and `tests/unit/test_app_settings_store.cpp`.
+- Optional external RPG Maker sample data tests fall back to seeded DataManager contracts when the sample project files are not present.
+
 ## Search Command
 
 ```powershell
@@ -42,9 +64,10 @@ rg -n "ImGui::(Button|MenuItem|Checkbox|Combo|Selectable|Slider|Drag)" editor
 
 | File | Control | Behavior | Disabled-State Evidence |
 | --- | --- | --- | --- |
-| `editor/analytics/analytics_panel.cpp` | `ImGui::Checkbox("Opt In")` | Calls `AnalyticsPanel::setOptIn`, updates dispatcher/privacy state, records action result. | If dispatcher is missing, action returns false and snapshot records `No analytics dispatcher is bound.` |
-| `editor/analytics/analytics_panel.cpp` | `ImGui::Button("Clear Queue")` | Calls `AnalyticsPanel::clearQueuedEvents`, clears queued dispatcher events when bound. | If dispatcher is missing, action returns false-equivalent count and snapshot records `No analytics dispatcher is bound.` |
-| `editor/analytics/analytics_panel.cpp` | `ImGui::Button("Flush Upload")` | Calls `AnalyticsPanel::flushQueuedEvents`, exporting queued events through the configured local JSONL uploader. | Snapshot exposes `disabledUploadMessage` for missing uploader, missing handler, denied consent, opt-out, or empty queue. |
+| `editor/analytics/analytics_panel.cpp` | `ImGui::Checkbox("Opt In")` | Calls `AnalyticsPanel::setOptIn`, updates dispatcher/privacy state, records action result. | `actionDetails.setOptIn` disables the checkbox with `No analytics dispatcher is bound.` |
+| `editor/analytics/analytics_panel.cpp` | `ImGui::Button("Clear Queue")` | Calls `AnalyticsPanel::clearQueuedEvents`, clears queued dispatcher events when bound. | `actionDetails.clearQueue` exposes `No analytics dispatcher is bound.` or `No queued analytics events to clear.` |
+| `editor/analytics/analytics_panel.cpp` | `ImGui::Button("Apply Endpoint Profile")` | Calls `AnalyticsPanel::applyEndpointProfile`, applying the reviewed endpoint profile to the uploader. | `actionDetails.applyEndpointProfile` exposes missing uploader or missing endpoint-profile reasons. |
+| `editor/analytics/analytics_panel.cpp` | `ImGui::Button("Flush Upload")` | Calls `AnalyticsPanel::flushQueuedEvents`, exporting queued events through the configured local JSONL uploader. | `actionDetails.flushUpload` and `disabledUploadMessage` expose missing dispatcher/uploader/handler, denied consent, opt-out, or empty queue. |
 | `editor/ui/menu_inspector_panel.cpp` | `ImGui::Selectable(...)` | Calls `MenuInspectorModel::SelectRow` and refreshes the render snapshot. | Selection exists only for visible audit rows; empty state is displayed as panel data rather than a disabled command. |
 | `editor/ability/pattern_field_panel.cpp` | `ImGui::Button("Clear")` | Calls `PatternFieldPanel::clearPattern`, mutating the current pattern. | Disabled ImGui state and `RenderSnapshot::controls` expose `No selected pattern points to clear.` |
 | `editor/ability/pattern_field_panel.cpp` | Preset `ImGui::Button(...)` | Calls `PatternFieldPanel::applyPreset`, mutating the current pattern. | `RenderSnapshot::controls` exposes `No pattern presets are available.` when disabled. |
@@ -70,5 +93,6 @@ rg -n "ImGui::(Button|MenuItem|Checkbox|Combo|Selectable|Slider|Drag)" editor
 - `build\dev-ninja-debug\urpg_tests.exe "[ui][editor][menu_inspector][panel]"`
 - `ctest --preset dev-all -R "Ability|Pattern|Analytics|MenuInspector" --output-on-failure`
 - `ctest --preset dev-all -R "AI (knowledge|task|tool|assistant)|Chatbot component" --output-on-failure`
+- `ctest --preset dev-all -R "settings|persistence|save|load|grid_part|Ability" --output-on-failure`
 
 Manual graphical verification in `urpg_editor` remains required for visual tooltip affordance, because headless tests validate the disabled-state contract but do not hover controls.

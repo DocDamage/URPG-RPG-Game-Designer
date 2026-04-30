@@ -25,10 +25,16 @@ Current headline state:
 - Native Level Builder is implemented as the shippable top-level map editor workspace.
 - `GridPartDocument` is the canonical editable map document for grid-part level
   authoring.
-- Release-surface audit remediation is complete through Phase 2 Task 2:
+- Release-surface audit remediation is complete through Phase 4 Task 1:
   editor release navigation, compiled panel exposure, placeholder governance,
-  and fixture/mock readiness overclaim checks are now covered by tests or CI
-  scripts.
+  fixture/mock readiness overclaim checks, release panel state evidence,
+  action disabled-state evidence, and authoring persistence paths are now
+  covered by tests or CI scripts.
+- Release authoring persistence is covered for ability draft save/load/apply,
+  ability project-content saves, pattern editing, Level Builder
+  save/load/export/playtest/package, analytics consent/local JSONL export, and
+  app settings. Ability IO now reports path-specific `last_io` diagnostics
+  without changing the existing boolean API.
 - Legacy spatial authoring is now supporting tooling under Level Builder for
   elevation, props, and ability-binding workflows.
 - Grid-part unit and integration lanes are registered in CTest and passing in

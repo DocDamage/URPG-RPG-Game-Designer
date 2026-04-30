@@ -21,6 +21,9 @@ void AbilityInspectorPanel::clear() {
     m_model.clear();
     m_snapshot = {};
     m_snapshot.visible = m_visible;
+    m_snapshot.status = "disabled";
+    m_snapshot.disabled_reason = "No ability runtime is bound.";
+    m_snapshot.empty_reason = "No abilities are bound to this runtime.";
     rebuildControlState();
 }
 
@@ -434,6 +437,7 @@ void AbilityInspectorPanel::validateDraftPattern() {
     if (asset.effect_attribute.empty()) {
         m_snapshot.validation_issues.push_back("Effect attribute is required.");
     }
+    m_snapshot.error_message = m_snapshot.validation_issues.empty() ? "" : m_snapshot.validation_issues.front();
 }
 
 void AbilityInspectorPanel::rebuildSnapshot(const AbilitySystemComponent& asc) {
@@ -451,6 +455,10 @@ void AbilityInspectorPanel::rebuildSnapshot(const AbilitySystemComponent& asc) {
 
     const auto& history = asc.getAbilityExecutionHistory();
     m_snapshot.diagnostic_count = history.size();
+    const bool has_runtime_data = !m_model.getAbilities().empty() || !m_model.getActiveTags().empty() || !history.empty();
+    m_snapshot.status = has_runtime_data ? "ready" : "empty";
+    m_snapshot.disabled_reason.clear();
+    m_snapshot.empty_reason = has_runtime_data ? "" : "No abilities are bound to this runtime.";
     if (const auto* selected_ability = m_model.selectedAbility()) {
         m_snapshot.selected_ability_id = selected_ability->name;
         m_snapshot.selected_ability_can_activate = selected_ability->can_activate;

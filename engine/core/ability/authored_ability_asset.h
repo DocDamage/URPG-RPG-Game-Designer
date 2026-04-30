@@ -11,6 +11,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -132,46 +133,81 @@ inline std::filesystem::path canonicalAbilityContentDirectory(const std::filesys
     return project_root / "content" / "abilities";
 }
 
-inline bool saveAuthoredAbilityAssetToFile(const AuthoredAbilityAsset& asset, const std::filesystem::path& path) {
+inline bool saveAuthoredAbilityAssetToFile(const AuthoredAbilityAsset& asset, const std::filesystem::path& path,
+                                           std::string* error = nullptr) {
     std::error_code ec;
     const auto parent = path.parent_path();
     if (!parent.empty()) {
         std::filesystem::create_directories(parent, ec);
         if (ec) {
+            if (error != nullptr) {
+                *error = "Unable to create ability asset directory: " + parent.generic_string() + " (" + ec.message() +
+                         ")";
+            }
             return false;
         }
     }
 
     std::ofstream ofs(path);
     if (!ofs) {
+        if (error != nullptr) {
+            *error = "Unable to open ability asset file for write: " + path.generic_string();
+        }
         return false;
     }
 
     const nlohmann::json json = asset;
     ofs << json.dump(2);
-    return ofs.good();
+    if (!ofs.good()) {
+        if (error != nullptr) {
+            *error = "Unable to finish writing ability asset file: " + path.generic_string();
+        }
+        return false;
+    }
+    if (error != nullptr) {
+        error->clear();
+    }
+    return true;
 }
 
-inline std::optional<AuthoredAbilityAsset> loadAuthoredAbilityAssetFromFile(const std::filesystem::path& path) {
+inline std::optional<AuthoredAbilityAsset> loadAuthoredAbilityAssetFromFile(const std::filesystem::path& path,
+                                                                           std::string* error = nullptr) {
     std::ifstream ifs(path);
     if (!ifs) {
+        if (error != nullptr) {
+            *error = "Unable to open ability asset file for read: " + path.generic_string();
+        }
         return std::nullopt;
     }
 
     nlohmann::json json;
     try {
         ifs >> json;
-    } catch (...) {
+    } catch (const nlohmann::json::exception& ex) {
+        if (error != nullptr) {
+            *error = "Unable to parse ability asset file: " + path.generic_string() + " (" + ex.what() + ")";
+        }
         return std::nullopt;
     }
 
     if (!json.is_object()) {
+        if (error != nullptr) {
+            *error = "Ability asset file is not a JSON object: " + path.generic_string();
+        }
         return std::nullopt;
     }
 
     try {
-        return json.get<AuthoredAbilityAsset>();
-    } catch (...) {
+        auto asset = json.get<AuthoredAbilityAsset>();
+        if (error != nullptr) {
+            error->clear();
+        }
+        return asset;
+    } catch (const nlohmann::json::exception& ex) {
+        if (error != nullptr) {
+            *error = "Ability asset file has invalid authored asset fields: " + path.generic_string() + " (" +
+                     ex.what() + ")";
+        }
         return std::nullopt;
     }
 }

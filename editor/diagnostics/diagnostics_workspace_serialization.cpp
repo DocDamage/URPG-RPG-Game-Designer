@@ -256,20 +256,37 @@ std::string DiagnosticsWorkspace::exportAbilityDraftStateJson() const {
 }
 
 bool DiagnosticsWorkspace::saveAbilityDraftStateToFile(const std::string& path) const {
-    return urpg::ability::saveAuthoredAbilityAssetToFile(
-        ability_panel_.getDraftAsset(),
-        std::filesystem::path(path));
+    std::string error;
+    const auto target_path = std::filesystem::path(path);
+    const bool saved = urpg::ability::saveAuthoredAbilityAssetToFile(ability_panel_.getDraftAsset(), target_path, &error);
+    ability_last_io_result_.operation = "save_draft_state";
+    ability_last_io_result_.success = saved;
+    ability_last_io_result_.path = target_path.generic_string();
+    ability_last_io_result_.message =
+        saved ? "Ability draft state saved." : error.empty() ? "Ability draft state could not be saved." : error;
+    return saved;
 }
 
 bool DiagnosticsWorkspace::loadAbilityDraftStateFromFile(const std::string& path) {
-    const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(std::filesystem::path(path));
+    std::string error;
+    const auto source_path = std::filesystem::path(path);
+    const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(source_path, &error);
     if (!asset.has_value()) {
+        ability_last_io_result_.operation = "load_draft_state";
+        ability_last_io_result_.success = false;
+        ability_last_io_result_.path = source_path.generic_string();
+        ability_last_io_result_.message =
+            error.empty() ? "Ability draft state could not be loaded." : std::move(error);
         return false;
     }
 
     ability_panel_.setDraftFromAsset(*asset);
 
     rebuildAbilityDraftPreviewRuntime();
+    ability_last_io_result_.operation = "load_draft_state";
+    ability_last_io_result_.success = true;
+    ability_last_io_result_.path = source_path.generic_string();
+    ability_last_io_result_.message = "Ability draft state loaded.";
     return true;
 }
 

@@ -24,15 +24,32 @@ TEST_CASE("ModManagerPanel: Empty snapshot when no registry bound", "[mod][edito
     REQUIRE(snapshot["resolved_load_order"].empty());
     REQUIRE(snapshot["cycle_warning"].is_null());
     REQUIRE(snapshot["registry_bound"] == false);
+    REQUIRE(snapshot["status"] == "disabled");
+    REQUIRE(snapshot["disabled_reason"] == "No mod registry is bound.");
     REQUIRE(snapshot["loader_bound"] == false);
     REQUIRE(snapshot["actions"]["import_manifest"] == false);
     REQUIRE(snapshot["actions"]["poll_hot_loader"] == false);
-    REQUIRE(snapshot["status_messages"].size() == 3);
+    REQUIRE(snapshot["status_messages"].size() == 4);
     REQUIRE(snapshot["status_messages"][0] == "No mod registry is bound.");
     REQUIRE(snapshot["status_messages"][1] == "No mod loader is bound; mod actions are disabled.");
     REQUIRE(snapshot["status_messages"][2] == "No mod hot-loader is bound; live reload event log is disabled.");
+    REQUIRE(snapshot["status_messages"][3] == "No mod store catalog is bound; store install actions are disabled.");
     REQUIRE(snapshot["hot_loader_bound"] == false);
     REQUIRE(snapshot["hot_load"]["event_count"] == 0);
+}
+
+TEST_CASE("ModManagerPanel: Empty registry snapshot exposes empty state", "[mod][editor][panel][empty]") {
+    ModRegistry registry;
+    ModManagerPanel panel;
+    panel.bindRegistry(&registry);
+    panel.render();
+
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["status"] == "empty");
+    REQUIRE(snapshot["empty_reason"] == "No mods are registered.");
+    REQUIRE(snapshot["error_message"] == "");
+    REQUIRE(snapshot["registered_count"] == 0);
+    REQUIRE(snapshot["mods"].empty());
 }
 
 TEST_CASE("ModManagerPanel: Snapshot reflects mods after bind", "[mod][editor][panel]") {
@@ -56,6 +73,8 @@ TEST_CASE("ModManagerPanel: Snapshot reflects mods after bind", "[mod][editor][p
     REQUIRE(snapshot["registered_mod_ids"].size() == 1);
     REQUIRE(snapshot["registered_mod_ids"][0] == "ui_mod");
     REQUIRE(snapshot["validation_issue_count"] == 1);
+    REQUIRE(snapshot["status"] == "error");
+    REQUIRE_FALSE(snapshot["error_message"].get<std::string>().empty());
     REQUIRE(snapshot["validation_issues"].size() == 1);
     REQUIRE(snapshot["validation_issues"][0]["category"] == "missing_entry_point");
     REQUIRE(snapshot["resolved_load_order"].size() == 1);

@@ -4,6 +4,7 @@
 #include "engine/core/ability/gameplay_ability.h"
 #include "engine/core/ability/gameplay_effect.h"
 #include <catch2/catch_test_macros.hpp>
+#include <algorithm>
 
 using namespace urpg::ability;
 
@@ -212,6 +213,24 @@ TEST_CASE("GameplayAbility: Activation Pipeline", "[ability][activation]") {
         REQUIRE(snapshot.latest_outcome == "executed");
         REQUIRE(snapshot.diagnostic_lines[0].find("skill.effect_burst") != std::string::npos);
         REQUIRE(snapshot.diagnostic_lines[0].find("effects=1") != std::string::npos);
+    }
+
+    SECTION("Panel snapshot exposes empty runtime and disabled command states") {
+        AbilitySystemComponent emptyOwner;
+        urpg::editor::AbilityInspectorPanel panel;
+        panel.update(emptyOwner);
+
+        const auto& snapshot = panel.getRenderSnapshot();
+        REQUIRE(snapshot.status == "empty");
+        REQUIRE(snapshot.empty_reason == "No abilities are bound to this runtime.");
+        REQUIRE_FALSE(snapshot.error_message.empty());
+
+        const auto selectControl = std::find_if(snapshot.controls.begin(), snapshot.controls.end(), [](const auto& control) {
+            return control.id == "select_ability";
+        });
+        REQUIRE(selectControl != snapshot.controls.end());
+        REQUIRE_FALSE(selectControl->enabled);
+        REQUIRE(selectControl->disabled_reason == "No abilities are bound to this runtime.");
     }
 
     SECTION("Context-aware activation can affect a target ASC without breaking source-only activation") {

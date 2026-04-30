@@ -70,7 +70,7 @@ TEST_CASE("Gameplay WYSIWYG systems expose runtime editor saved-data and registr
         REQUIRE_FALSE(document.visual_layers.empty());
         REQUIRE_FALSE(document.rules.empty());
         REQUIRE(urpg::editor::findEditorPanelRegistryEntry(feature) != nullptr);
-        REQUIRE(urpg::editor::findEditorPanelRegistryEntry(feature)->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
+        REQUIRE(urpg::editor::findEditorPanelRegistryEntry(feature)->exposure == urpg::editor::EditorPanelExposure::Deferred);
 
         auto state = stateForFeature(feature);
         const auto trigger = document.rules.front().trigger;
