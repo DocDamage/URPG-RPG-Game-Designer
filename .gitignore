@@ -35,8 +35,7 @@ Thumbs.db
 __MACOSX/
 ._*
 .urpg/asset-index/
-imports/raw/third_party_assets/itch-assets/reports/
-imports/raw/third_party_assets/itch-assets/packs-by-category/ui/fantasy-platformer-game-ui/
+imports/raw/third_party_assets/itch-assets/
 imports/reports/
 !imports/reports/
 !imports/reports/asset_intake/
@@ -53,9 +52,12 @@ imports/raw/itch_assets/archives/
 more assets/
 imports/raw/more_assets/
 imports/raw/itch_assets/loose/
-imports/raw/third_party_assets/itch-assets/packs/fantasy-platformer-game-ui/PSD/
-imports/root-drop/archives/rpgmaker/visustella/VisuMZ_Sample_Game_Project.zip
-imports/raw/third_party_assets/itch-assets/packs-by-category/bundles-mega/2017patronbundle/2017/children/children_frames.zip
+imports/raw/third_party_assets/aseprite/
+imports/raw/third_party_assets/rpgmaker-mz/cgmz/
+imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/
+imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/
+imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/
+imports/root-drop/archives/
 docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.docx
 .rex_db/
 .codemunch/last-index.json

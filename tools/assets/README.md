@@ -20,6 +20,8 @@ Robust local asset index for this repo using SQLite + FTS5.
   - `imports/root-drop/archives`
   - `imports/raw/more_assets`
 
+Most broad raw/source roots are intentionally ignored local quarantine. The catalog can index them when they exist in a developer checkout, but reports and promoted manifests are the repository source of truth.
+
 ## Usage
 ```powershell
 python .\tools\assets\asset_db.py init
