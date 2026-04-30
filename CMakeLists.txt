@@ -1402,7 +1402,10 @@ add_executable(urpg_tests
     tests/unit/test_creator_package_manifest.cpp
     tests/unit/test_export_artifact_compare.cpp
     tests/unit/test_export_validator.cpp
+    tests/unit/export_packager_test_helpers.cpp
     tests/unit/test_export_packager.cpp
+    tests/unit/test_export_packager_bundles.cpp
+    tests/unit/test_export_packager_bootstrap_cli.cpp
     tests/unit/test_export_diagnostics_panel.cpp
     tests/unit/test_patch_manifest.cpp
     tests/unit/test_runtime_bundle_loader.cpp
