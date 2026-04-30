@@ -8,12 +8,12 @@ This walkthrough is an engineering-prepared review aid. It is not legal advice a
 
 Decide whether the current URPG release candidate can be distributed publicly under the current legal, privacy, license, credit, and packaging documents.
 
-The current engineering position is conservative:
+The current engineering position is:
 
 - Local release-candidate validation passes.
 - Release-required assets are verified from a fresh GitHub clone.
 - Raw source/vendor asset packs are not part of the current install/package path.
-- Legal sufficiency is still unverified until a qualified reviewer approves or rejects it.
+- Legal sufficiency is not qualified-counsel-approved; the release owner has recorded an explicit public-release waiver in `docs/release/LEGAL_REVIEW_SIGNOFF.md`.
 
 ## Files To Review
 

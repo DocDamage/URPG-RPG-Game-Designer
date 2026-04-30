@@ -1,6 +1,6 @@
 # Legal Review Signoff
 
-Status Date: 2026-04-27
+Status Date: 2026-04-30
 
 This file records the legal/privacy/distribution review decision for the current URPG release candidate.
 
@@ -17,40 +17,42 @@ This file records the legal/privacy/distribution review decision for the current
 
 ## Current Decision
 
-Decision: `APPROVED_FOR_PRIVATE_RC_ONLY`
+Decision: `WAIVED_BY_RELEASE_OWNER`
 
 Reviewer: `DocDamage`
 
-Review date: `2026-04-27`
+Review date: `2026-04-30`
 
-Reviewed commit: `dc8789953b47226295312273e2dc880696898e03`
+Reviewed commit: `7261576a0`
 
-Distribution scope: `Private/internal release-candidate use only`
+Distribution scope: `Public source, public binary prerelease, and public binary release at release-owner discretion`
 
-Public release waiver: `NOT_RECORDED`
+Public release waiver: `RECORDED_BY_RELEASE_OWNER`
 
-P5-02 evidence status: `BLOCKED_FOR_PUBLIC_RELEASE`
+P5-02 evidence status: `OWNER_WAIVED_FOR_PUBLIC_RELEASE`
 
 Decision notes:
 
-- The release owner stated they read the legal/release files and agree to the current terms for private/internal release-candidate use.
-- This is not qualified legal counsel approval for public binary distribution.
-- Public release remains blocked until qualified legal review approves production distribution terms or the release owner records an explicit public-release waiver.
+- The release owner stated they read the legal/release files and accept responsibility for public distribution without qualified legal counsel approval.
+- This is an explicit release-owner waiver, not qualified legal counsel approval for public binary distribution.
+- The release owner stated that their shipped assets are paid/licensed for use in games and are usable in distributed games.
 - The current release-required asset manifest bundles `BND-001` only for title, map, and battle placeholder coverage; `BND-002` UI SFX WAV payloads are deferred/local-only and ignored from GitHub packaging.
+- Raw/vendor/source asset packs remain excluded from release packages unless source-specific license and attribution evidence is reviewed before inclusion.
 - Privacy policy text was checked against the editor analytics implementation: analytics starts disabled, requires explicit opt-in, and writes only to local JSONL export in the shipped editor entry point.
 
 ## Required Review Checklist
 
 - [x] Distribution type is recorded: internal-only, private beta, public source, public binary prerelease, or public binary release.
 - [x] `LICENSE` is accepted for the intended private/internal RC distribution.
-- [x] `EULA.md` is accepted for private/internal RC distribution only.
-- [x] `PRIVACY_POLICY.md` is accepted for private/internal RC distribution only.
+- [x] `EULA.md` is accepted by release-owner waiver for public distribution.
+- [x] `PRIVACY_POLICY.md` is accepted by release-owner waiver for public distribution.
 - [x] `THIRD_PARTY_NOTICES.md` covers shipped dependencies and runtime DLLs for engineering review scope.
-- [ ] Required third-party license texts or notice obligations are fully approved for public distribution.
-- [x] `CREDITS.md` is accepted for private/internal RC distribution only.
-- [x] `CHANGELOG.md` wording is accepted for private/internal RC distribution only.
+- [x] Required third-party license texts or notice obligations are accepted by release-owner waiver for public distribution.
+- [x] `CREDITS.md` is accepted by release-owner waiver for public distribution.
+- [x] `CHANGELOG.md` wording is accepted by release-owner waiver for public distribution.
 - [x] Package contents were reviewed against `docs/release/RELEASE_PACKAGING.md`.
 - [x] Raw/vendor/source asset packs are confirmed excluded from the current package scope.
+- [x] Release owner certifies paid/licensed shipped assets are usable in distributed games.
 - [x] Promoted proof-lane asset scope is accepted for private/internal RC scope: `BND-001` visual proof is bundled; `BND-002` audio proof is deferred/local-only.
 - [x] Release-required UI/audio surfaces are covered by explicit silent/muted fallback policy entries instead of a bundled WAV dependency.
 - [x] Repository-wide source/vendor LFS budget/access constraint is accepted as non-release-package scope for private/internal RC use.
@@ -65,7 +67,7 @@ Use exactly one decision value:
 - `REJECTED_CHANGES_REQUIRED`
 - `WAIVED_BY_RELEASE_OWNER`
 
-Recorded decision: `APPROVED_FOR_PRIVATE_RC_ONLY`
+Recorded decision: `WAIVED_BY_RELEASE_OWNER`
 
 Reviewer name: DocDamage
 
@@ -73,24 +75,23 @@ Reviewer role: Release owner
 
 Reviewer contact: Not recorded in repository
 
-Review date: 2026-04-27
+Review date: 2026-04-30
 
-Reviewed commit: `dc8789953b47226295312273e2dc880696898e03`
+Reviewed commit: `7261576a0`
 
-Distribution scope: Private/internal release-candidate use only
+Distribution scope: Public source, public binary prerelease, and public binary release at release-owner discretion
 
 Required changes:
 
-- Public binary release still requires qualified legal/privacy/distribution approval or an explicit release-owner waiver for public distribution.
-- No public-release waiver has been recorded in this repository.
-- Public release contact/support routing remains unresolved.
+- Qualified legal/privacy/distribution approval has not been performed; public distribution proceeds only under this release-owner waiver.
+- Public release contact/support routing remains release-owner responsibility.
 - Public release should not ship raw/vendor/source asset packs unless source-specific license and attribution review approves them.
 - If any audio asset becomes release-required, it must be hosted as a hydrated non-LFS release artifact or covered by a reviewed external artifact process before public distribution.
 
 Approval or rejection notes:
 
-- The release owner accepts the current legal/release files for private/internal RC use after reading them.
-- This decision does not approve public distribution and does not replace qualified legal advice.
+- The release owner accepts the current legal/release files for public distribution and records an explicit waiver of qualified legal review.
+- This decision does not replace qualified legal advice; it records owner acceptance of the risk and distribution responsibility.
 
 ## Release Owner Follow-Up
 

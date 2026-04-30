@@ -379,7 +379,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   3. Record qualified review approval or explicit public-release waiver.
   4. Update release report.
 - Acceptance criteria: Public release legal blocker is closed in canonical release docs.
-- Verification command or manual test: `rg -n "PARTIAL|qualified legal|public-release waiver|NOT RELEASE-READY" docs/release docs/APP_RELEASE_READINESS_MATRIX.md`
+- Verification command or manual test: `rg -n "WAIVED_BY_RELEASE_OWNER|OWNER_WAIVED_FOR_PUBLIC_RELEASE|RECORDED_BY_RELEASE_OWNER" docs/release/LEGAL_REVIEW_SIGNOFF.md docs/APP_RELEASE_READINESS_MATRIX.md docs/release/AAA_RELEASE_READINESS_REPORT.md`
 
 ### Task P5-03
 
@@ -499,7 +499,7 @@ pre-commit run --all-files
   3. Record remote workflow URL.
   4. Confirm project audit has zero release blockers.
   5. Create approved prerelease/release tag only after signoff.
-- Acceptance criteria: Canonical release report no longer says `NOT RELEASE-READY`.
+- Acceptance criteria: Canonical release report records the owner-waived legal decision and only lists remaining non-waived release exits.
 - Verification command or manual test:
 
 ```powershell

@@ -16,7 +16,7 @@ The current `codex/release-surface-p0` branch has completed the release-surface 
 
 This means the current branch has verified editor release navigation, Level Builder exposure, release authoring persistence, input and pause behavior, release-required asset checks, install/package smoke, PR tests, nightly tests, weekly compat tests, and documentation/readiness guard scripts.
 
-Public release is still not declared. Public distribution remains blocked by qualified legal/privacy review or an explicit public-release waiver, release tagging, and any platform-specific signing/notarization credentials required for final distribution.
+Public release is now release-owner-waived for legal/privacy review, not qualified-counsel-approved. Final public distribution still requires a release tag and any platform-specific signing/notarization credentials required for final distribution.
 
 ## Verified Release Surface
 
@@ -41,7 +41,7 @@ Within the bounded internal/private release-candidate scope:
 
 ## Still Blocked For Public Release
 
-- Qualified public legal review or explicit waiver for `EULA.md`, `PRIVACY_POLICY.md`, `THIRD_PARTY_NOTICES.md`, `CREDITS.md`, and bundled asset attribution.
+- Release-owner legal/privacy waiver is recorded in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; qualified public legal review has not been performed.
 - Public distribution approval and release tagging.
 - Platform signing/notarization credentials for final release artifacts.
 - Repository-wide source/vendor LFS budget/access if future release work depends on full vendor/source asset hydration. Current release-required app assets are normal Git blobs and are checked separately.

@@ -5,7 +5,7 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`.
 
-Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 follow-up verification pass, local gates, the unwaived release-candidate gate, and the remote manual GitHub Actions release-candidate workflow pass, including fresh-clone release-required asset verification from GitHub. Public release remains blocked by legal/privacy review and release tagging.
+Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 follow-up verification pass, local gates, the unwaived release-candidate gate, and the remote manual GitHub Actions release-candidate workflow pass, including fresh-clone release-required asset verification from GitHub. Public release legal/privacy review is owner-waived in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; final release tagging remains pending.
 
 2026-04-30 release-surface audit remediation checkpoint:
 - Phase 6 Task P6-002 is complete on the current remediation branch. `.\tools\ci\run_local_gates.ps1` passes end to end after resolving stale PR-gate expectations, template-claim readiness drift, CMake completeness parsing, and the weekly compat panel execution/failure event split.
@@ -90,7 +90,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 
 2026-04-28 Wave 1 signoff closure:
 - `battle_core`, `save_data_core`, and `compat_bridge_exit` are promoted to `READY` for their bounded claimed scopes after release-owner signoff artifacts were updated and governance gates were changed to require approved signoff metadata for READY rows.
-- Public release remains blocked by legal/privacy/distribution review and release tagging; those are app-release gates, not subsystem readiness gaps.
+- Public release legal/privacy/distribution review is owner-waived in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; final release tagging remains an app-release gate, not a subsystem readiness gap.
 
 2026-04-27 export-hardening follow-through:
 - `RuntimeBundleLoader` now enforces the keyed SHA-256 `data.pck` bundle signature and per-entry integrity tags at load time, and `RuntimeStartupServices` rejects tampered bundles before project content use.

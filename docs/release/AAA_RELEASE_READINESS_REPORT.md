@@ -5,13 +5,12 @@
 **Active branch:** `development`
 **Verification base commit:** `7439132f4fa2638730498781f617d78af7b16514`
 **Purpose:** Authoritative release-readiness audit for the current runtime, editor, packaging, release governance, and asset-hydration gates.
-**Verdict:** **NOT RELEASE-READY**
+**Verdict:** **RELEASE-CANDIDATE READY; FINAL RELEASE TAG PENDING**
 
 **Current documentation note (2026-04-28):** this report remains the latest recorded release-candidate audit. The `development` branch has advanced beyond the verification base commit to include AI editor review/revert surfaces and template-readiness expansion work, including pushed commit `cfdae41e9`. Before any public release decision or tag, rerun the release-candidate gate and remote manual workflow on the then-current commit.
 
-URPG is no longer blocked by the original app-entry, editor-navigation, install/package, metadata, release-required asset hydration, private/internal RC legal owner acceptance, or local validation issues recorded in the first 2026-04-26 audit. Those items now have direct implementation and gate evidence. The project is still not public-release-ready because required public release exits remain unverified or externally blocked:
+URPG is no longer blocked by the original app-entry, editor-navigation, install/package, metadata, release-required asset hydration, legal owner acceptance/waiver, or local validation issues recorded in the first 2026-04-26 audit. Those items now have direct implementation and gate evidence or explicit release-owner waiver. The project is still not final-release-tagged because the release owner has not created an annotated prerelease or release tag.
 
-- Legal/privacy/distribution sufficiency for public release is not verified by a qualified reviewer, and no explicit public-release waiver is recorded.
 - No release or prerelease tag exists.
 
 The current app-level source of truth is [docs/APP_RELEASE_READINESS_MATRIX.md](../APP_RELEASE_READINESS_MATRIX.md). That matrix maps each release-facing workflow to owner files, task IDs, evidence commands, and remaining release gates.
@@ -26,8 +25,8 @@ The current app-level source of truth is [docs/APP_RELEASE_READINESS_MATRIX.md](
 | Install/package/app metadata | `VERIFIED` | P5-001, P5-003, P5-004, P6-002 local gates and release-candidate gate | No longer a release blocker for local artifacts. |
 | Release-candidate gate script | `VERIFIED` | `./tools/ci/run_release_candidate_gate.ps1` passed without LFS waiver after commit `4fb53f721`; GitHub Actions run `25025111713` passed at commit `7439132f4fa2638730498781f617d78af7b16514` | Local gate passes through fresh-clone asset verification, configure, build, PR tests, presentation validation, install smoke, and package smoke; remote manual workflow passed on `development`: `https://github.com/DocDamage/URPG-RPG-Game-Designer/actions/runs/25025111713`. |
 | Release-required asset hydration | `VERIFIED` | `resources/icons/*.png` were demoted from LFS to normal Git blobs; fresh clone from GitHub passed the RC asset check | No longer a release-package blocker. Repository-wide vendor/source LFS hydration remains blocked by GitHub budget/access and is not required by current package/install rules. |
-| Legal/privacy/distribution review | `PARTIAL` | Required docs exist and install/package; release owner approved private/internal RC use in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; P5-02 evidence now reflects bundled `BND-001`, deferred `BND-002`, and opt-in local analytics behavior; qualified legal counsel has not approved public release and no public-release waiver is recorded | Blocks public release, not private/internal RC use. |
-| Release tag | `PENDING` | `git tag -l` returned no tags during P6-002 | Do not tag until legal/public distribution review and final release decision pass or are formally waived. |
+| Legal/privacy/distribution review | `VERIFIED` | Required docs exist and install/package; release owner recorded `WAIVED_BY_RELEASE_OWNER` in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; P5-02 evidence reflects bundled `BND-001`, deferred `BND-002`, opt-in local analytics behavior, and release-owner certification that shipped paid/licensed assets are usable in distributed games | Does not block public release. This is an owner waiver, not qualified legal counsel approval. |
+| Release tag | `PENDING` | `git tag -l` returned no tags during P6-002 | Rerun the final release-candidate gate on the exact commit to tag, then create the annotated prerelease or release tag at release-owner discretion. |
 
 ## P6-002 Verification Results
 
@@ -81,13 +80,13 @@ The original audit findings below are closed for the current claimed scope:
 
 ## Remaining Release Blockers
 
-### RB-1: Legal/Privacy/Distribution Review Is Not Complete
+### RB-1: Legal/Privacy/Distribution Review Is Owner-Waived
 
-**Status:** `PARTIAL`
+**Status:** `VERIFIED`
 
-`THIRD_PARTY_NOTICES.md`, `EULA.md`, `PRIVACY_POLICY.md`, `CREDITS.md`, and `CHANGELOG.md` exist and are included in install/package smoke outputs. The release owner has approved them for private/internal release-candidate use in `docs/release/LEGAL_REVIEW_SIGNOFF.md`. The P5-02 evidence pass checked the notices against the current release-required asset manifest: `BND-001` is the bundled visual proof lane, while `BND-002` UI SFX WAV payloads are deferred/local-only. The privacy policy is aligned to the current analytics implementation: default disabled consent, explicit opt-in, and local JSONL export only. Public-release legal sufficiency is still not verified by qualified counsel, and no explicit public-release waiver is recorded.
+`THIRD_PARTY_NOTICES.md`, `EULA.md`, `PRIVACY_POLICY.md`, `CREDITS.md`, and `CHANGELOG.md` exist and are included in install/package smoke outputs. The release owner recorded `WAIVED_BY_RELEASE_OWNER` in `docs/release/LEGAL_REVIEW_SIGNOFF.md` on 2026-04-30, accepted public distribution responsibility without qualified legal counsel approval, and certified that shipped paid/licensed assets are usable in distributed games. The P5-02 evidence pass checked the notices against the current release-required asset manifest: `BND-001` is the bundled visual proof lane, while `BND-002` UI SFX WAV payloads are deferred/local-only. The privacy policy is aligned to the current analytics implementation: default disabled consent, explicit opt-in, and local JSONL export only.
 
-Required verification for public release: qualified legal/privacy review approves the documents and distribution terms, or the release owner records an explicit public-release waiver.
+Required release discipline: do not include raw/vendor/source asset packs unless source-specific license and attribution evidence is reviewed before inclusion.
 
 ### RB-2: Remote Manual Release-Candidate Workflow Is Verified
 
@@ -101,7 +100,7 @@ This is no longer a release blocker for private/internal RC validation.
 
 **Status:** `PENDING`
 
-No release tag should be created until RB-1 is resolved or formally waived by the release owner with owner, scope, issue URL, and expiration.
+No release tag has been created yet. Legal review is now formally waived by the release owner, so tagging is a release-owner decision after rerunning the final release-candidate gate on the exact commit to tag.
 
 ### Non-Release Block: Repository-Wide Source/Vendor LFS Hydration
 
@@ -120,7 +119,7 @@ The project may be marked release-ready only after all of the following are true
 - `.\tools\ci\run_presentation_gate.ps1` passes.
 - `.\tools\ci\run_release_candidate_gate.ps1` passes without `-SkipLfsHydration`.
 - Fresh-clone release-required asset verification passes without relying on local cache.
-- Legal/privacy/distribution review is complete for the intended distribution scope.
+- Legal/privacy/distribution review is complete for the intended distribution scope or explicitly waived by the release owner.
 - A release owner records the release decision and creates an annotated prerelease or release tag.
 
-Until then, the authoritative verdict remains **NOT RELEASE-READY**.
+Until then, the authoritative verdict remains **release-candidate ready, final release tag pending**.
