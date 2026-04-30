@@ -402,6 +402,7 @@ set(URPG_CORE_SOURCES
     engine/core/message/message_migration.cpp
     engine/core/localization/locale_catalog.cpp
     engine/core/localization/completeness_checker.cpp
+    engine/core/localization/template_localization_audit.cpp
     engine/core/accessibility/accessibility_auditor.cpp
     engine/core/accessibility/accessibility_fix_advisor.cpp
     engine/core/accessibility/render_contrast_adapter.cpp

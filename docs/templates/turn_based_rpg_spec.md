@@ -22,16 +22,16 @@ The `turn_based_rpg` template covers turn-based tactical or strategic RPGs that 
 | Accessibility | `PARTIAL` | Baseline accessibility governance (label audits, focus-order, contrast) is active via `AccessibilityAuditor`. Turn-based-RPG-specific expectations (battle-menu hold alternatives, status-screen readability, colorblind unit highlighting) are scaffolded but not fully enforced. |
 | Audio | `PARTIAL` | Audio mix preset governance applies. Turn-based-RPG-specific battle audio transitions and victory fanfare sequencing are scaffolded in `AudioMixPresets` but not fully validated. |
 | Input | `READY` | The turn-based RPG starter manifest and generated project input subsystem now declare the full navigation/menu/battle action set (`Move*`, `Confirm`, `Cancel`, `Menu`, `PageLeft`, `PageRight`, `BattleAttack`, `BattleSkill`, `BattleItem`, `BattleDefend`, `BattleEscape`) with keyboard and controller defaults. `test_template_acceptance` verifies manifest and generator closure, and `test_input_remap_store` proves the action names survive save/load. Touch remains a hit-test UI/world path and reports `touch_binding_unsupported` for remap profiles. |
-| Localization | `PARTIAL` | Baseline message localization patterns from `message_text_core` apply. Per-template completeness metrics, battle-text, and status-effect localization are not yet measured. |
+| Localization | `READY` | The turn-based RPG starter manifest declares required command, battle, result, turn-order, and status-effect keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. `TemplateLocalizationAudit` and `test_template_bar_quality` verify manifest-driven required-key completeness and font-profile coverage. |
 | Performance | `PARTIAL` | Presentation runtime arena and `profile_arena` frame-time budget tests apply. Battle-sequence scalability under extended play and large-unit-count scenarios are not production-validated. |
 
 ## Safe Scope Today
 
-A conservative turn-based template slice using `message_text_core`, `battle_core`, and `save_data_core`. Combat-focused projects without requiring a full main menu or dialogue system are within scope. Projects must not claim full production-grade accessibility, localization completeness, or audio mix fidelity until the corresponding bars close.
+A conservative turn-based template slice using `message_text_core`, `battle_core`, and `save_data_core`. Combat-focused projects without requiring a full main menu or dialogue system are within scope, including manifest-audited battle/status localization. Projects must not claim full production-grade accessibility, audio mix fidelity, or performance until the corresponding bars close.
 
 ## Main Blockers
 
-1. **Cross-cutting readiness bars and dedicated template governance remain incomplete** — Input is `READY`; `accessibility`, `audio`, `localization`, and `performance` remain `PARTIAL`. Machine-checked template governance (spec drift detection, project-audit coverage) is not yet fully landed.
+1. **Cross-cutting readiness bars and dedicated template governance remain incomplete** — Input and localization are `READY`; `accessibility`, `audio`, and `performance` remain `PARTIAL`. Machine-checked template governance (spec drift detection, project-audit coverage) is not yet fully landed.
 
 ## Promotion Path
 

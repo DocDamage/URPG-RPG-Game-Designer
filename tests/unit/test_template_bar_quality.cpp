@@ -15,6 +15,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include "engine/core/localization/completeness_checker.h"
 #include "engine/core/localization/locale_catalog.h"
+#include "engine/core/localization/template_localization_audit.h"
 #include "engine/core/accessibility/accessibility_auditor.h"
 #include "engine/core/message/visual_novel_pacing.h"
 #include "editor/message/visual_novel_pacing_panel.h"
@@ -301,6 +302,41 @@ TEST_CASE("turn_based_rpg localization: missing system.defeat key is detected",
     const auto missing = checker.checkAgainst(target);
     REQUIRE(missing.size() == 1);
     REQUIRE(missing[0] == "system.defeat");
+}
+
+TEST_CASE("partial templates declare complete manifest-driven localization coverage",
+          "[localization][template][audit]") {
+    for (const std::string templateId : {"jrpg", "visual_novel", "turn_based_rpg"}) {
+        INFO("Template: " << templateId);
+        const auto manifest = loadTemplateBarJson(
+            templateBarRepoRoot() / "content" / "templates" / (templateId + "_starter.json"));
+
+        const auto result = auditTemplateLocalization(manifest);
+
+        REQUIRE(result.template_id == templateId);
+        REQUIRE(result.required_key_count >= 6);
+        REQUIRE(result.missing_key_count == 0);
+        REQUIRE(result.missing_font_profile_count == 0);
+        REQUIRE(result.missing_keys.empty());
+        REQUIRE(result.diagnostics.empty());
+    }
+}
+
+TEST_CASE("template localization audit reports missing keys and font profiles",
+          "[localization][template][audit]") {
+    auto manifest = loadTemplateBarJson(
+        templateBarRepoRoot() / "content" / "templates" / "visual_novel_starter.json");
+    manifest["localization"]["locale_bundles"][1].erase("font_profile_id");
+    manifest["localization"]["locale_bundles"][1]["keys"].erase("dialogue.speaker_name");
+
+    const auto result = auditTemplateLocalization(manifest);
+
+    REQUIRE(result.template_id == "visual_novel");
+    REQUIRE(result.required_key_count >= 6);
+    REQUIRE(result.missing_key_count == 1);
+    REQUIRE(result.missing_font_profile_count == 1);
+    REQUIRE(result.missing_keys == std::vector<std::string>{"dialogue.speaker_name"});
+    REQUIRE_FALSE(result.diagnostics.empty());
 }
 
 // ============================================================================

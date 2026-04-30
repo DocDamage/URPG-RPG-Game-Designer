@@ -56,5 +56,53 @@
       "mode": "hit_test_ui_world",
       "remap_status": "touch_binding_unsupported"
     }
+  },
+  "localization": {
+    "required_keys": [
+      "menu.inventory",
+      "menu.status",
+      "menu.save",
+      "battle.attack",
+      "battle.defend",
+      "battle.skill",
+      "battle.item",
+      "battle.escape",
+      "system.loading",
+      "system.saving"
+    ],
+    "locale_bundles": [
+      {
+        "locale": "en-US",
+        "font_profile_id": "font.profile.ui.latin",
+        "keys": {
+          "menu.inventory": "Inventory",
+          "menu.status": "Status",
+          "menu.save": "Save",
+          "battle.attack": "Attack",
+          "battle.defend": "Defend",
+          "battle.skill": "Skill",
+          "battle.item": "Item",
+          "battle.escape": "Escape",
+          "system.loading": "Loading...",
+          "system.saving": "Saving..."
+        }
+      },
+      {
+        "locale": "ja-JP",
+        "font_profile_id": "font.profile.ui.cjk",
+        "keys": {
+          "menu.inventory": "Item",
+          "menu.status": "Status",
+          "menu.save": "Save",
+          "battle.attack": "Kougeki",
+          "battle.defend": "Bougyo",
+          "battle.skill": "Skill",
+          "battle.item": "Item",
+          "battle.escape": "Nigeru",
+          "system.loading": "Yomikomi...",
+          "system.saving": "Save chu..."
+        }
+      }
+    ]
   }
 }

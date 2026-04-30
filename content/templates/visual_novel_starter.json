@@ -1,5 +1,47 @@
 {
   "template_id": "visual_novel",
   "display_name": "Visual Novel",
-  "subsystems": ["maps", "menu", "message", "battle", "save", "localization", "input", "export_profile"]
+  "subsystems": ["maps", "menu", "message", "battle", "save", "localization", "input", "export_profile"],
+  "localization": {
+    "required_keys": [
+      "menu.save",
+      "menu.load",
+      "dialogue.advance",
+      "dialogue.auto",
+      "dialogue.skip",
+      "dialogue.backlog",
+      "dialogue.speaker_name",
+      "dialogue.name_interpolation"
+    ],
+    "locale_bundles": [
+      {
+        "locale": "en-US",
+        "font_profile_id": "font.profile.ui.latin",
+        "keys": {
+          "menu.save": "Save",
+          "menu.load": "Load",
+          "dialogue.advance": "Advance",
+          "dialogue.auto": "Auto",
+          "dialogue.skip": "Skip",
+          "dialogue.backlog": "Backlog",
+          "dialogue.speaker_name": "{speaker}",
+          "dialogue.name_interpolation": "{speaker}: {line}"
+        }
+      },
+      {
+        "locale": "ja-JP",
+        "font_profile_id": "font.profile.ui.cjk",
+        "keys": {
+          "menu.save": "Save",
+          "menu.load": "Load",
+          "dialogue.advance": "Susumu",
+          "dialogue.auto": "Auto",
+          "dialogue.skip": "Skip",
+          "dialogue.backlog": "Backlog",
+          "dialogue.speaker_name": "{speaker}",
+          "dialogue.name_interpolation": "{speaker}: {line}"
+        }
+      }
+    ]
+  }
 }

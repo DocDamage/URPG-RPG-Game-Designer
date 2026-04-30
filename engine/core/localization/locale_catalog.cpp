@@ -15,6 +15,9 @@ bool LocaleCatalog::validateBundleJson(const nlohmann::json& json) {
     if (!json.contains("keys") || !json["keys"].is_object()) {
         return false;
     }
+    if (json.contains("font_profile_id") && !json["font_profile_id"].is_string()) {
+        return false;
+    }
     for (const auto& [key, value] : json["keys"].items()) {
         if (!value.is_string()) {
             return false;
@@ -29,6 +32,7 @@ void LocaleCatalog::loadFromJson(const nlohmann::json& json) {
     }
 
     m_localeCode = json["locale"].get<std::string>();
+    m_fontProfileId = json.value("font_profile_id", "");
     m_keys.clear();
 
     for (const auto& [key, value] : json["keys"].items()) {
@@ -76,12 +80,21 @@ std::string LocaleCatalog::getLocaleCode() const {
     return m_localeCode;
 }
 
+std::string LocaleCatalog::getFontProfileId() const {
+    return m_fontProfileId;
+}
+
+bool LocaleCatalog::hasFontProfile() const {
+    return !m_fontProfileId.empty();
+}
+
 size_t LocaleCatalog::keyCount() const {
     return m_keys.size();
 }
 
 void LocaleCatalog::clear() {
     m_localeCode.clear();
+    m_fontProfileId.clear();
     m_keys.clear();
 }
 

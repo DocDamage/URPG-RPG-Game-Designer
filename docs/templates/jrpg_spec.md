@@ -23,16 +23,16 @@ The `jrpg` template covers classic Japanese-style RPGs: party management, turn-b
 | Accessibility | `PARTIAL` | Baseline accessibility governance (label checks, focus-order audits, contrast rules) is exercised via `AccessibilityAuditor` unit tests and the accessibility panel adapter. JRPG-specific text-speed control and input-hold alternatives for menu navigation are scaffolded; production enforcement is not yet landed. |
 | Audio | `PARTIAL` | Audio mix preset governance and validator rules are exercised. JRPG-specific battle jingle and BGM-transition bars are scaffolded in `AudioMixPresets` but not fully validated end-to-end. |
 | Input | `READY` | The JRPG starter manifest and generated project input subsystem now declare the full menu/battle action set (`Move*`, `Confirm`, `Cancel`, `Menu`, `PageLeft`, `PageRight`, `BattleAttack`, `BattleSkill`, `BattleItem`, `BattleDefend`, `BattleEscape`) with keyboard and controller defaults. `test_template_acceptance` verifies manifest and generator closure, and `test_input_remap_store` proves the action names survive save/load. Touch remains a hit-test UI/world path and reports `touch_binding_unsupported` for remap profiles. |
-| Localization | `PARTIAL` | Baseline message and menu localization patterns are exercised via `message_text_core` tests. Completeness metrics, font-set coverage, and per-region test fixtures are not yet landed. |
+| Localization | `READY` | The JRPG starter manifest declares required menu, battle, and system keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. `TemplateLocalizationAudit` and `test_template_bar_quality` verify manifest-driven required-key completeness and font-profile coverage. |
 | Performance | `PARTIAL` | General RPG frame-time budgets are enforced through presentation runtime arena allocation and `profile_arena` tests. Large-world streaming and extended-play battle-sequence consistency are not production-validated. |
 
 ## Safe Scope Today
 
-Wave 1 native-first JRPG projects using the four required subsystems (`ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core`). Bounded demos covering narrative dialogue, menu-driven party management, turn-based combat, and save/load loops are supported within current evidence. Projects must not claim full production-grade accessibility, audio mix, or localization completeness until the corresponding bars close.
+Wave 1 native-first JRPG projects using the four required subsystems (`ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core`). Bounded demos covering narrative dialogue, menu-driven party management, turn-based combat, save/load loops, and manifest-audited localization are supported within current evidence. Projects must not claim full production-grade accessibility, audio mix, or performance until the corresponding bars close.
 
 ## Main Blockers
 
-1. **Cross-cutting readiness bars are not complete** — Input is `READY`; `accessibility`, `audio`, `localization`, and `performance` remain `PARTIAL`. Production-grade claims require each bar to reach `READY` or explicitly bounded `PARTIAL` with accepted scope limits.
+1. **Cross-cutting readiness bars are not complete** — Input and localization are `READY`; `accessibility`, `audio`, and `performance` remain `PARTIAL`. Production-grade claims require each bar to reach `READY` or explicitly bounded `PARTIAL` with accepted scope limits.
 
 ## Promotion Path
 

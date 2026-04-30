@@ -15,9 +15,27 @@ TEST_CASE("Load valid bundle and retrieve keys", "[localization][catalog]") {
     catalog.loadFromJson(json);
 
     REQUIRE(catalog.getLocaleCode() == "en");
+    REQUIRE_FALSE(catalog.hasFontProfile());
     REQUIRE(catalog.keyCount() == 2);
     REQUIRE(catalog.getKey("GREETING").value() == "Hello");
     REQUIRE(catalog.getKey("FAREWELL").value() == "Goodbye");
+}
+
+TEST_CASE("LocaleCatalog stores optional font profile id", "[localization][catalog][font]") {
+    const auto json = nlohmann::json::parse(R"({
+        "locale": "en-US",
+        "font_profile_id": "font.profile.ui.latin",
+        "keys": {
+            "menu.save": "Save"
+        }
+    })");
+
+    urpg::localization::LocaleCatalog catalog;
+    catalog.loadFromJson(json);
+
+    REQUIRE(catalog.getLocaleCode() == "en-US");
+    REQUIRE(catalog.hasFontProfile());
+    REQUIRE(catalog.getFontProfileId() == "font.profile.ui.latin");
 }
 
 TEST_CASE("hasKey returns false for missing keys", "[localization][catalog]") {
@@ -54,6 +72,13 @@ TEST_CASE("validateBundleJson rejects missing locale or keys", "[localization][c
         "keys": {}
     })");
     REQUIRE(LocaleCatalog::validateBundleJson(valid));
+
+    const auto invalidFontProfile = nlohmann::json::parse(R"({
+        "locale": "en",
+        "font_profile_id": 42,
+        "keys": {}
+    })");
+    REQUIRE_FALSE(LocaleCatalog::validateBundleJson(invalidFontProfile));
 }
 
 TEST_CASE("mergeFromJson overlays without clearing", "[localization][catalog]") {

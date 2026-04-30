@@ -56,5 +56,53 @@
       "mode": "hit_test_ui_world",
       "remap_status": "touch_binding_unsupported"
     }
+  },
+  "localization": {
+    "required_keys": [
+      "menu.command",
+      "battle.attack",
+      "battle.defend",
+      "battle.skill",
+      "battle.item",
+      "battle.escape",
+      "system.victory",
+      "system.defeat",
+      "status.turn_order",
+      "status.effect"
+    ],
+    "locale_bundles": [
+      {
+        "locale": "en-US",
+        "font_profile_id": "font.profile.ui.latin",
+        "keys": {
+          "menu.command": "Command",
+          "battle.attack": "Attack",
+          "battle.defend": "Defend",
+          "battle.skill": "Skill",
+          "battle.item": "Item",
+          "battle.escape": "Escape",
+          "system.victory": "Victory!",
+          "system.defeat": "Defeat...",
+          "status.turn_order": "Turn Order",
+          "status.effect": "Status Effect"
+        }
+      },
+      {
+        "locale": "ja-JP",
+        "font_profile_id": "font.profile.ui.cjk",
+        "keys": {
+          "menu.command": "Command",
+          "battle.attack": "Kougeki",
+          "battle.defend": "Bougyo",
+          "battle.skill": "Skill",
+          "battle.item": "Item",
+          "battle.escape": "Nigeru",
+          "system.victory": "Shouri!",
+          "system.defeat": "Haiboku...",
+          "status.turn_order": "Turn Order",
+          "status.effect": "Status Effect"
+        }
+      }
+    ]
   }
 }

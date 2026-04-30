@@ -1104,7 +1104,7 @@ git commit -m "feat: close RPG template input bindings"
 - Modify: `docs/templates/*.md`
 - Modify: `content/readiness/readiness_status.json`
 
-- [ ] **Step 1: Add failing tests for required localization keys**
+- [x] **Step 1: Add failing tests for required localization keys**
 
 For `jrpg`, `visual_novel`, and `turn_based_rpg`, assert:
 
@@ -1114,7 +1114,7 @@ For `jrpg`, `visual_novel`, and `turn_based_rpg`, assert:
 - Font profile id is present for each locale bundle.
 - Missing key count is surfaced as diagnostics, not ignored.
 
-- [ ] **Step 2: Run focused tests**
+- [x] **Step 2: Run focused tests**
 
 Run:
 
@@ -1124,7 +1124,7 @@ ctest --preset dev-all -R "locale|template.*bar" --output-on-failure
 
 Expected: FAIL until audit and fixture data exist.
 
-- [ ] **Step 3: Implement `TemplateLocalizationAudit`**
+- [x] **Step 3: Implement `TemplateLocalizationAudit`**
 
 Result shape:
 
@@ -1139,11 +1139,11 @@ struct TemplateLocalizationAuditResult {
 };
 ```
 
-- [ ] **Step 4: Add required key lists to template manifests**
+- [x] **Step 4: Add required key lists to template manifests**
 
 Store required keys in template manifest data, not hardcoded in tests. The test should verify the manifest-driven audit.
 
-- [ ] **Step 5: Re-run focused tests**
+- [x] **Step 5: Re-run focused tests**
 
 Run:
 
@@ -1153,11 +1153,11 @@ ctest --preset dev-all -R "locale|template.*bar" --output-on-failure
 
 Expected: PASS.
 
-- [ ] **Step 6: Update docs/readiness**
+- [x] **Step 6: Update docs/readiness**
 
 Update localization bars for each affected template.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```powershell
 git add engine/core/localization tests/unit/test_locale_catalog.cpp tests/unit/test_template_bar_quality.cpp content/templates content/readiness/readiness_status.json docs/templates

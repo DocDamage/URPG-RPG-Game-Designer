@@ -392,19 +392,19 @@
         "accessibility": "PARTIAL",
         "audio": "PARTIAL",
         "input": "READY",
-        "localization": "PARTIAL",
+        "localization": "READY",
         "performance": "PARTIAL"
       },
       "barEvidence": {
         "accessibility": "Baseline accessibility governance (label checks, focus-order audits, contrast rules) is exercised via AccessibilityAuditor unit tests and the accessibility panel adapter. JRPG-specific text-speed control and input-hold alternatives are scaffolded; production enforcement not yet landed.",
         "audio": "Audio mix preset governance and validator rules are exercised via test_audio_mix_presets. JRPG-specific battle jingle and BGM-transition bars are scaffolded in AudioMixPresets but not fully validated end-to-end.",
         "input": "JRPG starter manifests and generated projects declare the full menu/battle required action set with keyboard and controller defaults. test_template_acceptance verifies template input closure, and test_input_remap_store proves those action names survive save/load. Touch remains hit-test UI/world behavior and reports touch_binding_unsupported for remap profiles.",
-        "localization": "Baseline message and menu localization patterns are exercised via message_text_core tests. Completeness metrics, font-set coverage, and per-region test fixtures are not yet landed.",
+        "localization": "JRPG starter manifest declares required menu, battle, and system keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. TemplateLocalizationAudit and test_template_bar_quality verify manifest-driven required-key completeness and font-profile coverage.",
         "performance": "General RPG frame-time budgets are enforced through presentation_runtime arena allocation and profile_arena tests. Large-world streaming and extended-play battle-sequence consistency are not production-validated."
       },
       "safeScope": "Wave 1 native-first baseline with truthful residual gaps.",
       "mainBlockers": [
-        "Cross-cutting readiness bars are not complete; input is READY, while accessibility, audio, localization, and performance remain PARTIAL"
+        "Cross-cutting readiness bars are not complete; input and localization are READY, while accessibility, audio, and performance remain PARTIAL"
       ]
     },
     {
@@ -418,19 +418,19 @@
         "accessibility": "PARTIAL",
         "audio": "PARTIAL",
         "input": "PARTIAL",
-        "localization": "PARTIAL",
+        "localization": "READY",
         "performance": "PARTIAL"
       },
       "barEvidence": {
         "accessibility": "Baseline accessibility audits (label, contrast, focus) cover dialogue and menu UI elements through AccessibilityAuditor. Visual-novel-specific pacing controls (text auto-advance toggle, read-speed override) are scaffolded but not production-enforced.",
         "audio": "Audio mix preset governance is active. Visual-novel-specific ambient BGM layer management and voice-over duck rules are scaffolded; end-to-end validation is not yet landed.",
         "input": "Dialogue-advance and menu-navigation input paths are covered by test_input_core. Accessibility-input alternatives (auto-advance, skip) are scaffolded but not yet fully governed.",
-        "localization": "Baseline message localization patterns from message_text_core tests apply. Visual-novel-specific multi-voice character name insertion and per-language font-set coverage are not yet measured.",
+        "localization": "Visual novel starter manifest declares required menu, dialogue control, speaker-name, and name-interpolation keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. TemplateLocalizationAudit and test_template_bar_quality verify manifest-driven required-key completeness and font-profile coverage.",
         "performance": "Presentation runtime and profile_arena tests provide frame-time budget coverage. Sustained dialogue-heavy session load and asset streaming are not production-validated."
       },
       "safeScope": "Dialogue-heavy projects within current native message and save scope.",
       "mainBlockers": [
-        "Template-grade governance is not complete; bar evidence is documented but production-grade closure is pending for each bar"
+        "Template-grade governance is not complete; localization is READY, while the remaining partial bars still need production-grade closure"
       ]
     },
     {
@@ -445,19 +445,19 @@
         "accessibility": "PARTIAL",
         "audio": "PARTIAL",
         "input": "READY",
-        "localization": "PARTIAL",
+        "localization": "READY",
         "performance": "PARTIAL"
       },
       "barEvidence": {
         "accessibility": "Baseline accessibility governance (label audits, focus-order, contrast) is active. Turn-based-RPG-specific accessibility expectations (battle-menu hold alternatives, status-screen readability) are scaffolded but not fully enforced.",
         "audio": "Audio mix preset governance applies. Turn-based-RPG-specific battle audio transitions and victory fanfare sequencing are scaffolded in AudioMixPresets but not fully validated.",
         "input": "Turn-based RPG starter manifests and generated projects declare the full navigation/menu/battle required action set with keyboard and controller defaults. test_template_acceptance verifies template input closure, and test_input_remap_store proves those action names survive save/load. Touch remains hit-test UI/world behavior and reports touch_binding_unsupported for remap profiles.",
-        "localization": "Baseline message localization patterns from message_text_core apply. Per-template completeness metrics and font-set coverage are not yet measured.",
+        "localization": "Turn-based RPG starter manifest declares required command, battle, result, turn-order, and status-effect keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. TemplateLocalizationAudit and test_template_bar_quality verify manifest-driven required-key completeness and font-profile coverage.",
         "performance": "Presentation runtime arena and profile_arena frame-time budget tests apply. Battle-sequence scalability under extended play is not production-validated."
       },
       "safeScope": "A conservative turn-based template slice similar to jrpg without implying broader productization.",
       "mainBlockers": [
-        "Cross-cutting readiness bars and dedicated template governance remain incomplete; input is READY, while accessibility, audio, localization, and performance remain PARTIAL"
+        "Cross-cutting readiness bars and dedicated template governance remain incomplete; input and localization are READY, while accessibility, audio, and performance remain PARTIAL"
       ]
     },
     {

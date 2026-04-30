@@ -19,6 +19,8 @@ public:
     std::vector<std::string> getAllKeys() const;
 
     std::string getLocaleCode() const;
+    std::string getFontProfileId() const;
+    bool hasFontProfile() const;
     size_t keyCount() const;
     void clear();
 
@@ -26,6 +28,7 @@ public:
 
 private:
     std::string m_localeCode;
+    std::string m_fontProfileId;
     std::unordered_map<std::string, std::string> m_keys;
 };
 
