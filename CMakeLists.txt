@@ -1318,6 +1318,8 @@ add_executable(urpg_tests
     tests/unit/test_audio_manager.cpp
     tests/unit/test_input_manager.cpp
     tests/unit/test_plugin_manager.cpp
+    tests/unit/test_plugin_manager_execution.cpp
+    tests/unit/test_plugin_manager_metadata.cpp
     tests/unit/test_plugin_api.cpp
     tests/unit/test_menu_core.cpp
     tests/unit/test_menu_orchestration.cpp
