@@ -57,6 +57,14 @@
       "$ref": "#/definitions/patternField",
       "description": "AoE/range pattern for the ability. A single-point pattern (origin only) represents a single-target ability."
     },
+    "active_condition": {
+      "$ref": "#/definitions/boundedCondition",
+      "description": "Optional bounded activation condition. Supported grammar is comparisons over source.hp, source.mp, source.attribute.<Name>, source.hasTag('Tag.Name'), target.hasTag('Tag.Name'), boolean literals, and &&/|| connectors. Unsupported grammar fails closed at runtime with condition_parse_error."
+    },
+    "passive_condition": {
+      "type": "string",
+      "description": "Optional authored passive-condition string preserved for future cancellation/passive behavior. The current runtime does not evaluate passive conditions."
+    },
     "unsupported_fields": {
       "type": "object",
       "description": "Fallback container for source fields that have no native mapping. Preserved verbatim for round-trip fidelity. Runtime ignores this field.",
@@ -75,6 +83,11 @@
   ],
   "additionalProperties": false,
   "definitions": {
+    "boundedCondition": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Bounded expression grammar: <operand> <operator> <operand> clauses joined by && or ||. Numeric operands: source.hp, source.mp, source.attribute.<Name>, or numeric literals. Boolean operands: true, false, source.hasTag('Tag.Name'), target.hasTag('Tag.Name'). Operators: >, >=, <, <=, ==, !=. Parentheses and arithmetic are intentionally unsupported."
+    },
     "patternField": {
       "type": "object",
       "description": "2D coordinate pattern. See content/schemas/pattern_field.schema.json for full specification.",

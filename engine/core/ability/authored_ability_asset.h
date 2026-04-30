@@ -26,6 +26,8 @@ struct AuthoredAbilityAsset {
     urpg::ModifierOp effect_operation = urpg::ModifierOp::Add;
     float effect_value = 10.0f;
     float effect_duration = 5.0f;
+    std::string active_condition;
+    std::string passive_condition;
     urpg::PatternField pattern = urpg::PatternField("Draft Pattern");
 };
 
@@ -67,6 +69,8 @@ inline void to_json(nlohmann::json& j, const AuthoredAbilityAsset& asset) {
         {"effect_operation", modifierOpName(asset.effect_operation)},
         {"effect_value", asset.effect_value},
         {"effect_duration", asset.effect_duration},
+        {"active_condition", asset.active_condition},
+        {"passive_condition", asset.passive_condition},
         {"pattern", asset.pattern},
     };
 }
@@ -80,6 +84,8 @@ inline void from_json(const nlohmann::json& j, AuthoredAbilityAsset& asset) {
     asset.effect_operation = modifierOpFromString(j.value("effect_operation", std::string("Add")));
     asset.effect_value = j.value("effect_value", asset.effect_value);
     asset.effect_duration = j.value("effect_duration", asset.effect_duration);
+    asset.active_condition = j.value("active_condition", asset.active_condition);
+    asset.passive_condition = j.value("passive_condition", asset.passive_condition);
     if (j.contains("pattern") && j["pattern"].is_object()) {
         asset.pattern = j["pattern"].get<urpg::PatternField>();
     }
@@ -99,6 +105,8 @@ inline std::shared_ptr<GameplayAbility> makeGameplayAbilityFromAsset(const Autho
         const ActivationInfo& getActivationInfo() const override {
             activation_info_.cooldownSeconds = asset_.cooldown_seconds;
             activation_info_.mpCost = static_cast<int32_t>(asset_.mp_cost);
+            activation_info_.activeCondition = asset_.active_condition;
+            activation_info_.passiveCondition = asset_.passive_condition;
             activation_info_.pattern = pattern_;
             return activation_info_;
         }

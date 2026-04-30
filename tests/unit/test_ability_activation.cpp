@@ -108,27 +108,77 @@ TEST_CASE("GameplayAbility: Activation Pipeline", "[ability][activation]") {
         REQUIRE(fireAbility.canActivate(owner));
     }
 
-    SECTION("Unsupported active conditions are blocked with explicit diagnostics") {
-        fireAbility.editInfo().activeCondition = "source.hp > 10";
+    SECTION("Bounded active condition allows activation from source attributes and tags") {
+        owner.setAttribute("HP", 42.0f);
+        owner.setAttribute("MP", 12.0f);
+        owner.addTag(GameplayTag("State.Focused"));
+        fireAbility.editInfo().activeCondition = "source.hp >= 40 && source.hasTag('State.Focused') == true";
+
+        const auto check = fireAbility.evaluateActivation(owner);
+        REQUIRE(check.allowed);
+        REQUIRE(check.reason.empty());
+    }
+
+    SECTION("Bounded active condition blocks activation with deterministic reason") {
+        owner.setAttribute("HP", 8.0f);
+        fireAbility.editInfo().activeCondition = "source.hp >= 40";
 
         const auto check = fireAbility.evaluateActivation(owner);
         REQUIRE_FALSE(check.allowed);
-        REQUIRE(check.reason == "active_condition_unsupported");
-        REQUIRE(check.detail.find("source.hp > 10") != std::string::npos);
+        REQUIRE(check.reason == "active_condition_false");
+        REQUIRE(check.detail.find("source.hp >= 40") != std::string::npos);
 
         REQUIRE_FALSE(owner.tryActivateAbility(fireAbility));
         const auto& history = owner.getAbilityExecutionHistory();
         REQUIRE(history.size() == 1);
         REQUIRE(history[0].outcome == "blocked");
-        REQUIRE(history[0].reason == "active_condition_unsupported");
-        REQUIRE(history[0].detail.find("source.hp > 10") != std::string::npos);
+        REQUIRE(history[0].reason == "active_condition_false");
+        REQUIRE(history[0].detail.find("source.hp >= 40") != std::string::npos);
 
         urpg::editor::AbilityInspectorPanel panel;
         panel.update(owner);
         const auto& snapshot = panel.getRenderSnapshot();
         REQUIRE(snapshot.diagnostic_count == 1);
-        REQUIRE(snapshot.diagnostic_lines[0].find("Unsupported activeCondition") != std::string::npos);
-        REQUIRE(snapshot.diagnostic_lines[0].find("source.hp > 10") != std::string::npos);
+        REQUIRE(snapshot.diagnostic_lines[0].find("active_condition_false") != std::string::npos);
+        REQUIRE(snapshot.diagnostic_lines[0].find("source.hp >= 40") != std::string::npos);
+    }
+
+    SECTION("Bounded active condition can inspect the primary target") {
+        AbilitySystemComponent targetOwner;
+        targetOwner.addTag(GameplayTag("State.Marked"));
+        fireAbility.editInfo().activeCondition = "target.hasTag('State.Marked') == true";
+
+        GameplayAbility::AbilityExecutionContext context;
+        GameplayAbility::AbilityExecutionTarget target;
+        target.abilitySystem = &targetOwner;
+        target.runtimeId = "target.1";
+        context.targets.push_back(target);
+
+        const auto check = fireAbility.evaluateActivation(owner, context);
+        REQUIRE(check.allowed);
+    }
+
+    SECTION("Unsupported active condition grammar fails closed") {
+        fireAbility.editInfo().activeCondition = "source.hp + source.mp > 50";
+
+        const auto check = fireAbility.evaluateActivation(owner);
+        REQUIRE_FALSE(check.allowed);
+        REQUIRE(check.reason == "condition_parse_error");
+        REQUIRE(check.detail.find("source.hp + source.mp > 50") != std::string::npos);
+
+        REQUIRE_FALSE(owner.tryActivateAbility(fireAbility));
+        const auto& history = owner.getAbilityExecutionHistory();
+        REQUIRE(history.size() == 1);
+        REQUIRE(history[0].outcome == "blocked");
+        REQUIRE(history[0].reason == "condition_parse_error");
+        REQUIRE(history[0].detail.find("source.hp + source.mp > 50") != std::string::npos);
+
+        urpg::editor::AbilityInspectorPanel panel;
+        panel.update(owner);
+        const auto& snapshot = panel.getRenderSnapshot();
+        REQUIRE(snapshot.diagnostic_count == 1);
+        REQUIRE(snapshot.diagnostic_lines[0].find("condition_parse_error") != std::string::npos);
+        REQUIRE(snapshot.diagnostic_lines[0].find("source.hp + source.mp > 50") != std::string::npos);
     }
 
     SECTION("Passive conditions remain out of activation evaluation until a runtime evaluator exists") {

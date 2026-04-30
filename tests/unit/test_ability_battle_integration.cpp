@@ -56,6 +56,7 @@ TEST_CASE("AuthoredAbilityAsset serializes all schema-required fields", "[abilit
     asset.effect_operation = ModifierOp::Add;
     asset.effect_value = -25.0f;
     asset.effect_duration = 0.0f;
+    asset.active_condition = "source.mp >= 10";
 
     json j;
     to_json(j, asset);
@@ -68,9 +69,11 @@ TEST_CASE("AuthoredAbilityAsset serializes all schema-required fields", "[abilit
     REQUIRE(j.contains("effect_operation"));
     REQUIRE(j.contains("effect_value"));
     REQUIRE(j.contains("effect_duration"));
+    REQUIRE(j.contains("active_condition"));
     REQUIRE(j.contains("pattern"));
     REQUIRE(j["ability_id"] == "skill.fire_bolt");
     REQUIRE(j["effect_operation"] == "Add");
+    REQUIRE(j["active_condition"] == "source.mp >= 10");
 }
 
 TEST_CASE("AuthoredAbilityAsset round-trips via JSON deserialization", "[ability][schema][s24]") {
@@ -83,6 +86,8 @@ TEST_CASE("AuthoredAbilityAsset round-trips via JSON deserialization", "[ability
     original.effect_operation = ModifierOp::Multiply;
     original.effect_value = 0.8f;
     original.effect_duration = 3.0f;
+    original.active_condition = "source.hp > 20 && source.hasTag('State.Ready') == true";
+    original.passive_condition = "source.hp > 0";
 
     json j;
     to_json(j, original);
@@ -98,6 +103,8 @@ TEST_CASE("AuthoredAbilityAsset round-trips via JSON deserialization", "[ability
     REQUIRE(restored.effect_operation == original.effect_operation);
     REQUIRE(restored.effect_value == Approx(original.effect_value));
     REQUIRE(restored.effect_duration == Approx(original.effect_duration));
+    REQUIRE(restored.active_condition == original.active_condition);
+    REQUIRE(restored.passive_condition == original.passive_condition);
 }
 
 // ---------------------------------------------------------------------------

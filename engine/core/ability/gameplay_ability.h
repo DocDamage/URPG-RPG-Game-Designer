@@ -42,11 +42,10 @@ class GameplayAbility {
         GameplayTagContainer requiredTags; // Must have these to activate
         GameplayTagContainer blockingTags; // Cannot have these to activate
 
-        // Scripted condition strings are accepted in authored data for diagnostics
-        // and future compatibility, but the in-tree runtime does not evaluate them.
-        // Non-empty activeCondition values fail with an explicit
-        // "active_condition_unsupported" diagnostic, and passiveCondition remains
-        // out of scope for runtime cancellation unless a future evaluator is added.
+        // Active conditions use the bounded in-tree evaluator documented by
+        // gameplay_ability.schema.json. Unsupported grammar fails closed with
+        // "condition_parse_error". passiveCondition remains out of scope for
+        // runtime cancellation unless a future evaluator is added.
         std::string activeCondition;
         std::string passiveCondition;
 
@@ -98,7 +97,7 @@ class GameplayAbility {
 
     /**
      * @brief Legacy/fallback authored activation condition string.
-     * The in-tree runtime does not evaluate this field.
+     * Evaluated by the bounded in-tree condition evaluator.
      */
     std::string activeCondition;
 

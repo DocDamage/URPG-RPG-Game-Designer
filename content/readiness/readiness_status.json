@@ -152,10 +152,10 @@
     {
       "id": "gameplay_ability_framework",
       "status": "PARTIAL",
-      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), live BattleScene activation, AbilityBattleQueue integration into BattleFlowController (S24-T03/T04), deterministic AbilityTask WaitInput/WaitEvent/WaitProjectileCollision backends, and authored battle/map ability orchestration with editor preview are landed. Release-owner review accepted the manual residual-gap review for the current internal branch; the lane remains PARTIAL only for the technical product-depth gaps listed here.",
+      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), live BattleScene activation, AbilityBattleQueue integration into BattleFlowController (S24-T03/T04), deterministic AbilityTask WaitInput/WaitEvent/WaitProjectileCollision backends, bounded active-condition evaluation, and authored battle/map ability orchestration with editor preview are landed. Release-owner review accepted the manual residual-gap review for the current internal branch; the lane remains PARTIAL only for the technical product-depth gaps listed here.",
       "mainGaps": [
         "One authored battle/map ability orchestration asset path is landed with runtime activation, target pattern diagnostics, editor preview, saved JSON, and tests; broader task-driven composition remains product-depth backlog",
-        "Scripted conditions (activeCondition/passiveCondition strings) intentionally not evaluated",
+        "Bounded activeCondition evaluation is landed for source attributes, source/target tag checks, comparisons, and &&/|| connectors; arbitrary scripting, arithmetic, parentheses, and passiveCondition cancellation remain out of scope.",
         "Release-owner signoff accepted the manual residual-gap review for the current internal branch; remaining PARTIAL scope is technical product depth, not pending manual review"
       ],
       "signoff": {

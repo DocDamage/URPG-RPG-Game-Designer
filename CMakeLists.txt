@@ -524,6 +524,7 @@ set(URPG_CORE_SOURCES
     editor/mod/mod_sdk_panel.cpp
     engine/core/editor/plugin_api.cpp
     engine/core/editor/security_manager.cpp
+    engine/core/ability/ability_condition_evaluator.cpp
     engine/core/ability/gameplay_ability.cpp
     engine/core/ability/ability_state_machine.cpp
     engine/core/ability/pattern_field.cpp

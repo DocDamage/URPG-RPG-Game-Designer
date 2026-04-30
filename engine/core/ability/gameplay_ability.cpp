@@ -1,7 +1,71 @@
 #include "gameplay_ability.h"
+#include "ability_condition_evaluator.h"
 #include "ability_system_component.h"
 
 namespace urpg::ability {
+namespace {
+
+GameplayAbility::ActivationCheckResult
+evaluateActivationWithContext(const GameplayAbility& ability, const AbilitySystemComponent& source,
+                              const GameplayAbility::AbilityExecutionContext* context) {
+    GameplayAbility::ActivationCheckResult result;
+    const auto& info = ability.getActivationInfo();
+    const auto& sourceTags = source.getTags();
+    const float cooldown_remaining = source.getCooldownRemaining(ability.getId());
+    const float current_mp = source.getAttribute("MP", 9999.0f);
+
+    result.cooldown_remaining = cooldown_remaining;
+    result.current_mp = current_mp;
+
+    if (!sourceTags.hasAllTags(
+            std::vector<GameplayTag>(info.requiredTags.getTags().begin(), info.requiredTags.getTags().end()))) {
+        result.allowed = false;
+        result.reason = "missing_required_tags";
+        return result;
+    }
+
+    if (sourceTags.hasAnyTags(
+            std::vector<GameplayTag>(info.blockingTags.getTags().begin(), info.blockingTags.getTags().end()))) {
+        result.allowed = false;
+        result.reason = "blocking_tags_present";
+        return result;
+    }
+
+    if (cooldown_remaining > 0.0f) {
+        result.allowed = false;
+        result.reason = "cooldown_active";
+        return result;
+    }
+
+    const float resolvedMpCost = info.mpCost > 0 ? static_cast<float>(info.mpCost) : ability.mpCost;
+    if (current_mp < resolvedMpCost) {
+        result.allowed = false;
+        result.reason = "insufficient_mp";
+        return result;
+    }
+
+    const auto& activeCondition = info.activeCondition.empty() ? ability.activeCondition : info.activeCondition;
+    if (!activeCondition.empty()) {
+        const AbilityConditionEvaluator evaluator;
+        const auto condition = evaluator.evaluate(activeCondition, source, context);
+        if (!condition.parsed) {
+            result.allowed = false;
+            result.reason = condition.reason;
+            result.detail = condition.detail;
+            return result;
+        }
+        if (!condition.value) {
+            result.allowed = false;
+            result.reason = condition.reason;
+            result.detail = condition.detail;
+            return result;
+        }
+    }
+
+    return result;
+}
+
+} // namespace
 
 bool GameplayAbility::canActivate(const AbilitySystemComponent& source) const {
     return evaluateActivation(source).allowed;
@@ -12,64 +76,13 @@ bool GameplayAbility::canActivate(const AbilitySystemComponent& source, const Ab
 }
 
 GameplayAbility::ActivationCheckResult GameplayAbility::evaluateActivation(const AbilitySystemComponent& source) const {
-    ActivationCheckResult result;
-    const auto& info = getActivationInfo();
-    const auto& sourceTags = source.getTags();
-    const float cooldown_remaining = source.getCooldownRemaining(this->getId());
-    const float current_mp = source.getAttribute("MP", 9999.0f);
-
-    result.cooldown_remaining = cooldown_remaining;
-    result.current_mp = current_mp;
-
-    // Required tags check
-    if (!sourceTags.hasAllTags(
-            std::vector<GameplayTag>(info.requiredTags.getTags().begin(), info.requiredTags.getTags().end()))) {
-        result.allowed = false;
-        result.reason = "missing_required_tags";
-        return result;
-    }
-
-    // Blocking tags check
-    if (sourceTags.hasAnyTags(
-            std::vector<GameplayTag>(info.blockingTags.getTags().begin(), info.blockingTags.getTags().end()))) {
-        result.allowed = false;
-        result.reason = "blocking_tags_present";
-        return result;
-    }
-
-    // Cooldown check
-    if (cooldown_remaining > 0.0f) {
-        result.allowed = false;
-        result.reason = "cooldown_active";
-        return result;
-    }
-
-    // Cost check (MP)
-    if (current_mp < resolveMpCost()) {
-        result.allowed = false;
-        result.reason = "insufficient_mp";
-        return result;
-    }
-
-    // TD-09 accepted in-tree contract: scripted condition strings are not
-    // evaluated. Non-empty authored data fails explicitly instead of silently
-    // bypassing activation rules.
-    const auto& activeCondition = resolveActiveCondition();
-    if (!activeCondition.empty()) {
-        result.allowed = false;
-        result.reason = "active_condition_unsupported";
-        result.detail = "Unsupported activeCondition: " + activeCondition;
-        return result;
-    }
-
-    return result;
+    return evaluateActivationWithContext(*this, source, nullptr);
 }
 
 GameplayAbility::ActivationCheckResult
 GameplayAbility::evaluateActivation(const AbilitySystemComponent& source,
                                     const AbilityExecutionContext& context) const {
-    (void)context;
-    return evaluateActivation(source);
+    return evaluateActivationWithContext(*this, source, &context);
 }
 
 void GameplayAbility::activate(AbilitySystemComponent& source, const AbilityExecutionContext& context) {
