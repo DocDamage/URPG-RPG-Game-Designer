@@ -351,7 +351,7 @@ Run:
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```powershell
 git add tests/snapshot/test_renderer_backed_visual_capture.cpp tests/snapshot/goldens docs/presentation/VALIDATION.md docs/release/RELEASE_READINESS_MATRIX.md content/readiness/readiness_status.json
