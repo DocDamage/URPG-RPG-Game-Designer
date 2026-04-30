@@ -53,6 +53,7 @@ class AssetLibraryModel {
                        std::string_view duplicate_csv);
     void ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                        const nlohmann::json& promotion_catalog, std::string_view duplicate_csv);
+    void ingestPromotionManifest(const urpg::assets::AssetPromotionManifest& manifest);
     bool loadReportsFromDirectory(const std::filesystem::path& reports_root, std::string* error_message = nullptr);
     void addReferencedAsset(std::string path);
     void addUsageReference(std::string path, std::string owner_id);

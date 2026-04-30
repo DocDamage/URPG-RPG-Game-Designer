@@ -373,3 +373,89 @@ TEST_CASE("AssetLibraryPanel exposes promote and archive action state", "[assets
     REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["archive_button"]["enabled"] == false);
     REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["archive_button"]["disabled_reason"] == "asset_already_archived");
 }
+
+TEST_CASE("AssetLibraryPanel exposes governed promotion manifest action rows",
+          "[assets][asset_library][editor][promotion]") {
+    urpg::editor::AssetLibraryPanel panel;
+
+    panel.model().ingestPromotionManifest(urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.hero.walk"},
+        {"sourcePath", "imports/raw/example/hero.png"},
+        {"promotedPath", "resources/assets/characters/hero.png"},
+        {"licenseId", "BND-001"},
+        {"status", "runtime_ready"},
+        {"preview",
+         {{"kind", "image"}, {"thumbnailPath", "resources/previews/hero.thumb.png"}, {"width", 48}, {"height", 48}}},
+        {"package", {{"includeInRuntime", true}}},
+        {"diagnostics", nlohmann::json::array()},
+    }));
+    panel.model().ingestPromotionManifest(urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.unlicensed"},
+        {"sourcePath", "imports/raw/example/unlicensed.png"},
+        {"promotedPath", "resources/assets/characters/unlicensed.png"},
+        {"status", "runtime_ready"},
+        {"preview",
+         {{"kind", "image"},
+          {"thumbnailPath", "resources/previews/unlicensed.thumb.png"},
+          {"width", 48},
+          {"height", 48}}},
+        {"package", {{"includeInRuntime", true}}},
+        {"diagnostics", nlohmann::json::array()},
+    }));
+    panel.model().ingestPromotionManifest(urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.missing"},
+        {"sourcePath", "imports/raw/example/missing.png"},
+        {"licenseId", "BND-001"},
+        {"status", "runtime_ready"},
+        {"preview", {{"kind", "pending"}}},
+        {"package", {{"includeInRuntime", true}}},
+        {"diagnostics", nlohmann::json::array()},
+    }));
+    panel.model().ingestPromotionManifest(urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.hero.copy"},
+        {"sourcePath", "imports/raw/example/hero-copy.png"},
+        {"promotedPath", "resources/assets/characters/hero-copy.png"},
+        {"licenseId", "BND-001"},
+        {"status", "archived"},
+        {"preview", {{"kind", "none"}}},
+        {"package", {{"includeInRuntime", true}, {"requiredForRelease", true}}},
+        {"diagnostics", nlohmann::json::array()},
+    }));
+
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().asset_action_rows.size() == 4);
+    const auto rows = panel.lastRenderSnapshot().asset_action_rows;
+    const auto promoted = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/example/hero.png";
+    });
+    REQUIRE(promoted != rows.end());
+    REQUIRE((*promoted)["recommended_action"] == "ready");
+    REQUIRE((*promoted)["promotion_status"] == "runtime_ready");
+    REQUIRE((*promoted)["include_in_runtime"] == true);
+
+    const auto unlicensed = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/example/unlicensed.png";
+    });
+    REQUIRE(unlicensed != rows.end());
+    REQUIRE((*unlicensed)["recommended_action"] == "add_license_evidence");
+    REQUIRE((*unlicensed)["include_in_runtime"] == false);
+
+    const auto missing = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/example/missing.png";
+    });
+    REQUIRE(missing != rows.end());
+    REQUIRE((*missing)["recommended_action"] == "fix_missing_file");
+
+    const auto archived = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/example/hero-copy.png";
+    });
+    REQUIRE(archived != rows.end());
+    REQUIRE((*archived)["recommended_action"] == "archived");
+    REQUIRE((*archived)["include_in_runtime"] == false);
+    REQUIRE((*archived)["required_for_release"] == false);
+}

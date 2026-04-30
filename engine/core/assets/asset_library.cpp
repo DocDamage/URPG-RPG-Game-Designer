@@ -428,6 +428,66 @@ void AssetLibrary::ingestPromotionCatalog(const nlohmann::json& catalog) {
     sortSnapshot();
 }
 
+void AssetLibrary::ingestPromotionManifest(const AssetPromotionManifest& manifest) {
+    const std::string path = !manifest.sourcePath.empty() ? manifest.sourcePath : manifest.promotedPath;
+    if (path.empty()) {
+        return;
+    }
+    auto diagnostics = manifest.diagnostics;
+    for (const auto& diagnostic : validateAssetPromotionManifest(manifest)) {
+        if (std::find(diagnostics.begin(), diagnostics.end(), diagnostic) == diagnostics.end()) {
+            diagnostics.push_back(diagnostic);
+        }
+    }
+
+    auto& record = ensureAsset(path);
+    record.source_path = manifest.sourcePath;
+    record.normalized_path = manifest.promotedPath.empty() ? record.normalized_path : manifest.promotedPath;
+    record.promoted_path = manifest.promotedPath;
+    record.license_id = manifest.licenseId;
+    record.promotion_status = toString(manifest.status);
+    record.include_in_runtime = manifest.package.includeInRuntime;
+    record.required_for_release = manifest.package.requiredForRelease;
+    record.preview_kind = manifest.preview.kind;
+    record.preview_path = manifest.preview.thumbnailPath;
+    record.preview_width = manifest.preview.width;
+    record.preview_height = manifest.preview.height;
+    record.provenance.normalized_path = manifest.promotedPath;
+    record.provenance.license = manifest.licenseId;
+    record.provenance.export_eligible = manifest.package.includeInRuntime && diagnostics.empty();
+    record.promotion_diagnostics = diagnostics;
+
+    if (manifest.status == AssetPromotionStatus::RuntimeReady && diagnostics.empty()) {
+        record.statuses.insert(AssetStatus::Promoted);
+        record.statuses.erase(AssetStatus::Risky);
+        record.statuses.erase(AssetStatus::MissingFile);
+        record.statuses.erase(AssetStatus::MissingLicense);
+    }
+    if (manifest.status == AssetPromotionStatus::Archived) {
+        record.statuses.insert(AssetStatus::Archived);
+        record.statuses.erase(AssetStatus::Promoted);
+        record.include_in_runtime = false;
+        record.required_for_release = false;
+        record.provenance.export_eligible = false;
+    }
+    for (const auto& diagnostic : diagnostics) {
+        if (diagnostic == "license_evidence_missing") {
+            record.statuses.insert(AssetStatus::MissingLicense);
+            record.include_in_runtime = false;
+        } else if (diagnostic == "promoted_path_missing" || diagnostic == "preview_thumbnail_missing") {
+            record.statuses.insert(AssetStatus::MissingFile);
+            record.include_in_runtime = false;
+        } else if (diagnostic == "archived_asset_packaged") {
+            record.statuses.insert(AssetStatus::Archived);
+            record.include_in_runtime = false;
+            record.required_for_release = false;
+        }
+    }
+
+    refreshDerivedCounts();
+    sortSnapshot();
+}
+
 void AssetLibrary::ingestDuplicateCsv(std::string_view csv_text) {
     std::istringstream stream{std::string(csv_text)};
     std::string line;

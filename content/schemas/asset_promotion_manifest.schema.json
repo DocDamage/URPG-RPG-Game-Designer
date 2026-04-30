@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "schemaVersion": 1,
+  "title": "Asset Promotion Manifest",
+  "description": "Governed manifest for assets promoted from raw/source intake into runtime/package-ready URPG content.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "assetId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourcePath": {
+      "type": "string"
+    },
+    "promotedPath": {
+      "type": "string"
+    },
+    "licenseId": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "runtime_ready", "blocked", "archived"]
+    },
+    "preview": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["none", "pending", "image", "audio", "video"]
+        },
+        "thumbnailPath": {
+          "type": "string"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["kind"],
+      "additionalProperties": false
+    },
+    "package": {
+      "type": "object",
+      "properties": {
+        "includeInRuntime": {
+          "type": "boolean"
+        },
+        "requiredForRelease": {
+          "type": "boolean"
+        }
+      },
+      "required": ["includeInRuntime"],
+      "additionalProperties": false
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["schemaVersion", "assetId", "sourcePath", "status", "preview", "package", "diagnostics"],
+  "additionalProperties": false
+}

@@ -14,6 +14,7 @@ Every promoted asset subset must retain a provenance chain made of:
 - bundle manifest
 - promotion record
 - attribution/provenance linkage back to the captured source
+- asset promotion manifest when an individual promoted asset is intended to appear in runtime/editor package readiness rows
 
 ---
 
@@ -79,6 +80,7 @@ Every promoted asset subset must retain a provenance chain made of:
 - Promoted assets are not anonymous.
 - Source-to-target mapping is explicit.
 - Every promoted subset has a promotion record that links the source manifest and bundle manifest entries used to justify promotion.
+- Individual runtime/package candidates have `AssetPromotionManifest` records that capture source path, promoted path, license evidence, preview metadata, package inclusion, release-required state, and diagnostics.
 - ExportPackager may stage bundle manifests plus promoted assets into `data.pck`, but only for bundle manifests with `bundle_state: "promoted"` and asset rows with `status: "promoted"` that resolve to existing repo-local files under `imports/normalized/`.
 - Release-required assets must be explicitly marked in bundle manifests with `release_required: true`, `release_surfaces`, `license_cleared: true`, and `distribution: "bundled"`. The project-level release manifest in `content/fixtures/project_governance_fixture.json` lists every current title, map, battle, UI, audio, icon, and font surface consumed by the release candidate gate.
 - `tools/ci/check_release_required_assets.ps1` validates that required repo-local assets exist, are hydrated, are not raw/vendor paths, and have license-cleared manifest metadata.
@@ -133,6 +135,34 @@ python tools/assets/catalog_animation_asset_drop.py `
 This writes aggregate image-sequence, archive, document, and animation-metadata records. It is intended for high-volume frame folders where the editor asset browser and chatbot need pack/sequence-level assets, not hundreds of thousands of individual frame rows.
 
 ### Promotion Manifest Schema Example
+
+Individual governed asset records use `content/schemas/asset_promotion_manifest.schema.json`:
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "asset.hero.walk",
+  "sourcePath": "imports/raw/example/hero.png",
+  "promotedPath": "resources/assets/characters/hero.png",
+  "licenseId": "BND-001",
+  "status": "runtime_ready",
+  "preview": {
+    "kind": "image",
+    "thumbnailPath": "resources/previews/hero.thumb.png",
+    "width": 48,
+    "height": 48
+  },
+  "package": {
+    "includeInRuntime": true,
+    "requiredForRelease": false
+  },
+  "diagnostics": []
+}
+```
+
+Validation is fail-closed: `runtime_ready` requires a promoted path, runtime package inclusion requires license evidence, release-required assets must also be included in runtime packages, thumbnail-backed previews require a thumbnail path, and archived assets cannot be packaged.
+
+Bundle-level manifests continue to group promoted assets:
 
 ```json
 {
@@ -232,3 +262,4 @@ Target integrations by priority:
 | 2026-04-29 | Added exact duplicate pruning for the ignored `SRC-007` raw intake and clarified generator candidates can be reviewed for both editor and generated-game runtime surfaces. |
 | 2026-04-29 | Added aggregate animation-frame cataloging for `SRC-008` so very large frame drops become usable editor/library sequence records without committing raw binaries or flattening every PNG into a separate browser asset. |
 | 2026-04-29 | Repointed generator candidate cataloging at the ingested raw refresh path after archiving already-ingested local source-drop folders out of the project root. |
+| 2026-04-30 | Added governed per-asset promotion manifests, schema validation, package/readiness diagnostics, and WYSIWYG asset action row projection. |

@@ -172,6 +172,8 @@ Release-required assets are checked before package promotion:
 
 The gate validates the release asset block in `content/fixtures/project_governance_fixture.json`, promoted bundle rows under `imports/manifests/asset_bundles/`, app icons under `resources/icons/`, and repo-local promoted payloads under `imports/normalized/`. Required assets must resolve inside the repo, must not point at raw/vendor intake trees, must not be unresolved LFS pointers, and must carry license-cleared release metadata.
 
+Individual promoted asset readiness can also be represented by `content/schemas/asset_promotion_manifest.schema.json`. Those records expose the source path, promoted path, license id, preview metadata, runtime package inclusion, release-required state, and diagnostics to the asset library/editor rows. Packaging semantics remain fail-closed: runtime-ready records require a promoted path, included runtime assets require license evidence, release-required assets must be included in runtime packages, and archived assets are not packageable.
+
 The gate also writes an audit report:
 
 ```text

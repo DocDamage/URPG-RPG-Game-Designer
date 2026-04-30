@@ -1,6 +1,6 @@
 # Feature Robustness Plan
 
-Status date: 2026-04-29
+Status date: 2026-04-30
 
 URPG has enough native subsystems now that the next work should deepen existing surfaces instead of adding isolated demos. This plan tracks the feature-packed follow-through requested after the asset, AI, and plugin absorption passes.
 
@@ -10,7 +10,7 @@ URPG has enough native subsystems now that the next work should deepen existing 
 2. State/message/picture: scoped/self/map/JS variable banks, nested text escapes, picture task bindings, high-count picture management, native picture UI runtime preview rows, and compat migration adapters for scoped state/picture tasks are started in native code; broader fixture import coverage remains.
 3. Progression: level-up stat allocation pools, caps, class/actor rules, preview math, editor snapshots, applied stat-allocation save/load records, and post-load actor application rows are started in native code; richer visual controls remain.
 4. Gameplay abilities: bounded active-condition evaluation over source HP/MP/attributes, source and primary-target tag checks, comparisons, and `&&`/`||` connectors is landed with fail-closed parse diagnostics; authored task-composition JSON, preview rows, branch-target validation, and branch-condition diagnostics are landed for wait input/event/projectile, branch, apply-effect, and play-cue rows; full task-graph runtime sequencing and arbitrary scripting remain.
-5. Asset browser/runtime library: tag/status/category filters, duplicate groups, source/license badges, previewable/runtime-ready counts, used-by references, promote/archive action state, shared editor/chatbot asset action rows, shared thumbnail/waveform preview rows, aggregate image-sequence pack metadata, aggregate sequence/frame/clip counts, callable quick filters, and filtered visible action/preview rows are started in native code; curated file promotion and richer generated preview assets remain.
+5. Asset browser/runtime library: tag/status/category filters, duplicate groups, source/license badges, previewable/runtime-ready counts, used-by references, promote/archive action state, governed promotion manifests, package/readiness diagnostics, shared editor/chatbot asset action rows, shared thumbnail/waveform preview rows, aggregate image-sequence pack metadata, aggregate sequence/frame/clip counts, callable quick filters, and filtered visible action/preview rows are started in native code; broader curated payload promotion and richer generated preview assets remain.
 6. AI editor workflow: approve/reject/apply/revert controls, validation blocking reasons, apply-preview patch counts, result diff patch counts, persisted `_ai_change_history` before/after patch records, undo-stack/apply-history snapshots, structured diff rows, and per-step rationale rows are started in native code; richer painted diff rendering remains.
 7. Project knowledge indexing: project files, schemas, readiness reports, validation reports, asset catalogs, project docs, template specs, source summaries, directly ingested filesystem/doc records, and freshness metadata are started in native project-data indexing; broader automatic filesystem walking remains.
 8. Concrete AI tools: AI applies now emit concrete editor preview artifacts for event graphs, battle VFX timelines, lighting/weather previews, ability sandbox compositions, export preview configuration, and asset import/promotion; `run_validation` now executes deterministic validator rows over those preview artifacts, while broader subsystem validator invocation remains.
@@ -27,7 +27,11 @@ The chatbot and WYSIWYG bridge now has a native coverage report. Release top-lev
 
 ## Asset Action Rows
 
-Asset action recommendations are shared by the WYSIWYG asset browser and chatbot snapshots through `buildAssetActionRows()`. Rows expose preview metadata, tags, usage references, status badges, promote/archive button enablement, disabled reasons, aggregate sequence metadata for large animation packs, and recommendations such as `promote`, `archive_duplicate`, `add_license_evidence`, `fix_missing_file`, `convert_or_replace`, `ready`, and `archived`.
+Asset action recommendations are shared by the WYSIWYG asset browser and chatbot snapshots through `buildAssetActionRows()`. Rows expose preview metadata, tags, usage references, status badges, promote/archive button enablement, disabled reasons, aggregate sequence metadata for large animation packs, governed promotion status, promoted path, license id, runtime package inclusion, release-required state, promotion diagnostics, and recommendations such as `promote`, `archive_duplicate`, `add_license_evidence`, `fix_missing_file`, `convert_or_replace`, `ready`, and `archived`.
+
+## Asset Promotion Manifests
+
+`AssetPromotionManifest` is now the native governed promotion record for individual assets. It round-trips through `content/schemas/asset_promotion_manifest.schema.json`, validates runtime-ready/package blockers, and projects into `AssetLibrary` plus `AssetLibraryPanel` action rows. Runtime-ready promoted assets with license evidence can show `ready`; missing license evidence recommends `add_license_evidence`; missing promoted payload or preview evidence recommends `fix_missing_file`; archived assets are prevented from runtime package inclusion.
 
 ## Asset Preview Rows
 

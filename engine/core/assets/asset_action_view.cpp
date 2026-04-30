@@ -145,6 +145,12 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
             {"used_by", asset.used_by},
             {"sequence", sequenceMetadata(asset)},
             {"statuses", statusList(asset)},
+            {"promotion_status", asset.promotion_status},
+            {"promoted_path", asset.promoted_path},
+            {"license_id", asset.license_id},
+            {"include_in_runtime", asset.include_in_runtime},
+            {"required_for_release", asset.required_for_release},
+            {"promotion_diagnostics", asset.promotion_diagnostics},
             {"recommended_action", recommendedAction(asset, canPromote, canArchive)},
             {"promote_button",
              {

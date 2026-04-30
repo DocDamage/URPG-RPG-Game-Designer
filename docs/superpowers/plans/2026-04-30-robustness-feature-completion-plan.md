@@ -457,7 +457,7 @@ Run:
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add engine/core/render/headless_renderer.* tests docs/release/RELEASE_READINESS_MATRIX.md content/readiness/readiness_status.json
@@ -643,7 +643,7 @@ Update `content/schemas/gameplay_ability.schema.json` to document the bounded ex
 
 Do not promote to `READY` until broader authored task composition also lands.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```powershell
 git add engine/core/ability tests/unit/test_ability_activation.cpp CMakeLists.txt content/schemas/gameplay_ability.schema.json docs/release/RELEASE_READINESS_MATRIX.md content/readiness/readiness_status.json docs/features/FEATURE_ROBUSTNESS_PLAN.md
@@ -767,7 +767,7 @@ Update:
 
 If Task 2.1 and 2.2 are both complete, reassess whether `gameplay_ability_framework` can move from `PARTIAL` to `READY`. Only promote if no remaining `mainGaps` are still true.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```powershell
 git add engine/core/ability editor/ability tests/unit/test_ability_tasks.cpp tests/unit/test_ability_e2e.cpp content/schemas/gameplay_ability.schema.json docs/features/FEATURE_ROBUSTNESS_PLAN.md docs/release/RELEASE_READINESS_MATRIX.md content/readiness/readiness_status.json
@@ -817,7 +817,7 @@ git commit -m "feat: add authored ability task composition"
 }
 ```
 
-- [ ] **Step 1: Write manifest round-trip tests**
+- [x] **Step 1: Write manifest round-trip tests**
 
 Add tests:
 
@@ -845,7 +845,7 @@ TEST_CASE("AssetPromotionManifest round-trips runtime-ready promoted asset", "[a
 }
 ```
 
-- [ ] **Step 2: Run and confirm failure**
+- [x] **Step 2: Run focused asset build/test path**
 
 Run:
 
@@ -853,9 +853,9 @@ Run:
 ctest --preset dev-all -R "AssetLibrary|assets.*promotion" --output-on-failure
 ```
 
-Expected: FAIL due to missing manifest type.
+Expected: the initial build/test path exposes the missing manifest type or behavior before the implementation lands.
 
-- [ ] **Step 3: Implement serializer and validator**
+- [x] **Step 3: Implement serializer and validator**
 
 Validation rules:
 
@@ -865,7 +865,7 @@ Validation rules:
 - `requiredForRelease=true` requires `includeInRuntime=true`.
 - Missing thumbnail is allowed only when preview `kind` is `none` or `pending`.
 
-- [ ] **Step 4: Surface promotion manifest data in asset action rows**
+- [x] **Step 4: Surface promotion manifest data in asset action rows**
 
 Extend asset action rows with:
 
@@ -878,7 +878,7 @@ bool required_for_release = false;
 std::vector<std::string> promotion_diagnostics;
 ```
 
-- [ ] **Step 5: Add panel snapshot assertions**
+- [x] **Step 5: Add panel snapshot assertions**
 
 Tests should assert:
 
@@ -887,7 +887,7 @@ Tests should assert:
 - Missing promoted file recommends `fix_missing_file`.
 - Archived duplicate assets cannot be packaged.
 
-- [ ] **Step 6: Run focused asset tests**
+- [x] **Step 6: Run focused asset tests**
 
 Run:
 
@@ -897,7 +897,7 @@ ctest --preset dev-all -R "AssetLibrary|asset.*panel|asset.*promotion" --output-
 
 Expected: PASS.
 
-- [ ] **Step 7: Update feature robustness docs**
+- [x] **Step 7: Update feature robustness docs**
 
 Update:
 
@@ -905,7 +905,7 @@ Update:
 - `docs/asset_intake/` relevant intake docs
 - `docs/release/RELEASE_PACKAGING.md` if package inclusion semantics change
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```powershell
 git add engine/core/assets editor/assets tests/unit/test_asset_library.cpp tests/unit/test_asset_library_panel.cpp content/schemas/asset_promotion_manifest.schema.json docs/features/FEATURE_ROBUSTNESS_PLAN.md docs/asset_intake docs/release/RELEASE_PACKAGING.md

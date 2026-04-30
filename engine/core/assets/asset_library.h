@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/core/assets/asset_promotion_manifest.h"
 #include "engine/core/assets/asset_provenance.h"
 
 #include <nlohmann/json.hpp>
@@ -49,6 +50,12 @@ struct AssetRecord {
     std::vector<std::string> used_by;
     std::set<AssetStatus> statuses;
     AssetProvenance provenance;
+    std::string promotion_status;
+    std::string promoted_path;
+    std::string license_id;
+    bool include_in_runtime = false;
+    bool required_for_release = false;
+    std::vector<std::string> promotion_diagnostics;
 };
 
 struct AssetLibraryFilter {
@@ -117,6 +124,7 @@ public:
     void ingestHygieneSummary(const nlohmann::json& summary);
     void ingestIntakeReport(const nlohmann::json& report);
     void ingestPromotionCatalog(const nlohmann::json& catalog);
+    void ingestPromotionManifest(const AssetPromotionManifest& manifest);
     void ingestDuplicateCsv(std::string_view csv_text);
     void addReferencedAsset(std::string path);
     void addUsageReference(std::string path, std::string owner_id);

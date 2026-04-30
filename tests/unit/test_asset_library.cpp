@@ -1,10 +1,76 @@
 #include "engine/core/assets/asset_action_view.h"
 #include "engine/core/assets/asset_library.h"
+#include "engine/core/assets/asset_promotion_manifest.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
 #include <algorithm>
+
+TEST_CASE("AssetPromotionManifest round-trips runtime-ready promoted asset", "[assets][promotion]") {
+    urpg::assets::AssetPromotionManifest manifest;
+    manifest.schemaVersion = "1.0.0";
+    manifest.assetId = "asset.hero.walk";
+    manifest.sourcePath = "imports/raw/example/hero.png";
+    manifest.promotedPath = "resources/assets/characters/hero.png";
+    manifest.licenseId = "BND-001";
+    manifest.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+    manifest.preview.kind = "image";
+    manifest.preview.thumbnailPath = "resources/previews/hero.thumb.png";
+    manifest.preview.width = 48;
+    manifest.preview.height = 48;
+    manifest.package.includeInRuntime = true;
+
+    const auto json = urpg::assets::serializeAssetPromotionManifest(manifest);
+    const auto loaded = urpg::assets::deserializeAssetPromotionManifest(json);
+
+    REQUIRE(loaded.assetId == manifest.assetId);
+    REQUIRE(loaded.status == urpg::assets::AssetPromotionStatus::RuntimeReady);
+    REQUIRE(loaded.package.includeInRuntime);
+    REQUIRE(loaded.diagnostics.empty());
+}
+
+TEST_CASE("AssetPromotionManifest validates package and readiness blockers", "[assets][promotion]") {
+    auto missingLicense = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.hero.walk"},
+        {"sourcePath", "imports/raw/example/hero.png"},
+        {"promotedPath", "resources/assets/characters/hero.png"},
+        {"status", "runtime_ready"},
+        {"preview", {{"kind", "image"}, {"thumbnailPath", "resources/previews/hero.thumb.png"}}},
+        {"package", {{"includeInRuntime", true}}},
+        {"diagnostics", nlohmann::json::array()},
+    });
+    REQUIRE(std::find(missingLicense.diagnostics.begin(), missingLicense.diagnostics.end(),
+                      "license_evidence_missing") != missingLicense.diagnostics.end());
+
+    auto missingPromotedPath = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.hero.walk"},
+        {"sourcePath", "imports/raw/example/hero.png"},
+        {"licenseId", "BND-001"},
+        {"status", "runtime_ready"},
+        {"preview", {{"kind", "pending"}}},
+        {"package", {{"includeInRuntime", true}}},
+        {"diagnostics", nlohmann::json::array()},
+    });
+    REQUIRE(std::find(missingPromotedPath.diagnostics.begin(), missingPromotedPath.diagnostics.end(),
+                      "promoted_path_missing") != missingPromotedPath.diagnostics.end());
+
+    auto archivedPackaged = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.hero.walk.copy"},
+        {"sourcePath", "imports/raw/example/hero-copy.png"},
+        {"promotedPath", "resources/assets/characters/hero-copy.png"},
+        {"licenseId", "BND-001"},
+        {"status", "archived"},
+        {"preview", {{"kind", "none"}}},
+        {"package", {{"includeInRuntime", true}, {"requiredForRelease", true}}},
+        {"diagnostics", nlohmann::json::array()},
+    });
+    REQUIRE(std::find(archivedPackaged.diagnostics.begin(), archivedPackaged.diagnostics.end(),
+                      "archived_asset_packaged") != archivedPackaged.diagnostics.end());
+}
 
 TEST_CASE("AssetLibrary ingests duplicate groups deterministically", "[assets][asset_library]") {
     urpg::assets::AssetLibrary library;
@@ -422,4 +488,102 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE((*sequencePreview)["sequence"]["frame_count"] == 1200);
     REQUIRE((*sequencePreview)["sequence"]["sequence_count"] == 18);
     REQUIRE((*sequencePreview)["thumbnail"]["ready"] == true);
+}
+
+TEST_CASE("AssetLibrary action rows expose governed promotion manifests", "[assets][promotion][asset_library]") {
+    urpg::assets::AssetLibrary library;
+
+    auto ready = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.hero.walk"},
+        {"sourcePath", "imports/raw/example/hero.png"},
+        {"promotedPath", "resources/assets/characters/hero.png"},
+        {"licenseId", "BND-001"},
+        {"status", "runtime_ready"},
+        {"preview",
+         {{"kind", "image"}, {"thumbnailPath", "resources/previews/hero.thumb.png"}, {"width", 48}, {"height", 48}}},
+        {"package", {{"includeInRuntime", true}, {"requiredForRelease", false}}},
+        {"diagnostics", nlohmann::json::array()},
+    });
+    library.ingestPromotionManifest(ready);
+
+    auto missingLicense = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.unlicensed"},
+        {"sourcePath", "imports/raw/example/unlicensed.png"},
+        {"promotedPath", "resources/assets/characters/unlicensed.png"},
+        {"status", "runtime_ready"},
+        {"preview",
+         {{"kind", "image"},
+          {"thumbnailPath", "resources/previews/unlicensed.thumb.png"},
+          {"width", 48},
+          {"height", 48}}},
+        {"package", {{"includeInRuntime", true}}},
+        {"diagnostics", nlohmann::json::array()},
+    });
+    library.ingestPromotionManifest(missingLicense);
+
+    auto missingFile = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.missing"},
+        {"sourcePath", "imports/raw/example/missing.png"},
+        {"licenseId", "BND-001"},
+        {"status", "runtime_ready"},
+        {"preview", {{"kind", "pending"}}},
+        {"package", {{"includeInRuntime", true}}},
+        {"diagnostics", nlohmann::json::array()},
+    });
+    library.ingestPromotionManifest(missingFile);
+
+    auto archivedDuplicate = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.hero.copy"},
+        {"sourcePath", "imports/raw/example/hero-copy.png"},
+        {"promotedPath", "resources/assets/characters/hero-copy.png"},
+        {"licenseId", "BND-001"},
+        {"status", "archived"},
+        {"preview", {{"kind", "none"}}},
+        {"package", {{"includeInRuntime", true}, {"requiredForRelease", true}}},
+        {"diagnostics", nlohmann::json::array()},
+    });
+    library.ingestPromotionManifest(archivedDuplicate);
+
+    const auto rows = urpg::assets::buildAssetActionRows(library.snapshot());
+    REQUIRE(rows.size() == 4);
+
+    const auto promoted = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/example/hero.png";
+    });
+    REQUIRE(promoted != rows.end());
+    REQUIRE((*promoted)["recommended_action"] == "ready");
+    REQUIRE((*promoted)["promotion_status"] == "runtime_ready");
+    REQUIRE((*promoted)["promoted_path"] == "resources/assets/characters/hero.png");
+    REQUIRE((*promoted)["license_id"] == "BND-001");
+    REQUIRE((*promoted)["include_in_runtime"] == true);
+    REQUIRE((*promoted)["required_for_release"] == false);
+    REQUIRE((*promoted)["promotion_diagnostics"].empty());
+
+    const auto unlicensed = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/example/unlicensed.png";
+    });
+    REQUIRE(unlicensed != rows.end());
+    REQUIRE((*unlicensed)["recommended_action"] == "add_license_evidence");
+    REQUIRE((*unlicensed)["include_in_runtime"] == false);
+    REQUIRE((*unlicensed)["promotion_diagnostics"][0] == "license_evidence_missing");
+
+    const auto missing = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/example/missing.png";
+    });
+    REQUIRE(missing != rows.end());
+    REQUIRE((*missing)["recommended_action"] == "fix_missing_file");
+    REQUIRE((*missing)["include_in_runtime"] == false);
+
+    const auto archived = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/example/hero-copy.png";
+    });
+    REQUIRE(archived != rows.end());
+    REQUIRE((*archived)["recommended_action"] == "archived");
+    REQUIRE((*archived)["include_in_runtime"] == false);
+    REQUIRE((*archived)["required_for_release"] == false);
+    REQUIRE((*archived)["promotion_diagnostics"][0] == "archived_asset_packaged");
 }

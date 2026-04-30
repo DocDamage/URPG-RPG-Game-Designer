@@ -30,6 +30,15 @@ void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, con
     snapshot_.error_message = "";
 }
 
+void AssetLibraryModel::ingestPromotionManifest(const urpg::assets::AssetPromotionManifest& manifest) {
+    library_.ingestPromotionManifest(manifest);
+    rebuildCleanupPreview();
+    snapshot_.reports_loaded = true;
+    snapshot_.status = "ready";
+    snapshot_.status_message = "";
+    snapshot_.error_message = "";
+}
+
 namespace {
 
 void ingestCatalogWithShards(urpg::assets::AssetLibrary& library, const std::filesystem::path& reports_root,
