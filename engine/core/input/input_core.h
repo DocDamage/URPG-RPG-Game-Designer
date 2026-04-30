@@ -125,6 +125,8 @@ class InputCore {
         }
     }
 
+    void clearActionStates() { m_actionStates.clear(); }
+
     void addHandler(ActionHandler handler) { m_handlers.push_back(std::move(handler)); }
 
     bool hasMappingFor(int32_t keyCode, InputAction action) const {

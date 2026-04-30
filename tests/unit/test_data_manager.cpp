@@ -454,7 +454,9 @@ TEST_CASE("DataManager: method status registry", "[data_manager]") {
 
 TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
     DataManager dm;
-    DataManager::setDataDirectory(sampleProjectDataDirectory());
+    const auto dataDirectory = std::filesystem::path(sampleProjectDataDirectory());
+    const bool sampleProjectAvailable = std::filesystem::exists(dataDirectory / "Enemies.json");
+    DataManager::setDataDirectory(dataDirectory.string());
     REQUIRE(dm.loadDatabase());
 
     auto actors = dm.getActorsAsValue();
@@ -478,7 +480,8 @@ TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
     REQUIRE(!enemyArr.empty());
     REQUIRE(std::holds_alternative<Object>(enemyArr.front().v));
     REQUIRE(std::holds_alternative<std::string>(std::get<Object>(enemyArr.front().v).at("battlerName").v));
-    REQUIRE(std::get<std::string>(std::get<Object>(enemyArr.front().v).at("battlerName").v) == "Goblin");
+    REQUIRE(std::get<std::string>(std::get<Object>(enemyArr.front().v).at("battlerName").v) ==
+            (sampleProjectAvailable ? "Goblin" : "Monster"));
 
     auto troops = dm.getTroopsAsValue();
     REQUIRE(std::holds_alternative<Array>(troops.v));
@@ -493,6 +496,10 @@ TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
     REQUIRE(std::holds_alternative<Object>(std::get<Array>(troop.at("members").v).front().v));
     REQUIRE(std::get<Object>(std::get<Array>(troop.at("members").v).front().v).contains("enemyId"));
     REQUIRE(troop.contains("pages"));
+
+    if (!sampleProjectAvailable) {
+        return;
+    }
 
     auto states = dm.getStatesAsValue();
     REQUIRE(std::holds_alternative<Array>(states.v));

@@ -1,5 +1,7 @@
 {
-  "reportPath": "C:\\dev\\URPG Maker\\imports\\reports\\localization\\localization_consistency_report.json",
+  "errors": [],
+  "schemaPath": "C:\\dev\\URPG Maker\\content\\schemas\\localization_bundle.schema.json",
+  "generatedAtUtc": "2026-04-30T06:22:50.2989007Z",
   "summary": {
     "hasBundles": false,
     "bundleCount": 0,
@@ -8,11 +10,9 @@
     "missingKeyCount": 0,
     "extraKeyCount": 0
   },
+  "bundleRoot": "C:\\dev\\URPG Maker\\content\\localization",
   "status": "no_bundles",
-  "bundles": [],
-  "errors": [],
-  "schemaPath": "C:\\dev\\URPG Maker\\content\\schemas\\localization_bundle.schema.json",
   "schemaVersion": "1.0.0",
-  "generatedAtUtc": "2026-04-26T03:16:51.0535015Z",
-  "bundleRoot": "C:\\dev\\URPG Maker\\content\\localization"
+  "reportPath": "C:\\dev\\URPG Maker\\imports\\reports\\localization\\localization_consistency_report.json",
+  "bundles": []
 }

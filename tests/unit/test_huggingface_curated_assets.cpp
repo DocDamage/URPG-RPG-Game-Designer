@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 TEST_CASE("Hugging Face curated manifest and vendored fixtures stay aligned", "[assets][huggingface]") {
     const fs::path repoRoot = fs::path(URPG_SOURCE_DIR);
     const fs::path manifestPath = repoRoot / "tools" / "assets" / "huggingface_curated_manifest.json";
-    const fs::path readmePath = repoRoot / "third_party" / "huggingface" / "README.md";
+    const fs::path readmePath = repoRoot / "imports" / "raw" / "third_party_assets" / "huggingface" / "README.md";
 
     REQUIRE(fs::exists(manifestPath));
     REQUIRE(fs::exists(readmePath));

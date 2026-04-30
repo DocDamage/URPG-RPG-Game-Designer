@@ -89,9 +89,31 @@ class SceneManager {
 
     size_t stackSize() const { return m_stack.size(); }
 
+    void handleInput(const urpg::input::InputCore& input) {
+        if (!m_stack.empty() && !m_stack.back()->isPaused()) {
+            m_stack.back()->handleInput(input);
+        }
+    }
+
     void update(float deltaTime) {
         if (!m_stack.empty() && !m_stack.back()->isPaused()) {
             m_stack.back()->onUpdate(deltaTime);
+        }
+    }
+
+    void pauseActiveScene(urpg::input::InputCore* input = nullptr) {
+        if (m_stack.empty()) {
+            return;
+        }
+        m_stack.back()->setPaused(true);
+        if (input != nullptr) {
+            input->clearActionStates();
+        }
+    }
+
+    void resumeActiveScene() {
+        if (!m_stack.empty()) {
+            m_stack.back()->setPaused(false);
         }
     }
 

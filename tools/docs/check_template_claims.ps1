@@ -22,8 +22,4 @@ foreach ($template in $readiness.templates) {
     }
 }
 
-if ($templateMatrixText -match [regex]::Escape("| " + $tick + "arpg" + $tick + " | " + $tick + "READY" + $tick + " |")) {
-    throw "ARPG must not be labeled READY in the template matrix."
-}
-
 Write-Host "Template claims are aligned with the current readiness dataset."

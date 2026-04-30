@@ -97,8 +97,8 @@ class EngineShell {
         auto& sceneMgr = scene::SceneManager::getInstance();
         auto activeScene = sceneMgr.getActiveScene();
         if (activeScene) {
-            activeScene->handleInput(m_inputCore);
-            activeScene->onUpdate(dt);
+            sceneMgr.handleInput(m_inputCore);
+            sceneMgr.update(dt);
         }
         m_inputCore.endFrame();
 

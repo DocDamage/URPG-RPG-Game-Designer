@@ -1,6 +1,6 @@
 # Release Packaging
 
-Status Date: 2026-04-25
+Status Date: 2026-04-30
 
 This document records the native release packaging contract for URPG exports. It does not claim that production signing credentials are present in the repository.
 
@@ -100,6 +100,9 @@ Expected install tree:
     LICENSE
     CHANGELOG.md
     PRIVACY_POLICY.md
+    THIRD_PARTY_NOTICES.md
+    EULA.md
+    CREDITS.md
     release/
     templates/
   share/icons/hicolor/256x256/apps/
@@ -110,7 +113,20 @@ Expected install tree:
     urpg-editor.desktop
 ```
 
-Root legal documents that do not exist yet, such as `THIRD_PARTY_NOTICES.md`, `EULA.md`, and `CREDITS.md`, are installed automatically once created by the legal-documentation task.
+Root legal documents are required package contents. `README.md`, `LICENSE`, `CHANGELOG.md`, `PRIVACY_POLICY.md`, `THIRD_PARTY_NOTICES.md`, `EULA.md`, and `CREDITS.md` are installed with the `Docs` component and checked by install/package smoke. Their presence does not clear public-release legal status; `docs/APP_RELEASE_READINESS_MATRIX.md` and `docs/release/RELEASE_READINESS_MATRIX.md` remain authoritative for `PARTIAL` or `BLOCKED` legal-review gates.
+
+## Version Metadata
+
+Release configure writes the native version header from `cmake/urpg_version.h.in` to the build tree and CPack reads the same `PROJECT_VERSION` values for archive names and package metadata. On Windows, `resources/windows/urpg_runtime.rc.in` and `resources/windows/urpg_editor.rc.in` are the resource-version templates when resource compilation is enabled for a path-safe toolchain layout.
+
+Current release-build CLI evidence:
+
+```powershell
+.\build\dev-ninja-release\urpg_runtime.exe --version
+.\build\dev-ninja-release\urpg_editor.exe --version
+```
+
+Both commands report `0.1.0` for this checkpoint, matching `build/dev-ninja-release/generated/urpg_version.h` and CPack archive names such as `URPG-0.1.0-Windows-AMD64-Runtime.zip`.
 
 ## Install Smoke
 
@@ -130,6 +146,8 @@ The CI wrapper performs the same install layout checks and runtime launch:
 .\tools\ci\check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke
 ```
 
+Status on 2026-04-30: passed after the release runtime target was fixed to include the editor panel registry metadata required by AI knowledge/chatbot coverage.
+
 ## Native App Packages
 
 Native URPG app packages are produced with CPack from the install components above. See `docs/packaging.md` for the canonical command.
@@ -141,3 +159,33 @@ Package smoke:
 ```
 
 The package smoke gate rejects any archive containing `DevBootstrap` marker paths or bootstrap-only marker content, so release package archives cannot silently include export-packager smoke launchers.
+
+Status on 2026-04-30: passed and produced component ZIP archives for `Runtime`, `RuntimeData`, and `Docs`.
+
+## Release Asset Gate
+
+Release-required assets are checked before package promotion:
+
+```powershell
+.\tools\ci\check_release_required_assets.ps1
+```
+
+The gate validates the release asset block in `content/fixtures/project_governance_fixture.json`, promoted bundle rows under `imports/manifests/asset_bundles/`, app icons under `resources/icons/`, and repo-local promoted payloads under `imports/normalized/`. Required assets must resolve inside the repo, must not point at raw/vendor intake trees, must not be unresolved LFS pointers, and must carry license-cleared release metadata.
+
+The gate also writes an audit report:
+
+```text
+imports/reports/asset_intake/release_required_asset_report.json
+```
+
+That report classifies connected release assets and non-connected bundle rows. Current UI/audio release surfaces use explicit system fallback entries, while `BND-002` UI SFX remains `deferred` until an approved bundled audio asset is promoted.
+
+## Full Local Gate Status
+
+The release-surface remediation branch was verified with the full local gate:
+
+```powershell
+.\tools\ci\run_local_gates.ps1
+```
+
+Status on 2026-04-30: passed end to end. The gate covers waiver validation, doc/readiness/truth/governance checks, CMake completeness, debug and warnings-as-errors builds, PR tests, nightly tests, weekly compat tests, install smoke, package smoke, grid-part integration, and presentation release validation.

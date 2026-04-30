@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <map>
 #include <set>
 #include <string>
@@ -168,6 +169,12 @@ std::vector<std::filesystem::path> sourceFilesUnder(const std::filesystem::path&
     return files;
 }
 
+std::string readTextFile(const std::filesystem::path& path) {
+    std::ifstream input(path);
+    REQUIRE(input.good());
+    return std::string(std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>());
+}
+
 } // namespace
 
 TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][panel][registry]") {
@@ -186,6 +193,35 @@ TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][
     REQUIRE(patterns != nullptr);
     REQUIRE(patterns->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
     REQUIRE(patterns->title == "Pattern Field Editor");
+}
+
+TEST_CASE("Editor panel registry matches release control inventory canonical row",
+          "[editor][panel][registry][release]") {
+    const auto inventoryPath =
+        std::filesystem::path(URPG_SOURCE_DIR) / "docs" / "release" / "EDITOR_CONTROL_INVENTORY.md";
+    const auto inventory = readTextFile(inventoryPath);
+
+    const auto releaseRowStart = inventory.find("| `ReleaseTopLevel` |");
+    REQUIRE(releaseRowStart != std::string::npos);
+    const auto releaseRowEnd = inventory.find('\n', releaseRowStart);
+    const auto releaseRow = inventory.substr(releaseRowStart, releaseRowEnd - releaseRowStart);
+
+    for (const auto& id : CanonicalReleasePanelIds()) {
+        INFO(id);
+        REQUIRE(releaseRow.find("`" + id + "`") != std::string::npos);
+    }
+
+    for (const auto& entry : urpg::editor::editorPanelRegistry()) {
+        if (ContainsId(CanonicalReleasePanelIds(), entry.id)) {
+            continue;
+        }
+
+        INFO(entry.id);
+        REQUIRE(entry.exposure != urpg::editor::EditorPanelExposure::ReleaseTopLevel);
+        REQUIRE(releaseRow.find("`" + entry.id + "`") == std::string::npos);
+    }
+
+    REQUIRE(urpg::editor::requiredTopLevelPanelIds() == CanonicalReleasePanelIds());
 }
 
 TEST_CASE("Editor panel registry documents every hidden compiled panel", "[editor][panel][registry]") {
@@ -303,6 +339,7 @@ TEST_CASE("Editor panel registry classifies diagnostics and incubating workspace
     const auto* developerDebugOverlay = urpg::editor::findEditorPanelRegistryEntry("developer_debug_overlay");
     REQUIRE(developerDebugOverlay != nullptr);
     REQUIRE(developerDebugOverlay->exposure == urpg::editor::EditorPanelExposure::DevOnly);
+    REQUIRE(developerDebugOverlay->reason.find("Dev-only") != std::string::npos);
     REQUIRE_FALSE(ContainsId(urpg::editor::requiredTopLevelPanelIds(), "developer_debug_overlay"));
 
     const auto topLevel = urpg::editor::topLevelEditorPanels();

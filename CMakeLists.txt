@@ -637,6 +637,7 @@ foreach(_urpg_domain_sources IN ITEMS
 )
     list(REMOVE_ITEM URPG_RUNTIME_CORE_SOURCES ${${_urpg_domain_sources}})
 endforeach()
+list(APPEND URPG_RUNTIME_CORE_SOURCES engine/core/editor/editor_panel_registry.cpp)
 
 add_library(urpg_runtime_core_objects OBJECT ${URPG_RUNTIME_CORE_SOURCES})
 add_library(urpg_editor_core_objects OBJECT ${URPG_EDITOR_CORE_SOURCES})

@@ -1,10 +1,17 @@
+param(
+  [string]$ReportPath = ""
+)
+
 $ErrorActionPreference = "Stop"
 
 $repoRoot = [System.IO.Path]::GetFullPath((Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path)
 $manifestPath = Join-Path $repoRoot "content/fixtures/project_governance_fixture.json"
 $bundleRoot = Join-Path $repoRoot "imports/manifests/asset_bundles"
+$defaultReportPath = Join-Path $repoRoot "imports/reports/asset_intake/release_required_asset_report.json"
 $requiredSurfaces = @("title", "map", "battle", "ui", "audio", "icons", "fonts")
 $errors = New-Object System.Collections.Generic.List[string]
+$connectedAssets = New-Object System.Collections.Generic.List[object]
+$classifiedAssets = New-Object System.Collections.Generic.List[object]
 
 function Add-Error {
   param([string]$Message)
@@ -34,11 +41,72 @@ function Resolve-RepoPath {
   return [System.IO.Path]::GetFullPath((Join-Path $repoRoot $RelativePath))
 }
 
+$resolvedReportPath = if ([string]::IsNullOrWhiteSpace($ReportPath)) { $defaultReportPath } else { Resolve-RepoPath $ReportPath }
+
 function Test-RepoPathUnderRoot {
   param([string]$Path)
 
   $fullPath = Resolve-RepoPath $Path
   return $fullPath.StartsWith($repoRoot, [System.StringComparison]::OrdinalIgnoreCase)
+}
+
+function Add-ConnectedAsset {
+  param(
+    [string]$Id,
+    [string]$Surface,
+    [string]$Source,
+    [string]$Path,
+    [string]$Classification,
+    [string]$Notes
+  )
+
+  $script:connectedAssets.Add([ordered]@{
+    id = $Id
+    surface = $Surface
+    source = $Source
+    path = $Path
+    classification = $Classification
+    notes = $Notes
+  }) | Out-Null
+}
+
+function Add-ClassifiedAsset {
+  param(
+    [string]$Id,
+    [string]$Bundle,
+    [string]$Path,
+    [string]$Classification,
+    [string]$Reason
+  )
+
+  $script:classifiedAssets.Add([ordered]@{
+    id = $Id
+    bundle = $Bundle
+    path = $Path
+    classification = $Classification
+    reason = $Reason
+  }) | Out-Null
+}
+
+function Write-Report {
+  param([bool]$Passed)
+
+  $reportDir = Split-Path -Parent $resolvedReportPath
+  if (-not [string]::IsNullOrWhiteSpace($reportDir)) {
+    New-Item -ItemType Directory -Force -Path $reportDir | Out-Null
+  }
+
+  $report = [ordered]@{
+    schema = "urpg.release_required_asset_report.v1"
+    generatedAt = (Get-Date).ToUniversalTime().ToString("o")
+    passed = $Passed
+    requiredSurfaces = @($requiredSurfaces)
+    connectedAssets = @($connectedAssets.ToArray())
+    classifiedAssets = @($classifiedAssets.ToArray())
+    errors = @($errors.ToArray())
+  }
+
+  $report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $resolvedReportPath -Encoding UTF8
 }
 
 try {
@@ -71,8 +139,10 @@ if ($null -eq $manifest.releaseAssets) {
 
   foreach ($asset in @($releaseAssets.assets)) {
     if ($asset.required -ne $true) {
+      Add-ClassifiedAsset -Id $asset.id -Bundle $asset.bundleId -Path $asset.path -Classification "deferred" -Reason "Project release asset entry is not marked required."
       continue
     }
+    Add-ConnectedAsset -Id $asset.id -Surface $asset.surface -Source $asset.source -Path $asset.path -Classification "connected" -Notes $asset.notes
     if ($asset.licenseCleared -ne $true) {
       Add-Error "Required release asset '$($asset.id)' is not license-cleared."
     }
@@ -126,7 +196,18 @@ if (-not (Test-Path -LiteralPath $bundleRoot -PathType Container)) {
       Add-Error "Release-required bundle has no release-required asset rows: $($bundleFile.Name)"
     }
 
+    foreach ($asset in @($bundle.assets | Where-Object { $_.release_required -ne $true })) {
+      $classification = if ($asset.distribution -eq "source_only") { "source_only" } else { "deferred" }
+      $reason = if ($classification -eq "source_only") {
+        "Bundle asset is retained only as source/provenance material."
+      } else {
+        "Bundle asset is not connected to release-required surfaces."
+      }
+      Add-ClassifiedAsset -Id $asset.original_relative_path -Bundle $bundle.bundle_id -Path $asset.promoted_relative_path -Classification $classification -Reason $reason
+    }
+
     foreach ($asset in $releaseAssets) {
+      Add-ConnectedAsset -Id $asset.original_relative_path -Surface ($asset.release_surfaces -join ",") -Source "asset_bundle" -Path ("imports/normalized/" + $asset.promoted_relative_path) -Classification "connected" -Notes $asset.notes
       if ($bundle.bundle_state -ne "promoted" -or $asset.status -ne "promoted") {
         Add-Error "Release-required bundle asset must be promoted: $($bundleFile.Name) / $($asset.promoted_relative_path)"
       }
@@ -164,10 +245,13 @@ if (-not (Test-Path -LiteralPath $bundleRoot -PathType Container)) {
 }
 
 if ($errors.Count -gt 0) {
+  Write-Report -Passed $false
   foreach ($errorItem in $errors) {
     Write-Host $errorItem
   }
   exit 1
 }
 
+Write-Report -Passed $true
 Write-Host "Release-required asset validation passed."
+Write-Host "Release-required asset report written: $resolvedReportPath"

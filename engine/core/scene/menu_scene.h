@@ -33,6 +33,7 @@ class MenuScene : public GameScene {
 
     // Component accessors for the inspector
     const ui::MenuSceneGraph& getSceneGraph() const { return scene_graph_; }
+    ui::MenuSceneGraph& getSceneGraphMutable() { return scene_graph_; }
     const ui::MenuCommandRegistry& getRegistry() const { return registry_; }
 
   protected:

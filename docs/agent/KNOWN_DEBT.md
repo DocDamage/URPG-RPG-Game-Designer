@@ -13,6 +13,7 @@ This file is a pointer map, not the debt database.
 ## Current Agent Priorities
 
 - Prefer closing release-plan tasks over broad refactors.
+- Treat Phase 6 release-surface remediation as verified on the current branch: keep `.\tools\ci\run_local_gates.ps1` passing before widening release claims.
 - Treat `level_builder` as the native shippable map editor. Keep grid-part document editing, save/load/export, playtest, package readiness, diagnostics, and supporting spatial handoff coherent before adding parallel map-authoring surfaces.
 - Keep `spatial_authoring` nested/supporting unless a release owner explicitly changes the product hierarchy.
 - Enforce the WYSIWYG done rule: a subsystem is not done without visual authoring, live preview, saved project data, runtime execution, diagnostics, and tests.
@@ -22,6 +23,7 @@ This file is a pointer map, not the debt database.
 - Keep bootstrap/dev surfaces visibly marked as non-production.
 - Keep any future compat and migration limitations diagnostic-rich and documented; current public compat manager registries are closed for the claimed bridge scope.
 - Keep editor release navigation aligned with `docs/release/EDITOR_CONTROL_INVENTORY.md`.
+- Keep release-required asset checks, install smoke, package smoke, and native version metadata aligned with `README.md`, `docs/APP_RELEASE_READINESS_MATRIX.md`, and `docs/release/RELEASE_PACKAGING.md`.
 - Treat release authoring persistence as a guarded surface: ability draft IO must
   keep path-specific `last_io` diagnostics, failed loads must preserve the last
   valid draft, and Level Builder load/export safeguards must keep rejecting

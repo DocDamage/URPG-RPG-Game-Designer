@@ -1979,7 +1979,24 @@ TEST_CASE(
     REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
 
     const auto panelRuntimeEvents = panel.getModel().getPluginEvents("MixedChainRuntimeFixture");
-    REQUIRE(panelRuntimeEvents.size() == 31);
+    REQUIRE(panelRuntimeEvents.size() == 39);
+    const auto panelRuntimeExecutionEvents = std::count_if(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.methodName == "execute_command" &&
+             event.severity == urpg::editor::CompatEvent::Severity::INFO;
+      }
+    );
+    REQUIRE(panelRuntimeExecutionEvents == 8);
+    const auto panelRuntimeFailureEvents = std::count_if(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.severity != urpg::editor::CompatEvent::Severity::INFO;
+      }
+    );
+    REQUIRE(panelRuntimeFailureEvents == 31);
     const auto hasArgResolverMessage = std::any_of(
       panelRuntimeEvents.begin(),
       panelRuntimeEvents.end(),

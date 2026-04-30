@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include "engine/core/input/input_core.h"
+#include "engine/core/input/input_remap_profile.h"
 
 using namespace urpg::input;
 
@@ -79,4 +80,31 @@ TEST_CASE("InputCore: Key Mapping and Action Processing", "[input][core]") {
         REQUIRE_FALSE(input.isActionJustPressed(InputAction::Confirm));
         REQUIRE(pressedEvents == 1);
     }
+}
+
+TEST_CASE("InputCore clears stale action state during pause transitions", "[input][core][pause]") {
+    InputCore input;
+
+    input.updateActionState(InputAction::Confirm, ActionState::Pressed);
+    REQUIRE(input.isActionJustPressed(InputAction::Confirm));
+
+    input.clearActionStates();
+    REQUIRE_FALSE(input.isActionActive(InputAction::Confirm));
+    REQUIRE_FALSE(input.isActionJustPressed(InputAction::Confirm));
+    REQUIRE_FALSE(input.isActionJustReleased(InputAction::Confirm));
+}
+
+TEST_CASE("InputRemapProfile reports unsupported touch bindings explicitly", "[input][core][controller][touch]") {
+    InputRemapProfile profile;
+
+    const auto keyboard = profile.validateBinding({"keyboard", "Enter"}, InputAction::Confirm, false);
+    REQUIRE(keyboard.accepted);
+
+    const auto controller = profile.validateBinding({"controller", "FaceBottom"}, InputAction::Confirm, false);
+    REQUIRE(controller.accepted);
+
+    const auto touch = profile.validateBinding({"touch", "tap"}, InputAction::Confirm, false);
+    REQUIRE_FALSE(touch.accepted);
+    REQUIRE(touch.code == "touch_binding_unsupported");
+    REQUIRE_FALSE(touch.message.empty());
 }

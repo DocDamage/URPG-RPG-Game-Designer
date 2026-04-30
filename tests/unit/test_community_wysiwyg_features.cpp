@@ -123,6 +123,12 @@ TEST_CASE("Community WYSIWYG feature-specific commands match researched RPG Make
 
 TEST_CASE("Developer debug overlay is gated to dev mode",
           "[community][wysiwyg][features]") {
+    const auto* registryEntry = urpg::editor::findEditorPanelRegistryEntry("developer_debug_overlay");
+    REQUIRE(registryEntry != nullptr);
+    REQUIRE(registryEntry->exposure == urpg::editor::EditorPanelExposure::DevOnly);
+    const auto releaseIds = urpg::editor::requiredTopLevelPanelIds();
+    REQUIRE(std::find(releaseIds.begin(), releaseIds.end(), "developer_debug_overlay") == releaseIds.end());
+
     const auto document = urpg::community::CommunityWysiwygFeatureDocument::fromJson(loadFixture("developer_debug_overlay"));
 
     urpg::community::CommunityFeatureRuntimeState locked_state;

@@ -1,6 +1,6 @@
 # URPG Native Packaging
 
-Status Date: 2026-04-26
+Status Date: 2026-04-30
 
 This document defines the canonical native app package path for URPG. It packages the URPG runtime/editor applications. It does not replace the game export packager documented in `docs/release/RELEASE_PACKAGING.md`.
 
@@ -38,7 +38,9 @@ Use the package smoke wrapper after configuring the release build tree:
 .\tools\ci\check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke
 ```
 
-The smoke check runs CPack, verifies component archives exist, and checks that the required executable, runtime-data, and legal-document paths are present in the produced archives.
+The smoke check runs CPack, verifies component archives exist, and checks that the required executable, runtime-data, icon, desktop-entry, and legal-document paths are present in the produced archives. It also rejects DevBootstrap marker paths/content so local export-smoke launchers cannot slip into native app packages.
+
+Status on 2026-04-30: passed against `build/dev-ninja-release` and produced `Runtime`, `RuntimeData`, and `Docs` component ZIP archives with version `0.1.0`.
 
 ## Release Limits
 

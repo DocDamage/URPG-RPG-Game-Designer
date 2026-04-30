@@ -4,6 +4,7 @@
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/scene/map_loader.h"
 #include "engine/core/scene/map_scene.h"
+#include "engine/core/scene/menu_scene.h"
 #include "engine/core/scene/movement_authority.h"
 #include "engine/core/scene/options_scene.h"
 #include "engine/core/scene/runtime_title_scene.h"
@@ -691,10 +692,16 @@ class MockScene : public GameScene {
     void onStart() override { m_startCount++; }
     void onStop() override { m_stopCount++; }
     void onUpdate(float /*dt*/) override { m_updateCount++; }
+    void handleInput(const urpg::input::InputCore& input) override {
+        if (input.isActionJustPressed(urpg::input::InputAction::Confirm)) {
+            m_inputCount++;
+        }
+    }
 
     int m_startCount = 0;
     int m_stopCount = 0;
     int m_updateCount = 0;
+    int m_inputCount = 0;
 
   private:
     SceneType m_type;
@@ -753,6 +760,77 @@ TEST_CASE("SceneManager: Basic Lifecycle & Stack", "[scene][core]") {
         REQUIRE(map->m_updateCount == 1);
         REQUIRE(title->m_updateCount == 0);
     }
+}
+
+TEST_CASE("SceneManager pause and resume preserve stack and clear stale input edges",
+          "[scene][core][input][pause]") {
+    SceneManager manager;
+    auto title = std::make_shared<MockScene>(SceneType::TITLE, "TitleScreen");
+    auto map = std::make_shared<MockScene>(SceneType::MAP, "Overworld");
+    manager.gotoScene(title);
+    manager.pushScene(map);
+
+    urpg::input::InputCore input;
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    REQUIRE(input.isActionJustPressed(urpg::input::InputAction::Confirm));
+
+    manager.pauseActiveScene(&input);
+    REQUIRE(manager.stackSize() == 2);
+    REQUIRE(manager.getActiveScene() == map);
+    REQUIRE(map->isPaused());
+    REQUIRE_FALSE(input.isActionActive(urpg::input::InputAction::Confirm));
+
+    manager.handleInput(input);
+    manager.update(0.016f);
+    REQUIRE(map->m_inputCount == 0);
+    REQUIRE(map->m_updateCount == 0);
+
+    manager.resumeActiveScene();
+    REQUIRE_FALSE(map->isPaused());
+
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    manager.handleInput(input);
+    manager.update(0.016f);
+    REQUIRE(map->m_inputCount == 1);
+    REQUIRE(map->m_updateCount == 1);
+    REQUIRE(manager.stackSize() == 2);
+}
+
+TEST_CASE("MenuScene routes runtime confirm and cancel input through the native menu graph",
+          "[scene][menu][input]") {
+    MenuScene runtimeMenu("RuntimeMenu");
+    auto graphScene = std::make_shared<urpg::ui::MenuScene>("root");
+
+    urpg::MenuCommandMeta command;
+    command.id = "open_items";
+    command.label = "Items";
+    command.route = urpg::MenuRouteTarget::Item;
+
+    urpg::ui::MenuPane pane;
+    pane.id = "commands";
+    pane.isActive = true;
+    pane.commands = {command};
+    graphScene->addPane(pane);
+
+    auto& graph = runtimeMenu.getSceneGraphMutable();
+    graph.registerScene(graphScene);
+    graph.pushScene("root");
+
+    urpg::input::InputCore input;
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    runtimeMenu.handleInput(input);
+
+    REQUIRE(graph.getLastBlockedCommandId() == "open_items");
+    REQUIRE(graph.getLastBlockedReason() == "Route resolver unavailable.");
+
+    input.endFrame();
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Released);
+    input.endFrame();
+    input.updateActionState(urpg::input::InputAction::Cancel, urpg::input::ActionState::Pressed);
+    graph.setAllowRootCancelPop(true);
+    runtimeMenu.handleInput(input);
+
+    REQUIRE(graph.stackSize() == 0);
 }
 
 TEST_CASE("RuntimeTitleScene exposes startup commands with explicit disabled states", "[scene][runtime][title]") {

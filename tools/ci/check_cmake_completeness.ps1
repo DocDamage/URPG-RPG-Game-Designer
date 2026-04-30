@@ -52,7 +52,42 @@ function Get-TargetFiles {
     return $files
 }
 
-$coreFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_core"
+function Get-SetFiles {
+    param(
+        [string]$content,
+        [string]$variableName
+    )
+    $pattern = '(?s)set\(\s*' + [regex]::Escape($variableName) + '\b\s+((?:[^)]+\n?)+)\)'
+    $match = [regex]::Match($content, $pattern)
+    if (-not $match.Success) {
+        return @()
+    }
+    $block = $match.Groups[1].Value
+    $lines = $block -split "`r?`n"
+    $files = @()
+    foreach ($line in $lines) {
+        $trimmed = $line.Trim()
+        if ([string]::IsNullOrWhiteSpace($trimmed) -or $trimmed.StartsWith('#')) {
+            continue
+        }
+        $commentIndex = $trimmed.IndexOf('#')
+        if ($commentIndex -ge 0) {
+            $trimmed = $trimmed.Substring(0, $commentIndex).Trim()
+        }
+        if ([string]::IsNullOrWhiteSpace($trimmed)) {
+            continue
+        }
+        if ($trimmed -match ':(?<path>[^:<>]+\.(?:c|cc|cxx|cpp|h|hpp))>$') {
+            $trimmed = $matches["path"]
+        }
+        if ($trimmed -match '^(?<path>[^$<>"'']+\.(?:c|cc|cxx|cpp|h|hpp))$') {
+            $files += (Normalize-Path $matches["path"])
+        }
+    }
+    return $files
+}
+
+$coreFiles = Get-SetFiles -content $cmakeContent -variableName "URPG_CORE_SOURCES"
 $testFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_tests"
 $integrationFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_integration_tests"
 $snapshotFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_snapshot_tests"

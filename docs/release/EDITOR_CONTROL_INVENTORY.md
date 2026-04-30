@@ -54,6 +54,16 @@ Phase 4 verifies release authoring actions through deterministic round-trip test
 - Analytics consent/settings and local JSONL export paths are covered by `tests/unit/test_analytics_panel.cpp` and `tests/unit/test_app_settings_store.cpp`.
 - Optional external RPG Maker sample data tests fall back to seeded DataManager contracts when the sample project files are not present.
 
+## Release Input And Pause Evidence
+
+Phase 4 input checks keep runtime/editor navigation behavior explicit:
+
+- Runtime startup maps keyboard confirm, cancel, and menu inputs through `RuntimeStartupServices`; controller defaults bind movement, confirm, cancel, and menu through `ControllerBindingRuntime`.
+- Title and options scenes handle the same confirm/cancel/navigation action edges; map confirm routes authored interaction abilities and dialogue fallback.
+- Native `MenuScene` forwards confirm, cancel, and directional actions into `MenuSceneGraph`, so runtime menus no longer silently ignore input.
+- `SceneManager` suppresses active-scene input and update while paused, preserves the scene stack, and can clear stale `InputCore` action edges during pause.
+- Touch remaps return `touch_binding_unsupported`; touch remains supported through hit-test driven UI/world paths rather than the action remap profile.
+
 ## Search Command
 
 ```powershell
@@ -94,5 +104,6 @@ rg -n "ImGui::(Button|MenuItem|Checkbox|Combo|Selectable|Slider|Drag)" editor
 - `ctest --preset dev-all -R "Ability|Pattern|Analytics|MenuInspector" --output-on-failure`
 - `ctest --preset dev-all -R "AI (knowledge|task|tool|assistant)|Chatbot component" --output-on-failure`
 - `ctest --preset dev-all -R "settings|persistence|save|load|grid_part|Ability" --output-on-failure`
+- `ctest --preset dev-all -R "startup|settings|input|SceneManager|RuntimeTitleScene" --output-on-failure`
 
 Manual graphical verification in `urpg_editor` remains required for visual tooltip affordance, because headless tests validate the disabled-state contract but do not hover controls.

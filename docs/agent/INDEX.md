@@ -12,6 +12,7 @@ This directory is the agent-facing map for URPG. It points to canonical files ra
 | Current release gaps and debt | `docs/agent/KNOWN_DEBT.md` |
 | Current release execution tasks | `docs/release/AAA_RELEASE_EXECUTION_PLAN.md` |
 | Current release-surface audit tasks | `docs/superpowers/plans/2026-04-30-release-surface-audit-execution-plan.md` |
+| Current verified app-release status | `README.md`, `docs/APP_RELEASE_READINESS_MATRIX.md` |
 
 ## Canonical Status
 
@@ -19,6 +20,7 @@ This directory is the agent-facing map for URPG. It points to canonical files ra
 - Technical debt: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Native feature roadmap: `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - Release readiness matrix: `docs/release/RELEASE_READINESS_MATRIX.md`
+- App release readiness matrix: `docs/APP_RELEASE_READINESS_MATRIX.md`
 - Editor control inventory: `docs/release/EDITOR_CONTROL_INVENTORY.md`
 - Native map editor status: `README.md`, `docs/release/EDITOR_CONTROL_INVENTORY.md`, and `tests/unit/test_grid_part_editor.cpp`
 - Release authoring persistence status: `docs/release/EDITOR_CONTROL_INVENTORY.md`,

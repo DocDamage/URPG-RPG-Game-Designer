@@ -1,0 +1,98 @@
+{
+  "schema": "urpg.release_required_asset_report.v1",
+  "generatedAt": "2026-04-30T05:10:35.6317583Z",
+  "passed": true,
+  "requiredSurfaces": [
+    "title",
+    "map",
+    "battle",
+    "ui",
+    "audio",
+    "icons",
+    "fonts"
+  ],
+  "connectedAssets": [
+    {
+      "id": "release.prototype_actor.title",
+      "surface": "title",
+      "source": "asset_bundle",
+      "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+      "classification": "connected",
+      "notes": "Bounded title/startup visual proof asset."
+    },
+    {
+      "id": "release.prototype_actor.map",
+      "surface": "map",
+      "source": "asset_bundle",
+      "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+      "classification": "connected",
+      "notes": "Bounded map-scene player placeholder asset."
+    },
+    {
+      "id": "release.prototype_actor.battle",
+      "surface": "battle",
+      "source": "asset_bundle",
+      "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+      "classification": "connected",
+      "notes": "Bounded battle actor/enemy placeholder asset."
+    },
+    {
+      "id": "release.ui.silent_feedback_policy",
+      "surface": "ui",
+      "source": "system_fallback",
+      "path": "",
+      "classification": "connected",
+      "notes": "Current release ships without bundled UI SFX; controls remain silent instead of depending on ignored or LFS-only WAV files."
+    },
+    {
+      "id": "release.audio.muted_fallback",
+      "surface": "audio",
+      "source": "system_fallback",
+      "path": "",
+      "classification": "connected",
+      "notes": "Audio release surface is satisfied by explicit muted fallback until a non-LFS release audio asset is approved."
+    },
+    {
+      "id": "release.icon.editor",
+      "surface": "icons",
+      "source": "repo_resource",
+      "path": "resources/icons/urpg_editor.png",
+      "classification": "connected",
+      "notes": "Editor application icon required by release package layout."
+    },
+    {
+      "id": "release.icon.runtime",
+      "surface": "icons",
+      "source": "repo_resource",
+      "path": "resources/icons/urpg_runtime.png",
+      "classification": "connected",
+      "notes": "Runtime application icon required by release package layout."
+    },
+    {
+      "id": "release.font.system_ui",
+      "surface": "fonts",
+      "source": "system_fallback",
+      "path": "",
+      "classification": "connected",
+      "notes": "Current release uses platform/system text rendering; no raw vendor font pack is required."
+    },
+    {
+      "id": "characters/blue.svg",
+      "surface": "title,map,battle",
+      "source": "asset_bundle",
+      "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+      "classification": "connected",
+      "notes": "First governed visual proof asset for editor/runtime/export smoke coverage."
+    }
+  ],
+  "classifiedAssets": [
+    {
+      "id": "addons/kenney_interface_sounds/click_001.wav",
+      "bundle": "BND-002",
+      "path": "ui_sfx/kenney_click_001.wav",
+      "classification": "deferred",
+      "reason": "Bundle asset is not connected to release-required surfaces."
+    }
+  ],
+  "errors": []
+}

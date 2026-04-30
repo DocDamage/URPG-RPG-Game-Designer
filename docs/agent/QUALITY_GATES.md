@@ -10,6 +10,7 @@ Use the narrowest command that covers the changed surface. If a release plan spe
 | --- | --- |
 | General PR-level changes | `ctest --preset dev-all -L pr --output-on-failure` or `ctest -L pr --output-on-failure` from the build dir |
 | Runtime startup/settings/input | `ctest --preset dev-all -R "startup|settings|input" --output-on-failure` |
+| Runtime input, pause/resume, and title/menu navigation | `ctest --preset dev-all -R "startup|settings|input|SceneManager|RuntimeTitleScene" --output-on-failure` |
 | Map scene/render assets | `ctest --preset dev-all -R "MapScene|AssetLoader|Runtime map asset" --output-on-failure` |
 | Battle assets/authoring | `ctest --preset dev-all -R "battle.*assets|battle.*authoring" --output-on-failure` |
 | Compat JS / WindowCompat / plugin fixtures | `ctest -L weekly --output-on-failure` |
@@ -19,7 +20,10 @@ Use the narrowest command that covers the changed surface. If a release plan spe
 | Native Level Builder / grid-part editor | `.\build\dev-ninja-debug\urpg_tests.exe "[grid_part][editor]"`; then `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure` |
 | Grid-part runtime/compiler/package governance | `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure` |
 | Release authoring persistence / save-load paths | `ctest --preset dev-all -R "settings|persistence|save|load|grid_part|Ability" --output-on-failure` |
+| Release-required assets | `.\tools\ci\check_release_required_assets.ps1`; then `ctest --preset dev-all -R "AssetLoader|Runtime map asset|preflight|asset" --output-on-failure` |
+| Release-surface regression tests | `ctest --test-dir build\dev-ninja-debug -R "Editor panel registry|editor app panels|Community WYSIWYG|curated save-data lifecycle" --output-on-failure` |
 | WYSIWYG readiness/done-rule changes | `ctest --preset dev-all -R "WYSIWYG|readiness_status" --output-on-failure` |
+| Native version metadata | `.\build\dev-ninja-release\urpg_runtime.exe --version`; then `.\build\dev-ninja-release\urpg_editor.exe --version` |
 | Native package layout | `.\tools\ci\check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke` |
 | Full local gate | `.\tools\ci\run_local_gates.ps1` |
 

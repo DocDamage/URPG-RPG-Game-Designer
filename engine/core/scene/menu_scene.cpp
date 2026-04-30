@@ -21,10 +21,27 @@ void MenuScene::onUpdate(float deltaTime) {
 }
 
 void MenuScene::handleInput(const urpg::input::InputCore& input) {
-    (void)input;
     if (m_isPaused)
         return;
-    // Process navigation and command routing.
+
+    if (input.isActionJustPressed(urpg::input::InputAction::MoveUp)) {
+        scene_graph_.handleInput(urpg::input::InputAction::MoveUp, urpg::input::ActionState::Pressed);
+    }
+    if (input.isActionJustPressed(urpg::input::InputAction::MoveDown)) {
+        scene_graph_.handleInput(urpg::input::InputAction::MoveDown, urpg::input::ActionState::Pressed);
+    }
+    if (input.isActionJustPressed(urpg::input::InputAction::MoveLeft)) {
+        scene_graph_.handleInput(urpg::input::InputAction::MoveLeft, urpg::input::ActionState::Pressed);
+    }
+    if (input.isActionJustPressed(urpg::input::InputAction::MoveRight)) {
+        scene_graph_.handleInput(urpg::input::InputAction::MoveRight, urpg::input::ActionState::Pressed);
+    }
+    if (input.isActionJustPressed(urpg::input::InputAction::Confirm)) {
+        scene_graph_.handleInput(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    }
+    if (input.isActionJustPressed(urpg::input::InputAction::Cancel)) {
+        scene_graph_.handleInput(urpg::input::InputAction::Cancel, urpg::input::ActionState::Pressed);
+    }
 }
 
 void MenuScene::draw(urpg::SpriteBatcher& batcher) {

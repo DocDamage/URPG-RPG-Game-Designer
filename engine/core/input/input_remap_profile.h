@@ -15,6 +15,7 @@ struct InputBindingToken {
 struct BindingValidation {
     bool accepted{false};
     std::string code;
+    std::string message;
 };
 
 struct InputProfileBinding {

@@ -18,6 +18,7 @@
 #include <fstream>
 #include <string_view>
 #include <thread>
+#include <utility>
 
 using namespace urpg::editor;
 using namespace urpg::compat;
@@ -33,6 +34,13 @@ void writeTextFile(const std::filesystem::path& path, std::string_view contents)
     std::ofstream out(path, std::ios::binary);
     REQUIRE(out.is_open());
     out << contents;
+}
+
+PluginInfo makePluginInfo(std::string name) {
+    PluginInfo info;
+    info.name = std::move(name);
+    info.version = "1.0";
+    return info;
 }
 
 } // namespace
@@ -694,6 +702,71 @@ TEST_CASE("CompatReportPanel - Refresh ingests PluginManager diagnostics artifac
     REQUIRE(pluginManager.exportFailureDiagnosticsJsonl().empty());
 
     pluginManager.clearFailureDiagnostics();
+    pluginManager.unloadAllPlugins();
+}
+
+TEST_CASE("CompatReportPanel - curated save-data lifecycle keeps execution and failure buckets separate",
+          "[compat][panel][integration]") {
+    auto& pluginManager = urpg::compat::PluginManager::instance();
+    pluginManager.unloadAllPlugins();
+    pluginManager.clearExecutionDiagnostics();
+    pluginManager.clearFailureDiagnostics();
+
+    constexpr const char* kPlugin = "CGMZ_MenuCommandWindow";
+    REQUIRE(pluginManager.registerPlugin(makePluginInfo(kPlugin)));
+
+    const std::vector<std::string> validCommands = {
+        "addSaveCommand",
+        "addLoadCommand",
+        "addContinueCommand",
+        "addOptionsCommand",
+    };
+    for (const auto& command : validCommands) {
+        REQUIRE(pluginManager.registerCommand(kPlugin, command, [](const std::vector<urpg::Value>&) -> urpg::Value {
+            return urpg::Value();
+        }));
+        pluginManager.executeCommand(kPlugin, command, {});
+    }
+
+    pluginManager.executeCommand(kPlugin, "missingSaveCommand", {});
+    pluginManager.executeCommand(kPlugin, "missingLoadCommand", {});
+
+    REQUIRE_FALSE(pluginManager.exportExecutionDiagnosticsJsonl().empty());
+    REQUIRE_FALSE(pluginManager.exportFailureDiagnosticsJsonl().empty());
+
+    CompatReportPanel panel;
+    panel.refresh();
+
+    const auto& model = panel.getModel();
+    const auto warningEvents = model.getEventsBySeverity(CompatEvent::Severity::WARNING);
+    REQUIRE(warningEvents.size() == 2);
+    for (const auto& event : warningEvents) {
+        REQUIRE(event.pluginId == kPlugin);
+        REQUIRE(event.severity == CompatEvent::Severity::WARNING);
+        REQUIRE(event.methodName == "execute_command");
+    }
+
+    const auto allEvents = model.getRecentEvents(10);
+    REQUIRE(allEvents.size() == 6);
+
+    const auto summary = model.getPluginSummary(kPlugin);
+    REQUIRE(summary.fullCount == validCommands.size());
+    REQUIRE(summary.partialCount == 1);
+    REQUIRE(summary.warningCount == 1);
+    REQUIRE(summary.unsupportedCount == 0);
+    REQUIRE(summary.errorCount == 0);
+
+    const auto calls = model.getPluginCalls(kPlugin);
+    const auto missingCall = std::find_if(calls.begin(), calls.end(), [](const CompatCallRecord& call) {
+        return call.className == "PluginManager" && call.methodName == "execute_command";
+    });
+    REQUIRE(missingCall != calls.end());
+    REQUIRE(missingCall->callCount == 2);
+    REQUIRE(missingCall->status == CompatStatus::PARTIAL);
+
+    REQUIRE(pluginManager.exportExecutionDiagnosticsJsonl().empty());
+    REQUIRE(pluginManager.exportFailureDiagnosticsJsonl().empty());
+
     pluginManager.unloadAllPlugins();
 }
 

@@ -1125,7 +1125,8 @@ TEST_CASE("Project audit CLI exposes structured signoff contract state for gover
     REQUIRE(battleArtifact.contains("signoffContract"));
     REQUIRE(battleArtifact["signoffContract"]["required"] == true);
     REQUIRE(battleArtifact["signoffContract"]["artifactPath"] == "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md");
-    REQUIRE(battleArtifact["signoffContract"]["promotionRequiresHumanReview"] == true);
+    REQUIRE(battleArtifact["signoffContract"]["promotionRequiresHumanReview"] == false);
+    REQUIRE(battleArtifact["signoffContract"]["reviewStatus"] == "APPROVED");
     REQUIRE(battleArtifact["signoffContract"]["workflow"] == "docs/RELEASE_SIGNOFF_WORKFLOW.md");
     REQUIRE(battleArtifact["signoffContract"]["contractOk"] == true);
 }
