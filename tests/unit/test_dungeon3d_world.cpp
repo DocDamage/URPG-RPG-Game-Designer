@@ -590,14 +590,18 @@ TEST_CASE("3D dungeon world persists visual verification and template bindings",
     }));
 }
 
-TEST_CASE("3D dungeon world is release registered with promoted spatial authoring", "[dungeon3d][wysiwyg]") {
+TEST_CASE("3D dungeon world is release registered with native level building", "[dungeon3d][wysiwyg]") {
     const auto* dungeon = urpg::editor::findEditorPanelRegistryEntry("3d_dungeon_world");
     REQUIRE(dungeon != nullptr);
     REQUIRE(dungeon->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
 
+    const auto* levelBuilder = urpg::editor::findEditorPanelRegistryEntry("level_builder");
+    REQUIRE(levelBuilder != nullptr);
+    REQUIRE(levelBuilder->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
+
     const auto* spatial = urpg::editor::findEditorPanelRegistryEntry("spatial_authoring");
     REQUIRE(spatial != nullptr);
-    REQUIRE(spatial->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
+    REQUIRE(spatial->exposure == urpg::editor::EditorPanelExposure::Nested);
 }
 
 TEST_CASE("3D dungeon world reports broken authoring diagnostics", "[dungeon3d][wysiwyg]") {

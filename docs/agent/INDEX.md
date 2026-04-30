@@ -19,11 +19,13 @@ This directory is the agent-facing map for URPG. It points to canonical files ra
 - Native feature roadmap: `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - Release readiness matrix: `docs/release/RELEASE_READINESS_MATRIX.md`
 - Editor control inventory: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Native map editor status: `README.md`, `docs/release/EDITOR_CONTROL_INVENTORY.md`, and `tests/unit/test_grid_part_editor.cpp`
 
 ## Domain Docs
 
 - Architecture decisions: `docs/adr/`
 - Presentation runtime: `docs/presentation/`
+- Native Level Builder and grid-part authoring: `editor/spatial/level_builder_workspace.*`, `engine/core/map/grid_part_*`, `content/schemas/grid_part_*.schema.json`
 - Export and packaging: `docs/release/RELEASE_PACKAGING.md`
 - Asset intake and promotion: `docs/asset_intake/`
 - Template governance: `docs/templates/`, `docs/governance/`

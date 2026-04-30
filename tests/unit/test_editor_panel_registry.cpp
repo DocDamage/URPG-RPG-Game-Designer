@@ -163,7 +163,7 @@ TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][
     REQUIRE(ContainsId(ids, "monster_collection"));
     REQUIRE(ContainsId(ids, "npc"));
     REQUIRE(ContainsId(ids, "metroidvania_gates"));
-    REQUIRE(ContainsId(ids, "spatial_authoring"));
+    REQUIRE(ContainsId(ids, "level_builder"));
 
     const auto* patterns = urpg::editor::findEditorPanelRegistryEntry("patterns");
     REQUIRE(patterns != nullptr);
@@ -200,9 +200,13 @@ TEST_CASE("Editor panel registry classifies diagnostics and incubating workspace
     REQUIRE(saveInspector != nullptr);
     REQUIRE(saveInspector->exposure == urpg::editor::EditorPanelExposure::Nested);
 
+    const auto* levelBuilder = urpg::editor::findEditorPanelRegistryEntry("level_builder");
+    REQUIRE(levelBuilder != nullptr);
+    REQUIRE(levelBuilder->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
+
     const auto* spatialAuthoring = urpg::editor::findEditorPanelRegistryEntry("spatial_authoring");
     REQUIRE(spatialAuthoring != nullptr);
-    REQUIRE(spatialAuthoring->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
+    REQUIRE(spatialAuthoring->exposure == urpg::editor::EditorPanelExposure::Nested);
 
     const auto* modSdk = urpg::editor::findEditorPanelRegistryEntry("mod_sdk");
     REQUIRE(modSdk != nullptr);
@@ -355,5 +359,5 @@ TEST_CASE("Editor smoke coverage follows every registered top-level panel", "[ed
     REQUIRE(ContainsId(smokeIds, "monster_collection"));
     REQUIRE(ContainsId(smokeIds, "npc"));
     REQUIRE(ContainsId(smokeIds, "metroidvania_gates"));
-    REQUIRE(ContainsId(smokeIds, "spatial_authoring"));
+    REQUIRE(ContainsId(smokeIds, "level_builder"));
 }

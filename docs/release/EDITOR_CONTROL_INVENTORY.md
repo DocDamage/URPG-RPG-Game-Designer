@@ -1,8 +1,8 @@
 # Editor Control Inventory
 
-Status Date: 2026-04-28
+Status Date: 2026-04-30
 
-This inventory records the P2-002 sweep of user-facing ImGui controls under `editor/`, plus the current AI assistant review controls exposed through deterministic render snapshots.
+This inventory records the P2-002 sweep of user-facing ImGui controls under `editor/`, plus the current AI assistant review controls and native Level Builder controls exposed through deterministic render snapshots.
 
 ## Production Panel Exposure Map
 
@@ -10,11 +10,25 @@ This inventory records the P2-002 sweep of user-facing ImGui controls under `edi
 
 | Exposure | Panel IDs | Release rationale |
 | --- | --- | --- |
-| `ReleaseTopLevel` | `diagnostics`, `assets`, `ability`, `patterns`, `mod`, `analytics` | Registered production navigation surfaces for the release shell and smoke workflow. |
+| `ReleaseTopLevel` | `diagnostics`, `assets`, `ability`, `patterns`, `mod`, `analytics`, `level_builder` | Registered production navigation surfaces for the release shell and smoke workflow. `level_builder` is the native grid-part map editor for build, validate, playtest, and package readiness. |
 | `Nested` | `compat_report`, `save_inspector`, `event_authority`, `message_inspector`, `battle_inspector`, `menu_inspector`, `menu_preview`, `audio_inspector`, `migration_wizard`, `project_audit`, `project_health` | Rendered as tabs or child surfaces inside the Diagnostics workspace. |
-| `Nested` | `elevation_brush`, `terrain_brush`, `region_rules`, `procedural_map`, `prop_placement`, `map_ability_binding`, `spatial_ability_canvas` | Rendered through the incubating Spatial Authoring workspace rather than direct shell navigation. |
+| `Nested` | `spatial_authoring`, `elevation_brush`, `terrain_brush`, `region_rules`, `procedural_map`, `prop_placement`, `map_ability_binding`, `spatial_ability_canvas` | Rendered as supporting spatial tools under the native Level Builder or direct subsystem tests rather than primary shell navigation. |
 | `DevOnly` | `diagnostics_bundle`, `ai_assistant`, `local_review`, `mod_sdk`, `core_asset_browser`, `core_hierarchy`, `core_property_inspector` | Support, collaboration, SDK, or legacy core-editor tooling; compiled for developer workflows and excluded from release navigation. |
-| `Deferred` | `event_authoring`, `plugin_inspector`, `new_project_wizard`, `quest`, `dialogue_graph`, `narrative_continuity`, `relationship`, `localization_workspace`, `timeline`, `replay`, `capture`, `photo_mode`, `database`, `balance`, `vendor`, `world`, `crafting`, `codex`, `calendar`, `npc`, `puzzle`, `export_diagnostics`, `character_creator`, `achievement`, `controller_binding`, `save_debugger`, `save_migration_preview`, `battle_presentation`, `boss_designer`, `formula_debugger`, `battle_preview`, `perf_diagnostics`, `spatial_authoring`, `sprite_animation_preview`, `accessibility`, `accessibility_assistant`, `audio_mix`, `input_remap`, `device_profile`, `theme_builder` | Compiled panels retained for direct tests, snapshots, or roadmap work; each registry entry documents the workflow or promotion gate required before release navigation. |
+| `Deferred` | `event_authoring`, `plugin_inspector`, `new_project_wizard`, `quest`, `dialogue_graph`, `narrative_continuity`, `relationship`, `localization_workspace`, `timeline`, `replay`, `capture`, `photo_mode`, `database`, `balance`, `vendor`, `world`, `crafting`, `codex`, `calendar`, `npc`, `puzzle`, `export_diagnostics`, `character_creator`, `achievement`, `controller_binding`, `save_debugger`, `save_migration_preview`, `battle_presentation`, `boss_designer`, `formula_debugger`, `battle_preview`, `perf_diagnostics`, `sprite_animation_preview`, `accessibility`, `accessibility_assistant`, `audio_mix`, `input_remap`, `device_profile`, `theme_builder` | Compiled panels retained for direct tests, snapshots, or roadmap work; each registry entry documents the workflow or promotion gate required before release navigation. |
+
+## Native Level Builder Snapshot Controls
+
+`editor/spatial/level_builder_workspace.*` is the release top-level map editor surface. It exposes shell-bindable toolbar/action IDs and deterministic command results for:
+
+- `build`, `validate`, `playtest`, `package`, and `supporting_spatial` workflow modes.
+- `save_level_draft`, `load_level_draft`, and `export_current_level` document lifecycle commands.
+- `undo` and `redo` across placement and inspector edit histories.
+- `mark_player_spawn` and `set_reach_exit_objective` for native level intent authoring.
+- `mark_target_export_checks_passed`, `mark_accessibility_checks_passed`, `mark_performance_budget_passed`, and `mark_human_review_passed` for package-readiness evidence.
+- Diagnostic rows with focus support through `FocusDiagnostic`.
+- Supporting spatial pass-through actions: `supporting_elevation`, `supporting_props`, `supporting_abilities`, and `supporting_composite`.
+
+Regression evidence: `tests/unit/test_grid_part_editor.cpp` and the CTest `grid_part` label lane.
 
 ## Search Command
 

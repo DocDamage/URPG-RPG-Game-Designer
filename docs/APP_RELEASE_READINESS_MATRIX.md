@@ -1,6 +1,6 @@
 # App Release Readiness Matrix
 
-Status Date: 2026-04-27
+Status Date: 2026-04-30
 Authority: canonical app-level release-readiness tracker for runtime, editor, packaging, legal, and asset-hydration gates.
 
 This matrix maps release-facing application workflows to the execution-plan task that proves or blocks them. It complements `docs/release/RELEASE_READINESS_MATRIX.md`, which remains the subsystem status reference.
@@ -25,7 +25,7 @@ This matrix maps release-facing application workflows to the execution-plan task
 | Input startup | `VERIFIED` | `apps/runtime/main.cpp`; `engine/core/input/*` | `ctest --preset dev-all -R "runtime|startup|audio|asset|input|localization|profiler" --output-on-failure` | P1-003 | Startup initializes or explicitly diagnoses input subsystem state. |
 | Localization startup | `VERIFIED` | `apps/runtime/main.cpp`; `engine/core/localization/*` | `ctest --preset dev-all -R "runtime|startup|audio|asset|input|localization|profiler" --output-on-failure` | P1-003 | Startup initializes or explicitly diagnoses localization catalog state. |
 | Runtime asset validation | `VERIFIED` | `apps/runtime/main.cpp`; `engine/core/project/runtime_project_preflight.*` | `ctest --preset dev-all -R "startup|preflight|runtime" --output-on-failure` | P3-002 | Missing project/runtime data emits targeted preflight diagnostics. |
-| Editor navigation | `VERIFIED` | `apps/editor/main.cpp`; `editor/*/*panel.*` | `ctest --preset dev-all -R "editor|panel|smoke" --output-on-failure` | P1-004; P1-005 | Intended top-level editor panels are registered and smoke-covered. |
+| Editor navigation | `VERIFIED` | `apps/editor/main.cpp`; `editor/*/*panel.*`; `engine/core/editor/editor_panel_registry.cpp` | `ctest --preset dev-all -R "editor|panel|smoke" --output-on-failure`; `.\build\dev-ninja-debug\urpg_tests.exe "[editor][panel][registry]"` | P1-004; P1-005 | Intended top-level editor panels are registered and smoke-covered. `level_builder` is the top-level native map editor; `spatial_authoring` is nested/supporting. |
 | Editor incomplete/empty surfaces | `VERIFIED` | `editor/*/*panel.*`; `docs/release/EDITOR_CONTROL_INVENTORY.md` | `ctest --preset dev-all -R "editor|empty|loading|error" --output-on-failure` | P2-001; P2-002; P3-003 | High-risk panels have explicit disabled/empty/error states; graphical hover/manual behavior is release-owner accepted for the current internal branch, with any owner-observed regressions handled as follow-up bugs. |
 | Analytics consent | `VERIFIED` | `engine/core/analytics/*`; `apps/editor/main.cpp` | `ctest --preset dev-all -R "analytics|privacy|consent" --output-on-failure` | P4-002 | Analytics remains opt-in with persisted consent and disable path. |
 | Install layout | `VERIFIED` | `CMakeLists.txt`; `tools/ci/check_install_smoke.ps1`; `docs/packaging.md` | `./tools/ci/check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` | P5-001; P5-004 | Installed tree includes apps, runtime data, docs, metadata, and can launch runtime smoke. |

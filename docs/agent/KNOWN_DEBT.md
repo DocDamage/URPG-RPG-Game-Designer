@@ -13,6 +13,8 @@ This file is a pointer map, not the debt database.
 ## Current Agent Priorities
 
 - Prefer closing release-plan tasks over broad refactors.
+- Treat `level_builder` as the native shippable map editor. Keep grid-part document editing, save/load/export, playtest, package readiness, diagnostics, and supporting spatial handoff coherent before adding parallel map-authoring surfaces.
+- Keep `spatial_authoring` nested/supporting unless a release owner explicitly changes the product hierarchy.
 - Enforce the WYSIWYG done rule: a subsystem is not done without visual authoring, live preview, saved project data, runtime execution, diagnostics, and tests.
 - Keep the AI assistant workflow visibly review-gated: approve/reject/approve-all/apply/revert controls, result diffs, and reverse patches must stay exposed in editor snapshots when AI tooling changes.
 - Treat live chatbot provider integration as future work unless a concrete provider service lands behind `IChatService`; creator-command transport profiles are not the same as shipped live chatbot providers.
@@ -25,6 +27,7 @@ This file is a pointer map, not the debt database.
 ## What Not To Do
 
 - Do not promote `PARTIAL` lanes to ready/full based only on fixture coverage.
+- Do not re-promote Spatial Authoring as the primary map editor while Level Builder owns grid-part map authoring.
 - Do not mark a system done when it only has deterministic contracts, schemas, or headless tests; it also needs the WYSIWYG completion evidence in `content/readiness/wysiwyg_done_rule.json`.
 - Do not introduce hidden fallback behavior for missing assets, scripts, saves, or runtime binaries.
 - Do not add new large agent instructions to `AGENTS.md`; link from `docs/agent/INDEX.md` instead.

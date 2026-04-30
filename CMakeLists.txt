@@ -499,6 +499,7 @@ set(URPG_CORE_SOURCES
     editor/spatial/grid_part_placement_panel.cpp
     editor/spatial/grid_part_inspector_panel.cpp
     editor/spatial/grid_part_playtest_panel.cpp
+    editor/spatial/level_builder_workspace.cpp
     editor/spatial/map_ability_binding_panel.cpp
     editor/spatial/spatial_ability_canvas_panel.cpp
     editor/spatial/spatial_authoring_workspace.cpp

@@ -1,260 +1,277 @@
 # URPG Maker
 
 URPG Maker is a native-first RPG engine and editor for building deterministic,
-data-driven RPGs with a serious authoring workflow. It combines a C++20 runtime,
-an ImGui editor, a bounded RPG Maker MZ compatibility layer, OpenGL and headless
-rendering paths, governed asset intake, export validation, package governance,
-AI-assisted project editing, and a growing grid-part level builder.
+data-driven RPGs with production-minded authoring workflows. It combines a
+C++20 runtime, an ImGui editor, a first-class grid-part Level Builder, OpenGL
+and headless validation paths, bounded RPG Maker MZ compatibility tooling,
+governed asset intake, package/export validation, and review-gated AI-assisted
+project editing.
 
-The product goal is a real WYSIWYG game maker, not only a runtime library.
-Features are expected to have saved project data, visible editor controls, live
-preview or headless verification, runtime execution, diagnostics, tests, and
-truthful readiness documentation.
+The product is aimed at creators who want RPG Maker-style speed without giving
+up native runtime ownership, validation, diagnostics, packaging governance, and
+source-control-friendly project data.
 
-## Status
+## Current Status
 
 Status date: 2026-04-30
 
 The `development` branch is suitable for internal and private release-candidate
-validation. It is not yet public-release-ready. Public release remains blocked by
-legal, privacy, distribution approval or waiver, final release decision recording,
-and release tagging.
+validation. It is not yet public-release-ready. Public release remains blocked
+by legal/privacy review, public distribution approval or waiver, and release
+tagging.
 
-Current headline work:
+Current headline state:
 
-- Grid-part level authoring from catalog to document, editor controls, validation,
-  runtime compile, map-scene application, serialization, package governance, and
-  CTest-registered lanes.
-- Export and package robustness for creator manifests, patch manifests, export
-  validation reports, payload discovery, dependency manifests, and package
-  readiness checks.
-- Compatibility/plugin robustness for manifest normalization, dependency
-  de-duplication, permission filtering, compatibility scoring, and plugin manager
-  dependency gates.
-- Scene/runtime robustness for map construction, tilemap rendering, partial
-  compile rejection, tile ID clamping, and invalid texture/layer handling.
-- Presentation, schema, WYSIWYG, AI, asset-intake, and release governance
-  surfaces continue to be tracked through canonical docs and tests.
+- Native Level Builder is now the top-level shippable map editor surface.
+- `GridPartDocument` is the canonical editable map document for grid-part level
+  authoring.
+- Legacy spatial authoring is now supporting tooling under Level Builder for
+  elevation, props, and ability-binding workflows.
+- Grid-part unit and integration lanes are registered in CTest and passing in
+  the active `build/dev-ninja-debug` tree.
+- Export/package robustness, plugin compatibility robustness, runtime scene
+  hardening, AI review workflows, template governance, asset intake, and release
+  validation remain tracked through canonical docs and tests.
 
-## What URPG Maker Is Optimized For
+## Why Use URPG Maker
 
-URPG Maker is built for teams or solo creators who want RPG Maker-style
-productivity with stronger runtime ownership, validation, and content governance.
+Use URPG Maker when you want an RPG-specific editor and runtime where validation
+and shipping constraints are part of authoring, not an afterthought.
 
-Use it when you want:
+URPG Maker is a better fit than RPG Maker when you need:
 
-- RPG-first data models instead of a general-purpose engine where the RPG toolset
-  must be built from scratch.
-- Native C++ runtime systems with deterministic test and headless execution.
-- Editor workflows that expose diagnostics, previews, schemas, package readiness,
-  and export validation as first-class product surfaces.
-- Bounded RPG Maker MZ migration and compatibility tooling without pretending to
-  be a full live RPG Maker JavaScript runtime clone.
-- Local-first authoring, AI-assisted edits with review/revert state, and governed
-  raw asset intake before anything is eligible for release export.
+- Native C++ runtime ownership instead of a primarily JavaScript/plugin-driven
+  runtime.
+- Deterministic tests, headless validation, CTest lanes, and CI-friendly project
+  data.
+- Explicit package governance, dependency manifests, provenance checks, and
+  export readiness gates.
+- A bounded RPG Maker MZ compatibility and migration harness that diagnoses what
+  migrated and what did not, instead of pretending every plugin behavior is live
+  runtime parity.
 
-## Major Feature Areas
+URPG Maker is a better fit than Unity, Unreal, or Godot when you want:
 
-### Native Runtime Core
+- RPG-first workflows out of the box rather than building editor tools,
+  databases, event workflows, map validation, save inspection, and export
+  governance from scratch.
+- Smaller, deterministic native subsystems with repository-visible tests and
+  docs rather than a general-purpose engine stack.
+- Local-first authoring with structured JSON data and focused validation gates.
 
-- C++20 runtime kernels for deterministic game systems.
-- Title, menu, map, battle, startup-adjacent, save/load, and scene-stack flows.
-- Ability, battle, event, dialogue, quest, relationship, crafting, encounter,
-  loot, NPC schedule, character creation, achievement, mod-state, audio-mix,
-  accessibility, analytics-consent, input, settings, and template runtime models.
-- Save metadata, recovery diagnostics, save migration paths, save/load preview
-  lab data, and explicit policy schemas.
-- Presentation runtime and render-frame intent paths with OpenGL and headless
-  validation coverage.
-- Runtime diagnostics for project health, asset placeholders, plugin failures,
-  map rendering, battle state, ability state, and export/package surfaces.
+URPG Maker is a better fit than browser-only or no-code RPG tools when you need:
 
-### Grid-Part Level Builder
+- Native runtime code, native packaging paths, and repository-controlled
+  validation.
+- Explicit editor snapshots and diagnostics for disabled/error/ready states.
+- Governed raw asset intake and promotion workflows.
+- AI-assisted editing that is review-gated and reversible instead of silent
+  mutation.
 
-The grid-part level builder is the newest large authoring surface. It provides a
-part-based level construction workflow on top of the native map/runtime stack.
+URPG Maker is not the right choice if you want a finished public marketplace,
+turnkey console certification, live cloud collaboration, or full RPG Maker
+JavaScript plugin parity today. Those are either external release gates or
+explicitly bounded compatibility/migration scopes.
 
-Implemented pieces include:
+## Product Pillars
 
-- `GridPartCatalog` and `GridPartDefinition` for curated reusable part catalogs.
-- Base JRPG part catalog at `content/part_catalogs/base_jrpg_parts.json`.
-- JSON schemas for catalog, authoring, and runtime state:
+### Native Level Builder
+
+The Level Builder is the end-shippable map authoring surface. It is registered
+as the top-level `level_builder` editor panel and owns the normal map-building
+workflow.
+
+Implemented Level Builder capabilities:
+
+- Build, Validate, Playtest, Package, and Supporting Spatial workflow modes.
+- `GridPartDocument` source-of-truth editing.
+- Palette-driven part selection and deterministic grid placement.
+- Inspector selection, property editing, command history, and diagnostics focus.
+- Top-level undo/redo across placement and inspector histories.
+- Save draft, load draft, and export-current-level commands.
+- Deterministic JSON serialization through the grid-part authoring serializer.
+- Load safeguards for malformed JSON, invalid documents, and map-id mismatch.
+- Native commands for common level intent:
+  - mark selected instance as player spawn
+  - set selected instance as reach-exit objective
+  - mark target export checks passed
+  - mark accessibility checks passed
+  - mark performance budget passed
+  - mark human review passed
+- Playtest from start, return to editor, runtime compile validation, and
+  successful playtest promotion into readiness evidence.
+- Package readiness summary for draft, playable, validated, publishable,
+  exportable, and certified states.
+- Actionable diagnostic rows with source, severity, code, message, target,
+  instance id, part id, grid coordinate, and blocking flag.
+- Diagnostic focus: instance-backed diagnostics select the offending part in
+  the inspector.
+- Supporting spatial mode for elevation, prop, ability, and composite spatial
+  tools without making legacy spatial authoring the primary editor.
+
+Core files:
+
+- `editor/spatial/level_builder_workspace.*`
+- `editor/spatial/grid_part_palette_panel.*`
+- `editor/spatial/grid_part_placement_panel.*`
+- `editor/spatial/grid_part_inspector_panel.*`
+- `editor/spatial/grid_part_playtest_panel.*`
+- `engine/core/map/grid_part_*`
+- `tests/unit/test_grid_part_editor.cpp`
+
+### Grid-Part Runtime And Data Model
+
+The grid-part stack provides the authored map format and native runtime bridge
+behind the Level Builder.
+
+Implemented pieces:
+
+- `GridPartCatalog` and `GridPartDefinition` for reusable part catalogs.
+- Starter JRPG catalog: `content/part_catalogs/base_jrpg_parts.json`.
+- Schemas:
   - `content/schemas/grid_part_catalog.schema.json`
   - `content/schemas/grid_part_authoring.schema.json`
   - `content/schemas/grid_part_runtime_state.schema.json`
-- `GridPartDocument` for authored map-level part placement, dimensions, chunks,
-  dirty tracking, part locking, and footprint validation.
-- Commands and undo/redo support for place, remove, move, resize, replace,
-  property edits, and bulk operations.
+- `GridPartDocument` for map id, dimensions, chunks, dirty tracking, placed
+  parts, lock/hidden flags, properties, and footprint validation.
+- Commands for place, remove, move, resize, replace, property edit, and bulk
+  operations.
 - Stamp placement for reusable part layouts.
-- Ruleset profiles for RPG map styles such as JRPG, dungeon room, and
-  side-scroller-inspired constraints.
-- Document validation for bounds, catalog mismatches, collision overlaps,
-  unsupported rulesets, and category/layer errors.
-- Objective validation for map goals and completion signals.
-- Reachability analysis for spawn-to-goal paths, locked doors, keys, obstacles,
-  and blocked objectives.
+- Ruleset profiles for top-down JRPG, dungeon room, side-scroller, tactical,
+  world map, town hub, battle arena, and cutscene-stage constraints.
+- Document, ruleset, objective, reachability, dependency, package-governance,
+  serializer, runtime-compiler, and runtime-state validation.
 - Dependency graph extraction for assets, tilesets, enemies, NPCs, dialogue,
-  shop tables, loot tables, quests, quest items, cutscenes, timelines, abilities,
-  audio, animations, scripts, and prefabs.
-- Runtime compiler output for:
-  - `TileLayerDocument`
-  - spatial props
-  - spawn tables
-  - region rules
-  - compiled chunks
-  - compiled instance IDs
-- Full compile, filtered chunk compile, and dirty chunk compile.
-- Partial compile rejection when applying a chunk result as a full `MapScene`
-  replacement.
-- MapScene application for terrain and collision, including tile ID clamping and
-  scene-size checks.
-- Deterministic JSON serializer and loader with schema versioning.
-- Package governance with dependency manifests, license/provenance checks,
-  readiness evidence, publishable/exportable/certified levels, duplicate
-  detection, unreferenced dependency diagnostics, and package ID mismatch checks.
-- Editor-facing panels:
-  - grid part palette
-  - placement panel
-  - inspector panel
-  - playtest panel
-  - spatial workspace integration
-- Focused unit and integration test lanes registered in CTest:
-  - `urpg_grid_part_unit_lane`
-  - `urpg_grid_part_integration_lane`
+  shops, loot, quests, quest items, cutscenes, timelines, abilities, audio,
+  animations, scripts, and prefabs.
+- Runtime compiler output for tile layers, spatial props, spawn tables, region
+  rules, chunks, and stable compiled instance ids.
+- Dirty/filtered chunk compile support and rejection of partial compile results
+  when a full scene replacement is required.
+- `MapScene` application for terrain/collision with size checks and tile-id
+  clamping.
+- Package governance for dependency manifests, license evidence, private asset
+  checks, redistribution flags, duplicate rows, missing dependencies,
+  unreferenced dependencies, package-id mismatch, and readiness levels.
 
-### Editor And WYSIWYG Workflows
+CTest lanes:
 
-- ImGui editor shell with governed panel registration.
+```powershell
+ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure
+```
+
+Registered tests:
+
+- `urpg_grid_part_unit_lane`
+- `urpg_grid_part_integration_lane`
+
+### Native Runtime Core
+
+URPG Maker includes deterministic native runtime systems for:
+
+- Title/startup, scene stack, map, battle, menu, save/load, and settings flows.
+- Ability, event, dialogue, quest, relationship, crafting, encounter, loot,
+  NPC, character creation, achievement, mod-state, audio, accessibility,
+  analytics consent, input, localization, and template data models.
+- Save metadata, recovery diagnostics, migration paths, save/load preview lab,
+  and policy schemas.
+- Presentation runtime with OpenGL and headless validation paths.
+- Runtime diagnostics for project health, assets, plugins, map rendering,
+  battle state, ability state, package readiness, and export validation.
+
+### Editor And WYSIWYG Surfaces
+
+Editor behavior is expected to be visible, testable, and diagnostic-rich.
+
+Current editor surfaces include:
+
+- Top-level release panels governed by `engine/core/editor/editor_panel_registry.*`.
+- Native Level Builder for map authoring.
 - Diagnostics workspace for project audit, migration, compatibility, audio,
-  abilities, events, menu/message/battle/save, project health, and export
-  surfaces.
-- Spatial authoring workspace with prop placement, map ability bindings, grid
-  part mode, grid part palette, placement, inspector, and playtest flows.
-- WYSIWYG-oriented panels and models for:
-  - ability sandboxing
-  - battle VFX timelines
-  - event command graphs
-  - dialogue preview
-  - export preview
-  - save/load lab
-  - map environment preview
-  - 3D dungeon/world authoring
-  - visual novel pacing
-  - template workflows
-  - package/readiness diagnostics
-- Snapshot coverage for disabled, empty, error, and populated editor states.
+  abilities, events, menu/message/battle/save, project health, and export data.
+- Asset library model/panel with filtering, source/status metadata,
+  promote/archive action state, preview data, and intake reports.
+- Ability inspector/sandbox/orchestration panels.
+- Spatial supporting tools for elevation, props, ability bindings, and canvas
+  conflict resolution.
+- Battle, VFX, map environment, save/load lab, dialogue preview, visual novel
+  pacing, templates, mod, analytics, and WYSIWYG coverage panels.
+- Deterministic render snapshots for disabled, empty, error, and populated
+  states.
 
 ### RPG Maker MZ Compatibility And Migration
 
-- QuickJS-based compatibility layer under `runtimes/compat_js/`.
-- Bounded DataManager, BattleManager, Window, Sprite, Input, Audio, plugin
-  fixture, and migration surfaces.
-- Plugin manager support for fixture-backed and live JavaScript plugin command
-  registration, execution, reload, failure diagnostics, and dependency gates.
-- Plugin manifest parsing with normalized dependencies and permissions.
-- Plugin compatibility scoring for missing dependencies, permissions,
-  unsupported APIs, fixture-only behavior, fallback paths, failure diagnostics,
-  cycles, override conflicts, and native shim hints.
-- Compatibility reporting is non-authoritative by default and intended for
-  migration triage.
+The compatibility layer is bounded and diagnostic-first:
 
-URPG Maker compatibility is an import, validation, migration, and diagnostic
-harness. It should not be advertised as full live RPG Maker JavaScript runtime
-parity.
+- QuickJS harness under `runtimes/compat_js/`.
+- DataManager, BattleManager, Window, Sprite, Input, Audio, plugin fixture, and
+  migration surfaces.
+- Plugin manager support for command registration, execution, reload, failure
+  diagnostics, manifest parsing, permissions, dependency gates, compatibility
+  scoring, and native shim hints.
+
+Compatibility is an import, validation, migration, and diagnostic harness. It is
+not advertised as full live RPG Maker JavaScript runtime parity.
 
 ### Export, Packaging, And Governance
 
-- Creator package manifests with required metadata, dependency validation,
-  duplicate detection, normalized JSON output, and source governance.
-- Patch manifests with normalized changed data, changed assets, dependencies,
-  malformed-array rejection, blank dependency rejection, and duplicate detection.
-- Export validation report generation with deterministic normalized errors.
-- Export packager payload discovery with repository-bound relative roots and
-  explicit errors for escaping discovery roots.
-- Bundle writer and payload builder paths for packaging workflows.
-- Grid-part package governance for dependency manifests, readiness levels,
-  provenance/license evidence, redistribution flags, private-use checks, package
-  ID mismatches, unreferenced dependencies, and duplicate manifest rows.
-- Release packaging docs under `docs/release/`.
+Export and package code is designed to make release blockers explicit:
 
-### AI-Assisted Project Editing
+- Creator package manifests and dependency validation.
+- Patch manifest normalization and duplicate/malformed dependency diagnostics.
+- Export validation reports with normalized errors.
+- Export packager payload discovery with repository-root containment checks.
+- Bundle writer and payload builder paths.
+- Runtime bundle signature/integrity validation.
+- Grid-part package governance and readiness levels.
+- Package smoke and install smoke scripts under `tools/ci/`.
 
-- `IChatService` abstraction and deterministic in-tree `MockChatService`.
-- Creator-command transport profiles for OpenAI-compatible hosted and local
-  providers, including OpenAI/ChatGPT-style endpoints, Kimi, OpenRouter, Ollama,
-  and LM Studio.
-- Editor-visible provider selection, dry-run/live test state, and failure
-  reasons.
-- Review-gated AI tool plans before mutation.
-- AI-applied project changes persist `_ai_change_history` records with forward
-  and reverse JSON patch data, before/after project data, and reverted state.
-- Tool and knowledge indexing for project metadata, canonical docs, reports,
-  schemas, readiness data, template specs, and subsystem-specific tool
-  candidates.
+Public release remains blocked until legal/privacy and distribution exits are
+closed or formally waived.
 
-The deterministic local behavior is the shipped in-tree baseline. Live provider
-productization remains a release-governed surface.
+### AI-Assisted Editing
+
+AI assistance is review-gated:
+
+- `IChatService` abstraction and deterministic local `MockChatService`.
+- OpenAI-compatible transport profiles for hosted and local providers.
+- Provider selection, dry-run/live test state, streaming request metadata, and
+  visible failure reasons.
+- Reviewable plans before mutation.
+- Persisted `_ai_change_history` with forward and reverse JSON patch data,
+  before/after project data, and reverted state.
+- Shared apply/revert controls across AI assistant and chatbot snapshots.
+- Knowledge indexing for project files, docs, schemas, readiness reports,
+  validation reports, asset catalogs, and template specs.
 
 ### Templates
 
-URPG Maker tracks starter/template governance for JRPG, visual novel, turn-based
-RPG, tactics RPG, ARPG, monster collector, cozy/life, metroidvania-lite,
-2.5D RPG, roguelite dungeon, survival horror, farming adventure, card battler,
-platformer, gacha hero, mystery detective, world exploration, space opera,
-soulslike-lite, school life, rhythm RPG, racing adventure, post-apocalyptic RPG,
-pirate RPG, cooking/restaurant RPG, city builder RPG, strategy kingdom RPG,
-sports team RPG, tactical mecha RPG, tower defense RPG, faction politics RPG,
-and related variants.
+Template governance exists for JRPG, visual novel, turn-based RPG, tactics RPG,
+ARPG, monster collector, cozy/life, metroidvania-lite, 2.5D RPG, roguelite
+dungeon, survival horror, farming adventure, card battler, platformer, gacha
+hero, mystery detective, world exploration, space opera, soulslike-lite, school
+life, rhythm RPG, racing adventure, post-apocalyptic RPG, pirate RPG,
+cooking/restaurant RPG, city builder RPG, strategy kingdom RPG, sports team
+RPG, tactical mecha RPG, tower defense RPG, faction politics RPG, and related
+variants.
 
-Template support includes runtime profiles, starter manifests, specs,
-certification loops, readiness rows, and WYSIWYG showcase bindings. A `READY`
-row means the bounded claimed template scope has evidence; it does not mean every
-possible game in that genre is complete.
+Template `READY` rows describe bounded starter-template evidence, not a claim
+that every possible game in that genre is complete.
 
 ### Asset Intake
 
 Asset handling is intentionally governed:
 
-- Raw intake lives under `imports/raw/`.
-- Normalized promoted assets live under `imports/normalized/`.
-- Source manifests live under `imports/manifests/asset_sources/`.
-- Bundle manifests live under `imports/manifests/asset_bundles/`.
-- Intake and audit reports live under `imports/reports/asset_intake/`.
-- The local asset DB is ignored under `.urpg/asset-index/`.
+- Raw intake: `imports/raw/`
+- Normalized assets: `imports/normalized/`
+- Source manifests: `imports/manifests/asset_sources/`
+- Bundle manifests: `imports/manifests/asset_bundles/`
+- Reports: `imports/reports/asset_intake/`
+- Local ignored asset DB: `.urpg/asset-index/`
 
-Current cataloged intake includes:
-
-- `SRC-007` local URPG asset drop, deduped to 56,096 non-audio/tool catalog
-  records with zero remaining exact duplicate groups in the promotion catalog.
-- Existing OGG audio context preserved under raw intake; tracked MP3/WAV files
-  are intentionally excluded from Git.
-- Third-party and itch roots indexed from `imports/raw/third_party_assets/` and
-  `imports/raw/itch_assets/`.
-- Generator/tool candidates for sprite generation, pixel planets, space
-  backgrounds, and Tiled/TMX workflows.
-
-Cataloged raw assets are not release-export eligible until curated subsets
-receive attribution, bundle manifests, and promotion approval.
-
-### Robustness And Validation Culture
-
-Recent robustness work hardened:
-
-- Grid-part chunk filters, dirty chunk pruning, serializer rejection, locked-part
-  mutation rules, partial compile application, and tile ID bounds.
-- Export/package dependency normalization, duplicate reporting, unreferenced
-  manifest diagnostics, private-use redistribution checks, and escaping path
-  rejection.
-- Plugin manifest and compatibility manifest dependency/permission
-  normalization.
-- Plugin manager dependency gates for blank and duplicate dependency metadata.
-- MapScene invalid dimensions, empty collision-safe maps, tilemap renderer layer
-  bounds, invalid texture dimensions, and zero tile-column math.
-
-Validation is treated as a product feature. New behavior should come with
-focused tests, CTest registration where appropriate, and documentation updates
-when claims or schemas change.
+Raw assets are quarantine/catalog inputs. They are not release-export eligible
+until curated subsets receive attribution, bundle manifests, and promotion
+approval.
 
 ## Repository Layout
 
@@ -266,19 +283,19 @@ when claims or schemas change.
 | `engine/runtimes/bridge/` | Native/script value bridge support. |
 | `editor/` | ImGui panels, editor models, diagnostics, and workspaces. |
 | `runtimes/compat_js/` | QuickJS and RPG Maker MZ compatibility surfaces. |
-| `content/` | Schemas, fixtures, templates, abilities, part catalogs, readiness data, and release-required content. |
+| `content/` | Schemas, fixtures, templates, abilities, catalogs, readiness data. |
 | `resources/` | Release-required app resources. |
-| `imports/raw/` | Quarantined raw local, third-party, itch, RPG Maker, and generator/tool source intake. |
+| `imports/raw/` | Quarantined raw local, third-party, itch, RPG Maker, and tool intake. |
 | `imports/normalized/` | Promoted or metadata-normalized assets. |
 | `imports/manifests/` | Source and bundle manifests. |
-| `imports/reports/` | Tracked intake, attribution, validation, and audit reports. |
-| `tests/` | Unit, integration, snapshot, compat, and engine coverage. |
-| `tools/` | CI gates, docs checks, asset tooling, packaging, migration, RPG Maker utilities, and workflow scripts. |
-| `docs/` | Architecture, status, release, governance, signoff, ADRs, asset intake, integrations, and template docs. |
-| `.urpg/` | Ignored local cache/archive/state, including the local asset index. |
+| `imports/reports/` | Intake, attribution, validation, and audit reports. |
+| `tests/` | Unit, integration, snapshot, compat, and engine tests. |
+| `tools/` | CI, docs, assets, packaging, migration, and workflow scripts. |
+| `docs/` | Architecture, release, governance, signoff, ADRs, status, and templates. |
+| `.urpg/` | Ignored local cache/archive/state. |
 
-The old root-level `third_party/` and `itch/` folders have been retired. Their
-ingested content belongs under `imports/raw/third_party_assets/` and
+The old root-level `third_party/` and `itch/` folders are retired. Ingested
+content belongs under `imports/raw/third_party_assets/` and
 `imports/raw/itch_assets/`.
 
 ## Build
@@ -290,7 +307,7 @@ cmake --preset dev-ninja-debug
 cmake --build --preset dev-debug
 ```
 
-Other supported local presets:
+Other local presets:
 
 ```powershell
 cmake --preset dev-vs2022
@@ -302,7 +319,7 @@ cmake --build --preset dev-mingw-debug-build
 
 ## Test And Validate
 
-Run all registered tests for the active debug preset:
+Run all registered tests:
 
 ```powershell
 ctest --preset dev-all --output-on-failure
@@ -316,11 +333,18 @@ ctest --preset dev-all -L nightly --output-on-failure
 ctest --preset dev-all -L weekly --output-on-failure
 ```
 
-Grid-part lanes:
+Level Builder / grid-part lane:
 
 ```powershell
-ctest --test-dir build\dev-ninja-debug -R "grid_part" --output-on-failure
-ctest --test-dir build-local -C Debug -R "grid_part" --output-on-failure
+ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure
+```
+
+Focused executable coverage used during Level Builder work:
+
+```powershell
+.\build\dev-ninja-debug\urpg_tests.exe "[grid_part][editor]"
+.\build\dev-ninja-debug\urpg_tests.exe "[editor][panel][registry]"
+.\build\dev-ninja-debug\urpg_tests.exe "[dungeon3d][wysiwyg]"
 ```
 
 Presentation and local release gates:
@@ -338,6 +362,7 @@ python .\tools\assets\report_third_party_itch_ingest.py
 .\tools\ci\check_asset_library_governance.ps1
 .\tools\ci\check_phase4_intake_governance.ps1
 .\tools\docs\check_truth_alignment.ps1
+.\tools\docs\check-agent-knowledge.ps1 -BuildDirectory build\dev-ninja-debug
 ```
 
 ## Documentation Map
@@ -348,7 +373,8 @@ python .\tools\assets\report_third_party_itch_ingest.py
 - [Execution Workflow](./docs/agent/EXECUTION_WORKFLOW.md)
 - [Known Debt](./docs/agent/KNOWN_DEBT.md)
 - [Program Completion Status](./docs/PROGRAM_COMPLETION_STATUS.md)
-- [Status Program Completion Mirror](./docs/status/PROGRAM_COMPLETION_STATUS.md)
+- [Status Mirror](./docs/status/PROGRAM_COMPLETION_STATUS.md)
+- [App Release Readiness Matrix](./docs/APP_RELEASE_READINESS_MATRIX.md)
 - [Release Readiness Matrix](./docs/release/RELEASE_READINESS_MATRIX.md)
 - [Editor Control Inventory](./docs/release/EDITOR_CONTROL_INVENTORY.md)
 - [Release Packaging](./docs/release/RELEASE_PACKAGING.md)
@@ -363,15 +389,14 @@ python .\tools\assets\report_third_party_itch_ingest.py
 
 - Public release is blocked by legal/privacy/distribution approval or waiver and
   release tagging.
-- Raw/vendor/source packs are catalog and private-use intake until promotion is
+- Raw/vendor/source packs are catalog/private-use intake until promotion is
   approved.
-- Full platform signing, notarization, and public artifact policy remain backlog
-  beyond the current internal validation checkpoint.
-- Live cloud sync, marketplace publishing, payments, reviews, and production
-  analytics upload are not shipped as public product surfaces.
-- Heavy research and ML integrations remain offline tooling lanes under `tools/`.
-  Generated artifacts and metadata may be imported, but heavyweight runtime
-  dependencies are not part of the shipped engine.
+- Full platform signing, notarization, public artifact policy, live cloud sync,
+  marketplace publishing, payments, reviews, and production analytics upload are
+  not shipped public product surfaces.
+- Heavy research and ML integrations remain offline tooling lanes under
+  `tools/`; heavyweight runtime ML dependencies are not part of the shipped
+  engine.
 - RPG Maker compatibility remains bounded. Unsupported source data should be
   preserved and diagnosed rather than silently treated as fully migrated.
 
