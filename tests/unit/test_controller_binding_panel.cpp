@@ -28,9 +28,9 @@ TEST_CASE("ControllerBindingPanel surfaces binding rows and validation issues", 
     panel.render();
 
     const auto snapshot = panel.lastRenderSnapshot();
-    REQUIRE(snapshot["binding_count"] == 7);
+    REQUIRE(snapshot["binding_count"] == 13);
     REQUIRE(snapshot["unsaved_changes"] == true);
-    REQUIRE(snapshot["bindings"].size() == 7);
+    REQUIRE(snapshot["bindings"].size() == 13);
     REQUIRE(snapshot["missing_required_actions"].size() == 1);
     REQUIRE(snapshot["missing_required_actions"][0] == "Cancel");
     REQUIRE(snapshot["issue_count"] == 1);
