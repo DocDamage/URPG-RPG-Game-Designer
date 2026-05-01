@@ -226,7 +226,7 @@ Audio:
 
 - promote WAV as runtime-ready
 - catalog OGG/MP3/FLAC/M4A as conversion-needed unless runtime decode support is added and verified
-- provide a future conversion path using the existing audio conversion tooling
+- execute stored conversion handoffs through the Asset Library model before runtime/export promotion
 
 Archives:
 
@@ -320,9 +320,9 @@ Gate tests:
 
 Implementation status: complete as of the 2026-05-01 development slice. Phase 1 is covered by
 `AssetImportSession`, `GlobalAssetLibraryStore`, `tools/assets/global_asset_import.py`, editor model
-session/review rows with explicit preview/no-preview metadata, and targeted CTest/Python coverage. Native file-dialog
-wiring remains outside this implementation slice; Phases 2-4 cover promotion, project attachment, conversion handoff,
-optional external archive extraction, sequence assembly, and RPG Maker pack mapping.
+session/review rows with explicit preview/no-preview metadata, and targeted CTest/Python coverage. Later slices added
+the panel-native source picker, promotion, project attachment, conversion execution, optional external archive
+extraction, sequence assembly, and RPG Maker pack mapping.
 
 ### Phase 2: Review-Gated Promotion
 
@@ -373,7 +373,7 @@ clear diagnostics, numbered animation/image-frame drops assemble into determinis
 - Expose explicit Add Source, Review, Promote, Attach, and Package workflow state.
 - Surface action enablement and disabled reasons from the Asset Library model.
 - Emit deterministic Add Source command handoff payloads for the external import tool.
-- Keep native file-dialog wiring outside the first implementation while making the wizard contract testable.
+- Keep the wizard contract testable while allowing native source selection through the panel picker.
 - Provide package-validation readiness once project assets are attached.
 
 Implementation status: 100% complete as of the 2026-05-01 development slice. The Asset Library model now emits an

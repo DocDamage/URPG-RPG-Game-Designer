@@ -66,8 +66,8 @@ The promotion lane now supports:
   and writes governed per-asset promotion manifests
 - Asset Library action rows that expose promoted payload, diagnostics, and next actions
 
-This phase still does not execute conversions. Records that need conversion remain blocked with diagnostics and Phase 4
-conversion handoff metadata until a later converter runner produces a supported runtime payload.
+Phase 2's promotion gate still blocks conversion-needed records until Phase 4's conversion runner produces a supported
+runtime payload and clears the conversion diagnostics.
 
 ## Global Asset Library Project Attachment Phase 3
 
