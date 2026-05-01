@@ -2,12 +2,16 @@
 from __future__ import annotations
 
 import json
+import io
+import os
+import shlex
 import sys
 import tempfile
 import unittest
 import wave
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
@@ -354,6 +358,76 @@ class GlobalAssetImportTests(unittest.TestCase):
             self.assertEqual(session["diagnostics"][0]["code"], "external_archive_extracted")
             self.assertEqual(session["records"][0]["relativePath"], "audio/se/confirm.wav")
             self.assertEqual(session["records"][0]["category"], "audio/se")
+
+    def test_external_archive_extractor_handoff_supports_embedded_placeholders(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "pack.7z"
+            archive.write_bytes(b"not really 7z")
+            extractor = root / "embedded_template_extractor.py"
+            extractor.write_text(
+                "import pathlib, sys\n"
+                "assert pathlib.Path(sys.argv[1]).name == 'pack.7z'\n"
+                "assert sys.argv[2].startswith('--out=')\n"
+                "out = pathlib.Path(sys.argv[2][6:]) / 'img' / 'system'\n"
+                "out.mkdir(parents=True, exist_ok=True)\n"
+                "(out / 'Window.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n' + b'0' * 32)\n",
+                encoding="utf-8",
+            )
+
+            session = global_asset_import.build_session(
+                source=archive,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_7z_embedded_template",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+                external_extractor_command=[sys.executable, str(extractor), "{source}", "--out={destination}"],
+            )
+
+            self.assertEqual(session["sourceKind"], "external_archive")
+            self.assertEqual(session["status"], "review_ready")
+            self.assertEqual(len(session["records"]), 1)
+            self.assertEqual(session["records"][0]["relativePath"], "img/system/Window.png")
+            self.assertEqual(session["records"][0]["category"], "ui")
+
+    def test_cli_uses_configured_external_extractor_from_environment(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "pack.rar"
+            archive.write_bytes(b"not really rar")
+            extractor = root / "env_extractor.py"
+            output = root / "session.json"
+            extractor.write_text(
+                "import pathlib, sys\n"
+                "out = pathlib.Path(sys.argv[2]) / 'img' / 'faces'\n"
+                "out.mkdir(parents=True, exist_ok=True)\n"
+                "(out / 'Hero.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n' + b'0' * 32)\n",
+                encoding="utf-8",
+            )
+            env_command = f"{shlex.quote(sys.executable)} {shlex.quote(str(extractor))} {{source}} {{destination}}"
+
+            with mock.patch.dict(os.environ, {"URPG_ASSET_ARCHIVE_EXTRACTOR": env_command}), mock.patch(
+                "sys.stdout", new_callable=io.StringIO
+            ):
+                exit_code = global_asset_import.main([
+                    "--source",
+                    str(archive),
+                    "--library-root",
+                    str(root / ".urpg" / "asset-library"),
+                    "--session-id",
+                    "import_env_extractor",
+                    "--license-note",
+                    "User-provided test license.",
+                    "--output",
+                    str(output),
+                ])
+
+            self.assertEqual(exit_code, 0)
+            session = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(session["sourceKind"], "external_archive")
+            self.assertEqual(session["records"][0]["relativePath"], "img/faces/Hero.png")
+            self.assertEqual(session["records"][0]["category"], "portrait")
 
     def test_animation_sequence_assembly_groups_numbered_frames(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

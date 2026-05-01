@@ -109,8 +109,9 @@ The advanced-pack lane now supports:
   execution, with bounded output validation and stable failure diagnostics.
 - Add Source handoff metadata can carry a configured external extractor command into `global_asset_import.py` for
   `.rar` and `.7z` sources. Extractor handoff commands can either accept the source and destination as appended final
-  arguments or use explicit `{source}` and `{destination}` placeholders for tools that require templated argument
-  positions.
+  arguments or use explicit `{source}` and `{destination}` placeholders, including embedded placeholders such as
+  `-o{destination}`, for tools that require templated argument positions. The CLI also reads
+  `URPG_ASSET_ARCHIVE_EXTRACTOR` when `--external-extractor-command` is not supplied.
 - numbered animation/image-frame drops assemble into deterministic `sequenceGroups`, with per-frame sequence metadata
   on import records.
 

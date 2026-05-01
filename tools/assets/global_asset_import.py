@@ -23,6 +23,7 @@ TOOL_EXTS = {"exe", "msi", "bat", "cmd", "ps1", "sh", "py", "js", "ts"}
 ARCHIVE_EXTS = {"zip", "rar", "7z"}
 JUNK_NAMES = {".DS_Store", "Thumbs.db", "Desktop.ini"}
 FRAME_SEQUENCE_RE = re.compile(r"^(?P<stem>.+?)(?:[_\-. ]?)(?P<index>\d{2,5})$")
+EXTERNAL_EXTRACTOR_ENV = "URPG_ASSET_ARCHIVE_EXTRACTOR"
 
 
 def iso_now() -> str:
@@ -149,8 +150,13 @@ def run_external_archive_extractor(
         diagnostics.append({"code": "unsupported_extractor", "message": "RAR/7z import requires a configured extractor.", "path": str(source)})
         return target_root, diagnostics
     placeholders = {"{source}": str(source), "{destination}": str(target_root)}
-    uses_template = any(token in placeholders for token in external_extractor_command)
-    command = [placeholders.get(token, token) for token in external_extractor_command]
+    uses_template = any(placeholder in token for token in external_extractor_command for placeholder in placeholders)
+    command = []
+    for token in external_extractor_command:
+        expanded = token
+        for placeholder, value in placeholders.items():
+            expanded = expanded.replace(placeholder, value)
+        command.append(expanded)
     if not uses_template:
         command.extend([str(source), str(target_root)])
     try:
@@ -553,9 +559,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--license-note", default="", help="User-provided license/attribution note for review.")
     parser.add_argument("--max-files", type=int, default=10000)
     parser.add_argument("--max-bytes", type=int, default=1024 * 1024 * 1024)
-    parser.add_argument("--external-extractor-command", help="Optional command for RAR/7z extraction. Source and destination are appended as final arguments.")
+    parser.add_argument(
+        "--external-extractor-command",
+        help=(
+            "Optional command for RAR/7z extraction. Source and destination are appended as final arguments "
+            "unless {source}/{destination} placeholders are present. Defaults to URPG_ASSET_ARCHIVE_EXTRACTOR."
+        ),
+    )
     parser.add_argument("--output", help="Optional output manifest path.")
     return parser.parse_args(argv)
+
+
+def configured_external_extractor_command(cli_value: str | None) -> list[str] | None:
+    command = cli_value or os.environ.get(EXTERNAL_EXTRACTOR_ENV)
+    return shlex.split(command) if command else None
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -565,7 +582,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f"source not found: {source}")
     session_id = args.session_id or f"import_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%d_%H%M%S')}"
     library_root = Path(args.library_root)
-    external_extractor_command = shlex.split(args.external_extractor_command) if args.external_extractor_command else None
+    external_extractor_command = configured_external_extractor_command(args.external_extractor_command)
     session = build_session(source, library_root, session_id, args.license_note, args.max_files, args.max_bytes, external_extractor_command)
     output = Path(args.output) if args.output else library_root / "catalog" / "import_sessions" / f"{session_id}.json"
     output.parent.mkdir(parents=True, exist_ok=True)

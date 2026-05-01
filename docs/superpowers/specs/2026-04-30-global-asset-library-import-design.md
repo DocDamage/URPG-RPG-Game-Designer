@@ -368,9 +368,10 @@ promotable. The Project Import Wizard exposes Convert Selected for conversion-ne
 the model runner. Optional local external extractor commands can ingest `.rar` and `.7z` sources into bounded quarantine
 with clear diagnostics, and Add Source handoff metadata can pass configured extractor commands through to
 `global_asset_import.py`. Extractor commands support either appended source/destination arguments or explicit
-`{source}` and `{destination}` placeholders for native tool argument templates. Numbered animation/image-frame drops
-assemble into deterministic sequence groups, and RPG Maker `img/*` plus `audio/*` folder conventions map into URPG
-review categories during managed import.
+`{source}` and `{destination}` placeholders, including embedded placeholder forms such as `-o{destination}`, for native
+tool argument templates. The command-line importer also reads `URPG_ASSET_ARCHIVE_EXTRACTOR` when no explicit extractor
+command is provided. Numbered animation/image-frame drops assemble into deterministic sequence groups, and RPG Maker
+`img/*` plus `audio/*` folder conventions map into URPG review categories during managed import.
 
 ### Phase 5: Wizard Workflow Contract
 
