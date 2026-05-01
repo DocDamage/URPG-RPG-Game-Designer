@@ -67,6 +67,8 @@ struct AssetLibraryFilter {
     bool referenced_only = false;
     bool runtime_ready_only = false;
     bool previewable_only = false;
+    bool project_attached_only = false;
+    bool attachable_only = false;
 };
 
 struct AssetDuplicateEntry {

@@ -8,12 +8,19 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <vector>
 
 namespace {
 
 std::filesystem::path uniqueTempRoot(const std::string& prefix) {
     const auto tick = std::chrono::steady_clock::now().time_since_epoch().count();
     return std::filesystem::temp_directory_path() / (prefix + "_" + std::to_string(tick));
+}
+
+void writeBinaryFile(const std::filesystem::path& path, std::string_view payload) {
+    std::filesystem::create_directories(path.parent_path());
+    std::ofstream out(path, std::ios::binary | std::ios::trunc);
+    out << payload;
 }
 
 } // namespace
@@ -48,6 +55,879 @@ TEST_CASE("AssetLibraryPanel empty snapshot explains missing reports", "[assets]
     REQUIRE(panel.lastRenderSnapshot().status == "empty");
     REQUIRE(panel.lastRenderSnapshot().status_message == "No asset library reports are loaded.");
     REQUIRE_FALSE(panel.lastRenderSnapshot().remediation.empty());
+}
+
+TEST_CASE("AssetLibraryModel exposes global import sessions and review queues",
+          "[assets][asset_library][editor][asset_import]") {
+    urpg::editor::AssetLibraryModel model;
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_20260430_001";
+    session.sourceKind = urpg::assets::AssetImportSourceKind::Folder;
+    session.sourcePath = "C:/Users/Creator/Downloads/fantasy_pack";
+    session.managedSourceRoot = ".urpg/asset-library/sources/import_20260430_001/original";
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    session.createdAt = "2026-04-30T00:00:00Z";
+    session.records = {
+        {
+            "asset.hero",
+            "characters/hero.png",
+            "asset://import_20260430_001/characters/hero.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            1024,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+        },
+        {
+            "asset.theme",
+            "audio/theme.ogg",
+            "asset://import_20260430_001/audio/theme.ogg",
+            ".ogg",
+            "audio",
+            "audio/bgm",
+            "Fantasy Pack",
+            "bbb",
+            2048,
+            0,
+            0,
+            110000,
+            false,
+            "",
+            false,
+            false,
+            false,
+            false,
+            {"conversion_required"},
+        },
+        {
+            "asset.unlicensed",
+            "ui/window.png",
+            "asset://import_20260430_001/ui/window.png",
+            ".png",
+            "image",
+            "ui",
+            "Fantasy Pack",
+            "ccc",
+            512,
+            64,
+            32,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            true,
+            {},
+        },
+    };
+
+    model.ingestImportSession(std::move(session));
+
+    REQUIRE(model.snapshot().status == "ready");
+    REQUIRE(model.snapshot().reports_loaded);
+    REQUIRE(model.snapshot().import_session_count == 1);
+    REQUIRE(model.snapshot().import_review_row_count == 3);
+    REQUIRE(model.snapshot().import_ready_count == 1);
+    REQUIRE(model.snapshot().import_needs_conversion_count == 1);
+    REQUIRE(model.snapshot().import_missing_license_count == 1);
+    REQUIRE(model.snapshot().import_session_rows.size() == 1);
+    REQUIRE(model.snapshot().import_session_rows[0]["status"] == "review_ready");
+    REQUIRE(model.snapshot().import_session_rows[0]["summary"]["filesScanned"] == 3);
+    REQUIRE(model.snapshot().import_review_rows.size() == 3);
+    REQUIRE(model.snapshot().import_wizard["status"] == "review_required");
+    REQUIRE(model.snapshot().import_wizard["current_step"] == "review");
+    REQUIRE(model.snapshot().import_wizard["actions"]["add_source"]["enabled"] == true);
+    REQUIRE(model.snapshot().import_wizard["actions"]["promote_selected"]["enabled"] == true);
+    REQUIRE(model.snapshot().import_wizard["actions"]["promote_selected"]["eligible_count"] == 1);
+    REQUIRE(model.snapshot().import_wizard["actions"]["attach_selected"]["enabled"] == false);
+    REQUIRE(model.snapshot().import_wizard["steps"][0]["id"] == "add_source");
+    REQUIRE(model.snapshot().import_wizard["steps"][0]["state"] == "complete");
+    REQUIRE(model.snapshot().import_wizard["steps"][1]["id"] == "review");
+    REQUIRE(model.snapshot().import_wizard["steps"][1]["state"] == "active");
+    const auto ready = std::find_if(
+        model.snapshot().import_review_rows.begin(), model.snapshot().import_review_rows.end(), [](const auto& row) {
+            return row["relative_path"] == "characters/hero.png";
+        });
+    REQUIRE(ready != model.snapshot().import_review_rows.end());
+    REQUIRE((*ready)["review_state"] == "ready_to_promote");
+    REQUIRE((*ready)["promotable"] == true);
+}
+
+TEST_CASE("AssetLibraryModel requests add-source import command handoff",
+          "[assets][asset_library][editor][asset_import][wizard]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_add_source_request");
+    const auto source = root / "fantasy_pack";
+    const auto libraryRoot = root / ".urpg" / "asset-library";
+
+    urpg::editor::AssetLibraryModel model;
+    const auto request = model.requestImportSource(
+        source, libraryRoot, "import_manual_001", "User-provided test license.");
+
+    REQUIRE(request["action"] == "request_import_source");
+    REQUIRE(request["success"] == true);
+    REQUIRE(request["code"] == "import_source_requested");
+    REQUIRE(request["source_path"] == source.generic_string());
+    REQUIRE(request["library_root"] == libraryRoot.generic_string());
+    REQUIRE(request["session_id"] == "import_manual_001");
+    REQUIRE(request["expected_manifest_path"] ==
+            (libraryRoot / "catalog" / "import_sessions" / "import_manual_001.json").generic_string());
+    REQUIRE(request["command"][0] == "python");
+    REQUIRE(request["command"][1] == "tools/assets/global_asset_import.py");
+    REQUIRE(request["command"][2] == "--source");
+    REQUIRE(request["command"][3] == source.generic_string());
+    REQUIRE(request["command"][4] == "--library-root");
+    REQUIRE(request["command"][5] == libraryRoot.generic_string());
+
+    REQUIRE(model.snapshot().last_action["action"] == "request_import_source");
+    REQUIRE(model.snapshot().import_wizard["status"] == "source_requested");
+    REQUIRE(model.snapshot().import_wizard["current_step"] == "add_source");
+    REQUIRE(model.snapshot().import_wizard["pending_request"]["session_id"] == "import_manual_001");
+    REQUIRE(model.snapshot().import_wizard["actions"]["add_source"]["pending_request"] == true);
+}
+
+TEST_CASE("AssetLibraryModel loads import session manifests from global library root",
+          "[assets][asset_library][editor][asset_import]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_import_sessions");
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root / "catalog" / "import_sessions");
+    std::filesystem::create_directories(root / "sources" / "import_source_002");
+
+    {
+        std::ofstream out(root / "catalog" / "import_sessions" / "import_catalog_001.json");
+        out << R"({
+          "schemaVersion": "1.0.0",
+          "sessionId": "import_catalog_001",
+          "sourceKind": "zip",
+          "sourcePath": "C:/Users/Creator/Downloads/fantasy_pack.zip",
+          "managedSourceRoot": ".urpg/asset-library/sources/import_catalog_001/extracted",
+          "status": "review_ready",
+          "createdAt": "2026-04-30T00:00:00Z",
+          "records": [
+            {
+              "assetId": "asset.hero",
+              "relativePath": "characters/hero.png",
+              "normalizedPath": "asset://import_catalog_001/sprite/hero.png",
+              "extension": ".png",
+              "mediaKind": "image",
+              "category": "sprite",
+              "pack": "Fantasy Pack",
+              "sha256": "aaa",
+              "sizeBytes": 1024,
+              "width": 48,
+              "height": 48,
+              "runtimeReady": true,
+              "licenseRequired": false,
+              "diagnostics": []
+            },
+            {
+              "assetId": "asset.theme",
+              "relativePath": "audio/theme.mp3",
+              "normalizedPath": "asset://import_catalog_001/audio/bgm/theme.mp3",
+              "extension": ".mp3",
+              "mediaKind": "audio",
+              "category": "audio/bgm",
+              "pack": "Fantasy Pack",
+              "sha256": "bbb",
+              "sizeBytes": 2048,
+              "runtimeReady": false,
+              "licenseRequired": false,
+              "diagnostics": ["conversion_required"]
+            }
+          ],
+          "diagnostics": []
+        })";
+    }
+    {
+        std::ofstream out(root / "sources" / "import_source_002" / "source_manifest.json");
+        out << R"({
+          "schemaVersion": "1.0.0",
+          "sessionId": "import_source_002",
+          "sourceKind": "folder",
+          "sourcePath": "C:/Users/Creator/Downloads/ui_pack",
+          "managedSourceRoot": ".urpg/asset-library/sources/import_source_002/original",
+          "status": "review_ready",
+          "createdAt": "2026-04-30T00:01:00Z",
+          "records": [
+            {
+              "assetId": "asset.window",
+              "relativePath": "ui/window.png",
+              "normalizedPath": "asset://import_source_002/ui/window.png",
+              "extension": ".png",
+              "mediaKind": "image",
+              "category": "ui",
+              "pack": "UI Pack",
+              "sha256": "ccc",
+              "sizeBytes": 512,
+              "width": 64,
+              "height": 32,
+              "runtimeReady": true,
+              "licenseRequired": true,
+              "diagnostics": []
+            }
+          ],
+          "diagnostics": []
+        })";
+    }
+
+    urpg::editor::AssetLibraryModel model;
+    std::string error = "not cleared";
+    REQUIRE(model.loadImportSessionsFromLibraryRoot(root, &error));
+    REQUIRE(error.empty());
+    REQUIRE(model.snapshot().status == "ready");
+    REQUIRE(model.snapshot().reports_loaded);
+    REQUIRE(model.snapshot().import_session_count == 2);
+    REQUIRE(model.snapshot().import_review_row_count == 3);
+    REQUIRE(model.snapshot().import_ready_count == 1);
+    REQUIRE(model.snapshot().import_needs_conversion_count == 1);
+    REQUIRE(model.snapshot().import_missing_license_count == 1);
+    REQUIRE(model.snapshot().import_session_rows.size() == 2);
+
+    const auto missing_license = std::find_if(
+        model.snapshot().import_review_rows.begin(), model.snapshot().import_review_rows.end(), [](const auto& row) {
+            return row["relative_path"] == "ui/window.png";
+        });
+    REQUIRE(missing_license != model.snapshot().import_review_rows.end());
+    REQUIRE((*missing_license)["review_state"] == "missing_license");
+    REQUIRE((*missing_license)["recommended_action"] == "add_license_attribution");
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel promotes selected import records through governed manifests",
+          "[assets][asset_library][editor][asset_import][promotion]") {
+    urpg::editor::AssetLibraryModel model;
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_20260430_001";
+    session.managedSourceRoot = ".urpg/asset-library/sources/import_20260430_001/extracted";
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    session.records = {
+        {
+            "asset.hero",
+            "characters/hero.png",
+            "asset://import_20260430_001/sprite/hero.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            1024,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+        },
+        {
+            "asset.theme",
+            "audio/theme.mp3",
+            "asset://import_20260430_001/audio/bgm/theme.mp3",
+            ".mp3",
+            "audio",
+            "audio/bgm",
+            "Fantasy Pack",
+            "bbb",
+            2048,
+            0,
+            0,
+            93000,
+            false,
+            "",
+            false,
+            false,
+            false,
+            false,
+            {"conversion_required"},
+        },
+    };
+    model.ingestImportSession(std::move(session));
+
+    const auto promoted = model.promoteImportRecord(
+        "import_20260430_001", "asset.hero", "user_license_note", ".urpg/asset-library/promoted", true);
+    REQUIRE(promoted.success);
+    REQUIRE(promoted.code == "import_record_promoted");
+    REQUIRE(model.snapshot().promoted_count == 1);
+    REQUIRE(model.snapshot().runtime_ready_count == 1);
+    REQUIRE(model.snapshot().project_attachable_count == 1);
+    REQUIRE(model.snapshot().project_attached_count == 0);
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["attachable"]["enabled"] == true);
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["attachable"]["count"] == 1);
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["project_attached"]["enabled"] == false);
+    REQUIRE(model.snapshot().asset_action_rows.size() == 1);
+    REQUIRE(model.snapshot().asset_action_rows[0]["recommended_action"] == "attach_to_project");
+    REQUIRE(model.snapshot().asset_action_rows[0]["attach_button"]["enabled"] == true);
+    REQUIRE(model.snapshot().asset_action_rows[0]["promoted_path"] ==
+            ".urpg/asset-library/promoted/asset.hero/payloads/hero.png");
+    REQUIRE(model.snapshot().last_action["action"] == "promote_import_record");
+    REQUIRE(model.snapshot().last_action["success"] == true);
+    REQUIRE(model.applyQuickFilter("attachable"));
+    REQUIRE(model.snapshot().filtered_asset_count == 1);
+    REQUIRE(model.snapshot().filter_controls["active_filter"]["attachable_only"] == true);
+    REQUIRE(model.snapshot().asset_action_rows[0]["asset_id"] == "asset.hero");
+    REQUIRE(model.applyQuickFilter("all_assets"));
+
+    const auto blocked = model.promoteImportRecord(
+        "import_20260430_001", "asset.theme", "user_license_note", ".urpg/asset-library/promoted", true);
+    REQUIRE_FALSE(blocked.success);
+    REQUIRE(blocked.code == "import_record_blocked");
+    REQUIRE(model.snapshot().asset_action_rows.size() == 2);
+    const auto theme = std::find_if(
+        model.snapshot().asset_action_rows.begin(), model.snapshot().asset_action_rows.end(), [](const auto& row) {
+            return row["asset_id"] == "asset.theme";
+    });
+    REQUIRE(theme != model.snapshot().asset_action_rows.end());
+    REQUIRE((*theme)["recommended_action"] == "convert_or_replace");
+    REQUIRE((*theme)["promotion_status"] == "blocked");
+    REQUIRE((*theme)["include_in_runtime"] == false);
+    REQUIRE((*theme)["promotion_diagnostics"][0] == "conversion_required");
+}
+
+TEST_CASE("AssetLibraryModel bulk promotes selected import records with per-record diagnostics",
+          "[assets][asset_library][editor][asset_import][promotion]") {
+    urpg::editor::AssetLibraryModel model;
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_20260430_bulk";
+    session.managedSourceRoot = ".urpg/asset-library/sources/import_20260430_bulk/extracted";
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    session.records = {
+        {
+            "asset.hero",
+            "characters/hero.png",
+            "asset://import_20260430_bulk/sprite/hero.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            1024,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+        },
+        {
+            "asset.theme",
+            "audio/theme.mp3",
+            "asset://import_20260430_bulk/audio/bgm/theme.mp3",
+            ".mp3",
+            "audio",
+            "audio/bgm",
+            "Fantasy Pack",
+            "bbb",
+            2048,
+            0,
+            0,
+            93000,
+            false,
+            "",
+            false,
+            false,
+            false,
+            false,
+            {"conversion_required"},
+        },
+    };
+    model.ingestImportSession(std::move(session));
+
+    const auto result = model.promoteImportRecords(
+        "import_20260430_bulk",
+        std::vector<std::string>{"asset.hero", "asset.theme", "asset.missing"},
+        "user_license_note",
+        ".urpg/asset-library/promoted",
+        true);
+
+    REQUIRE(result["action"] == "promote_import_records");
+    REQUIRE(result["success"] == false);
+    REQUIRE(result["selected_count"] == 3);
+    REQUIRE(result["promoted_count"] == 1);
+    REQUIRE(result["blocked_count"] == 1);
+    REQUIRE(result["missing_count"] == 1);
+    REQUIRE(result["rows"].size() == 3);
+    REQUIRE(model.snapshot().last_action["action"] == "promote_import_records");
+    REQUIRE(model.snapshot().last_action["promoted_count"] == 1);
+    REQUIRE(model.snapshot().promoted_count == 1);
+
+    const auto theme = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
+        return row["asset_id"] == "asset.theme";
+    });
+    REQUIRE(theme != result["rows"].end());
+    REQUIRE((*theme)["success"] == false);
+    REQUIRE((*theme)["code"] == "import_record_blocked");
+    REQUIRE((*theme)["diagnostics"][0] == "conversion_required");
+
+    const auto missing = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
+        return row["asset_id"] == "asset.missing";
+    });
+    REQUIRE(missing != result["rows"].end());
+    REQUIRE((*missing)["code"] == "import_record_not_found");
+}
+
+TEST_CASE("AssetLibraryModel attaches promoted assets to a project",
+          "[assets][asset_library][editor][asset_attachment]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_model_attach");
+    std::filesystem::remove_all(root);
+    const auto payload = root / ".urpg" / "asset-library" / "promoted" / "asset.hero" / "payloads" / "hero.png";
+    const auto projectRoot = root / "project";
+    writeBinaryFile(payload, "hero-payload");
+
+    urpg::editor::AssetLibraryModel model;
+    model.ingestPromotionManifest(urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.hero"},
+        {"sourcePath", "imports/raw/example/hero.png"},
+        {"promotedPath", payload.string()},
+        {"licenseId", "user_license_note"},
+        {"status", "runtime_ready"},
+        {"preview", {{"kind", "image"}, {"thumbnailPath", payload.string()}, {"width", 48}, {"height", 48}}},
+        {"package", {{"includeInRuntime", true}, {"requiredForRelease", false}}},
+        {"diagnostics", nlohmann::json::array()},
+    }));
+
+    const auto result = model.attachPromotedAssetToProject("imports/raw/example/hero.png", projectRoot);
+    REQUIRE(result.success);
+    REQUIRE(result.code == "project_asset_attached");
+    REQUIRE(model.snapshot().last_action["action"] == "attach_project_asset");
+    REQUIRE(model.snapshot().last_action["success"] == true);
+    REQUIRE(model.snapshot().referenced_asset_count == 1);
+    REQUIRE(model.snapshot().project_attached_count == 1);
+    REQUIRE(model.snapshot().project_attachable_count == 0);
+    REQUIRE(model.snapshot().import_wizard["status"] == "package_ready");
+    REQUIRE(model.snapshot().import_wizard["current_step"] == "package");
+    REQUIRE(model.snapshot().import_wizard["actions"]["package_validate"]["enabled"] == true);
+    REQUIRE(model.snapshot().import_wizard["steps"][4]["id"] == "package");
+    REQUIRE(model.snapshot().import_wizard["steps"][4]["state"] == "active");
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["project_attached"]["enabled"] == true);
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["project_attached"]["count"] == 1);
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["attachable"]["enabled"] == false);
+    REQUIRE(model.snapshot().asset_action_rows.size() == 1);
+    REQUIRE(model.snapshot().asset_action_rows[0]["archive_button"]["enabled"] == false);
+    REQUIRE(model.snapshot().asset_action_rows[0]["archive_button"]["disabled_reason"] == "asset_in_use");
+    REQUIRE(model.snapshot().asset_action_rows[0]["attach_button"]["enabled"] == false);
+    REQUIRE(model.snapshot().asset_action_rows[0]["attach_button"]["disabled_reason"] == "asset_already_attached");
+    REQUIRE(model.snapshot().asset_action_rows[0]["project_attached"] == true);
+    REQUIRE(model.snapshot().asset_action_rows[0]["recommended_action"] == "project_attached");
+    REQUIRE(model.snapshot().asset_action_rows[0]["used_by"].size() == 1);
+
+    const auto projectPayload = projectRoot / "content" / "assets" / "imported" / "asset.hero" / "hero.png";
+    const auto projectManifest = projectRoot / "content" / "assets" / "manifests" / "asset.hero.json";
+    REQUIRE(std::filesystem::is_regular_file(projectPayload));
+    REQUIRE(std::filesystem::is_regular_file(projectManifest));
+    REQUIRE(model.applyQuickFilter("project_attached"));
+    REQUIRE(model.snapshot().filtered_asset_count == 1);
+    REQUIRE(model.snapshot().filter_controls["active_filter"]["project_attached_only"] == true);
+    REQUIRE(model.snapshot().asset_action_rows[0]["project_attached"] == true);
+    REQUIRE(model.applyQuickFilter("attachable"));
+    REQUIRE(model.snapshot().filtered_asset_count == 0);
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel attaches selected promoted assets to a project",
+          "[assets][asset_library][editor][asset_attachment]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_model_attach_selected");
+    std::filesystem::remove_all(root);
+    const auto promotedRoot = root / ".urpg" / "asset-library" / "promoted";
+    const auto projectRoot = root / "project";
+    writeBinaryFile(promotedRoot / "asset.hero" / "payloads" / "hero.png", "hero-payload");
+    writeBinaryFile(promotedRoot / "asset.click" / "payloads" / "click.wav", "click-payload");
+
+    urpg::editor::AssetLibraryModel model;
+    model.ingestPromotionManifest(urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.hero"},
+        {"sourcePath", "imports/raw/example/hero.png"},
+        {"promotedPath", (promotedRoot / "asset.hero" / "payloads" / "hero.png").string()},
+        {"licenseId", "user_license_note"},
+        {"status", "runtime_ready"},
+        {"preview",
+         {{"kind", "image"},
+          {"thumbnailPath", (promotedRoot / "asset.hero" / "payloads" / "hero.png").string()},
+          {"width", 48},
+          {"height", 48}}},
+        {"package", {{"includeInRuntime", true}, {"requiredForRelease", false}}},
+        {"diagnostics", nlohmann::json::array()},
+    }));
+    model.ingestPromotionManifest(urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.click"},
+        {"sourcePath", "imports/raw/example/click.wav"},
+        {"promotedPath", (promotedRoot / "asset.click" / "payloads" / "click.wav").string()},
+        {"licenseId", "user_license_note"},
+        {"status", "runtime_ready"},
+        {"preview",
+         {{"kind", "audio"},
+          {"thumbnailPath", (promotedRoot / "asset.click" / "payloads" / "click.wav").string()},
+          {"width", 0},
+          {"height", 0}}},
+        {"package", {{"includeInRuntime", true}, {"requiredForRelease", false}}},
+        {"diagnostics", nlohmann::json::array()},
+    }));
+    REQUIRE(model.snapshot().project_attachable_count == 2);
+
+    const auto result = model.attachPromotedAssetsToProject(
+        std::vector<std::string>{
+            "imports/raw/example/hero.png",
+            "imports/raw/example/click.wav",
+            "imports/raw/example/missing.png",
+        },
+        projectRoot);
+
+    REQUIRE(result["action"] == "attach_project_assets");
+    REQUIRE(result["success"] == false);
+    REQUIRE(result["selected_count"] == 3);
+    REQUIRE(result["attached_count"] == 2);
+    REQUIRE(result["blocked_count"] == 0);
+    REQUIRE(result["missing_count"] == 1);
+    REQUIRE(result["rows"].size() == 3);
+    REQUIRE(model.snapshot().last_action["action"] == "attach_project_assets");
+    REQUIRE(model.snapshot().project_attached_count == 2);
+    REQUIRE(model.snapshot().project_attachable_count == 0);
+    REQUIRE(model.snapshot().project_asset_picker_rows.size() == 2);
+
+    REQUIRE(std::filesystem::is_regular_file(projectRoot / "content" / "assets" / "imported" / "asset.hero" /
+                                             "hero.png"));
+    REQUIRE(std::filesystem::is_regular_file(projectRoot / "content" / "assets" / "imported" / "asset.click" /
+                                             "click.wav"));
+    REQUIRE(std::filesystem::is_regular_file(projectRoot / "content" / "assets" / "manifests" / "asset.hero.json"));
+    REQUIRE(std::filesystem::is_regular_file(projectRoot / "content" / "assets" / "manifests" / "asset.click.json"));
+
+    const auto heroPicker = std::find_if(
+        model.snapshot().project_asset_picker_rows.begin(), model.snapshot().project_asset_picker_rows.end(),
+        [](const auto& row) {
+            return row["asset_id"] == "asset.hero";
+        });
+    REQUIRE(heroPicker != model.snapshot().project_asset_picker_rows.end());
+    REQUIRE((*heroPicker)["project_path"] ==
+            (projectRoot / "content" / "assets" / "imported" / "asset.hero" / "hero.png").generic_string());
+    REQUIRE((*heroPicker)["manifest_path"] ==
+            (projectRoot / "content" / "assets" / "manifests" / "asset.hero.json").generic_string());
+    REQUIRE((*heroPicker)["picker_kind"] == "sprite");
+    REQUIRE((*heroPicker)["picker_targets"][0] == "level_builder");
+
+    const auto audioPicker = std::find_if(
+        model.snapshot().project_asset_picker_rows.begin(), model.snapshot().project_asset_picker_rows.end(),
+        [](const auto& row) {
+            return row["asset_id"] == "asset.click";
+        });
+    REQUIRE(audioPicker != model.snapshot().project_asset_picker_rows.end());
+    REQUIRE((*audioPicker)["picker_kind"] == "audio");
+
+    const auto missing = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
+        return row["path"] == "imports/raw/example/missing.png";
+    });
+    REQUIRE(missing != result["rows"].end());
+    REQUIRE((*missing)["code"] == "asset_not_found");
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel promotes imported payloads globally before project attachment",
+          "[assets][asset_library][editor][asset_import][promotion][asset_attachment]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_model_global_promote_attach");
+    std::filesystem::remove_all(root);
+    const auto quarantineRoot = root / ".urpg" / "asset-library" / "sources" / "import_001" / "extracted";
+    writeBinaryFile(quarantineRoot / "characters" / "hero.png", "hero-payload");
+
+    urpg::editor::AssetLibraryModel model;
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_001";
+    session.managedSourceRoot = quarantineRoot.generic_string();
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    session.records = {
+        {
+            "asset.hero",
+            "characters/hero.png",
+            "asset://import_001/sprite/hero.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            12,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+        },
+    };
+    model.ingestImportSession(std::move(session));
+
+    const auto promoted = model.promoteImportRecordToGlobalLibrary(
+        "import_001", "asset.hero", "user_license_note", root / ".urpg" / "asset-library" / "promoted");
+    REQUIRE(promoted.success);
+    REQUIRE(promoted.code == "global_asset_promoted");
+    REQUIRE(model.snapshot().last_action["action"] == "promote_import_record_global");
+    REQUIRE(model.snapshot().promoted_count == 1);
+    const auto promotedPath = root / ".urpg" / "asset-library" / "promoted" / "asset.hero" / "payloads" / "hero.png";
+    REQUIRE(std::filesystem::is_regular_file(promotedPath));
+
+    const auto attached = model.attachPromotedAssetToProject(
+        (quarantineRoot / "characters" / "hero.png").generic_string(), root / "project");
+    REQUIRE(attached.success);
+    REQUIRE(attached.code == "project_asset_attached");
+    REQUIRE(std::filesystem::is_regular_file(root / "project" / "content" / "assets" / "imported" / "asset.hero" /
+                                             "hero.png"));
+    REQUIRE(std::filesystem::is_regular_file(root / "project" / "content" / "assets" / "manifests" /
+                                             "asset.hero.json"));
+    REQUIRE(model.snapshot().referenced_asset_count == 1);
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel bulk promotes selected records into the global library",
+          "[assets][asset_library][editor][asset_import][promotion]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_model_bulk_global_promote");
+    std::filesystem::remove_all(root);
+    const auto quarantineRoot = root / ".urpg" / "asset-library" / "sources" / "import_bulk" / "extracted";
+    writeBinaryFile(quarantineRoot / "characters" / "hero.png", "hero-payload");
+
+    urpg::editor::AssetLibraryModel model;
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_bulk";
+    session.managedSourceRoot = quarantineRoot.generic_string();
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    session.records = {
+        {
+            "asset.hero",
+            "characters/hero.png",
+            "asset://import_bulk/sprite/hero.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            12,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+        },
+        {
+            "asset.theme",
+            "audio/theme.mp3",
+            "asset://import_bulk/audio/bgm/theme.mp3",
+            ".mp3",
+            "audio",
+            "audio/bgm",
+            "Fantasy Pack",
+            "bbb",
+            2048,
+            0,
+            0,
+            93000,
+            false,
+            "",
+            false,
+            false,
+            false,
+            false,
+            {"conversion_required"},
+        },
+    };
+    model.ingestImportSession(std::move(session));
+
+    const auto promotedRoot = root / ".urpg" / "asset-library" / "promoted";
+    const auto result = model.promoteImportRecordsToGlobalLibrary(
+        "import_bulk",
+        std::vector<std::string>{"asset.hero", "asset.theme", "asset.missing"},
+        "user_license_note",
+        promotedRoot);
+
+    REQUIRE(result["action"] == "promote_import_records_global");
+    REQUIRE(result["success"] == false);
+    REQUIRE(result["selected_count"] == 3);
+    REQUIRE(result["promoted_count"] == 1);
+    REQUIRE(result["blocked_count"] == 1);
+    REQUIRE(result["missing_count"] == 1);
+    REQUIRE(result["rows"].size() == 3);
+    REQUIRE(model.snapshot().last_action["action"] == "promote_import_records_global");
+    REQUIRE(model.snapshot().promoted_count == 1);
+    REQUIRE(model.snapshot().project_attachable_count == 1);
+
+    const auto payload = promotedRoot / "asset.hero" / "payloads" / "hero.png";
+    const auto manifest = promotedRoot / "asset.hero" / "asset_promotion_manifest.json";
+    REQUIRE(std::filesystem::is_regular_file(payload));
+    REQUIRE(std::filesystem::is_regular_file(manifest));
+
+    const auto hero = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
+        return row["asset_id"] == "asset.hero";
+    });
+    REQUIRE(hero != result["rows"].end());
+    REQUIRE((*hero)["success"] == true);
+    REQUIRE((*hero)["code"] == "global_asset_promoted");
+    REQUIRE((*hero)["payload_path"] == payload.generic_string());
+    REQUIRE((*hero)["manifest_path"] == manifest.generic_string());
+
+    const auto theme = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
+        return row["asset_id"] == "asset.theme";
+    });
+    REQUIRE(theme != result["rows"].end());
+    REQUIRE((*theme)["success"] == false);
+    REQUIRE((*theme)["code"] == "global_promotion_blocked");
+    REQUIRE((*theme)["diagnostics"][0] == "conversion_required");
+
+    const auto missing = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
+        return row["asset_id"] == "asset.missing";
+    });
+    REQUIRE(missing != result["rows"].end());
+    REQUIRE((*missing)["code"] == "import_record_not_found");
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel reloads promoted global asset manifests",
+          "[assets][asset_library][editor][promotion]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_model_reload_promoted");
+    std::filesystem::remove_all(root);
+    const auto libraryRoot = root / ".urpg" / "asset-library";
+    const auto heroPayload = libraryRoot / "promoted" / "asset.hero" / "payloads" / "hero.png";
+    writeBinaryFile(heroPayload, "hero-payload");
+    std::filesystem::create_directories(libraryRoot / "promoted" / "asset.hero");
+    {
+        std::ofstream out(libraryRoot / "promoted" / "asset.hero" / "asset_promotion_manifest.json",
+                          std::ios::binary | std::ios::trunc);
+        out << nlohmann::json{
+                   {"schemaVersion", "1.0.0"},
+                   {"assetId", "asset.hero"},
+                   {"sourcePath", ".urpg/asset-library/sources/import_001/extracted/characters/hero.png"},
+                   {"promotedPath", heroPayload.generic_string()},
+                   {"licenseId", "user_license_note"},
+                   {"status", "runtime_ready"},
+                   {"preview",
+                    {{"kind", "image"}, {"thumbnailPath", heroPayload.generic_string()}, {"width", 48}, {"height", 48}}},
+                   {"package", {{"includeInRuntime", true}, {"requiredForRelease", false}}},
+                   {"diagnostics", nlohmann::json::array()},
+               }.dump(2);
+    }
+    std::filesystem::create_directories(libraryRoot / "promoted" / "asset.theme");
+    {
+        std::ofstream out(libraryRoot / "promoted" / "asset.theme" / "asset_promotion_manifest.json",
+                          std::ios::binary | std::ios::trunc);
+        out << nlohmann::json{
+                   {"schemaVersion", "1.0.0"},
+                   {"assetId", "asset.theme"},
+                   {"sourcePath", ".urpg/asset-library/sources/import_001/extracted/audio/theme.mp3"},
+                   {"promotedPath", ""},
+                   {"licenseId", "user_license_note"},
+                   {"status", "blocked"},
+                   {"preview", {{"kind", "pending"}}},
+                   {"package", {{"includeInRuntime", false}, {"requiredForRelease", false}}},
+                   {"diagnostics", {"conversion_required", "source_record_requires_conversion"}},
+               }.dump(2);
+    }
+
+    urpg::editor::AssetLibraryModel model;
+    std::string error = "not cleared";
+    REQUIRE(model.loadPromotedAssetsFromLibraryRoot(libraryRoot, &error));
+    REQUIRE(error.empty());
+    REQUIRE(model.snapshot().asset_count == 2);
+    REQUIRE(model.snapshot().promoted_count == 1);
+    REQUIRE(model.snapshot().runtime_ready_count == 1);
+    REQUIRE(model.snapshot().asset_action_rows.size() == 2);
+
+    const auto hero = std::find_if(
+        model.snapshot().asset_action_rows.begin(), model.snapshot().asset_action_rows.end(), [](const auto& row) {
+            return row["asset_id"] == "asset.hero";
+        });
+    REQUIRE(hero != model.snapshot().asset_action_rows.end());
+    REQUIRE((*hero)["recommended_action"] == "attach_to_project");
+    REQUIRE((*hero)["attach_button"]["enabled"] == true);
+
+    const auto theme = std::find_if(
+        model.snapshot().asset_action_rows.begin(), model.snapshot().asset_action_rows.end(), [](const auto& row) {
+            return row["asset_id"] == "asset.theme";
+        });
+    REQUIRE(theme != model.snapshot().asset_action_rows.end());
+    REQUIRE((*theme)["recommended_action"] == "convert_or_replace");
+    REQUIRE((*theme)["attach_button"]["enabled"] == false);
+    REQUIRE((*theme)["attach_button"]["disabled_reason"] == "asset_not_promoted");
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel reloads project asset attachment manifests",
+          "[assets][asset_library][editor][asset_attachment]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_model_reload_attach");
+    std::filesystem::remove_all(root);
+    const auto projectRoot = root / "project";
+    const auto projectPayload = projectRoot / "content" / "assets" / "imported" / "asset.hero" / "hero.png";
+    writeBinaryFile(projectPayload, "hero-payload");
+    const auto projectManifest = projectRoot / "content" / "assets" / "manifests" / "asset.hero.json";
+    std::filesystem::create_directories(projectManifest.parent_path());
+    {
+        std::ofstream out(projectManifest, std::ios::binary | std::ios::trunc);
+        out << nlohmann::json{
+                   {"schemaVersion", "1.0.0"},
+                   {"assetId", "asset.hero"},
+                   {"sourcePath", ".urpg/asset-library/promoted/asset.hero/payloads/hero.png"},
+                   {"promotedPath", projectPayload.generic_string()},
+                   {"licenseId", "user_license_note"},
+                   {"status", "runtime_ready"},
+                   {"preview",
+                    {{"kind", "image"},
+                     {"thumbnailPath", projectPayload.generic_string()},
+                     {"width", 48},
+                     {"height", 48}}},
+                   {"package", {{"includeInRuntime", true}, {"requiredForRelease", false}}},
+                   {"diagnostics", nlohmann::json::array()},
+               }.dump(2);
+    }
+
+    urpg::editor::AssetLibraryModel model;
+    std::string error = "not cleared";
+    REQUIRE(model.loadProjectAssetAttachments(projectRoot, &error));
+    REQUIRE(error.empty());
+    REQUIRE(model.snapshot().asset_count == 1);
+    REQUIRE(model.snapshot().promoted_count == 1);
+    REQUIRE(model.snapshot().referenced_asset_count == 1);
+    REQUIRE(model.snapshot().asset_action_rows.size() == 1);
+    REQUIRE(model.snapshot().asset_action_rows[0]["asset_id"] == "asset.hero");
+    REQUIRE(model.snapshot().asset_action_rows[0]["project_attached"] == true);
+    REQUIRE(model.snapshot().asset_action_rows[0]["recommended_action"] == "project_attached");
+    REQUIRE(model.snapshot().asset_action_rows[0]["attach_button"]["enabled"] == false);
+    REQUIRE(model.snapshot().asset_action_rows[0]["attach_button"]["disabled_reason"] == "asset_already_attached");
+    REQUIRE(model.snapshot().project_asset_picker_rows.size() == 1);
+    REQUIRE(model.snapshot().project_asset_picker_rows[0]["asset_id"] == "asset.hero");
+    REQUIRE(model.snapshot().project_asset_picker_rows[0]["project_path"] == projectPayload.generic_string());
+    REQUIRE(model.snapshot().project_asset_picker_rows[0]["manifest_path"] == projectManifest.generic_string());
+    REQUIRE(model.snapshot().project_asset_picker_rows[0]["picker_kind"] == "sprite");
+    REQUIRE(model.snapshot().project_asset_picker_rows[0]["picker_targets"][0] == "level_builder");
+
+    std::filesystem::remove_all(root);
 }
 
 TEST_CASE("AssetLibraryPanel load error snapshot includes remediation", "[assets][asset_library][editor][error]") {
@@ -232,6 +1112,8 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     REQUIRE(model.snapshot().filter_controls["quick_filters"]["sequence_packs"]["enabled"] == true);
     REQUIRE(model.snapshot().filter_controls["quick_filters"]["sequence_packs"]["count"] == 1);
     REQUIRE(model.snapshot().filter_controls["quick_filters"]["sequence_packs"]["media_kind"] == "image_sequence_collection");
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["attachable"]["enabled"] == false);
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["project_attached"]["enabled"] == false);
     REQUIRE(model.snapshot().asset_preview_rows.size() == 2);
     const auto sized_preview = std::find_if(
         model.snapshot().asset_preview_rows.begin(), model.snapshot().asset_preview_rows.end(), [](const auto& row) {
@@ -434,7 +1316,8 @@ TEST_CASE("AssetLibraryPanel exposes governed promotion manifest action rows",
         return row["path"] == "imports/raw/example/hero.png";
     });
     REQUIRE(promoted != rows.end());
-    REQUIRE((*promoted)["recommended_action"] == "ready");
+    REQUIRE((*promoted)["recommended_action"] == "attach_to_project");
+    REQUIRE((*promoted)["attach_button"]["enabled"] == true);
     REQUIRE((*promoted)["promotion_status"] == "runtime_ready");
     REQUIRE((*promoted)["include_in_runtime"] == true);
 

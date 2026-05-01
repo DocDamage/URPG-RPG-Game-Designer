@@ -228,6 +228,61 @@ TEST_CASE("ExportPackager::runExport result contains correct file list from a fr
     std::filesystem::remove_all(base);
 }
 
+TEST_CASE("ExportPackager asset discovery includes attached project assets and excludes global library quarantine",
+          "[export][packager][assets]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_attached_assets";
+    std::filesystem::remove_all(base);
+    WriteFile(base / "project" / "content" / "assets" / "imported" / "asset.hero" / "hero.png", "hero-payload");
+    WriteFile(base / "project" / "content" / "assets" / "manifests" / "asset.hero.json", R"({
+      "schemaVersion": "1.0.0",
+      "assetId": "asset.hero",
+      "sourcePath": ".urpg/asset-library/promoted/asset.hero/payloads/hero.png",
+      "promotedPath": "content/assets/imported/asset.hero/hero.png",
+      "licenseId": "user_license_note",
+      "status": "runtime_ready",
+      "preview": {"kind": "image", "thumbnailPath": "content/assets/imported/asset.hero/hero.png"},
+      "package": {"includeInRuntime": true},
+      "diagnostics": []
+    })");
+    WriteFile(base / "project" / ".urpg" / "asset-library" / "sources" / "import_001" / "extracted" / "raw.png",
+              "raw-quarantine");
+    WriteFile(base / "project" / ".urpg" / "asset-library" / "promoted" / "asset.hero" / "payloads" / "hero.png",
+              "global-promoted");
+
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = (base / "out").string();
+    config.compressAssets = false;
+    config.assetDiscoveryRoots = {
+        (base / "project" / "content" / "assets").string(),
+        (base / "project" / ".urpg").string(),
+    };
+
+    const auto result = urpg::tools::export_packager_detail::buildBundlePayloads(config);
+
+    const std::string firstError = result.errors.empty() ? "" : result.errors.front();
+    INFO(firstError);
+    REQUIRE(result.errors.empty());
+    const auto hasPath = [&](const std::string& path) {
+        return std::any_of(result.payloads.begin(), result.payloads.end(), [&](const auto& payload) {
+            return payload.path == path;
+        });
+    };
+    REQUIRE(hasPath("project_assets/root_01/imported/asset.hero/hero.png"));
+    REQUIRE(hasPath("project_assets/root_01/manifests/asset.hero.json"));
+    REQUIRE_FALSE(hasPath("project_assets/root_02/asset-library/sources/import_001/extracted/raw.png"));
+    REQUIRE_FALSE(hasPath("project_assets/root_02/asset-library/promoted/asset.hero/payloads/hero.png"));
+
+    const auto discovery = std::find_if(result.payloads.begin(), result.payloads.end(), [](const auto& payload) {
+        return payload.path == "export/asset_discovery_manifest.json";
+    });
+    REQUIRE(discovery != result.payloads.end());
+    const auto manifest = nlohmann::json::parse(discovery->bytes.begin(), discovery->bytes.end());
+    REQUIRE(manifest["discoveredAssetCount"] == 2);
+
+    std::filesystem::remove_all(base);
+}
+
 TEST_CASE("ExportPackager::runExport fails release native export before bootstrap artifact synthesis",
           "[export][packager][release]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_release_run_missing_runtime";

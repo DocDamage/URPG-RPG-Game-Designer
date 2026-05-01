@@ -1,6 +1,6 @@
 # Global Asset Library Import Design
 
-Status: approved design direction, pending implementation plan
+Status: approved design direction; Phases 1-5 implemented
 Date: 2026-04-30
 
 ## Goal
@@ -315,6 +315,12 @@ Gate tests:
 - Add duplicate and unsupported diagnostics.
 - Expose session/review rows in Asset Library model tests.
 
+Implementation status: complete as of the 2026-05-01 development slice. Phase 1 is covered by
+`AssetImportSession`, `GlobalAssetLibraryStore`, `tools/assets/global_asset_import.py`, editor model
+session/review rows with explicit preview/no-preview metadata, and targeted CTest/Python coverage. Native file-dialog
+wiring remains outside this implementation slice; Phases 2-4 cover promotion, project attachment, conversion handoff,
+optional external archive extraction, sequence assembly, and RPG Maker pack mapping.
+
 ### Phase 2: Review-Gated Promotion
 
 - Add promotion planner.
@@ -322,6 +328,11 @@ Gate tests:
 - Require license/attribution note for runtime/export promotion.
 - Add promote selected behavior and diagnostics.
 - Add editor snapshot coverage for review states.
+
+Implementation status: 100% complete as of the 2026-05-01 development slice. Phase 2 is covered by
+`planAssetPromotionManifest`, governed `AssetPromotionManifest` ingestion, single-record and selected-record
+promotion model APIs, materialized selected promotion into `.urpg/asset-library/promoted`, per-record diagnostics,
+license-gated runtime promotion, and editor snapshot tests.
 
 ### Phase 3: Project Attachment
 
@@ -331,6 +342,13 @@ Gate tests:
 - Make Level Builder and relevant pickers consume attached assets.
 - Ensure package/export validation sees only attached, package-eligible records.
 
+Implementation status: 100% complete as of the 2026-05-01 development slice.
+`ProjectAssetAttachmentService` copies runtime-ready promoted assets into `content/assets/imported`, writes
+project-local manifests under `content/assets/manifests`, exposes single-asset and selected-asset model APIs, reloads
+project attachment manifests, exposes project-local picker rows for Level Builder and selector surfaces, and keeps
+export/package discovery scoped to attached project assets while excluding raw global-library quarantine. The Level
+Builder prop placement selector consumes attached project picker rows for level-builder-targeted assets.
+
 ### Phase 4: Conversions And Advanced Packs
 
 - Add audio conversion workflow.
@@ -338,6 +356,27 @@ Gate tests:
 - Add aggregate animation sequence assembly.
 - Add RPG Maker folder convention mapping.
 - Add richer tileset/sprite/portrait/UI classification.
+
+Implementation status: 100% complete as of the 2026-05-01 development slice. Conversion-needed audio records now carry
+deterministic conversion handoff metadata, optional local external extractor commands can ingest `.rar` and `.7z`
+sources into bounded quarantine with clear diagnostics, numbered animation/image-frame drops assemble into deterministic
+sequence groups, and RPG Maker `img/*` plus `audio/*` folder conventions map into URPG review categories during managed
+import.
+
+### Phase 5: Wizard Workflow Contract
+
+- Expose explicit Add Source, Review, Promote, Attach, and Package workflow state.
+- Surface action enablement and disabled reasons from the Asset Library model.
+- Emit deterministic Add Source command handoff payloads for the external import tool.
+- Keep native file-dialog wiring outside the first implementation while making the wizard contract testable.
+- Provide package-validation readiness once project assets are attached.
+
+Implementation status: 100% complete as of the 2026-05-01 development slice. The Asset Library model now emits an
+`import_wizard` snapshot with ordered workflow steps, current step, status, action IDs, eligible counts, disabled
+reasons, pending Add Source import requests, deterministic `tools/assets/global_asset_import.py` command arguments,
+expected import-session manifest paths, and package-validation readiness. The contract is model-level so the editor UI
+can render the Project Import Wizard without making engine/runtime code depend on Python tooling or a platform file
+picker.
 
 ## Success Criteria
 

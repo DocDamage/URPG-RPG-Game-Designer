@@ -5,6 +5,7 @@
 #include "engine/core/presentation/spatial_projection.h"
 #include "engine/core/engine_context.h"
 #include <cmath>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -25,10 +26,20 @@ public:
         bool rejectOutOfBounds = true;
     };
 
+    struct ProjectAssetOption {
+        std::string asset_id;
+        std::string project_path;
+        std::string picker_kind;
+        std::vector<std::string> picker_targets;
+        bool targeted_for_level_builder = false;
+    };
+
     struct RenderSnapshot {
         bool visible = true;
         bool has_target = false;
         std::string selected_asset_id;
+        std::string selected_project_asset_id;
+        std::vector<ProjectAssetOption> project_asset_options;
         size_t prop_count = 0;
         std::optional<std::string> last_added_asset_id;
         std::optional<float> last_added_x;
@@ -167,6 +178,8 @@ public:
 
     void SetTarget(urpg::presentation::SpatialMapOverlay* overlay);
     void SetSelectedAssetId(const std::string& asset_id);
+    void SetProjectAssetOptions(std::vector<ProjectAssetOption> options);
+    bool SelectProjectAsset(const std::string& project_path);
 
     const RenderSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }
 
@@ -175,6 +188,8 @@ private:
 
     urpg::presentation::SpatialMapOverlay* m_targetOverlay = nullptr;
     std::string m_selectedAssetId = "tree_01";
+    std::string m_selectedProjectAssetId;
+    std::vector<ProjectAssetOption> m_projectAssetOptions;
     RenderSnapshot last_render_snapshot_;
 };
 

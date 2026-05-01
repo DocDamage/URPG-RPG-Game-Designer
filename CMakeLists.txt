@@ -379,8 +379,12 @@ set(URPG_CORE_SOURCES
     engine/core/presentation/effects/effect_translator.cpp
     engine/gameplay/combat/combat_calc.cpp
     engine/core/audio/audio_ai_bridge.cpp
+    engine/core/assets/global_asset_library_store.cpp
+    engine/core/assets/global_asset_promotion_service.cpp
+    engine/core/assets/asset_import_session.cpp
     engine/core/assets/asset_library.cpp
     engine/core/assets/asset_promotion_manifest.cpp
+    engine/core/assets/project_asset_attachment_service.cpp
     engine/core/assets/asset_action_view.cpp
     engine/core/assets/asset_cleanup_planner.cpp
     engine/core/audio/audio_mix_backend_smoke.cpp
@@ -1697,6 +1701,10 @@ if(Python3_FOUND)
     urpg_add_python_tool_test(
         urpg_vision_segmentation_acceptance_test
         tools/vision/tests/test_segmentation_acceptance.py
+    )
+    urpg_add_python_tool_test(
+        urpg_global_asset_import_tool_test
+        tools/assets/tests/test_global_asset_import.py
     )
 else()
     message(STATUS

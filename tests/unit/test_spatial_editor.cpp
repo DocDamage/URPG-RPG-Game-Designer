@@ -106,6 +106,37 @@ TEST_CASE("Spatial Editor Tooling Integration - PropPlacement adds instances", "
     REQUIRE(overlay.props[2].instanceId == "001:rock_01:1");
 }
 
+TEST_CASE("Spatial Editor Tooling Integration - PropPlacement consumes attached project asset picker rows",
+          "[editor][spatial][asset_attachment]") {
+    PropPlacementPanel placement;
+    placement.SetProjectAssetOptions({
+        {
+            "asset.hero",
+            "content/assets/imported/asset.hero/hero.png",
+            "sprite",
+            {"level_builder", "sprite_selector"},
+        },
+        {
+            "asset.click",
+            "content/assets/imported/asset.click/click.wav",
+            "audio",
+            {"audio_selector"},
+        },
+    });
+
+    REQUIRE(placement.lastRenderSnapshot().project_asset_options.size() == 1);
+    REQUIRE(placement.lastRenderSnapshot().project_asset_options[0].asset_id == "asset.hero");
+    REQUIRE(placement.lastRenderSnapshot().project_asset_options[0].project_path ==
+            "content/assets/imported/asset.hero/hero.png");
+    REQUIRE(placement.lastRenderSnapshot().project_asset_options[0].picker_kind == "sprite");
+    REQUIRE(placement.lastRenderSnapshot().project_asset_options[0].targeted_for_level_builder);
+    REQUIRE(placement.SelectProjectAsset("content/assets/imported/asset.hero/hero.png"));
+    REQUIRE(placement.lastRenderSnapshot().selected_asset_id == "content/assets/imported/asset.hero/hero.png");
+    REQUIRE(placement.lastRenderSnapshot().selected_project_asset_id == "asset.hero");
+    REQUIRE_FALSE(placement.SelectProjectAsset("content/assets/imported/asset.click/click.wav"));
+    REQUIRE(placement.lastRenderSnapshot().selected_project_asset_id == "asset.hero");
+}
+
 TEST_CASE("Spatial Editor Tooling Integration - Spatial overlay migration assigns deterministic prop instance ids", "[editor][spatial]") {
 
     SpatialMapOverlay overlay;

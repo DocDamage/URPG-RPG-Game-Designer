@@ -1,11 +1,550 @@
 #include "engine/core/assets/asset_action_view.h"
+#include "engine/core/assets/asset_import_session.h"
+#include "engine/core/assets/global_asset_library_store.h"
+#include "engine/core/assets/global_asset_promotion_service.h"
 #include "engine/core/assets/asset_library.h"
 #include "engine/core/assets/asset_promotion_manifest.h"
+#include "engine/core/assets/project_asset_attachment_service.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
 #include <algorithm>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+
+namespace {
+
+std::filesystem::path uniqueAssetTempRoot(const std::string& prefix) {
+    const auto tick = std::chrono::steady_clock::now().time_since_epoch().count();
+    return std::filesystem::temp_directory_path() / (prefix + "_" + std::to_string(tick));
+}
+
+void writeBinaryFile(const std::filesystem::path& path, std::string_view payload) {
+    std::filesystem::create_directories(path.parent_path());
+    std::ofstream out(path, std::ios::binary | std::ios::trunc);
+    out << payload;
+}
+
+} // namespace
+
+TEST_CASE("AssetImportSession round-trips and builds review rows", "[assets][asset_library][asset_import]") {
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_20260430_001";
+    session.sourceKind = urpg::assets::AssetImportSourceKind::Zip;
+    session.sourcePath = "C:/Users/Creator/Downloads/fantasy_pack.zip";
+    session.managedSourceRoot = ".urpg/asset-library/sources/import_20260430_001/extracted";
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    session.createdAt = "2026-04-30T00:00:00Z";
+    session.records = {
+        {
+            "asset.hero",
+            "characters/hero.png",
+            "asset://import_20260430_001/characters/hero.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            1024,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+            "",
+            {},
+            false,
+            "",
+            -1,
+            0,
+            true,
+            "image",
+            "",
+        },
+        {
+            "asset.music",
+            "audio/theme.mp3",
+            "asset://import_20260430_001/audio/theme.mp3",
+            ".mp3",
+            "audio",
+            "audio/bgm",
+            "Fantasy Pack",
+            "bbb",
+            2048,
+            0,
+            0,
+            93000,
+            false,
+            "",
+            false,
+            false,
+            false,
+            false,
+            {"conversion_required"},
+            "converted/audio/theme.wav",
+            {"ffmpeg", "-y", "-i", "audio/theme.mp3", "converted/audio/theme.wav"},
+            true,
+            "import_20260430_001:audio-theme",
+            0,
+            1,
+            true,
+            "audio",
+            "",
+        },
+        {
+            "asset.copy",
+            "characters/hero-copy.png",
+            "asset://import_20260430_001/characters/hero-copy.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            1024,
+            48,
+            48,
+            0,
+            true,
+            "asset.hero",
+            false,
+            false,
+            true,
+            false,
+            {},
+            "",
+            {},
+            false,
+            "",
+            -1,
+            0,
+            true,
+            "image",
+            "",
+        },
+        {
+            "asset.psd",
+            "source/hero.psd",
+            "asset://import_20260430_001/source/hero.psd",
+            ".psd",
+            "source",
+            "source/art",
+            "Fantasy Pack",
+            "ccc",
+            4096,
+            0,
+            0,
+            0,
+            false,
+            "",
+            true,
+            false,
+            false,
+            false,
+            {},
+            "",
+            {},
+            false,
+            "",
+            -1,
+            0,
+            false,
+            "none",
+            "no_preview_source_only",
+        },
+        {
+            "asset.exe",
+            "tools/setup.exe",
+            "",
+            ".exe",
+            "tool",
+            "tooling",
+            "Fantasy Pack",
+            "ddd",
+            8192,
+            0,
+            0,
+            0,
+            false,
+            "",
+            false,
+            true,
+            false,
+            false,
+            {"unsupported_format"},
+            "",
+            {},
+            false,
+            "",
+            -1,
+            0,
+            false,
+            "none",
+            "no_preview_tooling_only",
+        },
+        {
+            "asset.unlicensed",
+            "ui/button.png",
+            "asset://import_20260430_001/ui/button.png",
+            ".png",
+            "image",
+            "ui",
+            "Fantasy Pack",
+            "eee",
+            512,
+            32,
+            16,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            true,
+            {},
+            "",
+            {},
+            false,
+            "",
+            -1,
+            0,
+            true,
+            "image",
+            "",
+        },
+    };
+    session.summary = urpg::assets::summarizeAssetImportSession(session);
+
+    const auto json = urpg::assets::serializeAssetImportSession(session);
+    const auto loaded = urpg::assets::deserializeAssetImportSession(json);
+
+    REQUIRE(loaded.sessionId == session.sessionId);
+    REQUIRE(loaded.sourceKind == urpg::assets::AssetImportSourceKind::Zip);
+    REQUIRE(loaded.status == urpg::assets::AssetImportStatus::ReviewReady);
+    REQUIRE(loaded.records.size() == 6);
+    REQUIRE(loaded.summary.readyCount == 1);
+    REQUIRE(loaded.summary.needsConversionCount == 1);
+    REQUIRE(loaded.summary.duplicateCount == 1);
+    REQUIRE(loaded.summary.missingLicenseCount == 1);
+    REQUIRE(loaded.summary.sourceOnlyCount == 2);
+    REQUIRE(loaded.records[1].conversionRequired);
+    REQUIRE(loaded.records[1].conversionTargetPath == "converted/audio/theme.wav");
+    REQUIRE(loaded.records[1].conversionCommand.size() == 5);
+    REQUIRE(loaded.records[1].sequenceId == "import_20260430_001:audio-theme");
+    REQUIRE(loaded.records[1].sequenceFrameIndex == 0);
+    REQUIRE(loaded.records[1].sequenceFrameCount == 1);
+
+    const auto rows = urpg::assets::buildAssetImportReviewRows({loaded});
+    REQUIRE(rows.size() == 6);
+    const auto ready = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["relative_path"] == "characters/hero.png";
+    });
+    REQUIRE(ready != rows.end());
+    REQUIRE((*ready)["review_state"] == "ready_to_promote");
+    REQUIRE((*ready)["recommended_action"] == "promote");
+    REQUIRE((*ready)["promotable"] == true);
+    REQUIRE((*ready)["preview_available"] == true);
+    REQUIRE((*ready)["preview_kind"] == "image");
+
+    const auto missingLicense = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["relative_path"] == "ui/button.png";
+    });
+    REQUIRE(missingLicense != rows.end());
+    REQUIRE((*missingLicense)["review_state"] == "missing_license");
+    REQUIRE((*missingLicense)["recommended_action"] == "add_license_attribution");
+
+    const auto conversion = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["relative_path"] == "audio/theme.mp3";
+    });
+    REQUIRE(conversion != rows.end());
+    REQUIRE((*conversion)["conversion_required"] == true);
+    REQUIRE((*conversion)["conversion_target_path"] == "converted/audio/theme.wav");
+    REQUIRE((*conversion)["sequence_id"] == "import_20260430_001:audio-theme");
+    REQUIRE((*conversion)["preview_available"] == true);
+    REQUIRE((*conversion)["preview_kind"] == "audio");
+
+    const auto tooling = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["relative_path"] == "tools/setup.exe";
+    });
+    REQUIRE(tooling != rows.end());
+    REQUIRE((*tooling)["preview_available"] == false);
+    REQUIRE((*tooling)["no_preview_diagnostic"] == "no_preview_tooling_only");
+}
+
+TEST_CASE("AssetImportSession plans governed promotion manifests", "[assets][asset_library][asset_import][promotion]") {
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_20260430_001";
+    session.managedSourceRoot = ".urpg/asset-library/sources/import_20260430_001/extracted";
+    session.records = {
+        {
+            "asset.hero",
+            "characters/hero.png",
+            "asset://import_20260430_001/sprite/hero.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            1024,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+            "",
+            {},
+            false,
+            "",
+            -1,
+            0,
+        },
+        {
+            "asset.theme",
+            "audio/theme.mp3",
+            "asset://import_20260430_001/audio/bgm/theme.mp3",
+            ".mp3",
+            "audio",
+            "audio/bgm",
+            "Fantasy Pack",
+            "bbb",
+            2048,
+            0,
+            0,
+            93000,
+            false,
+            "",
+            false,
+            false,
+            false,
+            false,
+            {"conversion_required"},
+            "converted/audio/theme.wav",
+            {"ffmpeg", "-y", "-i", "audio/theme.mp3", "converted/audio/theme.wav"},
+            true,
+            "",
+            -1,
+            0,
+        },
+        {
+            "asset.copy",
+            "characters/hero-copy.png",
+            "asset://import_20260430_001/sprite/hero-copy.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            1024,
+            48,
+            48,
+            0,
+            true,
+            "asset.hero",
+            false,
+            false,
+            true,
+            false,
+            {},
+            "",
+            {},
+            false,
+            "",
+            -1,
+            0,
+        },
+    };
+
+    const auto ready = urpg::assets::planAssetPromotionManifest(
+        session, session.records[0], "user_license_note", ".urpg/asset-library/promoted", true);
+    REQUIRE(ready.status == urpg::assets::AssetPromotionStatus::RuntimeReady);
+    REQUIRE(ready.assetId == "asset.hero");
+    REQUIRE(ready.sourcePath == ".urpg/asset-library/sources/import_20260430_001/extracted/characters/hero.png");
+    REQUIRE(ready.promotedPath == ".urpg/asset-library/promoted/asset.hero/payloads/hero.png");
+    REQUIRE(ready.licenseId == "user_license_note");
+    REQUIRE(ready.package.includeInRuntime);
+    REQUIRE(ready.preview.kind == "image");
+    REQUIRE(ready.preview.width == 48);
+    REQUIRE(ready.diagnostics.empty());
+
+    const auto conversionNeeded = urpg::assets::planAssetPromotionManifest(
+        session, session.records[1], "user_license_note", ".urpg/asset-library/promoted", true);
+    REQUIRE(conversionNeeded.status == urpg::assets::AssetPromotionStatus::Blocked);
+    REQUIRE_FALSE(conversionNeeded.package.includeInRuntime);
+    REQUIRE(conversionNeeded.promotedPath.empty());
+    REQUIRE(std::find(conversionNeeded.diagnostics.begin(), conversionNeeded.diagnostics.end(),
+                      "source_record_requires_conversion") != conversionNeeded.diagnostics.end());
+
+    const auto duplicate = urpg::assets::planAssetPromotionManifest(
+        session, session.records[2], "user_license_note", ".urpg/asset-library/promoted", true);
+    REQUIRE(duplicate.status == urpg::assets::AssetPromotionStatus::Blocked);
+    REQUIRE(std::find(duplicate.diagnostics.begin(), duplicate.diagnostics.end(), "source_record_duplicate") !=
+            duplicate.diagnostics.end());
+
+    const auto missingLicense = urpg::assets::planAssetPromotionManifest(
+        session, session.records[0], "", ".urpg/asset-library/promoted", true);
+    REQUIRE(missingLicense.status == urpg::assets::AssetPromotionStatus::Blocked);
+    REQUIRE(std::find(missingLicense.diagnostics.begin(), missingLicense.diagnostics.end(),
+                      "license_evidence_missing") != missingLicense.diagnostics.end());
+}
+
+TEST_CASE("GlobalAssetLibraryStore persists import sessions and promoted manifests",
+          "[assets][asset_library][asset_import][promotion]") {
+    const auto root = uniqueAssetTempRoot("urpg_global_asset_library_store");
+    std::filesystem::remove_all(root);
+    const auto libraryRoot = root / ".urpg" / "asset-library";
+    urpg::assets::GlobalAssetLibraryStore store(libraryRoot);
+
+    REQUIRE(store.catalogDatabasePath() == root / ".urpg" / "asset-index" / "asset_catalog.db");
+
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import:20260430";
+    session.sourceKind = urpg::assets::AssetImportSourceKind::Zip;
+    session.sourcePath = "C:/Users/Creator/Downloads/fantasy_pack.zip";
+    session.managedSourceRoot = (libraryRoot / "sources" / "import-20260430" / "extracted").generic_string();
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    session.createdAt = "2026-04-30T00:00:00Z";
+    session.records = {
+        {
+            "asset.hero",
+            "characters/hero.png",
+            "asset://import-20260430/characters/hero.png",
+            ".png",
+            "image",
+            "characters",
+            "Fantasy Pack",
+            "abc",
+            1024,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            true,
+            {},
+            "",
+            {},
+            false,
+            "",
+            -1,
+            0,
+        },
+    };
+    session.summary = urpg::assets::summarizeAssetImportSession(session);
+
+    const auto importWrite = store.writeImportSession(session);
+    REQUIRE(importWrite.success);
+    REQUIRE(importWrite.code == "import_session_written");
+    REQUIRE(std::filesystem::is_regular_file(store.importSessionManifestPath("import:20260430")));
+    REQUIRE(std::filesystem::is_regular_file(store.sourceManifestPath("import:20260430")));
+
+    const auto loadedSessions = store.loadImportSessions();
+    REQUIRE(loadedSessions.size() == 1);
+    REQUIRE(loadedSessions.front().sessionId == "import:20260430");
+    REQUIRE(loadedSessions.front().records.size() == 1);
+
+    urpg::assets::AssetPromotionManifest manifest;
+    manifest.assetId = "asset.hero";
+    manifest.sourcePath = "imports/raw/example/hero.png";
+    manifest.promotedPath = (libraryRoot / "promoted" / "asset.hero" / "payloads" / "hero.png").generic_string();
+    manifest.licenseId = "user_license_note";
+    manifest.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+    manifest.preview.kind = "image";
+    manifest.preview.thumbnailPath = manifest.promotedPath;
+    manifest.preview.width = 48;
+    manifest.preview.height = 48;
+    manifest.package.includeInRuntime = true;
+
+    const auto promotedWrite = store.writePromotedAssetManifest(manifest);
+    REQUIRE(promotedWrite.success);
+    REQUIRE(promotedWrite.code == "promoted_asset_manifest_written");
+    REQUIRE(std::filesystem::is_regular_file(store.promotedAssetManifestPath("asset.hero")));
+
+    const auto loadedPromoted = store.loadPromotedAssetManifests();
+    REQUIRE(loadedPromoted.size() == 1);
+    REQUIRE(loadedPromoted.front().assetId == "asset.hero");
+    REQUIRE(loadedPromoted.front().status == urpg::assets::AssetPromotionStatus::RuntimeReady);
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("GlobalAssetPromotionService copies quarantined payloads into promoted library",
+          "[assets][asset_library][asset_import][promotion]") {
+    const auto root = uniqueAssetTempRoot("urpg_global_asset_promotion");
+    std::filesystem::remove_all(root);
+    const auto quarantineRoot = root / ".urpg" / "asset-library" / "sources" / "import_001" / "extracted";
+    const auto sourcePayload = quarantineRoot / "characters" / "hero.png";
+    writeBinaryFile(sourcePayload, "hero-payload");
+
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_001";
+    session.managedSourceRoot = quarantineRoot.generic_string();
+    session.records = {
+        {
+            "asset.hero",
+            "characters/hero.png",
+            "asset://import_001/sprite/hero.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            12,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+            "",
+            {},
+            false,
+            "",
+            -1,
+            0,
+        },
+    };
+
+    urpg::assets::GlobalAssetPromotionService service;
+    const auto result = service.promoteImportRecord(
+        session, session.records.front(), "user_license_note", root / ".urpg" / "asset-library" / "promoted");
+
+    REQUIRE(result.success);
+    REQUIRE(result.code == "global_asset_promoted");
+    REQUIRE(result.manifest.status == urpg::assets::AssetPromotionStatus::RuntimeReady);
+    REQUIRE(std::filesystem::is_regular_file(result.payloadPath));
+    REQUIRE(std::filesystem::is_regular_file(result.manifestPath));
+    REQUIRE(result.payloadPath == root / ".urpg" / "asset-library" / "promoted" / "asset.hero" / "payloads" /
+                                  "hero.png");
+    REQUIRE(result.manifestPath == root / ".urpg" / "asset-library" / "promoted" / "asset.hero" /
+                                   "asset_promotion_manifest.json");
+
+    std::ifstream manifestStream(result.manifestPath);
+    const auto manifest = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json::parse(manifestStream));
+    manifestStream.close();
+    REQUIRE(manifest.assetId == "asset.hero");
+    REQUIRE(manifest.promotedPath == result.payloadPath.generic_string());
+    REQUIRE(manifest.diagnostics.empty());
+
+    std::filesystem::remove_all(root);
+}
 
 TEST_CASE("AssetPromotionManifest round-trips runtime-ready promoted asset", "[assets][promotion]") {
     urpg::assets::AssetPromotionManifest manifest;
@@ -70,6 +609,86 @@ TEST_CASE("AssetPromotionManifest validates package and readiness blockers", "[a
     });
     REQUIRE(std::find(archivedPackaged.diagnostics.begin(), archivedPackaged.diagnostics.end(),
                       "archived_asset_packaged") != archivedPackaged.diagnostics.end());
+}
+
+TEST_CASE("ProjectAssetAttachmentService copies promoted payloads and writes project manifests",
+          "[assets][asset_library][asset_attachment]") {
+    const auto root = uniqueAssetTempRoot("urpg_project_asset_attachment");
+    std::filesystem::remove_all(root);
+    const auto globalPayload = root / ".urpg" / "asset-library" / "promoted" / "asset.hero" / "payloads" / "hero.png";
+    const auto projectRoot = root / "project";
+    writeBinaryFile(globalPayload, "hero-payload");
+
+    urpg::assets::AssetPromotionManifest manifest;
+    manifest.assetId = "asset.hero";
+    manifest.sourcePath = ".urpg/asset-library/sources/import/extracted/characters/hero.png";
+    manifest.promotedPath = globalPayload.string();
+    manifest.licenseId = "user_license_note";
+    manifest.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+    manifest.preview.kind = "image";
+    manifest.preview.thumbnailPath = globalPayload.string();
+    manifest.preview.width = 48;
+    manifest.preview.height = 48;
+    manifest.package.includeInRuntime = true;
+
+    urpg::assets::ProjectAssetAttachmentService service;
+    const auto result = service.attachPromotedAsset(manifest, projectRoot);
+
+    REQUIRE(result.success);
+    REQUIRE(result.code == "project_asset_attached");
+    REQUIRE(std::filesystem::is_regular_file(result.payloadPath));
+    REQUIRE(std::filesystem::is_regular_file(result.manifestPath));
+    REQUIRE(result.payloadPath == projectRoot / "content" / "assets" / "imported" / "asset.hero" / "hero.png");
+    REQUIRE(result.manifestPath == projectRoot / "content" / "assets" / "manifests" / "asset.hero.json");
+
+    {
+        std::ifstream manifestStream(result.manifestPath);
+        const auto projectManifest =
+            urpg::assets::deserializeAssetPromotionManifest(nlohmann::json::parse(manifestStream));
+        REQUIRE(projectManifest.assetId == "asset.hero");
+        REQUIRE(projectManifest.sourcePath == globalPayload.string());
+        REQUIRE(projectManifest.promotedPath == result.payloadPath.generic_string());
+        REQUIRE(projectManifest.status == urpg::assets::AssetPromotionStatus::RuntimeReady);
+        REQUIRE(projectManifest.package.includeInRuntime);
+        REQUIRE(projectManifest.diagnostics.empty());
+    }
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("ProjectAssetAttachmentService rejects blocked or missing promoted payloads",
+          "[assets][asset_library][asset_attachment]") {
+    const auto root = uniqueAssetTempRoot("urpg_project_asset_attachment_blocked");
+    std::filesystem::remove_all(root);
+
+    urpg::assets::AssetPromotionManifest blockedManifest;
+    blockedManifest.assetId = "asset.theme";
+    blockedManifest.promotedPath = (root / ".urpg" / "asset-library" / "promoted" / "theme.mp3").string();
+    blockedManifest.licenseId = "user_license_note";
+    blockedManifest.status = urpg::assets::AssetPromotionStatus::Blocked;
+    blockedManifest.package.includeInRuntime = false;
+    blockedManifest.preview.kind = "pending";
+    blockedManifest.diagnostics = {"source_record_requires_conversion"};
+
+    urpg::assets::ProjectAssetAttachmentService service;
+    const auto blocked = service.attachPromotedAsset(blockedManifest, root / "project");
+    REQUIRE_FALSE(blocked.success);
+    REQUIRE(blocked.code == "asset_promotion_invalid");
+    REQUIRE_FALSE(blocked.diagnostics.empty());
+
+    urpg::assets::AssetPromotionManifest missingPayload;
+    missingPayload.assetId = "asset.missing";
+    missingPayload.promotedPath = (root / ".urpg" / "asset-library" / "promoted" / "missing.png").string();
+    missingPayload.licenseId = "user_license_note";
+    missingPayload.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+    missingPayload.package.includeInRuntime = true;
+    missingPayload.preview.kind = "none";
+
+    const auto missing = service.attachPromotedAsset(missingPayload, root / "project");
+    REQUIRE_FALSE(missing.success);
+    REQUIRE(missing.code == "promoted_payload_missing");
+
+    std::filesystem::remove_all(root);
 }
 
 TEST_CASE("AssetLibrary ingests duplicate groups deterministically", "[assets][asset_library]") {
@@ -430,6 +1049,8 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE(hero != rows.end());
     REQUIRE((*hero)["recommended_action"] == "promote");
     REQUIRE((*hero)["promote_button"]["enabled"] == true);
+    REQUIRE((*hero)["attach_button"]["enabled"] == false);
+    REQUIRE((*hero)["attach_button"]["disabled_reason"] == "asset_not_promoted");
     REQUIRE((*hero)["archive_button"]["enabled"] == false);
     REQUIRE((*hero)["archive_button"]["disabled_reason"] == "asset_in_use");
 
@@ -440,6 +1061,7 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE((*duplicate)["recommended_action"] == "archive_duplicate");
     REQUIRE((*duplicate)["promote_button"]["enabled"] == false);
     REQUIRE((*duplicate)["promote_button"]["disabled_reason"] == "asset_duplicate");
+    REQUIRE((*duplicate)["attach_button"]["enabled"] == false);
     REQUIRE((*duplicate)["archive_button"]["enabled"] == true);
 
     const auto unlicensed = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
@@ -449,6 +1071,7 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE((*unlicensed)["recommended_action"] == "add_license_evidence");
     REQUIRE((*unlicensed)["promote_button"]["enabled"] == false);
     REQUIRE((*unlicensed)["promote_button"]["disabled_reason"] == "asset_missing_license");
+    REQUIRE((*unlicensed)["attach_button"]["disabled_reason"] == "asset_not_promoted");
 
     const auto sequence = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
         return row["path"] == "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon";
@@ -555,7 +1178,10 @@ TEST_CASE("AssetLibrary action rows expose governed promotion manifests", "[asse
         return row["path"] == "imports/raw/example/hero.png";
     });
     REQUIRE(promoted != rows.end());
-    REQUIRE((*promoted)["recommended_action"] == "ready");
+    REQUIRE((*promoted)["recommended_action"] == "attach_to_project");
+    REQUIRE((*promoted)["attach_button"]["enabled"] == true);
+    REQUIRE((*promoted)["attach_button"]["disabled_reason"].is_null());
+    REQUIRE((*promoted)["project_attached"] == false);
     REQUIRE((*promoted)["promotion_status"] == "runtime_ready");
     REQUIRE((*promoted)["promoted_path"] == "resources/assets/characters/hero.png");
     REQUIRE((*promoted)["license_id"] == "BND-001");
@@ -569,6 +1195,8 @@ TEST_CASE("AssetLibrary action rows expose governed promotion manifests", "[asse
     REQUIRE(unlicensed != rows.end());
     REQUIRE((*unlicensed)["recommended_action"] == "add_license_evidence");
     REQUIRE((*unlicensed)["include_in_runtime"] == false);
+    REQUIRE((*unlicensed)["attach_button"]["enabled"] == false);
+    REQUIRE((*unlicensed)["attach_button"]["disabled_reason"] == "asset_not_promoted");
     REQUIRE((*unlicensed)["promotion_diagnostics"][0] == "license_evidence_missing");
 
     const auto missing = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
@@ -577,6 +1205,7 @@ TEST_CASE("AssetLibrary action rows expose governed promotion manifests", "[asse
     REQUIRE(missing != rows.end());
     REQUIRE((*missing)["recommended_action"] == "fix_missing_file");
     REQUIRE((*missing)["include_in_runtime"] == false);
+    REQUIRE((*missing)["attach_button"]["disabled_reason"] == "asset_not_promoted");
 
     const auto archived = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
         return row["path"] == "imports/raw/example/hero-copy.png";
@@ -584,6 +1213,21 @@ TEST_CASE("AssetLibrary action rows expose governed promotion manifests", "[asse
     REQUIRE(archived != rows.end());
     REQUIRE((*archived)["recommended_action"] == "archived");
     REQUIRE((*archived)["include_in_runtime"] == false);
+    REQUIRE((*archived)["attach_button"]["disabled_reason"] == "asset_not_promoted");
     REQUIRE((*archived)["required_for_release"] == false);
     REQUIRE((*archived)["promotion_diagnostics"][0] == "archived_asset_packaged");
+
+    urpg::assets::AssetLibraryFilter attachableFilter;
+    attachableFilter.attachable_only = true;
+    const auto attachable = library.filterAssets(attachableFilter);
+    REQUIRE(attachable.size() == 1);
+    REQUIRE(attachable.front().path == "imports/raw/example/hero.png");
+
+    library.addUsageReference("imports/raw/example/hero.png", "project_asset_attachment:asset.hero");
+    urpg::assets::AssetLibraryFilter attachedFilter;
+    attachedFilter.project_attached_only = true;
+    const auto attached = library.filterAssets(attachedFilter);
+    REQUIRE(attached.size() == 1);
+    REQUIRE(attached.front().path == "imports/raw/example/hero.png");
+    REQUIRE(library.filterAssets(attachableFilter).empty());
 }

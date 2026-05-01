@@ -1,6 +1,6 @@
 # Asset Library And More Assets Intake
 
-Status Date: 2026-04-30
+Status Date: 2026-05-01
 
 This document records the current asset-library vertical slice and the local `more assets/` intake that was unpacked, cleaned, indexed, and kept as non-release raw quarantine.
 
@@ -13,11 +13,115 @@ Landed code:
 - `engine/core/assets/asset_library.*`
 - `engine/core/assets/asset_cleanup_planner.*`
 - `engine/core/assets/asset_provenance.h`
+- `engine/core/assets/asset_import_session.*`
+- `engine/core/assets/global_asset_library_store.*`
+- `engine/core/assets/global_asset_promotion_service.*`
+- `engine/core/assets/project_asset_attachment_service.*`
 - `editor/assets/asset_library_model.*`
 - `editor/assets/asset_library_panel.*`
 - `tools/ci/check_asset_library_governance.ps1`
+- `tools/assets/global_asset_import.py`
 - `tools/assets/ingest_more_assets.ps1`
 - `tools/assets/plan_more_assets_dedupe.py`
+
+## Global Asset Library Import Phase 1
+
+Status: complete for the managed folder/file/ZIP import foundation as of 2026-05-01.
+
+The first-pass global import lane now supports:
+
+- managed global library roots under `.urpg/asset-library/`
+- loose file, folder, and ZIP quarantine import
+- bounded ZIP extraction with path traversal, absolute path, malformed archive, file-count, and byte-count diagnostics
+- source manifests under `.urpg/asset-library/sources/<session>/source_manifest.json`
+- catalog mirror manifests under `.urpg/asset-library/catalog/import_sessions/<session>.json`
+- import session serialization, review rows, and summary counts
+- explicit review-row preview metadata, including stable no-preview diagnostics for source/tool/unsupported records
+- image/audio/source/tool classification for first-pass asset review
+- PNG, GIF, BMP, and JPEG dimensions where headers expose them without external dependencies
+- WAV duration metadata
+- duplicate detection by SHA-256 within the import session
+- unsupported extractor diagnostics for RAR/7z when no external extractor command is configured
+- `GlobalAssetLibraryStore` as the facade over the Phase 1 layout and existing `.urpg/asset-index/asset_catalog.db` path
+- Asset Library model exposure for import sessions and review queues
+
+Phase 1 intentionally did not claim native file-dialog UX, conversion workflows, optional RAR/7z extraction,
+aggregate animation sequence assembly, or richer RPG Maker folder convention mapping. Later phases now cover the
+non-dialog tooling surfaces.
+
+## Global Asset Library Promotion Phase 2
+
+Status: 100% complete for review-gated promotion as of 2026-05-01.
+
+The promotion lane now supports:
+
+- deterministic promotion planning from import-session records
+- governed `AssetPromotionManifest` output and ingestion
+- license/attribution-note gating for runtime/export promotion
+- blocked promotion diagnostics for conversion-needed, duplicate, unsupported, source-only, missing-license, and
+  missing-normalized-path records
+- single-record promotion from editor model entrypoints
+- selected-record batch promotion with per-record result rows and aggregate promoted/blocked/missing counts
+- selected-record global promotion that copies eligible quarantined payloads into `.urpg/asset-library/promoted`
+  and writes governed per-asset promotion manifests
+- Asset Library action rows that expose promoted payload, diagnostics, and next actions
+
+This phase still does not execute conversions. Records that need conversion remain blocked with diagnostics and Phase 4
+conversion handoff metadata until a later converter runner produces a supported runtime payload.
+
+## Global Asset Library Project Attachment Phase 3
+
+Status: 100% complete as of 2026-05-01.
+
+The project attachment lane now supports:
+
+- runtime-ready promoted asset validation before project attachment
+- copying selected promoted payloads into `content/assets/imported/<asset-id>/`
+- writing project-local manifests under `content/assets/manifests/`
+- single-asset and selected-asset attachment model entrypoints with per-record diagnostics
+- reloading project-local attachment manifests into the Asset Library model
+- project-local picker rows for Level Builder, sprite selectors, audio selectors, and UI/theme selectors
+- attachable and project-attached quick filters and counts
+- export/package discovery that includes attached project assets and excludes `.urpg/asset-library` quarantine/promoted
+  roots
+- Level Builder prop placement consumption of level-builder-targeted attached project assets
+
+Level Builder prop placement now consumes the Asset Library model's project-local picker rows. Audio and UI/theme picker
+surfaces can use the same row contract when their dedicated selector controls are expanded.
+
+## Global Asset Library Advanced Packs Phase 4
+
+Status: 100% complete as of 2026-05-01.
+
+The advanced-pack lane now supports:
+
+- RPG Maker `img/characters`, `img/tilesets`, `img/faces`, `img/parallaxes`, `img/pictures`, `img/animations`, and
+  `img/system` folders map into URPG `sprite`, `tileset`, `portrait`, `background`, `vfx`, and `ui` categories.
+- RPG Maker `audio/bgm`, `audio/bgs`, `audio/me`, and `audio/se` folders map into URPG audio categories.
+- conversion-needed audio records carry deterministic `conversionRequired`, `conversionTargetPath`, and
+  `conversionCommand` handoff metadata while remaining blocked from runtime promotion until conversion succeeds.
+- optional local external extractor commands can ingest `.rar` and `.7z` sources into managed quarantine without shell
+  execution, with bounded output validation and stable failure diagnostics.
+- numbered animation/image-frame drops assemble into deterministic `sequenceGroups`, with per-frame sequence metadata
+  on import records.
+
+## Global Asset Library Wizard Workflow Phase 5
+
+Status: 100% complete as of 2026-05-01.
+
+The model-level wizard contract now supports:
+
+- ordered Add Source, Review, Promote, Attach, and Package workflow steps under `import_wizard`
+- current-step and overall status values for empty, review-required, ready-to-attach, and package-ready states
+- action IDs, enablement flags, eligible counts, and disabled reasons for add-source, promote-selected,
+  attach-selected, and package-validation affordances
+- deterministic Add Source handoff requests with `tools/assets/global_asset_import.py` command arguments and expected
+  import-session manifest paths
+- package-validation readiness once promoted assets have been attached into project-local asset roots
+
+Native file-dialog wiring remains outside this slice; the model contract is stable for an editor UI to render the
+Project Import Wizard, collect a chosen source path, and call the existing import/promote/attach entrypoints without
+making editor/runtime code execute Python directly.
 
 ## More Assets Intake
 

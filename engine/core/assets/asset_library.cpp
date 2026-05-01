@@ -178,6 +178,21 @@ bool isPreviewable(const AssetRecord& record) {
            (record.preview_kind == "image" || record.preview_kind == "audio" || record.preview_kind == "video");
 }
 
+bool isProjectAttached(const AssetRecord& record) {
+    return std::any_of(record.used_by.begin(), record.used_by.end(), [](const auto& owner) {
+        return owner.rfind("project_asset_attachment:", 0) == 0;
+    });
+}
+
+bool isProjectAttachable(const AssetRecord& record) {
+    return hasStatus(record, AssetStatus::Promoted) &&
+           record.promotion_status == "runtime_ready" &&
+           record.include_in_runtime &&
+           !record.promoted_path.empty() &&
+           record.promotion_diagnostics.empty() &&
+           !isProjectAttached(record);
+}
+
 } // namespace
 
 const char* toString(AssetStatus status) {
@@ -482,6 +497,16 @@ void AssetLibrary::ingestPromotionManifest(const AssetPromotionManifest& manifes
             record.statuses.insert(AssetStatus::Archived);
             record.include_in_runtime = false;
             record.required_for_release = false;
+        } else if (diagnostic == "conversion_required" || diagnostic == "source_record_requires_conversion" ||
+                   diagnostic == "source_record_unsupported" || diagnostic == "source_record_source_only") {
+            record.statuses.insert(AssetStatus::UnsupportedFormat);
+            record.include_in_runtime = false;
+        } else if (diagnostic == "source_record_duplicate") {
+            record.statuses.insert(AssetStatus::Duplicate);
+            record.include_in_runtime = false;
+        } else if (diagnostic == "normalized_path_missing") {
+            record.statuses.insert(AssetStatus::MissingFile);
+            record.include_in_runtime = false;
         }
     }
 
@@ -666,6 +691,12 @@ std::vector<AssetRecord> AssetLibrary::filterAssets(const AssetLibraryFilter& fi
             continue;
         }
         if (filter.previewable_only && !isPreviewable(asset)) {
+            continue;
+        }
+        if (filter.project_attached_only && !isProjectAttached(asset)) {
+            continue;
+        }
+        if (filter.attachable_only && !isProjectAttachable(asset)) {
             continue;
         }
         result.push_back(asset);

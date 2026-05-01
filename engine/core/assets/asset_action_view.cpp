@@ -59,7 +59,35 @@ std::string archiveBlockReason(const AssetRecord& asset) {
     return {};
 }
 
-std::string recommendedAction(const AssetRecord& asset, bool canPromote, bool canArchive) {
+bool isProjectAttached(const AssetRecord& asset) {
+    return std::any_of(asset.used_by.begin(), asset.used_by.end(), [](const auto& owner) {
+        return owner.rfind("project_asset_attachment:", 0) == 0;
+    });
+}
+
+std::string attachBlockReason(const AssetRecord& asset) {
+    if (asset.path.empty()) {
+        return "asset_missing";
+    }
+    if (isProjectAttached(asset)) {
+        return "asset_already_attached";
+    }
+    if (!hasStatus(asset, AssetStatus::Promoted) || asset.promotion_status != "runtime_ready") {
+        return "asset_not_promoted";
+    }
+    if (!asset.include_in_runtime) {
+        return "asset_not_runtime_packageable";
+    }
+    if (asset.promoted_path.empty()) {
+        return "promoted_path_missing";
+    }
+    if (!asset.promotion_diagnostics.empty()) {
+        return "asset_promotion_blocked";
+    }
+    return {};
+}
+
+std::string recommendedAction(const AssetRecord& asset, bool canPromote, bool canArchive, bool canAttach) {
     if (hasStatus(asset, AssetStatus::MissingFile)) {
         return "fix_missing_file";
     }
@@ -75,8 +103,11 @@ std::string recommendedAction(const AssetRecord& asset, bool canPromote, bool ca
     if (canPromote) {
         return "promote";
     }
+    if (canAttach) {
+        return "attach_to_project";
+    }
     if (hasStatus(asset, AssetStatus::Promoted)) {
-        return "ready";
+        return isProjectAttached(asset) ? "project_attached" : "ready";
     }
     if (hasStatus(asset, AssetStatus::Archived)) {
         return "archived";
@@ -129,8 +160,10 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
     for (const auto& asset : snapshot.assets) {
         const auto promoteReason = promoteBlockReason(asset);
         const auto archiveReason = archiveBlockReason(asset);
+        const auto attachReason = attachBlockReason(asset);
         const bool canPromote = promoteReason.empty();
         const bool canArchive = archiveReason.empty();
+        const bool canAttach = attachReason.empty();
         rows.push_back({
             {"asset_id", asset.asset_id},
             {"path", asset.path},
@@ -152,7 +185,8 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
             {"include_in_runtime", asset.include_in_runtime},
             {"required_for_release", asset.required_for_release},
             {"promotion_diagnostics", asset.promotion_diagnostics},
-            {"recommended_action", recommendedAction(asset, canPromote, canArchive)},
+            {"project_attached", isProjectAttached(asset)},
+            {"recommended_action", recommendedAction(asset, canPromote, canArchive, canAttach)},
             {"promote_button",
              {
                  {"visible", true},
@@ -166,6 +200,13 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
                  {"enabled", canArchive},
                  {"action", "archive_asset"},
                  {"disabled_reason", canArchive ? nlohmann::json(nullptr) : nlohmann::json(archiveReason)},
+             }},
+            {"attach_button",
+             {
+                 {"visible", true},
+                 {"enabled", canAttach},
+                 {"action", "attach_project_asset"},
+                 {"disabled_reason", canAttach ? nlohmann::json(nullptr) : nlohmann::json(attachReason)},
              }},
         });
     }

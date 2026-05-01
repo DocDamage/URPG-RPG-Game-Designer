@@ -126,7 +126,7 @@ std::vector<AssetDiscoveryRoot> assetDiscoveryRoots(const ExportConfig& config, 
     if (configuredRoots.empty()) {
         configuredRoots = {
             "assets",     "audio", "fonts", "images", "content/projects", "content/scenes", "content/localization",
-            "content/ui",
+            "content/ui", "content/assets/imported", "content/assets/manifests",
         };
     }
 
@@ -173,6 +173,15 @@ std::vector<std::uint8_t> readFileBytes(const std::filesystem::path& path) {
 
 bool isLicenseEvidenceFile(const std::filesystem::path& path) {
     return path.filename() == kAssetLicenseManifestFilename;
+}
+
+bool isManagedGlobalAssetLibraryPath(const std::filesystem::path& path) {
+    auto normalized = path.lexically_normal().generic_string();
+    std::replace(normalized.begin(), normalized.end(), '\\', '/');
+    return normalized.find("/.urpg/asset-library/sources/") != std::string::npos ||
+           normalized.find("/.urpg/asset-library/promoted/") != std::string::npos ||
+           normalized.rfind(".urpg/asset-library/sources/", 0) == 0 ||
+           normalized.rfind(".urpg/asset-library/promoted/", 0) == 0;
 }
 
 bool fileFitsBundleLimits(const std::filesystem::path& path, std::vector<std::string>& errors) {
@@ -416,6 +425,9 @@ std::vector<BundlePayload> collectAutoDiscoveredProjectAssetPayloads(const Expor
         std::sort(files.begin(), files.end());
         for (const auto& filePath : files) {
             if (isLicenseEvidenceFile(filePath)) {
+                continue;
+            }
+            if (isManagedGlobalAssetLibraryPath(filePath)) {
                 continue;
             }
 
