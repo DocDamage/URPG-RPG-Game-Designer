@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include <filesystem>
+#include <functional>
 #include <map>
 #include <string>
 #include <vector>
@@ -66,6 +67,20 @@ struct AssetLibraryModelSnapshot {
 
 class AssetLibraryModel {
   public:
+    struct ConversionCommand {
+        std::filesystem::path working_directory;
+        std::filesystem::path output_path;
+        std::vector<std::string> arguments;
+    };
+
+    struct ConversionCommandResult {
+        int exit_code = 0;
+        std::string stdout_text;
+        std::string stderr_text;
+    };
+
+    using ConversionCommandExecutor = std::function<ConversionCommandResult(const ConversionCommand&)>;
+
     void ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                        std::string_view duplicate_csv);
     void ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
@@ -83,6 +98,8 @@ class AssetLibraryModel {
     urpg::assets::AssetLibraryActionResult promoteImportRecord(std::string session_id, std::string asset_id,
                                                                std::string license_id, std::string promoted_root,
                                                                bool include_in_runtime = true);
+    nlohmann::json runImportRecordConversion(std::string session_id, std::string asset_id,
+                                             ConversionCommandExecutor executor = {});
     nlohmann::json promoteImportRecords(std::string session_id, std::vector<std::string> asset_ids,
                                         std::string license_id, std::string promoted_root,
                                         bool include_in_runtime = true);

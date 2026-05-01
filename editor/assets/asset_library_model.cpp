@@ -6,10 +6,11 @@
 #include "engine/core/assets/project_asset_attachment_service.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace urpg::editor {
 
@@ -344,6 +345,50 @@ std::string findAssetPathById(const urpg::assets::AssetLibrary& library, const s
     return {};
 }
 
+void eraseDiagnostic(std::vector<std::string>& diagnostics, std::string_view code) {
+    diagnostics.erase(std::remove(diagnostics.begin(), diagnostics.end(), code), diagnostics.end());
+}
+
+std::string quoteShellArg(const std::string& value) {
+    std::string out = "\"";
+    for (const char ch : value) {
+        if (ch == '"') {
+            out += "\\\"";
+        } else {
+            out += ch;
+        }
+    }
+    out += "\"";
+    return out;
+}
+
+AssetLibraryModel::ConversionCommandResult runConversionCommandWithSystem(
+    const AssetLibraryModel::ConversionCommand& command) {
+    if (command.arguments.empty()) {
+        return {1, "", "conversion command is empty"};
+    }
+
+    std::ostringstream shell;
+    bool first = true;
+    for (const auto& arg : command.arguments) {
+        if (!first) {
+            shell << ' ';
+        }
+        shell << quoteShellArg(arg);
+        first = false;
+    }
+
+    const auto previous = std::filesystem::current_path();
+    std::error_code cwdError;
+    std::filesystem::current_path(command.working_directory, cwdError);
+    if (cwdError) {
+        return {1, "", cwdError.message()};
+    }
+    const int exitCode = std::system(shell.str().c_str());
+    std::filesystem::current_path(previous, cwdError);
+    return {exitCode, "", ""};
+}
+
 std::string projectAttachmentManifestPath(const urpg::assets::AssetRecord& asset) {
     constexpr std::string_view prefix = "project_asset_attachment:";
     for (const auto& owner : asset.used_by) {
@@ -576,6 +621,121 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::promoteImportRecord(st
     snapshot_.last_action = result.toJson();
     snapshot_.action_history = action_history_;
     return result;
+}
+
+nlohmann::json AssetLibraryModel::runImportRecordConversion(std::string session_id, std::string asset_id,
+                                                            ConversionCommandExecutor executor) {
+    auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(), [&](const auto& candidate) {
+        return candidate.sessionId == session_id;
+    });
+    if (session == import_sessions_.end()) {
+        nlohmann::json action = {
+            {"action", "run_import_record_conversion"},
+            {"success", false},
+            {"code", "import_session_not_found"},
+            {"message", "Import session was not found."},
+            {"session_id", session_id},
+            {"asset_id", asset_id},
+        };
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    auto record = std::find_if(session->records.begin(), session->records.end(), [&](const auto& candidate) {
+        return candidate.assetId == asset_id;
+    });
+    if (record == session->records.end()) {
+        nlohmann::json action = {
+            {"action", "run_import_record_conversion"},
+            {"success", false},
+            {"code", "import_record_not_found"},
+            {"message", "Import record was not found."},
+            {"session_id", session_id},
+            {"asset_id", asset_id},
+        };
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    if (!record->conversionRequired || record->conversionTargetPath.empty() || record->conversionCommand.empty()) {
+        nlohmann::json action = {
+            {"action", "run_import_record_conversion"},
+            {"success", false},
+            {"code", "import_record_conversion_not_required"},
+            {"message", "Import record does not have a conversion handoff."},
+            {"session_id", session_id},
+            {"asset_id", asset_id},
+        };
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    ConversionCommand command;
+    command.working_directory = std::filesystem::path(session->managedSourceRoot);
+    command.output_path = command.working_directory / std::filesystem::path(record->conversionTargetPath);
+    command.arguments = record->conversionCommand;
+    const auto result = executor ? executor(command) : runConversionCommandWithSystem(command);
+
+    std::error_code existsError;
+    const bool outputExists = std::filesystem::is_regular_file(command.output_path, existsError);
+    if (result.exit_code != 0 || !outputExists) {
+        nlohmann::json action = {
+            {"action", "run_import_record_conversion"},
+            {"success", false},
+            {"code", result.exit_code == 0 ? "conversion_output_missing" : "conversion_command_failed"},
+            {"message", result.exit_code == 0 ? "Conversion command did not produce the expected output."
+                                               : "Conversion command failed."},
+            {"session_id", session_id},
+            {"asset_id", asset_id},
+            {"exit_code", result.exit_code},
+            {"stderr", result.stderr_text},
+            {"expected_output", command.output_path.generic_string()},
+        };
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    record->relativePath = std::filesystem::path(record->conversionTargetPath).generic_string();
+    record->extension = std::filesystem::path(record->relativePath).extension().generic_string();
+    record->sizeBytes = static_cast<uint64_t>(std::filesystem::file_size(command.output_path, existsError));
+    record->runtimeReady = true;
+    record->conversionRequired = false;
+    record->conversionTargetPath.clear();
+    record->conversionCommand.clear();
+    record->previewAvailable = true;
+    record->previewKind = "audio";
+    record->noPreviewDiagnostic.clear();
+    eraseDiagnostic(record->diagnostics, "conversion_required");
+    eraseDiagnostic(record->diagnostics, "source_record_requires_conversion");
+    session->summary = urpg::assets::summarizeAssetImportSession(*session);
+
+    nlohmann::json action = {
+        {"action", "run_import_record_conversion"},
+        {"success", true},
+        {"code", "import_record_converted"},
+        {"message", "Import record conversion completed."},
+        {"session_id", session_id},
+        {"asset_id", asset_id},
+        {"converted_path", record->relativePath},
+        {"output_path", command.output_path.generic_string()},
+    };
+    action_history_.push_back(action);
+    refreshSnapshot();
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
 }
 
 nlohmann::json AssetLibraryModel::promoteImportRecords(std::string session_id, std::vector<std::string> asset_ids,

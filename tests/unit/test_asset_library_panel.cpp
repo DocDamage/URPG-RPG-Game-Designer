@@ -594,6 +594,69 @@ TEST_CASE("AssetLibraryModel promotes selected import records through governed m
     REQUIRE((*theme)["promotion_diagnostics"][0] == "conversion_required");
 }
 
+TEST_CASE("AssetLibraryModel runs audio conversion handoff and unblocks promotion",
+          "[assets][asset_library][editor][asset_import][conversion]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_audio_conversion");
+    std::filesystem::remove_all(root);
+    const auto managedRoot = root / ".urpg" / "asset-library" / "sources" / "import_audio" / "original";
+    writeBinaryFile(managedRoot / "audio" / "bgm" / "theme.mp3", "source-audio");
+
+    urpg::editor::AssetLibraryModel model;
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_audio";
+    session.managedSourceRoot = managedRoot.generic_string();
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    session.records = {
+        {
+            "asset.theme",
+            "audio/bgm/theme.mp3",
+            "asset://import_audio/audio/bgm/theme.mp3",
+            ".mp3",
+            "audio",
+            "audio/bgm",
+            "Fantasy Pack",
+            "bbb",
+            2048,
+            0,
+            0,
+            93000,
+            false,
+            "",
+            false,
+            false,
+            false,
+            false,
+            {"conversion_required"},
+            "converted/audio/bgm/theme.wav",
+            {"ffmpeg", "-y", "-i", "audio/bgm/theme.mp3", "converted/audio/bgm/theme.wav"},
+            true,
+        },
+    };
+    model.ingestImportSession(std::move(session));
+    REQUIRE(model.snapshot().import_needs_conversion_count == 1);
+
+    const auto result = model.runImportRecordConversion(
+        "import_audio", "asset.theme", [&](const urpg::editor::AssetLibraryModel::ConversionCommand& command) {
+            REQUIRE(command.working_directory == managedRoot);
+            REQUIRE(command.arguments.size() == 5);
+            REQUIRE(command.arguments[0] == "ffmpeg");
+            writeBinaryFile(managedRoot / "converted" / "audio" / "bgm" / "theme.wav", "converted-audio");
+            return urpg::editor::AssetLibraryModel::ConversionCommandResult{0, "", ""};
+        });
+
+    REQUIRE(result["success"] == true);
+    REQUIRE(result["code"] == "import_record_converted");
+    REQUIRE(model.snapshot().import_needs_conversion_count == 0);
+    REQUIRE(model.snapshot().import_ready_count == 1);
+    REQUIRE(model.snapshot().import_review_rows[0]["relative_path"] == "converted/audio/bgm/theme.wav");
+    REQUIRE(model.snapshot().import_review_rows[0]["extension"] == ".wav");
+    REQUIRE(model.snapshot().import_review_rows[0]["conversion_required"] == false);
+    REQUIRE(model.snapshot().import_review_rows[0]["conversion_command"].empty());
+    REQUIRE(model.snapshot().import_review_rows[0]["review_state"] == "ready_to_promote");
+
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("AssetLibraryModel bulk promotes selected import records with per-record diagnostics",
           "[assets][asset_library][editor][asset_import][promotion]") {
     urpg::editor::AssetLibraryModel model;

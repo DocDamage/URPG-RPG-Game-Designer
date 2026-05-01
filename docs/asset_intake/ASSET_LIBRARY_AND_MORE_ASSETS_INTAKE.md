@@ -99,7 +99,10 @@ The advanced-pack lane now supports:
   `img/system` folders map into URPG `sprite`, `tileset`, `portrait`, `background`, `vfx`, and `ui` categories.
 - RPG Maker `audio/bgm`, `audio/bgs`, `audio/me`, and `audio/se` folders map into URPG audio categories.
 - conversion-needed audio records carry deterministic `conversionRequired`, `conversionTargetPath`, and
-  `conversionCommand` handoff metadata while remaining blocked from runtime promotion until conversion succeeds.
+  `conversionCommand` handoff metadata.
+- the Asset Library model can run the stored conversion handoff from the managed source root, verify the expected
+  output, update the import record to the converted runtime-ready payload, clear conversion diagnostics, and make the
+  record promotable.
 - optional local external extractor commands can ingest `.rar` and `.7z` sources into managed quarantine without shell
   execution, with bounded output validation and stable failure diagnostics.
 - numbered animation/image-frame drops assemble into deterministic `sequenceGroups`, with per-frame sequence metadata
