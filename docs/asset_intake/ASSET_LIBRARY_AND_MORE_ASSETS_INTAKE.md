@@ -122,9 +122,11 @@ The model-level wizard contract now supports:
   readiness
 - Asset Library panel action dispatchers for Add Source, Promote Selected, Attach Selected, and Package Validate that
   call the existing model or export-packager entrypoints and keep the wizard render snapshot current
+- Add Source picker wiring through an injectable panel picker, with a Windows native `IFileOpenDialog` implementation
+  for file/archive or folder source selection and deterministic test injection for headless runs
 
-Native file-dialog wiring remains outside this slice; a future platform picker can pass a chosen source path into the
-panel's Add Source dispatcher without making editor/runtime code execute Python directly.
+The picker supplies the chosen source path to the existing Add Source dispatcher without making editor/runtime code
+execute Python directly.
 
 ## More Assets Intake
 

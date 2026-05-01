@@ -379,7 +379,8 @@ expected import-session manifest paths, and package-validation readiness. The As
 wizard render snapshot for steps, actions, disabled reasons, pending requests, and package-validation readiness. Panel
 dispatchers now route Add Source, Promote Selected, Attach Selected, and Package Validate through the existing model or
 export-packager entrypoints and keep the wizard snapshot current without making engine/runtime code depend on Python
-tooling or a platform file picker.
+tooling. Add Source picker wiring is available through an injectable panel picker with a Windows native `IFileOpenDialog`
+implementation for file/archive or folder source selection.
 
 ## Success Criteria
 

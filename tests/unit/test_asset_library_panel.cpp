@@ -7,6 +7,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -317,6 +318,47 @@ TEST_CASE("AssetLibraryPanel dispatches import wizard actions through the model"
     REQUIRE(validation["errors"].empty());
 
     std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryPanel requests add-source through an import source picker",
+          "[assets][asset_library][editor][asset_import][wizard][picker]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_panel_picker");
+    const auto source = root / "downloads" / "fantasy_pack.zip";
+    const auto libraryRoot = root / ".urpg" / "asset-library";
+
+    urpg::editor::AssetLibraryPanel panel;
+    panel.setImportSourcePicker([&](const urpg::editor::AssetLibraryPanel::ImportSourcePickerRequest& request) {
+        REQUIRE(request.mode == urpg::editor::AssetLibraryPanel::ImportSourcePickerMode::FileOrArchive);
+        REQUIRE(request.library_root == libraryRoot);
+        REQUIRE(request.session_id == "import_picker_001");
+        REQUIRE(request.license_note == "User-provided picker license.");
+        return std::optional<std::filesystem::path>{source};
+    });
+
+    const auto request = panel.requestImportSourceFromPicker({
+        urpg::editor::AssetLibraryPanel::ImportSourcePickerMode::FileOrArchive,
+        libraryRoot,
+        "import_picker_001",
+        "User-provided picker license.",
+    });
+
+    REQUIRE(request["success"] == true);
+    REQUIRE(request["source_path"] == source.generic_string());
+    REQUIRE(request["library_root"] == libraryRoot.generic_string());
+    REQUIRE(panel.lastImportWizardSnapshot().status == "source_requested");
+    REQUIRE(panel.lastImportWizardSnapshot().pending_request["session_id"] == "import_picker_001");
+
+    panel.setImportSourcePicker([](const urpg::editor::AssetLibraryPanel::ImportSourcePickerRequest&) {
+        return std::optional<std::filesystem::path>{};
+    });
+    const auto cancelled = panel.requestImportSourceFromPicker({
+        urpg::editor::AssetLibraryPanel::ImportSourcePickerMode::Folder,
+        libraryRoot,
+        "import_picker_cancelled",
+        "",
+    });
+    REQUIRE(cancelled["success"] == false);
+    REQUIRE(cancelled["code"] == "import_source_picker_cancelled");
 }
 
 TEST_CASE("AssetLibraryModel requests add-source import command handoff",

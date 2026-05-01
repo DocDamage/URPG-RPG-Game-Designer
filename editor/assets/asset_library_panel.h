@@ -4,6 +4,8 @@
 #include "engine/core/tools/export_packager.h"
 
 #include <filesystem>
+#include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -11,6 +13,20 @@ namespace urpg::editor {
 
 class AssetLibraryPanel {
 public:
+    enum class ImportSourcePickerMode {
+        FileOrArchive,
+        Folder,
+    };
+
+    struct ImportSourcePickerRequest {
+        ImportSourcePickerMode mode = ImportSourcePickerMode::FileOrArchive;
+        std::filesystem::path library_root;
+        std::string session_id;
+        std::string license_note;
+    };
+
+    using ImportSourcePicker = std::function<std::optional<std::filesystem::path>(const ImportSourcePickerRequest&)>;
+
     struct ImportWizardStepSnapshot {
         std::string id;
         std::string label;
@@ -42,11 +58,13 @@ public:
     AssetLibraryModel& model() { return model_; }
     const AssetLibraryModel& model() const { return model_; }
 
+    void setImportSourcePicker(ImportSourcePicker picker);
     void render();
     nlohmann::json requestImportSource(const std::filesystem::path& source,
                                        const std::filesystem::path& library_root,
                                        std::string session_id,
                                        std::string license_note = {});
+    nlohmann::json requestImportSourceFromPicker(ImportSourcePickerRequest request);
     nlohmann::json promoteSelectedImportRecords(std::string session_id,
                                                 std::vector<std::string> asset_ids,
                                                 std::string license_id,
@@ -65,6 +83,7 @@ private:
     void refreshRenderSnapshotsFromModel();
 
     AssetLibraryModel model_;
+    ImportSourcePicker import_source_picker_{};
     AssetLibraryModelSnapshot last_render_snapshot_{};
     ImportWizardRenderSnapshot last_import_wizard_snapshot_{};
     bool has_rendered_frame_ = false;
