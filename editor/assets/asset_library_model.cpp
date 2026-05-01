@@ -68,7 +68,31 @@ std::vector<std::string> configuredExternalExtractorCommand(std::vector<std::str
     return splitConfiguredCommand(configured);
 }
 
+nlohmann::json externalExtractorConfigurationSnapshot() {
+    const char* configured = std::getenv(kExternalExtractorEnv);
+    if (configured == nullptr || std::string_view(configured).empty()) {
+        return {
+            {"configured", false},
+            {"source", "none"},
+            {"environment_variable", kExternalExtractorEnv},
+            {"supports_rar_7z", false},
+            {"command", nlohmann::json::array()},
+        };
+    }
+    return {
+        {"configured", true},
+        {"source", "environment"},
+        {"environment_variable", kExternalExtractorEnv},
+        {"supports_rar_7z", true},
+        {"command", splitConfiguredCommand(configured)},
+    };
+}
+
 } // namespace
+
+AssetLibraryModel::AssetLibraryModel() {
+    refreshSnapshot();
+}
 
 void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                                       std::string_view duplicate_csv) {
@@ -416,6 +440,7 @@ nlohmann::json buildImportWizardSnapshot(const AssetLibraryModelSnapshot& snapsh
              {"promoted_attachable", snapshot.project_attachable_count},
              {"project_attached", snapshot.project_attached_count},
          }},
+        {"extractor_configuration", externalExtractorConfigurationSnapshot()},
         {"pending_request", hasPendingRequest ? pendingImportRequest : nlohmann::json(nullptr)},
     };
 }

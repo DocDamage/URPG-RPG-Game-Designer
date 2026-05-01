@@ -45,9 +45,9 @@ The first-pass global import lane now supports:
 - `GlobalAssetLibraryStore` as the facade over the Phase 1 layout and existing `.urpg/asset-index/asset_catalog.db` path
 - Asset Library model exposure for import sessions and review queues
 
-Phase 1 intentionally did not claim native file-dialog UX, conversion workflows, optional RAR/7z extraction,
-aggregate animation sequence assembly, or richer RPG Maker folder convention mapping. Later phases now cover the
-non-dialog tooling surfaces.
+Phase 1 intentionally stayed limited to the managed folder/file/ZIP foundation. Later phases now cover native picker
+wiring, conversion execution, optional RAR/7z extraction through configured extractor commands, aggregate animation
+sequence assembly, and richer RPG Maker folder convention mapping.
 
 ## Global Asset Library Promotion Phase 2
 
@@ -113,6 +113,9 @@ The advanced-pack lane now supports:
   `-o{destination}`, for tools that require templated argument positions. The CLI also reads
   `URPG_ASSET_ARCHIVE_EXTRACTOR` when `--external-extractor-command` is not supplied, and the C++ Add Source request
   builder uses the same variable as the default external extractor command when the editor request does not supply one.
+- the Project Import Wizard snapshot exposes external extractor configuration status before Add Source is requested,
+  including the configuration source, environment variable name, parsed argv vector, and whether RAR/7z handoff support
+  is currently configured.
 - numbered animation/image-frame drops assemble into deterministic `sequenceGroups`, with per-frame sequence metadata
   on import records.
 
@@ -138,6 +141,13 @@ The model-level wizard contract now supports:
 
 The picker supplies the chosen source path to the existing Add Source dispatcher without making editor/runtime code
 execute Python directly.
+
+## External Extractor Configuration
+
+`URPG_ASSET_ARCHIVE_EXTRACTOR` is the current deterministic local configuration hook for RAR/7z import. It is parsed
+into an argv vector, not executed through a shell, and supports `{source}` and `{destination}` placeholders. A future
+editor/user settings surface should persist the same argv vector shape so the wizard can populate the same
+`extractor_configuration` snapshot without relying on shell command strings.
 
 ## More Assets Intake
 

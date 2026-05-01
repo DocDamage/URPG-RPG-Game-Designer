@@ -53,6 +53,7 @@ public:
         bool package_validation_ready = false;
         std::vector<ImportWizardStepSnapshot> steps;
         std::vector<ImportWizardActionSnapshot> actions;
+        nlohmann::json extractor_configuration = nlohmann::json::object();
         nlohmann::json pending_request = nullptr;
     };
 

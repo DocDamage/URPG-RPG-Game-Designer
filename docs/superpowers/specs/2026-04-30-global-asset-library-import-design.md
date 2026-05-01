@@ -42,9 +42,10 @@ Phase 1 may catalog but should not fully promote:
 - `.rar` and `.7z` archives unless a local extractor is configured
 - source art files such as `.psd`, `.kra`, `.aseprite`, `.blend`
 - executables, installers, scripts, project generators, plugins, and tools
-- very large animation-frame drops that need aggregate sequence handling
+- very large animation-frame drops that need aggregate sequence handling before promotion
 
-RAR and 7z should be designed as pluggable extractor support. If 7-Zip is present, URPG can use it later through a bounded extraction adapter. If not present, the wizard should show a clear unsupported-extractor diagnostic.
+RAR and 7z are handled as pluggable extractor support. If a local extractor command is configured, URPG uses it through
+a bounded extraction adapter. If not configured, the wizard and importer show clear unsupported-extractor diagnostics.
 
 ## User Flow
 
@@ -139,7 +140,8 @@ Reuse `.urpg/asset-index/asset_catalog.db` through a new `GlobalAssetLibraryStor
 : Copies folders/files and dispatches archive extraction. It owns quarantine safety, path normalization, and source manifest creation.
 
 `ArchiveExtractor`
-: Interface for archive support. Implement ZIP first. Add external 7-Zip-backed RAR/7z support later behind diagnostics.
+: Interface for archive support. ZIP is built in; RAR/7z import is available through configured external extractor
+  commands with bounded output validation and stable diagnostics.
 
 `AssetScanner`
 : Walks quarantined files, records metadata, hashes, dimensions, duration, and basic media type.
@@ -231,8 +233,17 @@ Audio:
 Archives:
 
 - ZIP first
-- RAR/7z later through optional external extractor detection
+- RAR/7z through optional external extractor configuration and detection
 - nested archives should be cataloged but not recursively extracted by default
+
+External extractor configuration:
+
+- `URPG_ASSET_ARCHIVE_EXTRACTOR` is the current deterministic local configuration hook for the command-line importer
+  and editor Add Source request builder.
+- Store extractor commands as an argv vector shape. Shell command strings are only parsed at the current environment
+  variable boundary for local configuration compatibility.
+- A future editor/user settings surface should persist that argv vector directly and feed the same wizard
+  `extractor_configuration` snapshot, including source, command, and RAR/7z support status.
 
 Source/tool files:
 
@@ -263,8 +274,8 @@ Existing code and tools that should be reused or wrapped:
 - `tools/assets/asset_hygiene.py` for duplicate, oversize, and junk concepts
 - `tools/assets/ingest_more_assets.ps1` for archive intake precedent
 - `tools/assets/promote_urpg_stuff_assets.py` for catalog-normalized records
-- `tools/assets/catalog_animation_asset_drop.py` for aggregate animation-frame handling later
-- `tools/assets/convert_audio_to_ogg.py` as a reference for future conversion flows
+- `tools/assets/catalog_animation_asset_drop.py` as prior art for aggregate animation-frame handling
+- `tools/assets/convert_audio_to_ogg.py` as prior art for audio conversion handoff flows
 - `engine/core/assets/asset_library.*`
 - `engine/core/assets/asset_promotion_manifest.*`
 - `editor/assets/asset_library_model.*`
@@ -371,8 +382,10 @@ with clear diagnostics, and Add Source handoff metadata can pass configured extr
 `{source}` and `{destination}` placeholders, including embedded placeholder forms such as `-o{destination}`, for native
 tool argument templates. The command-line importer also reads `URPG_ASSET_ARCHIVE_EXTRACTOR` when no explicit extractor
 command is provided, and the editor Add Source request builder uses the same environment variable as its default
-external extractor handoff. Numbered animation/image-frame drops assemble into deterministic sequence groups, and RPG
-Maker `img/*` plus `audio/*` folder conventions map into URPG review categories during managed import.
+external extractor handoff. The wizard snapshot exposes the current extractor configuration source, environment
+variable, parsed argv vector, and whether RAR/7z support is configured before Add Source is requested. Numbered
+animation/image-frame drops assemble into deterministic sequence groups, and RPG Maker `img/*` plus `audio/*` folder
+conventions map into URPG review categories during managed import.
 
 ### Phase 5: Wizard Workflow Contract
 
@@ -412,4 +425,5 @@ implementation for file/archive or folder source selection.
 - Implement ZIP extraction as a bounded tooling helper first, reusing repository scripting patterns; C++ editor/runtime code consumes the generated session manifests and never imports Python modules directly.
 - Classify first-pass images by path and dimensions into `sprite`, `tileset`, `ui`, `background`, `portrait`, `vfx`, or `image/uncategorized`.
 - Classify first-pass audio by path into `audio/bgm`, `audio/bgs`, `audio/se`, `audio/me`, `audio/ui`, or `audio/uncategorized`.
-- Expose Phase 1 in the Asset Library panel as import-session and review-row state, with model/test entrypoints supplying the source path until a native picker is added.
+- Expose Phase 1 in the Asset Library panel as import-session and review-row state; later phases added native source
+  picker wiring, promotion, attachment, conversion, external archive handoff, and package-validation actions.

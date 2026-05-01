@@ -25,6 +25,8 @@ AssetLibraryPanel::ImportWizardRenderSnapshot buildImportWizardRenderSnapshot(co
 
     snapshot.status = wizard.value("status", snapshot.status);
     snapshot.current_step = wizard.value("current_step", snapshot.current_step);
+    snapshot.extractor_configuration =
+        wizard.contains("extractor_configuration") ? wizard["extractor_configuration"] : nlohmann::json::object();
     snapshot.pending_request = wizard.contains("pending_request") ? wizard["pending_request"] : nlohmann::json(nullptr);
 
     if (wizard.contains("steps") && wizard["steps"].is_array()) {

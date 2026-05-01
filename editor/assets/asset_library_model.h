@@ -81,6 +81,8 @@ class AssetLibraryModel {
 
     using ConversionCommandExecutor = std::function<ConversionCommandResult(const ConversionCommand&)>;
 
+    AssetLibraryModel();
+
     void ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                        std::string_view duplicate_csv);
     void ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,

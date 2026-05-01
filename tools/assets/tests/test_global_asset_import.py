@@ -138,6 +138,35 @@ class GlobalAssetImportTests(unittest.TestCase):
             self.assertEqual(session["diagnostics"][0]["code"], "unsupported_extractor")
             self.assertEqual(session["summary"]["filesScanned"], 0)
 
+    def test_nested_archives_are_cataloged_without_recursive_extraction(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "outer_pack.zip"
+            inner = root / "inner_pack.zip"
+            with zipfile.ZipFile(inner, "w") as inner_zip:
+                inner_zip.writestr("img/characters/Inside.png", PNG_1X1)
+            with zipfile.ZipFile(archive, "w") as outer_zip:
+                outer_zip.writestr("img/characters/Hero.png", PNG_1X1)
+                outer_zip.write(inner, "nested/inner_pack.zip")
+
+            session = global_asset_import.build_session(
+                source=archive,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_nested_archive",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+            )
+
+            by_path = {record["relativePath"]: record for record in session["records"]}
+            self.assertIn("img/characters/Hero.png", by_path)
+            self.assertIn("nested/inner_pack.zip", by_path)
+            self.assertNotIn("nested/img/characters/Inside.png", by_path)
+            self.assertEqual(by_path["nested/inner_pack.zip"]["mediaKind"], "archive")
+            self.assertIn("unsupported_format", by_path["nested/inner_pack.zip"]["diagnostics"])
+            self.assertEqual(session["summary"]["filesScanned"], 2)
+            self.assertEqual(session["summary"]["unsupportedCount"], 1)
+
     def test_loose_file_import_enforces_byte_limit(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

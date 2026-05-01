@@ -474,6 +474,41 @@ TEST_CASE("AssetLibraryModel applies configured external archive extractor to ad
     REQUIRE(model.snapshot().import_wizard["pending_request"]["external_extractor_command"][4] == "-o{destination}");
 }
 
+TEST_CASE("AssetLibraryModel exposes configured archive extractor status in the wizard snapshot",
+          "[assets][asset_library][editor][asset_import][wizard][archive]") {
+    EnvironmentVariableGuard extractorEnv("URPG_ASSET_ARCHIVE_EXTRACTOR");
+    extractorEnv.set("\"C:/Program Files/7-Zip/7z.exe\" x -y {source} -o{destination}");
+
+    urpg::editor::AssetLibraryModel model;
+    model.rebuildCleanupPreview();
+
+    const auto& configuration = model.snapshot().import_wizard["extractor_configuration"];
+    REQUIRE(configuration["configured"] == true);
+    REQUIRE(configuration["source"] == "environment");
+    REQUIRE(configuration["environment_variable"] == "URPG_ASSET_ARCHIVE_EXTRACTOR");
+    REQUIRE(configuration["supports_rar_7z"] == true);
+    REQUIRE(configuration["command"].size() == 5);
+    REQUIRE(configuration["command"][0] == "C:/Program Files/7-Zip/7z.exe");
+    REQUIRE(configuration["command"][3] == "{source}");
+    REQUIRE(configuration["command"][4] == "-o{destination}");
+}
+
+TEST_CASE("AssetLibraryPanel exposes configured archive extractor status in render snapshot",
+          "[assets][asset_library][editor][asset_import][wizard][archive]") {
+    EnvironmentVariableGuard extractorEnv("URPG_ASSET_ARCHIVE_EXTRACTOR");
+    extractorEnv.set("\"C:/Program Files/7-Zip/7z.exe\" x -y {source} -o{destination}");
+
+    urpg::editor::AssetLibraryPanel panel;
+    panel.render();
+
+    const auto& configuration = panel.lastImportWizardSnapshot().extractor_configuration;
+    REQUIRE(configuration["configured"] == true);
+    REQUIRE(configuration["source"] == "environment");
+    REQUIRE(configuration["environment_variable"] == "URPG_ASSET_ARCHIVE_EXTRACTOR");
+    REQUIRE(configuration["supports_rar_7z"] == true);
+    REQUIRE(configuration["command"][4] == "-o{destination}");
+}
+
 TEST_CASE("AssetLibraryModel loads import session manifests from global library root",
           "[assets][asset_library][editor][asset_import]") {
     const auto root = uniqueTempRoot("urpg_asset_library_import_sessions");
