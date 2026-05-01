@@ -185,8 +185,10 @@ void AssetLibraryPanel::render() {
 nlohmann::json AssetLibraryPanel::requestImportSource(const std::filesystem::path& source,
                                                       const std::filesystem::path& library_root,
                                                       std::string session_id,
-                                                      std::string license_note) {
-    auto result = model_.requestImportSource(source, library_root, std::move(session_id), std::move(license_note));
+                                                      std::string license_note,
+                                                      std::vector<std::string> external_extractor_command) {
+    auto result = model_.requestImportSource(source, library_root, std::move(session_id), std::move(license_note),
+                                             std::move(external_extractor_command));
     refreshRenderSnapshotsFromModel();
     return result;
 }
@@ -208,7 +210,7 @@ nlohmann::json AssetLibraryPanel::requestImportSourceFromPicker(ImportSourcePick
         return result;
     }
     return requestImportSource(*selectedSource, request.library_root, std::move(request.session_id),
-                               std::move(request.license_note));
+                               std::move(request.license_note), std::move(request.external_extractor_command));
 }
 
 nlohmann::json AssetLibraryPanel::convertSelectedImportRecords(std::string session_id,

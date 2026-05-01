@@ -107,6 +107,8 @@ The advanced-pack lane now supports:
   Library panel dispatches selected conversions through the model runner.
 - optional local external extractor commands can ingest `.rar` and `.7z` sources into managed quarantine without shell
   execution, with bounded output validation and stable failure diagnostics.
+- Add Source handoff metadata can carry a configured external extractor command into `global_asset_import.py` for
+  `.rar` and `.7z` sources.
 - numbered animation/image-frame drops assemble into deterministic `sequenceGroups`, with per-frame sequence metadata
   on import records.
 

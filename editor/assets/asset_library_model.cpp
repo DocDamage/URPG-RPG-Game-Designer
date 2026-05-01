@@ -44,10 +44,40 @@ void AssetLibraryModel::ingestPromotionManifest(const urpg::assets::AssetPromoti
     snapshot_.error_message = "";
 }
 
+std::string shellQuoteArgument(const std::string& value) {
+    if (value.find_first_of(" \t\"'") == std::string::npos) {
+        return value;
+    }
+    std::string out = "\"";
+    for (const char ch : value) {
+        if (ch == '"') {
+            out += "\\\"";
+        } else {
+            out += ch;
+        }
+    }
+    out += "\"";
+    return out;
+}
+
+std::string joinExternalExtractorCommand(const std::vector<std::string>& command) {
+    std::ostringstream joined;
+    bool first = true;
+    for (const auto& part : command) {
+        if (!first) {
+            joined << ' ';
+        }
+        joined << shellQuoteArgument(part);
+        first = false;
+    }
+    return joined.str();
+}
+
 nlohmann::json AssetLibraryModel::requestImportSource(const std::filesystem::path& source,
                                                       const std::filesystem::path& library_root,
                                                       std::string session_id,
-                                                      std::string license_note) {
+                                                      std::string license_note,
+                                                      std::vector<std::string> external_extractor_command) {
     const auto sourcePath = source.generic_string();
     const auto libraryRoot = library_root.generic_string();
     const auto expectedManifest =
@@ -66,12 +96,17 @@ nlohmann::json AssetLibraryModel::requestImportSource(const std::filesystem::pat
         command.push_back("--license-note");
         command.push_back(license_note);
     }
+    if (!external_extractor_command.empty()) {
+        command.push_back("--external-extractor-command");
+        command.push_back(joinExternalExtractorCommand(external_extractor_command));
+    }
 
     pending_import_request_ = {
         {"source_path", sourcePath},
         {"library_root", libraryRoot},
         {"session_id", session_id},
         {"license_note", license_note},
+        {"external_extractor_command", external_extractor_command},
         {"expected_manifest_path", expectedManifest},
         {"command", command},
     };
@@ -87,6 +122,7 @@ nlohmann::json AssetLibraryModel::requestImportSource(const std::filesystem::pat
         {"source_path", sourcePath},
         {"library_root", libraryRoot},
         {"session_id", session_id},
+        {"external_extractor_command", external_extractor_command},
         {"expected_manifest_path", expectedManifest},
         {"command", command},
     };

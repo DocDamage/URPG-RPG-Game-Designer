@@ -366,8 +366,9 @@ deterministic conversion handoff metadata, and the Asset Library model can execu
 the managed source root, verify the converted output, clear conversion diagnostics, and make the converted record
 promotable. The Project Import Wizard exposes Convert Selected for conversion-needed records, with panel dispatch into
 the model runner. Optional local external extractor commands can ingest `.rar` and `.7z` sources into bounded quarantine
-with clear diagnostics, numbered animation/image-frame drops assemble into deterministic sequence groups, and RPG Maker
-`img/*` plus `audio/*` folder conventions map into URPG review categories during managed import.
+with clear diagnostics, and Add Source handoff metadata can pass configured extractor commands through to
+`global_asset_import.py`. Numbered animation/image-frame drops assemble into deterministic sequence groups, and RPG
+Maker `img/*` plus `audio/*` folder conventions map into URPG review categories during managed import.
 
 ### Phase 5: Wizard Workflow Contract
 

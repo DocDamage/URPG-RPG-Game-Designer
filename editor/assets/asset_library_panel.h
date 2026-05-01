@@ -23,6 +23,7 @@ public:
         std::filesystem::path library_root;
         std::string session_id;
         std::string license_note;
+        std::vector<std::string> external_extractor_command;
     };
 
     using ImportSourcePicker = std::function<std::optional<std::filesystem::path>(const ImportSourcePickerRequest&)>;
@@ -63,7 +64,8 @@ public:
     nlohmann::json requestImportSource(const std::filesystem::path& source,
                                        const std::filesystem::path& library_root,
                                        std::string session_id,
-                                       std::string license_note = {});
+                                       std::string license_note = {},
+                                       std::vector<std::string> external_extractor_command = {});
     nlohmann::json requestImportSourceFromPicker(ImportSourcePickerRequest request);
     nlohmann::json convertSelectedImportRecords(std::string session_id,
                                                 std::vector<std::string> asset_ids,

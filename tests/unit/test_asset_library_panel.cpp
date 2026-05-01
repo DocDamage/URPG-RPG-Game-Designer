@@ -340,6 +340,7 @@ TEST_CASE("AssetLibraryPanel requests add-source through an import source picker
         libraryRoot,
         "import_picker_001",
         "User-provided picker license.",
+        {},
     });
 
     REQUIRE(request["success"] == true);
@@ -356,6 +357,7 @@ TEST_CASE("AssetLibraryPanel requests add-source through an import source picker
         libraryRoot,
         "import_picker_cancelled",
         "",
+        {},
     });
     REQUIRE(cancelled["success"] == false);
     REQUIRE(cancelled["code"] == "import_source_picker_cancelled");
@@ -391,6 +393,31 @@ TEST_CASE("AssetLibraryModel requests add-source import command handoff",
     REQUIRE(model.snapshot().import_wizard["current_step"] == "add_source");
     REQUIRE(model.snapshot().import_wizard["pending_request"]["session_id"] == "import_manual_001");
     REQUIRE(model.snapshot().import_wizard["actions"]["add_source"]["pending_request"] == true);
+}
+
+TEST_CASE("AssetLibraryModel requests add-source with external archive extractor handoff",
+          "[assets][asset_library][editor][asset_import][wizard][archive]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_add_source_external_extractor");
+    const auto source = root / "packs" / "sprites.7z";
+    const auto libraryRoot = root / ".urpg" / "asset-library";
+
+    urpg::editor::AssetLibraryModel model;
+    const auto request = model.requestImportSource(
+        source,
+        libraryRoot,
+        "import_external_archive_001",
+        "User-provided archive license.",
+        {"C:/Program Files/7-Zip/7z.exe", "x", "-y"});
+
+    REQUIRE(request["success"] == true);
+    REQUIRE(request["external_extractor_command"].size() == 3);
+    REQUIRE(request["external_extractor_command"][0] == "C:/Program Files/7-Zip/7z.exe");
+    const auto& command = request["command"];
+    const auto extractorArg = std::find(command.begin(), command.end(), "--external-extractor-command");
+    REQUIRE(extractorArg != command.end());
+    REQUIRE(std::next(extractorArg) != command.end());
+    REQUIRE(*std::next(extractorArg) == "\"C:/Program Files/7-Zip/7z.exe\" x -y");
+    REQUIRE(model.snapshot().import_wizard["pending_request"]["external_extractor_command"].size() == 3);
 }
 
 TEST_CASE("AssetLibraryModel loads import session manifests from global library root",

@@ -89,7 +89,8 @@ class AssetLibraryModel {
     nlohmann::json requestImportSource(const std::filesystem::path& source,
                                        const std::filesystem::path& library_root,
                                        std::string session_id,
-                                       std::string license_note = {});
+                                       std::string license_note = {},
+                                       std::vector<std::string> external_extractor_command = {});
     void ingestImportSession(urpg::assets::AssetImportSession session);
     void clearImportSessions();
     bool loadImportSessionManifest(const std::filesystem::path& manifest_path, std::string* error_message = nullptr);
