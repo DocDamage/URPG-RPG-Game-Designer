@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -163,6 +164,72 @@ TEST_CASE("AssetLibraryModel exposes global import sessions and review queues",
     REQUIRE(ready != model.snapshot().import_review_rows.end());
     REQUIRE((*ready)["review_state"] == "ready_to_promote");
     REQUIRE((*ready)["promotable"] == true);
+}
+
+TEST_CASE("AssetLibraryPanel renders project import wizard steps and actions",
+          "[assets][asset_library][editor][asset_import][wizard]") {
+    urpg::editor::AssetLibraryPanel panel;
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_panel_wizard_001";
+    session.sourceKind = urpg::assets::AssetImportSourceKind::Folder;
+    session.sourcePath = "C:/Users/Creator/Downloads/fantasy_pack";
+    session.managedSourceRoot = ".urpg/asset-library/sources/import_panel_wizard_001/original";
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    session.createdAt = "2026-05-01T00:00:00Z";
+    session.records = {
+        {
+            "asset.hero",
+            "characters/hero.png",
+            "asset://import_panel_wizard_001/characters/hero.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            1024,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+        },
+    };
+    panel.model().ingestImportSession(std::move(session));
+
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    const auto& wizard = panel.lastImportWizardSnapshot();
+    REQUIRE(wizard.status == "review_required");
+    REQUIRE(wizard.current_step == "review");
+    REQUIRE(wizard.steps.size() == 5);
+    const auto reviewStep = std::find_if(wizard.steps.begin(), wizard.steps.end(), [](const auto& step) {
+        return step.id == "review";
+    });
+    REQUIRE(reviewStep != wizard.steps.end());
+    REQUIRE(reviewStep->active);
+    REQUIRE(reviewStep->count == 1);
+
+    const auto promoteAction = std::find_if(wizard.actions.begin(), wizard.actions.end(), [](const auto& action) {
+        return action.id == "promote_selected";
+    });
+    REQUIRE(promoteAction != wizard.actions.end());
+    REQUIRE(promoteAction->enabled);
+    REQUIRE(promoteAction->eligible_count == 1);
+    REQUIRE(promoteAction->disabled_reason.empty());
+
+    const auto packageAction = std::find_if(wizard.actions.begin(), wizard.actions.end(), [](const auto& action) {
+        return action.id == "package_validate";
+    });
+    REQUIRE(packageAction != wizard.actions.end());
+    REQUIRE_FALSE(packageAction->enabled);
+    REQUIRE(packageAction->disabled_reason == "no_attached_project_assets");
+    REQUIRE_FALSE(wizard.package_validation_ready);
 }
 
 TEST_CASE("AssetLibraryModel requests add-source import command handoff",

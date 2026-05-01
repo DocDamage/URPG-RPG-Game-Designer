@@ -375,9 +375,9 @@ import.
 Implementation status: 100% complete as of the 2026-05-01 development slice. The Asset Library model now emits an
 `import_wizard` snapshot with ordered workflow steps, current step, status, action IDs, eligible counts, disabled
 reasons, pending Add Source import requests, deterministic `tools/assets/global_asset_import.py` command arguments,
-expected import-session manifest paths, and package-validation readiness. The contract is model-level so the editor UI
-can render the Project Import Wizard without making engine/runtime code depend on Python tooling or a platform file
-picker.
+expected import-session manifest paths, and package-validation readiness. The Asset Library panel also exposes a typed
+wizard render snapshot for steps, actions, disabled reasons, pending requests, and package-validation readiness without
+making engine/runtime code depend on Python tooling or a platform file picker.
 
 ## Success Criteria
 

@@ -118,6 +118,8 @@ The model-level wizard contract now supports:
 - deterministic Add Source handoff requests with `tools/assets/global_asset_import.py` command arguments and expected
   import-session manifest paths
 - package-validation readiness once promoted assets have been attached into project-local asset roots
+- typed Asset Library panel render snapshots for wizard steps, actions, disabled reasons, and package-validation
+  readiness
 
 Native file-dialog wiring remains outside this slice; the model contract is stable for an editor UI to render the
 Project Import Wizard, collect a chosen source path, and call the existing import/promote/attach entrypoints without
