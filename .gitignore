@@ -68,3 +68,4 @@ docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.docx
 .env
 .env.*
 .aider*
+.worktrees/
