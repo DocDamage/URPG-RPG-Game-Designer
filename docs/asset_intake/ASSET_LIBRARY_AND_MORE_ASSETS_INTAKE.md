@@ -103,6 +103,8 @@ The advanced-pack lane now supports:
 - the Asset Library model can run the stored conversion handoff from the managed source root, verify the expected
   output, update the import record to the converted runtime-ready payload, clear conversion diagnostics, and make the
   record promotable.
+- the Project Import Wizard exposes Convert Selected as an enabled action for conversion-needed records, and the Asset
+  Library panel dispatches selected conversions through the model runner.
 - optional local external extractor commands can ingest `.rar` and `.7z` sources into managed quarantine without shell
   execution, with bounded output validation and stable failure diagnostics.
 - numbered animation/image-frame drops assemble into deterministic `sequenceGroups`, with per-frame sequence metadata

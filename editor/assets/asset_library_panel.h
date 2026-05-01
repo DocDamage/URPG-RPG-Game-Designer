@@ -65,6 +65,9 @@ public:
                                        std::string session_id,
                                        std::string license_note = {});
     nlohmann::json requestImportSourceFromPicker(ImportSourcePickerRequest request);
+    nlohmann::json convertSelectedImportRecords(std::string session_id,
+                                                std::vector<std::string> asset_ids,
+                                                AssetLibraryModel::ConversionCommandExecutor executor = {});
     nlohmann::json promoteSelectedImportRecords(std::string session_id,
                                                 std::vector<std::string> asset_ids,
                                                 std::string license_id,

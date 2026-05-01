@@ -235,6 +235,7 @@ nlohmann::json buildImportWizardSnapshot(const AssetLibraryModelSnapshot& snapsh
     const bool hasSource = snapshot.import_session_count > 0;
     const bool hasReviewRows = snapshot.import_review_row_count > 0;
     const bool hasPromotableRows = snapshot.import_ready_count > 0;
+    const bool hasConvertibleRows = snapshot.import_needs_conversion_count > 0;
     const bool hasPromotedAssets = snapshot.project_attachable_count > 0;
     const bool hasAttachedAssets = snapshot.project_attached_count > 0;
     const bool hasPendingRequest = pendingImportRequest.is_object() && !pendingImportRequest.empty();
@@ -289,6 +290,13 @@ nlohmann::json buildImportWizardSnapshot(const AssetLibraryModelSnapshot& snapsh
                   {"action", "asset_library_promote_selected"},
                   {"eligible_count", snapshot.import_ready_count},
                   {"disabled_reason", hasPromotableRows ? nlohmann::json(nullptr) : nlohmann::json("no_promotable_import_records")},
+              }},
+             {"convert_selected",
+              {
+                  {"enabled", hasConvertibleRows},
+                  {"action", "asset_library_convert_selected"},
+                  {"eligible_count", snapshot.import_needs_conversion_count},
+                  {"disabled_reason", hasConvertibleRows ? nlohmann::json(nullptr) : nlohmann::json("no_convertible_import_records")},
               }},
              {"attach_selected",
               {
@@ -730,6 +738,42 @@ nlohmann::json AssetLibraryModel::runImportRecordConversion(std::string session_
         {"asset_id", asset_id},
         {"converted_path", record->relativePath},
         {"output_path", command.output_path.generic_string()},
+    };
+    action_history_.push_back(action);
+    refreshSnapshot();
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+nlohmann::json AssetLibraryModel::runImportRecordConversions(std::string session_id, std::vector<std::string> asset_ids,
+                                                             ConversionCommandExecutor executor) {
+    nlohmann::json rows = nlohmann::json::array();
+    size_t convertedCount = 0;
+    size_t failedCount = 0;
+
+    for (const auto& asset_id : asset_ids) {
+        const auto row = runImportRecordConversion(session_id, asset_id, executor);
+        if (row.value("success", false)) {
+            ++convertedCount;
+        } else {
+            ++failedCount;
+        }
+        rows.push_back(row);
+    }
+
+    const bool success = convertedCount == asset_ids.size() && failedCount == 0;
+    nlohmann::json action = {
+        {"action", "convert_import_records"},
+        {"success", success},
+        {"code", success ? "import_records_converted" : "import_records_conversion_partial"},
+        {"message", success ? "All selected import records were converted."
+                            : "Some selected import records could not be converted."},
+        {"session_id", session_id},
+        {"selected_count", asset_ids.size()},
+        {"converted_count", convertedCount},
+        {"failed_count", failedCount},
+        {"rows", rows},
     };
     action_history_.push_back(action);
     refreshSnapshot();

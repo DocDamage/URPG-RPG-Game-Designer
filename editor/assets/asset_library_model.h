@@ -100,6 +100,8 @@ class AssetLibraryModel {
                                                                bool include_in_runtime = true);
     nlohmann::json runImportRecordConversion(std::string session_id, std::string asset_id,
                                              ConversionCommandExecutor executor = {});
+    nlohmann::json runImportRecordConversions(std::string session_id, std::vector<std::string> asset_ids,
+                                              ConversionCommandExecutor executor = {});
     nlohmann::json promoteImportRecords(std::string session_id, std::vector<std::string> asset_ids,
                                         std::string license_id, std::string promoted_root,
                                         bool include_in_runtime = true);

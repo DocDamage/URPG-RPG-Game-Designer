@@ -211,6 +211,14 @@ nlohmann::json AssetLibraryPanel::requestImportSourceFromPicker(ImportSourcePick
                                std::move(request.license_note));
 }
 
+nlohmann::json AssetLibraryPanel::convertSelectedImportRecords(std::string session_id,
+                                                               std::vector<std::string> asset_ids,
+                                                               AssetLibraryModel::ConversionCommandExecutor executor) {
+    auto result = model_.runImportRecordConversions(std::move(session_id), std::move(asset_ids), std::move(executor));
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
 nlohmann::json AssetLibraryPanel::promoteSelectedImportRecords(std::string session_id,
                                                                std::vector<std::string> asset_ids,
                                                                std::string license_id,
