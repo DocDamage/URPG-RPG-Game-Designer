@@ -51,7 +51,11 @@ def png_size(path: Path) -> tuple[int, int] | None:
     try:
         with path.open("rb") as handle:
             data = handle.read(24)
-        if len(data) >= 24 and data[:8] == b"\x89PNG\r\n\x1a\n" and data[12:16] == b"IHDR":
+        if (
+            len(data) >= 24
+            and data[:8] == b"\x89PNG\r\n\x1a\n"
+            and data[12:16] == b"IHDR"
+        ):
             return struct.unpack(">II", data[16:24])
     except OSError:
         return None
@@ -64,9 +68,20 @@ def infer_category(path: Path) -> str:
         return "backgrounds"
     if "sideview" in lower or "side_view" in lower or "sideviewbattler" in lower:
         return "characters/sideview"
-    if "isometric" in lower or "packed_" in lower or "separated" in lower or "assembled" in lower:
+    if (
+        "isometric" in lower
+        or "packed_" in lower
+        or "separated" in lower
+        or "assembled" in lower
+    ):
         return "characters/isometric"
-    if "tree" in lower or "drone" in lower or "fox" in lower or "beast" in lower or "mummy" in lower:
+    if (
+        "tree" in lower
+        or "drone" in lower
+        or "fox" in lower
+        or "beast" in lower
+        or "mummy" in lower
+    ):
         return "characters/isometric"
     if "doc" in lower or "read me" in lower or "reference" in lower:
         return "documentation"
@@ -78,7 +93,11 @@ def iter_files(root: Path):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
         base = Path(current)
         for name in files:
-            if name.startswith("._") or name in {"Thumbs.db", ".DS_Store", "Desktop.ini"}:
+            if name.startswith("._") or name in {
+                "Thumbs.db",
+                ".DS_Store",
+                "Desktop.ini",
+            }:
                 continue
             yield base / name
 
@@ -94,8 +113,18 @@ def sequence_signature(files: list[Path]) -> str:
     return "|".join([str(len(files)), *sample])
 
 
-def make_record(source_id: str, source_root: Path, repo_root: Path, path: Path, kind: str, category: str,
-                preview: Path | None, file_count: int, total_bytes: int, extra: dict) -> dict:
+def make_record(
+    source_id: str,
+    source_root: Path,
+    repo_root: Path,
+    path: Path,
+    kind: str,
+    category: str,
+    preview: Path | None,
+    file_count: int,
+    total_bytes: int,
+    extra: dict,
+) -> dict:
     path_rel = rel(path, repo_root)
     digest_basis = f"{source_id}:{path_rel}:{kind}:{file_count}:{total_bytes}:{extra.get('fingerprint', '')}"
     asset_id = f"{source_id.lower()}:{hashlib.sha256(digest_basis.encode('utf-8')).hexdigest()[:16]}"
@@ -105,7 +134,16 @@ def make_record(source_id: str, source_root: Path, repo_root: Path, path: Path, 
         f"pack:{slugify(path.relative_to(source_root).parts[0] if path != source_root else path.name)}",
     }
     for token in re.findall(r"[a-z0-9]{3,}", path_rel.lower()):
-        if token not in {"png", "assets", "asset", "ingest", "imports", "raw", "urpg", "frames"}:
+        if token not in {
+            "png",
+            "assets",
+            "asset",
+            "ingest",
+            "imports",
+            "raw",
+            "urpg",
+            "frames",
+        }:
             tags.add(token)
         if len(tags) >= 20:
             break
@@ -118,7 +156,9 @@ def make_record(source_id: str, source_root: Path, repo_root: Path, path: Path, 
         "preview_kind": "image" if preview else "metadata",
         "media_kind": kind,
         "category": category,
-        "pack": path.relative_to(source_root).parts[0] if path != source_root else path.name,
+        "pack": path.relative_to(source_root).parts[0]
+        if path != source_root
+        else path.name,
         "filename": path.name,
         "file_count": file_count,
         "size_bytes": total_bytes,
@@ -131,7 +171,9 @@ def make_record(source_id: str, source_root: Path, repo_root: Path, path: Path, 
     return record
 
 
-def build_catalog(repo_root: Path, source_root: Path, source_id: str) -> tuple[dict, dict, dict[str, list[dict]]]:
+def build_catalog(
+    repo_root: Path, source_root: Path, source_id: str
+) -> tuple[dict, dict, dict[str, list[dict]]]:
     files_by_dir: dict[Path, list[Path]] = {}
     extension_counts: dict[str, int] = {}
     total_files = 0
@@ -143,16 +185,32 @@ def build_catalog(repo_root: Path, source_root: Path, source_id: str) -> tuple[d
             continue
         total_files += 1
         total_bytes += stat.st_size
-        extension_counts[path.suffix.lower() or "(none)"] = extension_counts.get(path.suffix.lower() or "(none)", 0) + 1
+        extension_counts[path.suffix.lower() or "(none)"] = (
+            extension_counts.get(path.suffix.lower() or "(none)", 0) + 1
+        )
         files_by_dir.setdefault(path.parent, []).append(path)
 
     records: list[dict] = []
     image_groups: dict[tuple[Path, str], dict] = {}
-    for directory, files in sorted(files_by_dir.items(), key=lambda item: rel(item[0], repo_root)):
-        image_files = sorted([p for p in files if p.suffix.lower() in IMAGE_EXTS], key=lambda p: p.name.lower())
-        archive_files = sorted([p for p in files if p.suffix.lower() in ARCHIVE_EXTS], key=lambda p: p.name.lower())
-        doc_files = sorted([p for p in files if p.suffix.lower() in DOC_EXTS], key=lambda p: p.name.lower())
-        source_files = sorted([p for p in files if p.suffix.lower() in SOURCE_EXTS], key=lambda p: p.name.lower())
+    for directory, files in sorted(
+        files_by_dir.items(), key=lambda item: rel(item[0], repo_root)
+    ):
+        image_files = sorted(
+            [p for p in files if p.suffix.lower() in IMAGE_EXTS],
+            key=lambda p: p.name.lower(),
+        )
+        archive_files = sorted(
+            [p for p in files if p.suffix.lower() in ARCHIVE_EXTS],
+            key=lambda p: p.name.lower(),
+        )
+        doc_files = sorted(
+            [p for p in files if p.suffix.lower() in DOC_EXTS],
+            key=lambda p: p.name.lower(),
+        )
+        source_files = sorted(
+            [p for p in files if p.suffix.lower() in SOURCE_EXTS],
+            key=lambda p: p.name.lower(),
+        )
 
         if image_files:
             bytes_sum = sum(p.stat().st_size for p in image_files)
@@ -177,13 +235,17 @@ def build_catalog(repo_root: Path, source_root: Path, source_id: str) -> tuple[d
             group["file_count"] += len(image_files)
             group["total_bytes"] += bytes_sum
             group["sequence_count"] += 1
-            group["fingerprint_parts"].append(f"{rel(directory, repo_root)}:{signature}")
+            group["fingerprint_parts"].append(
+                f"{rel(directory, repo_root)}:{signature}"
+            )
             if len(group["representative_sequences"]) < 24:
                 group["representative_sequences"].append(
                     {
                         "path": rel(directory, repo_root),
                         "frame_count": len(image_files),
-                        "representative_files": [rel(p, repo_root) for p in image_files[:3]],
+                        "representative_files": [
+                            rel(p, repo_root) for p in image_files[:3]
+                        ],
                     }
                 )
             if group["preview_dimensions"] is None and dimensions:
@@ -192,21 +254,60 @@ def build_catalog(repo_root: Path, source_root: Path, source_id: str) -> tuple[d
 
         for path in archive_files:
             stat = path.stat()
-            records.append(make_record(source_id, source_root, repo_root, path, "archive", "archives", None, 1,
-                                       stat.st_size, {"sha256": sha256_file(path)}))
+            records.append(
+                make_record(
+                    source_id,
+                    source_root,
+                    repo_root,
+                    path,
+                    "archive",
+                    "archives",
+                    None,
+                    1,
+                    stat.st_size,
+                    {"sha256": sha256_file(path)},
+                )
+            )
         for path in doc_files:
             stat = path.stat()
-            records.append(make_record(source_id, source_root, repo_root, path, "document", "documentation", None, 1,
-                                       stat.st_size, {"sha256_head": sha256_file(path, 1024 * 1024)}))
+            records.append(
+                make_record(
+                    source_id,
+                    source_root,
+                    repo_root,
+                    path,
+                    "document",
+                    "documentation",
+                    None,
+                    1,
+                    stat.st_size,
+                    {"sha256_head": sha256_file(path, 1024 * 1024)},
+                )
+            )
         if source_files:
             bytes_sum = sum(p.stat().st_size for p in source_files)
-            records.append(make_record(source_id, source_root, repo_root, directory, "animation_metadata",
-                                       "tooling/source", None, len(source_files), bytes_sum,
-                                       {"metadata_files": [rel(p, repo_root) for p in source_files[:12]]}))
+            records.append(
+                make_record(
+                    source_id,
+                    source_root,
+                    repo_root,
+                    directory,
+                    "animation_metadata",
+                    "tooling/source",
+                    None,
+                    len(source_files),
+                    bytes_sum,
+                    {"metadata_files": [rel(p, repo_root) for p in source_files[:12]]},
+                )
+            )
 
     sequence_groups: dict[str, list[dict]] = {}
-    for (pack_root, category), group in sorted(image_groups.items(), key=lambda item: (rel(item[0][0], repo_root), item[0][1])):
-        fingerprint = hashlib.sha256("\n".join(sorted(group["fingerprint_parts"])).encode("utf-8")).hexdigest()
+    for (pack_root, category), group in sorted(
+        image_groups.items(), key=lambda item: (rel(item[0][0], repo_root), item[0][1])
+    ):
+        fingerprint = hashlib.sha256(
+            "\n".join(sorted(group["fingerprint_parts"])).encode("utf-8")
+        ).hexdigest()
         extra = {
             "sequence_count": group["sequence_count"],
             "frame_count": group["file_count"],
@@ -216,30 +317,52 @@ def build_catalog(repo_root: Path, source_root: Path, source_id: str) -> tuple[d
         dimensions = group["preview_dimensions"]
         if dimensions:
             extra["preview_width"], extra["preview_height"] = dimensions
-        record = make_record(source_id, source_root, repo_root, pack_root, "image_sequence_collection", category,
-                             group["preview"], group["file_count"], group["total_bytes"], extra)
+        record = make_record(
+            source_id,
+            source_root,
+            repo_root,
+            pack_root,
+            "image_sequence_collection",
+            category,
+            group["preview"],
+            group["file_count"],
+            group["total_bytes"],
+            extra,
+        )
         records.append(record)
-        sequence_groups.setdefault(f"{category}:{group['total_bytes']}:{fingerprint}", []).append(record)
+        sequence_groups.setdefault(
+            f"{category}:{group['total_bytes']}:{fingerprint}", []
+        ).append(record)
 
     duplicate_groups = []
     duplicate_asset_count = 0
     for _key, group in sorted(sequence_groups.items()):
         if len(group) < 2:
             continue
-        canonical = sorted(group, key=lambda item: (item["file_count"], item["source_path"]))[0]
-        duplicate_groups.append({
-            "kind": "potential_sequence_duplicate",
-            "canonical_asset_id": canonical["id"],
-            "canonical_source_path": canonical["source_path"],
-            "copies": len(group),
-            "duplicate_source_paths": [item["source_path"] for item in group if item["id"] != canonical["id"]],
-        })
+        canonical = sorted(
+            group, key=lambda item: (item["file_count"], item["source_path"])
+        )[0]
+        duplicate_groups.append(
+            {
+                "kind": "potential_sequence_duplicate",
+                "canonical_asset_id": canonical["id"],
+                "canonical_source_path": canonical["source_path"],
+                "copies": len(group),
+                "duplicate_source_paths": [
+                    item["source_path"]
+                    for item in group
+                    if item["id"] != canonical["id"]
+                ],
+            }
+        )
         duplicate_asset_count += len(group) - 1
 
     category_counts: dict[str, int] = {}
     kind_counts: dict[str, int] = {}
     for record in records:
-        category_counts[record["category"]] = category_counts.get(record["category"], 0) + 1
+        category_counts[record["category"]] = (
+            category_counts.get(record["category"], 0) + 1
+        )
         kind_counts[record["media_kind"]] = kind_counts.get(record["media_kind"], 0) + 1
 
     generated_at = iso_now()
@@ -283,7 +406,9 @@ def build_catalog(repo_root: Path, source_root: Path, source_id: str) -> tuple[d
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Aggregate-catalog a large animation/background asset drop.")
+    parser = argparse.ArgumentParser(
+        description="Aggregate-catalog a large animation/background asset drop."
+    )
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--source-root", required=True)
     parser.add_argument("--source-id", default="SRC-008")
@@ -320,10 +445,20 @@ def main() -> int:
             "assets": records,
         }
         shard_path.write_text(json.dumps(shard, indent=2), encoding="utf-8")
-        shard_rows.append({"category": category, "path": rel(shard_path, repo_root), "asset_count": len(records)})
+        shard_rows.append(
+            {
+                "category": category,
+                "path": rel(shard_path, repo_root),
+                "asset_count": len(records),
+            }
+        )
     catalog["shards"] = shard_rows
-    (repo_root / args.catalog).write_text(json.dumps(catalog, indent=2), encoding="utf-8")
-    (repo_root / args.summary).write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (repo_root / args.catalog).write_text(
+        json.dumps(catalog, indent=2), encoding="utf-8"
+    )
+    (repo_root / args.summary).write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
     print(json.dumps(summary, indent=2))
     return 0
 

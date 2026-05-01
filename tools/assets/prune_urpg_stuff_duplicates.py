@@ -32,7 +32,11 @@ def parse_args() -> argparse.Namespace:
         "--report",
         default="imports/reports/asset_intake/urpg_stuff_duplicate_prune_report.json",
     )
-    parser.add_argument("--apply", action="store_true", help="Delete duplicate files. Default is report-only.")
+    parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Delete duplicate files. Default is report-only.",
+    )
     return parser.parse_args()
 
 

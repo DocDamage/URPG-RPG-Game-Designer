@@ -123,12 +123,13 @@ jobs:
           urpg_presentation_release_validation
           urpg_tests
           urpg_integration_tests
-          urpg_snapshot_tests
+          urpg_snapshot_canonical_tests
+          urpg_snapshot_renderer_tests
           urpg_compat_tests
       - name: Configure renderer-backed snapshot gate
         run: cmake --preset ci -B build/ci-renderer-backed -DURPG_SKIP_OPENGL=OFF
       - name: Build renderer-backed snapshot gate
-        run: cmake --build build/ci-renderer-backed --target urpg_snapshot_tests
+        run: cmake --build build/ci-renderer-backed --target urpg_snapshot_renderer_tests
       - name: Run renderer-backed snapshot gate
         shell: pwsh
         run: xvfb-run -a pwsh -File ./tools/ci/check_renderer_backed_visual_capture.ps1 -BuildDirectory build/ci-renderer-backed

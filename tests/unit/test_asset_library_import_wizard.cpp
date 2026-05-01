@@ -24,7 +24,6 @@ TEST_CASE("AssetLibraryPanel empty snapshot explains missing reports", "[assets]
     REQUIRE_FALSE(panel.lastRenderSnapshot().remediation.empty());
 }
 
-
 TEST_CASE("AssetLibraryModel exposes global import sessions and review queues",
           "[assets][asset_library][editor][asset_import]") {
     urpg::editor::AssetLibraryModel model;
@@ -124,15 +123,13 @@ TEST_CASE("AssetLibraryModel exposes global import sessions and review queues",
     REQUIRE(model.snapshot().import_wizard["steps"][0]["state"] == "complete");
     REQUIRE(model.snapshot().import_wizard["steps"][1]["id"] == "review");
     REQUIRE(model.snapshot().import_wizard["steps"][1]["state"] == "active");
-    const auto ready = std::find_if(
-        model.snapshot().import_review_rows.begin(), model.snapshot().import_review_rows.end(), [](const auto& row) {
-            return row["relative_path"] == "characters/hero.png";
-        });
+    const auto ready =
+        std::find_if(model.snapshot().import_review_rows.begin(), model.snapshot().import_review_rows.end(),
+                     [](const auto& row) { return row["relative_path"] == "characters/hero.png"; });
     REQUIRE(ready != model.snapshot().import_review_rows.end());
     REQUIRE((*ready)["review_state"] == "ready_to_promote");
     REQUIRE((*ready)["promotable"] == true);
 }
-
 
 TEST_CASE("AssetLibraryPanel renders project import wizard steps and actions",
           "[assets][asset_library][editor][asset_import][wizard]") {
@@ -176,30 +173,26 @@ TEST_CASE("AssetLibraryPanel renders project import wizard steps and actions",
     REQUIRE(wizard.status == "review_required");
     REQUIRE(wizard.current_step == "review");
     REQUIRE(wizard.steps.size() == 5);
-    const auto reviewStep = std::find_if(wizard.steps.begin(), wizard.steps.end(), [](const auto& step) {
-        return step.id == "review";
-    });
+    const auto reviewStep =
+        std::find_if(wizard.steps.begin(), wizard.steps.end(), [](const auto& step) { return step.id == "review"; });
     REQUIRE(reviewStep != wizard.steps.end());
     REQUIRE(reviewStep->active);
     REQUIRE(reviewStep->count == 1);
 
-    const auto promoteAction = std::find_if(wizard.actions.begin(), wizard.actions.end(), [](const auto& action) {
-        return action.id == "promote_selected";
-    });
+    const auto promoteAction = std::find_if(wizard.actions.begin(), wizard.actions.end(),
+                                            [](const auto& action) { return action.id == "promote_selected"; });
     REQUIRE(promoteAction != wizard.actions.end());
     REQUIRE(promoteAction->enabled);
     REQUIRE(promoteAction->eligible_count == 1);
     REQUIRE(promoteAction->disabled_reason.empty());
 
-    const auto packageAction = std::find_if(wizard.actions.begin(), wizard.actions.end(), [](const auto& action) {
-        return action.id == "package_validate";
-    });
+    const auto packageAction = std::find_if(wizard.actions.begin(), wizard.actions.end(),
+                                            [](const auto& action) { return action.id == "package_validate"; });
     REQUIRE(packageAction != wizard.actions.end());
     REQUIRE_FALSE(packageAction->enabled);
     REQUIRE(packageAction->disabled_reason == "no_attached_project_assets");
     REQUIRE_FALSE(wizard.package_validation_ready);
 }
-
 
 TEST_CASE("AssetLibraryPanel dispatches import wizard actions through the model",
           "[assets][asset_library][editor][asset_import][wizard][actions]") {
@@ -211,8 +204,8 @@ TEST_CASE("AssetLibraryPanel dispatches import wizard actions through the model"
     const auto projectRoot = root / "project";
 
     urpg::editor::AssetLibraryPanel panel;
-    const auto request = panel.requestImportSource(source, libraryRoot, "import_panel_actions_001",
-                                                   "User-provided test license.");
+    const auto request =
+        panel.requestImportSource(source, libraryRoot, "import_panel_actions_001", "User-provided test license.");
     REQUIRE(request["success"] == true);
     REQUIRE(panel.lastImportWizardSnapshot().status == "source_requested");
     REQUIRE(panel.lastImportWizardSnapshot().current_step == "add_source");
@@ -252,15 +245,14 @@ TEST_CASE("AssetLibraryPanel dispatches import wizard actions through the model"
     panel.render();
     REQUIRE(panel.lastImportWizardSnapshot().status == "review_required");
 
-    const auto promotion = panel.promoteSelectedImportRecords(
-        "import_panel_actions_001", {"asset.hero"}, "user_license_note", promotedRoot.generic_string(), true);
+    const auto promotion = panel.promoteSelectedImportRecords("import_panel_actions_001", {"asset.hero"},
+                                                              "user_license_note", promotedRoot.generic_string(), true);
     REQUIRE(promotion["success"] == true);
     REQUIRE(panel.lastImportWizardSnapshot().status == "ready_to_attach");
     REQUIRE(panel.lastImportWizardSnapshot().current_step == "attach");
-    const auto attachAction = std::find_if(panel.lastImportWizardSnapshot().actions.begin(),
-                                           panel.lastImportWizardSnapshot().actions.end(), [](const auto& action) {
-                                               return action.id == "attach_selected";
-                                           });
+    const auto attachAction =
+        std::find_if(panel.lastImportWizardSnapshot().actions.begin(), panel.lastImportWizardSnapshot().actions.end(),
+                     [](const auto& action) { return action.id == "attach_selected"; });
     REQUIRE(attachAction != panel.lastImportWizardSnapshot().actions.end());
     REQUIRE(attachAction->enabled);
     REQUIRE(attachAction->eligible_count == 1);
@@ -287,7 +279,6 @@ TEST_CASE("AssetLibraryPanel dispatches import wizard actions through the model"
 
     std::filesystem::remove_all(root);
 }
-
 
 TEST_CASE("AssetLibraryPanel requests add-source through an import source picker",
           "[assets][asset_library][editor][asset_import][wizard][picker]") {
@@ -332,7 +323,6 @@ TEST_CASE("AssetLibraryPanel requests add-source through an import source picker
     REQUIRE(cancelled["code"] == "import_source_picker_cancelled");
 }
 
-
 TEST_CASE("AssetLibraryPanel exposes native import picker availability",
           "[assets][asset_library][editor][asset_import][wizard][picker]") {
     const auto availability = urpg::editor::AssetLibraryPanel::nativeImportSourcePickerAvailability();
@@ -346,7 +336,6 @@ TEST_CASE("AssetLibraryPanel exposes native import picker availability",
 #endif
 }
 
-
 TEST_CASE("AssetLibraryModel requests add-source import command handoff",
           "[assets][asset_library][editor][asset_import][wizard]") {
     const auto root = uniqueTempRoot("urpg_asset_library_add_source_request");
@@ -354,8 +343,8 @@ TEST_CASE("AssetLibraryModel requests add-source import command handoff",
     const auto libraryRoot = root / ".urpg" / "asset-library";
 
     urpg::editor::AssetLibraryModel model;
-    const auto request = model.requestImportSource(
-        source, libraryRoot, "import_manual_001", "User-provided test license.");
+    const auto request =
+        model.requestImportSource(source, libraryRoot, "import_manual_001", "User-provided test license.");
 
     REQUIRE(request["action"] == "request_import_source");
     REQUIRE(request["success"] == true);
@@ -379,7 +368,6 @@ TEST_CASE("AssetLibraryModel requests add-source import command handoff",
     REQUIRE(model.snapshot().import_wizard["actions"]["add_source"]["pending_request"] == true);
 }
 
-
 TEST_CASE("AssetLibraryModel request import source supports configured importer paths",
           "[assets][asset_library][editor][asset_import][wizard]") {
     const auto root = uniqueTempRoot("urpg_asset_library_add_source_tool_paths");
@@ -389,14 +377,13 @@ TEST_CASE("AssetLibraryModel request import source supports configured importer 
     urpg::editor::AssetLibraryModel model;
     model.setImportToolCommand({"C:/Tools/Python/python.exe", "C:/URPG/tools/assets/global_asset_import.py"});
 
-    const auto request = model.requestImportSource(
-        source, libraryRoot, "import_tool_paths_001", "User-provided test license.");
+    const auto request =
+        model.requestImportSource(source, libraryRoot, "import_tool_paths_001", "User-provided test license.");
 
     REQUIRE(request["command"][0] == "C:/Tools/Python/python.exe");
     REQUIRE(request["command"][1] == "C:/URPG/tools/assets/global_asset_import.py");
     REQUIRE(model.snapshot().import_wizard["pending_request"]["command"][0] == "C:/Tools/Python/python.exe");
 }
-
 
 TEST_CASE("AssetLibraryModel requests add-source with external archive extractor handoff",
           "[assets][asset_library][editor][asset_import][wizard][archive]") {
@@ -405,12 +392,9 @@ TEST_CASE("AssetLibraryModel requests add-source with external archive extractor
     const auto libraryRoot = root / ".urpg" / "asset-library";
 
     urpg::editor::AssetLibraryModel model;
-    const auto request = model.requestImportSource(
-        source,
-        libraryRoot,
-        "import_external_archive_001",
-        "User-provided archive license.",
-        {"C:/Program Files/7-Zip/7z.exe", "x", "-y"});
+    const auto request =
+        model.requestImportSource(source, libraryRoot, "import_external_archive_001", "User-provided archive license.",
+                                  {"C:/Program Files/7-Zip/7z.exe", "x", "-y"});
 
     REQUIRE(request["success"] == true);
     REQUIRE(request["external_extractor_command"].size() == 3);
@@ -423,7 +407,6 @@ TEST_CASE("AssetLibraryModel requests add-source with external archive extractor
     REQUIRE(model.snapshot().import_wizard["pending_request"]["external_extractor_command"].size() == 3);
 }
 
-
 TEST_CASE("AssetLibraryModel applies configured external archive extractor to add-source requests",
           "[assets][asset_library][editor][asset_import][wizard][archive]") {
     EnvironmentVariableGuard extractorEnv("URPG_ASSET_ARCHIVE_EXTRACTOR");
@@ -434,11 +417,8 @@ TEST_CASE("AssetLibraryModel applies configured external archive extractor to ad
     const auto libraryRoot = root / ".urpg" / "asset-library";
 
     urpg::editor::AssetLibraryModel model;
-    const auto request = model.requestImportSource(
-        source,
-        libraryRoot,
-        "import_configured_external_archive_001",
-        "User-provided archive license.");
+    const auto request = model.requestImportSource(source, libraryRoot, "import_configured_external_archive_001",
+                                                   "User-provided archive license.");
 
     REQUIRE(request["success"] == true);
     REQUIRE(request["external_extractor_command"].size() == 5);
@@ -453,7 +433,6 @@ TEST_CASE("AssetLibraryModel applies configured external archive extractor to ad
     REQUIRE(*std::next(extractorArg) == "\"C:/Program Files/7-Zip/7z.exe\" x -y {source} -o{destination}");
     REQUIRE(model.snapshot().import_wizard["pending_request"]["external_extractor_command"][4] == "-o{destination}");
 }
-
 
 TEST_CASE("AssetLibraryModel exposes configured archive extractor status in the wizard snapshot",
           "[assets][asset_library][editor][asset_import][wizard][archive]") {
@@ -474,7 +453,6 @@ TEST_CASE("AssetLibraryModel exposes configured archive extractor status in the 
     REQUIRE(configuration["command"][4] == "-o{destination}");
 }
 
-
 TEST_CASE("AssetLibraryPanel exposes configured archive extractor status in render snapshot",
           "[assets][asset_library][editor][asset_import][wizard][archive]") {
     EnvironmentVariableGuard extractorEnv("URPG_ASSET_ARCHIVE_EXTRACTOR");
@@ -491,7 +469,6 @@ TEST_CASE("AssetLibraryPanel exposes configured archive extractor status in rend
     REQUIRE(configuration["command"][4] == "-o{destination}");
 }
 
-
 TEST_CASE("AssetLibraryModel reports invalid external archive extractor configuration",
           "[assets][asset_library][editor][asset_import][wizard][archive]") {
     EnvironmentVariableGuard extractorEnv("URPG_ASSET_ARCHIVE_EXTRACTOR");
@@ -506,7 +483,6 @@ TEST_CASE("AssetLibraryModel reports invalid external archive extractor configur
     REQUIRE(configuration["supports_rar_7z"] == false);
     REQUIRE(configuration["diagnostics"][0] == "external_extractor_command_parse_error");
 }
-
 
 TEST_CASE("AssetLibraryModel loads import session manifests from global library root",
           "[assets][asset_library][editor][asset_import]") {
@@ -605,14 +581,12 @@ TEST_CASE("AssetLibraryModel loads import session manifests from global library 
     REQUIRE(model.snapshot().import_missing_license_count == 1);
     REQUIRE(model.snapshot().import_session_rows.size() == 2);
 
-    const auto missing_license = std::find_if(
-        model.snapshot().import_review_rows.begin(), model.snapshot().import_review_rows.end(), [](const auto& row) {
-            return row["relative_path"] == "ui/window.png";
-        });
+    const auto missing_license =
+        std::find_if(model.snapshot().import_review_rows.begin(), model.snapshot().import_review_rows.end(),
+                     [](const auto& row) { return row["relative_path"] == "ui/window.png"; });
     REQUIRE(missing_license != model.snapshot().import_review_rows.end());
     REQUIRE((*missing_license)["review_state"] == "missing_license");
     REQUIRE((*missing_license)["recommended_action"] == "add_license_attribution");
 
     std::filesystem::remove_all(root);
 }
-

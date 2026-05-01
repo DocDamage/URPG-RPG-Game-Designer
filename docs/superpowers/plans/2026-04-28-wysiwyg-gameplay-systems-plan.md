@@ -38,4 +38,3 @@ cmake --build --preset dev-debug --target urpg_tests --parallel 4
 .\build\dev-ninja-debug\urpg_tests.exe "[gameplay][wysiwyg][systems],[editor][panel][registry]"
 git diff --check
 ```
-

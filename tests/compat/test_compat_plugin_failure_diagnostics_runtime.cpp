@@ -7,9 +7,8 @@ TEST_CASE("Compat fixtures: runtime QuickJS command failures are exported as dia
     pm.clearFailureDiagnostics();
 
     const auto runtimeFailureFixture = uniqueTempFixturePath("urpg_runtime_failure_fixture");
-    writeTextFile(
-        runtimeFailureFixture,
-        R"({
+    writeTextFile(runtimeFailureFixture,
+                  R"({
   "name": "BrokenRuntimeFixture",
   "commands": [
     {
@@ -18,8 +17,7 @@ TEST_CASE("Compat fixtures: runtime QuickJS command failures are exported as dia
       "js": "// @urpg-fail-call brokenRuntimeEntry fixture runtime call failure"
     }
   ]
-})"
-    );
+})");
 
     REQUIRE(pm.loadPlugin(runtimeFailureFixture.string()));
 
@@ -49,11 +47,9 @@ TEST_CASE("Compat fixtures: fixture script runtime op failures are exported as d
     pm.unloadAllPlugins();
     pm.clearFailureDiagnostics();
 
-    const auto runtimeScriptFailureFixture =
-        uniqueTempFixturePath("urpg_runtime_script_failure_fixture");
-    writeTextFile(
-        runtimeScriptFailureFixture,
-        R"({
+    const auto runtimeScriptFailureFixture = uniqueTempFixturePath("urpg_runtime_script_failure_fixture");
+    writeTextFile(runtimeScriptFailureFixture,
+                  R"({
   "name": "BrokenScriptRuntimeFixture",
   "commands": [
     {
@@ -79,8 +75,7 @@ TEST_CASE("Compat fixtures: fixture script runtime op failures are exported as d
       ]
     }
   ]
-})"
-    );
+})");
 
     REQUIRE(pm.loadPlugin(runtimeScriptFailureFixture.string()));
 
@@ -95,14 +90,11 @@ TEST_CASE("Compat fixtures: fixture script runtime op failures are exported as d
     REQUIRE(scriptErrorRow.value("operation", "") == "execute_command_quickjs_call");
     REQUIRE(scriptErrorRow.value("plugin", "") == "BrokenScriptRuntimeFixture");
     REQUIRE(scriptErrorRow.value("command", "") == "scriptError");
-    REQUIRE(scriptErrorRow.value("message", "") ==
-            "Host function error: script runtime failure: scriptError");
+    REQUIRE(scriptErrorRow.value("message", "") == "Host function error: script runtime failure: scriptError");
 
-    const urpg::Value unsupportedOpResult =
-        pm.executeCommand("BrokenScriptRuntimeFixture", "unsupportedOp", {});
+    const urpg::Value unsupportedOpResult = pm.executeCommand("BrokenScriptRuntimeFixture", "unsupportedOp", {});
     REQUIRE(std::holds_alternative<std::monostate>(unsupportedOpResult.v));
-    REQUIRE(pm.getLastError().find("Host function error: Unsupported fixture script op") !=
-            std::string::npos);
+    REQUIRE(pm.getLastError().find("Host function error: Unsupported fixture script op") != std::string::npos);
 
     diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() >= 2);
@@ -120,18 +112,15 @@ TEST_CASE("Compat fixtures: fixture script runtime op failures are exported as d
     std::filesystem::remove(runtimeScriptFailureFixture, ec);
 }
 
-TEST_CASE(
-    "Compat fixtures: fixture script invoke command-chain failures are exported as diagnostics artifacts",
-    "[compat][fixtures][failure]") {
+TEST_CASE("Compat fixtures: fixture script invoke command-chain failures are exported as diagnostics artifacts",
+          "[compat][fixtures][failure]") {
     PluginManager& pm = PluginManager::instance();
     pm.unloadAllPlugins();
     pm.clearFailureDiagnostics();
 
-    const auto invokeChainFailureFixture =
-        uniqueTempFixturePath("urpg_runtime_invoke_chain_failure_fixture");
-    writeTextFile(
-        invokeChainFailureFixture,
-        R"({
+    const auto invokeChainFailureFixture = uniqueTempFixturePath("urpg_runtime_invoke_chain_failure_fixture");
+    writeTextFile(invokeChainFailureFixture,
+                  R"({
   "name": "BrokenInvokeChainFixture",
   "commands": [
     {
@@ -169,146 +158,105 @@ TEST_CASE(
       ]
     }
   ]
-})"
-    );
+})");
 
     REQUIRE(pm.loadPlugin(invokeChainFailureFixture.string()));
 
     const urpg::Value invokeMissingRequiredResult =
         pm.executeCommand("BrokenInvokeChainFixture", "invokeMissingRequired", {});
     REQUIRE(std::holds_alternative<std::monostate>(invokeMissingRequiredResult.v));
-    REQUIRE(
-        pm.getLastError() ==
-        "Host function error: Fixture script invoke op expected non-nil result for "
-        "BrokenInvokeChainFixture_missing at index 0"
-    );
+    REQUIRE(pm.getLastError() == "Host function error: Fixture script invoke op expected non-nil result for "
+                                 "BrokenInvokeChainFixture_missing at index 0");
 
     const urpg::Value invokeByNameMissingRequiredResult =
         pm.executeCommand("BrokenInvokeChainFixture", "invokeByNameMissingRequired", {});
     REQUIRE(std::holds_alternative<std::monostate>(invokeByNameMissingRequiredResult.v));
-    REQUIRE(
-        pm.getLastError() ==
-        "Host function error: Fixture script invokeByName op expected non-nil result for "
-        "missingQualifiedName at index 0"
-    );
+    REQUIRE(pm.getLastError() == "Host function error: Fixture script invokeByName op expected non-nil result for "
+                                 "missingQualifiedName at index 0");
 
     const urpg::Value invokeMalformedArgsResult =
         pm.executeCommand("BrokenInvokeChainFixture", "invokeMalformedArgs", {});
     REQUIRE(std::holds_alternative<std::monostate>(invokeMalformedArgsResult.v));
-    REQUIRE(
-        pm.getLastError() ==
-        "Host function error: Fixture script invoke op requires array args at index 0"
-    );
+    REQUIRE(pm.getLastError() == "Host function error: Fixture script invoke op requires array args at index 0");
 
     const urpg::Value invokeMalformedExpectResult =
         pm.executeCommand("BrokenInvokeChainFixture", "invokeMalformedExpect", {});
     REQUIRE(std::holds_alternative<std::monostate>(invokeMalformedExpectResult.v));
-    REQUIRE(
-        pm.getLastError() ==
-        "Host function error: Fixture script invoke op unsupported expect value "
-        "'unknown_expect' at index 0"
-    );
+    REQUIRE(pm.getLastError() == "Host function error: Fixture script invoke op unsupported expect value "
+                                 "'unknown_expect' at index 0");
 
-      const urpg::Value invokeMalformedExpectObjectResult =
+    const urpg::Value invokeMalformedExpectObjectResult =
         pm.executeCommand("BrokenInvokeChainFixture", "invokeMalformedExpectObject", {});
-      REQUIRE(std::holds_alternative<std::monostate>(invokeMalformedExpectObjectResult.v));
-      REQUIRE(
-        pm.getLastError() ==
-        "Host function error: Fixture script invoke op requires supported expect object at index 0"
-      );
+    REQUIRE(std::holds_alternative<std::monostate>(invokeMalformedExpectObjectResult.v));
+    REQUIRE(pm.getLastError() ==
+            "Host function error: Fixture script invoke op requires supported expect object at index 0");
 
     const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE_FALSE(diagnostics.empty());
 
-    const auto invokeMissingRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command" &&
-                   row.value("plugin", "") == "BrokenInvokeChainFixture" &&
-                   row.value("command", "") == "missing";
-        }
-    );
+    const auto invokeMissingRow = std::find_if(diagnostics.begin(), diagnostics.end(), [](const nlohmann::json& row) {
+        return row.value("operation", "") == "execute_command" &&
+               row.value("plugin", "") == "BrokenInvokeChainFixture" && row.value("command", "") == "missing";
+    });
     REQUIRE(invokeMissingRow != diagnostics.end());
     REQUIRE(invokeMissingRow->value("severity", "") == "WARN");
 
-    const auto invokeByNameParseRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
+    const auto invokeByNameParseRow =
+        std::find_if(diagnostics.begin(), diagnostics.end(), [](const nlohmann::json& row) {
             return row.value("operation", "") == "execute_command_by_name_parse" &&
                    row.value("command", "") == "missingQualifiedName";
-        }
-    );
+        });
     REQUIRE(invokeByNameParseRow != diagnostics.end());
     REQUIRE(invokeByNameParseRow->value("severity", "") == "WARN");
 
-    const auto invokeRequiredRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_quickjs_call" &&
-                   row.value("plugin", "") == "BrokenInvokeChainFixture" &&
-                   row.value("command", "") == "invokeMissingRequired" &&
-                   row.value("message", "") ==
-                       "Host function error: Fixture script invoke op expected non-nil result for "
-                       "BrokenInvokeChainFixture_missing at index 0";
-        }
-    );
+    const auto invokeRequiredRow = std::find_if(diagnostics.begin(), diagnostics.end(), [](const nlohmann::json& row) {
+        return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "BrokenInvokeChainFixture" &&
+               row.value("command", "") == "invokeMissingRequired" &&
+               row.value("message", "") == "Host function error: Fixture script invoke op expected non-nil result for "
+                                           "BrokenInvokeChainFixture_missing at index 0";
+    });
     REQUIRE(invokeRequiredRow != diagnostics.end());
 
-    const auto invokeByNameRequiredRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
+    const auto invokeByNameRequiredRow =
+        std::find_if(diagnostics.begin(), diagnostics.end(), [](const nlohmann::json& row) {
             return row.value("operation", "") == "execute_command_quickjs_call" &&
                    row.value("plugin", "") == "BrokenInvokeChainFixture" &&
                    row.value("command", "") == "invokeByNameMissingRequired" &&
                    row.value("message", "") ==
                        "Host function error: Fixture script invokeByName op expected non-nil result for "
                        "missingQualifiedName at index 0";
-        }
-    );
+        });
     REQUIRE(invokeByNameRequiredRow != diagnostics.end());
 
-    const auto invokeMalformedArgsRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
+    const auto invokeMalformedArgsRow =
+        std::find_if(diagnostics.begin(), diagnostics.end(), [](const nlohmann::json& row) {
             return row.value("operation", "") == "execute_command_quickjs_call" &&
                    row.value("plugin", "") == "BrokenInvokeChainFixture" &&
                    row.value("command", "") == "invokeMalformedArgs" &&
                    row.value("message", "") ==
                        "Host function error: Fixture script invoke op requires array args at index 0";
-        }
-    );
+        });
     REQUIRE(invokeMalformedArgsRow != diagnostics.end());
 
-    const auto invokeMalformedExpectRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
+    const auto invokeMalformedExpectRow =
+        std::find_if(diagnostics.begin(), diagnostics.end(), [](const nlohmann::json& row) {
             return row.value("operation", "") == "execute_command_quickjs_call" &&
                    row.value("plugin", "") == "BrokenInvokeChainFixture" &&
                    row.value("command", "") == "invokeMalformedExpect" &&
-                   row.value("message", "") ==
-                       "Host function error: Fixture script invoke op unsupported expect value "
-                       "'unknown_expect' at index 0";
-        }
-    );
+                   row.value("message", "") == "Host function error: Fixture script invoke op unsupported expect value "
+                                               "'unknown_expect' at index 0";
+        });
     REQUIRE(invokeMalformedExpectRow != diagnostics.end());
 
-    const auto invokeMalformedExpectObjectRow = std::find_if(
-      diagnostics.begin(),
-      diagnostics.end(),
-      [](const nlohmann::json& row) {
-        return row.value("operation", "") == "execute_command_quickjs_call" &&
-             row.value("plugin", "") == "BrokenInvokeChainFixture" &&
-             row.value("command", "") == "invokeMalformedExpectObject" &&
-             row.value("message", "") ==
-               "Host function error: Fixture script invoke op requires supported expect object at index 0";
-      }
-    );
+    const auto invokeMalformedExpectObjectRow =
+        std::find_if(diagnostics.begin(), diagnostics.end(), [](const nlohmann::json& row) {
+            return row.value("operation", "") == "execute_command_quickjs_call" &&
+                   row.value("plugin", "") == "BrokenInvokeChainFixture" &&
+                   row.value("command", "") == "invokeMalformedExpectObject" &&
+                   row.value("message", "") ==
+                       "Host function error: Fixture script invoke op requires supported expect object at index 0";
+        });
     REQUIRE(invokeMalformedExpectObjectRow != diagnostics.end());
 
     pm.clearFailureDiagnostics();
@@ -318,18 +266,15 @@ TEST_CASE(
     std::filesystem::remove(invokeChainFailureFixture, ec);
 }
 
-TEST_CASE(
-    "Compat fixtures: fixture script validation failures are exported as diagnostics artifacts",
-    "[compat][fixtures][failure]") {
+TEST_CASE("Compat fixtures: fixture script validation failures are exported as diagnostics artifacts",
+          "[compat][fixtures][failure]") {
     PluginManager& pm = PluginManager::instance();
     pm.unloadAllPlugins();
     pm.clearFailureDiagnostics();
 
-    const auto scriptValidationFixture =
-        uniqueTempFixturePath("urpg_runtime_script_validation_failure_fixture");
-    writeTextFile(
-        scriptValidationFixture,
-        R"({
+    const auto scriptValidationFixture = uniqueTempFixturePath("urpg_runtime_script_validation_failure_fixture");
+    writeTextFile(scriptValidationFixture,
+                  R"({
   "name": "BrokenScriptValidationFixture",
   "commands": [
     {
@@ -397,39 +342,27 @@ TEST_CASE(
       ]
     }
   ]
-})"
-    );
+})");
 
     REQUIRE(pm.loadPlugin(scriptValidationFixture.string()));
 
     const std::vector<std::pair<std::string, std::string>> failureCases = {
         {"setMissingKey", "Host function error: Fixture script set op requires key at index 0"},
-        {"appendMissingKey",
-         "Host function error: Fixture script append op requires key at index 0"},
-        {"invokeMissingCommand",
-         "Host function error: Fixture script invoke op requires command at index 0"},
-        {"invokeNonStringCommand",
-         "Host function error: Fixture script invoke op requires string command at index 0"},
-        {"invokeNonStringPlugin",
-         "Host function error: Fixture script invoke op requires string plugin at index 0"},
-        {"invokeByNameMissingName",
-         "Host function error: Fixture script invokeByName op requires name at index 0"},
+        {"appendMissingKey", "Host function error: Fixture script append op requires key at index 0"},
+        {"invokeMissingCommand", "Host function error: Fixture script invoke op requires command at index 0"},
+        {"invokeNonStringCommand", "Host function error: Fixture script invoke op requires string command at index 0"},
+        {"invokeNonStringPlugin", "Host function error: Fixture script invoke op requires string plugin at index 0"},
+        {"invokeByNameMissingName", "Host function error: Fixture script invokeByName op requires name at index 0"},
         {"invokeByNameNonStringName",
          "Host function error: Fixture script invokeByName op requires string name at index 0"},
-        {"invokeBadStoreType",
-         "Host function error: Fixture script invoke op requires string store at index 0"},
+        {"invokeBadStoreType", "Host function error: Fixture script invoke op requires string store at index 0"},
         {"invokeBadExpectType",
-            "Host function error: Fixture script invoke op requires string or object expect at index 0"},
-        {"errorDefaultMessage",
-         "Host function error: Fixture script error op triggered at index 0"},
+         "Host function error: Fixture script invoke op requires string or object expect at index 0"},
+        {"errorDefaultMessage", "Host function error: Fixture script error op triggered at index 0"},
     };
 
     for (const auto& [commandName, expectedMessage] : failureCases) {
-        const urpg::Value result = pm.executeCommand(
-            "BrokenScriptValidationFixture",
-            commandName,
-            {}
-        );
+        const urpg::Value result = pm.executeCommand("BrokenScriptValidationFixture", commandName, {});
         REQUIRE(std::holds_alternative<std::monostate>(result.v));
         REQUIRE(pm.getLastError() == expectedMessage);
     }
@@ -438,16 +371,11 @@ TEST_CASE(
     REQUIRE(diagnostics.size() >= failureCases.size());
 
     for (const auto& [commandName, expectedMessage] : failureCases) {
-        const auto rowIt = std::find_if(
-            diagnostics.begin(),
-            diagnostics.end(),
-            [&](const nlohmann::json& row) {
-                return row.value("operation", "") == "execute_command_quickjs_call" &&
-                       row.value("plugin", "") == "BrokenScriptValidationFixture" &&
-                       row.value("command", "") == commandName &&
-                       row.value("message", "") == expectedMessage;
-            }
-        );
+        const auto rowIt = std::find_if(diagnostics.begin(), diagnostics.end(), [&](const nlohmann::json& row) {
+            return row.value("operation", "") == "execute_command_quickjs_call" &&
+                   row.value("plugin", "") == "BrokenScriptValidationFixture" &&
+                   row.value("command", "") == commandName && row.value("message", "") == expectedMessage;
+        });
         REQUIRE(rowIt != diagnostics.end());
     }
 
@@ -458,18 +386,15 @@ TEST_CASE(
     std::filesystem::remove(scriptValidationFixture, ec);
 }
 
-TEST_CASE(
-    "Compat fixtures: malformed nested-branch fixture script failures are exported as diagnostics artifacts",
-    "[compat][fixtures][failure]") {
+TEST_CASE("Compat fixtures: malformed nested-branch fixture script failures are exported as diagnostics artifacts",
+          "[compat][fixtures][failure]") {
     PluginManager& pm = PluginManager::instance();
     pm.unloadAllPlugins();
     pm.clearFailureDiagnostics();
 
-    const auto nestedBranchFixture =
-        uniqueTempFixturePath("urpg_runtime_nested_branch_validation_failure_fixture");
-    writeTextFile(
-        nestedBranchFixture,
-        R"({
+    const auto nestedBranchFixture = uniqueTempFixturePath("urpg_runtime_nested_branch_validation_failure_fixture");
+    writeTextFile(nestedBranchFixture,
+                  R"({
   "name": "BrokenNestedBranchFixture",
   "commands": [
     {
@@ -711,20 +636,15 @@ TEST_CASE(
       ]
     }
   ]
-})"
-    );
+})");
 
     REQUIRE(pm.loadPlugin(nestedBranchFixture.string()));
 
     const std::vector<std::pair<std::string, std::string>> failureCases = {
-        {"nestedThenBranchShape",
-         "Host function error: Fixture script if branch must be an array at index 0"},
-        {"nestedElseBranchShape",
-         "Host function error: Fixture script if branch must be an array at index 0"},
-        {"nestedMissingOp",
-         "Host function error: Fixture script step missing op at index 0"},
-        {"nestedInvokeMalformedArgs",
-         "Host function error: Fixture script invoke op requires array args at index 0"},
+        {"nestedThenBranchShape", "Host function error: Fixture script if branch must be an array at index 0"},
+        {"nestedElseBranchShape", "Host function error: Fixture script if branch must be an array at index 0"},
+        {"nestedMissingOp", "Host function error: Fixture script step missing op at index 0"},
+        {"nestedInvokeMalformedArgs", "Host function error: Fixture script invoke op requires array args at index 0"},
         {"nestedInvokeMalformedStore",
          "Host function error: Fixture script invoke op requires string store at index 0"},
         {"nestedInvokeMalformedExpectObject",
@@ -736,41 +656,28 @@ TEST_CASE(
         {"nestedInvokeByNameMalformedExpectObject",
          "Host function error: Fixture script invokeByName op requires supported expect object at index 0"},
         {"nestedInvokeByNameBadResolverParts",
-            "Host function error: Fixture script resolver concat requires array parts"},
+         "Host function error: Fixture script resolver concat requires array parts"},
         {"nestedInvokeByNameUnknownResolverSource",
-            "Host function error: Fixture script resolver unknown source 'unknown_resolver'"},
-           {"nestedDeepConcatBadParts",
-            "Host function error: Fixture script resolver concat requires array parts"},
-           {"nestedDeepCoalesceBadValues",
-            "Host function error: Fixture script resolver coalesce requires array values"},
-           {"nestedDeepEqualsMissingRight",
-            "Host function error: Fixture script resolver equals requires left and right"},
-          {"nestedDeepArgBadIndex",
-           "Host function error: Fixture script resolver arg requires integer index"},
-          {"nestedDeepParamBadName",
-           "Host function error: Fixture script resolver param requires string name"},
-          {"nestedDeepLocalBadName",
-           "Host function error: Fixture script resolver local requires string name"},
-          {"nestedDeepHasArgBadIndex",
-           "Host function error: Fixture script resolver hasArg requires integer index"},
-          {"nestedDeepHasParamBadName",
-           "Host function error: Fixture script resolver hasParam requires string name"},
-           {"nestedDeepArgCountUnexpectedField",
-            "Host function error: Fixture script resolver argCount does not accept field 'index'"},
-           {"nestedDeepArgsUnexpectedField",
-            "Host function error: Fixture script resolver args does not accept field 'name'"},
-           {"nestedDeepParamKeysUnexpectedField",
-            "Host function error: Fixture script resolver paramKeys does not accept field 'index'"},
-        {"nestedSetMissingKey",
-         "Host function error: Fixture script set op requires key at index 0"},
+         "Host function error: Fixture script resolver unknown source 'unknown_resolver'"},
+        {"nestedDeepConcatBadParts", "Host function error: Fixture script resolver concat requires array parts"},
+        {"nestedDeepCoalesceBadValues", "Host function error: Fixture script resolver coalesce requires array values"},
+        {"nestedDeepEqualsMissingRight", "Host function error: Fixture script resolver equals requires left and right"},
+        {"nestedDeepArgBadIndex", "Host function error: Fixture script resolver arg requires integer index"},
+        {"nestedDeepParamBadName", "Host function error: Fixture script resolver param requires string name"},
+        {"nestedDeepLocalBadName", "Host function error: Fixture script resolver local requires string name"},
+        {"nestedDeepHasArgBadIndex", "Host function error: Fixture script resolver hasArg requires integer index"},
+        {"nestedDeepHasParamBadName", "Host function error: Fixture script resolver hasParam requires string name"},
+        {"nestedDeepArgCountUnexpectedField",
+         "Host function error: Fixture script resolver argCount does not accept field 'index'"},
+        {"nestedDeepArgsUnexpectedField",
+         "Host function error: Fixture script resolver args does not accept field 'name'"},
+        {"nestedDeepParamKeysUnexpectedField",
+         "Host function error: Fixture script resolver paramKeys does not accept field 'index'"},
+        {"nestedSetMissingKey", "Host function error: Fixture script set op requires key at index 0"},
     };
 
     for (const auto& [commandName, expectedMessage] : failureCases) {
-        const urpg::Value result = pm.executeCommand(
-            "BrokenNestedBranchFixture",
-            commandName,
-            {}
-        );
+        const urpg::Value result = pm.executeCommand("BrokenNestedBranchFixture", commandName, {});
         REQUIRE(std::holds_alternative<std::monostate>(result.v));
         REQUIRE(pm.getLastError() == expectedMessage);
     }
@@ -779,16 +686,11 @@ TEST_CASE(
     REQUIRE(diagnostics.size() >= failureCases.size());
 
     for (const auto& [commandName, expectedMessage] : failureCases) {
-        const auto rowIt = std::find_if(
-            diagnostics.begin(),
-            diagnostics.end(),
-            [&](const nlohmann::json& row) {
-                return row.value("operation", "") == "execute_command_quickjs_call" &&
-                       row.value("plugin", "") == "BrokenNestedBranchFixture" &&
-                       row.value("command", "") == commandName &&
-                       row.value("message", "") == expectedMessage;
-            }
-        );
+        const auto rowIt = std::find_if(diagnostics.begin(), diagnostics.end(), [&](const nlohmann::json& row) {
+            return row.value("operation", "") == "execute_command_quickjs_call" &&
+                   row.value("plugin", "") == "BrokenNestedBranchFixture" && row.value("command", "") == commandName &&
+                   row.value("message", "") == expectedMessage;
+        });
         REQUIRE(rowIt != diagnostics.end());
     }
 
@@ -798,4 +700,3 @@ TEST_CASE(
     std::error_code ec;
     std::filesystem::remove(nestedBranchFixture, ec);
 }
-

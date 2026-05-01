@@ -33,8 +33,7 @@ PluginManager.registerCommand("DiagnosticsLivePlugin", "echo", function(args) {
     urpg::Value message;
     message.v = std::string("through_diagnostics");
     payload["message"] = message;
-    const auto result =
-        pluginManager.executeCommand("DiagnosticsLivePlugin", "echo", {urpg::Value::Obj(payload)});
+    const auto result = pluginManager.executeCommand("DiagnosticsLivePlugin", "echo", {urpg::Value::Obj(payload)});
     REQUIRE(std::holds_alternative<urpg::Object>(result.v));
     REQUIRE(std::get<std::string>(std::get<urpg::Object>(result.v).at("seen").v) == "through_diagnostics");
     REQUIRE_FALSE(pluginManager.exportExecutionDiagnosticsJsonl().empty());
@@ -280,4 +279,3 @@ TEST_CASE("DiagnosticsWorkspace - Project audit CLI and export parity contract",
     REQUIRE(parityJson["issue_count"] == 0);
     REQUIRE(parityJson["cli_canonical"]["headline"] == "Parity audit");
 }
-

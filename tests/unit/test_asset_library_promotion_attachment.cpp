@@ -65,8 +65,8 @@ TEST_CASE("AssetLibraryModel promotes selected import records through governed m
     };
     model.ingestImportSession(std::move(session));
 
-    const auto promoted = model.promoteImportRecord(
-        "import_20260430_001", "asset.hero", "user_license_note", ".urpg/asset-library/promoted", true);
+    const auto promoted = model.promoteImportRecord("import_20260430_001", "asset.hero", "user_license_note",
+                                                    ".urpg/asset-library/promoted", true);
     REQUIRE(promoted.success);
     REQUIRE(promoted.code == "import_record_promoted");
     REQUIRE(model.snapshot().promoted_count == 1);
@@ -89,22 +89,20 @@ TEST_CASE("AssetLibraryModel promotes selected import records through governed m
     REQUIRE(model.snapshot().asset_action_rows[0]["asset_id"] == "asset.hero");
     REQUIRE(model.applyQuickFilter("all_assets"));
 
-    const auto blocked = model.promoteImportRecord(
-        "import_20260430_001", "asset.theme", "user_license_note", ".urpg/asset-library/promoted", true);
+    const auto blocked = model.promoteImportRecord("import_20260430_001", "asset.theme", "user_license_note",
+                                                   ".urpg/asset-library/promoted", true);
     REQUIRE_FALSE(blocked.success);
     REQUIRE(blocked.code == "import_record_blocked");
     REQUIRE(model.snapshot().asset_action_rows.size() == 2);
-    const auto theme = std::find_if(
-        model.snapshot().asset_action_rows.begin(), model.snapshot().asset_action_rows.end(), [](const auto& row) {
-            return row["asset_id"] == "asset.theme";
-    });
+    const auto theme =
+        std::find_if(model.snapshot().asset_action_rows.begin(), model.snapshot().asset_action_rows.end(),
+                     [](const auto& row) { return row["asset_id"] == "asset.theme"; });
     REQUIRE(theme != model.snapshot().asset_action_rows.end());
     REQUIRE((*theme)["recommended_action"] == "convert_or_replace");
     REQUIRE((*theme)["promotion_status"] == "blocked");
     REQUIRE((*theme)["include_in_runtime"] == false);
     REQUIRE((*theme)["promotion_diagnostics"][0] == "conversion_required");
 }
-
 
 TEST_CASE("AssetLibraryModel bulk promotes selected import records with per-record diagnostics",
           "[assets][asset_library][editor][asset_import][promotion]") {
@@ -160,11 +158,8 @@ TEST_CASE("AssetLibraryModel bulk promotes selected import records with per-reco
     model.ingestImportSession(std::move(session));
 
     const auto result = model.promoteImportRecords(
-        "import_20260430_bulk",
-        std::vector<std::string>{"asset.hero", "asset.theme", "asset.missing"},
-        "user_license_note",
-        ".urpg/asset-library/promoted",
-        true);
+        "import_20260430_bulk", std::vector<std::string>{"asset.hero", "asset.theme", "asset.missing"},
+        "user_license_note", ".urpg/asset-library/promoted", true);
 
     REQUIRE(result["action"] == "promote_import_records");
     REQUIRE(result["success"] == false);
@@ -177,21 +172,18 @@ TEST_CASE("AssetLibraryModel bulk promotes selected import records with per-reco
     REQUIRE(model.snapshot().last_action["promoted_count"] == 1);
     REQUIRE(model.snapshot().promoted_count == 1);
 
-    const auto theme = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
-        return row["asset_id"] == "asset.theme";
-    });
+    const auto theme = std::find_if(result["rows"].begin(), result["rows"].end(),
+                                    [](const auto& row) { return row["asset_id"] == "asset.theme"; });
     REQUIRE(theme != result["rows"].end());
     REQUIRE((*theme)["success"] == false);
     REQUIRE((*theme)["code"] == "import_record_blocked");
     REQUIRE((*theme)["diagnostics"][0] == "conversion_required");
 
-    const auto missing = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
-        return row["asset_id"] == "asset.missing";
-    });
+    const auto missing = std::find_if(result["rows"].begin(), result["rows"].end(),
+                                      [](const auto& row) { return row["asset_id"] == "asset.missing"; });
     REQUIRE(missing != result["rows"].end());
     REQUIRE((*missing)["code"] == "import_record_not_found");
 }
-
 
 TEST_CASE("AssetLibraryModel attaches promoted assets to a project",
           "[assets][asset_library][editor][asset_attachment]") {
@@ -252,7 +244,6 @@ TEST_CASE("AssetLibraryModel attaches promoted assets to a project",
 
     std::filesystem::remove_all(root);
 }
-
 
 TEST_CASE("AssetLibraryModel attaches selected promoted assets to a project",
           "[assets][asset_library][editor][asset_attachment]") {
@@ -316,18 +307,16 @@ TEST_CASE("AssetLibraryModel attaches selected promoted assets to a project",
     REQUIRE(model.snapshot().project_attachable_count == 0);
     REQUIRE(model.snapshot().project_asset_picker_rows.size() == 2);
 
-    REQUIRE(std::filesystem::is_regular_file(projectRoot / "content" / "assets" / "imported" / "asset.hero" /
-                                             "hero.png"));
+    REQUIRE(
+        std::filesystem::is_regular_file(projectRoot / "content" / "assets" / "imported" / "asset.hero" / "hero.png"));
     REQUIRE(std::filesystem::is_regular_file(projectRoot / "content" / "assets" / "imported" / "asset.click" /
                                              "click.wav"));
     REQUIRE(std::filesystem::is_regular_file(projectRoot / "content" / "assets" / "manifests" / "asset.hero.json"));
     REQUIRE(std::filesystem::is_regular_file(projectRoot / "content" / "assets" / "manifests" / "asset.click.json"));
 
-    const auto heroPicker = std::find_if(
-        model.snapshot().project_asset_picker_rows.begin(), model.snapshot().project_asset_picker_rows.end(),
-        [](const auto& row) {
-            return row["asset_id"] == "asset.hero";
-        });
+    const auto heroPicker = std::find_if(model.snapshot().project_asset_picker_rows.begin(),
+                                         model.snapshot().project_asset_picker_rows.end(),
+                                         [](const auto& row) { return row["asset_id"] == "asset.hero"; });
     REQUIRE(heroPicker != model.snapshot().project_asset_picker_rows.end());
     REQUIRE((*heroPicker)["project_path"] ==
             (projectRoot / "content" / "assets" / "imported" / "asset.hero" / "hero.png").generic_string());
@@ -336,23 +325,19 @@ TEST_CASE("AssetLibraryModel attaches selected promoted assets to a project",
     REQUIRE((*heroPicker)["picker_kind"] == "sprite");
     REQUIRE((*heroPicker)["picker_targets"][0] == "level_builder");
 
-    const auto audioPicker = std::find_if(
-        model.snapshot().project_asset_picker_rows.begin(), model.snapshot().project_asset_picker_rows.end(),
-        [](const auto& row) {
-            return row["asset_id"] == "asset.click";
-        });
+    const auto audioPicker = std::find_if(model.snapshot().project_asset_picker_rows.begin(),
+                                          model.snapshot().project_asset_picker_rows.end(),
+                                          [](const auto& row) { return row["asset_id"] == "asset.click"; });
     REQUIRE(audioPicker != model.snapshot().project_asset_picker_rows.end());
     REQUIRE((*audioPicker)["picker_kind"] == "audio");
 
-    const auto missing = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
-        return row["path"] == "imports/raw/example/missing.png";
-    });
+    const auto missing = std::find_if(result["rows"].begin(), result["rows"].end(),
+                                      [](const auto& row) { return row["path"] == "imports/raw/example/missing.png"; });
     REQUIRE(missing != result["rows"].end());
     REQUIRE((*missing)["code"] == "asset_not_found");
 
     std::filesystem::remove_all(root);
 }
-
 
 TEST_CASE("AssetLibraryModel promotes imported payloads globally before project attachment",
           "[assets][asset_library][editor][asset_import][promotion][asset_attachment]") {
@@ -391,8 +376,8 @@ TEST_CASE("AssetLibraryModel promotes imported payloads globally before project 
     };
     model.ingestImportSession(std::move(session));
 
-    const auto promoted = model.promoteImportRecordToGlobalLibrary(
-        "import_001", "asset.hero", "user_license_note", root / ".urpg" / "asset-library" / "promoted");
+    const auto promoted = model.promoteImportRecordToGlobalLibrary("import_001", "asset.hero", "user_license_note",
+                                                                   root / ".urpg" / "asset-library" / "promoted");
     REQUIRE(promoted.success);
     REQUIRE(promoted.code == "global_asset_promoted");
     REQUIRE(model.snapshot().last_action["action"] == "promote_import_record_global");
@@ -406,13 +391,12 @@ TEST_CASE("AssetLibraryModel promotes imported payloads globally before project 
     REQUIRE(attached.code == "project_asset_attached");
     REQUIRE(std::filesystem::is_regular_file(root / "project" / "content" / "assets" / "imported" / "asset.hero" /
                                              "hero.png"));
-    REQUIRE(std::filesystem::is_regular_file(root / "project" / "content" / "assets" / "manifests" /
-                                             "asset.hero.json"));
+    REQUIRE(
+        std::filesystem::is_regular_file(root / "project" / "content" / "assets" / "manifests" / "asset.hero.json"));
     REQUIRE(model.snapshot().referenced_asset_count == 1);
 
     std::filesystem::remove_all(root);
 }
-
 
 TEST_CASE("AssetLibraryModel bulk promotes selected records into the global library",
           "[assets][asset_library][editor][asset_import][promotion]") {
@@ -474,9 +458,7 @@ TEST_CASE("AssetLibraryModel bulk promotes selected records into the global libr
 
     const auto promotedRoot = root / ".urpg" / "asset-library" / "promoted";
     const auto result = model.promoteImportRecordsToGlobalLibrary(
-        "import_bulk",
-        std::vector<std::string>{"asset.hero", "asset.theme", "asset.missing"},
-        "user_license_note",
+        "import_bulk", std::vector<std::string>{"asset.hero", "asset.theme", "asset.missing"}, "user_license_note",
         promotedRoot);
 
     REQUIRE(result["action"] == "promote_import_records_global");
@@ -495,35 +477,30 @@ TEST_CASE("AssetLibraryModel bulk promotes selected records into the global libr
     REQUIRE(std::filesystem::is_regular_file(payload));
     REQUIRE(std::filesystem::is_regular_file(manifest));
 
-    const auto hero = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
-        return row["asset_id"] == "asset.hero";
-    });
+    const auto hero = std::find_if(result["rows"].begin(), result["rows"].end(),
+                                   [](const auto& row) { return row["asset_id"] == "asset.hero"; });
     REQUIRE(hero != result["rows"].end());
     REQUIRE((*hero)["success"] == true);
     REQUIRE((*hero)["code"] == "global_asset_promoted");
     REQUIRE((*hero)["payload_path"] == payload.generic_string());
     REQUIRE((*hero)["manifest_path"] == manifest.generic_string());
 
-    const auto theme = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
-        return row["asset_id"] == "asset.theme";
-    });
+    const auto theme = std::find_if(result["rows"].begin(), result["rows"].end(),
+                                    [](const auto& row) { return row["asset_id"] == "asset.theme"; });
     REQUIRE(theme != result["rows"].end());
     REQUIRE((*theme)["success"] == false);
     REQUIRE((*theme)["code"] == "global_promotion_blocked");
     REQUIRE((*theme)["diagnostics"][0] == "conversion_required");
 
-    const auto missing = std::find_if(result["rows"].begin(), result["rows"].end(), [](const auto& row) {
-        return row["asset_id"] == "asset.missing";
-    });
+    const auto missing = std::find_if(result["rows"].begin(), result["rows"].end(),
+                                      [](const auto& row) { return row["asset_id"] == "asset.missing"; });
     REQUIRE(missing != result["rows"].end());
     REQUIRE((*missing)["code"] == "import_record_not_found");
 
     std::filesystem::remove_all(root);
 }
 
-
-TEST_CASE("AssetLibraryModel reloads promoted global asset manifests",
-          "[assets][asset_library][editor][promotion]") {
+TEST_CASE("AssetLibraryModel reloads promoted global asset manifests", "[assets][asset_library][editor][promotion]") {
     const auto root = uniqueTempRoot("urpg_asset_library_model_reload_promoted");
     std::filesystem::remove_all(root);
     const auto libraryRoot = root / ".urpg" / "asset-library";
@@ -572,18 +549,15 @@ TEST_CASE("AssetLibraryModel reloads promoted global asset manifests",
     REQUIRE(model.snapshot().runtime_ready_count == 1);
     REQUIRE(model.snapshot().asset_action_rows.size() == 2);
 
-    const auto hero = std::find_if(
-        model.snapshot().asset_action_rows.begin(), model.snapshot().asset_action_rows.end(), [](const auto& row) {
-            return row["asset_id"] == "asset.hero";
-        });
+    const auto hero = std::find_if(model.snapshot().asset_action_rows.begin(), model.snapshot().asset_action_rows.end(),
+                                   [](const auto& row) { return row["asset_id"] == "asset.hero"; });
     REQUIRE(hero != model.snapshot().asset_action_rows.end());
     REQUIRE((*hero)["recommended_action"] == "attach_to_project");
     REQUIRE((*hero)["attach_button"]["enabled"] == true);
 
-    const auto theme = std::find_if(
-        model.snapshot().asset_action_rows.begin(), model.snapshot().asset_action_rows.end(), [](const auto& row) {
-            return row["asset_id"] == "asset.theme";
-        });
+    const auto theme =
+        std::find_if(model.snapshot().asset_action_rows.begin(), model.snapshot().asset_action_rows.end(),
+                     [](const auto& row) { return row["asset_id"] == "asset.theme"; });
     REQUIRE(theme != model.snapshot().asset_action_rows.end());
     REQUIRE((*theme)["recommended_action"] == "convert_or_replace");
     REQUIRE((*theme)["attach_button"]["enabled"] == false);
@@ -591,7 +565,6 @@ TEST_CASE("AssetLibraryModel reloads promoted global asset manifests",
 
     std::filesystem::remove_all(root);
 }
-
 
 TEST_CASE("AssetLibraryModel reloads project asset attachment manifests",
           "[assets][asset_library][editor][asset_attachment]") {
@@ -643,4 +616,3 @@ TEST_CASE("AssetLibraryModel reloads project asset attachment manifests",
 
     std::filesystem::remove_all(root);
 }
-

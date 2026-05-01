@@ -7,11 +7,10 @@ TEST_CASE("Compat fixtures: malformed fixture load failures are exported as diag
     pm.clearFailureDiagnostics();
 
     std::vector<CapturedError> errors;
-    pm.setErrorHandler([&errors](const std::string& pluginName,
-                                 const std::string& commandName,
-                                 const std::string& error) {
-        errors.push_back(CapturedError{pluginName, commandName, error});
-    });
+    pm.setErrorHandler(
+        [&errors](const std::string& pluginName, const std::string& commandName, const std::string& error) {
+            errors.push_back(CapturedError{pluginName, commandName, error});
+        });
 
     const auto malformedFixture = uniqueTempFixturePath("urpg_malformed_fixture");
     writeTextFile(malformedFixture, "{\"name\":");
@@ -27,9 +26,8 @@ TEST_CASE("Compat fixtures: malformed fixture load failures are exported as diag
     REQUIRE(malformedRow.value("plugin", "") == malformedFixture.stem().string());
 
     const auto emptyEntryFixture = uniqueTempFixturePath("urpg_empty_entry_fixture");
-    writeTextFile(
-        emptyEntryFixture,
-        R"({
+    writeTextFile(emptyEntryFixture,
+                  R"({
   "name": "BrokenEntryFixture",
   "commands": [
     {
@@ -38,8 +36,7 @@ TEST_CASE("Compat fixtures: malformed fixture load failures are exported as diag
       "js": "// @urpg-export brokenCommand const 1"
     }
   ]
-})"
-    );
+})");
 
     const bool loadedEmptyEntry = pm.loadPlugin(emptyEntryFixture.string());
     REQUIRE_FALSE(loadedEmptyEntry);
@@ -58,9 +55,8 @@ TEST_CASE("Compat fixtures: malformed fixture load failures are exported as diag
     REQUIRE(errors[1].commandName == "brokenCommand");
 
     const auto evalFailureFixture = uniqueTempFixturePath("urpg_eval_failure_fixture");
-    writeTextFile(
-        evalFailureFixture,
-        R"({
+    writeTextFile(evalFailureFixture,
+                  R"({
   "name": "BrokenEvalFixture",
   "commands": [
     {
@@ -69,8 +65,7 @@ TEST_CASE("Compat fixtures: malformed fixture load failures are exported as diag
       "js": "// @urpg-fail-eval fixture eval failure"
     }
   ]
-})"
-    );
+})");
 
     const bool loadedEvalFailure = pm.loadPlugin(evalFailureFixture.string());
     REQUIRE_FALSE(loadedEvalFailure);
@@ -106,9 +101,8 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
     pm.clearFailureDiagnostics();
 
     const auto badJsPayloadFixture = uniqueTempFixturePath("urpg_bad_js_payload_fixture");
-    writeTextFile(
-        badJsPayloadFixture,
-        R"({
+    writeTextFile(badJsPayloadFixture,
+                  R"({
   "name": "BrokenJsPayloadFixture",
   "commands": [
     {
@@ -116,8 +110,7 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
       "js": 123
     }
   ]
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(badJsPayloadFixture.string()));
     REQUIRE(pm.getLastError() == "Fixture JS command requires string 'js' payload: brokenJsPayload");
@@ -130,9 +123,8 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
     REQUIRE(badJsRow.value("command", "") == "brokenJsPayload");
 
     const auto badScriptPayloadFixture = uniqueTempFixturePath("urpg_bad_script_payload_fixture");
-    writeTextFile(
-        badScriptPayloadFixture,
-        R"({
+    writeTextFile(badScriptPayloadFixture,
+                  R"({
   "name": "BrokenScriptPayloadFixture",
   "commands": [
     {
@@ -142,12 +134,10 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
       }
     }
   ]
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(badScriptPayloadFixture.string()));
-    REQUIRE(pm.getLastError() ==
-            "Fixture script command requires array 'script' payload: brokenScriptPayload");
+    REQUIRE(pm.getLastError() == "Fixture script command requires array 'script' payload: brokenScriptPayload");
 
     diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() >= 2);
@@ -157,9 +147,8 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
     REQUIRE(badScriptRow.value("command", "") == "brokenScriptPayload");
 
     const auto conflictingModeFixture = uniqueTempFixturePath("urpg_conflicting_mode_fixture");
-    writeTextFile(
-        conflictingModeFixture,
-        R"({
+    writeTextFile(conflictingModeFixture,
+                  R"({
   "name": "BrokenCommandModeFixture",
   "commands": [
     {
@@ -171,8 +160,7 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
       ]
     }
   ]
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(conflictingModeFixture.string()));
     REQUIRE(pm.getLastError() == "Fixture command cannot declare both 'js' and 'script': brokenMode");
@@ -184,11 +172,9 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
     REQUIRE(conflictingModeRow.value("plugin", "") == "BrokenCommandModeFixture");
     REQUIRE(conflictingModeRow.value("command", "") == "brokenMode");
 
-    const auto badDropContextFlagFixture =
-        uniqueTempFixturePath("urpg_bad_drop_context_flag_fixture");
-    writeTextFile(
-        badDropContextFlagFixture,
-        R"({
+    const auto badDropContextFlagFixture = uniqueTempFixturePath("urpg_bad_drop_context_flag_fixture");
+    writeTextFile(badDropContextFlagFixture,
+                  R"({
   "name": "BrokenDropContextFlagFixture",
   "commands": [
     {
@@ -198,14 +184,10 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
       "js": "// @urpg-export badDropFlagEntry const 1"
     }
   ]
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(badDropContextFlagFixture.string()));
-    REQUIRE(
-        pm.getLastError() ==
-        "Fixture command 'dropContextBeforeCall' must be boolean: badDropFlag"
-    );
+    REQUIRE(pm.getLastError() == "Fixture command 'dropContextBeforeCall' must be boolean: badDropFlag");
 
     diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() >= 4);
@@ -215,9 +197,8 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
     REQUIRE(badDropFlagRow.value("command", "") == "badDropFlag");
 
     const auto badEntryTypeFixture = uniqueTempFixturePath("urpg_bad_entry_type_fixture");
-    writeTextFile(
-        badEntryTypeFixture,
-        R"({
+    writeTextFile(badEntryTypeFixture,
+                  R"({
   "name": "BrokenEntryTypeFixture",
   "commands": [
     {
@@ -226,8 +207,7 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
       "js": "// @urpg-export badEntry const 1"
     }
   ]
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(badEntryTypeFixture.string()));
     REQUIRE(pm.getLastError() == "Fixture JS command requires string 'entry' payload: badEntry");
@@ -239,11 +219,9 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
     REQUIRE(badEntryTypeRow.value("plugin", "") == "BrokenEntryTypeFixture");
     REQUIRE(badEntryTypeRow.value("command", "") == "badEntry");
 
-    const auto badDescriptionTypeFixture =
-        uniqueTempFixturePath("urpg_bad_description_type_fixture");
-    writeTextFile(
-        badDescriptionTypeFixture,
-        R"({
+    const auto badDescriptionTypeFixture = uniqueTempFixturePath("urpg_bad_description_type_fixture");
+    writeTextFile(badDescriptionTypeFixture,
+                  R"({
   "name": "BrokenDescriptionTypeFixture",
   "commands": [
     {
@@ -252,14 +230,10 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
       "result": 1
     }
   ]
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(badDescriptionTypeFixture.string()));
-    REQUIRE(
-        pm.getLastError() ==
-        "Fixture command 'description' must be string: badDescription"
-    );
+    REQUIRE(pm.getLastError() == "Fixture command 'description' must be string: badDescription");
 
     diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() >= 6);
@@ -269,9 +243,8 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
     REQUIRE(badDescriptionTypeRow.value("command", "") == "badDescription");
 
     const auto unsupportedModeFixture = uniqueTempFixturePath("urpg_unsupported_mode_fixture");
-    writeTextFile(
-        unsupportedModeFixture,
-        R"({
+    writeTextFile(unsupportedModeFixture,
+                  R"({
   "name": "BrokenUnsupportedModeFixture",
   "commands": [
     {
@@ -280,14 +253,10 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
       "result": 1
     }
   ]
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(unsupportedModeFixture.string()));
-    REQUIRE(
-        pm.getLastError() ==
-        "Fixture command 'mode' unsupported: unknown_mode for badModeValue"
-    );
+    REQUIRE(pm.getLastError() == "Fixture command 'mode' unsupported: unknown_mode for badModeValue");
 
     diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() >= 7);
@@ -296,11 +265,9 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
     REQUIRE(unsupportedModeRow.value("plugin", "") == "BrokenUnsupportedModeFixture");
     REQUIRE(unsupportedModeRow.value("command", "") == "badModeValue");
 
-    const auto registerScriptFnFailureFixture =
-        uniqueTempFixturePath("urpg_register_script_fn_failure_fixture");
-    writeTextFile(
-        registerScriptFnFailureFixture,
-        R"({
+    const auto registerScriptFnFailureFixture = uniqueTempFixturePath("urpg_register_script_fn_failure_fixture");
+    writeTextFile(registerScriptFnFailureFixture,
+                  R"({
   "name": "BrokenRegisterScriptFnFixture",
   "commands": [
     {
@@ -313,24 +280,18 @@ TEST_CASE("Compat fixtures: malformed fixture command payload failures are expor
       ]
     }
   ]
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(registerScriptFnFailureFixture.string()));
-    REQUIRE(
-        pm.getLastError() ==
-        "Failed to register QuickJS fixture function for command: __urpg_fail_register_function___scriptCommand"
-    );
+    REQUIRE(pm.getLastError() ==
+            "Failed to register QuickJS fixture function for command: __urpg_fail_register_function___scriptCommand");
 
     diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() >= 8);
     const auto& registerScriptFnRow = diagnostics.back();
     REQUIRE(registerScriptFnRow.value("operation", "") == "load_plugin_register_script_fn");
     REQUIRE(registerScriptFnRow.value("plugin", "") == "BrokenRegisterScriptFnFixture");
-    REQUIRE(
-        registerScriptFnRow.value("command", "") ==
-        "__urpg_fail_register_function___scriptCommand"
-    );
+    REQUIRE(registerScriptFnRow.value("command", "") == "__urpg_fail_register_function___scriptCommand");
 
     pm.clearFailureDiagnostics();
     pm.unloadAllPlugins();
@@ -352,11 +313,9 @@ TEST_CASE("Compat fixtures: malformed fixture metadata shape failures are export
     pm.unloadAllPlugins();
     pm.clearFailureDiagnostics();
 
-    const auto badDependenciesShapeFixture =
-        uniqueTempFixturePath("urpg_bad_dependencies_shape_fixture");
-    writeTextFile(
-        badDependenciesShapeFixture,
-        R"({
+    const auto badDependenciesShapeFixture = uniqueTempFixturePath("urpg_bad_dependencies_shape_fixture");
+    writeTextFile(badDependenciesShapeFixture,
+                  R"({
   "name": "BrokenDependenciesShapeFixture",
   "dependencies": "CorePlugin",
   "commands": [
@@ -365,14 +324,11 @@ TEST_CASE("Compat fixtures: malformed fixture metadata shape failures are export
       "result": 1
     }
   ]
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(badDependenciesShapeFixture.string()));
-    REQUIRE(
-        pm.getLastError() ==
-        ("Fixture plugin 'dependencies' must be array: " + badDependenciesShapeFixture.string())
-    );
+    REQUIRE(pm.getLastError() ==
+            ("Fixture plugin 'dependencies' must be array: " + badDependenciesShapeFixture.string()));
 
     auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE_FALSE(diagnostics.empty());
@@ -380,11 +336,9 @@ TEST_CASE("Compat fixtures: malformed fixture metadata shape failures are export
     REQUIRE(dependenciesShapeRow.value("operation", "") == "load_plugin_dependencies");
     REQUIRE(dependenciesShapeRow.value("plugin", "") == "BrokenDependenciesShapeFixture");
 
-    const auto badDependencyEntryFixture =
-        uniqueTempFixturePath("urpg_bad_dependency_entry_fixture");
-    writeTextFile(
-        badDependencyEntryFixture,
-        R"({
+    const auto badDependencyEntryFixture = uniqueTempFixturePath("urpg_bad_dependency_entry_fixture");
+    writeTextFile(badDependencyEntryFixture,
+                  R"({
   "name": "BrokenDependencyEntryFixture",
   "dependencies": ["CorePlugin", 7],
   "commands": [
@@ -393,15 +347,11 @@ TEST_CASE("Compat fixtures: malformed fixture metadata shape failures are export
       "result": 1
     }
   ]
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(badDependencyEntryFixture.string()));
-    REQUIRE(
-        pm.getLastError() ==
-        ("Fixture plugin dependency must be string at index 1: " +
-         badDependencyEntryFixture.string())
-    );
+    REQUIRE(pm.getLastError() ==
+            ("Fixture plugin dependency must be string at index 1: " + badDependencyEntryFixture.string()));
 
     diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() >= 2);
@@ -409,11 +359,9 @@ TEST_CASE("Compat fixtures: malformed fixture metadata shape failures are export
     REQUIRE(dependencyEntryRow.value("operation", "") == "load_plugin_dependency_entry");
     REQUIRE(dependencyEntryRow.value("plugin", "") == "BrokenDependencyEntryFixture");
 
-    const auto badParametersShapeFixture =
-        uniqueTempFixturePath("urpg_bad_parameters_shape_fixture");
-    writeTextFile(
-        badParametersShapeFixture,
-        R"({
+    const auto badParametersShapeFixture = uniqueTempFixturePath("urpg_bad_parameters_shape_fixture");
+    writeTextFile(badParametersShapeFixture,
+                  R"({
   "name": "BrokenParametersShapeFixture",
   "parameters": ["bad"],
   "commands": [
@@ -422,14 +370,10 @@ TEST_CASE("Compat fixtures: malformed fixture metadata shape failures are export
       "result": 1
     }
   ]
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(badParametersShapeFixture.string()));
-    REQUIRE(
-        pm.getLastError() ==
-        ("Fixture plugin 'parameters' must be object: " + badParametersShapeFixture.string())
-    );
+    REQUIRE(pm.getLastError() == ("Fixture plugin 'parameters' must be object: " + badParametersShapeFixture.string()));
 
     diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() >= 3);
@@ -437,23 +381,17 @@ TEST_CASE("Compat fixtures: malformed fixture metadata shape failures are export
     REQUIRE(parametersShapeRow.value("operation", "") == "load_plugin_parameters");
     REQUIRE(parametersShapeRow.value("plugin", "") == "BrokenParametersShapeFixture");
 
-    const auto badCommandsShapeFixture =
-        uniqueTempFixturePath("urpg_bad_commands_shape_fixture");
-    writeTextFile(
-        badCommandsShapeFixture,
-        R"({
+    const auto badCommandsShapeFixture = uniqueTempFixturePath("urpg_bad_commands_shape_fixture");
+    writeTextFile(badCommandsShapeFixture,
+                  R"({
   "name": "BrokenCommandsShapeFixture",
   "commands": {
     "name": "broken"
   }
-})"
-    );
+})");
 
     REQUIRE_FALSE(pm.loadPlugin(badCommandsShapeFixture.string()));
-    REQUIRE(
-        pm.getLastError() ==
-        ("Fixture plugin 'commands' must be array: " + badCommandsShapeFixture.string())
-    );
+    REQUIRE(pm.getLastError() == ("Fixture plugin 'commands' must be array: " + badCommandsShapeFixture.string()));
 
     diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() >= 4);
@@ -470,4 +408,3 @@ TEST_CASE("Compat fixtures: malformed fixture metadata shape failures are export
     std::filesystem::remove(badParametersShapeFixture, ec);
     std::filesystem::remove(badCommandsShapeFixture, ec);
 }
-

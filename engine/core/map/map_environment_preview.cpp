@@ -8,8 +8,8 @@
 namespace urpg::map {
 namespace {
 
-presentation::LightProfile lightForWeather(const std::string& weather, const std::string& lighting,
-                                            uint32_t light_id, int32_t x, int32_t y) {
+presentation::LightProfile lightForWeather(const std::string& weather, const std::string& lighting, uint32_t light_id,
+                                           int32_t x, int32_t y) {
     presentation::LightProfile light;
     light.lightId = light_id;
     light.type = presentation::LightProfile::LightType::Directional;
@@ -122,9 +122,7 @@ bool validHexColor(const std::string& color) {
     if (color.size() != 7 || color[0] != '#') {
         return false;
     }
-    return std::all_of(color.begin() + 1, color.end(), [](unsigned char ch) {
-        return std::isxdigit(ch) != 0;
-    });
+    return std::all_of(color.begin() + 1, color.end(), [](unsigned char ch) { return std::isxdigit(ch) != 0; });
 }
 
 nlohmann::json lightToJson(const presentation::LightProfile& light) {
@@ -195,8 +193,7 @@ presentation::FogProfile fogFromJson(const nlohmann::json& json, const presentat
     return fog;
 }
 
-presentation::PostFXProfile postFxFromJson(const nlohmann::json& json,
-                                            const presentation::PostFXProfile& fallback) {
+presentation::PostFXProfile postFxFromJson(const nlohmann::json& json, const presentation::PostFXProfile& fallback) {
     presentation::PostFXProfile fx = fallback;
     if (!json.is_object()) {
         return fx;
@@ -320,15 +317,9 @@ MapSmokeEmitter smokeEmitterFromJson(const nlohmann::json& json) {
 }
 
 nlohmann::json smokeEmitterToJson(const MapSmokeEmitter& emitter) {
-    return {{"id", emitter.id},
-            {"region_id", emitter.region_id},
-            {"intensity", emitter.intensity},
-            {"size", emitter.size},
-            {"opacity", emitter.opacity},
-            {"color", emitter.color},
-            {"bloom", emitter.bloom},
-            {"drift_x", emitter.drift_x},
-            {"drift_y", emitter.drift_y}};
+    return {{"id", emitter.id},       {"region_id", emitter.region_id}, {"intensity", emitter.intensity},
+            {"size", emitter.size},   {"opacity", emitter.opacity},     {"color", emitter.color},
+            {"bloom", emitter.bloom}, {"drift_x", emitter.drift_x},     {"drift_y", emitter.drift_y}};
 }
 
 MapTerrainMeshRule terrainMeshRuleFromJson(const nlohmann::json& json) {
@@ -419,12 +410,12 @@ std::vector<MapDiagnostic> MapEnvironmentPreviewDocument::validate() const {
         diagnostics.push_back({"missing_map_id", "Map environment preview requires a map id.", -1, -1, ""});
     }
     if (width <= 0 || height <= 0) {
-        diagnostics.push_back({"invalid_map_size", "Map environment preview requires positive dimensions.", -1, -1,
-                               map_id});
+        diagnostics.push_back(
+            {"invalid_map_size", "Map environment preview requires positive dimensions.", -1, -1, map_id});
     }
     if (!validWeather(base_weather)) {
-        diagnostics.push_back({"unknown_weather", "Base weather is not supported by the runtime preview.", -1, -1,
-                               base_weather});
+        diagnostics.push_back(
+            {"unknown_weather", "Base weather is not supported by the runtime preview.", -1, -1, base_weather});
     }
     const auto expected_tile_count = static_cast<size_t>(std::max(0, width) * std::max(0, height));
     std::set<std::string> layer_ids;
@@ -435,8 +426,8 @@ std::vector<MapDiagnostic> MapEnvironmentPreviewDocument::validate() const {
             diagnostics.push_back({"duplicate_tile_layer_id", "Tile layer id must be unique.", -1, -1, layer.id});
         }
         if (expected_tile_count > 0 && layer.tiles.size() != expected_tile_count) {
-            diagnostics.push_back({"tile_layer_size_mismatch", "Tile layer tile count must match map dimensions.", -1,
-                                   -1, layer.id});
+            diagnostics.push_back(
+                {"tile_layer_size_mismatch", "Tile layer tile count must match map dimensions.", -1, -1, layer.id});
         }
     }
     if (!tile_layers.empty()) {
@@ -450,16 +441,16 @@ std::vector<MapDiagnostic> MapEnvironmentPreviewDocument::validate() const {
         if (region.id.empty()) {
             diagnostics.push_back({"missing_region_id", "Environment region requires an id.", region.x, region.y, ""});
         } else if (!ids.insert(region.id).second) {
-            diagnostics.push_back({"duplicate_region_id", "Environment region id must be unique.", region.x, region.y,
-                                   region.id});
+            diagnostics.push_back(
+                {"duplicate_region_id", "Environment region id must be unique.", region.x, region.y, region.id});
         }
         if (region.width <= 0 || region.height <= 0) {
             diagnostics.push_back({"invalid_region_size", "Environment region requires positive dimensions.", region.x,
                                    region.y, region.id});
         }
         if (region.x < 0 || region.y < 0 || region.x + region.width > width || region.y + region.height > height) {
-            diagnostics.push_back({"region_out_of_bounds", "Environment region extends outside the map.", region.x,
-                                   region.y, region.id});
+            diagnostics.push_back(
+                {"region_out_of_bounds", "Environment region extends outside the map.", region.x, region.y, region.id});
         }
         if (!validWeather(region.weather)) {
             diagnostics.push_back({"unknown_weather", "Environment region weather is not supported.", region.x,
@@ -482,7 +473,7 @@ std::vector<MapDiagnostic> MapEnvironmentPreviewDocument::validate() const {
             const bool overlap_x = a.x < b.x + b.width && b.x < a.x + a.width;
             const bool overlap_y = a.y < b.y + b.height && b.y < a.y + a.height;
             if (overlap_x && overlap_y && a.weather != b.weather) {
-                diagnostics.push_back({"region_weather_overlap", "Overlapping regions use conflicting weather.", 
+                diagnostics.push_back({"region_weather_overlap", "Overlapping regions use conflicting weather.",
                                        std::max(a.x, b.x), std::max(a.y, b.y), a.id + ":" + b.id});
             }
         }
@@ -505,8 +496,8 @@ std::vector<MapDiagnostic> MapEnvironmentPreviewDocument::validate() const {
     }
     for (const auto& entry : spawn_table.entries) {
         if (!inBounds(*this, entry.x, entry.y)) {
-            diagnostics.push_back({"spawn_out_of_bounds", "Spawn table entry is outside the map.", entry.x, entry.y,
-                                   entry.id});
+            diagnostics.push_back(
+                {"spawn_out_of_bounds", "Spawn table entry is outside the map.", entry.x, entry.y, entry.id});
         }
         if (blocked.contains({entry.x, entry.y})) {
             diagnostics.push_back({"spawn_on_blocked_tile", "Spawn table entry is placed on a blocked tile.", entry.x,
@@ -525,21 +516,20 @@ std::vector<MapDiagnostic> MapEnvironmentPreviewDocument::validate() const {
             diagnostics.push_back({"missing_parallax_asset", "Parallax layer requires an asset.", -1, -1, layer.id});
         }
         if (!validLockMode(layer.lock_mode)) {
-            diagnostics.push_back({"invalid_parallax_lock_mode", "Parallax lock mode must be map or screen.", -1, -1,
-                                   layer.id});
+            diagnostics.push_back(
+                {"invalid_parallax_lock_mode", "Parallax lock mode must be map or screen.", -1, -1, layer.id});
         }
         if (!validBlendMode(layer.blend_mode)) {
             diagnostics.push_back({"invalid_parallax_blend_mode",
-                                   "Parallax blend mode must be normal, add, multiply, or screen.", -1, -1,
-                                   layer.id});
+                                   "Parallax blend mode must be normal, add, multiply, or screen.", -1, -1, layer.id});
         }
         if (layer.opacity < 0.0f || layer.opacity > 1.0f) {
-            diagnostics.push_back({"invalid_parallax_opacity", "Parallax opacity must be between 0 and 1.", -1, -1,
-                                   layer.id});
+            diagnostics.push_back(
+                {"invalid_parallax_opacity", "Parallax opacity must be between 0 and 1.", -1, -1, layer.id});
         }
         if (layer.region_id < 0) {
-            diagnostics.push_back({"invalid_parallax_region", "Parallax region id cannot be negative.", -1, -1,
-                                   layer.id});
+            diagnostics.push_back(
+                {"invalid_parallax_region", "Parallax region id cannot be negative.", -1, -1, layer.id});
         }
     }
 
@@ -554,15 +544,15 @@ std::vector<MapDiagnostic> MapEnvironmentPreviewDocument::validate() const {
             diagnostics.push_back({"invalid_smoke_region", "Smoke region id cannot be negative.", -1, -1, emitter.id});
         }
         if (emitter.intensity < 0 || emitter.intensity > 100) {
-            diagnostics.push_back({"invalid_smoke_intensity", "Smoke intensity must be between 0 and 100.", -1, -1,
-                                   emitter.id});
+            diagnostics.push_back(
+                {"invalid_smoke_intensity", "Smoke intensity must be between 0 and 100.", -1, -1, emitter.id});
         }
         if (emitter.size <= 0.0f) {
             diagnostics.push_back({"invalid_smoke_size", "Smoke particle size must be positive.", -1, -1, emitter.id});
         }
         if (emitter.opacity < 0 || emitter.opacity > 255) {
-            diagnostics.push_back({"invalid_smoke_opacity", "Smoke opacity must be between 0 and 255.", -1, -1,
-                                   emitter.id});
+            diagnostics.push_back(
+                {"invalid_smoke_opacity", "Smoke opacity must be between 0 and 255.", -1, -1, emitter.id});
         }
         if (!validHexColor(emitter.color)) {
             diagnostics.push_back({"invalid_smoke_color", "Smoke color must be #rrggbb.", -1, -1, emitter.id});
@@ -574,27 +564,26 @@ std::vector<MapDiagnostic> MapEnvironmentPreviewDocument::validate() const {
         if (rule.id.empty()) {
             diagnostics.push_back({"missing_terrain_mesh_id", "Terrain mesh rule requires an id.", -1, -1, ""});
         } else if (!terrain_rule_ids.insert(rule.id).second) {
-            diagnostics.push_back({"duplicate_terrain_mesh_id", "Terrain mesh rule id must be unique.", -1, -1,
-                                   rule.id});
+            diagnostics.push_back(
+                {"duplicate_terrain_mesh_id", "Terrain mesh rule id must be unique.", -1, -1, rule.id});
         }
         if (rule.region_id < 0) {
-            diagnostics.push_back({"invalid_terrain_mesh_region", "Terrain mesh region id cannot be negative.", -1,
-                                   -1, rule.id});
+            diagnostics.push_back(
+                {"invalid_terrain_mesh_region", "Terrain mesh region id cannot be negative.", -1, -1, rule.id});
         }
         if (rule.height < 0.0f) {
-            diagnostics.push_back({"invalid_terrain_mesh_height", "Terrain mesh height cannot be negative.", -1, -1,
-                                   rule.id});
+            diagnostics.push_back(
+                {"invalid_terrain_mesh_height", "Terrain mesh height cannot be negative.", -1, -1, rule.id});
         }
     }
 
     if (edge_scroll_camera.enabled) {
         if (edge_scroll_camera.speed_tiles_per_second <= 0.0f) {
-            diagnostics.push_back({"invalid_edge_scroll_speed", "Edge-scroll speed must be positive.", -1, -1,
-                                   map_id});
+            diagnostics.push_back({"invalid_edge_scroll_speed", "Edge-scroll speed must be positive.", -1, -1, map_id});
         }
         if (edge_scroll_camera.margin_pixels < 0) {
-            diagnostics.push_back({"invalid_edge_scroll_margin", "Edge-scroll margin cannot be negative.", -1, -1,
-                                   map_id});
+            diagnostics.push_back(
+                {"invalid_edge_scroll_margin", "Edge-scroll margin cannot be negative.", -1, -1, map_id});
         }
     }
 
@@ -688,8 +677,8 @@ MapEnvironmentPreviewDocument MapEnvironmentPreviewDocument::fromJson(const nloh
     document.base_weather = json.value("base_weather", "clear");
     document.base_light = lightFromJson(json.value("base_light", nlohmann::json::object()),
                                         lightForWeather(document.base_weather, "day", 1, 0, 0));
-    document.base_fog = fogFromJson(json.value("base_fog", nlohmann::json::object()),
-                                    fogForWeather(document.base_weather));
+    document.base_fog =
+        fogFromJson(json.value("base_fog", nlohmann::json::object()), fogForWeather(document.base_weather));
     document.base_post_fx = postFxFromJson(json.value("base_post_fx", nlohmann::json::object()),
                                            postFxForWeather(document.base_weather, "day"));
 
@@ -776,9 +765,8 @@ MapEnvironmentPreviewResult PreviewMapEnvironment(const MapEnvironmentPreviewDoc
             ++result.visible_tile_layer_count;
         }
         if (layer.collision) {
-            result.collision_tile_count += static_cast<size_t>(std::count_if(layer.tiles.begin(), layer.tiles.end(), [](int32_t tile) {
-                return tile != 0;
-            }));
+            result.collision_tile_count += static_cast<size_t>(
+                std::count_if(layer.tiles.begin(), layer.tiles.end(), [](int32_t tile) { return tile != 0; }));
         }
     }
     if (!document.tile_layers.empty()) {
@@ -806,12 +794,9 @@ MapEnvironmentPreviewResult PreviewMapEnvironment(const MapEnvironmentPreviewDoc
                                                   std::to_string(document.edge_scroll_camera.margin_pixels));
     }
     if (document.tactical_overlay.enabled) {
-        const auto reachable = PreviewTacticalMoveRange(document.width,
-                                                        document.height,
-                                                        {document.tactical_overlay.origin_x,
-                                                         document.tactical_overlay.origin_y},
-                                                        document.tactical_overlay.move_range,
-                                                        blocked);
+        const auto reachable = PreviewTacticalMoveRange(
+            document.width, document.height, {document.tactical_overlay.origin_x, document.tactical_overlay.origin_y},
+            document.tactical_overlay.move_range, blocked);
         result.tactical_reachable_cells.assign(reachable.begin(), reachable.end());
         result.tactical_reachable_count = result.tactical_reachable_cells.size();
         result.runtime_overlay_commands.push_back("render_tactical_overlay:" + document.map_id + ":" +

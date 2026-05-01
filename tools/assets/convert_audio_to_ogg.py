@@ -88,7 +88,9 @@ def discover_audio(repo_root: Path, roots: list[str]) -> list[Path]:
     return sorted(files, key=lambda p: rel(p, repo_root).lower())
 
 
-def convert_one(source: Path, output: Path, quality: int) -> subprocess.CompletedProcess[str]:
+def convert_one(
+    source: Path, output: Path, quality: int
+) -> subprocess.CompletedProcess[str]:
     output.parent.mkdir(parents=True, exist_ok=True)
     command = [
         "ffmpeg",

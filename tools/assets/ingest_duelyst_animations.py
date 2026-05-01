@@ -53,7 +53,9 @@ def split_frame_name(unit_id: str, frame_name: str) -> tuple[str, int]:
         stem = stem[len(prefix) :]
     match = re.match(r"(?P<animation>.+)_(?P<frame>\d+)$", stem)
     if match is None:
-        raise ValueError(f"Frame name {frame_name!r} does not end with a numeric frame suffix")
+        raise ValueError(
+            f"Frame name {frame_name!r} does not end with a numeric frame suffix"
+        )
     return match.group("animation"), int(match.group("frame"))
 
 
@@ -88,7 +90,12 @@ def convert_unit(plist_path: Path, png_path: Path, texture_path: str) -> dict:
 
     animations = []
     for animation_id in sorted(sprites_by_animation):
-        ordered = [sprite["id"] for _, sprite in sorted(sprites_by_animation[animation_id], key=lambda item: item[0])]
+        ordered = [
+            sprite["id"]
+            for _, sprite in sorted(
+                sprites_by_animation[animation_id], key=lambda item: item[0]
+            )
+        ]
         animations.append(
             {
                 "id": animation_id,
@@ -98,7 +105,13 @@ def convert_unit(plist_path: Path, png_path: Path, texture_path: str) -> dict:
             }
         )
 
-    default_animation = "idle" if "idle" in sprites_by_animation else animations[0]["id"] if animations else ""
+    default_animation = (
+        "idle"
+        if "idle" in sprites_by_animation
+        else animations[0]["id"]
+        if animations
+        else ""
+    )
     ordered_sprite_ids = [sprite["id"] for sprite in sprite_entries]
     return {
         "atlasName": unit_id,
@@ -141,7 +154,9 @@ def discover_units(source_root: Path, limit: int | None) -> list[tuple[Path, Pat
     return units
 
 
-def write_outputs(source_root: Path, output_root: Path, limit: int | None, copy_textures: bool) -> dict:
+def write_outputs(
+    source_root: Path, output_root: Path, limit: int | None, copy_textures: bool
+) -> dict:
     atlases_root = output_root / "atlases"
     textures_root = output_root / "textures"
     atlases_root.mkdir(parents=True, exist_ok=True)
@@ -152,7 +167,11 @@ def write_outputs(source_root: Path, output_root: Path, limit: int | None, copy_
     generated = []
     for plist_path, png_path in units:
         unit_id = plist_path.stem
-        texture_path = f"textures/{png_path.name}" if copy_textures else str(png_path.relative_to(source_root).as_posix())
+        texture_path = (
+            f"textures/{png_path.name}"
+            if copy_textures
+            else str(png_path.relative_to(source_root).as_posix())
+        )
         atlas = convert_unit(plist_path, png_path, texture_path)
         atlas_path = atlases_root / f"{unit_id}.sprite_atlas.json"
         atlas_path.write_text(json.dumps(atlas, indent=2) + "\n", encoding="utf-8")
@@ -195,14 +214,50 @@ def write_outputs(source_root: Path, output_root: Path, limit: int | None, copy_
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source-root", required=True, type=Path, help="Local Unity-Duelyst-Animations checkout")
-    parser.add_argument("--output-root", required=True, type=Path, help="URPG normalized output directory")
-    parser.add_argument("--limit", type=int, default=None, help="Optional maximum number of units to convert")
-    parser.add_argument("--copy-textures", action="store_true", help="Copy PNG spritesheets beside generated metadata")
+    parser.add_argument(
+        "--source-root",
+        required=True,
+        type=Path,
+        help="Local Unity-Duelyst-Animations checkout",
+    )
+    parser.add_argument(
+        "--output-root",
+        required=True,
+        type=Path,
+        help="URPG normalized output directory",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Optional maximum number of units to convert",
+    )
+    parser.add_argument(
+        "--copy-textures",
+        action="store_true",
+        help="Copy PNG spritesheets beside generated metadata",
+    )
     args = parser.parse_args()
 
-    report = write_outputs(args.source_root.resolve(), args.output_root.resolve(), args.limit, args.copy_textures)
-    print(json.dumps({"unit_count": report["unit_count"], "report": str((args.output_root / "duelyst_animation_intake_report.json").as_posix())}, indent=2))
+    report = write_outputs(
+        args.source_root.resolve(),
+        args.output_root.resolve(),
+        args.limit,
+        args.copy_textures,
+    )
+    print(
+        json.dumps(
+            {
+                "unit_count": report["unit_count"],
+                "report": str(
+                    (
+                        args.output_root / "duelyst_animation_intake_report.json"
+                    ).as_posix()
+                ),
+            },
+            indent=2,
+        )
+    )
     return 0
 
 

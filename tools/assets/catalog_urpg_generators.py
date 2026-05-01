@@ -98,7 +98,9 @@ def rel(path: Path, repo_root: Path) -> str:
 def find_generator_roots(source_root: Path) -> list[Path]:
     roots: list[Path] = []
     for current, dirs, _files in os.walk(source_root, topdown=True):
-        dirs[:] = [d for d in dirs if d not in {".git", ".godot", ".import", "__MACOSX"}]
+        dirs[:] = [
+            d for d in dirs if d not in {".git", ".godot", ".import", "__MACOSX"}
+        ]
         base = Path(current)
         for name in list(dirs):
             if name in GENERATOR_HINTS:
@@ -114,7 +116,9 @@ def summarize(root: Path, repo_root: Path) -> dict:
     sample_files: list[str] = []
 
     for current, dirs, files in os.walk(root, topdown=True):
-        dirs[:] = [d for d in dirs if d not in {".git", ".godot", ".import", "__MACOSX"}]
+        dirs[:] = [
+            d for d in dirs if d not in {".git", ".godot", ".import", "__MACOSX"}
+        ]
         base = Path(current)
         for name in files:
             path = base / name
@@ -128,7 +132,10 @@ def summarize(root: Path, repo_root: Path) -> dict:
             extension_counts[ext] = extension_counts.get(ext, 0) + 1
             if ext in SOURCE_EXTS:
                 source_file_count += 1
-            if len(sample_files) < 12 and (ext in SOURCE_EXTS or name.lower() in {"license", "copying", "readme.md"}):
+            if len(sample_files) < 12 and (
+                ext in SOURCE_EXTS
+                or name.lower() in {"license", "copying", "readme.md"}
+            ):
                 sample_files.append(rel(path, repo_root))
 
     root_name = root.name
@@ -147,12 +154,17 @@ def summarize(root: Path, repo_root: Path) -> dict:
         "total_bytes": total_bytes,
         "extension_counts": dict(sorted(extension_counts.items())),
         "sample_files": sample_files,
-        "notes": hint.get("notes", "Review licensing, runtime dependencies, and code quality before integration."),
+        "notes": hint.get(
+            "notes",
+            "Review licensing, runtime dependencies, and code quality before integration.",
+        ),
     }
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Catalog tool/generator candidates from the local URPG asset drop.")
+    parser = argparse.ArgumentParser(
+        description="Catalog tool/generator candidates from the local URPG asset drop."
+    )
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--source-root", default="urpg stuff")
     parser.add_argument(
@@ -185,7 +197,12 @@ def main() -> int:
     report_path = (repo_root / args.report).resolve()
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    print(json.dumps({"report": rel(report_path, repo_root), "candidate_count": len(roots)}, indent=2))
+    print(
+        json.dumps(
+            {"report": rel(report_path, repo_root), "candidate_count": len(roots)},
+            indent=2,
+        )
+    )
     return 0
 
 
