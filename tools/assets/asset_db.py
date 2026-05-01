@@ -591,13 +591,18 @@ class Catalog:
         if category:
             where.append("a.category LIKE ?")
             params.append(f"%{category}%")
-        sql = f"""
-          SELECT a.id,a.path_rel,a.media_kind,a.ext,a.size_bytes,a.pack,a.category,a.width,a.height,a.duration_ms
-          FROM assets a {join}
-          WHERE {" AND ".join(where)}
-          ORDER BY {order}
-          LIMIT ?
-        """
+        where_sql = " AND ".join(where)
+        # Dynamic SQL fragments below are selected from fixed literals only.
+        # User-controlled values stay bound through params.
+        sql = "\n".join(
+            [
+                "SELECT a.id,a.path_rel,a.media_kind,a.ext,a.size_bytes,a.pack,a.category,a.width,a.height,a.duration_ms",
+                f"FROM assets a {join}",
+                f"WHERE {where_sql}",
+                f"ORDER BY {order}",
+                "LIMIT ?",
+            ]
+        )
         params.append(limit)
         return self.conn.execute(sql, params).fetchall()
 
