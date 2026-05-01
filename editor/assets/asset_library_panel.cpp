@@ -59,9 +59,40 @@ void AssetLibraryPanel::render() {
     if (!visible_) {
         return;
     }
+    refreshRenderSnapshotsFromModel();
+    has_rendered_frame_ = true;
+}
+
+nlohmann::json AssetLibraryPanel::requestImportSource(const std::filesystem::path& source,
+                                                      const std::filesystem::path& library_root,
+                                                      std::string session_id,
+                                                      std::string license_note) {
+    auto result = model_.requestImportSource(source, library_root, std::move(session_id), std::move(license_note));
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::promoteSelectedImportRecords(std::string session_id,
+                                                               std::vector<std::string> asset_ids,
+                                                               std::string license_id,
+                                                               std::string promoted_root,
+                                                               bool include_in_runtime) {
+    auto result = model_.promoteImportRecords(std::move(session_id), std::move(asset_ids), std::move(license_id),
+                                              std::move(promoted_root), include_in_runtime);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::attachSelectedPromotedAssetsToProject(std::vector<std::string> paths,
+                                                                        const std::filesystem::path& project_root) {
+    auto result = model_.attachPromotedAssetsToProject(std::move(paths), project_root);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+void AssetLibraryPanel::refreshRenderSnapshotsFromModel() {
     last_render_snapshot_ = model_.snapshot();
     last_import_wizard_snapshot_ = buildImportWizardRenderSnapshot(last_render_snapshot_.import_wizard);
-    has_rendered_frame_ = true;
 }
 
 } // namespace urpg::editor

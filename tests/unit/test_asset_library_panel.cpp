@@ -232,6 +232,84 @@ TEST_CASE("AssetLibraryPanel renders project import wizard steps and actions",
     REQUIRE_FALSE(wizard.package_validation_ready);
 }
 
+TEST_CASE("AssetLibraryPanel dispatches import wizard actions through the model",
+          "[assets][asset_library][editor][asset_import][wizard][actions]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_panel_wizard_actions");
+    std::filesystem::remove_all(root);
+    const auto source = root / "downloads" / "fantasy_pack";
+    const auto libraryRoot = root / ".urpg" / "asset-library";
+    const auto promotedRoot = libraryRoot / "promoted";
+    const auto projectRoot = root / "project";
+
+    urpg::editor::AssetLibraryPanel panel;
+    const auto request = panel.requestImportSource(source, libraryRoot, "import_panel_actions_001",
+                                                   "User-provided test license.");
+    REQUIRE(request["success"] == true);
+    REQUIRE(panel.lastImportWizardSnapshot().status == "source_requested");
+    REQUIRE(panel.lastImportWizardSnapshot().current_step == "add_source");
+    REQUIRE(panel.lastImportWizardSnapshot().pending_request["session_id"] == "import_panel_actions_001");
+
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_panel_actions_001";
+    session.sourceKind = urpg::assets::AssetImportSourceKind::Folder;
+    session.sourcePath = source.generic_string();
+    session.managedSourceRoot = (libraryRoot / "sources" / "import_panel_actions_001" / "original").generic_string();
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    session.createdAt = "2026-05-01T00:01:00Z";
+    session.records = {
+        {
+            "asset.hero",
+            "characters/hero.png",
+            "asset://import_panel_actions_001/characters/hero.png",
+            ".png",
+            "image",
+            "sprite",
+            "Fantasy Pack",
+            "aaa",
+            1024,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+        },
+    };
+    panel.model().ingestImportSession(std::move(session));
+    panel.render();
+    REQUIRE(panel.lastImportWizardSnapshot().status == "review_required");
+
+    const auto promotion = panel.promoteSelectedImportRecords(
+        "import_panel_actions_001", {"asset.hero"}, "user_license_note", promotedRoot.generic_string(), true);
+    REQUIRE(promotion["success"] == true);
+    REQUIRE(panel.lastImportWizardSnapshot().status == "ready_to_attach");
+    REQUIRE(panel.lastImportWizardSnapshot().current_step == "attach");
+    const auto attachAction = std::find_if(panel.lastImportWizardSnapshot().actions.begin(),
+                                           panel.lastImportWizardSnapshot().actions.end(), [](const auto& action) {
+                                               return action.id == "attach_selected";
+                                           });
+    REQUIRE(attachAction != panel.lastImportWizardSnapshot().actions.end());
+    REQUIRE(attachAction->enabled);
+    REQUIRE(attachAction->eligible_count == 1);
+
+    const auto promotedPayload = promotedRoot / "asset.hero" / "payloads" / "hero.png";
+    writeBinaryFile(promotedPayload, "hero-payload");
+    const auto attachment = panel.attachSelectedPromotedAssetsToProject(
+        {((libraryRoot / "sources" / "import_panel_actions_001" / "original" / "characters" / "hero.png")
+              .generic_string())},
+        projectRoot);
+    REQUIRE(attachment["success"] == true);
+    REQUIRE(panel.lastImportWizardSnapshot().status == "package_ready");
+    REQUIRE(panel.lastImportWizardSnapshot().current_step == "package");
+    REQUIRE(panel.lastImportWizardSnapshot().package_validation_ready);
+
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("AssetLibraryModel requests add-source import command handoff",
           "[assets][asset_library][editor][asset_import][wizard]") {
     const auto root = uniqueTempRoot("urpg_asset_library_add_source_request");

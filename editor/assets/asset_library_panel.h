@@ -2,6 +2,7 @@
 
 #include "editor/assets/asset_library_model.h"
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -41,6 +42,17 @@ public:
     const AssetLibraryModel& model() const { return model_; }
 
     void render();
+    nlohmann::json requestImportSource(const std::filesystem::path& source,
+                                       const std::filesystem::path& library_root,
+                                       std::string session_id,
+                                       std::string license_note = {});
+    nlohmann::json promoteSelectedImportRecords(std::string session_id,
+                                                std::vector<std::string> asset_ids,
+                                                std::string license_id,
+                                                std::string promoted_root,
+                                                bool include_in_runtime = true);
+    nlohmann::json attachSelectedPromotedAssetsToProject(std::vector<std::string> paths,
+                                                         const std::filesystem::path& project_root);
     const AssetLibraryModelSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }
     const ImportWizardRenderSnapshot& lastImportWizardSnapshot() const { return last_import_wizard_snapshot_; }
     bool hasRenderedFrame() const { return has_rendered_frame_; }
@@ -48,6 +60,8 @@ public:
     bool isVisible() const { return visible_; }
 
 private:
+    void refreshRenderSnapshotsFromModel();
+
     AssetLibraryModel model_;
     AssetLibraryModelSnapshot last_render_snapshot_{};
     ImportWizardRenderSnapshot last_import_wizard_snapshot_{};
