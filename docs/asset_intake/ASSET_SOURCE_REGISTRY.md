@@ -17,7 +17,7 @@
 
 ## Direct-Ingest Sources
 
-These repos are approved for controlled capture. As of 2026-04-23, TD Sprint 04 has promoted one bounded visual lane from `SRC-002` and one bounded UI-audio lane from `SRC-003`; the remaining rows stay cataloged future intake candidates.
+These repos are approved for controlled capture. As of 2026-04-23, TD Sprint 04 has promoted one bounded visual lane from `SRC-002` and one bounded UI-audio lane from `SRC-003`; the remaining rows are active intake implementation candidates.
 
 | # | Source ID | Repo Name | Source URL | Snapshot Commit | Snapshot Date | Type | Category Tags | Intended Use | Capture State | Handling Path | Legal Disposition | Promotion Status |
 |---|-----------|-----------|------------|-----------------|---------------|------|---------------|--------------|---------------|---------------|-------------------|------------------|
@@ -34,14 +34,14 @@ These repos are indexes and directories. They feed the acquisition backlog, not 
 
 | # | Source ID | Repo Name | Source URL | Type | Category Tags | Intended Use | Capture State | Handling Path | Status |
 |---|-----------|-----------|------------|------|---------------|--------------|---------------|---------------|--------|
-| 7 | `SRC-004` | madjin/awesome-cc0 | `https://github.com/madjin/awesome-cc0` | `discovery_index` | textures, materials, HDRIs, 3D models, CC0 sources | Sourcing environment materials; finding future UI/icon/audio/3D references; building a vetted internal source list | `cataloged_not_mirrored` | `discovery_backlog_only` | Acquisition backlog source |
-| 8 | `SRC-005` | HotpotDesign/Game-Assets-And-Resources | `https://github.com/HotpotDesign/Game-Assets-And-Resources` | `discovery_index` | broad directory | Finding category-specific asset sources; locating emergency fill-ins for missing content classes; maintaining a future acquisition backlog | `cataloged_not_mirrored` | `discovery_backlog_only` | Acquisition backlog source |
+| 7 | `SRC-004` | madjin/awesome-cc0 | `https://github.com/madjin/awesome-cc0` | `discovery_index` | textures, materials, HDRIs, 3D models, CC0 sources | Sourcing environment materials; finding UI/icon/audio/3D references; building a vetted internal source list | `cataloged_not_mirrored` | `discovery_backlog_only` | Active acquisition source |
+| 8 | `SRC-005` | HotpotDesign/Game-Assets-And-Resources | `https://github.com/HotpotDesign/Game-Assets-And-Resources` | `discovery_index` | broad directory | Finding category-specific asset sources; locating emergency fill-ins for missing content classes; maintaining an active acquisition queue | `cataloged_not_mirrored` | `discovery_backlog_only` | Active acquisition source |
 
 ---
 
 ## Acquisition Backlog (from Discovery Sources)
 
-Targets mined from `awesome-cc0` and `Game-Assets-And-Resources` for future intake.
+Targets mined from `awesome-cc0` and `Game-Assets-And-Resources` for current intake implementation.
 
 | Priority | Category | Candidate Source Class | Notes | Status |
 |----------|----------|------------------------|-------|--------|
@@ -80,7 +80,7 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 
 - Canonical source manifests: `imports/manifests/asset_sources/SRC-001.json` through `SRC-008.json`
 - Canonical status report: `imports/reports/asset_intake/source_capture_status.json`
-- Current recorded state: 8 cataloged sources, 2 normalized/promoted proof lanes, 2 local catalog-normalized raw quarantine sources, 4 cataloged future candidates
+- Current recorded state: 8 cataloged sources, 2 normalized/promoted proof lanes, 2 local catalog-normalized raw quarantine sources, 4 cataloged implementation candidates
 - SRC-007 local catalog-normalization: `imports/reports/asset_intake/urpg_stuff_promotion_catalog.json` plus category shards under `imports/reports/asset_intake/urpg_stuff_promotion_catalog/` record 56,096 supported non-audio/tool records, 56,096 canonical exact-hash records, 0 duplicate groups, inferred categories/tags, and preview paths for editor/library discovery. Raw binaries remain local under `imports/raw/urpg_stuff`.
 - SRC-007 duplicate pruning: `imports/reports/asset_intake/urpg_stuff_duplicate_prune_report.json` records 30,495 exact duplicate raw files removed after preserving canonical copies.
 - SRC-007 generator candidates: `imports/reports/asset_intake/urpg_stuff_generator_candidates.json` records `SpriteGenerator`, `pixel planet maker`, `SpaceBackground/BackgroundGenerator`, and `tiled-map editor` as engineering-review candidates for both URPG Maker editor integration and generated-game runtime use.
@@ -88,7 +88,7 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 - SRC-008 aggregate animation/background catalog: `imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog.json` plus category shards under `imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog/` record 35 editor/library pack records over 662,009 local raw files. Raw files moved out of the project root into `imports/raw/urpg_stuff/assets_to_ingest_20260429`, no audio was present, and export remains blocked pending per-pack attribution and curated bundle promotion.
 - Third-party/itch local index: `imports/reports/asset_intake/third_party_itch_ingest_summary.json` records the asset DB ingest over local raw quarantine roots including `imports/raw/third_party_assets/itch-assets`, source-only RPG Maker/Aseprite/root-drop archives, `imports/raw/third_party_assets/huggingface`, `imports/raw/third_party_assets/external-repos`, `imports/raw/third_party_assets/github_assets`, and `imports/raw/itch_assets/loose`. The bulk raw/source roots are ignored local working payloads, not repository payload or release promotion.
 - First promoted visual lane: `imports/normalized/prototype_sprites/gdquest_blue_actor.svg` via `imports/manifests/asset_bundles/BND-001.json`
-- First audio proof lane: `imports/manifests/asset_bundles/BND-002.json`; the former WAV payload was removed from GitHub and future promoted audio must use OGG output from `tools/assets/convert_audio_to_ogg.py`
+- First audio proof lane: `imports/manifests/asset_bundles/BND-002.json`; the former WAV payload was removed from GitHub and newly promoted audio must use OGG output from `tools/assets/convert_audio_to_ogg.py`
 - Release attribution records: `imports/reports/asset_intake/attribution/SRC-002_gdquest_blue_actor.json` and `imports/reports/asset_intake/attribution/SRC-003_kenney_click_001.json`
 
 ---

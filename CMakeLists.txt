@@ -1276,6 +1276,9 @@ add_executable(urpg_tests
     tests/unit/test_asset_library.cpp
     tests/unit/test_asset_cleanup_planner.cpp
     tests/unit/test_asset_library_panel.cpp
+    tests/unit/test_asset_library_import_wizard.cpp
+    tests/unit/test_asset_library_conversion.cpp
+    tests/unit/test_asset_library_promotion_attachment.cpp
     tests/unit/test_controller_binding_runtime.cpp
     tests/unit/test_controller_binding_panel.cpp
     tests/unit/test_save_catalog.cpp
