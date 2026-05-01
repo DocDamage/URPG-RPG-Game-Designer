@@ -6,6 +6,7 @@
 #include "engine/core/assets/project_asset_attachment_service.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
@@ -13,6 +14,61 @@
 #include <vector>
 
 namespace urpg::editor {
+
+namespace {
+
+constexpr const char* kExternalExtractorEnv = "URPG_ASSET_ARCHIVE_EXTRACTOR";
+
+std::vector<std::string> splitConfiguredCommand(std::string_view command) {
+    std::vector<std::string> parts;
+    std::string current;
+    char quote = '\0';
+    bool escaping = false;
+    for (const char ch : command) {
+        if (escaping) {
+            current.push_back(ch);
+            escaping = false;
+            continue;
+        }
+        if (ch == '\\' && quote == '"') {
+            escaping = true;
+            continue;
+        }
+        if ((ch == '"' || ch == '\'') && quote == '\0') {
+            quote = ch;
+            continue;
+        }
+        if (ch == quote) {
+            quote = '\0';
+            continue;
+        }
+        if (std::isspace(static_cast<unsigned char>(ch)) && quote == '\0') {
+            if (!current.empty()) {
+                parts.push_back(std::move(current));
+                current.clear();
+            }
+            continue;
+        }
+        current.push_back(ch);
+    }
+    if (!current.empty()) {
+        parts.push_back(std::move(current));
+    }
+    return parts;
+}
+
+std::vector<std::string> configuredExternalExtractorCommand(std::vector<std::string> explicitCommand) {
+    if (!explicitCommand.empty()) {
+        return explicitCommand;
+    }
+    const char* configured = std::getenv(kExternalExtractorEnv);
+    if (configured == nullptr || std::string_view(configured).empty()) {
+        return {};
+    }
+    return splitConfiguredCommand(configured);
+}
+
+} // namespace
 
 void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                                       std::string_view duplicate_csv) {
@@ -78,6 +134,7 @@ nlohmann::json AssetLibraryModel::requestImportSource(const std::filesystem::pat
                                                       std::string session_id,
                                                       std::string license_note,
                                                       std::vector<std::string> external_extractor_command) {
+    external_extractor_command = configuredExternalExtractorCommand(std::move(external_extractor_command));
     const auto sourcePath = source.generic_string();
     const auto libraryRoot = library_root.generic_string();
     const auto expectedManifest =

@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -24,6 +25,29 @@ void writeBinaryFile(const std::filesystem::path& path, std::string_view payload
     std::ofstream out(path, std::ios::binary | std::ios::trunc);
     out << payload;
 }
+
+class EnvironmentVariableGuard {
+  public:
+    explicit EnvironmentVariableGuard(const char* name) : name_(name) {
+        if (const char* value = std::getenv(name_)) {
+            original_ = value;
+        }
+    }
+
+    ~EnvironmentVariableGuard() {
+        if (original_) {
+            _putenv_s(name_, original_->c_str());
+        } else {
+            _putenv_s(name_, "");
+        }
+    }
+
+    void set(const std::string& value) const { _putenv_s(name_, value.c_str()); }
+
+  private:
+    const char* name_;
+    std::optional<std::string> original_;
+};
 
 } // namespace
 
@@ -418,6 +442,36 @@ TEST_CASE("AssetLibraryModel requests add-source with external archive extractor
     REQUIRE(std::next(extractorArg) != command.end());
     REQUIRE(*std::next(extractorArg) == "\"C:/Program Files/7-Zip/7z.exe\" x -y");
     REQUIRE(model.snapshot().import_wizard["pending_request"]["external_extractor_command"].size() == 3);
+}
+
+TEST_CASE("AssetLibraryModel applies configured external archive extractor to add-source requests",
+          "[assets][asset_library][editor][asset_import][wizard][archive]") {
+    EnvironmentVariableGuard extractorEnv("URPG_ASSET_ARCHIVE_EXTRACTOR");
+    extractorEnv.set("\"C:/Program Files/7-Zip/7z.exe\" x -y {source} -o{destination}");
+
+    const auto root = uniqueTempRoot("urpg_asset_library_add_source_configured_external_extractor");
+    const auto source = root / "packs" / "portraits.rar";
+    const auto libraryRoot = root / ".urpg" / "asset-library";
+
+    urpg::editor::AssetLibraryModel model;
+    const auto request = model.requestImportSource(
+        source,
+        libraryRoot,
+        "import_configured_external_archive_001",
+        "User-provided archive license.");
+
+    REQUIRE(request["success"] == true);
+    REQUIRE(request["external_extractor_command"].size() == 5);
+    REQUIRE(request["external_extractor_command"][0] == "C:/Program Files/7-Zip/7z.exe");
+    REQUIRE(request["external_extractor_command"][3] == "{source}");
+    REQUIRE(request["external_extractor_command"][4] == "-o{destination}");
+
+    const auto& command = request["command"];
+    const auto extractorArg = std::find(command.begin(), command.end(), "--external-extractor-command");
+    REQUIRE(extractorArg != command.end());
+    REQUIRE(std::next(extractorArg) != command.end());
+    REQUIRE(*std::next(extractorArg) == "\"C:/Program Files/7-Zip/7z.exe\" x -y {source} -o{destination}");
+    REQUIRE(model.snapshot().import_wizard["pending_request"]["external_extractor_command"][4] == "-o{destination}");
 }
 
 TEST_CASE("AssetLibraryModel loads import session manifests from global library root",

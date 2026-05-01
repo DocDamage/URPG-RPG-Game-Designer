@@ -370,8 +370,9 @@ with clear diagnostics, and Add Source handoff metadata can pass configured extr
 `global_asset_import.py`. Extractor commands support either appended source/destination arguments or explicit
 `{source}` and `{destination}` placeholders, including embedded placeholder forms such as `-o{destination}`, for native
 tool argument templates. The command-line importer also reads `URPG_ASSET_ARCHIVE_EXTRACTOR` when no explicit extractor
-command is provided. Numbered animation/image-frame drops assemble into deterministic sequence groups, and RPG Maker
-`img/*` plus `audio/*` folder conventions map into URPG review categories during managed import.
+command is provided, and the editor Add Source request builder uses the same environment variable as its default
+external extractor handoff. Numbered animation/image-frame drops assemble into deterministic sequence groups, and RPG
+Maker `img/*` plus `audio/*` folder conventions map into URPG review categories during managed import.
 
 ### Phase 5: Wizard Workflow Contract
 

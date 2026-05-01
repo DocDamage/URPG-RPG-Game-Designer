@@ -111,7 +111,8 @@ The advanced-pack lane now supports:
   `.rar` and `.7z` sources. Extractor handoff commands can either accept the source and destination as appended final
   arguments or use explicit `{source}` and `{destination}` placeholders, including embedded placeholders such as
   `-o{destination}`, for tools that require templated argument positions. The CLI also reads
-  `URPG_ASSET_ARCHIVE_EXTRACTOR` when `--external-extractor-command` is not supplied.
+  `URPG_ASSET_ARCHIVE_EXTRACTOR` when `--external-extractor-command` is not supplied, and the C++ Add Source request
+  builder uses the same variable as the default external extractor command when the editor request does not supply one.
 - numbered animation/image-frame drops assemble into deterministic `sequenceGroups`, with per-frame sequence metadata
   on import records.
 
