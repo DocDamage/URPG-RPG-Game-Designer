@@ -117,7 +117,9 @@ class GlobalAssetImportTests(unittest.TestCase):
             self.assertEqual(session["diagnostics"][0]["code"], "unsafe_archive_path")
             escaped = root / ".urpg" / "asset-library" / "sources" / "escape.txt"
             self.assertFalse(escaped.exists())
-            self.assertEqual(session["summary"]["missingLicenseCount"], 1)
+            self.assertEqual(session["summary"]["filesScanned"], 0)
+            self.assertEqual(session["summary"]["missingLicenseCount"], 0)
+            self.assertEqual(session["records"], [])
 
     def test_unsupported_archive_reports_extractor_diagnostic(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -357,6 +359,37 @@ class GlobalAssetImportTests(unittest.TestCase):
             self.assertEqual(session["records"][0]["relativePath"], "img/characters/Hero.png")
             self.assertEqual(session["records"][0]["category"], "sprite")
 
+    def test_failed_external_archive_extraction_does_not_catalog_partial_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "pack.7z"
+            archive.write_bytes(b"not really 7z")
+            extractor = root / "partial_extractor.py"
+            extractor.write_text(
+                "import pathlib, sys\n"
+                "out = pathlib.Path(sys.argv[2]) / 'img' / 'characters'\n"
+                "out.mkdir(parents=True, exist_ok=True)\n"
+                "(out / 'Partial.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n' + b'0' * 32)\n"
+                "raise SystemExit(2)\n",
+                encoding="utf-8",
+            )
+
+            session = global_asset_import.build_session(
+                source=archive,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_7z_partial_failure",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+                external_extractor_command=[sys.executable, str(extractor)],
+            )
+
+            self.assertEqual(session["sourceKind"], "external_archive")
+            self.assertEqual(session["status"], "failed")
+            self.assertEqual(session["diagnostics"][0]["code"], "external_extractor_failed")
+            self.assertEqual(session["summary"]["filesScanned"], 0)
+            self.assertEqual(session["records"], [])
+
     def test_external_archive_extractor_handoff_supports_source_destination_placeholders(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -457,6 +490,15 @@ class GlobalAssetImportTests(unittest.TestCase):
             self.assertEqual(session["sourceKind"], "external_archive")
             self.assertEqual(session["records"][0]["relativePath"], "img/faces/Hero.png")
             self.assertEqual(session["records"][0]["category"], "portrait")
+
+    def test_configured_external_extractor_command_ignores_whitespace_only_environment(self) -> None:
+        with mock.patch.dict(os.environ, {"URPG_ASSET_ARCHIVE_EXTRACTOR": "   \t  "}):
+            self.assertIsNone(global_asset_import.configured_external_extractor_command(None))
+
+    def test_configured_external_extractor_command_rejects_unclosed_quotes(self) -> None:
+        with mock.patch.dict(os.environ, {"URPG_ASSET_ARCHIVE_EXTRACTOR": '"C:/Program Files/7-Zip/7z.exe'}):
+            with self.assertRaises(ValueError):
+                global_asset_import.configured_external_extractor_command(None)
 
     def test_animation_sequence_assembly_groups_numbered_frames(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

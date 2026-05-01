@@ -242,6 +242,8 @@ External extractor configuration:
   and editor Add Source request builder.
 - Store extractor commands as an argv vector shape. Shell command strings are only parsed at the current environment
   variable boundary for local configuration compatibility.
+- Malformed extractor configuration surfaces as `external_extractor_command_parse_error` in the wizard snapshot and is
+  not treated as configured RAR/7z support.
 - A future editor/user settings surface should persist that argv vector directly and feed the same wizard
   `extractor_configuration` snapshot, including source, command, and RAR/7z support status.
 

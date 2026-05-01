@@ -82,6 +82,8 @@ class AssetLibraryModel {
     using ConversionCommandExecutor = std::function<ConversionCommandResult(const ConversionCommand&)>;
 
     AssetLibraryModel();
+    static ConversionCommandResult runConversionCommand(const ConversionCommand& command);
+    void setImportToolCommand(std::vector<std::string> command_prefix);
 
     void ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                        std::string_view duplicate_csv);
@@ -145,6 +147,7 @@ class AssetLibraryModel {
     AssetLibraryModelSnapshot snapshot_{};
     nlohmann::json action_history_ = nlohmann::json::array();
     nlohmann::json pending_import_request_ = nlohmann::json::object();
+    std::vector<std::string> import_tool_command_ = {"python", "tools/assets/global_asset_import.py"};
 };
 
 } // namespace urpg::editor

@@ -387,6 +387,19 @@ TEST_CASE("AssetLibraryPanel requests add-source through an import source picker
     REQUIRE(cancelled["code"] == "import_source_picker_cancelled");
 }
 
+TEST_CASE("AssetLibraryPanel exposes native import picker availability",
+          "[assets][asset_library][editor][asset_import][wizard][picker]") {
+    const auto availability = urpg::editor::AssetLibraryPanel::nativeImportSourcePickerAvailability();
+
+#ifdef _WIN32
+    REQUIRE(availability.available == true);
+    REQUIRE(availability.code == "native_import_source_picker_available");
+#else
+    REQUIRE(availability.available == false);
+    REQUIRE(availability.code == "native_import_source_picker_unsupported");
+#endif
+}
+
 TEST_CASE("AssetLibraryModel requests add-source import command handoff",
           "[assets][asset_library][editor][asset_import][wizard]") {
     const auto root = uniqueTempRoot("urpg_asset_library_add_source_request");
@@ -417,6 +430,23 @@ TEST_CASE("AssetLibraryModel requests add-source import command handoff",
     REQUIRE(model.snapshot().import_wizard["current_step"] == "add_source");
     REQUIRE(model.snapshot().import_wizard["pending_request"]["session_id"] == "import_manual_001");
     REQUIRE(model.snapshot().import_wizard["actions"]["add_source"]["pending_request"] == true);
+}
+
+TEST_CASE("AssetLibraryModel request import source supports configured importer paths",
+          "[assets][asset_library][editor][asset_import][wizard]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_add_source_tool_paths");
+    const auto source = root / "fantasy_pack.zip";
+    const auto libraryRoot = root / ".urpg" / "asset-library";
+
+    urpg::editor::AssetLibraryModel model;
+    model.setImportToolCommand({"C:/Tools/Python/python.exe", "C:/URPG/tools/assets/global_asset_import.py"});
+
+    const auto request = model.requestImportSource(
+        source, libraryRoot, "import_tool_paths_001", "User-provided test license.");
+
+    REQUIRE(request["command"][0] == "C:/Tools/Python/python.exe");
+    REQUIRE(request["command"][1] == "C:/URPG/tools/assets/global_asset_import.py");
+    REQUIRE(model.snapshot().import_wizard["pending_request"]["command"][0] == "C:/Tools/Python/python.exe");
 }
 
 TEST_CASE("AssetLibraryModel requests add-source with external archive extractor handoff",
@@ -507,6 +537,21 @@ TEST_CASE("AssetLibraryPanel exposes configured archive extractor status in rend
     REQUIRE(configuration["environment_variable"] == "URPG_ASSET_ARCHIVE_EXTRACTOR");
     REQUIRE(configuration["supports_rar_7z"] == true);
     REQUIRE(configuration["command"][4] == "-o{destination}");
+}
+
+TEST_CASE("AssetLibraryModel reports invalid external archive extractor configuration",
+          "[assets][asset_library][editor][asset_import][wizard][archive]") {
+    EnvironmentVariableGuard extractorEnv("URPG_ASSET_ARCHIVE_EXTRACTOR");
+    extractorEnv.set("\"C:/Program Files/7-Zip/7z.exe");
+
+    urpg::editor::AssetLibraryModel model;
+
+    const auto& configuration = model.snapshot().import_wizard["extractor_configuration"];
+    REQUIRE(configuration["configured"] == false);
+    REQUIRE(configuration["source"] == "environment");
+    REQUIRE(configuration["environment_variable"] == "URPG_ASSET_ARCHIVE_EXTRACTOR");
+    REQUIRE(configuration["supports_rar_7z"] == false);
+    REQUIRE(configuration["diagnostics"][0] == "external_extractor_command_parse_error");
 }
 
 TEST_CASE("AssetLibraryModel loads import session manifests from global library root",
@@ -769,6 +814,31 @@ TEST_CASE("AssetLibraryModel runs audio conversion handoff and unblocks promotio
     REQUIRE(model.snapshot().import_review_rows[0]["conversion_required"] == false);
     REQUIRE(model.snapshot().import_review_rows[0]["conversion_command"].empty());
     REQUIRE(model.snapshot().import_review_rows[0]["review_state"] == "ready_to_promote");
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel conversion process runner uses explicit working directory",
+          "[assets][asset_library][editor][asset_import][conversion]") {
+    const auto original = std::filesystem::current_path();
+    const auto root = uniqueTempRoot("urpg_asset_library_conversion_process_runner");
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root);
+
+    urpg::editor::AssetLibraryModel::ConversionCommand command;
+    command.working_directory = root;
+    command.output_path = root / "converted.wav";
+    command.arguments = {
+        "python",
+        "-c",
+        "from pathlib import Path; Path('converted.wav').write_bytes(b'converted')",
+    };
+
+    const auto result = urpg::editor::AssetLibraryModel::runConversionCommand(command);
+
+    REQUIRE(result.exit_code == 0);
+    REQUIRE(std::filesystem::is_regular_file(command.output_path));
+    REQUIRE(std::filesystem::current_path() == original);
 
     std::filesystem::remove_all(root);
 }

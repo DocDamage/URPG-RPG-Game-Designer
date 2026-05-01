@@ -172,6 +172,15 @@ std::optional<std::filesystem::path> chooseNativeImportSource(const AssetLibrary
 
 } // namespace
 
+AssetLibraryPanel::ImportSourcePickerAvailability AssetLibraryPanel::nativeImportSourcePickerAvailability() {
+#ifdef _WIN32
+    return {true, "native_import_source_picker_available", "Native Windows import source picker is available."};
+#else
+    return {false, "native_import_source_picker_unsupported",
+            "Native import source picker is not implemented on this platform."};
+#endif
+}
+
 void AssetLibraryPanel::setImportSourcePicker(ImportSourcePicker picker) {
     import_source_picker_ = std::move(picker);
 }
@@ -199,6 +208,7 @@ nlohmann::json AssetLibraryPanel::requestImportSourceFromPicker(ImportSourcePick
     const auto selectedSource =
         import_source_picker_ ? import_source_picker_(request) : chooseNativeImportSource(request);
     if (!selectedSource.has_value() || selectedSource->empty()) {
+        const auto availability = nativeImportSourcePickerAvailability();
         nlohmann::json result = {
             {"action", "request_import_source"},
             {"success", false},
@@ -207,6 +217,12 @@ nlohmann::json AssetLibraryPanel::requestImportSourceFromPicker(ImportSourcePick
             {"source_path", ""},
             {"library_root", request.library_root.generic_string()},
             {"session_id", request.session_id},
+            {"picker_availability",
+             {
+                 {"available", availability.available},
+                 {"code", availability.code},
+                 {"message", availability.message},
+             }},
         };
         refreshRenderSnapshotsFromModel();
         return result;

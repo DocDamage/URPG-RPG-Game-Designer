@@ -102,11 +102,14 @@ The advanced-pack lane now supports:
   `conversionCommand` handoff metadata.
 - the Asset Library model can run the stored conversion handoff from the managed source root, verify the expected
   output, update the import record to the converted runtime-ready payload, clear conversion diagnostics, and make the
-  record promotable.
+  record promotable. Conversion execution now uses an explicit argv process runner and working directory instead of
+  mutating the editor process's current directory.
 - the Project Import Wizard exposes Convert Selected as an enabled action for conversion-needed records, and the Asset
   Library panel dispatches selected conversions through the model runner.
 - optional local external extractor commands can ingest `.rar` and `.7z` sources into managed quarantine without shell
   execution, with bounded output validation and stable failure diagnostics.
+- fatal archive/import failures are fail-closed: unsafe ZIP paths and failed external extractor runs do not surface
+  partial copied or extracted payloads as review records.
 - Add Source handoff metadata can carry a configured external extractor command into `global_asset_import.py` for
   `.rar` and `.7z` sources. Extractor handoff commands can either accept the source and destination as appended final
   arguments or use explicit `{source}` and `{destination}` placeholders, including embedded placeholders such as
@@ -115,7 +118,12 @@ The advanced-pack lane now supports:
   builder uses the same variable as the default external extractor command when the editor request does not supply one.
 - the Project Import Wizard snapshot exposes external extractor configuration status before Add Source is requested,
   including the configuration source, environment variable name, parsed argv vector, and whether RAR/7z handoff support
-  is currently configured.
+  is currently configured. Malformed extractor configuration is surfaced through
+  `external_extractor_command_parse_error` and is not treated as configured support.
+- the editor model keeps the Add Source importer command prefix configurable so packaged builds can resolve the Python
+  runtime and importer script without depending on the process working directory.
+- native source picker availability is explicit in panel diagnostics; Windows reports `native_import_source_picker_available`,
+  while platforms without a native picker report `native_import_source_picker_unsupported`.
 - numbered animation/image-frame drops assemble into deterministic `sequenceGroups`, with per-frame sequence metadata
   on import records.
 

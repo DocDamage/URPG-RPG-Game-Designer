@@ -13,13 +13,26 @@
 #include <utility>
 #include <vector>
 
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
+
 namespace urpg::editor {
 
 namespace {
 
 constexpr const char* kExternalExtractorEnv = "URPG_ASSET_ARCHIVE_EXTRACTOR";
 
-std::vector<std::string> splitConfiguredCommand(std::string_view command) {
+struct ParsedExternalExtractorCommand {
+    std::vector<std::string> arguments;
+    bool valid = true;
+    std::string diagnostic;
+};
+
+ParsedExternalExtractorCommand splitConfiguredCommand(std::string_view command) {
     std::vector<std::string> parts;
     std::string current;
     char quote = '\0';
@@ -54,7 +67,10 @@ std::vector<std::string> splitConfiguredCommand(std::string_view command) {
     if (!current.empty()) {
         parts.push_back(std::move(current));
     }
-    return parts;
+    if (quote != '\0' || escaping) {
+        return {{}, false, "external_extractor_command_parse_error"};
+    }
+    return {std::move(parts), true, ""};
 }
 
 std::vector<std::string> configuredExternalExtractorCommand(std::vector<std::string> explicitCommand) {
@@ -65,7 +81,8 @@ std::vector<std::string> configuredExternalExtractorCommand(std::vector<std::str
     if (configured == nullptr || std::string_view(configured).empty()) {
         return {};
     }
-    return splitConfiguredCommand(configured);
+    const auto parsed = splitConfiguredCommand(configured);
+    return parsed.valid ? parsed.arguments : std::vector<std::string>{};
 }
 
 nlohmann::json externalExtractorConfigurationSnapshot() {
@@ -77,6 +94,18 @@ nlohmann::json externalExtractorConfigurationSnapshot() {
             {"environment_variable", kExternalExtractorEnv},
             {"supports_rar_7z", false},
             {"command", nlohmann::json::array()},
+            {"diagnostics", nlohmann::json::array()},
+        };
+    }
+    const auto parsed = splitConfiguredCommand(configured);
+    if (!parsed.valid) {
+        return {
+            {"configured", false},
+            {"source", "environment"},
+            {"environment_variable", kExternalExtractorEnv},
+            {"supports_rar_7z", false},
+            {"command", nlohmann::json::array()},
+            {"diagnostics", nlohmann::json::array({parsed.diagnostic})},
         };
     }
     return {
@@ -84,13 +113,21 @@ nlohmann::json externalExtractorConfigurationSnapshot() {
         {"source", "environment"},
         {"environment_variable", kExternalExtractorEnv},
         {"supports_rar_7z", true},
-        {"command", splitConfiguredCommand(configured)},
+        {"command", parsed.arguments},
+        {"diagnostics", nlohmann::json::array()},
     };
 }
 
 } // namespace
 
 AssetLibraryModel::AssetLibraryModel() {
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::setImportToolCommand(std::vector<std::string> command_prefix) {
+    if (command_prefix.size() >= 2) {
+        import_tool_command_ = std::move(command_prefix);
+    }
     refreshSnapshot();
 }
 
@@ -163,16 +200,16 @@ nlohmann::json AssetLibraryModel::requestImportSource(const std::filesystem::pat
     const auto libraryRoot = library_root.generic_string();
     const auto expectedManifest =
         (library_root / "catalog" / "import_sessions" / (session_id + ".json")).generic_string();
-    nlohmann::json command = nlohmann::json::array({
-        "python",
-        "tools/assets/global_asset_import.py",
-        "--source",
-        sourcePath,
-        "--library-root",
-        libraryRoot,
-        "--session-id",
-        session_id,
-    });
+    nlohmann::json command = nlohmann::json::array();
+    for (const auto& part : import_tool_command_) {
+        command.push_back(part);
+    }
+    command.push_back("--source");
+    command.push_back(sourcePath);
+    command.push_back("--library-root");
+    command.push_back(libraryRoot);
+    command.push_back("--session-id");
+    command.push_back(session_id);
     if (!license_note.empty()) {
         command.push_back("--license-note");
         command.push_back(license_note);
@@ -475,6 +512,7 @@ void eraseDiagnostic(std::vector<std::string>& diagnostics, std::string_view cod
     diagnostics.erase(std::remove(diagnostics.begin(), diagnostics.end(), code), diagnostics.end());
 }
 
+#ifndef _WIN32
 std::string quoteShellArg(const std::string& value) {
     std::string out = "\"";
     for (const char ch : value) {
@@ -487,32 +525,53 @@ std::string quoteShellArg(const std::string& value) {
     out += "\"";
     return out;
 }
+#endif
 
-AssetLibraryModel::ConversionCommandResult runConversionCommandWithSystem(
-    const AssetLibraryModel::ConversionCommand& command) {
-    if (command.arguments.empty()) {
-        return {1, "", "conversion command is empty"};
+std::wstring quoteWindowsArg(const std::string& value) {
+    if (value.empty()) {
+        return L"\"\"";
     }
-
-    std::ostringstream shell;
-    bool first = true;
-    for (const auto& arg : command.arguments) {
-        if (!first) {
-            shell << ' ';
+    const bool needsQuotes = value.find_first_of(" \t\"") != std::string::npos;
+    std::wstring out;
+    if (needsQuotes) {
+        out.push_back(L'"');
+    }
+    size_t backslashes = 0;
+    for (const char ch : value) {
+        if (ch == '\\') {
+            ++backslashes;
+            continue;
         }
-        shell << quoteShellArg(arg);
+        if (ch == '"') {
+            out.append(backslashes * 2 + 1, L'\\');
+            out.push_back(L'"');
+            backslashes = 0;
+            continue;
+        }
+        out.append(backslashes, L'\\');
+        backslashes = 0;
+        out.push_back(static_cast<wchar_t>(static_cast<unsigned char>(ch)));
+    }
+    if (needsQuotes) {
+        out.append(backslashes * 2, L'\\');
+        out.push_back(L'"');
+    } else {
+        out.append(backslashes, L'\\');
+    }
+    return out;
+}
+
+std::wstring joinWindowsCommandLine(const std::vector<std::string>& arguments) {
+    std::wstring commandLine;
+    bool first = true;
+    for (const auto& arg : arguments) {
+        if (!first) {
+            commandLine.push_back(L' ');
+        }
+        commandLine += quoteWindowsArg(arg);
         first = false;
     }
-
-    const auto previous = std::filesystem::current_path();
-    std::error_code cwdError;
-    std::filesystem::current_path(command.working_directory, cwdError);
-    if (cwdError) {
-        return {1, "", cwdError.message()};
-    }
-    const int exitCode = std::system(shell.str().c_str());
-    std::filesystem::current_path(previous, cwdError);
-    return {exitCode, "", ""};
+    return commandLine;
 }
 
 std::string projectAttachmentManifestPath(const urpg::assets::AssetRecord& asset) {
@@ -604,6 +663,55 @@ nlohmann::json buildProjectAssetPickerRows(const urpg::assets::AssetLibrarySnaps
 }
 
 } // namespace
+
+AssetLibraryModel::ConversionCommandResult AssetLibraryModel::runConversionCommand(const ConversionCommand& command) {
+    if (command.arguments.empty()) {
+        return {1, "", "conversion command is empty"};
+    }
+
+#ifdef _WIN32
+    auto commandLine = joinWindowsCommandLine(command.arguments);
+    auto workingDirectory = command.working_directory.empty() ? std::wstring{} : command.working_directory.wstring();
+
+    STARTUPINFOW startup{};
+    startup.cb = sizeof(startup);
+    PROCESS_INFORMATION process{};
+    const BOOL launched = CreateProcessW(nullptr,
+                                         commandLine.data(),
+                                         nullptr,
+                                         nullptr,
+                                         FALSE,
+                                         CREATE_NO_WINDOW,
+                                         nullptr,
+                                         workingDirectory.empty() ? nullptr : workingDirectory.c_str(),
+                                         &startup,
+                                         &process);
+    if (!launched) {
+        return {1, "", "conversion command could not be started: " + std::to_string(GetLastError())};
+    }
+    WaitForSingleObject(process.hProcess, INFINITE);
+    DWORD exitCode = 1;
+    GetExitCodeProcess(process.hProcess, &exitCode);
+    CloseHandle(process.hThread);
+    CloseHandle(process.hProcess);
+    return {static_cast<int>(exitCode), "", ""};
+#else
+    std::ostringstream shell;
+    if (!command.working_directory.empty()) {
+        shell << "cd " << quoteShellArg(command.working_directory.string()) << " && ";
+    }
+    bool first = true;
+    for (const auto& arg : command.arguments) {
+        if (!first) {
+            shell << ' ';
+        }
+        shell << quoteShellArg(arg);
+        first = false;
+    }
+    const int exitCode = std::system(shell.str().c_str());
+    return {exitCode, "", ""};
+#endif
+}
 
 bool AssetLibraryModel::loadImportSessionManifest(const std::filesystem::path& manifest_path,
                                                   std::string* error_message) {
@@ -809,7 +917,7 @@ nlohmann::json AssetLibraryModel::runImportRecordConversion(std::string session_
     command.working_directory = std::filesystem::path(session->managedSourceRoot);
     command.output_path = command.working_directory / std::filesystem::path(record->conversionTargetPath);
     command.arguments = record->conversionCommand;
-    const auto result = executor ? executor(command) : runConversionCommandWithSystem(command);
+    const auto result = executor ? executor(command) : AssetLibraryModel::runConversionCommand(command);
 
     std::error_code existsError;
     const bool outputExists = std::filesystem::is_regular_file(command.output_path, existsError);

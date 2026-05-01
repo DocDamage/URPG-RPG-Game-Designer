@@ -28,6 +28,12 @@ public:
 
     using ImportSourcePicker = std::function<std::optional<std::filesystem::path>(const ImportSourcePickerRequest&)>;
 
+    struct ImportSourcePickerAvailability {
+        bool available = false;
+        std::string code;
+        std::string message;
+    };
+
     struct ImportWizardStepSnapshot {
         std::string id;
         std::string label;
@@ -60,6 +66,7 @@ public:
     AssetLibraryModel& model() { return model_; }
     const AssetLibraryModel& model() const { return model_; }
 
+    static ImportSourcePickerAvailability nativeImportSourcePickerAvailability();
     void setImportSourcePicker(ImportSourcePicker picker);
     void render();
     nlohmann::json requestImportSource(const std::filesystem::path& source,

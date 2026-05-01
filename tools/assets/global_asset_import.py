@@ -24,6 +24,15 @@ ARCHIVE_EXTS = {"zip", "rar", "7z"}
 JUNK_NAMES = {".DS_Store", "Thumbs.db", "Desktop.ini"}
 FRAME_SEQUENCE_RE = re.compile(r"^(?P<stem>.+?)(?:[_\-. ]?)(?P<index>\d{2,5})$")
 EXTERNAL_EXTRACTOR_ENV = "URPG_ASSET_ARCHIVE_EXTRACTOR"
+FATAL_IMPORT_DIAGNOSTICS = {
+    "unsafe_archive_path",
+    "archive_read_failed",
+    "import_file_count_limit_exceeded",
+    "import_byte_limit_exceeded",
+    "external_extractor_missing",
+    "external_extractor_timeout",
+    "external_extractor_failed",
+}
 
 
 def iso_now() -> str:
@@ -486,6 +495,10 @@ def summarize(records: list[dict]) -> dict:
     return summary
 
 
+def has_fatal_diagnostic(diagnostics: list[dict]) -> bool:
+    return any(diagnostic.get("code") in FATAL_IMPORT_DIAGNOSTICS for diagnostic in diagnostics)
+
+
 def build_session(
     source: Path,
     library_root: Path,
@@ -517,18 +530,14 @@ def build_session(
             diagnostics.append({"code": code, "message": "Import session exceeded configured safety limits.", "path": str(source)})
             scan_root = session_root / ("extracted" if source_kind == "zip" else "original")
             scan_root.mkdir(parents=True, exist_ok=True)
-    records = scan_records(scan_root, session_id, source.stem if source.is_file() else source.name, license_note)
+    records = [] if has_fatal_diagnostic(diagnostics) else scan_records(
+        scan_root,
+        session_id,
+        source.stem if source.is_file() else source.name,
+        license_note,
+    )
     sequence_groups = assemble_sequence_groups(records, session_id)
-    fatal_codes = {
-        "unsafe_archive_path",
-        "archive_read_failed",
-        "import_file_count_limit_exceeded",
-        "import_byte_limit_exceeded",
-        "external_extractor_missing",
-        "external_extractor_timeout",
-        "external_extractor_failed",
-    }
-    status = "review_ready" if not any(d["code"] in fatal_codes for d in diagnostics) else "failed"
+    status = "review_ready" if not has_fatal_diagnostic(diagnostics) else "failed"
     session = {
         "schemaVersion": "1.0.0",
         "sessionId": session_id,
@@ -571,8 +580,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def configured_external_extractor_command(cli_value: str | None) -> list[str] | None:
-    command = cli_value or os.environ.get(EXTERNAL_EXTRACTOR_ENV)
-    return shlex.split(command) if command else None
+    command = cli_value if cli_value is not None else os.environ.get(EXTERNAL_EXTRACTOR_ENV)
+    if command is None or not command.strip():
+        return None
+    try:
+        return shlex.split(command)
+    except ValueError as exc:
+        raise ValueError(f"{EXTERNAL_EXTRACTOR_ENV} could not be parsed: {exc}") from exc
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -582,7 +596,10 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f"source not found: {source}")
     session_id = args.session_id or f"import_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%d_%H%M%S')}"
     library_root = Path(args.library_root)
-    external_extractor_command = configured_external_extractor_command(args.external_extractor_command)
+    try:
+        external_extractor_command = configured_external_extractor_command(args.external_extractor_command)
+    except ValueError as exc:
+        raise SystemExit(str(exc))
     session = build_session(source, library_root, session_id, args.license_note, args.max_files, args.max_bytes, external_extractor_command)
     output = Path(args.output) if args.output else library_root / "catalog" / "import_sessions" / f"{session_id}.json"
     output.parent.mkdir(parents=True, exist_ok=True)
