@@ -172,7 +172,10 @@ Add or extend the existing Asset Library panel with:
 - Attach selected to current project
 - diagnostics panel with actionable reason codes
 
-The first version should expose a visible Asset Library panel workflow state, but the actual source path can be provided through model/CLI/test entrypoints until a native file dialog is wired. This keeps the feature demonstrable in the editor without blocking Phase 1 on platform file-dialog work.
+The first version exposes visible Asset Library panel workflow state and accepts source paths through model/CLI/test
+entrypoints. The panel now also wires Add Source through an injectable picker with a Windows native file/folder dialog
+implementation, keeping the feature demonstrable in headless tests while allowing native source selection in editor
+builds.
 
 ## Data Model
 
