@@ -131,6 +131,66 @@ class GlobalAssetImportTests(unittest.TestCase):
             self.assertEqual(session["summary"]["missingLicenseCount"], 0)
             self.assertEqual(session["records"], [])
 
+    def test_folder_import_ignores_symlinked_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "fantasy_pack"
+            outside = root / "outside_secret.png"
+            source.mkdir()
+            outside.write_bytes(PNG_1X1)
+            (source / "hero.png").write_bytes(PNG_1X1)
+            try:
+                os.symlink(outside, source / "linked_secret.png")
+            except (NotImplementedError, OSError) as exc:
+                self.skipTest(f"symlink creation unavailable: {exc}")
+
+            session = global_asset_import.build_session(
+                source=source,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_symlink_folder",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+            )
+
+            by_path = {record["relativePath"]: record for record in session["records"]}
+            self.assertIn("hero.png", by_path)
+            self.assertNotIn("linked_secret.png", by_path)
+            copied_link = (
+                root
+                / ".urpg"
+                / "asset-library"
+                / "sources"
+                / "import_symlink_folder"
+                / "original"
+                / "linked_secret.png"
+            )
+            self.assertFalse(copied_link.exists())
+
+    def test_loose_symlink_import_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            outside = root / "outside_secret.png"
+            source = root / "linked_secret.png"
+            outside.write_bytes(PNG_1X1)
+            try:
+                os.symlink(outside, source)
+            except (NotImplementedError, OSError) as exc:
+                self.skipTest(f"symlink creation unavailable: {exc}")
+
+            session = global_asset_import.build_session(
+                source=source,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_symlink_file",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+            )
+
+            self.assertEqual(session["status"], "failed")
+            self.assertEqual(session["diagnostics"][0]["code"], "unsafe_symlink")
+            self.assertEqual(session["records"], [])
+
     def test_unsupported_archive_reports_extractor_diagnostic(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

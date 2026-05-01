@@ -26,6 +26,7 @@ FRAME_SEQUENCE_RE = re.compile(r"^(?P<stem>.+?)(?:[_\-. ]?)(?P<index>\d{2,5})$")
 EXTERNAL_EXTRACTOR_ENV = "URPG_ASSET_ARCHIVE_EXTRACTOR"
 FATAL_IMPORT_DIAGNOSTICS = {
     "unsafe_archive_path",
+    "unsafe_symlink",
     "archive_read_failed",
     "import_file_count_limit_exceeded",
     "import_byte_limit_exceeded",
@@ -159,11 +160,15 @@ def copy_file(source: Path, destination: Path) -> None:
     shutil.copy2(source, destination)
 
 
+def is_safe_tree_file(path: Path) -> bool:
+    return not path.is_symlink() and path.is_file() and path.name not in JUNK_NAMES
+
+
 def validate_tree_limits(root: Path, max_files: int, max_bytes: int) -> None:
     file_count = 0
     byte_count = 0
     for path in sorted(root.rglob("*")):
-        if not path.is_file() or path.name in JUNK_NAMES:
+        if not is_safe_tree_file(path):
             continue
         file_count += 1
         byte_count += path.stat().st_size
@@ -270,6 +275,15 @@ def copy_source_to_quarantine(
     diagnostics: list[dict] = []
     if source_kind == "file":
         target_root = session_root / "original"
+        if source.is_symlink():
+            diagnostics.append(
+                {
+                    "code": "unsafe_symlink",
+                    "message": "Symbolic links are not imported into the managed library.",
+                    "path": str(source),
+                }
+            )
+            return target_root, diagnostics
         if source.suffix.lower() in {".rar", ".7z"}:
             diagnostics.append(
                 {
@@ -291,7 +305,7 @@ def copy_source_to_quarantine(
         copied_files = 0
         copied_bytes = 0
         for path in sorted(source.rglob("*")):
-            if not path.is_file() or path.name in JUNK_NAMES:
+            if not is_safe_tree_file(path):
                 continue
             copied_files += 1
             copied_bytes += path.stat().st_size
@@ -522,7 +536,7 @@ def scan_records(
     records = [
         build_record(path, scan_root, session_id, source_name, license_note)
         for path in sorted(scan_root.rglob("*"))
-        if path.is_file() and path.name not in JUNK_NAMES
+        if is_safe_tree_file(path)
     ]
     first_by_hash: dict[str, str] = {}
     for record in records:
@@ -620,7 +634,7 @@ def build_session(
     max_bytes: int,
     external_extractor_command: list[str] | None = None,
 ) -> dict:
-    source = source.resolve()
+    source = source.absolute()
     source_kind = infer_source_kind(source)
     manifest_source_kind = source_kind
     session_root = library_root / "sources" / session_id
