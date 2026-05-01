@@ -324,6 +324,37 @@ class GlobalAssetImportTests(unittest.TestCase):
             self.assertEqual(session["records"][0]["relativePath"], "img/characters/Hero.png")
             self.assertEqual(session["records"][0]["category"], "sprite")
 
+    def test_external_archive_extractor_handoff_supports_source_destination_placeholders(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "pack.7z"
+            archive.write_bytes(b"not really 7z")
+            extractor = root / "template_extractor.py"
+            extractor.write_text(
+                "import pathlib, sys\n"
+                "assert pathlib.Path(sys.argv[1]).name == 'pack.7z'\n"
+                "out = pathlib.Path(sys.argv[2]) / 'audio' / 'se'\n"
+                "out.mkdir(parents=True, exist_ok=True)\n"
+                "(out / 'confirm.wav').write_bytes(b'RIFF' + b'0' * 40)\n",
+                encoding="utf-8",
+            )
+
+            session = global_asset_import.build_session(
+                source=archive,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_7z_template",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+                external_extractor_command=[sys.executable, str(extractor), "{source}", "{destination}"],
+            )
+
+            self.assertEqual(session["sourceKind"], "external_archive")
+            self.assertEqual(session["status"], "review_ready")
+            self.assertEqual(session["diagnostics"][0]["code"], "external_archive_extracted")
+            self.assertEqual(session["records"][0]["relativePath"], "audio/se/confirm.wav")
+            self.assertEqual(session["records"][0]["category"], "audio/se")
+
     def test_animation_sequence_assembly_groups_numbered_frames(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

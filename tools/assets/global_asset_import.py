@@ -145,10 +145,14 @@ def run_external_archive_extractor(
     diagnostics: list[dict] = []
     target_root = session_root / "extracted"
     target_root.mkdir(parents=True, exist_ok=True)
-    command = [*external_extractor_command, str(source), str(target_root)]
     if not external_extractor_command:
         diagnostics.append({"code": "unsupported_extractor", "message": "RAR/7z import requires a configured extractor.", "path": str(source)})
         return target_root, diagnostics
+    placeholders = {"{source}": str(source), "{destination}": str(target_root)}
+    uses_template = any(token in placeholders for token in external_extractor_command)
+    command = [placeholders.get(token, token) for token in external_extractor_command]
+    if not uses_template:
+        command.extend([str(source), str(target_root)])
     try:
         result = subprocess.run(command, check=False, capture_output=True, text=True, timeout=120)
     except FileNotFoundError:
