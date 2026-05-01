@@ -116,6 +116,42 @@ void SpriteAnimationPreviewPanel::advancePreview(float delta_time) {
     rebuildSnapshot();
 }
 
+void SpriteAnimationPreviewPanel::setProjectAssetOptions(std::vector<ProjectAssetOption> options) {
+    project_asset_options_.clear();
+    for (auto& option : options) {
+        const bool targets_sprite =
+            std::find(option.picker_targets.begin(), option.picker_targets.end(), "sprite_selector") !=
+            option.picker_targets.end();
+        if (targets_sprite || option.picker_kind == "sprite" || option.picker_kind == "portrait" ||
+            option.picker_kind == "vfx") {
+            project_asset_options_.push_back(std::move(option));
+        }
+    }
+    if (!selected_project_asset_id_.empty()) {
+        const auto selected = std::find_if(project_asset_options_.begin(), project_asset_options_.end(),
+                                           [&](const auto& option) {
+                                               return option.asset_id == selected_project_asset_id_;
+                                           });
+        if (selected == project_asset_options_.end()) {
+            selected_project_asset_id_.clear();
+        }
+    }
+    rebuildSnapshot();
+}
+
+bool SpriteAnimationPreviewPanel::selectProjectAsset(std::string_view asset_id) {
+    const auto selected = std::find_if(project_asset_options_.begin(), project_asset_options_.end(),
+                                       [&](const auto& option) {
+                                           return option.asset_id == asset_id;
+                                       });
+    if (selected == project_asset_options_.end()) {
+        return false;
+    }
+    selected_project_asset_id_ = std::string(asset_id);
+    rebuildSnapshot();
+    return true;
+}
+
 const SpriteAnimationPreviewPanel::SpriteAnimationClip*
 SpriteAnimationPreviewPanel::findSelectedAnimation() const {
     if (!has_atlas_ || selected_animation_id_.empty()) {
@@ -219,6 +255,8 @@ void SpriteAnimationPreviewPanel::rebuildSnapshot() {
     snapshot_ = {};
     snapshot_.visible = visible_;
     snapshot_.preview_playing = preview_playing_;
+    snapshot_.project_asset_options = project_asset_options_;
+    snapshot_.selected_project_asset_id = selected_project_asset_id_;
     if (!has_atlas_) {
         return;
     }

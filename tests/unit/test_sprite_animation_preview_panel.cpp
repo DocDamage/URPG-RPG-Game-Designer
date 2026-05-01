@@ -126,6 +126,36 @@ TEST_CASE("SpriteAnimationPreviewPanel clear resets snapshot state", "[sprite][e
     REQUIRE_FALSE(snapshot.selected_animation_id.has_value());
 }
 
+TEST_CASE("SpriteAnimationPreviewPanel exposes attached project sprite selector assets", "[sprite][editor][panel][asset_library]") {
+    urpg::editor::SpriteAnimationPreviewPanel panel;
+    panel.setProjectAssetOptions({
+        {
+            "asset.hero",
+            "Hero",
+            "content/assets/imported/asset.hero/hero.png",
+            "sprite",
+            "sprite",
+            {"level_builder", "sprite_selector"},
+        },
+        {
+            "asset.click",
+            "Click",
+            "content/assets/imported/asset.click/click.wav",
+            "audio",
+            "audio/se",
+            {"audio_selector"},
+        },
+    });
+    REQUIRE(panel.selectProjectAsset("asset.hero"));
+    panel.render();
+
+    const auto& snapshot = panel.getRenderSnapshot();
+    REQUIRE(snapshot.project_asset_options.size() == 1);
+    REQUIRE(snapshot.project_asset_options[0].asset_id == "asset.hero");
+    REQUIRE(snapshot.project_asset_options[0].picker_kind == "sprite");
+    REQUIRE(snapshot.selected_project_asset_id == "asset.hero");
+}
+
 TEST_CASE("Duelyst animation intake atlas previews through sprite panel", "[sprite][editor][panel][asset_intake]") {
     const auto fixturePath = std::filesystem::path(URPG_SOURCE_DIR) /
                              "content" / "fixtures" / "duelyst_animation_intake_expected_atlas.json";

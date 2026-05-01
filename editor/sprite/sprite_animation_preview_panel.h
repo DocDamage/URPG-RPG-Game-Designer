@@ -19,6 +19,15 @@ public:
         bool is_selected = false;
     };
 
+    struct ProjectAssetOption {
+        std::string asset_id;
+        std::string label;
+        std::string project_path;
+        std::string picker_kind;
+        std::string category;
+        std::vector<std::string> picker_targets;
+    };
+
     struct RenderSnapshot {
         bool visible = true;
         bool has_data = false;
@@ -35,6 +44,8 @@ public:
         float selected_frame_duration = 0.0f;
         bool selected_loop = false;
         float preview_elapsed = 0.0f;
+        std::vector<ProjectAssetOption> project_asset_options;
+        std::string selected_project_asset_id;
     };
 
     SpriteAnimationPreviewPanel() = default;
@@ -48,6 +59,8 @@ public:
     bool setSelectedAnimationLoop(bool loop);
     void setPreviewPlaying(bool preview_playing);
     void advancePreview(float delta_time);
+    void setProjectAssetOptions(std::vector<ProjectAssetOption> options);
+    bool selectProjectAsset(std::string_view asset_id);
 
     const RenderSnapshot& getRenderSnapshot() const { return snapshot_; }
 
@@ -67,6 +80,8 @@ private:
     void rebuildSnapshot();
 
     SpriteAtlas atlas_;
+    std::vector<ProjectAssetOption> project_asset_options_;
+    std::string selected_project_asset_id_;
     bool has_atlas_ = false;
     bool visible_ = true;
     bool preview_playing_ = false;

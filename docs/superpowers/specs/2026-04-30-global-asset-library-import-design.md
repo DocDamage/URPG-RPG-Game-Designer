@@ -347,7 +347,8 @@ Implementation status: 100% complete as of the 2026-05-01 development slice.
 project-local manifests under `content/assets/manifests`, exposes single-asset and selected-asset model APIs, reloads
 project attachment manifests, exposes project-local picker rows for Level Builder and selector surfaces, and keeps
 export/package discovery scoped to attached project assets while excluding raw global-library quarantine. The Level
-Builder prop placement selector consumes attached project picker rows for level-builder-targeted assets.
+Builder prop placement, sprite preview, audio inspector, and UI/theme builder selector surfaces consume attached project
+picker rows for their targeted asset kinds.
 
 ### Phase 4: Conversions And Advanced Packs
 

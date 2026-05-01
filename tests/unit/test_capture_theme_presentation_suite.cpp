@@ -80,6 +80,35 @@ TEST_CASE("UI skin preview renders all core screens into a snapshot", "[theme][f
     REQUIRE(urpg::editor::ui::ThemeBuilderPanel::snapshotLabel(snapshot) == "theme:preview-ready");
 }
 
+TEST_CASE("ThemeBuilderPanel exposes attached project UI theme selector assets", "[ui][theme][editor][asset_library]") {
+    urpg::editor::ui::ThemeBuilderPanel panel;
+    panel.setProjectAssetOptions({
+        {
+            "asset.window",
+            "Window Skin",
+            "content/assets/imported/asset.window/window.png",
+            "ui",
+            "ui",
+            {"ui_theme_selector"},
+        },
+        {
+            "asset.hero",
+            "Hero",
+            "content/assets/imported/asset.hero/hero.png",
+            "sprite",
+            "sprite",
+            {"sprite_selector"},
+        },
+    });
+    REQUIRE(panel.selectProjectAsset("asset.window"));
+    const auto snapshot = panel.renderProjectAssetSelector();
+
+    REQUIRE(snapshot.project_asset_options.size() == 1);
+    REQUIRE(snapshot.project_asset_options[0].asset_id == "asset.window");
+    REQUIRE(snapshot.project_asset_options[0].picker_kind == "ui");
+    REQUIRE(snapshot.selected_project_asset_id == "asset.window");
+}
+
 TEST_CASE("Capture and photo panels expose headless snapshot labels", "[capture][photo_mode][theme][ffs15]") {
     REQUIRE(urpg::editor::capture::CapturePanel::snapshotLabel({false, "unsupported_headless", "shot.png"}) == "capture:unsupported_headless");
 

@@ -89,6 +89,36 @@ TEST_CASE("AudioInspectorPanel: Visibility", "[editor][audio][panel]") {
         REQUIRE(panel.lastRenderSnapshot().live_rows[0].isActive);
     }
 
+    SECTION("Visible render exposes attached project audio selector assets") {
+        panel.setProjectAssetOptions({
+            {
+                "asset.click",
+                "Click",
+                "content/assets/imported/asset.click/click.wav",
+                "audio",
+                "audio/se",
+                {"audio_selector"},
+            },
+            {
+                "asset.hero",
+                "Hero",
+                "content/assets/imported/asset.hero/hero.png",
+                "sprite",
+                "sprite",
+                {"level_builder", "sprite_selector"},
+            },
+        });
+        REQUIRE(panel.selectProjectAsset("asset.click"));
+        panel.setVisible(true);
+
+        panel.render();
+
+        REQUIRE(panel.lastRenderSnapshot().project_asset_options.size() == 1);
+        REQUIRE(panel.lastRenderSnapshot().project_asset_options[0].asset_id == "asset.click");
+        REQUIRE(panel.lastRenderSnapshot().project_asset_options[0].picker_kind == "audio");
+        REQUIRE(panel.lastRenderSnapshot().selected_project_asset_id == "asset.click");
+    }
+
     SECTION("Visible render carries selected live row workflow state") {
         AudioCore core;
         const auto first_handle = core.playSound("se_ui_ping", AudioCategory::SE);

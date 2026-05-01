@@ -80,14 +80,14 @@ The project attachment lane now supports:
 - writing project-local manifests under `content/assets/manifests/`
 - single-asset and selected-asset attachment model entrypoints with per-record diagnostics
 - reloading project-local attachment manifests into the Asset Library model
-- project-local picker rows for Level Builder, sprite selectors, audio selectors, and UI/theme selectors
+- project-local picker rows consumed by Level Builder, sprite preview, audio inspector, and UI/theme selector surfaces
 - attachable and project-attached quick filters and counts
 - export/package discovery that includes attached project assets and excludes `.urpg/asset-library` quarantine/promoted
   roots
 - Level Builder prop placement consumption of level-builder-targeted attached project assets
 
-Level Builder prop placement now consumes the Asset Library model's project-local picker rows. Audio and UI/theme picker
-surfaces can use the same row contract when their dedicated selector controls are expanded.
+Level Builder prop placement, sprite preview, audio inspector, and UI/theme builder surfaces now consume the Asset
+Library model's project-local picker rows through selector-specific option filters.
 
 ## Global Asset Library Advanced Packs Phase 4
 

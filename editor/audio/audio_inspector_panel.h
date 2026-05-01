@@ -1,7 +1,9 @@
 #pragma once
 
 #include "audio_inspector_model.h"
+#include <algorithm>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -12,6 +14,15 @@ namespace urpg::editor {
  */
 class AudioInspectorPanel {
   public:
+    struct ProjectAssetOption {
+        std::string asset_id;
+        std::string label;
+        std::string project_path;
+        std::string picker_kind;
+        std::string category;
+        std::vector<std::string> picker_targets;
+    };
+
     struct RenderSnapshot {
         size_t active_count = 0;
         size_t issue_count = 0;
@@ -24,6 +35,8 @@ class AudioInspectorPanel {
         bool has_data = false;
         bool model_bound = true;
         std::string status_message = "Audio inspector has not rendered yet.";
+        std::vector<ProjectAssetOption> project_asset_options;
+        std::string selected_project_asset_id;
     };
 
     AudioInspectorPanel() : m_model(std::make_shared<AudioInspectorModel>()) {}
@@ -37,6 +50,39 @@ class AudioInspectorPanel {
     }
 
     std::shared_ptr<AudioInspectorModel> getModel() const { return m_model; }
+
+    void setProjectAssetOptions(std::vector<ProjectAssetOption> options) {
+        m_project_asset_options.clear();
+        for (auto& option : options) {
+            const bool targets_audio =
+                std::find(option.picker_targets.begin(), option.picker_targets.end(), "audio_selector") !=
+                option.picker_targets.end();
+            if (targets_audio || option.picker_kind == "audio") {
+                m_project_asset_options.push_back(std::move(option));
+            }
+        }
+        if (!m_selected_project_asset_id.empty()) {
+            const auto selected = std::find_if(m_project_asset_options.begin(), m_project_asset_options.end(),
+                                               [&](const auto& option) {
+                                                   return option.asset_id == m_selected_project_asset_id;
+                                               });
+            if (selected == m_project_asset_options.end()) {
+                m_selected_project_asset_id.clear();
+            }
+        }
+    }
+
+    bool selectProjectAsset(std::string asset_id) {
+        const auto selected = std::find_if(m_project_asset_options.begin(), m_project_asset_options.end(),
+                                           [&](const auto& option) {
+                                               return option.asset_id == asset_id;
+                                           });
+        if (selected == m_project_asset_options.end()) {
+            return false;
+        }
+        m_selected_project_asset_id = std::move(asset_id);
+        return true;
+    }
 
     bool isVisible() const { return m_visible; }
     void setVisible(bool visible) { m_visible = visible; }
@@ -58,6 +104,8 @@ class AudioInspectorPanel {
         m_last_render_snapshot.can_select_previous_row = m_model->canSelectPreviousRow();
         m_last_render_snapshot.has_data = summary.activeCount > 0 || summary.issueCount > 0;
         m_last_render_snapshot.model_bound = m_model != nullptr;
+        m_last_render_snapshot.project_asset_options = m_project_asset_options;
+        m_last_render_snapshot.selected_project_asset_id = m_selected_project_asset_id;
         m_last_render_snapshot.status_message =
             m_last_render_snapshot.has_data
                 ? ""
@@ -72,6 +120,8 @@ class AudioInspectorPanel {
 
   private:
     std::shared_ptr<AudioInspectorModel> m_model;
+    std::vector<ProjectAssetOption> m_project_asset_options;
+    std::string m_selected_project_asset_id;
     bool m_visible = false;
     bool m_has_rendered_frame = false;
     RenderSnapshot m_last_render_snapshot;
