@@ -75,7 +75,6 @@ TEST_CASE("AssetLibraryModel runs audio conversion handoff and unblocks promotio
     std::filesystem::remove_all(root);
 }
 
-
 TEST_CASE("AssetLibraryModel conversion process runner uses explicit working directory",
           "[assets][asset_library][editor][asset_import][conversion]") {
     const auto original = std::filesystem::current_path();
@@ -100,7 +99,6 @@ TEST_CASE("AssetLibraryModel conversion process runner uses explicit working dir
 
     std::filesystem::remove_all(root);
 }
-
 
 TEST_CASE("AssetLibraryPanel dispatches selected import conversions through the wizard",
           "[assets][asset_library][editor][asset_import][wizard][conversion]") {
@@ -145,9 +143,7 @@ TEST_CASE("AssetLibraryPanel dispatches selected import conversions through the 
 
     const auto convertAction =
         std::find_if(panel.lastImportWizardSnapshot().actions.begin(), panel.lastImportWizardSnapshot().actions.end(),
-                     [](const auto& action) {
-                         return action.id == "convert_selected";
-                     });
+                     [](const auto& action) { return action.id == "convert_selected"; });
     REQUIRE(convertAction != panel.lastImportWizardSnapshot().actions.end());
     REQUIRE(convertAction->enabled);
     REQUIRE(convertAction->eligible_count == 1);
@@ -165,13 +161,10 @@ TEST_CASE("AssetLibraryPanel dispatches selected import conversions through the 
     REQUIRE(panel.lastImportWizardSnapshot().status == "review_required");
     const auto promoteAction =
         std::find_if(panel.lastImportWizardSnapshot().actions.begin(), panel.lastImportWizardSnapshot().actions.end(),
-                     [](const auto& action) {
-                         return action.id == "promote_selected";
-                     });
+                     [](const auto& action) { return action.id == "promote_selected"; });
     REQUIRE(promoteAction != panel.lastImportWizardSnapshot().actions.end());
     REQUIRE(promoteAction->enabled);
     REQUIRE(promoteAction->eligible_count == 1);
 
     std::filesystem::remove_all(root);
 }
-

@@ -52,4 +52,3 @@ Every system must have:
 - runtime execution through the shared kernel
 - diagnostics
 - focused Catch2 coverage
-

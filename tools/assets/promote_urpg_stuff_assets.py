@@ -12,9 +12,38 @@ import struct
 import subprocess
 from pathlib import Path
 
-IMAGE_EXTS = {"png", "gif", "jpg", "jpeg", "bmp", "webp", "ase", "aseprite", "ico", "psd", "svg"}
+IMAGE_EXTS = {
+    "png",
+    "gif",
+    "jpg",
+    "jpeg",
+    "bmp",
+    "webp",
+    "ase",
+    "aseprite",
+    "ico",
+    "psd",
+    "svg",
+}
 AUDIO_EXTS = {"ogg"}
-DOC_EXTS = {"", "1", "apache", "bsd", "gpl", "license", "txt", "md", "pdf", "rst", "ronn", "rtf", "csv", "po", "pot", "docx"}
+DOC_EXTS = {
+    "",
+    "1",
+    "apache",
+    "bsd",
+    "gpl",
+    "license",
+    "txt",
+    "md",
+    "pdf",
+    "rst",
+    "ronn",
+    "rtf",
+    "csv",
+    "po",
+    "pot",
+    "docx",
+}
 DATA_EXTS = {
     "desktop",
     "dtd",
@@ -73,7 +102,17 @@ MODEL_EXTS = {"obj", "fbx", "mtl", "ply", "vox", "blend", "mat", "glb", "gltf", 
 MAP_EXTS = {"tmx", "tsx", "world", "tiled-project"}
 ARCHIVE_EXTS = {"zip", "rar", "7z"}
 FONT_EXTS = {"ttf", "otf"}
-SUPPORTED_EXTS = IMAGE_EXTS | AUDIO_EXTS | DOC_EXTS | DATA_EXTS | SOURCE_EXTS | MODEL_EXTS | MAP_EXTS | ARCHIVE_EXTS | FONT_EXTS
+SUPPORTED_EXTS = (
+    IMAGE_EXTS
+    | AUDIO_EXTS
+    | DOC_EXTS
+    | DATA_EXTS
+    | SOURCE_EXTS
+    | MODEL_EXTS
+    | MAP_EXTS
+    | ARCHIVE_EXTS
+    | FONT_EXTS
+)
 TOOL_PATH_HINTS = (
     "/spritegenerator/",
     "/pixel planet maker/",
@@ -121,11 +160,17 @@ def read_image_size(path: Path) -> tuple[int, int] | None:
         with path.open("rb") as handle:
             if ext == "png":
                 data = handle.read(24)
-                if len(data) >= 24 and data[:8] == b"\x89PNG\r\n\x1a\n" and data[12:16] == b"IHDR":
+                if (
+                    len(data) >= 24
+                    and data[:8] == b"\x89PNG\r\n\x1a\n"
+                    and data[12:16] == b"IHDR"
+                ):
                     return struct.unpack(">II", data[16:24])
             if ext == "gif":
                 data = handle.read(10)
-                if len(data) >= 10 and (data.startswith(b"GIF87a") or data.startswith(b"GIF89a")):
+                if len(data) >= 10 and (
+                    data.startswith(b"GIF87a") or data.startswith(b"GIF89a")
+                ):
                     return struct.unpack("<HH", data[6:10])
             if ext in {"jpg", "jpeg"}:
                 if handle.read(2) != b"\xff\xd8":
@@ -148,10 +193,26 @@ def read_image_size(path: Path) -> tuple[int, int] | None:
                     if len(segment_len_data) != 2:
                         return None
                     segment_len = struct.unpack(">H", segment_len_data)[0]
-                    if code in {0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF}:
+                    if code in {
+                        0xC0,
+                        0xC1,
+                        0xC2,
+                        0xC3,
+                        0xC5,
+                        0xC6,
+                        0xC7,
+                        0xC9,
+                        0xCA,
+                        0xCB,
+                        0xCD,
+                        0xCE,
+                        0xCF,
+                    }:
                         payload = handle.read(segment_len - 2)
                         if len(payload) >= 5:
-                            return struct.unpack(">H", payload[3:5])[0], struct.unpack(">H", payload[1:3])[0]
+                            return struct.unpack(">H", payload[3:5])[0], struct.unpack(
+                                ">H", payload[1:3]
+                            )[0]
                         return None
                     handle.seek(segment_len - 2, os.SEEK_CUR)
             if ext == "bmp":
@@ -161,7 +222,12 @@ def read_image_size(path: Path) -> tuple[int, int] | None:
                     return abs(width), abs(height)
             if ext == "webp":
                 data = handle.read(64)
-                if len(data) >= 30 and data[:4] == b"RIFF" and data[8:12] == b"WEBP" and data[12:16] == b"VP8X":
+                if (
+                    len(data) >= 30
+                    and data[:4] == b"RIFF"
+                    and data[8:12] == b"WEBP"
+                    and data[12:16] == b"VP8X"
+                ):
                     width = 1 + int.from_bytes(data[24:27], "little")
                     height = 1 + int.from_bytes(data[27:30], "little")
                     return width, height
@@ -231,7 +297,11 @@ def infer_pack(path_rel: str, source_root: str) -> str:
     root_parts = source_root.split("/")
     local_parts = parts[len(root_parts) :]
     if len(local_parts) >= 2:
-        return local_parts[1] if local_parts[0] in {"audio", "side scroller stuff"} else local_parts[0]
+        return (
+            local_parts[1]
+            if local_parts[0] in {"audio", "side scroller stuff"}
+            else local_parts[0]
+        )
     if local_parts:
         return local_parts[0]
     return "urpg_stuff"
@@ -264,27 +334,66 @@ def infer_category(path_rel: str, kind: str) -> str:
         return "archives"
     if kind == "font":
         return "fonts"
-    if "isometric" in lower or "/packed_" in lower or "/separated" in lower or "/assembled" in lower:
+    if (
+        "isometric" in lower
+        or "/packed_" in lower
+        or "/separated" in lower
+        or "/assembled" in lower
+    ):
         return "characters/isometric"
-    if "sideview" in lower or "side_view" in lower or "sideviewbattler" in lower or "side view" in lower:
+    if (
+        "sideview" in lower
+        or "side_view" in lower
+        or "sideviewbattler" in lower
+        or "side view" in lower
+    ):
         return "characters/sideview"
     if "spells" in lower or "vfx" in lower or "effect" in lower or "magic" in lower:
         return "vfx"
-    if "background" in lower or "parallax" in lower or "map_l" in lower or "map empty" in lower:
+    if (
+        "background" in lower
+        or "parallax" in lower
+        or "map_l" in lower
+        or "map empty" in lower
+    ):
         return "backgrounds"
-    if "side scroller" in lower or any(token in lower for token in ("idle", "walk", "attack", "hurt", "dead", "jump", "run")):
+    if "side scroller" in lower or any(
+        token in lower
+        for token in ("idle", "walk", "attack", "hurt", "dead", "jump", "run")
+    ):
         return "characters"
-    if "tile" in lower or "tileset" in lower or "terrain" in lower or "environment" in lower:
+    if (
+        "tile" in lower
+        or "tileset" in lower
+        or "terrain" in lower
+        or "environment" in lower
+    ):
         return "tilesets"
     if "/ui" in lower or "button" in lower or "icon" in lower or "hud" in lower:
         return "ui"
     return "props"
 
 
-def build_tags(path: Path, path_rel: str, kind: str, category: str, pack: str) -> list[str]:
-    tags = {f"kind:{kind}", f"category:{category.replace('/', '-')}", f"pack:{slugify(pack)}", f"ext:{path.suffix.lower().lstrip('.')}"}
+def build_tags(
+    path: Path, path_rel: str, kind: str, category: str, pack: str
+) -> list[str]:
+    tags = {
+        f"kind:{kind}",
+        f"category:{category.replace('/', '-')}",
+        f"pack:{slugify(pack)}",
+        f"ext:{path.suffix.lower().lstrip('.')}",
+    }
     for token in re.findall(r"[a-z0-9]{3,}", path_rel.lower()):
-        if token not in {"png", "ogg", "assets", "asset", "stuff", "urpg", "raw", "imports"}:
+        if token not in {
+            "png",
+            "ogg",
+            "assets",
+            "asset",
+            "stuff",
+            "urpg",
+            "raw",
+            "imports",
+        }:
             tags.add(token)
         if len(tags) >= 18:
             break
@@ -298,9 +407,13 @@ def canonical_score(asset: dict) -> tuple[int, int, str]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Catalog-normalize the local SRC-007 URPG asset drop.")
+    parser = argparse.ArgumentParser(
+        description="Catalog-normalize the local SRC-007 URPG asset drop."
+    )
     parser.add_argument("--repo-root", default=".", help="Repository root.")
-    parser.add_argument("--source-root", default="imports/raw/urpg_stuff", help="Raw local source root.")
+    parser.add_argument(
+        "--source-root", default="imports/raw/urpg_stuff", help="Raw local source root."
+    )
     parser.add_argument(
         "--catalog",
         default="imports/reports/asset_intake/urpg_stuff_promotion_catalog.json",
@@ -317,7 +430,9 @@ def parse_args() -> argparse.Namespace:
         help="Small summary report path.",
     )
     parser.add_argument("--source-id", default="SRC-007")
-    parser.add_argument("--exclude-audio", action="store_true", help="Skip audio files entirely.")
+    parser.add_argument(
+        "--exclude-audio", action="store_true", help="Skip audio files entirely."
+    )
     return parser.parse_args()
 
 
@@ -402,7 +517,9 @@ def main() -> int:
                 "canonical_asset_id": canonical["id"],
                 "canonical_source_path": canonical["source_path"],
                 "copies": len(group),
-                "duplicate_source_paths": [asset["source_path"] for asset in sorted_group[1:]],
+                "duplicate_source_paths": [
+                    asset["source_path"] for asset in sorted_group[1:]
+                ],
             }
         )
         for duplicate in sorted_group[1:]:

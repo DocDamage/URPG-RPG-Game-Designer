@@ -942,4 +942,3 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
         std::filesystem::remove_all(fixtureDir, ec);
     }
 }
-

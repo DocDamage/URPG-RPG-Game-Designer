@@ -19,17 +19,11 @@ struct ProcessResult {
 fs::path projectAuditExecutablePath();
 std::string readTextFile(const fs::path& path);
 void writeTextFile(const fs::path& path, const std::string& content);
-void requireGovernanceSectionShape(
-    const json& governance,
-    const std::string& sectionName,
-    bool requireIssueCount = false
-);
+void requireGovernanceSectionShape(const json& governance, const std::string& sectionName,
+                                   bool requireIssueCount = false);
 bool hasPositiveIssueCount(const json& section);
-void requireIssueCountConsistencyIfPresent(
-    const json& report,
-    const std::string& topLevelKey,
-    const std::string& sectionKey
-);
+void requireIssueCountConsistencyIfPresent(const json& report, const std::string& topLevelKey,
+                                           const std::string& sectionKey);
 bool jsonArrayContainsString(const json& value, const std::string& expected);
 bool reportContainsIssueCode(const json& report, const std::string& code);
 void writeProjectGovernanceReadinessFixture(const fs::path& path);

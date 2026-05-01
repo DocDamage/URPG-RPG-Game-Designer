@@ -26,7 +26,9 @@ def scalar(conn: sqlite3.Connection, sql: str, params: tuple = ()) -> int:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Summarize the local third_party + itch asset DB ingest.")
+    parser = argparse.ArgumentParser(
+        description="Summarize the local third_party + itch asset DB ingest."
+    )
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--db", default=DEFAULT_DB)
     parser.add_argument("--report", default=DEFAULT_REPORT)
@@ -44,7 +46,9 @@ def main() -> int:
 
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
-    latest_scan = conn.execute("SELECT * FROM scan_runs ORDER BY id DESC LIMIT 1").fetchone()
+    latest_scan = conn.execute(
+        "SELECT * FROM scan_runs ORDER BY id DESC LIMIT 1"
+    ).fetchone()
     if latest_scan is None:
         raise SystemExit("asset DB has no scan runs")
 
@@ -91,8 +95,12 @@ def main() -> int:
             "files_removed_from_db": latest_scan["files_removed"],
         },
         "summary": {
-            "asset_count": scalar(conn, "SELECT COUNT(*) FROM assets WHERE missing = 0"),
-            "total_size_bytes": scalar(conn, "SELECT SUM(size_bytes) FROM assets WHERE missing = 0"),
+            "asset_count": scalar(
+                conn, "SELECT COUNT(*) FROM assets WHERE missing = 0"
+            ),
+            "total_size_bytes": scalar(
+                conn, "SELECT SUM(size_bytes) FROM assets WHERE missing = 0"
+            ),
             "duplicate_group_count": scalar(
                 conn,
                 """
@@ -180,7 +188,15 @@ def main() -> int:
 
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    print(json.dumps({"report": str(report_path.relative_to(repo_root)).replace("\\", "/"), **report["summary"]}, indent=2))
+    print(
+        json.dumps(
+            {
+                "report": str(report_path.relative_to(repo_root)).replace("\\", "/"),
+                **report["summary"],
+            },
+            indent=2,
+        )
+    )
     return 0
 
 

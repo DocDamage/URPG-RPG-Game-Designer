@@ -6,6 +6,7 @@ repos:
       - id: check-json
         exclude: ^content/fixtures/feature_governance/(negative/)?governance_manifest\.json$
       - id: check-yaml
+        exclude: ^build[^/]*/
       - id: trailing-whitespace
         exclude: ^(build[^/]*|imports|third_party)/
       - id: end-of-file-fixer
