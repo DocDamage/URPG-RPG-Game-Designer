@@ -307,6 +307,15 @@ TEST_CASE("AssetLibraryPanel dispatches import wizard actions through the model"
     REQUIRE(panel.lastImportWizardSnapshot().current_step == "package");
     REQUIRE(panel.lastImportWizardSnapshot().package_validation_ready);
 
+    urpg::tools::ExportConfig config{};
+    config.outputDir = (root / "export").generic_string();
+    config.assetDiscoveryRoots = {(projectRoot / "content" / "assets" / "imported").generic_string()};
+    const auto validation = panel.validatePackage(config);
+    REQUIRE(validation["action"] == "asset_library_package_validate");
+    REQUIRE(validation["success"] == true);
+    REQUIRE(validation["code"] == "package_validation_passed");
+    REQUIRE(validation["errors"].empty());
+
     std::filesystem::remove_all(root);
 }
 

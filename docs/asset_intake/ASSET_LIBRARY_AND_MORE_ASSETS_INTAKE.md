@@ -120,8 +120,8 @@ The model-level wizard contract now supports:
 - package-validation readiness once promoted assets have been attached into project-local asset roots
 - typed Asset Library panel render snapshots for wizard steps, actions, disabled reasons, and package-validation
   readiness
-- Asset Library panel action dispatchers for Add Source, Promote Selected, and Attach Selected that call the existing
-  model entrypoints and keep the wizard render snapshot current
+- Asset Library panel action dispatchers for Add Source, Promote Selected, Attach Selected, and Package Validate that
+  call the existing model or export-packager entrypoints and keep the wizard render snapshot current
 
 Native file-dialog wiring remains outside this slice; a future platform picker can pass a chosen source path into the
 panel's Add Source dispatcher without making editor/runtime code execute Python directly.

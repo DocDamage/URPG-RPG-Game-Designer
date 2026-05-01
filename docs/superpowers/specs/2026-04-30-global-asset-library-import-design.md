@@ -377,8 +377,9 @@ Implementation status: 100% complete as of the 2026-05-01 development slice. The
 reasons, pending Add Source import requests, deterministic `tools/assets/global_asset_import.py` command arguments,
 expected import-session manifest paths, and package-validation readiness. The Asset Library panel also exposes a typed
 wizard render snapshot for steps, actions, disabled reasons, pending requests, and package-validation readiness. Panel
-dispatchers now route Add Source, Promote Selected, and Attach Selected through the existing model entrypoints and keep
-the wizard snapshot current without making engine/runtime code depend on Python tooling or a platform file picker.
+dispatchers now route Add Source, Promote Selected, Attach Selected, and Package Validate through the existing model or
+export-packager entrypoints and keep the wizard snapshot current without making engine/runtime code depend on Python
+tooling or a platform file picker.
 
 ## Success Criteria
 

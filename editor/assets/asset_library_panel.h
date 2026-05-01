@@ -1,6 +1,7 @@
 #pragma once
 
 #include "editor/assets/asset_library_model.h"
+#include "engine/core/tools/export_packager.h"
 
 #include <filesystem>
 #include <string>
@@ -53,6 +54,7 @@ public:
                                                 bool include_in_runtime = true);
     nlohmann::json attachSelectedPromotedAssetsToProject(std::vector<std::string> paths,
                                                          const std::filesystem::path& project_root);
+    nlohmann::json validatePackage(const urpg::tools::ExportConfig& config);
     const AssetLibraryModelSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }
     const ImportWizardRenderSnapshot& lastImportWizardSnapshot() const { return last_import_wizard_snapshot_; }
     bool hasRenderedFrame() const { return has_rendered_frame_; }

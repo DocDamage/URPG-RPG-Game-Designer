@@ -90,6 +90,29 @@ nlohmann::json AssetLibraryPanel::attachSelectedPromotedAssetsToProject(std::vec
     return result;
 }
 
+nlohmann::json AssetLibraryPanel::validatePackage(const urpg::tools::ExportConfig& config) {
+    refreshRenderSnapshotsFromModel();
+    if (!last_import_wizard_snapshot_.package_validation_ready) {
+        return {
+            {"action", "asset_library_package_validate"},
+            {"success", false},
+            {"code", "package_validation_not_ready"},
+            {"message", "Attach promoted project assets before running package validation."},
+            {"errors", nlohmann::json::array({"no_attached_project_assets"})},
+        };
+    }
+
+    urpg::tools::ExportPackager packager;
+    const auto validation = packager.validateBeforeExport(config);
+    return {
+        {"action", "asset_library_package_validate"},
+        {"success", validation.passed},
+        {"code", validation.passed ? "package_validation_passed" : "package_validation_failed"},
+        {"message", validation.passed ? "Package validation passed." : "Package validation failed."},
+        {"errors", validation.errors},
+    };
+}
+
 void AssetLibraryPanel::refreshRenderSnapshotsFromModel() {
     last_render_snapshot_ = model_.snapshot();
     last_import_wizard_snapshot_ = buildImportWizardRenderSnapshot(last_render_snapshot_.import_wizard);
