@@ -69,3 +69,7 @@ docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.docx
 .env.*
 .aider*
 .worktrees/
+
+# Third-party asset packs may include bundled generator executables.
+third_party/itch-assets/**/Elements Character Generator
+third_party/itch-assets/**/Elements Character Generator.app/
