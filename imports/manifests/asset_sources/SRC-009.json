@@ -1,0 +1,26 @@
+{
+  "source_id": "SRC-009",
+  "repo_name": "URPG repo-generated release starter skin",
+  "source_url": "local://repo/generated/release_skin",
+  "capture_state": "normalized",
+  "snapshot_commit": null,
+  "snapshot_date": "2026-05-02",
+  "source_type": "direct_asset_pack",
+  "category_tags": [
+    "ui",
+    "vfx",
+    "release_skin"
+  ],
+  "intended_use": [
+    "Bounded release starter UI frame/chrome coverage",
+    "Bounded release starter VFX sheet coverage",
+    "Cohesive UI skin metadata for package evidence"
+  ],
+  "handling_path": "direct_ingest_when_captured",
+  "legal_disposition": "proprietary_distribution_rights_confirmed_project_owned_repo_generated_release_assets",
+  "promotion_status": "promoted",
+  "notes": [
+    "Assets were generated in-repository for Phase 9 release content evidence.",
+    "This source does not claim final art direction, final BGM, environmental SFX, or portrait-art completeness."
+  ]
+}

@@ -106,6 +106,20 @@
             "type": "boolean",
             "description": "True when source/license evidence has been reviewed for release packaging."
           },
+          "release_eligible": {
+            "type": "boolean",
+            "description": "True when this promoted asset is allowed in release packages."
+          },
+          "checksum_sha256": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$"
+          },
+          "attribution_record": {
+            "type": "string"
+          },
+          "package_destination": {
+            "type": "string"
+          },
           "distribution": {
             "type": "string",
             "enum": [

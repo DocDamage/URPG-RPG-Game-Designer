@@ -175,7 +175,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   3. Replace hardcoded `hero_sprite` and `default_tileset`.
   4. Emit missing asset diagnostics before rendering placeholders.
 - Acceptance criteria: Runtime map uses bundled/project assets, not test-only logical IDs.
-- Verification command or manual test: `ctest --preset dev-all -R "MapScene|AssetLoader|Runtime map asset" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "MapScene|AssetLibrary|Runtime map asset" --output-on-failure`
 
 ### Task P2-02
 

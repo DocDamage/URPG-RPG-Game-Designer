@@ -198,7 +198,14 @@ The gate also writes an audit report:
 imports/reports/asset_intake/release_required_asset_report.json
 ```
 
-That report classifies connected release assets and non-connected bundle rows. Current UI/audio release surfaces use explicit system fallback entries, while `BND-002` UI SFX remains `deferred` until an approved bundled audio asset is promoted.
+That report classifies connected release assets and non-connected bundle rows. Current UI/audio sound surfaces use explicit system fallback entries, while `BND-002` UI SFX remains `deferred` until an approved bundled OGG asset is promoted. Phase 9 also requires selected promoted bundle categories to carry release eligibility, SHA-256 checksum, attribution record, and package-destination metadata. The current selected release bundle categories are:
+
+- `prototype_sprite` through `BND-001`
+- `ui_frames_chrome` through `BND-003`
+- `vfx_sheet` through `BND-003`
+- `cohesive_ui_skin` through `BND-003`
+
+Environmental SFX, BGM, final portrait art, final music identity, and polished VFX identity remain outside the current 100% release content claim unless a future release owner promotes cleared bundles for those categories.
 
 ## Full Local Gate Status
 

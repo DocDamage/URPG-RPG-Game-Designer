@@ -9,9 +9,11 @@ $manifestPath = Join-Path $repoRoot "content/fixtures/project_governance_fixture
 $bundleRoot = Join-Path $repoRoot "imports/manifests/asset_bundles"
 $defaultReportPath = Join-Path $repoRoot "imports/reports/asset_intake/release_required_asset_report.json"
 $requiredSurfaces = @("title", "map", "battle", "ui", "audio", "icons", "fonts")
+$requiredBundleCategories = @("prototype_sprite", "ui_frames_chrome", "vfx_sheet", "cohesive_ui_skin")
 $errors = New-Object System.Collections.Generic.List[string]
 $connectedAssets = New-Object System.Collections.Generic.List[object]
 $classifiedAssets = New-Object System.Collections.Generic.List[object]
+$releaseBundleCategoriesSeen = New-Object System.Collections.Generic.HashSet[string]
 
 function Add-Error {
   param([string]$Message)
@@ -207,6 +209,9 @@ if (-not (Test-Path -LiteralPath $bundleRoot -PathType Container)) {
     }
 
     foreach ($asset in $releaseAssets) {
+      if (-not [string]::IsNullOrWhiteSpace($asset.category)) {
+        $script:releaseBundleCategoriesSeen.Add($asset.category) | Out-Null
+      }
       Add-ConnectedAsset -Id $asset.original_relative_path -Surface ($asset.release_surfaces -join ",") -Source "asset_bundle" -Path ("imports/normalized/" + $asset.promoted_relative_path) -Classification "connected" -Notes $asset.notes
       if ($bundle.bundle_state -ne "promoted" -or $asset.status -ne "promoted") {
         Add-Error "Release-required bundle asset must be promoted: $($bundleFile.Name) / $($asset.promoted_relative_path)"
@@ -216,6 +221,18 @@ if (-not (Test-Path -LiteralPath $bundleRoot -PathType Container)) {
       }
       if ($asset.distribution -ne "bundled") {
         Add-Error "Release-required bundle asset must use bundled distribution: $($bundleFile.Name) / $($asset.promoted_relative_path)"
+      }
+      if ($asset.release_eligible -ne $true) {
+        Add-Error "Release-required bundle asset must be release-eligible: $($bundleFile.Name) / $($asset.promoted_relative_path)"
+      }
+      if ([string]::IsNullOrWhiteSpace($asset.checksum_sha256) -or $asset.checksum_sha256 -notmatch "^[a-fA-F0-9]{64}$") {
+        Add-Error "Release-required bundle asset must carry checksum_sha256: $($bundleFile.Name) / $($asset.promoted_relative_path)"
+      }
+      if ([string]::IsNullOrWhiteSpace($asset.attribution_record)) {
+        Add-Error "Release-required bundle asset must carry attribution_record: $($bundleFile.Name) / $($asset.promoted_relative_path)"
+      }
+      if ([string]::IsNullOrWhiteSpace($asset.package_destination)) {
+        Add-Error "Release-required bundle asset must carry package_destination: $($bundleFile.Name) / $($asset.promoted_relative_path)"
       }
       foreach ($surface in @($asset.release_surfaces)) {
         if ($requiredSurfaces -notcontains $surface) {
@@ -240,7 +257,19 @@ if (-not (Test-Path -LiteralPath $bundleRoot -PathType Container)) {
       if (Test-LfsPointer -Path $normalizedPath) {
         Add-Error "Release-required bundle asset is an unresolved LFS pointer: imports/normalized/$relativePath"
       }
+      if (-not [string]::IsNullOrWhiteSpace($asset.checksum_sha256)) {
+        $actualChecksum = (Get-FileHash -LiteralPath $normalizedPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($actualChecksum -ne $asset.checksum_sha256.ToLowerInvariant()) {
+          Add-Error "Release-required bundle asset checksum mismatch: imports/normalized/$relativePath"
+        }
+      }
     }
+  }
+}
+
+foreach ($category in $requiredBundleCategories) {
+  if (-not $releaseBundleCategoriesSeen.Contains($category)) {
+    Add-Error "No release-required promoted bundle asset covers selected Phase 9 category '$category'."
   }
 }
 
