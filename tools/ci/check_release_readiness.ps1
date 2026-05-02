@@ -16,6 +16,9 @@ $signoffDocPaths = @{
     "gameplay_ability_framework" = Join-Path $repoRoot "docs\GAF_CLOSURE_SIGNOFF.md"
     "presentation_runtime" = Join-Path $repoRoot "docs\PRESENTATION_RUNTIME_CLOSURE_SIGNOFF.md"
     "governance_foundation" = Join-Path $repoRoot "docs\GOVERNANCE_FOUNDATION_CLOSURE_SIGNOFF.md"
+    "character_identity" = Join-Path $repoRoot "docs\CHARACTER_IDENTITY_CLOSURE_SIGNOFF.md"
+    "accessibility_auditor" = Join-Path $repoRoot "docs\ACCESSIBILITY_AUDITOR_CLOSURE_SIGNOFF.md"
+    "audio_mix_presets" = Join-Path $repoRoot "docs\AUDIO_MIX_PRESETS_CLOSURE_SIGNOFF.md"
     "visual_regression_harness" = Join-Path $repoRoot "docs\VISUAL_REGRESSION_HARNESS_CLOSURE_SIGNOFF.md"
 }
 $releaseSignoffWorkflowRelativePath = "docs/RELEASE_SIGNOFF_WORKFLOW.md"

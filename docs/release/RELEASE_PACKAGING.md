@@ -34,6 +34,8 @@ That manifest records the one packaged source per plugin key and the raw DLC can
 
 `Release` mode fails before export packaging if required signing or notarization inputs are missing. This prevents a release package from silently shipping unsigned native artifacts.
 
+`urpg_pack_cli --release` also requires an explicit release artifact profile before it will label an export as release staging: `--signing-mode`, `--certificate-ref`, `--notarization-mode`, `--artifact-policy`, and `--owner-approval`. Development/package-smoke exports may use explicit non-production values such as `unsigned_dev`, `none`, `not_applicable`, and `dev_package_smoke_only`; production credentials and account identifiers remain project configuration.
+
 ## Required Signing Inputs
 
 | Target | Required inputs | Hook |
@@ -56,6 +58,7 @@ The JSON report includes:
 - export matrix result when not in dry run
 - per-target artifact signing/notarization status
 - explicit unsigned reason for development packages
+- export release-profile fields when an exact shipping preview is generated
 
 ## Verification
 

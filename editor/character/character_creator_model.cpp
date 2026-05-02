@@ -88,7 +88,25 @@ bool hasDiagnostics(const nlohmann::json& row) {
     return it != row.end() && it->is_array() && !it->empty();
 }
 
+std::string firstDiagnostic(const nlohmann::json& row) {
+    const auto it = row.find("promotion_diagnostics");
+    if (it != row.end() && it->is_array() && !it->empty() && (*it)[0].is_string()) {
+        return (*it)[0].get<std::string>();
+    }
+    const auto blocked = row.find("blocked_reason");
+    if (blocked != row.end() && blocked->is_string()) {
+        return blocked->get<std::string>();
+    }
+    return {};
+}
+
 std::string disabledReasonForPromotedAsset(const nlohmann::json& row) {
+    if (row.contains("management_actions")) {
+        const auto diagnostic = firstDiagnostic(row);
+        if (!diagnostic.empty()) {
+            return diagnostic;
+        }
+    }
     if (containsStatus(row, "archived")) {
         return "Asset is archived and cannot be assigned to a character.";
     }
@@ -110,6 +128,35 @@ std::string labelForAssetRow(const nlohmann::json& row) {
         return assetId;
     }
     return valueOrEmpty(row, "path");
+}
+
+int intValueOrZero(const nlohmann::json& row, const char* key) {
+    const auto it = row.find(key);
+    return it != row.end() && it->is_number_integer() ? it->get<int>() : 0;
+}
+
+nlohmann::json defaultManagementActions(const CharacterAppearancePartRow& part) {
+    const auto disabled = part.disabled_reason.empty() ? nlohmann::json(nullptr)
+                                                       : nlohmann::json(part.disabled_reason);
+    return {
+        {"accept",
+         {{"enabled", part.enabled},
+          {"action", "accept_appearance_part"},
+          {"disabled_reason", disabled}}},
+        {"reject",
+         {{"enabled", true},
+          {"action", "reject_appearance_part"},
+          {"disabled_reason", nlohmann::json(nullptr)}}},
+        {"archive",
+         {{"enabled", part.enabled},
+          {"action", "archive_appearance_part"},
+          {"disabled_reason", part.enabled ? nlohmann::json(nullptr) : disabled}}},
+        {"assign",
+         {{"enabled", part.enabled},
+          {"action", "assign_appearance_part"},
+          {"target_slot", part.slot},
+          {"disabled_reason", disabled}}},
+    };
 }
 
 } // namespace
@@ -204,8 +251,16 @@ void CharacterCreatorModel::setPromotedAppearanceAssetRows(const nlohmann::json&
             part.slot = "layer";
         }
         part.preview_kind = valueOrEmpty(row, "preview_kind");
+        part.source_path = valueOrEmpty(row, "source_path");
+        part.normalized_path = valueOrEmpty(row, "normalized_path");
+        part.preview_width = intValueOrZero(row, "preview_width");
+        part.preview_height = intValueOrZero(row, "preview_height");
         part.disabled_reason = disabledReasonForPromotedAsset(row);
         part.enabled = part.disabled_reason.empty();
+        const auto actions = row.find("management_actions");
+        part.management_actions = actions != row.end() && actions->is_object()
+                                      ? *actions
+                                      : defaultManagementActions(part);
         m_appearance_part_rows.push_back(std::move(part));
     }
     std::sort(m_appearance_part_rows.begin(), m_appearance_part_rows.end(), [](const auto& lhs, const auto& rhs) {
@@ -335,6 +390,10 @@ nlohmann::json CharacterCreatorModel::buildAppearancePartsSnapshot() const {
             {"enabled", part.enabled},
             {"disabled_reason", part.disabled_reason},
             {"preview_kind", part.preview_kind},
+            {"source_path", part.source_path},
+            {"normalized_path", part.normalized_path},
+            {"dimensions", {{"width", part.preview_width}, {"height", part.preview_height}}},
+            {"management_actions", part.management_actions},
             {"selected", part.asset_id == m_identity.getPortraitAssetId() ||
                              part.asset_id == m_identity.getFieldSpriteAssetId() ||
                              part.asset_id == m_identity.getBattleSpriteAssetId() ||

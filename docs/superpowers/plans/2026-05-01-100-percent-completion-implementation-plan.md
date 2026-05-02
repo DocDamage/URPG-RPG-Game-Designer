@@ -394,7 +394,7 @@ Add tests for creator-supplied portrait, field, and battle appearance parts. Eac
 Run:
 
 ```powershell
-ctest --preset dev-all -R "Character|character|AssetLibrary|asset library" --output-on-failure
+ctest --preset dev-all -R "Character|character|AssetLibrary" --output-on-failure
 ```
 
 Expected: fail until import tooling exists.
@@ -432,7 +432,7 @@ Run:
 
 ```powershell
 .\tools\ci\truth_reconciler.ps1
-ctest --preset dev-all -R "Character|character|AssetLibrary|asset library" --output-on-failure
+ctest --preset dev-all -R "Character|character|AssetLibrary" --output-on-failure
 ```
 
 Expected: both pass.

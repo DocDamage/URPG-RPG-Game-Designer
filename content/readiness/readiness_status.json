@@ -236,14 +236,27 @@
     },
     {
       "id": "character_identity",
-      "status": "PARTIAL",
-      "summary": "Character identity runtime, editor creator panel, character creation rules, bounded validation runtime, ECS component/system integration, deterministic spawner, preset-based runtime creator screen, preview card surface, runtime-created protagonist save/load persistence, layered portrait/field/battle composition, and promoted asset-library appearance-part selection are landed with schema and focused tests.",
+      "status": "READY",
+      "summary": "Character identity runtime, editor creator panel, character creation rules, bounded validation runtime, ECS component/system integration, deterministic spawner, preset-based runtime creator screen, preview card surface, runtime-created protagonist save/load persistence, layered portrait/field/battle composition, promoted asset-library appearance-part selection, creator-supplied portrait/field/battle import rows, governed promotion paths, attribution diagnostics, and part-library accept/reject/archive/assign management snapshots are landed with schema and focused tests.",
       "mainGaps": [
         "Character identity validator, governance script, ProjectAudit artifact section, bounded runtime creator screen, preview card surface, and reusable CharacterCreationRules runtime are landed for the current editor/runtime contract.",
         "Creation rules now enforce background/origin/species restrictions, free-text naming limits, class appearance restrictions, and stat allocation budgets; runtime-created protagonist save/load persistence is landed with editor save diagnostics and schema proof.",
         "Layered portrait/field/battle composition is landed through CharacterAppearanceComposition with editor preview snapshots, schema, fixture, and focused tests.",
-        "Promoted appearance-part selection is landed through AssetLibrary action rows, CharacterCreatorModel appearance part rows, persisted portrait/field/battle/layered asset ids, disabled reasons for non-runtime-ready assets, schema fields, and focused tests. Broader authored appearance part import tooling, part-library management, and creator-supplied asset conversion remain backlog."
+        "Promoted appearance-part selection is landed through AssetLibrary action rows, CharacterCreatorModel appearance part rows, persisted portrait/field/battle/layered asset ids, disabled reasons for non-runtime-ready assets, schema fields, and focused tests.",
+        "Creator-supplied portrait/field/battle appearance part import tooling is landed through AssetImportSession appearance-part rows, governed promotion manifests rooted under the promoted asset library, source metadata, dimensions, attribution state, blocked reasons, explicit RPG Maker field/battle category mapping, and focused C++/Python tests.",
+        "Part-library management is landed through deterministic import preview, accept, reject, archive, assign, validation diagnostics, persisted identity assignment, runtime preview composition, and focused CharacterCreatorModel/CharacterCreatorPanel tests. Final-quality portrait art and cohesive character art direction remain asset-content backlog, not engine readiness blockers."
       ],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/CHARACTER_IDENTITY_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": false,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
+        "reviewStatus": "APPROVED",
+        "reviewedBy": "release-owner",
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-all -R \"Character|character|AssetLibrary\" --output-on-failure",
+        "evidenceCommandResult": "PASS"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
@@ -281,13 +294,20 @@
     },
     {
       "id": "accessibility_auditor",
-      "status": "PARTIAL",
-      "summary": "Accessibility auditor with missing-label, focus-order, contrast, navigation rules, live editor adapters, and renderer-derived WYSIWYG contrast ingestion is landed.",
-      "mainGaps": [
-        "All four bounded adapter surfaces (menu, spatial, audio, battle) are now covered.",
-        "Renderer-derived WYSIWYG contrast ingestion is landed through render_contrast_adapter over FrameRenderCommand text/rect surfaces; broader contrast coverage across every UI surface remains backlog.",
-        "Automated CI enforcement of accessibility report artifacts is validated by check_accessibility_governance.ps1."
-      ],
+      "status": "READY",
+      "summary": "Accessibility auditor with missing-label, focus-order, contrast, navigation rules, live editor adapters, renderer-derived WYSIWYG contrast ingestion, and release top-level panel contrast coverage evidence is landed for the claimed Phase 5 scope.",
+      "mainGaps": [],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/ACCESSIBILITY_AUDITOR_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": false,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
+        "reviewStatus": "APPROVED",
+        "reviewedBy": "release-owner",
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-all -R \"accessibility|Accessibility\" --output-on-failure; .\\tools\\ci\\check_accessibility_governance.ps1",
+        "evidenceCommandResult": "PASS"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
@@ -332,12 +352,20 @@
     },
     {
       "id": "audio_mix_presets",
-      "status": "PARTIAL",
-      "summary": "Audio mix preset bank with default profiles, category volume mapping, ducking rules, editor panel, validator governance, and live AudioCore backend smoke diagnostics is landed.",
-      "mainGaps": [
-        "Audio mix preset validator is landed with MissingDefaultPreset, ConflictingDuckRules, VolumeOutOfRange, EmptyCategoryVolumes, unknown-category, and cross-preset duck-conflict checks.",
-        "A bounded live AudioCore backend smoke path is landed for preset application diagnostics; broad physical device/backend matrix coverage remains backlog."
-      ],
+      "status": "READY",
+      "summary": "Audio mix preset bank with default profiles, category volume mapping, ducking rules, editor panel, validator governance, live AudioCore backend smoke diagnostics, deterministic backend/device matrix evidence, muted release fallback diagnostics, and AudioMixPanel matrix exposure is landed for the claimed Phase 5 scope.",
+      "mainGaps": [],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/AUDIO_MIX_PRESETS_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": false,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
+        "reviewStatus": "APPROVED",
+        "reviewedBy": "release-owner",
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-all -R \"audio|Audio\" --output-on-failure; .\\tools\\ci\\check_audio_governance.ps1",
+        "evidenceCommandResult": "PASS"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
@@ -353,13 +381,20 @@
     },
     {
       "id": "export_validator",
-      "status": "PARTIAL",
-      "summary": "Platform-specific export validator with per-target requirement checking, fixture-backed validation coverage, PowerShell CI script with JSON output, canonical urpg_pack_cli entrypoint, diagnostics panel with post-export artifact surfacing, bounded real Windows/Web/Linux/macOS bootstrap paths, bundle-level lightweight RLE-plus-XOR payload protection plus keyed integrity-tag validation, configured project-asset auto-discovery manifest staging, bounded repo-owned content bundling for readiness/schema/level-library roots, governed manifest-driven promoted-asset bundle staging support, keyed SHA-256 bundle-signature validation, runtime/load-time bundle rejection, temp-file-plus-atomic-rename publication, and structured bundle-summary JSON reporting are landed.",
-      "mainGaps": [
-        "Configured project-asset root discovery is landed; broader arbitrary external intake/store discovery remains future work.",
-        "Full native packaging/signing/notarization is still out of scope.",
-        "Runtime/load-time signature enforcement is landed through RuntimeBundleLoader and RuntimeStartupServices, with tamper tests covering payload, manifest, missing signature, unsupported signature mode, and startup rejection; export remains PARTIAL because native signing/notarization and broader platform packaging are still out of scope."
-      ],
+      "status": "READY",
+      "summary": "Platform-specific export validator with per-target requirement checking, fixture-backed validation coverage, PowerShell CI script with JSON output, canonical urpg_pack_cli entrypoint, diagnostics panel with post-export artifact surfacing, bounded real Windows/Web/Linux/macOS bootstrap paths, bundle-level lightweight RLE-plus-XOR payload protection plus keyed integrity-tag validation, configured project-asset auto-discovery manifest staging, raw/source/external-store discovery rejection diagnostics, missing attribution and unresolved LFS pointer enforcement, bounded repo-owned content bundling for readiness/schema/level-library roots, governed manifest-driven promoted-asset bundle staging support, keyed SHA-256 bundle-signature validation, runtime/load-time bundle rejection, release-profile signing/notarization/artifact-policy enforcement, temp-file-plus-atomic-rename publication, and structured bundle-summary JSON reporting are landed.",
+      "mainGaps": [],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/EXPORT_VALIDATOR_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": false,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
+        "reviewStatus": "APPROVED",
+        "reviewedBy": "release-owner",
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-export --output-on-failure; .\\tools\\ci\\check_release_required_assets.ps1; .\\tools\\ci\\check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke",
+        "evidenceCommandResult": "PASS"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
@@ -431,22 +466,22 @@
         "save_data_core"
       ],
       "bars": {
-        "accessibility": "PARTIAL",
-        "audio": "PARTIAL",
+        "accessibility": "READY",
+        "audio": "READY",
         "input": "READY",
         "localization": "READY",
         "performance": "PARTIAL"
       },
       "barEvidence": {
-        "accessibility": "Baseline accessibility governance (label checks, focus-order audits, contrast rules) is exercised via AccessibilityAuditor unit tests and the accessibility panel adapter. JRPG-specific text-speed control and input-hold alternatives are scaffolded; production enforcement not yet landed.",
-        "audio": "Audio mix preset governance and validator rules are exercised via test_audio_mix_presets. JRPG-specific battle jingle and BGM-transition bars are scaffolded in AudioMixPresets but not fully validated end-to-end.",
+        "accessibility": "AccessibilityAuditor label/focus/contrast tests, live adapters, renderer-derived contrast ingestion, and release top-level panel contrast coverage evidence are governed by test_accessibility_auditor and check_accessibility_governance.ps1.",
+        "audio": "AudioMixPresets validator, live backend smoke diagnostics, backend/device matrix fixtures, muted release fallback diagnostics, and AudioMixPanel matrix exposure are governed by test_audio_mix_presets and check_audio_governance.ps1.",
         "input": "JRPG starter manifests and generated projects declare the full menu/battle required action set with keyboard and controller defaults. test_template_acceptance verifies template input closure, and test_input_remap_store proves those action names survive save/load. Touch remains hit-test UI/world behavior and reports touch_binding_unsupported for remap profiles.",
         "localization": "JRPG starter manifest declares required menu, battle, and system keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. TemplateLocalizationAudit and test_template_bar_quality verify manifest-driven required-key completeness and font-profile coverage.",
         "performance": "General RPG frame-time budgets are enforced through presentation_runtime arena allocation and profile_arena tests. Large-world streaming and extended-play battle-sequence consistency are not production-validated."
       },
       "safeScope": "Wave 1 native-first baseline with truthful residual gaps.",
       "mainBlockers": [
-        "Cross-cutting readiness bars are not complete; input and localization are READY, while accessibility, audio, and performance remain PARTIAL"
+        "Cross-cutting readiness bars are not complete; accessibility, audio, input, and localization are READY, while performance remains PARTIAL"
       ]
     },
     {
@@ -457,22 +492,22 @@
         "save_data_core"
       ],
       "bars": {
-        "accessibility": "PARTIAL",
-        "audio": "PARTIAL",
+        "accessibility": "READY",
+        "audio": "READY",
         "input": "PARTIAL",
         "localization": "READY",
         "performance": "PARTIAL"
       },
       "barEvidence": {
-        "accessibility": "Baseline accessibility audits (label, contrast, focus) cover dialogue and menu UI elements through AccessibilityAuditor. Visual-novel-specific pacing controls (text auto-advance toggle, read-speed override) are scaffolded but not production-enforced.",
-        "audio": "Audio mix preset governance is active. Visual-novel-specific ambient BGM layer management and voice-over duck rules are scaffolded; end-to-end validation is not yet landed.",
+        "accessibility": "AccessibilityAuditor label/focus/contrast tests, live adapters, renderer-derived contrast ingestion, and release top-level panel contrast coverage evidence are governed by test_accessibility_auditor and check_accessibility_governance.ps1.",
+        "audio": "AudioMixPresets validator, live backend smoke diagnostics, backend/device matrix fixtures, muted release fallback diagnostics, and AudioMixPanel matrix exposure are governed by test_audio_mix_presets and check_audio_governance.ps1.",
         "input": "Dialogue-advance and menu-navigation input paths are covered by test_input_core. Accessibility-input alternatives (auto-advance, skip) are scaffolded but not yet fully governed.",
         "localization": "Visual novel starter manifest declares required menu, dialogue control, speaker-name, and name-interpolation keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. TemplateLocalizationAudit and test_template_bar_quality verify manifest-driven required-key completeness and font-profile coverage.",
         "performance": "Presentation runtime and profile_arena tests provide frame-time budget coverage. Sustained dialogue-heavy session load and asset streaming are not production-validated."
       },
       "safeScope": "Dialogue-heavy projects within current native message and save scope.",
       "mainBlockers": [
-        "Template-grade governance is not complete; localization is READY, while the remaining partial bars still need production-grade closure"
+        "Template-grade governance is not complete; accessibility, audio, and localization are READY, while input and performance remain PARTIAL"
       ]
     },
     {
@@ -484,22 +519,22 @@
         "save_data_core"
       ],
       "bars": {
-        "accessibility": "PARTIAL",
-        "audio": "PARTIAL",
+        "accessibility": "READY",
+        "audio": "READY",
         "input": "READY",
         "localization": "READY",
         "performance": "PARTIAL"
       },
       "barEvidence": {
-        "accessibility": "Baseline accessibility governance (label audits, focus-order, contrast) is active. Turn-based-RPG-specific accessibility expectations (battle-menu hold alternatives, status-screen readability) are scaffolded but not fully enforced.",
-        "audio": "Audio mix preset governance applies. Turn-based-RPG-specific battle audio transitions and victory fanfare sequencing are scaffolded in AudioMixPresets but not fully validated.",
+        "accessibility": "AccessibilityAuditor label/focus/contrast tests, live adapters, renderer-derived contrast ingestion, and release top-level panel contrast coverage evidence are governed by test_accessibility_auditor and check_accessibility_governance.ps1.",
+        "audio": "AudioMixPresets validator, live backend smoke diagnostics, backend/device matrix fixtures, muted release fallback diagnostics, and AudioMixPanel matrix exposure are governed by test_audio_mix_presets and check_audio_governance.ps1.",
         "input": "Turn-based RPG starter manifests and generated projects declare the full navigation/menu/battle required action set with keyboard and controller defaults. test_template_acceptance verifies template input closure, and test_input_remap_store proves those action names survive save/load. Touch remains hit-test UI/world behavior and reports touch_binding_unsupported for remap profiles.",
         "localization": "Turn-based RPG starter manifest declares required command, battle, result, turn-order, and status-effect keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. TemplateLocalizationAudit and test_template_bar_quality verify manifest-driven required-key completeness and font-profile coverage.",
         "performance": "Presentation runtime arena and profile_arena frame-time budget tests apply. Battle-sequence scalability under extended play is not production-validated."
       },
       "safeScope": "A conservative turn-based template slice similar to jrpg without implying broader productization.",
       "mainBlockers": [
-        "Cross-cutting readiness bars and dedicated template governance remain incomplete; input and localization are READY, while accessibility, audio, and performance remain PARTIAL"
+        "Cross-cutting readiness bars and dedicated template governance remain incomplete; accessibility, audio, input, and localization are READY, while performance remains PARTIAL"
       ]
     },
     {

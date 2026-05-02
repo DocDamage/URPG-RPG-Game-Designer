@@ -28,6 +28,14 @@ namespace urpg::tools {
         Release
     };
 
+    struct ExportReleaseProfile {
+        std::string signingMode;
+        std::string certificateReference;
+        std::string notarizationMode;
+        std::string releaseArtifactPolicy;
+        std::string ownerApproval;
+    };
+
     /**
      * @brief Configuration for the automated export process.
      */
@@ -36,6 +44,7 @@ namespace urpg::tools {
         ExportMode mode = ExportMode::DevBootstrap;
         std::string outputDir;
         std::string runtimeBinaryPath;
+        ExportReleaseProfile releaseProfile;
         std::string assetBundleManifestRootOverride;
         std::string normalizedAssetRootOverride;
         std::vector<std::string> assetDiscoveryRoots;

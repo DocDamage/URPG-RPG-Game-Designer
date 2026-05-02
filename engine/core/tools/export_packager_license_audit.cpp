@@ -141,6 +141,45 @@ bool isLicenseEvidenceFile(const std::filesystem::path& path) {
     return path.filename() == kAssetLicenseManifestFilename;
 }
 
+std::string normalizedPathString(const std::filesystem::path& path) {
+    auto value = path.lexically_normal().generic_string();
+    std::replace(value.begin(), value.end(), '\\', '/');
+    return toLowerAscii(value);
+}
+
+bool isRawIntakePath(const std::filesystem::path& path) {
+    const auto normalized = normalizedPathString(path);
+    return normalized.find("/imports/raw/") != std::string::npos || normalized.rfind("imports/raw/", 0) == 0;
+}
+
+bool isExternalStorePath(const std::filesystem::path& path) {
+    const auto normalized = normalizedPathString(path);
+    return normalized.find("/external_store/") != std::string::npos ||
+           normalized.find("/external-store/") != std::string::npos ||
+           normalized.find("/external-repos/") != std::string::npos ||
+           normalized.find("/third_party_assets/") != std::string::npos ||
+           normalized.find("/vendor/") != std::string::npos ||
+           normalized.rfind("external_store/", 0) == 0 ||
+           normalized.rfind("external-store/", 0) == 0 ||
+           normalized.rfind("external-repos/", 0) == 0 ||
+           normalized.rfind("third_party_assets/", 0) == 0 ||
+           normalized.rfind("vendor/", 0) == 0;
+}
+
+bool isSourceOnlyAssetPath(const std::filesystem::path& path) {
+    const auto extension = toLowerAscii(path.extension().string());
+    return extension == ".ase" || extension == ".aseprite" || extension == ".blend" || extension == ".kra" ||
+           extension == ".psb" || extension == ".psd" || extension == ".xcf" || extension == ".zip" ||
+           extension == ".7z" || extension == ".rar";
+}
+
+bool isLfsPointer(const std::filesystem::path& path) {
+    std::ifstream in(path, std::ios::binary);
+    std::string firstLine;
+    std::getline(in, firstLine);
+    return firstLine == "version https://git-lfs.github.com/spec/v1";
+}
+
 std::optional<urpg::asset::LicenseType> parseLicenseType(const std::string& value) {
     const auto normalized = toLowerAscii(value);
     if (normalized == "publicdomain" || normalized == "public_domain" || normalized == "cc0") {
@@ -226,7 +265,14 @@ std::map<std::string, AssetLicenseManifestEntry> readAssetLicenseManifest(
 
         urpg::asset::AssetLicense license;
         license.type = *licenseType;
-        license.attribution = asset.value("attribution", "");
+        if (!asset.contains("attribution") || !asset["attribution"].is_string() ||
+            asset["attribution"].get<std::string>().empty()) {
+            errors.push_back("Missing attribution for discovered asset: " + asset["path"].get<std::string>() +
+                             " in: " + manifestPath.string());
+            continue;
+        }
+
+        license.attribution = asset["attribution"].get<std::string>();
         license.sourceUrl = asset.value("sourceUrl", "");
         entries[std::filesystem::path(asset["path"].get<std::string>()).generic_string()] = {license, true};
     }
@@ -330,6 +376,16 @@ bool auditPromotedAssetBundleLicenses(const ExportConfig& config, std::vector<st
 
 bool auditAutoDiscoveredAssetLicenses(const ExportConfig& config, std::vector<std::string>& errors) {
     for (const auto& root : assetDiscoveryRoots(config)) {
+        if (isRawIntakePath(root.sourcePath)) {
+            errors.push_back("Raw intake asset discovery root is not exportable; promote a governed bundle first: " +
+                             root.sourcePath.string());
+        }
+        if (isExternalStorePath(root.sourcePath)) {
+            errors.push_back(
+                "External store asset discovery root requires promoted project configuration before export: " +
+                root.sourcePath.string());
+        }
+
         std::vector<std::filesystem::path> files;
         if (std::filesystem::exists(root.sourcePath) && std::filesystem::is_directory(root.sourcePath)) {
             for (const auto& entry : std::filesystem::recursive_directory_iterator(root.sourcePath)) {
@@ -359,6 +415,16 @@ bool auditAutoDiscoveredAssetLicenses(const ExportConfig& config, std::vector<st
 
         auto manifestEntries = readAssetLicenseManifest(licenseManifestPath, errors);
         for (const auto& filePath : files) {
+            if (isSourceOnlyAssetPath(filePath)) {
+                errors.push_back("Source-only asset is not exportable; promote a runtime payload instead: " +
+                                 filePath.string());
+                continue;
+            }
+            if (isLfsPointer(filePath)) {
+                errors.push_back("Unresolved LFS pointer is not exportable: " + filePath.string());
+                continue;
+            }
+
             const auto relativePath =
                 std::filesystem::is_directory(root.sourcePath)
                     ? std::filesystem::relative(filePath, root.sourcePath)

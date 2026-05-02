@@ -398,6 +398,149 @@ TEST_CASE("AssetImportSession plans governed promotion manifests", "[assets][ass
                       "license_evidence_missing") != missingLicense.diagnostics.end());
 }
 
+TEST_CASE("AssetImportSession builds character appearance import rows",
+          "[assets][asset_library][asset_import][character]") {
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "import_character_parts_001";
+    session.sourceKind = urpg::assets::AssetImportSourceKind::Folder;
+    session.sourcePath = "C:/Users/Creator/Downloads/actor_pack";
+    session.managedSourceRoot = ".urpg/asset-library/sources/import_character_parts_001/original";
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    session.createdAt = "2026-05-01T01:00:00Z";
+    session.records = {
+        {
+            "asset.hero.face",
+            "img/faces/Actor1.png",
+            "asset://import_character_parts_001/portrait/actor1.png",
+            ".png",
+            "image",
+            "portrait",
+            "Actor Pack",
+            "facehash",
+            1024,
+            144,
+            144,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+        },
+        {
+            "asset.hero.field",
+            "img/characters/Actor1.png",
+            "asset://import_character_parts_001/character/field/actor1.png",
+            ".png",
+            "image",
+            "character/field",
+            "Actor Pack",
+            "fieldhash",
+            2048,
+            48,
+            48,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+        },
+        {
+            "asset.hero.battle",
+            "img/sv_actors/Actor1.png",
+            "asset://import_character_parts_001/character/battle/actor1.png",
+            ".png",
+            "image",
+            "character/battle",
+            "Actor Pack",
+            "battlehash",
+            4096,
+            576,
+            384,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            false,
+            {},
+        },
+        {
+            "asset.hero.missing_license",
+            "portrait/missing-license.png",
+            "asset://import_character_parts_001/portrait/missing-license.png",
+            ".png",
+            "image",
+            "portrait",
+            "Actor Pack",
+            "missinghash",
+            512,
+            96,
+            96,
+            0,
+            false,
+            "",
+            false,
+            false,
+            true,
+            true,
+            {},
+        },
+    };
+
+    const auto rows = urpg::assets::buildAppearancePartImportRows({session});
+    REQUIRE(rows.size() == 4);
+
+    const auto portrait = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["asset_id"] == "asset.hero.face";
+    });
+    REQUIRE(portrait != rows.end());
+    REQUIRE((*portrait)["slot"] == "portrait");
+    REQUIRE((*portrait)["source_path"] ==
+            ".urpg/asset-library/sources/import_character_parts_001/original/img/faces/Actor1.png");
+    REQUIRE((*portrait)["normalized_asset_id"] == "asset.hero.face");
+    REQUIRE((*portrait)["category"] == "portrait");
+    REQUIRE((*portrait)["dimensions"]["width"] == 144);
+    REQUIRE((*portrait)["dimensions"]["height"] == 144);
+    REQUIRE((*portrait)["runtime_ready"] == true);
+    REQUIRE((*portrait)["attribution_state"] == "complete");
+    REQUIRE((*portrait)["blocked_reason"].is_null());
+    REQUIRE((*portrait)["management_actions"]["accept"]["enabled"] == true);
+    REQUIRE((*portrait)["management_actions"]["reject"]["enabled"] == true);
+    REQUIRE((*portrait)["management_actions"]["archive"]["enabled"] == false);
+    REQUIRE((*portrait)["management_actions"]["assign"]["target_slot"] == "portrait");
+
+    const auto field = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["asset_id"] == "asset.hero.field";
+    });
+    REQUIRE(field != rows.end());
+    REQUIRE((*field)["slot"] == "field");
+    REQUIRE((*field)["category"] == "character/field");
+
+    const auto battle = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["asset_id"] == "asset.hero.battle";
+    });
+    REQUIRE(battle != rows.end());
+    REQUIRE((*battle)["slot"] == "battle");
+    REQUIRE((*battle)["category"] == "character/battle");
+
+    const auto blocked = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["asset_id"] == "asset.hero.missing_license";
+    });
+    REQUIRE(blocked != rows.end());
+    REQUIRE((*blocked)["runtime_ready"] == false);
+    REQUIRE((*blocked)["attribution_state"] == "missing_license");
+    REQUIRE((*blocked)["blocked_reason"] == "license_evidence_missing");
+    REQUIRE((*blocked)["management_actions"]["accept"]["enabled"] == false);
+    REQUIRE((*blocked)["management_actions"]["assign"]["enabled"] == false);
+}
+
 TEST_CASE("GlobalAssetLibraryStore persists import sessions and promoted manifests",
           "[assets][asset_library][asset_import][promotion]") {
     const auto root = uniqueAssetTempRoot("urpg_global_asset_library_store");

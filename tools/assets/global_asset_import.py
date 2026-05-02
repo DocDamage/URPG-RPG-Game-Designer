@@ -296,8 +296,10 @@ def infer_category(path: Path, media_kind: str) -> str:
         return "audio/se"
     if media_kind == "image":
         if len(parts) >= 2 and parts[0] == "img":
-            if parts[1] in {"characters", "sv_actors", "sv_enemies", "enemies"}:
-                return "sprite"
+            if parts[1] == "characters":
+                return "character/field"
+            if parts[1] in {"sv_actors", "sv_enemies", "enemies"}:
+                return "character/battle"
             if parts[1] == "tilesets":
                 return "tileset"
             if parts[1] == "faces":

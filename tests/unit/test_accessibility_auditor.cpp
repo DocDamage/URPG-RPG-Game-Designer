@@ -1,6 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include "engine/core/accessibility/accessibility_auditor.h"
 #include "engine/core/accessibility/render_contrast_adapter.h"
+#include "engine/core/editor/editor_panel_registry.h"
+#include "editor/accessibility/release_ui_contrast_coverage.h"
 #include <nlohmann/json.hpp>
 #include <cstdlib>
 #include <filesystem>
@@ -244,4 +246,32 @@ TEST_CASE("Render contrast adapter reports renderer-derived surface coverage",
     REQUIRE(report.minimum_contrast_ratio > 10.0f);
     REQUIRE(report.elements[0].focusOrder == 4);
     REQUIRE(report.elements[1].focusOrder == 5);
+}
+
+TEST_CASE("Accessibility release top-level editor panels have contrast coverage or justified exemptions",
+          "[accessibility][render][release][task5]") {
+    const auto releasePanels = urpg::editor::topLevelEditorPanels();
+    const auto coverage = urpg::editor::accessibility::buildReleaseUiContrastCoverageReport(releasePanels);
+
+    REQUIRE(coverage.surface_count == releasePanels.size());
+    REQUIRE(coverage.uncovered_panel_ids.empty());
+
+    for (const auto& surface : coverage.surfaces) {
+        INFO(surface.panel_id);
+        REQUIRE_FALSE(surface.panel_id.empty());
+        REQUIRE_FALSE(surface.owner_path.empty());
+
+        if (surface.exempt) {
+            REQUIRE(surface.text_command_count == 0);
+            REQUIRE(surface.rect_command_count == 0);
+            REQUIRE_FALSE(surface.exemption_reason.empty());
+            REQUIRE(surface.exemption_reason.find("no text") != std::string::npos);
+            REQUIRE(surface.exemption_reason.find("no contrast-relevant rect") != std::string::npos);
+        } else {
+            REQUIRE(surface.text_command_count > 0);
+            REQUIRE(surface.rect_command_count > 0);
+            REQUIRE(surface.backed_text_count == surface.text_command_count);
+            REQUIRE(surface.minimum_contrast_ratio >= 3.0f);
+        }
+    }
 }

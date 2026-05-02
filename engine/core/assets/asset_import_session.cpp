@@ -154,6 +154,54 @@ std::string recommendedActionForState(const std::string& state) {
     return "inspect_error";
 }
 
+std::string appearanceSlotForCategory(const std::string& category) {
+    if (category == "portrait" || category == "character/portrait") {
+        return "portrait";
+    }
+    if (category == "character/field" || category == "field" || category == "sprite") {
+        return "field";
+    }
+    if (category == "character/battle" || category == "battle") {
+        return "battle";
+    }
+    return {};
+}
+
+std::string firstBlockedReason(const AssetImportRecord& record, const std::string& state) {
+    if (state == "ready_to_promote") {
+        return {};
+    }
+    if (record.licenseRequired) {
+        return "license_evidence_missing";
+    }
+    if (record.normalizedPath.empty()) {
+        return "normalized_path_missing";
+    }
+    if (!record.diagnostics.empty()) {
+        return record.diagnostics.front();
+    }
+    if (state == "needs_conversion") {
+        return "source_record_requires_conversion";
+    }
+    if (state == "duplicate") {
+        return "source_record_duplicate";
+    }
+    if (state == "unsupported") {
+        return "source_record_unsupported";
+    }
+    if (state == "source_only") {
+        return "source_record_source_only";
+    }
+    if (state == "error") {
+        return "source_record_import_error";
+    }
+    return "appearance_part_not_runtime_ready";
+}
+
+std::string attributionStateForRecord(const AssetImportRecord& record) {
+    return record.licenseRequired ? "missing_license" : "complete";
+}
+
 void appendUnique(std::vector<std::string>& diagnostics, const std::string& diagnostic) {
     if (std::find(diagnostics.begin(), diagnostics.end(), diagnostic) == diagnostics.end()) {
         diagnostics.push_back(diagnostic);
@@ -536,6 +584,71 @@ nlohmann::json buildAssetImportReviewRows(const std::vector<AssetImportSession>&
             return lhs.value("session_id", "") < rhs.value("session_id", "");
         }
         return lhs.value("relative_path", "") < rhs.value("relative_path", "");
+    });
+    return rows;
+}
+
+nlohmann::json buildAppearancePartImportRows(const std::vector<AssetImportSession>& sessions) {
+    nlohmann::json rows = nlohmann::json::array();
+    for (const auto& session : sessions) {
+        for (const auto& record : session.records) {
+            const auto slot = appearanceSlotForCategory(record.category);
+            if (slot.empty()) {
+                continue;
+            }
+            const auto state = reviewState(record);
+            const auto blockedReason = firstBlockedReason(record, state);
+            const bool runtimeReady = state == "ready_to_promote" && blockedReason.empty();
+            const auto sourcePath = joinPath(session.managedSourceRoot, record.relativePath);
+            rows.push_back({
+                {"session_id", session.sessionId},
+                {"asset_id", record.assetId},
+                {"normalized_asset_id", record.assetId},
+                {"relative_path", record.relativePath},
+                {"source_path", sourcePath},
+                {"normalized_path", record.normalizedPath},
+                {"slot", slot},
+                {"category", record.category},
+                {"media_kind", record.mediaKind},
+                {"pack", record.pack},
+                {"sha256", record.sha256},
+                {"size_bytes", record.sizeBytes},
+                {"dimensions", {{"width", record.width}, {"height", record.height}}},
+                {"runtime_ready", runtimeReady},
+                {"attribution_state", attributionStateForRecord(record)},
+                {"blocked_reason", runtimeReady ? nlohmann::json(nullptr) : nlohmann::json(blockedReason)},
+                {"diagnostics", record.diagnostics},
+                {"preview", {{"available", record.previewAvailable}, {"kind", record.previewKind}}},
+                {"management_actions",
+                 {
+                     {"accept",
+                      {{"enabled", runtimeReady},
+                       {"action", "accept_appearance_part"},
+                       {"disabled_reason",
+                        runtimeReady ? nlohmann::json(nullptr) : nlohmann::json(blockedReason)}}},
+                     {"reject",
+                      {{"enabled", true},
+                       {"action", "reject_appearance_part"},
+                       {"disabled_reason", nlohmann::json(nullptr)}}},
+                     {"archive",
+                      {{"enabled", false},
+                       {"action", "archive_appearance_part"},
+                       {"disabled_reason", "not_promoted"}}},
+                     {"assign",
+                      {{"enabled", runtimeReady},
+                       {"action", "assign_appearance_part"},
+                       {"target_slot", slot},
+                       {"disabled_reason",
+                        runtimeReady ? nlohmann::json(nullptr) : nlohmann::json(blockedReason)}}},
+                 }},
+            });
+        }
+    }
+    std::sort(rows.begin(), rows.end(), [](const auto& lhs, const auto& rhs) {
+        if (lhs.value("slot", "") != rhs.value("slot", "")) {
+            return lhs.value("slot", "") < rhs.value("slot", "");
+        }
+        return lhs.value("asset_id", "") < rhs.value("asset_id", "");
     });
     return rows;
 }

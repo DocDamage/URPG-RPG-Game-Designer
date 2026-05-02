@@ -283,6 +283,151 @@ TEST_CASE("ExportPackager asset discovery includes attached project assets and e
     std::filesystem::remove_all(base);
 }
 
+TEST_CASE("ExportPackager rejects raw source and external-store discovery roots",
+          "[export][packager][assets][release]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_reject_raw_roots";
+    std::filesystem::remove_all(base);
+
+    const auto rawRoot = base / "imports" / "raw" / "drop";
+    const auto externalStoreRoot = base / "external_store" / "itch";
+    const auto sourceOnlyRoot = base / "source_only";
+    WriteFile(rawRoot / "hero.png", "raw-payload");
+    WriteFile(externalStoreRoot / "marketplace.png", "marketplace-payload");
+    WriteFile(sourceOnlyRoot / "layered_source.aseprite", "source-only-payload");
+    WriteAssetLicenseManifest(rawRoot, {"hero.png"});
+    WriteAssetLicenseManifest(externalStoreRoot, {"marketplace.png"});
+    WriteAssetLicenseManifest(sourceOnlyRoot, {"layered_source.aseprite"});
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = (base / "out").string();
+    config.assetDiscoveryRoots = {
+        rawRoot.string(),
+        externalStoreRoot.string(),
+        sourceOnlyRoot.string(),
+    };
+
+    const auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.log.find("Raw intake asset discovery root is not exportable") != std::string::npos);
+    REQUIRE(result.log.find("External store asset discovery root requires promoted project configuration") !=
+            std::string::npos);
+    REQUIRE(result.log.find("Source-only asset is not exportable") != std::string::npos);
+    REQUIRE_FALSE(std::filesystem::exists(base / "out" / "data.pck"));
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager rejects discovered assets without attribution and unresolved LFS payloads",
+          "[export][packager][assets][release]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_reject_bad_asset_evidence";
+    const auto projectRoot = base / "project" / "assets";
+    std::filesystem::remove_all(base);
+
+    WriteFile(projectRoot / "missing_attribution.png", "payload");
+    WriteFile(projectRoot / "pointer.png",
+              "version https://git-lfs.github.com/spec/v1\n"
+              "oid sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\n"
+              "size 12345\n");
+    WriteFile(projectRoot / "asset_licenses.json", R"({
+      "format": "URPG_ASSET_LICENSES_V1",
+      "assets": [
+        {
+          "path": "missing_attribution.png",
+          "license": "MIT",
+          "sourceUrl": "https://example.invalid/missing-attribution"
+        },
+        {
+          "path": "pointer.png",
+          "license": "MIT",
+          "attribution": "Pointer fixture",
+          "sourceUrl": "https://example.invalid/pointer"
+        }
+      ]
+    })");
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = (base / "out").string();
+    config.assetDiscoveryRoots = {projectRoot.string()};
+
+    const auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.log.find("Missing attribution for discovered asset") != std::string::npos);
+    REQUIRE(result.log.find("Unresolved LFS pointer is not exportable") != std::string::npos);
+    REQUIRE_FALSE(std::filesystem::exists(base / "out" / "data.pck"));
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager release mode requires signing notarization and artifact policy profile data",
+          "[export][packager][release]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_release_profile_required";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+    WriteFile(base / "runtime.exe", "runtime");
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.mode = ExportMode::Release;
+    config.outputDir = (base / "out").string();
+    config.runtimeBinaryPath = (base / "runtime.exe").string();
+
+    const auto result = packager.validateBeforeExport(config);
+
+    REQUIRE_FALSE(result.passed);
+    REQUIRE(std::find(result.errors.begin(), result.errors.end(),
+                      "Release export requires signing mode in the release artifact profile.") !=
+            result.errors.end());
+    REQUIRE(std::find(result.errors.begin(), result.errors.end(),
+                      "Release export requires certificate reference in the release artifact profile.") !=
+            result.errors.end());
+    REQUIRE(std::find(result.errors.begin(), result.errors.end(),
+                      "Release export requires notarization mode in the release artifact profile.") !=
+            result.errors.end());
+    REQUIRE(std::find(result.errors.begin(), result.errors.end(),
+                      "Release export requires release artifact policy in the release artifact profile.") !=
+            result.errors.end());
+    REQUIRE(std::find(result.errors.begin(), result.errors.end(),
+                      "Release export requires owner approval in the release artifact profile.") !=
+            result.errors.end());
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager accepts explicit non-production profile for dev package smoke",
+          "[export][packager][release]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_dev_profile";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.mode = ExportMode::DevBootstrap;
+    config.outputDir = (base / "out").string();
+    config.releaseProfile.signingMode = "unsigned_dev";
+    config.releaseProfile.certificateReference = "none";
+    config.releaseProfile.notarizationMode = "not_applicable";
+    config.releaseProfile.releaseArtifactPolicy = "dev_package_smoke_only";
+    config.releaseProfile.ownerApproval = "dev_smoke";
+
+    const auto result = packager.validateBeforeExport(config);
+
+    const std::string firstError = result.errors.empty() ? "" : result.errors.front();
+    INFO(firstError);
+    REQUIRE(result.passed);
+
+    std::filesystem::remove_all(base);
+}
+
 TEST_CASE("ExportPackager::runExport fails release native export before bootstrap artifact synthesis",
           "[export][packager][release]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_release_run_missing_runtime";

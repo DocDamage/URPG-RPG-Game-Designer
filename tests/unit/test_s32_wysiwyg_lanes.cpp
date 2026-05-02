@@ -127,7 +127,7 @@ TEST_CASE("character_identity: readiness record acknowledges bounded runtime cre
     const json sub = findSubsystem(readiness, "character_identity");
 
     REQUIRE(!sub.empty());
-    REQUIRE(sub.value("status", "") == "PARTIAL");
+    REQUIRE(sub.value("status", "") == "READY");
     REQUIRE(sub.value("summary", "").find("runtime creator screen") != std::string::npos);
 }
 

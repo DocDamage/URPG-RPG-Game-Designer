@@ -265,6 +265,7 @@ class GlobalAssetImportTests(unittest.TestCase):
             source = root / "mz_pack"
             for folder in [
                 "img/characters",
+                "img/sv_actors",
                 "img/tilesets",
                 "img/faces",
                 "img/parallaxes",
@@ -276,6 +277,7 @@ class GlobalAssetImportTests(unittest.TestCase):
             ]:
                 (source / folder).mkdir(parents=True, exist_ok=True)
             (source / "img" / "characters" / "Actor1.png").write_bytes(PNG_1X1)
+            (source / "img" / "sv_actors" / "Actor1.png").write_bytes(PNG_1X1 + b"battle")
             (source / "img" / "tilesets" / "Outside_A1.png").write_bytes(PNG_1X1)
             (source / "img" / "faces" / "Actor1.png").write_bytes(PNG_1X1 + b"face")
             (source / "img" / "parallaxes" / "Forest.png").write_bytes(PNG_1X1 + b"parallax")
@@ -295,7 +297,8 @@ class GlobalAssetImportTests(unittest.TestCase):
             )
 
             by_path = {record["relativePath"]: record for record in session["records"]}
-            self.assertEqual(by_path["img/characters/Actor1.png"]["category"], "sprite")
+            self.assertEqual(by_path["img/characters/Actor1.png"]["category"], "character/field")
+            self.assertEqual(by_path["img/sv_actors/Actor1.png"]["category"], "character/battle")
             self.assertEqual(by_path["img/tilesets/Outside_A1.png"]["category"], "tileset")
             self.assertEqual(by_path["img/faces/Actor1.png"]["category"], "portrait")
             self.assertEqual(by_path["img/parallaxes/Forest.png"]["category"], "background")
@@ -357,7 +360,7 @@ class GlobalAssetImportTests(unittest.TestCase):
             self.assertEqual(session["status"], "review_ready")
             self.assertEqual(session["diagnostics"][0]["code"], "external_archive_extracted")
             self.assertEqual(session["records"][0]["relativePath"], "img/characters/Hero.png")
-            self.assertEqual(session["records"][0]["category"], "sprite")
+            self.assertEqual(session["records"][0]["category"], "character/field")
 
     def test_failed_external_archive_extraction_does_not_catalog_partial_outputs(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

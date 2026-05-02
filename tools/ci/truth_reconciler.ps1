@@ -54,7 +54,11 @@ $signoffArtifactMap = @{
     "presentation_runtime" = "docs/PRESENTATION_RUNTIME_CLOSURE_SIGNOFF.md"
     "gameplay_ability_framework" = "docs/GAF_CLOSURE_SIGNOFF.md"
     "governance_foundation" = "docs/GOVERNANCE_FOUNDATION_CLOSURE_SIGNOFF.md"
+    "character_identity" = "docs/CHARACTER_IDENTITY_CLOSURE_SIGNOFF.md"
+    "accessibility_auditor" = "docs/ACCESSIBILITY_AUDITOR_CLOSURE_SIGNOFF.md"
+    "audio_mix_presets" = "docs/AUDIO_MIX_PRESETS_CLOSURE_SIGNOFF.md"
     "visual_regression_harness" = "docs/VISUAL_REGRESSION_HARNESS_CLOSURE_SIGNOFF.md"
+    "export_validator" = "docs/EXPORT_VALIDATOR_CLOSURE_SIGNOFF.md"
 }
 $signoffArtifactText = @{}
 foreach ($subsystemId in $signoffArtifactMap.Keys) {

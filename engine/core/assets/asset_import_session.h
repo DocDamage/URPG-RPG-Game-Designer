@@ -146,5 +146,6 @@ AssetPromotionManifest planAssetPromotionManifest(const AssetImportSession& sess
                                                   bool includeInRuntime);
 nlohmann::json buildAssetImportSessionRows(const std::vector<AssetImportSession>& sessions);
 nlohmann::json buildAssetImportReviewRows(const std::vector<AssetImportSession>& sessions);
+nlohmann::json buildAppearancePartImportRows(const std::vector<AssetImportSession>& sessions);
 
 } // namespace urpg::assets

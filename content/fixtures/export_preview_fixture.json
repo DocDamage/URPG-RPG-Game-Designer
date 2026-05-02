@@ -5,6 +5,13 @@
   "mode": "release",
   "output_dir": "",
   "runtime_binary_path": "",
+  "release_profile": {
+    "signing_mode": "signing_profile_required",
+    "certificate_reference": "env:URPG_WINDOWS_SIGN_CERT_PATH",
+    "notarization_mode": "not_applicable",
+    "release_artifact_policy": "release_artifacts_require_profile_and_owner_approval",
+    "owner_approval": "fixture_release_owner_approval"
+  },
   "compress_assets": true,
   "obfuscate_scripts": false,
   "include_debug_symbols": false,

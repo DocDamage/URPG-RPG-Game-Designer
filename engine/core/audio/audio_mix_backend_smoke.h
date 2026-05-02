@@ -34,9 +34,37 @@ struct AudioMixBackendSmokeResult {
     std::vector<AudioBackendDiagnostic> diagnostics;
 };
 
+struct AudioBackendMatrixFixture {
+    std::string fixtureId;
+    std::string backendId;
+    bool backendAvailable = true;
+    bool outputDevicePresent = true;
+    int channelCount = 2;
+    bool releaseMutedFallbackAllowed = false;
+    std::string presetName = "Default";
+};
+
+struct AudioBackendMatrixResult {
+    std::string fixtureId;
+    std::string backendId;
+    std::string deviceState;
+    bool presetApplied = false;
+    bool playbackActive = false;
+    std::string fallbackPolicy;
+    int channelCount = 0;
+    bool releaseSafe = false;
+    AudioBackendDiagnostic lastPlaybackDiagnostic;
+};
+
 AudioMixBackendSmokeResult runAudioMixBackendSmoke(const AudioMixPresetBank& bank, AudioCore& core,
                                                    const AudioMixBackendSmokeRequest& request);
 
 nlohmann::json audioMixBackendSmokeResultToJson(const AudioMixBackendSmokeResult& result);
+
+std::vector<AudioBackendMatrixFixture> defaultAudioBackendMatrixFixtures();
+std::vector<AudioBackendMatrixResult>
+evaluateAudioBackendMatrix(const AudioMixPresetBank& bank, const std::vector<AudioBackendMatrixFixture>& fixtures);
+nlohmann::json audioBackendMatrixResultToJson(const AudioBackendMatrixResult& result);
+nlohmann::json audioBackendMatrixResultsToJson(const std::vector<AudioBackendMatrixResult>& results);
 
 } // namespace urpg::audio

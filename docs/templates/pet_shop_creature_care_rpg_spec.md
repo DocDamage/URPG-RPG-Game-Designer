@@ -1,6 +1,6 @@
 # Pet Shop Creature Care RPG Template Spec
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 Authority: canonical template spec for `pet_shop_creature_care_rpg`
 
 ## Purpose

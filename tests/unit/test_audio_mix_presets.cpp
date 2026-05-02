@@ -558,3 +558,81 @@ TEST_CASE("AudioMixPanel exposes backend smoke action and snapshot",
     REQUIRE(snapshot["backendSmoke"]["duckBGMOnSE"] == true);
     REQUIRE(snapshot["liveCore"]["duckAmount"].get<float>() == Catch::Approx(0.5f));
 }
+
+TEST_CASE("Audio backend matrix evidence reports backend device state and muted fallback",
+          "[audio][mix][backend_matrix][task5]") {
+    AudioMixPresetBank bank;
+    bank.loadDefaults();
+
+    const auto fixtures = defaultAudioBackendMatrixFixtures();
+    REQUIRE(fixtures.size() == 6);
+
+    const auto results = evaluateAudioBackendMatrix(bank, fixtures);
+    REQUIRE(results.size() == fixtures.size());
+
+    const auto findResult = [&](const std::string& id) -> const AudioBackendMatrixResult& {
+        const auto it = std::find_if(results.begin(), results.end(), [&](const AudioBackendMatrixResult& result) {
+            return result.fixtureId == id;
+        });
+        REQUIRE(it != results.end());
+        return *it;
+    };
+
+    const auto& nullBackend = findResult("null_backend");
+    REQUIRE(nullBackend.backendId == "null");
+    REQUIRE(nullBackend.deviceState == "not_applicable");
+    REQUIRE(nullBackend.presetApplied);
+    REQUIRE_FALSE(nullBackend.playbackActive);
+    REQUIRE(nullBackend.fallbackPolicy == "silent_noop");
+
+    const auto& sdlAvailable = findResult("sdl_backend_available");
+    REQUIRE(sdlAvailable.backendId == "sdl");
+    REQUIRE(sdlAvailable.deviceState == "available");
+    REQUIRE(sdlAvailable.presetApplied);
+    REQUIRE(sdlAvailable.playbackActive);
+    REQUIRE(sdlAvailable.fallbackPolicy == "normal_playback");
+
+    const auto& sdlUnavailable = findResult("sdl_backend_unavailable");
+    REQUIRE(sdlUnavailable.backendId == "sdl");
+    REQUIRE(sdlUnavailable.deviceState == "backend_unavailable");
+    REQUIRE(sdlUnavailable.presetApplied);
+    REQUIRE_FALSE(sdlUnavailable.playbackActive);
+    REQUIRE(sdlUnavailable.lastPlaybackDiagnostic.code == "audio.backend_unavailable");
+
+    const auto& missingDevice = findResult("missing_output_device");
+    REQUIRE(missingDevice.deviceState == "missing_output_device");
+    REQUIRE_FALSE(missingDevice.playbackActive);
+    REQUIRE(missingDevice.fallbackPolicy == "muted_release_fallback");
+    REQUIRE(missingDevice.releaseSafe);
+
+    const auto& stereo = findResult("stereo_output");
+    REQUIRE(stereo.deviceState == "stereo_output");
+    REQUIRE(stereo.channelCount == 2);
+    REQUIRE(stereo.playbackActive);
+
+    const auto& muted = findResult("muted_release_fallback");
+    REQUIRE_FALSE(muted.playbackActive);
+    REQUIRE(muted.fallbackPolicy == "muted_release_fallback");
+    REQUIRE(muted.lastPlaybackDiagnostic.code == "audio.muted_release_fallback");
+}
+
+TEST_CASE("AudioMixPanel exposes backend matrix evidence in snapshot",
+          "[audio][mix][backend_matrix][task5]") {
+    AudioMixPresetBank bank;
+    bank.loadDefaults();
+
+    urpg::editor::AudioMixPanel panel;
+    panel.bindBank(&bank);
+    panel.setBackendMatrixEvidence(evaluateAudioBackendMatrix(bank, defaultAudioBackendMatrixFixtures()));
+    panel.render();
+
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["backendMatrix"]["fixtureCount"] == 6);
+    REQUIRE(snapshot["backendMatrix"]["releaseSafeMutedFallbackCount"] == 2);
+    REQUIRE(snapshot["backendMatrix"]["results"].is_array());
+    REQUIRE(snapshot["backendMatrix"]["results"].size() == 6);
+    REQUIRE(snapshot["backendMatrix"]["results"][0].contains("backendId"));
+    REQUIRE(snapshot["backendMatrix"]["results"][0].contains("deviceState"));
+    REQUIRE(snapshot["backendMatrix"]["results"][0].contains("fallbackPolicy"));
+    REQUIRE(snapshot["backendMatrix"]["results"][0].contains("lastPlaybackDiagnostic"));
+}

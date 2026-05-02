@@ -1,6 +1,6 @@
 # 2.5D RPG Template Spec
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 Authority: canonical template spec for `2_5d_rpg`
 
 ## Purpose

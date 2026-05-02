@@ -1,6 +1,6 @@
 # School Life RPG Template Spec
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 Authority: canonical template spec for `school_life_rpg`
 
 ## Purpose
