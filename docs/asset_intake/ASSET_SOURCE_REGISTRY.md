@@ -27,6 +27,7 @@ These repos are approved for controlled capture. As of 2026-04-23, TD Sprint 04 
 | 4 | `SRC-006` | DocDamage/Unity-Duelyst-Animations | `https://github.com/DocDamage/Unity-Duelyst-Animations` | `—` | `—` | `direct_asset_pack` | sprites, unit animations, pixel art, battle actors | Battle actor animation prototypes; sprite pipeline atlas/preview stress testing; tactics/card-battler/monster-collector demo candidates | `cataloged_not_mirrored` | `direct_ingest_when_captured` | `cc0_candidate_recorded_for_private_use_intake` | `not_started` |
 | 5 | `SRC-007` | Local URPG asset drop | `local://imports/raw/urpg_stuff` | `—` | `2026-04-28` | `direct_asset_pack` | side-scroller sprites, characters, pixel art, UI audio, voice audio, source art, isometric models, maps, generator tools | Raw asset cataloging; side-scroller animation source review; map/model/archive/tooling candidate review; generator review for editor panels and generated-game runtime features; UI/audio candidate review after OGG-only normalization | `mirrored` | `direct_ingest_when_captured` | `user_attested_free_for_game_use_requires_per_pack_attribution_and_tool_bundle_review` | `cataloged_local` |
 | 6 | `SRC-008` | Local isometric animation and background drop | `local://imports/raw/urpg_stuff/assets_to_ingest_20260429` | `—` | `2026-04-29` | `direct_asset_pack` | isometric characters, sideview battlers, animation frames, sprite sheets, backgrounds, Lua metadata, source archives | Editor asset browser discovery for large animation-frame packs; runtime library candidates for isometric actors, sideview battlers, monsters, drones, trees, and backgrounds; animation metadata review | `mirrored` | `direct_ingest_when_captured` | `user_attested_free_for_game_use_requires_per_pack_attribution_and_bundle_review` | `in_review` |
+| 7 | `SRC-009` | URPG repo-generated release starter skin | `local://repo/generated/release_skin` | `—` | `2026-05-02` | `direct_asset_pack` | UI, VFX, release skin | Bounded Phase 9 release starter frame/chrome, VFX, and cohesive skin metadata | `normalized` | `direct_ingest_when_captured` | `proprietary_distribution_rights_confirmed_project_owned_repo_generated_release_assets` | `promoted` |
 
 ## Discovery / Source-Mining Sources
 
@@ -34,8 +35,8 @@ These repos are indexes and directories. They feed the acquisition backlog, not 
 
 | # | Source ID | Repo Name | Source URL | Type | Category Tags | Intended Use | Capture State | Handling Path | Status |
 |---|-----------|-----------|------------|------|---------------|--------------|---------------|---------------|--------|
-| 7 | `SRC-004` | madjin/awesome-cc0 | `https://github.com/madjin/awesome-cc0` | `discovery_index` | textures, materials, HDRIs, 3D models, CC0 sources | Sourcing environment materials; finding UI/icon/audio/3D references; building a vetted internal source list | `cataloged_not_mirrored` | `discovery_backlog_only` | Active acquisition source |
-| 8 | `SRC-005` | HotpotDesign/Game-Assets-And-Resources | `https://github.com/HotpotDesign/Game-Assets-And-Resources` | `discovery_index` | broad directory | Finding category-specific asset sources; locating emergency fill-ins for missing content classes; maintaining an active acquisition queue | `cataloged_not_mirrored` | `discovery_backlog_only` | Active acquisition source |
+| 8 | `SRC-004` | madjin/awesome-cc0 | `https://github.com/madjin/awesome-cc0` | `discovery_index` | textures, materials, HDRIs, 3D models, CC0 sources | Sourcing environment materials; finding UI/icon/audio/3D references; building a vetted internal source list | `cataloged_not_mirrored` | `discovery_backlog_only` | Active acquisition source |
+| 9 | `SRC-005` | HotpotDesign/Game-Assets-And-Resources | `https://github.com/HotpotDesign/Game-Assets-And-Resources` | `discovery_index` | broad directory | Finding category-specific asset sources; locating emergency fill-ins for missing content classes; maintaining an active acquisition queue | `cataloged_not_mirrored` | `discovery_backlog_only` | Active acquisition source |
 
 ---
 
@@ -80,7 +81,7 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 
 - Canonical source manifests: `imports/manifests/asset_sources/SRC-001.json` through `SRC-008.json`
 - Canonical status report: `imports/reports/asset_intake/source_capture_status.json`
-- Current recorded state: 8 cataloged sources, 2 normalized/promoted proof lanes, 2 local catalog-normalized raw quarantine sources, 4 cataloged implementation candidates
+- Current recorded state: 9 cataloged sources, 3 normalized/promoted proof lanes, 2 local catalog-normalized raw quarantine sources, 4 cataloged implementation candidates
 - SRC-007 local catalog-normalization: `imports/reports/asset_intake/urpg_stuff_promotion_catalog.json` plus category shards under `imports/reports/asset_intake/urpg_stuff_promotion_catalog/` record 56,096 supported non-audio/tool records, 56,096 canonical exact-hash records, 0 duplicate groups, inferred categories/tags, and preview paths for editor/library discovery. Raw binaries remain local under `imports/raw/urpg_stuff`.
 - SRC-007 duplicate pruning: `imports/reports/asset_intake/urpg_stuff_duplicate_prune_report.json` records 30,495 exact duplicate raw files removed after preserving canonical copies.
 - SRC-007 generator candidates: `imports/reports/asset_intake/urpg_stuff_generator_candidates.json` records `SpriteGenerator`, `pixel planet maker`, `SpaceBackground/BackgroundGenerator`, and `tiled-map editor` as engineering-review candidates for both URPG Maker editor integration and generated-game runtime use.
@@ -89,6 +90,7 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 - Third-party/itch local index: `imports/reports/asset_intake/third_party_itch_ingest_summary.json` records the asset DB ingest over local raw quarantine roots including `imports/raw/third_party_assets/itch-assets`, source-only RPG Maker/Aseprite/root-drop archives, `imports/raw/third_party_assets/huggingface`, `imports/raw/third_party_assets/external-repos`, `imports/raw/third_party_assets/github_assets`, and `imports/raw/itch_assets/loose`. The bulk raw/source roots are ignored local working payloads, not repository payload or release promotion.
 - First promoted visual lane: `imports/normalized/prototype_sprites/gdquest_blue_actor.svg` via `imports/manifests/asset_bundles/BND-001.json`
 - First audio proof lane: `imports/manifests/asset_bundles/BND-002.json`; the former WAV payload was removed from GitHub and newly promoted audio must use OGG output from `tools/assets/convert_audio_to_ogg.py`
+- Phase 9 release starter skin lane: `imports/manifests/asset_bundles/BND-003.json` promotes repo-generated UI frame/chrome, battle VFX proof, and cohesive skin metadata from `SRC-009`.
 - Release attribution records: `imports/reports/asset_intake/attribution/SRC-002_gdquest_blue_actor.json` and `imports/reports/asset_intake/attribution/SRC-003_kenney_click_001.json`
 
 ---
@@ -112,3 +114,4 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 | 2026-04-29 | Indexed the third-party and itch asset folders into the local asset DB and recorded a tracked third-party/itch intake summary report. |
 | 2026-04-29 | Added `SRC-008` for the local `assets to ingest` drop, moved it under ignored raw intake storage, and aggregate-cataloged 662,009 raw animation/background files as 35 editor/library pack records. |
 | 2026-04-30 | Removed current Git tracking for source-only third-party/itch raw intake baggage while preserving local working files; curated RPG Maker plugin drop-ins, release plugin reports, Hugging Face fixtures, and tiny external/github README anchors remain tracked. |
+| 2026-05-02 | Added `SRC-009` and `BND-003` for repo-generated Phase 9 release starter skin coverage. |

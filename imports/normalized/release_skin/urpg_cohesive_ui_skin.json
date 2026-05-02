@@ -1,0 +1,17 @@
+{
+  "schema": "urpg.release_ui_skin.v1",
+  "skinId": "urpg_default_release_skin",
+  "source": "repo_generated",
+  "palette": {
+    "panel": "#243047",
+    "panelText": "#f3e6b6",
+    "accent": "#d7b56d",
+    "focus": "#8fd3ff",
+    "danger": "#ff6b4a"
+  },
+  "assets": {
+    "frame": "imports/normalized/release_skin/urpg_ui_frame.svg",
+    "battleFlash": "imports/normalized/release_skin/urpg_battle_vfx_flash.svg"
+  },
+  "releaseEligible": true
+}

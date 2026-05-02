@@ -1,0 +1,14 @@
+{
+  "schema": "urpg.asset_attribution.v1",
+  "bundle_id": "BND-003",
+  "source_id": "REPO-GENERATED",
+  "source_name": "URPG repository generated release starter skin",
+  "license": "project-owned",
+  "license_cleared": true,
+  "reviewed_by": "release-asset-governance",
+  "reviewed_date": "2026-05-02",
+  "notes": [
+    "Vector UI frame, VFX flash, and cohesive skin metadata were generated in-repository for the bounded Phase 9 release starter claim.",
+    "These assets are not final art direction and do not claim complete character portrait, BGM, or environmental audio content."
+  ]
+}

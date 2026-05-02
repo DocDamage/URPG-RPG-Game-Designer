@@ -1,6 +1,6 @@
 {
   "schema": "urpg.release_required_asset_report.v1",
-  "generatedAt": "2026-05-02T02:32:41.5039380Z",
+  "generatedAt": "2026-05-02T05:03:26.4838612Z",
   "passed": true,
   "requiredSurfaces": [
     "title",
@@ -45,6 +45,30 @@
       "notes": "Current release ships without bundled UI SFX; controls remain silent instead of depending on ignored or LFS-only WAV files."
     },
     {
+      "id": "release.ui.frame_chrome",
+      "surface": "ui",
+      "source": "asset_bundle",
+      "path": "imports/normalized/release_skin/urpg_ui_frame.svg",
+      "classification": "connected",
+      "notes": "Repo-generated release starter UI frame/chrome asset."
+    },
+    {
+      "id": "release.ui.cohesive_skin",
+      "surface": "ui",
+      "source": "asset_bundle",
+      "path": "imports/normalized/release_skin/urpg_cohesive_ui_skin.json",
+      "classification": "connected",
+      "notes": "Repo-generated release starter skin metadata binding the governed UI/VFX assets."
+    },
+    {
+      "id": "release.battle.vfx_flash",
+      "surface": "battle",
+      "source": "asset_bundle",
+      "path": "imports/normalized/release_skin/urpg_battle_vfx_flash.svg",
+      "classification": "connected",
+      "notes": "Repo-generated single-frame battle VFX proof asset for package coverage."
+    },
+    {
       "id": "release.audio.muted_fallback",
       "surface": "audio",
       "source": "system_fallback",
@@ -83,6 +107,30 @@
       "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
       "classification": "connected",
       "notes": "First governed visual proof asset for editor/runtime/export smoke coverage."
+    },
+    {
+      "id": "repo_generated/release_skin/urpg_ui_frame.svg",
+      "surface": "ui",
+      "source": "asset_bundle",
+      "path": "imports/normalized/release_skin/urpg_ui_frame.svg",
+      "classification": "connected",
+      "notes": "Repo-generated UI frame/chrome proof asset for the bounded release starter skin."
+    },
+    {
+      "id": "repo_generated/release_skin/urpg_battle_vfx_flash.svg",
+      "surface": "battle",
+      "source": "asset_bundle",
+      "path": "imports/normalized/release_skin/urpg_battle_vfx_flash.svg",
+      "classification": "connected",
+      "notes": "Repo-generated single-frame VFX proof asset for battle package coverage."
+    },
+    {
+      "id": "repo_generated/release_skin/urpg_cohesive_ui_skin.json",
+      "surface": "ui",
+      "source": "asset_bundle",
+      "path": "imports/normalized/release_skin/urpg_cohesive_ui_skin.json",
+      "classification": "connected",
+      "notes": "Repo-generated cohesive UI skin metadata that binds the Phase 9 frame and VFX assets."
     }
   ],
   "classifiedAssets": [
