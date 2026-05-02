@@ -183,6 +183,22 @@ def write_json(path: Path, value: dict) -> None:
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
 
 
+def chunked_assets(records: list[dict], max_assets: int) -> list[list[dict]]:
+    if max_assets <= 0 or len(records) <= max_assets:
+        return [records]
+    return [
+        records[index : index + max_assets]
+        for index in range(0, len(records), max_assets)
+    ]
+
+
+def shard_name(category: str, part: int, total_parts: int) -> str:
+    base = category.replace("/", "-")
+    if total_parts <= 1:
+        return f"{base}.json"
+    return f"{base}-part-{part:03d}.json"
+
+
 def build_catalog(args: argparse.Namespace) -> dict:
     repo_root = Path(args.repo_root).resolve()
     source_root = (repo_root / args.source_root).resolve()
@@ -280,28 +296,42 @@ def build_catalog(args: argparse.Namespace) -> dict:
         pack_counts[record["pack"]] += 1
 
     output_shard_root = repo_root / args.output_shard_root
+    if output_shard_root.exists():
+        for old_file in output_shard_root.glob("*.json"):
+            old_file.unlink()
     shards: list[dict] = []
     for category, assets in sorted(by_category.items()):
-        shard_name = f"{category.replace('/', '-')}.json"
-        shard_path = output_shard_root / shard_name
-        shard_rel = f"{args.output_shard_root}/{shard_name}".replace("\\", "/")
-        write_json(
-            shard_path,
-            {
-                "schema": "urpg/promoted_asset_catalog_shard/v1",
-                "generated_at": generated_at,
-                "source_id": args.source_id,
-                "source_root": source_root_rel,
-                "category": category,
-                "promotion_status": "cataloged_local_available",
-                "export_eligible": False,
-                "asset_count": len(assets),
-                "assets": assets,
-            },
-        )
-        shards.append(
-            {"category": category, "path": shard_rel, "asset_count": len(assets)}
-        )
+        parts = chunked_assets(assets, args.max_shard_assets)
+        for part_index, part_assets in enumerate(parts, start=1):
+            filename = shard_name(category, part_index, len(parts))
+            shard_path = output_shard_root / filename
+            shard_rel = f"{args.output_shard_root}/{filename}".replace("\\", "/")
+            part_label = None if len(parts) <= 1 else f"{part_index}/{len(parts)}"
+            write_json(
+                shard_path,
+                {
+                    "schema": "urpg/promoted_asset_catalog_shard/v1",
+                    "generated_at": generated_at,
+                    "source_id": args.source_id,
+                    "source_root": source_root_rel,
+                    "category": category,
+                    "promotion_status": "cataloged_local_available",
+                    "export_eligible": False,
+                    "asset_count": len(part_assets),
+                    "category_asset_count": len(assets),
+                    "part": part_label,
+                    "assets": part_assets,
+                },
+            )
+            shards.append(
+                {
+                    "category": category,
+                    "path": shard_rel,
+                    "asset_count": len(part_assets),
+                    "category_asset_count": len(assets),
+                    "part": part_label,
+                }
+            )
 
     summary = {
         "schema": "urpg/asset_promotion_summary/v1",
@@ -364,6 +394,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-catalog", required=True)
     parser.add_argument("--output-summary", required=True)
     parser.add_argument("--output-shard-root", required=True)
+    parser.add_argument(
+        "--max-shard-assets",
+        type=int,
+        default=5000,
+        help="Maximum asset records per category shard file. Use 0 to disable chunking.",
+    )
     return parser.parse_args()
 
 

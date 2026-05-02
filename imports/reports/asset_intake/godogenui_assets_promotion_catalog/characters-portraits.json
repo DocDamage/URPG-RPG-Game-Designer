@@ -1,12 +1,14 @@
 {
   "schema": "urpg/promoted_asset_catalog_shard/v1",
-  "generated_at": "2026-05-02T21:15:42+00:00",
+  "generated_at": "2026-05-02T23:05:28+00:00",
   "source_id": "SRC-012",
   "source_root": "imports/raw/godogenui_assets",
   "category": "characters/portraits",
   "promotion_status": "cataloged_local_available",
   "export_eligible": false,
   "asset_count": 1339,
+  "category_asset_count": 1339,
+  "part": null,
   "assets": [
     {
       "id": "src-012:52c01da3c690:0",

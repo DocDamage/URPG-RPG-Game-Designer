@@ -444,11 +444,29 @@ def parse_args() -> argparse.Namespace:
         default=["imports/raw/urpg_stuff/assets_to_ingest_20260429"],
         help="Relative source subtree to exclude. Can be passed more than once.",
     )
+    parser.add_argument(
+        "--max-shard-assets",
+        type=int,
+        default=5000,
+        help="Maximum asset records per category shard file. Use 0 to disable chunking.",
+    )
     return parser.parse_args()
 
 
-def shard_filename(category: str) -> str:
-    return f"{slugify(category)}.json"
+def chunked_assets(assets: list[dict], max_assets: int) -> list[list[dict]]:
+    if max_assets <= 0 or len(assets) <= max_assets:
+        return [assets]
+    return [
+        assets[index : index + max_assets]
+        for index in range(0, len(assets), max_assets)
+    ]
+
+
+def shard_filename(category: str, part: int = 1, total_parts: int = 1) -> str:
+    base = slugify(category)
+    if total_parts <= 1:
+        return f"{base}.json"
+    return f"{base}-part-{part:03d}.json"
 
 
 def main() -> int:
@@ -576,26 +594,33 @@ def main() -> int:
         assets_by_category.setdefault(asset["category"], []).append(asset)
 
     for category, category_assets in sorted(assets_by_category.items()):
-        shard_path = shard_root / shard_filename(category)
-        shard = {
-            "schema": "urpg/promoted_asset_catalog_shard/v1",
-            "generated_at": generated_at,
-            "source_id": args.source_id,
-            "source_root": source_root_rel,
-            "category": category,
-            "promotion_status": "cataloged_local",
-            "export_eligible": False,
-            "asset_count": len(category_assets),
-            "assets": category_assets,
-        }
-        shard_path.write_text(json.dumps(shard, indent=2), encoding="utf-8")
-        shards.append(
-            {
+        parts = chunked_assets(category_assets, args.max_shard_assets)
+        for part_index, part_assets in enumerate(parts, start=1):
+            shard_path = shard_root / shard_filename(category, part_index, len(parts))
+            part_label = None if len(parts) <= 1 else f"{part_index}/{len(parts)}"
+            shard = {
+                "schema": "urpg/promoted_asset_catalog_shard/v1",
+                "generated_at": generated_at,
+                "source_id": args.source_id,
+                "source_root": source_root_rel,
                 "category": category,
-                "path": rel(shard_path, repo_root),
-                "asset_count": len(category_assets),
+                "promotion_status": "cataloged_local",
+                "export_eligible": False,
+                "asset_count": len(part_assets),
+                "category_asset_count": len(category_assets),
+                "part": part_label,
+                "assets": part_assets,
             }
-        )
+            shard_path.write_text(json.dumps(shard, indent=2), encoding="utf-8")
+            shards.append(
+                {
+                    "category": category,
+                    "path": rel(shard_path, repo_root),
+                    "asset_count": len(part_assets),
+                    "category_asset_count": len(category_assets),
+                    "part": part_label,
+                }
+            )
 
     catalog = {
         "schema": "urpg/promoted_asset_catalog/v1",

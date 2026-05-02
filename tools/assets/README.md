@@ -135,6 +135,8 @@ Outputs:
 
 The top-level catalog is a manifest plus duplicate index; category shards record stable virtual normalized paths, source paths, inferred categories, packs, tags, preview paths, SHA-256 hashes, image/audio/model/map metadata, and exact duplicate markers. Use `--exclude-audio` when a refresh should ignore audio. The editor asset library loads the manifest and shards from the canonical report directory when present. The catalog is local-discovery ready but remains `export_eligible=false` until curated subsets get per-pack attribution and promoted bundle manifests.
 
+Category shards are capped at 5,000 records by default and split into `*-part-###.json` files when needed. Keep the default cap for Git-tracked reports so regenerated catalogs do not create oversized JSON shards.
+
 Exact duplicates can be removed from the ignored raw intake after a catalog has been generated:
 
 ```powershell
@@ -180,6 +182,8 @@ python .\tools\assets\catalog_local_asset_drop.py `
 ```
 
 These catalogs are local-use-only. They provide stable virtual asset ids and preview paths for editor/library browsing, but do not make raw files release/export eligible.
+
+The generic cataloger also caps shards at 5,000 records and removes stale shard files before rewriting the shard directory.
 
 `BND-005` is the first governed promotion from these local drops:
 

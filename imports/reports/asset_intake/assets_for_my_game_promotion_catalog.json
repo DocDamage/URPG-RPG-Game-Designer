@@ -1,6 +1,6 @@
 {
   "schema": "urpg/promoted_asset_catalog/v1",
-  "generated_at": "2026-05-02T21:15:42+00:00",
+  "generated_at": "2026-05-02T23:05:28+00:00",
   "source_id": "SRC-011",
   "source_root": "imports/raw/assets_for_my_game",
   "promotion_status": "cataloged_local_available",
@@ -9,7 +9,7 @@
   "release_use_allowed": false,
   "summary": {
     "schema": "urpg/asset_promotion_summary/v1",
-    "generated_at": "2026-05-02T21:15:42+00:00",
+    "generated_at": "2026-05-02T23:05:28+00:00",
     "source_id": "SRC-011",
     "source_root": "imports/raw/assets_for_my_game",
     "promotion_status": "cataloged_local_available",
@@ -60,47 +60,72 @@
     {
       "category": "archives",
       "path": "imports/reports/asset_intake/assets_for_my_game_promotion_catalog/archives.json",
-      "asset_count": 61
+      "asset_count": 61,
+      "category_asset_count": 61,
+      "part": null
     },
     {
       "category": "backgrounds",
       "path": "imports/reports/asset_intake/assets_for_my_game_promotion_catalog/backgrounds.json",
-      "asset_count": 77
+      "asset_count": 77,
+      "category_asset_count": 77,
+      "part": null
     },
     {
       "category": "characters",
       "path": "imports/reports/asset_intake/assets_for_my_game_promotion_catalog/characters.json",
-      "asset_count": 1831
+      "asset_count": 1831,
+      "category_asset_count": 1831,
+      "part": null
     },
     {
       "category": "characters/portraits",
       "path": "imports/reports/asset_intake/assets_for_my_game_promotion_catalog/characters-portraits.json",
-      "asset_count": 12
+      "asset_count": 12,
+      "category_asset_count": 12,
+      "part": null
     },
     {
       "category": "documentation",
       "path": "imports/reports/asset_intake/assets_for_my_game_promotion_catalog/documentation.json",
-      "asset_count": 81
+      "asset_count": 81,
+      "category_asset_count": 81,
+      "part": null
     },
     {
       "category": "props",
       "path": "imports/reports/asset_intake/assets_for_my_game_promotion_catalog/props.json",
-      "asset_count": 2709
+      "asset_count": 2709,
+      "category_asset_count": 2709,
+      "part": null
     },
     {
       "category": "tilesets",
       "path": "imports/reports/asset_intake/assets_for_my_game_promotion_catalog/tilesets.json",
-      "asset_count": 920
+      "asset_count": 920,
+      "category_asset_count": 920,
+      "part": null
     },
     {
       "category": "ui",
-      "path": "imports/reports/asset_intake/assets_for_my_game_promotion_catalog/ui.json",
-      "asset_count": 6400
+      "path": "imports/reports/asset_intake/assets_for_my_game_promotion_catalog/ui-part-001.json",
+      "asset_count": 5000,
+      "category_asset_count": 6400,
+      "part": "1/2"
+    },
+    {
+      "category": "ui",
+      "path": "imports/reports/asset_intake/assets_for_my_game_promotion_catalog/ui-part-002.json",
+      "asset_count": 1400,
+      "category_asset_count": 6400,
+      "part": "2/2"
     },
     {
       "category": "vfx",
       "path": "imports/reports/asset_intake/assets_for_my_game_promotion_catalog/vfx.json",
-      "asset_count": 894
+      "asset_count": 894,
+      "category_asset_count": 894,
+      "part": null
     }
   ],
   "duplicate_groups": [

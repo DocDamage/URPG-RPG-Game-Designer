@@ -106,6 +106,8 @@ This writes:
 
 The top-level catalog is a small manifest plus duplicate index; category shards give each raw asset a stable virtual `asset://` normalized path, inferred category, pack, tags, preview path, checksum, and duplicate marker. The editor asset library loads this optional catalog from the canonical report directory. These records are usable for local browsing, preview, and curation, but are not release/export eligible until a curated subset receives bundle manifests, attribution records, and copied or otherwise hydrated promoted payloads.
 
+Category shards are capped at 5,000 asset rows by default and split into `*-part-###.json` files when a category is larger. Keep that cap unless a review workflow has a specific reason to change it; generated report files should stay comfortably below GitHub's large-file warning threshold.
+
 The SRC-007 catalog tool excludes `imports/raw/urpg_stuff/assets_to_ingest_20260429` by default when regenerating from the full `imports/raw/urpg_stuff` root. Keep that exclusion in place because SRC-008 uses its own aggregate animation/background catalog and should not be flattened into the SRC-007 shard set.
 
 Old-intake RAR recovery is recorded separately:
@@ -178,6 +180,8 @@ python tools/assets/catalog_local_asset_drop.py `
   --output-summary imports/reports/asset_intake/godogenui_assets_promotion_summary.json `
   --output-shard-root imports/reports/asset_intake/godogenui_assets_promotion_catalog
 ```
+
+The generic local-drop cataloger uses the same 5,000-row shard cap and cleans stale shard files before writing new output, so a regenerated catalog replaces oversized category files with smaller part files.
 
 `SRC-011` archives are extracted first into `imports/raw/assets_for_my_game/__archive_extracted/` and recorded in `imports/reports/asset_intake/src011_archive_extraction_report.json`. `SRC-012` is already expanded; mirrored ProgramData/All Users copies are intentionally skipped to avoid duplicate intake. Both sources remain local-use-only and export-ineligible until curated subsets receive attribution evidence and bundle manifests.
 

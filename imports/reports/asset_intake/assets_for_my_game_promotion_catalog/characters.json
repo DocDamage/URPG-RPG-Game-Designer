@@ -1,12 +1,14 @@
 {
   "schema": "urpg/promoted_asset_catalog_shard/v1",
-  "generated_at": "2026-05-02T21:15:42+00:00",
+  "generated_at": "2026-05-02T23:05:28+00:00",
   "source_id": "SRC-011",
   "source_root": "imports/raw/assets_for_my_game",
   "category": "characters",
   "promotion_status": "cataloged_local_available",
   "export_eligible": false,
   "asset_count": 1831,
+  "category_asset_count": 1831,
+  "part": null,
   "assets": [
     {
       "id": "src-011:92a06508de3c:0",
