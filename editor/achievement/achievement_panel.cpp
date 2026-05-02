@@ -120,6 +120,11 @@ void AchievementPanel::render() {
         {"status", "ready"},
         {"platform_profile_bound", m_platformProfile != nullptr},
         {"platform_profile", m_platformProfile ? m_platformProfile->toJson() : nlohmann::json(nullptr)},
+        {"platform_profile_status",
+         m_platformProfile
+             ? urpg::release::providerProfileStatusToJson(
+                   urpg::achievement::achievementPlatformProfileStatus(*m_platformProfile))
+             : nlohmann::json(nullptr)},
         {"platform_profile_diagnostics", platformProfileDiagnostics},
         {"platform_backends", m_registry->platformBackendSnapshot()},
         {"last_action", m_lastAction},

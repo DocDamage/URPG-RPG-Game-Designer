@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/mod/mod_loader.h"
+#include "engine/core/release/provider_profile_status.h"
 
 #include <filesystem>
 #include <nlohmann/json.hpp>
@@ -29,6 +30,24 @@ struct ModStoreInstallResult {
     std::string errorMessage;
     std::vector<std::string> loadOrder;
 };
+
+struct ModMarketplaceProviderProfile {
+    std::string profileId;
+    std::string providerId = "disabled";
+    std::string endpoint;
+    std::string commandExecutable;
+    std::string credentialSourceCategory = "none";
+    bool reviewed = false;
+    std::string reviewedBy;
+    std::string reviewedAt;
+    std::string lastTestResult = "not_run";
+
+    nlohmann::json toJson() const;
+    static ModMarketplaceProviderProfile fromJson(const nlohmann::json& json);
+};
+
+urpg::release::ProviderProfileStatus modMarketplaceProviderProfileStatus(
+    const ModMarketplaceProviderProfile& profile);
 
 class ModStoreCatalog {
 public:

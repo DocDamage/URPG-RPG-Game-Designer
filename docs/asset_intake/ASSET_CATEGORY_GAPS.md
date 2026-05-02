@@ -43,6 +43,16 @@
 
 ## Fast-Win Targets
 
+## Character Appearance Import Governance
+
+Creator-supplied character appearance import tooling is now governed for portrait, field, and battle appearance parts:
+
+| Appearance Category | Governance Status | Release Claim Boundary |
+|---------------------|-------------------|------------------------|
+| Portrait parts | `governed_import_ready` | Import rows capture source metadata, normalized asset id, dimensions, attribution state, blocked reason, and promoted-library target before assignment. Final-quality cohesive portrait art remains content backlog. |
+| Field sprite parts | `governed_import_ready` | RPG Maker `img/characters` sources map to `character/field` import rows and must promote into governed runtime locations before use. Raw intake paths remain quarantine-only. |
+| Battle sprite parts | `governed_import_ready` | RPG Maker `img/sv_actors`, `img/sv_enemies`, and `img/enemies` sources map to `character/battle` import rows and must promote into governed runtime locations before use. Raw/source categories remain quarantine-only until reviewed and promoted. |
+
 These are the governed promotion targets after the first TD Sprint 04 proof lanes:
 
 1. **UI Sound Pass** — Restore an approved audio distribution path, then expand the `kenney-interface-sounds` proof beyond `kenney_click_001.wav` into a small confirm/cancel/open/close set and wire those cues into editor/runtime audio events.
@@ -82,3 +92,4 @@ Categories to mine from `awesome-cc0` and `Game-Assets-And-Resources`:
 | 2026-04-23 | TD Sprint 04 moved UI sounds and prototype sprites from fixture-only to partial with one promoted proof asset in each lane. |
 | 2026-04-27 | Added explicit release-required asset manifest coverage for title, map, battle, UI, audio, icons, and font fallback surfaces. |
 | 2026-04-27 | Deferred tracked WAV payloads from release scope; UI/audio release surfaces now use fallback policy entries until an approved bundled audio asset exists. |
+| 2026-05-01 | Added character appearance import governance for portrait, field, and battle parts while keeping raw/source assets quarantine-only and final-quality character art as content backlog. |

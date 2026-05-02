@@ -191,3 +191,84 @@ TEST_CASE("CharacterCreatorModel selects promoted appearance parts and persists 
     REQUIRE(restored.getLayeredPartAssetIds().size() == 1);
     REQUIRE(restored.getLayeredPartAssetIds()[0] == "asset.character.hero.layer.cloak_01");
 }
+
+TEST_CASE("CharacterCreatorModel exposes appearance part library management rows",
+          "[character][editor][model][appearance][assets][part_library]") {
+    nlohmann::json rows = nlohmann::json::array({
+        {
+            {"asset_id", "asset.character.hero.portrait.hair_01"},
+            {"label", "Hero Hair"},
+            {"slot", "portrait"},
+            {"source_path", ".urpg/asset-library/sources/import_001/original/img/faces/Actor1.png"},
+            {"normalized_path", "resources/assets/characters/hero/hair.png"},
+            {"preview_kind", "image"},
+            {"preview_width", 144},
+            {"preview_height", 144},
+            {"include_in_runtime", true},
+            {"promotion_status", "runtime_ready"},
+            {"statuses", {"promoted"}},
+            {"promotion_diagnostics", nlohmann::json::array()},
+            {"management_actions",
+             {
+                 {"accept", {{"enabled", true}}},
+                 {"reject", {{"enabled", true}}},
+                 {"archive", {{"enabled", true}}},
+                 {"assign", {{"enabled", true}, {"target_slot", "portrait"}}},
+             }},
+        },
+        {
+            {"asset_id", "asset.character.hero.battle.blocked"},
+            {"label", "Blocked Battle"},
+            {"slot", "battle"},
+            {"source_path", ".urpg/asset-library/sources/import_001/original/img/sv_actors/Actor1.png"},
+            {"normalized_path", ""},
+            {"preview_kind", "image"},
+            {"preview_width", 576},
+            {"preview_height", 384},
+            {"include_in_runtime", false},
+            {"promotion_status", "blocked"},
+            {"statuses", {"missing_license"}},
+            {"promotion_diagnostics", {"license_evidence_missing"}},
+            {"management_actions",
+             {
+                 {"accept", {{"enabled", false}, {"disabled_reason", "license_evidence_missing"}}},
+                 {"reject", {{"enabled", true}}},
+                 {"archive", {{"enabled", true}}},
+                 {"assign", {{"enabled", false}, {"target_slot", "battle"}, {"disabled_reason", "license_evidence_missing"}}},
+             }},
+        },
+    });
+
+    CharacterCreatorModel model;
+    model.setPromotedAppearanceAssetRows(rows);
+
+    auto snapshot = model.buildSnapshot();
+    REQUIRE(snapshot["appearance_parts"].size() == 2);
+    const auto portrait = std::find_if(snapshot["appearance_parts"].begin(), snapshot["appearance_parts"].end(),
+                                       [](const auto& row) {
+                                           return row["asset_id"] == "asset.character.hero.portrait.hair_01";
+                                       });
+    REQUIRE(portrait != snapshot["appearance_parts"].end());
+    REQUIRE((*portrait)["source_path"] ==
+            ".urpg/asset-library/sources/import_001/original/img/faces/Actor1.png");
+    REQUIRE((*portrait)["normalized_path"] == "resources/assets/characters/hero/hair.png");
+    REQUIRE((*portrait)["dimensions"]["width"] == 144);
+    REQUIRE((*portrait)["dimensions"]["height"] == 144);
+    REQUIRE((*portrait)["management_actions"]["assign"]["enabled"] == true);
+    REQUIRE((*portrait)["management_actions"]["assign"]["target_slot"] == "portrait");
+
+    REQUIRE(model.selectPromotedAppearancePart("asset.character.hero.portrait.hair_01"));
+    snapshot = model.buildSnapshot();
+    REQUIRE(snapshot["identity"]["portraitAssetId"] == "asset.character.hero.portrait.hair_01");
+
+    const auto blocked = std::find_if(snapshot["appearance_parts"].begin(), snapshot["appearance_parts"].end(),
+                                      [](const auto& row) {
+                                          return row["asset_id"] == "asset.character.hero.battle.blocked";
+                                      });
+    REQUIRE(blocked != snapshot["appearance_parts"].end());
+    REQUIRE((*blocked)["enabled"] == false);
+    REQUIRE((*blocked)["disabled_reason"] == "license_evidence_missing");
+    REQUIRE((*blocked)["management_actions"]["assign"]["enabled"] == false);
+    REQUIRE((*blocked)["management_actions"]["assign"]["disabled_reason"] == "license_evidence_missing");
+    REQUIRE_FALSE(model.selectPromotedAppearancePart("asset.character.hero.battle.blocked"));
+}

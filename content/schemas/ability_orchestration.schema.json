@@ -52,12 +52,55 @@
     },
     "tasks": {
       "type": "array",
-      "description": "Creator-authored task composition rows for preview, validation, and future runtime sequencing.",
+      "description": "Creator-authored task graph rows for preview, validation, deterministic runtime sequencing, branching, joins, and cancellation.",
       "items": {
         "$ref": "#/$defs/task"
       }
     }
   },
+  "examples": [
+    {
+      "schema": "urpg.ability_orchestration.v1",
+      "id": "valid_sequence_example",
+      "mode": "battle",
+      "ability": {"ability_id": "skill.sequence", "cooldown_seconds": 3, "mp_cost": 8, "effect_id": "effect.hit", "effect_attribute": "HP", "effect_operation": "Add", "effect_value": -10, "effect_duration": 0},
+      "source": {"id": "actor.mage", "mp": 24, "effect_attribute_base": 100, "x": 0, "y": 0, "tags": []},
+      "targets": [{"id": "enemy.slime", "mp": 0, "effect_attribute_base": 50, "x": 0, "y": 0, "tags": []}],
+      "tasks": [
+        {"id": "cost", "kind": "cost", "next": "confirm"},
+        {"id": "confirm", "kind": "wait_input", "action": "Confirm", "next": "impact"},
+        {"id": "impact", "kind": "wait_projectile_collision", "target": "primary", "next": "apply"},
+        {"id": "apply", "kind": "apply_effect", "target": "primary", "next": "cooldown"},
+        {"id": "cooldown", "kind": "cooldown"}
+      ]
+    },
+    {
+      "schema": "urpg.ability_orchestration.v1",
+      "id": "valid_branch_example",
+      "mode": "map",
+      "ability": {"ability_id": "skill.branch", "cooldown_seconds": 1, "mp_cost": 1, "effect_id": "effect.default", "effect_attribute": "HP", "effect_operation": "Add", "effect_value": -5, "effect_duration": 0},
+      "source": {"id": "actor.mage", "mp": 10, "effect_attribute_base": 100, "x": 0, "y": 0, "tags": []},
+      "targets": [{"id": "enemy.slime", "mp": 0, "effect_attribute_base": 20, "x": 0, "y": 0, "tags": []}],
+      "tasks": [
+        {"id": "branch", "kind": "branch_on_condition", "condition": "source.mp >= 1", "on_true": "apply_true", "on_false": "apply_false"},
+        {"id": "apply_true", "kind": "apply_effect", "effect_id": "effect.true", "target": "primary"},
+        {"id": "apply_false", "kind": "apply_effect", "effect_id": "effect.false", "target": "primary"}
+      ]
+    },
+    {
+      "schema": "urpg.ability_orchestration.v1",
+      "id": "valid_parallel_example",
+      "mode": "map",
+      "ability": {"ability_id": "skill.parallel", "cooldown_seconds": 1, "mp_cost": 1, "effect_id": "effect.final", "effect_attribute": "HP", "effect_operation": "Add", "effect_value": -5, "effect_duration": 0},
+      "source": {"id": "actor.mage", "mp": 10, "effect_attribute_base": 100, "x": 0, "y": 0, "tags": []},
+      "targets": [{"id": "enemy.slime", "mp": 0, "effect_attribute_base": 20, "x": 0, "y": 0, "tags": []}],
+      "tasks": [
+        {"id": "wait_event", "kind": "wait_event", "action": "AnimationFinished", "next": "final"},
+        {"id": "delay", "kind": "delay", "timeout_ms": 250, "next": "final"},
+        {"id": "final", "kind": "apply_effect", "depends_on": ["wait_event", "delay"], "target": "primary"}
+      ]
+    }
+  ],
   "$defs": {
     "actor": {
       "type": "object",
@@ -98,12 +141,15 @@
         },
         "kind": {
           "enum": [
+            "cost",
             "wait_input",
             "wait_event",
             "wait_projectile_collision",
+            "delay",
             "apply_effect",
             "play_cue",
-            "branch_on_condition"
+            "branch_on_condition",
+            "cooldown"
           ]
         },
         "action": {
@@ -131,6 +177,18 @@
         },
         "target": {
           "type": "string"
+        },
+        "next": {
+          "type": "string"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "skip_cooldown_on_cancel": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false

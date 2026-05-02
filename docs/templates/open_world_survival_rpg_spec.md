@@ -1,6 +1,6 @@
 # Open World Survival RPG Template Spec
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 Authority: canonical template spec for `open_world_survival_rpg`
 
 ## Purpose

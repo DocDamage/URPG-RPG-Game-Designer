@@ -1,6 +1,6 @@
 # Visual Novel Template Spec
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 Authority: canonical template spec for `visual_novel`
 
 ## Purpose
@@ -18,19 +18,19 @@ The `visual_novel` template covers dialogue-heavy narrative games: branching sto
 
 | Bar | Status | Notes |
 | --- | --- | --- |
-| Accessibility | `PARTIAL` | Baseline accessibility audits (label, contrast, focus) cover dialogue and menu UI elements through `AccessibilityAuditor`. Visual-novel-specific pacing controls now have a saved WYSIWYG backlog/auto-advance/skip/read-speed panel and diagnostics; full renderer-derived coverage for every VN UI surface remains broader accessibility backlog. |
-| Audio | `PARTIAL` | Audio mix preset governance is active. Visual-novel-specific ambient BGM layer management and voice-over duck rules are scaffolded; end-to-end validation is not yet landed. |
+| Accessibility | `READY` | `AccessibilityAuditor` label/focus/contrast tests, live adapters, renderer-derived contrast ingestion, and release top-level panel contrast coverage evidence are governed by `test_accessibility_auditor` and `check_accessibility_governance.ps1`. |
+| Audio | `READY` | `AudioMixPresets` validator coverage, live backend smoke diagnostics, backend/device matrix fixtures, muted release fallback diagnostics, and `AudioMixPanel` matrix exposure are governed by `test_audio_mix_presets` and `check_audio_governance.ps1`. |
 | Input | `PARTIAL` | Dialogue-advance and menu-navigation input paths are covered. Auto-advance and skip-read behavior are now governed through `VisualNovelPacingDocument`, runtime preview commands, and `VisualNovelPacingPanel` snapshots. |
 | Localization | `READY` | The visual novel starter manifest declares required menu, dialogue control, speaker-name, and name-interpolation keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. `TemplateLocalizationAudit` and `test_template_bar_quality` verify manifest-driven required-key completeness and font-profile coverage. |
 | Performance | `PARTIAL` | Presentation runtime and `profile_arena` tests provide frame-time budget coverage. Sustained dialogue-heavy session load and branching-graph traversal at production scale are not production-validated. |
 
 ## Safe Scope Today
 
-Dialogue-heavy projects within the current native `message_text_core` and `save_data_core` scope. Branching narratives with persistent choice state, portrait sequences, chapter-level save points, backlog review, auto-advance, skip-read, text-speed controls, speaker-name interpolation, and manifest-audited localization are supported. Projects must not claim full production-grade accessibility coverage across every visual surface or voice-over integration until the corresponding bars close.
+Dialogue-heavy projects within the current native `message_text_core` and `save_data_core` scope. Branching narratives with persistent choice state, portrait sequences, chapter-level save points, backlog review, auto-advance, skip-read, text-speed controls, speaker-name interpolation, manifest-audited localization, governed accessibility coverage, and audio backend/muted-fallback evidence are supported. Projects must not claim full production-grade input or performance until those bars close.
 
 ## Main Blockers
 
-1. **Template-grade governance is not complete** — Canonical spec, bar-level acceptance tests, and machine-checked template governance (spec drift detection, project-audit coverage) are not yet fully landed.
+1. **Template-grade governance is not complete** — Accessibility, audio, and localization are `READY`; input and performance remain `PARTIAL`. Canonical spec, bar-level acceptance tests, and machine-checked template governance (spec drift detection, project-audit coverage) are not yet fully landed.
 
 ## Promotion Path
 

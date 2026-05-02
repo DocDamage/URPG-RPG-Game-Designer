@@ -38,6 +38,9 @@ struct AbilityOrchestrationTask {
     std::string effect_id;
     std::string cue_id;
     std::string target;
+    std::string next;
+    std::vector<std::string> depends_on;
+    bool skip_cooldown_on_cancel = false;
 };
 
 struct AbilityTaskPreviewRow {
@@ -47,6 +50,14 @@ struct AbilityTaskPreviewRow {
     std::string detail;
     bool executable = false;
     std::string disabled_reason;
+};
+
+struct AbilityTaskExecutionEvent {
+    size_t sequence = 0;
+    std::string task_id;
+    std::string kind;
+    std::string status;
+    std::string detail;
 };
 
 struct AbilityOrchestrationDocument {
@@ -92,6 +103,7 @@ struct AbilityOrchestrationResult {
     size_t battle_commands_blocked = 0;
     std::vector<AbilityOrchestrationTargetResult> targets;
     std::vector<AbilityTaskPreviewRow> task_preview_rows;
+    std::vector<AbilityTaskExecutionEvent> task_execution_events;
     std::vector<AbilityOrchestrationDiagnostic> diagnostics;
     nlohmann::json battle_snapshot = nlohmann::json::object();
 };

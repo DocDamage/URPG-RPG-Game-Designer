@@ -1,6 +1,6 @@
 # Release Signoff Workflow
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 
 This document is the canonical workflow for release-signoff discipline across the governed readiness stack.
 

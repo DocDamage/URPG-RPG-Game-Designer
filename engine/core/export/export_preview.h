@@ -23,6 +23,7 @@ struct ExportPreviewDocument {
     tools::ExportMode mode = tools::ExportMode::DevBootstrap;
     std::string output_dir;
     std::string runtime_binary_path;
+    tools::ExportReleaseProfile release_profile;
     bool compress_assets = true;
     bool obfuscate_scripts = false;
     bool include_debug_symbols = false;

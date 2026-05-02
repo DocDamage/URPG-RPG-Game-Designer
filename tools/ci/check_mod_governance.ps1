@@ -5,6 +5,7 @@ $errors = @()
 
 $requiredFiles = @(
     "content\schemas\mod_manifest.schema.json",
+    "content\schemas\mod_marketplace_provider_profile.schema.json",
     "engine\core\mod\mod_registry.h",
     "engine\core\mod\mod_registry.cpp",
     "engine\core\mod\mod_registry_validator.h",
@@ -28,6 +29,15 @@ if (Test-Path $schemaPath) {
         $null = Get-Content -Raw -Path $schemaPath | ConvertFrom-Json
     } catch {
         $errors += "Mod manifest schema is not valid JSON: $_"
+    }
+}
+
+$providerSchemaPath = Join-Path $repoRoot "content\schemas\mod_marketplace_provider_profile.schema.json"
+if (Test-Path $providerSchemaPath) {
+    try {
+        $null = Get-Content -Raw -Path $providerSchemaPath | ConvertFrom-Json
+    } catch {
+        $errors += "Mod marketplace provider profile schema is not valid JSON: $_"
     }
 }
 

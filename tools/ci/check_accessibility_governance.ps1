@@ -17,6 +17,8 @@ $requiredFiles = @(
     "editor\accessibility\accessibility_audio_adapter.cpp",
     "editor\accessibility\accessibility_battle_adapter.h",
     "editor\accessibility\accessibility_battle_adapter.cpp",
+    "editor\accessibility\release_ui_contrast_coverage.h",
+    "editor\accessibility\release_ui_contrast_coverage.cpp",
     "tools\ci\check_accessibility_governance.ps1",
     "content\fixtures\accessibility_report_fixture.json"
 )

@@ -94,6 +94,11 @@ void ModManagerPanel::bindStoreCatalog(urpg::mod::ModStoreCatalog* store_catalog
     store_catalog_ = store_catalog;
 }
 
+void ModManagerPanel::bindMarketplaceProviderProfile(
+    const urpg::mod::ModMarketplaceProviderProfile* provider_profile) {
+    marketplace_provider_profile_ = provider_profile;
+}
+
 void ModManagerPanel::render() {
     nlohmann::json snapshot;
     snapshot["registered_count"] = 0;
@@ -104,6 +109,14 @@ void ModManagerPanel::render() {
     snapshot["loader_bound"] = loader_ != nullptr;
     snapshot["hot_loader_bound"] = hot_loader_ != nullptr;
     snapshot["store_catalog_bound"] = store_catalog_ != nullptr;
+    snapshot["marketplace_provider_profile_bound"] = marketplace_provider_profile_ != nullptr;
+    snapshot["marketplace_provider_profile"] =
+        marketplace_provider_profile_ ? marketplace_provider_profile_->toJson() : nlohmann::json(nullptr);
+    snapshot["marketplace_provider_profile_status"] =
+        marketplace_provider_profile_
+            ? urpg::release::providerProfileStatusToJson(
+                  urpg::mod::modMarketplaceProviderProfileStatus(*marketplace_provider_profile_))
+            : nlohmann::json(nullptr);
     const bool actionsEnabled = registry_ != nullptr && loader_ != nullptr;
     const bool hotLoadActionsEnabled = registry_ != nullptr && hot_loader_ != nullptr;
     const bool storeActionsEnabled = loader_ != nullptr && store_catalog_ != nullptr;

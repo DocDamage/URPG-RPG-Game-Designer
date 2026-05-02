@@ -40,6 +40,10 @@ bool AudioMixPanel::runBackendSmoke(const std::string& presetName) {
     return result.presetApplied && (!result.probeAttempted || result.probeAccepted);
 }
 
+void AudioMixPanel::setBackendMatrixEvidence(const std::vector<urpg::audio::AudioBackendMatrixResult>& results) {
+    m_backendMatrixEvidence = urpg::audio::audioBackendMatrixResultsToJson(results);
+}
+
 void AudioMixPanel::render() {
     nlohmann::json snapshot;
     snapshot["bankBound"] = m_bank != nullptr;
@@ -111,6 +115,8 @@ void AudioMixPanel::render() {
     }
 
     snapshot["backendSmoke"] = m_lastBackendSmoke.is_null() ? nlohmann::json(nullptr) : m_lastBackendSmoke;
+    snapshot["backendMatrix"] =
+        m_backendMatrixEvidence.is_null() ? nlohmann::json(nullptr) : m_backendMatrixEvidence;
 
     m_lastSnapshot = snapshot;
 }

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urpg.mod_marketplace_provider_profile.v1",
+  "title": "URPG Mod Marketplace Provider Profile",
+  "type": "object",
+  "required": ["schema", "profileId", "providerId"],
+  "properties": {
+    "schema": {
+      "const": "urpg.mod_marketplace_provider_profile.v1"
+    },
+    "profileId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "providerId": {
+      "enum": ["disabled", "dry_run", "command"]
+    },
+    "endpoint": {
+      "type": "string"
+    },
+    "commandExecutable": {
+      "type": "string"
+    },
+    "credentialSourceCategory": {
+      "enum": ["none", "environment", "command", "secret_store"]
+    },
+    "reviewed": {
+      "type": "boolean"
+    },
+    "reviewedBy": {
+      "type": "string"
+    },
+    "reviewedAt": {
+      "type": "string"
+    },
+    "lastTestResult": {
+      "enum": ["not_run", "pass", "fail"]
+    }
+  },
+  "additionalProperties": false
+}

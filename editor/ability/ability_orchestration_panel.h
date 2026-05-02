@@ -24,11 +24,23 @@ public:
         size_t diagnostic_count = 0;
         std::string status_message;
         std::vector<urpg::ability::AbilityTaskPreviewRow> task_preview_rows;
+        std::vector<urpg::ability::AbilityTaskExecutionEvent> task_execution_events;
+        std::vector<std::string> validation_messages;
+        bool can_save = false;
+        bool can_load = true;
+        bool can_apply = false;
+        bool can_revert = false;
         nlohmann::json saved_project_json = nlohmann::json::object();
+        nlohmann::json applied_project_json = nlohmann::json::object();
         nlohmann::json runtime_result_json = nlohmann::json::object();
     };
 
     void loadDocument(urpg::ability::AbilityOrchestrationDocument document);
+    bool loadProjectData(const nlohmann::json& json);
+    nlohmann::json saveProjectData() const;
+    bool addTask(urpg::ability::AbilityOrchestrationTask task);
+    bool applyPreview();
+    bool revertLastApply();
     void render();
 
     bool hasRenderedFrame() const { return snapshot_.rendered; }
@@ -39,8 +51,10 @@ private:
     void refreshPreview();
 
     bool has_document_ = false;
+    bool has_applied_project_ = false;
     urpg::ability::AbilityOrchestrationDocument document_;
     urpg::ability::AbilityOrchestrationResult result_;
+    nlohmann::json applied_project_json_ = nlohmann::json::object();
     Snapshot snapshot_;
 };
 

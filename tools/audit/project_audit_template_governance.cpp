@@ -259,42 +259,42 @@ void addTemplateSpecArtifactGovernance(const TemplateContext& templateContext,
 void addSignoffArtifactGovernance(const json& readiness,
                                   std::vector<AuditIssue>& issues,
                                   std::size_t& signoffArtifactIssueCount,
+                                  std::size_t& releaseBlockerCount,
                                   json& governanceReport) {
-    const std::vector<SignoffArtifactSpec> artifacts = {
-        {
-            "battle_core",
-            "signoff_artifact.battle_missing",
-            "signoff_artifact.battle_wording_mismatch",
-            "signoff_artifact.battle_contract_mismatch",
-            "Battle Core signoff artifact missing or non-conservative",
-            "Battle Core signoff",
-            fs::path("docs") / "BATTLE_CORE_CLOSURE_SIGNOFF.md",
-            {"Human review is required", "residual gaps", "PARTIAL"},
-            {"Status:** `READY`", "approved by release-owner review"},
-        },
-        {
-            "save_data_core",
-            "signoff_artifact.save_missing",
-            "signoff_artifact.save_wording_mismatch",
-            "signoff_artifact.save_contract_mismatch",
-            "Save/Data Core signoff artifact missing or non-conservative",
-            "Save/Data Core signoff",
-            fs::path("docs") / "SAVE_DATA_CORE_CLOSURE_SIGNOFF.md",
-            {"Human review is required", "residual gaps", "PARTIAL"},
-            {"Status:** `READY`", "approved by release-owner review"},
-        },
-        {
-            "compat_bridge_exit",
-            "signoff_artifact.compat_missing",
-            "signoff_artifact.compat_wording_mismatch",
-            "signoff_artifact.compat_contract_mismatch",
-            "Compat Bridge Exit signoff artifact missing or non-conservative",
-            "Compat Bridge Exit signoff",
-            fs::path("docs") / "COMPAT_BRIDGE_EXIT_SIGNOFF.md",
-            {"Compat Bridge Exit", "Human review is required", "compat bridge exit", "residual gaps", "PARTIAL"},
-            {"Compat Bridge Exit", "Status:** `READY`", "approved by release-owner review"},
-        },
-    };
+    std::vector<SignoffArtifactSpec> artifacts;
+    if (readiness.contains("subsystems") && readiness.at("subsystems").is_array()) {
+        for (const auto& subsystem : readiness.at("subsystems")) {
+            if (!subsystem.is_object()) {
+                continue;
+            }
+
+            const std::string subsystemId = getString(subsystem, "id", "");
+            const bool ready = getString(subsystem, "status", "") == "READY";
+            const bool hasSignoff = subsystem.contains("signoff") && subsystem.at("signoff").is_object();
+            const bool signoffRequired = hasSignoff &&
+                subsystem.at("signoff").contains("required") &&
+                subsystem.at("signoff").at("required").is_boolean() &&
+                subsystem.at("signoff").at("required").get<bool>();
+
+            if (!ready && !signoffRequired) {
+                continue;
+            }
+
+            const std::string artifactPath = hasSignoff ? getString(subsystem.at("signoff"), "artifactPath", "") : "";
+            const std::string issuePrefix = subsystemId.empty() ? "unknown" : subsystemId;
+            artifacts.push_back({
+                subsystemId,
+                "signoff_artifact." + issuePrefix + "_missing",
+                "signoff_artifact." + issuePrefix + "_wording_mismatch",
+                "signoff_artifact." + issuePrefix + "_contract_mismatch",
+                "Subsystem signoff artifact missing or non-conservative",
+                "Subsystem signoff",
+                artifactPath.empty() ? fs::path() : fs::path(artifactPath),
+                {"Human review is required", "residual gaps", "PARTIAL"},
+                {"Status:** `READY`", "approved by release-owner review"},
+            });
+        }
+    }
 
     json section = json::object();
     section["enabled"] = true;
@@ -304,14 +304,18 @@ void addSignoffArtifactGovernance(const json& readiness,
         "Checking required subsystem signoff artifacts, conservative wording, and structured human-review signoff contracts for governed lanes.";
     section["expectedArtifacts"] = json::array();
 
+    const std::string statusDate = getString(readiness, "statusDate", "");
     for (const auto& artifact : artifacts) {
         const json* subsystem = findSubsystemById(readiness, artifact.subsystemId);
-        const bool exists = fs::exists(artifact.path);
+        const bool pathProvided = !artifact.path.empty();
+        const bool exists = pathProvided && fs::exists(artifact.path);
         const bool regularFile = exists && fs::is_regular_file(artifact.path);
         bool wordingOk = false;
         bool contractOk = false;
+        bool readyCompletenessOk = false;
         json missingPhrases = json::array();
-        std::string status = regularFile ? "present" : (exists ? "invalid" : "missing");
+        json missingContractFields = json::array();
+        std::string status = !pathProvided ? "missing_contract" : (regularFile ? "present" : (exists ? "invalid" : "missing"));
         json contractEntry = json::object();
         const bool subsystemReady = subsystem != nullptr && getString(*subsystem, "status", "") == "READY";
 
@@ -326,25 +330,70 @@ void addSignoffArtifactGovernance(const json& readiness,
                 signoff.at("promotionRequiresHumanReview").get<bool>();
             const std::string workflow = getString(signoff, "workflow", "");
             const std::string reviewStatus = getString(signoff, "reviewStatus", "");
+            const std::string reviewedBy = getString(signoff, "reviewedBy", "");
+            const std::string reviewedDate = getString(signoff, "reviewedDate", "");
+            const std::string verificationCommand = getString(signoff, "verificationCommand", "");
+            const std::string evidenceCommandResult = getString(signoff, "evidenceCommandResult", "");
+            const bool docsAligned = subsystem->contains("evidence") && subsystem->at("evidence").is_object() &&
+                subsystem->at("evidence").contains("docsAligned") &&
+                subsystem->at("evidence").at("docsAligned").is_boolean() &&
+                subsystem->at("evidence").at("docsAligned").get<bool>();
+
+            if (subsystemReady) {
+                if (reviewedBy.empty()) {
+                    missingContractFields.push_back("reviewedBy");
+                }
+                if (reviewedDate.empty()) {
+                    missingContractFields.push_back("reviewedDate");
+                }
+                if (verificationCommand.empty()) {
+                    missingContractFields.push_back("verificationCommand");
+                }
+                if (evidenceCommandResult != "PASS") {
+                    missingContractFields.push_back("evidenceCommandResult");
+                }
+                if (!docsAligned) {
+                    missingContractFields.push_back("evidence.docsAligned");
+                }
+                if (!statusDate.empty() && !reviewedDate.empty() && reviewedDate < statusDate) {
+                    missingContractFields.push_back("reviewedDate.current");
+                }
+            }
+            readyCompletenessOk = !subsystemReady || missingContractFields.empty();
 
             contractOk = required && artifactPath == artifact.path.generic_string() &&
                 workflow == (fs::path("docs") / "RELEASE_SIGNOFF_WORKFLOW.md").generic_string() &&
                 (subsystemReady ? (!promotionRequiresHumanReview && reviewStatus == "APPROVED")
-                                : promotionRequiresHumanReview);
+                                : promotionRequiresHumanReview) &&
+                readyCompletenessOk;
 
             contractEntry = {
                 {"required", required},
                 {"artifactPath", artifactPath},
                 {"promotionRequiresHumanReview", promotionRequiresHumanReview},
                 {"reviewStatus", reviewStatus},
+                {"reviewedBy", reviewedBy},
+                {"reviewedDate", reviewedDate},
+                {"verificationCommand", verificationCommand},
+                {"evidenceCommandResult", evidenceCommandResult},
+                {"docsAligned", docsAligned},
                 {"workflow", workflow},
                 {"contractOk", contractOk},
             };
+            if (!missingContractFields.empty()) {
+                contractEntry["missingFields"] = missingContractFields;
+            }
         } else {
             contractEntry = {
                 {"required", false},
                 {"artifactPath", ""},
                 {"promotionRequiresHumanReview", false},
+                {"reviewStatus", ""},
+                {"reviewedBy", ""},
+                {"reviewedDate", ""},
+                {"verificationCommand", ""},
+                {"evidenceCommandResult", ""},
+                {"docsAligned", false},
                 {"workflow", ""},
                 {"contractOk", false},
             };
@@ -387,18 +436,25 @@ void addSignoffArtifactGovernance(const json& readiness,
             artifactEntry["missingPhrases"] = std::move(missingPhrases);
         }
 
-        if (!exists || !regularFile) {
+        if (!pathProvided || !exists || !regularFile) {
             ++signoffArtifactIssueCount;
+            if (subsystemReady) {
+                ++releaseBlockerCount;
+            }
             issues.push_back({
-                artifact.missingCode,
+                subsystemReady ? "signoff_artifact.ready_missing_contract" : artifact.missingCode,
                 artifact.title,
-                artifact.detailPrefix + " canonical artifact expected at " + artifact.path.string() +
-                    " is " + (exists ? "present but not a regular file" : "missing") +
-                    "; this is a governance gap, not proof the subsystem is absent.",
-                "warning",
-                false,
+                subsystemReady
+                    ? artifact.subsystemId +
+                        " is marked READY but lacks a usable signoff artifact path; READY rows require artifact, reviewer, date, verification command, PASS result, and docs alignment."
+                    : artifact.detailPrefix + " canonical artifact expected at " + artifact.path.string() +
+                        " is " + (exists ? "present but not a regular file" : "missing") +
+                        "; this is a governance gap, not proof the subsystem is absent.",
+                subsystemReady ? "error" : "warning",
+                subsystemReady,
                 false,
             });
+            section["expectedArtifacts"].push_back(std::move(artifactEntry));
             continue;
         }
 
@@ -417,19 +473,37 @@ void addSignoffArtifactGovernance(const json& readiness,
 
         if (!contractOk) {
             ++signoffArtifactIssueCount;
+            if (subsystemReady) {
+                ++releaseBlockerCount;
+            }
             if (status == "present") {
                 status = "contract_mismatch";
                 artifactEntry["status"] = status;
             }
             issues.push_back({
-                artifact.contractCode,
+                subsystemReady ? "signoff_artifact.ready_contract_incomplete" : artifact.contractCode,
                 artifact.title,
-                artifact.detailPrefix + " readiness record is missing the expected structured signoff contract for " +
-                    artifact.subsystemId + "; keep the artifact path, workflow path, and human-review requirement aligned.",
-                "warning",
-                false,
+                subsystemReady
+                    ? artifact.subsystemId +
+                        " is marked READY but its structured signoff contract is incomplete; required fields are artifactPath, reviewedBy, reviewedDate, verificationCommand, evidenceCommandResult=PASS, docsAligned=true, reviewStatus=APPROVED, and workflow."
+                    : artifact.detailPrefix + " readiness record is missing the expected structured signoff contract for " +
+                        artifact.subsystemId + "; keep the artifact path, workflow path, and human-review requirement aligned.",
+                subsystemReady ? "error" : "warning",
+                subsystemReady,
                 false,
             });
+            if (subsystemReady && !readyCompletenessOk) {
+                issues.push_back({
+                    "signoff_artifact.ready_docs_alignment_missing",
+                    artifact.title,
+                    artifact.subsystemId +
+                        " READY signoff completeness check found missing or stale evidence fields: " +
+                        missingContractFields.dump() + ".",
+                    "error",
+                    true,
+                    false,
+                });
+            }
         }
 
         section["expectedArtifacts"].push_back(std::move(artifactEntry));

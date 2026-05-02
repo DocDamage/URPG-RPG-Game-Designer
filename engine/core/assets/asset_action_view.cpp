@@ -171,6 +171,8 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
             {"normalized_path", asset.normalized_path},
             {"preview_path", asset.preview_path},
             {"preview_kind", asset.preview_kind},
+            {"preview_width", asset.preview_width},
+            {"preview_height", asset.preview_height},
             {"media_kind", asset.media_kind},
             {"category", asset.category},
             {"pack", asset.pack},

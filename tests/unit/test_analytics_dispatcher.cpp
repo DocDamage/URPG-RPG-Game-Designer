@@ -289,6 +289,57 @@ TEST_CASE("AnalyticsEndpointProfile blocks remote endpoints without privacy evid
     REQUIRE(hasPrivacyDiagnostic);
 }
 
+TEST_CASE("AnalyticsEndpointProfile reports release provider status vocabulary",
+          "[analytics][endpoint_profile][privacy][phase7]") {
+    AnalyticsEndpointProfile disabled;
+    disabled.profileId = "disabled-analytics";
+    disabled.mode = AnalyticsEndpointMode::Disabled;
+    REQUIRE(analyticsEndpointProfileStatus(disabled).status == "disabled");
+
+    AnalyticsEndpointProfile dryRun;
+    dryRun.profileId = "dry-run-analytics";
+    dryRun.mode = AnalyticsEndpointMode::LocalJsonl;
+    dryRun.localJsonlPath = "reports/analytics/events.jsonl";
+    dryRun.lastTestResult = "pass";
+    REQUIRE(analyticsEndpointProfileStatus(dryRun).status == "dry_run");
+    REQUIRE_FALSE(analyticsEndpointProfileStatus(dryRun).releasePackagingAllowed);
+
+    AnalyticsEndpointProfile unsupported;
+    unsupported.profileId = "unsupported-analytics";
+    unsupported.providerId = "external-telemetry";
+    unsupported.mode = AnalyticsEndpointMode::HttpJson;
+    unsupported.url = "https://telemetry.example.invalid/collect";
+    REQUIRE(analyticsEndpointProfileStatus(unsupported).status == "unsupported_provider");
+
+    AnalyticsEndpointProfile missingCredentials;
+    missingCredentials.profileId = "missing-analytics";
+    missingCredentials.providerId = "http_json";
+    missingCredentials.mode = AnalyticsEndpointMode::HttpJson;
+    missingCredentials.url = "https://telemetry.example.invalid/collect";
+    missingCredentials.credentialSourceCategory = "environment";
+    missingCredentials.credentialsRequired = true;
+    missingCredentials.privacyReview.approved = true;
+    missingCredentials.privacyReview.reviewer = "privacy";
+    missingCredentials.privacyReview.dataCategories = {"editor_usage"};
+    REQUIRE(analyticsEndpointProfileStatus(missingCredentials).status == "missing_credentials");
+
+    AnalyticsEndpointProfile unreviewed = missingCredentials;
+    unreviewed.bearerToken = "configured";
+    unreviewed.privacyReview.approved = false;
+    REQUIRE(analyticsEndpointProfileStatus(unreviewed).status == "configured_unreviewed");
+
+    AnalyticsEndpointProfile reviewed = missingCredentials;
+    reviewed.bearerToken = "configured";
+    reviewed.reviewed = true;
+    reviewed.reviewedBy = "release-owner";
+    reviewed.reviewedAt = "2026-05-01";
+    reviewed.lastTestResult = "pass";
+    const auto reviewedStatus = analyticsEndpointProfileStatus(reviewed);
+    REQUIRE(reviewedStatus.status == "configured_reviewed");
+    REQUIRE(reviewedStatus.reviewStatus == "reviewed");
+    REQUIRE(reviewedStatus.releasePackagingAllowed);
+}
+
 TEST_CASE("AnalyticsUploader: batching splits events into multiple handler calls",
           "[analytics][upload][s28t07]") {
     int callCount = 0;

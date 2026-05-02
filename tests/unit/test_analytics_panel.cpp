@@ -333,6 +333,11 @@ TEST_CASE("AnalyticsPanel applies reviewed endpoint profile before upload",
     auto snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot["endpointProfileBound"] == true);
     REQUIRE(snapshot["endpointProfile"]["profileId"] == "reviewed-http");
+    REQUIRE(snapshot["endpointProfileStatus"]["status"] == "configured_reviewed");
+    REQUIRE(snapshot["endpointProfileStatus"]["credentialSourceCategory"] == "not_required");
+    REQUIRE(snapshot["endpointProfileStatus"]["reviewStatus"] == "reviewed");
+    REQUIRE(snapshot["endpointProfileStatus"]["lastTestResult"] == "not_run");
+    REQUIRE(snapshot["endpointProfileStatus"]["releasePackagingAllowed"] == true);
     REQUIRE(snapshot["endpointProfilePrivacyApproved"] == true);
     REQUIRE(snapshot["actions"]["applyEndpointProfile"] == true);
     REQUIRE(snapshot["actionDetails"]["applyEndpointProfile"]["enabled"] == true);

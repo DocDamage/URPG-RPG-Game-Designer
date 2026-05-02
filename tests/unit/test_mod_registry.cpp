@@ -416,3 +416,44 @@ TEST_CASE("ModStoreCatalog installs verified catalog entries through ModLoader",
     REQUIRE(loader.getSandboxPolicy("core_ui_store")->allowFileSystemRead);
     REQUIRE(registry.getMod("core_ui_store")->entryPoint.find("mods/core_ui/main.js") != std::string::npos);
 }
+
+TEST_CASE("ModMarketplaceProviderProfile reports release provider status vocabulary",
+          "[mod][store][profile][phase7]") {
+    ModMarketplaceProviderProfile disabled;
+    disabled.profileId = "disabled-marketplace";
+    disabled.providerId = "disabled";
+    REQUIRE(modMarketplaceProviderProfileStatus(disabled).status == "disabled");
+
+    ModMarketplaceProviderProfile unsupported;
+    unsupported.profileId = "unsupported-marketplace";
+    unsupported.providerId = "external-market";
+    REQUIRE(modMarketplaceProviderProfileStatus(unsupported).status == "unsupported_provider");
+
+    ModMarketplaceProviderProfile dryRun;
+    dryRun.profileId = "dry-run-marketplace";
+    dryRun.providerId = "dry_run";
+    dryRun.lastTestResult = "pass";
+    REQUIRE(modMarketplaceProviderProfileStatus(dryRun).status == "dry_run");
+    REQUIRE_FALSE(modMarketplaceProviderProfileStatus(dryRun).releasePackagingAllowed);
+
+    ModMarketplaceProviderProfile missingCredentials;
+    missingCredentials.profileId = "missing-command-marketplace";
+    missingCredentials.providerId = "command";
+    REQUIRE(modMarketplaceProviderProfileStatus(missingCredentials).status == "missing_credentials");
+
+    ModMarketplaceProviderProfile commandUnreviewed;
+    commandUnreviewed.profileId = "command-marketplace";
+    commandUnreviewed.providerId = "command";
+    commandUnreviewed.commandExecutable = "mod-market-cli";
+    commandUnreviewed.credentialSourceCategory = "environment";
+    REQUIRE(modMarketplaceProviderProfileStatus(commandUnreviewed).status == "configured_unreviewed");
+
+    ModMarketplaceProviderProfile reviewed = commandUnreviewed;
+    reviewed.reviewed = true;
+    reviewed.reviewedBy = "release-owner";
+    reviewed.reviewedAt = "2026-05-01";
+    reviewed.lastTestResult = "pass";
+    const auto reviewedStatus = modMarketplaceProviderProfileStatus(reviewed);
+    REQUIRE(reviewedStatus.status == "configured_reviewed");
+    REQUIRE(reviewedStatus.releasePackagingAllowed);
+}

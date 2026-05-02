@@ -5,6 +5,7 @@ $errors = @()
 
 $requiredFiles = @(
     "content\schemas\analytics_config.schema.json",
+    "content\schemas\analytics_endpoint_profile.schema.json",
     "engine\core\analytics\analytics_dispatcher.h",
     "engine\core\analytics\analytics_dispatcher.cpp",
     "engine\core\analytics\analytics_endpoint_profile.h",
@@ -57,6 +58,15 @@ if (Test-Path $schemaPath) {
         $null = Get-Content -Raw -Path $schemaPath | ConvertFrom-Json
     } catch {
         $errors += "Analytics config schema is not valid JSON: $_"
+    }
+}
+
+$endpointSchemaPath = Join-Path $repoRoot "content\schemas\analytics_endpoint_profile.schema.json"
+if (Test-Path $endpointSchemaPath) {
+    try {
+        $null = Get-Content -Raw -Path $endpointSchemaPath | ConvertFrom-Json
+    } catch {
+        $errors += "Analytics endpoint profile schema is not valid JSON: $_"
     }
 }
 

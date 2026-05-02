@@ -9,6 +9,8 @@ $requiredFiles = @(
     "engine\core\audio\audio_mix_presets.cpp",
     "engine\core\audio\audio_mix_validator.h",
     "engine\core\audio\audio_mix_validator.cpp",
+    "engine\core\audio\audio_mix_backend_smoke.h",
+    "engine\core\audio\audio_mix_backend_smoke.cpp",
     "editor\audio\audio_mix_panel.h",
     "editor\audio\audio_mix_panel.cpp",
     "tools\ci\check_audio_governance.ps1",

@@ -1,6 +1,6 @@
 # Card Battler RPG Template Spec
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 Authority: canonical template spec for `card_battler_rpg`
 
 ## Purpose

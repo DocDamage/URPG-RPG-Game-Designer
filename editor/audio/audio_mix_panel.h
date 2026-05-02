@@ -34,6 +34,7 @@ public:
      *        playback smoke probe. The latest result is included in render().
      */
     bool runBackendSmoke(const std::string& presetName);
+    void setBackendMatrixEvidence(const std::vector<urpg::audio::AudioBackendMatrixResult>& results);
     void render();
 
     nlohmann::json lastRenderSnapshot() const;
@@ -43,6 +44,7 @@ private:
     urpg::audio::AudioCore*          m_core = nullptr;
     std::string m_selectedPreset;
     nlohmann::json m_lastBackendSmoke;
+    nlohmann::json m_backendMatrixEvidence;
     nlohmann::json m_lastSnapshot;
 };
 

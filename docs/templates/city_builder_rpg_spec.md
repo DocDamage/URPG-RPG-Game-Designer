@@ -1,6 +1,6 @@
 # City Builder RPG Template Spec
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 Authority: canonical template spec for `city_builder_rpg`
 
 ## Purpose

@@ -1,6 +1,6 @@
 # Cooking Restaurant RPG Template Spec
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 Authority: canonical template spec for `cooking_restaurant_rpg`
 
 ## Purpose

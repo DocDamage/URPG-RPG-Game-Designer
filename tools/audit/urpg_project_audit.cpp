@@ -99,7 +99,7 @@ json buildReport(const json& readiness,
     addAnalyticsArtifactGovernance(templateContext, issues, analyticsArtifactIssueCount, governanceReport);
     addPerformanceArtifactGovernance(templateContext, issues, performanceArtifactIssueCount, governanceReport);
     addReleaseSignoffWorkflowGovernance(templateContext, issues, releaseSignoffWorkflowIssueCount, governanceReport);
-    addSignoffArtifactGovernance(readiness, issues, signoffArtifactIssueCount, governanceReport);
+    addSignoffArtifactGovernance(readiness, issues, signoffArtifactIssueCount, releaseBlockerCount, governanceReport);
     addTemplateSpecArtifactGovernance(templateContext, issues, templateSpecArtifactIssueCount, releaseBlockerCount, exportBlockerCount, governanceReport);
 
     json issueArray = json::array();

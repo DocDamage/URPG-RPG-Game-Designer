@@ -266,12 +266,12 @@ TEST_CASE("ExportPreviewPanel produces exact release shipping manifest",
     REQUIRE(panel.snapshot().shipping_manifest["exact_ship_preview"] == true);
     REQUIRE(panel.snapshot().shipping_manifest["missing_expected_artifacts"].empty());
     REQUIRE(panel.snapshot().platform_checklist_count == 7);
-    REQUIRE(panel.snapshot().platform_checklist_blocker_count == 1);
+    REQUIRE(panel.snapshot().platform_checklist_blocker_count == 0);
     REQUIRE(panel.snapshot().platform_checklist[0]["id"] == "output_dir");
-    REQUIRE(panel.snapshot().signing_status == "not_configured");
+    REQUIRE(panel.snapshot().signing_status == "configured");
     REQUIRE(panel.snapshot().smoke_test_status == "staged_not_launched");
     REQUIRE(panel.snapshot().shipping_manifest["platform_checklist"].size() == 7);
-    REQUIRE(panel.snapshot().shipping_manifest["signing_status"]["native_signing_configured"] == false);
+    REQUIRE(panel.snapshot().shipping_manifest["signing_status"]["native_signing_configured"] == true);
     REQUIRE(panel.snapshot().shipping_manifest["smoke_test_evidence"]["staged_runtime_present"] == true);
 
     bool foundPck = false;
@@ -320,7 +320,7 @@ TEST_CASE("ExportPreviewPanel edits ship settings and blocks missing expected ar
     REQUIRE(panel.result().missing_expected_artifacts[0] == "missing.bin");
     REQUIRE(panel.snapshot().shipping_manifest["expected_artifacts"].size() == 3);
     REQUIRE(panel.snapshot().shipping_manifest["runtime_trace"].is_array());
-    REQUIRE(panel.snapshot().platform_checklist_blocker_count == 2);
+    REQUIRE(panel.snapshot().platform_checklist_blocker_count == 1);
     REQUIRE(panel.snapshot().missing_asset_report["has_missing_assets_or_artifacts"] == true);
     REQUIRE(panel.snapshot().missing_asset_report["missing_expected_artifacts"][0] == "missing.bin");
     REQUIRE(panel.snapshot().packaging_diagnostic_count == 1);

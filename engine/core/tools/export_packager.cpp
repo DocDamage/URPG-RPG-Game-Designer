@@ -88,6 +88,22 @@ ExportValidationResult ExportPackager::validateBeforeExport(const ExportConfig& 
         } else if (config.runtimeBinaryPath.empty()) {
             errors.emplace_back("Release native export requires runtimeBinaryPath for a real runtime binary.");
         }
+
+        if (config.releaseProfile.signingMode.empty()) {
+            errors.emplace_back("Release export requires signing mode in the release artifact profile.");
+        }
+        if (config.releaseProfile.certificateReference.empty()) {
+            errors.emplace_back("Release export requires certificate reference in the release artifact profile.");
+        }
+        if (config.releaseProfile.notarizationMode.empty()) {
+            errors.emplace_back("Release export requires notarization mode in the release artifact profile.");
+        }
+        if (config.releaseProfile.releaseArtifactPolicy.empty()) {
+            errors.emplace_back("Release export requires release artifact policy in the release artifact profile.");
+        }
+        if (config.releaseProfile.ownerApproval.empty()) {
+            errors.emplace_back("Release export requires owner approval in the release artifact profile.");
+        }
     }
 
     if (!config.runtimeBinaryPath.empty() && config.target != ExportTarget::Web_WASM) {

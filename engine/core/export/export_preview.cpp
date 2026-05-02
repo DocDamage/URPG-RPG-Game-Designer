@@ -90,14 +90,28 @@ nlohmann::json buildMissingAssetReport(const ExportPreviewDocument& document,
 }
 
 nlohmann::json buildSigningStatus(const ExportPreviewDocument& document) {
+    const bool profileConfigured = !document.release_profile.signingMode.empty() &&
+                                   !document.release_profile.certificateReference.empty() &&
+                                   !document.release_profile.notarizationMode.empty() &&
+                                   !document.release_profile.releaseArtifactPolicy.empty() &&
+                                   !document.release_profile.ownerApproval.empty();
     return {
         {"schema", "urpg.export_signing_status.v1"},
         {"target", ExportPreviewTargetLabel(document.target)},
         {"signing_required_for_public_release", document.mode == tools::ExportMode::Release},
-        {"native_signing_configured", false},
-        {"notarization_configured", false},
-        {"status", document.mode == tools::ExportMode::Release ? "not_configured" : "not_required_for_dev_bootstrap"},
-        {"detail", "Runtime bundle integrity is validated separately; platform signing/notarization remains explicit release backlog."},
+        {"native_signing_configured", profileConfigured},
+        {"notarization_configured", profileConfigured},
+        {"signing_mode", document.release_profile.signingMode},
+        {"certificate_reference", document.release_profile.certificateReference},
+        {"notarization_mode", document.release_profile.notarizationMode},
+        {"release_artifact_policy", document.release_profile.releaseArtifactPolicy},
+        {"owner_approval", document.release_profile.ownerApproval},
+        {"status", document.mode == tools::ExportMode::Release
+                       ? (profileConfigured ? "configured" : "not_configured")
+                       : "not_required_for_dev_bootstrap"},
+        {"detail", profileConfigured
+                       ? "Release profile declares signing/notarization policy and owner approval."
+                       : "Runtime bundle integrity is validated separately; platform signing/notarization requires explicit release profile data."},
     };
 }
 
@@ -123,6 +137,11 @@ nlohmann::json buildPlatformChecklist(const ExportPreviewDocument& document,
     const bool nativeTarget = document.target != tools::ExportTarget::Web_WASM;
     const bool runtimeConfigured = !document.runtime_binary_path.empty();
     const bool noMissingArtifacts = result.missing_expected_artifacts.empty();
+    const bool releaseProfileConfigured = !document.release_profile.signingMode.empty() &&
+                                          !document.release_profile.certificateReference.empty() &&
+                                          !document.release_profile.notarizationMode.empty() &&
+                                          !document.release_profile.releaseArtifactPolicy.empty() &&
+                                          !document.release_profile.ownerApproval.empty();
     nlohmann::json checklist = nlohmann::json::array();
     checklist.push_back(checklistItem("output_dir", "Output directory",
                                       !result.output_dir.empty(), result.output_dir));
@@ -143,9 +162,10 @@ nlohmann::json buildPlatformChecklist(const ExportPreviewDocument& document,
                                       noMissingArtifacts, noMissingArtifacts ? "All expected artifacts were emitted."
                                                                             : "Expected artifacts are missing."));
     checklist.push_back(checklistItem("platform_signing", "Platform signing/notarization",
-                                      document.mode != tools::ExportMode::Release,
+                                      document.mode != tools::ExportMode::Release || releaseProfileConfigured,
                                       document.mode == tools::ExportMode::Release
-                                          ? "Not configured; required before public release."
+                                          ? (releaseProfileConfigured ? "Release profile configured."
+                                                                      : "Not configured; required before public release.")
                                           : "Not required for dev bootstrap preview."));
     return checklist;
 }
@@ -193,6 +213,7 @@ tools::ExportConfig ExportPreviewDocument::toConfig(const std::filesystem::path&
     config.mode = mode;
     config.outputDir = output_dir.empty() ? (workspace_root / id).string() : output_dir;
     config.runtimeBinaryPath = runtime_binary_path;
+    config.releaseProfile = release_profile;
     config.compressAssets = compress_assets;
     config.obfuscateScripts = obfuscate_scripts;
     config.includeDebugSymbols = include_debug_symbols;
@@ -208,6 +229,14 @@ nlohmann::json ExportPreviewDocument::toJson() const {
         {"mode", ExportPreviewModeLabel(mode)},
         {"output_dir", output_dir},
         {"runtime_binary_path", runtime_binary_path},
+        {"release_profile",
+         {
+             {"signing_mode", release_profile.signingMode},
+             {"certificate_reference", release_profile.certificateReference},
+             {"notarization_mode", release_profile.notarizationMode},
+             {"release_artifact_policy", release_profile.releaseArtifactPolicy},
+             {"owner_approval", release_profile.ownerApproval},
+         }},
         {"compress_assets", compress_assets},
         {"obfuscate_scripts", obfuscate_scripts},
         {"include_debug_symbols", include_debug_symbols},
@@ -226,6 +255,14 @@ ExportPreviewDocument ExportPreviewDocument::fromJson(const nlohmann::json& json
     document.mode = modeFromString(json.value("mode", "dev_bootstrap"));
     document.output_dir = json.value("output_dir", "");
     document.runtime_binary_path = json.value("runtime_binary_path", "");
+    const auto profile = json.value("release_profile", nlohmann::json::object());
+    if (profile.is_object()) {
+        document.release_profile.signingMode = profile.value("signing_mode", "");
+        document.release_profile.certificateReference = profile.value("certificate_reference", "");
+        document.release_profile.notarizationMode = profile.value("notarization_mode", "");
+        document.release_profile.releaseArtifactPolicy = profile.value("release_artifact_policy", "");
+        document.release_profile.ownerApproval = profile.value("owner_approval", "");
+    }
     document.compress_assets = json.value("compress_assets", true);
     document.obfuscate_scripts = json.value("obfuscate_scripts", false);
     document.include_debug_symbols = json.value("include_debug_symbols", false);

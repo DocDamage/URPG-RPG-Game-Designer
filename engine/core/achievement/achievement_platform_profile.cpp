@@ -27,6 +27,8 @@ const char* achievementPlatformBackendTypeName(AchievementPlatformProfileBackend
         return "memory";
     case AchievementPlatformProfileBackendType::Command:
         return "command";
+    case AchievementPlatformProfileBackendType::Unsupported:
+        return "unsupported";
     }
     return "memory";
 }
@@ -35,7 +37,10 @@ AchievementPlatformProfileBackendType achievementPlatformBackendTypeFromString(c
     if (value == "command") {
         return AchievementPlatformProfileBackendType::Command;
     }
-    return AchievementPlatformProfileBackendType::Memory;
+    if (value == "memory") {
+        return AchievementPlatformProfileBackendType::Memory;
+    }
+    return AchievementPlatformProfileBackendType::Unsupported;
 }
 
 nlohmann::json AchievementPlatformProfile::toJson() const {
@@ -43,7 +48,9 @@ nlohmann::json AchievementPlatformProfile::toJson() const {
     for (const auto& backend : backends) {
         backendJson.push_back({
             {"platformId", backend.platformId},
-            {"type", achievementPlatformBackendTypeName(backend.type)},
+            {"type", backend.type == AchievementPlatformProfileBackendType::Unsupported && !backend.rawType.empty()
+                         ? backend.rawType
+                         : achievementPlatformBackendTypeName(backend.type)},
             {"executable", backend.executable},
             {"arguments", backend.arguments},
         });
@@ -54,6 +61,10 @@ nlohmann::json AchievementPlatformProfile::toJson() const {
         {"profileId", profileId},
         {"packageId", packageId},
         {"backends", backendJson},
+        {"reviewed", reviewed},
+        {"reviewedBy", reviewedBy},
+        {"reviewedAt", reviewedAt},
+        {"lastTestResult", lastTestResult},
     };
 }
 
@@ -72,12 +83,17 @@ AchievementPlatformProfile AchievementPlatformProfile::fromJson(const nlohmann::
             }
             AchievementPlatformProfileBackend backend;
             backend.platformId = item.value("platformId", "");
-            backend.type = achievementPlatformBackendTypeFromString(item.value("type", std::string("memory")));
+            backend.rawType = item.value("type", std::string("memory"));
+            backend.type = achievementPlatformBackendTypeFromString(backend.rawType);
             backend.executable = item.value("executable", "");
             backend.arguments = stringsFromJsonArray(item.value("arguments", nlohmann::json::array()));
             profile.backends.push_back(std::move(backend));
         }
     }
+    profile.reviewed = json.value("reviewed", false);
+    profile.reviewedBy = json.value("reviewedBy", "");
+    profile.reviewedAt = json.value("reviewedAt", "");
+    profile.lastTestResult = json.value("lastTestResult", std::string("not_run"));
     return profile;
 }
 
@@ -100,6 +116,10 @@ std::vector<AchievementPlatformProfileDiagnostic> validateAchievementPlatformPro
             diagnostics.push_back({"missing_platform_id", "Achievement platform backend requires a platform id.",
                                    profile.profileId});
         }
+        if (backend.type == AchievementPlatformProfileBackendType::Unsupported) {
+            diagnostics.push_back({"unsupported_provider", "Achievement platform backend type is not supported.",
+                                   backend.platformId});
+        }
         if (backend.type == AchievementPlatformProfileBackendType::Command && backend.executable.empty()) {
             diagnostics.push_back({"missing_command_executable",
                                    "Command achievement platform backend requires an executable.",
@@ -107,6 +127,52 @@ std::vector<AchievementPlatformProfileDiagnostic> validateAchievementPlatformPro
         }
     }
     return diagnostics;
+}
+
+urpg::release::ProviderProfileStatus achievementPlatformProfileStatus(
+    const AchievementPlatformProfile& profile) {
+    urpg::release::ProviderProfileStatus status;
+    status.lastTestResult = profile.lastTestResult.empty() ? "not_run" : profile.lastTestResult;
+
+    if (profile.backends.empty()) {
+        status.status = "disabled";
+        return status;
+    }
+
+    bool hasUnsupported = false;
+    bool hasCommand = false;
+    bool missingCredentials = false;
+    for (const auto& backend : profile.backends) {
+        if (backend.type == AchievementPlatformProfileBackendType::Unsupported) {
+            hasUnsupported = true;
+        }
+        if (backend.type == AchievementPlatformProfileBackendType::Command) {
+            hasCommand = true;
+            if (backend.executable.empty()) {
+                missingCredentials = true;
+            }
+        }
+    }
+
+    if (hasUnsupported) {
+        status.status = "unsupported_provider";
+        return status;
+    }
+    if (missingCredentials) {
+        status.status = "missing_credentials";
+        status.credentialSourceCategory = "command";
+        return status;
+    }
+    if (!hasCommand) {
+        status.status = "dry_run";
+        return status;
+    }
+
+    status.credentialSourceCategory = "command";
+    status.reviewStatus = profile.reviewed ? "reviewed" : "unreviewed";
+    status.status = profile.reviewed ? "configured_reviewed" : "configured_unreviewed";
+    status.releasePackagingAllowed = profile.reviewed && status.lastTestResult == "pass";
+    return status;
 }
 
 AchievementPlatformProfileApplyResult applyAchievementPlatformProfile(

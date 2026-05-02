@@ -18,6 +18,11 @@ std::vector<std::string> stringsFromJsonArray(const nlohmann::json& json) {
     return values;
 }
 
+bool isSupportedProviderId(const std::string& providerId) {
+    return providerId.empty() || providerId == "disabled" || providerId == "local_jsonl" ||
+           providerId == "http_json" || providerId == "command";
+}
+
 } // namespace
 
 const char* analyticsEndpointModeName(AnalyticsEndpointMode mode) {
@@ -46,12 +51,19 @@ nlohmann::json AnalyticsEndpointProfile::toJson() const {
     return {
         {"schema", "urpg.analytics_endpoint_profile.v1"},
         {"profileId", profileId},
+        {"providerId", providerId},
         {"mode", analyticsEndpointModeName(mode)},
         {"localJsonlPath", localJsonlPath.generic_string()},
         {"url", url},
         {"headers", headers},
         {"bearerToken", bearerToken.empty() ? "" : "[configured]"},
         {"curlExecutable", curlExecutable},
+        {"credentialSourceCategory", credentialSourceCategory},
+        {"credentialsRequired", credentialsRequired},
+        {"reviewed", reviewed},
+        {"reviewedBy", reviewedBy},
+        {"reviewedAt", reviewedAt},
+        {"lastTestResult", lastTestResult},
         {"privacyReview",
          {
              {"approved", privacyReview.approved},
@@ -70,6 +82,7 @@ AnalyticsEndpointProfile AnalyticsEndpointProfile::fromJson(const nlohmann::json
     }
 
     profile.profileId = json.value("profileId", "");
+    profile.providerId = json.value("providerId", "");
     profile.mode = analyticsEndpointModeFromString(json.value("mode", std::string("disabled")));
     profile.localJsonlPath = json.value("localJsonlPath", "");
     profile.url = json.value("url", "");
@@ -83,6 +96,12 @@ AnalyticsEndpointProfile AnalyticsEndpointProfile::fromJson(const nlohmann::json
         }
     }
     profile.bearerToken = json.value("bearerToken", "");
+    profile.credentialSourceCategory = json.value("credentialSourceCategory", std::string("not_required"));
+    profile.credentialsRequired = json.value("credentialsRequired", false);
+    profile.reviewed = json.value("reviewed", false);
+    profile.reviewedBy = json.value("reviewedBy", "");
+    profile.reviewedAt = json.value("reviewedAt", "");
+    profile.lastTestResult = json.value("lastTestResult", std::string("not_run"));
 
     if (const auto review = json.find("privacyReview"); review != json.end() && review->is_object()) {
         profile.privacyReview.approved = review->value("approved", false);
@@ -102,6 +121,10 @@ std::vector<AnalyticsEndpointProfileDiagnostic> validateAnalyticsEndpointProfile
     if (profile.profileId.empty()) {
         diagnostics.push_back({"missing_profile_id", "Analytics endpoint profile requires a profile id.", ""});
     }
+    if (!isSupportedProviderId(profile.providerId)) {
+        diagnostics.push_back({"unsupported_provider", "Analytics endpoint profile provider is not supported.",
+                               profile.profileId});
+    }
 
     if (profile.mode == AnalyticsEndpointMode::LocalJsonl && profile.localJsonlPath.empty()) {
         diagnostics.push_back(
@@ -113,6 +136,11 @@ std::vector<AnalyticsEndpointProfileDiagnostic> validateAnalyticsEndpointProfile
         if (profile.url.empty()) {
             diagnostics.push_back(
                 {"missing_endpoint_url", "HTTP analytics endpoint profile requires a URL.", profile.profileId});
+        }
+        if (profile.credentialsRequired && profile.bearerToken.empty()) {
+            diagnostics.push_back(
+                {"missing_credentials", "HTTP analytics endpoint profile requires configured credentials.",
+                 profile.profileId});
         }
         if (!profile.privacyReview.approved) {
             diagnostics.push_back({"privacy_review_required",
@@ -131,6 +159,41 @@ std::vector<AnalyticsEndpointProfileDiagnostic> validateAnalyticsEndpointProfile
     }
 
     return diagnostics;
+}
+
+urpg::release::ProviderProfileStatus analyticsEndpointProfileStatus(
+    const AnalyticsEndpointProfile& profile) {
+    urpg::release::ProviderProfileStatus status;
+    status.credentialSourceCategory =
+        profile.credentialSourceCategory.empty() ? "not_required" : profile.credentialSourceCategory;
+    status.lastTestResult = profile.lastTestResult.empty() ? "not_run" : profile.lastTestResult;
+
+    if (profile.mode == AnalyticsEndpointMode::Disabled ||
+        (!profile.providerId.empty() && profile.providerId == "disabled")) {
+        status.status = "disabled";
+        status.credentialSourceCategory = "none";
+        return status;
+    }
+    if (!isSupportedProviderId(profile.providerId)) {
+        status.status = "unsupported_provider";
+        return status;
+    }
+    if (profile.mode == AnalyticsEndpointMode::LocalJsonl) {
+        status.status = "dry_run";
+        status.credentialSourceCategory = "none";
+        return status;
+    }
+    if (profile.mode == AnalyticsEndpointMode::HttpJson &&
+        profile.credentialsRequired && profile.bearerToken.empty()) {
+        status.status = "missing_credentials";
+        return status;
+    }
+
+    const bool reviewed = profile.reviewed || profile.privacyReview.approved;
+    status.reviewStatus = reviewed ? "reviewed" : "unreviewed";
+    status.status = reviewed ? "configured_reviewed" : "configured_unreviewed";
+    status.releasePackagingAllowed = reviewed && (status.lastTestResult == "pass" || status.lastTestResult == "not_run");
+    return status;
 }
 
 AnalyticsEndpointProfileApplyResult applyAnalyticsEndpointProfile(

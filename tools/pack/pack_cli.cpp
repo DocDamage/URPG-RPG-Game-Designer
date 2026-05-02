@@ -36,6 +36,11 @@ struct CliOptions {
     std::filesystem::path runtimeBinaryPath;
     std::filesystem::path assetBundleManifestRootOverride;
     std::filesystem::path normalizedAssetRootOverride;
+    std::string signingMode;
+    std::string certificateReference;
+    std::string notarizationMode;
+    std::string releaseArtifactPolicy;
+    std::string ownerApproval;
     std::vector<std::filesystem::path> assetDiscoveryRoots;
 };
 
@@ -86,6 +91,11 @@ void printHelp() {
               << "  --runtime-binary <path>       Runtime binary to stage into native exports\n"
               << "  --release                     Require release-grade runtime artifacts\n"
               << "  --dev-bootstrap               Allow bootstrap-only smoke artifacts (default)\n"
+              << "  --signing-mode <mode>         Release profile signing mode\n"
+              << "  --certificate-ref <ref>       Release profile certificate reference\n"
+              << "  --notarization-mode <mode>    Release profile notarization mode\n"
+              << "  --artifact-policy <policy>    Release profile artifact policy\n"
+              << "  --owner-approval <id>         Release profile owner approval reference\n"
               << "  --manifest-root <path>        Manifest root for bundled assets\n"
               << "  --normalized-root <path>      Normalized asset root for bundled assets\n"
               << "  --asset-root <path>           Asset discovery root; may be repeated\n"
@@ -162,6 +172,36 @@ ParseResult parseArgs(int argc, char** argv) {
                 return result;
             }
             result.options.runtimeBinaryPath = value;
+        } else if (arg == "--signing-mode") {
+            if (!readValue(argc, argv, i, value, result.error)) {
+                result.ok = false;
+                return result;
+            }
+            result.options.signingMode = value;
+        } else if (arg == "--certificate-ref") {
+            if (!readValue(argc, argv, i, value, result.error)) {
+                result.ok = false;
+                return result;
+            }
+            result.options.certificateReference = value;
+        } else if (arg == "--notarization-mode") {
+            if (!readValue(argc, argv, i, value, result.error)) {
+                result.ok = false;
+                return result;
+            }
+            result.options.notarizationMode = value;
+        } else if (arg == "--artifact-policy") {
+            if (!readValue(argc, argv, i, value, result.error)) {
+                result.ok = false;
+                return result;
+            }
+            result.options.releaseArtifactPolicy = value;
+        } else if (arg == "--owner-approval") {
+            if (!readValue(argc, argv, i, value, result.error)) {
+                result.ok = false;
+                return result;
+            }
+            result.options.ownerApproval = value;
         } else if (arg == "--manifest-root") {
             if (!readValue(argc, argv, i, value, result.error)) {
                 result.ok = false;
@@ -214,6 +254,11 @@ ExportConfig toExportConfig(const CliOptions& options) {
     config.mode = options.mode;
     config.outputDir = options.outputDir.string();
     config.runtimeBinaryPath = options.runtimeBinaryPath.string();
+    config.releaseProfile.signingMode = options.signingMode;
+    config.releaseProfile.certificateReference = options.certificateReference;
+    config.releaseProfile.notarizationMode = options.notarizationMode;
+    config.releaseProfile.releaseArtifactPolicy = options.releaseArtifactPolicy;
+    config.releaseProfile.ownerApproval = options.ownerApproval;
     config.assetBundleManifestRootOverride = options.assetBundleManifestRootOverride.string();
     config.normalizedAssetRootOverride = options.normalizedAssetRootOverride.string();
     for (const auto& root : options.assetDiscoveryRoots) {

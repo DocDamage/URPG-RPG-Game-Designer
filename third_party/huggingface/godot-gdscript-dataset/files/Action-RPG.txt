@@ -1,0 +1,431 @@
+Godot project
+### Name: Action-RPG
+
+### Godot version: 3
+
+### Directory structure:
+├── .import/
+│   ├── .gdignore
+│   ├── Bat.png-38405154cd5b8ff1c5e2fcf1cef1c3e6.md5
+│   ├── Bat.png-38405154cd5b8ff1c5e2fcf1cef1c3e6.stex
+│   ├── Bush.png-d93cca107fd3c67cf3a69a32232496ae.md5
+│   ├── Bush.png-d93cca107fd3c67cf3a69a32232496ae.stex
+│   ├── CliffTileset.png-beb1369a7815e4e7ee0afe974b2636cf.md5
+│   ├── CliffTileset.png-beb1369a7815e4e7ee0afe974b2636cf.stex
+│   ├── DirtTileset.png-4e52e2a032d2a3147ded644a2054b3ec.md5
+│   ├── DirtTileset.png-4e52e2a032d2a3147ded644a2054b3ec.stex
+│   ├── EnemyDeathEffect.png-b5f2aceef00ffbc3c194806ee7af6666.md5
+│   ├── EnemyDeathEffect.png-b5f2aceef00ffbc3c194806ee7af6666.stex
+│   ├── EnemyDie.wav-a486c87c5ffce10facfdaf6e118ee22d.md5
+│   ├── EnemyDie.wav-a486c87c5ffce10facfdaf6e118ee22d.sample
+│   ├── Evade.wav-cd612618661f05b5e39dccebc8901a0b.md5
+│   ├── Evade.wav-cd612618661f05b5e39dccebc8901a0b.sample
+│   ├── Grass.png-c8db04a845a94a62395b8fc264a498a7.md5
+│   ├── Grass.png-c8db04a845a94a62395b8fc264a498a7.stex
+│   ├── GrassBackground.png-97f32375e80ccfc9d4addd18e4430882.md5
+│   ├── GrassBackground.png-97f32375e80ccfc9d4addd18e4430882.stex
+│   ├── GrassEffect.png-e13c4c94a67cb5ef9b389379ed46bf17.md5
+│   ├── GrassEffect.png-e13c4c94a67cb5ef9b389379ed46bf17.stex
+│   ├── HeartUIEmpty.png-417b0a6fe975644d9dba3671413f10e5.md5
+│   ├── HeartUIEmpty.png-417b0a6fe975644d9dba3671413f10e5.stex
+│   ├── HeartUIFull.png-e9d9ebbeee52aaa00895457d920c0f53.md5
+│   ├── HeartUIFull.png-e9d9ebbeee52aaa00895457d920c0f53.stex
+│   ├── Hit.wav-0fa8d06aa64f0c3d5cf8be50a2076760.md5
+│   ├── Hit.wav-0fa8d06aa64f0c3d5cf8be50a2076760.sample
+│   ├── HitEffect.png-4a350a9d7635dd7543954c4499aead9c.md5
+│   ├── HitEffect.png-4a350a9d7635dd7543954c4499aead9c.stex
+│   ├── Hurt.wav-9a8feff0886efa16ed78b7703de45922.md5
+│   ├── Hurt.wav-9a8feff0886efa16ed78b7703de45922.sample
+│   ├── LargeShadow.png-f9f465d3bd6a830d0053dcccc744b5ab.md5
+│   ├── LargeShadow.png-f9f465d3bd6a830d0053dcccc744b5ab.stex
+│   ├── MediumShadow.png-a006169ce9c485f0f94bc7dc3bc8473f.md5
+│   ├── MediumShadow.png-a006169ce9c485f0f94bc7dc3bc8473f.stex
+│   ├── Menu Move.wav-d97a887eeb77e9f82d0179618aff26aa.md5
+│   ├── Menu Move.wav-d97a887eeb77e9f82d0179618aff26aa.sample
+│   ├── Menu Select.wav-cf35ab6ee2afc13096e6bf584e78dcaf.md5
+│   ├── Menu Select.wav-cf35ab6ee2afc13096e6bf584e78dcaf.sample
+│   ├── Music.mp3-fbb50ed95d66ff7af78edb9c3a8f7b4d.md5
+│   ├── Music.mp3-fbb50ed95d66ff7af78edb9c3a8f7b4d.mp3str
+│   ├── Pause.wav-2283faeb42b74e3f6e4809669cc9a8ab.md5
+│   ├── Pause.wav-2283faeb42b74e3f6e4809669cc9a8ab.sample
+│   ├── Player.png-3d0801c65bdfc563657cfa304115f1c7.md5
+│   ├── Player.png-3d0801c65bdfc563657cfa304115f1c7.stex
+│   ├── SmallShadow.png-5e32714e38d94da2c1b597c947bda29e.md5
+│   ├── SmallShadow.png-5e32714e38d94da2c1b597c947bda29e.stex
+│   ├── Swipe.wav-1b0f341b1727da219872e70c921da651.md5
+│   ├── Swipe.wav-1b0f341b1727da219872e70c921da651.sample
+│   ├── Tree.png-14ac646b55f931abf82a3d71f0acdb7a.md5
+│   ├── Tree.png-14ac646b55f931abf82a3d71f0acdb7a.stex
+│   ├── Unpause.wav-804d58e6ee88c8f6467ca3b5bea5857f.md5
+│   ├── Unpause.wav-804d58e6ee88c8f6467ca3b5bea5857f.sample
+│   ├── icon.png-487276ed1e3a0c39cad0279d744ee560.md5
+│   ├── icon.png-487276ed1e3a0c39cad0279d744ee560.stex
+├── Effects/
+│   ├── Effect.gd
+│   ├── EnemyDeathEffect.png
+│   ├── EnemyDeathEffect.png.import
+│   ├── EnemyDeathEffect.tscn
+│   ├── GrassEffect.png
+│   ├── GrassEffect.png.import
+│   ├── GrassEffect.tscn
+│   ├── HitEffect.png
+│   ├── HitEffect.png.import
+│   ├── HitEffect.tscn
+├── Enemies/
+│   ├── Bat.gd
+│   ├── Bat.png
+│   ├── Bat.png.import
+│   ├── Bat.tscn
+│   ├── PlayerDetectionZone.gd
+│   ├── PlayerDetectionZone.tscn
+├── Music and Sounds/
+│   ├── EnemyDie.wav
+│   ├── EnemyDie.wav.import
+│   ├── Evade.wav
+│   ├── Evade.wav.import
+│   ├── Hit.wav
+│   ├── Hit.wav.import
+│   ├── Hurt.wav
+│   ├── Hurt.wav.import
+│   ├── Menu Move.wav
+│   ├── Menu Move.wav.import
+│   ├── Menu Select.wav
+│   ├── Menu Select.wav.import
+│   ├── Music.mp3
+│   ├── Music.mp3.import
+│   ├── Pause.wav
+│   ├── Pause.wav.import
+│   ├── Swipe.wav
+│   ├── Swipe.wav.import
+│   ├── Unpause.wav
+│   ├── Unpause.wav.import
+├── Overlap/
+│   ├── Hitbox.gd
+│   ├── Hitbox.tscn
+│   ├── Hurtbox.gd
+│   ├── Hurtbox.tscn
+├── Player/
+│   ├── Player.gd
+│   ├── Player.png
+│   ├── Player.png.import
+│   ├── Player.tscn
+│   ├── PlayerStats.tscn
+│   ├── SwordHitbox.gd
+├── Shadows/
+│   ├── LargeShadow.png
+│   ├── LargeShadow.png.import
+│   ├── MediumShadow.png
+│   ├── MediumShadow.png.import
+│   ├── SmallShadow.png
+│   ├── SmallShadow.png.import
+├── Stats.gd
+├── Stats.tscn
+├── UI/
+│   ├── HeartUIEmpty.png
+│   ├── HeartUIEmpty.png.import
+│   ├── HeartUIFull.png
+│   ├── HeartUIFull.png.import
+├── World/
+│   ├── Bush.png
+│   ├── Bush.png.import
+│   ├── Bush.tscn
+│   ├── CliffTileset.png
+│   ├── CliffTileset.png.import
+│   ├── DirtTileset.png
+│   ├── DirtTileset.png.import
+│   ├── Grass.gd
+│   ├── Grass.png
+│   ├── Grass.png.import
+│   ├── Grass.tscn
+│   ├── GrassBackground.png
+│   ├── GrassBackground.png.import
+│   ├── Tree.png
+│   ├── Tree.png.import
+├── World.tscn
+├── default_env.tres
+├── icon.png
+├── icon.png.import
+├── project.godot
+
+### Files:
+File name: Effects/Effect.gd
+```gdscript
+extends AnimatedSprite
+
+func _ready():
+	connect("animation_finished", self, "_on_animation_finished")
+	frame = 0
+	play("Animate")
+
+
+func _on_animation_finished():
+	queue_free()
+```
+
+
+File name: Enemies/Bat.gd
+```gdscript
+extends KinematicBody2D
+
+const EnemyDeathEffect = preload("res://Effects/EnemyDeathEffect.tscn")
+
+export var ACCELERATION = 300
+export var MAX_SPEED = 50
+export var FRICTION = 200
+
+
+enum{
+	IDLE,
+	WANDER,
+	CHASE
+}
+
+var velocity = Vector2.ZERO
+var knockback = Vector2.ZERO
+
+var state = CHASE
+
+onready var sprite = $AnimatedSprite
+onready var stats = $Stats
+onready var playerDetectionZone = $PlayerDetectionZone
+onready var hurtbox = $Hurtbox
+
+func _physics_process(delta):
+	knockback = knockback.move_toward(Vector2.ZERO, FRICTION * delta)
+	knockback = move_and_slide(knockback)
+	
+	match state:
+		IDLE:
+			velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
+			seek_player()
+			
+		WANDER:
+			pass
+			
+		CHASE:
+			var player = playerDetectionZone.player
+			if player != null:
+				var direction = (player.global_position - global_position).normalized()
+				velocity = velocity.move_toward(direction * MAX_SPEED, ACCELERATION * delta)
+			else:
+				state = IDLE
+			sprite.flip_h = velocity.x < 0
+	
+	velocity = move_and_slide(velocity)
+
+func seek_player():
+	if playerDetectionZone.can_see_player():
+		state = CHASE
+
+func _on_Hurtbox_area_entered(area):
+	stats.health -= area.damage
+	knockback = area.knockback_vector * 120
+	hurtbox.create_hit_effect(area)
+
+func _on_Stats_no_health():
+	queue_free()
+	var enemyDeathEffect = EnemyDeathEffect.instance()
+	get_parent().add_child(enemyDeathEffect)
+	enemyDeathEffect.global_position = global_position
+```
+
+
+File name: Enemies/PlayerDetectionZone.gd
+```gdscript
+extends Area2D
+
+var player = null
+
+func can_see_player():
+	return player != null
+
+func _on_PlayerDetectionZone_body_entered(body):
+	player = body
+
+
+func _on_PlayerDetectionZone_body_exited(body):
+	player = null
+```
+
+
+File name: Overlap/Hitbox.gd
+```gdscript
+extends Area2D
+
+export var damage = 1
+```
+
+
+File name: Overlap/Hurtbox.gd
+```gdscript
+extends Area2D
+
+const HitEffect = preload("res://Effects/HitEffect.tscn")
+
+var invincible = false setget set_invincible
+
+onready var timer = $Timer
+
+signal invincibility_started
+signal invincibility_ended
+
+func set_invincible(value):
+	invincible = value
+	if invincible == true:
+		emit_signal("invincibility_started")
+	else:
+		emit_signal("invincibility_ended")
+
+func start_invincibility(duration):
+	self.invincible = true
+	timer.start(duration)
+
+func create_hit_effect(area):
+	var effect = HitEffect.instance()
+	var main = get_tree().current_scene
+	main.add_child(effect)
+	effect.global_position = global_position
+
+func _on_Timer_timeout():
+	self.invincible = false
+
+func _on_Hurtbox_invincibility_started():
+	set_deferred("monitoring", false)
+
+func _on_Hurtbox_invincibility_ended():
+	monitoring = true
+```
+
+
+File name: Player/Player.gd
+```gdscript
+extends KinematicBody2D
+
+export var ACCELERATION = 500
+export var MAX_SPEED = 80
+export var ROLL_SPEED = 125
+export var FRICTION = 500
+
+enum {
+	MOVE,
+	ROLL,
+	ATTACK
+}
+
+var state = MOVE
+var velocity = Vector2.ZERO
+var roll_vector = Vector2.DOWN
+var stats = PlayerStats
+
+onready var animationPlayer = $AnimationPlayer
+onready var animationTree = $AnimationTree
+onready var animationState = animationTree.get("parameters/playback")
+onready var swordHitbox = $HitboxPivot/SwordHitbox
+onready var hurtbox = $Hurtbox
+
+func _ready():
+	stats.connect("no_health", self, "queue_free")
+	animationTree.active=true
+	swordHitbox.knockback_vector = roll_vector
+
+func _physics_process(delta):
+	match state:
+		MOVE: 
+			move_state(delta)
+		ROLL:
+			roll_state(delta)
+		ATTACK:
+			attack_state(delta)
+
+func move_state(delta):
+	var input_vector = Vector2.ZERO
+	input_vector.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
+	input_vector.y = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
+	input_vector = input_vector.normalized()
+	
+	if input_vector != Vector2.ZERO:
+		roll_vector = input_vector
+		swordHitbox.knockback_vector = input_vector
+		animationTree.set("parameters/Idle/blend_position", input_vector)
+		animationTree.set("parameters/Run/blend_position", input_vector)
+		animationTree.set("parameters/Attack/blend_position", input_vector)
+		animationTree.set("parameters/Roll/blend_position", input_vector)
+		animationState.travel("Run")
+		velocity = velocity.move_toward(input_vector * MAX_SPEED, ACCELERATION * delta)
+	else:
+		animationState.travel("Idle")
+		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
+	
+	move()
+	
+	if Input.is_action_just_pressed("roll"):
+		state = ROLL
+	
+	if Input.is_action_just_pressed("attack"):
+		state = ATTACK
+
+func roll_state(delta):
+	velocity = roll_vector * ROLL_SPEED
+	animationState.travel("Roll")
+	move()
+
+func attack_state(delta):
+	velocity = Vector2.ZERO
+	animationState.travel("Attack")
+
+func move():
+	velocity = move_and_slide(velocity)
+
+func roll_animation_finished():
+	velocity = velocity * 0.8
+	state = MOVE
+
+func attack_animation_finished():
+	state = MOVE
+
+func _on_Hurtbox_area_entered(area):
+	stats.health -= 1
+	hurtbox.start_invincibility(0.5)
+	hurtbox.create_hit_effect(area)
+```
+
+
+File name: Player/SwordHitbox.gd
+```gdscript
+extends "res://Overlap/Hitbox.gd"
+
+var knockback_vector = Vector2.ZERO
+```
+
+
+File name: Stats.gd
+```gdscript
+extends Node
+
+export var max_health = 1
+onready var health = max_health setget set_health
+
+signal no_health
+
+func set_health(value):
+	health = value
+	if health <= 0:
+		emit_signal("no_health")
+```
+
+
+File name: World/Grass.gd
+```gdscript
+extends Node2D
+
+const GrassEffect = preload("res://Effects/GrassEffect.tscn")
+
+func create_grass_effect():
+	var grassEffect = GrassEffect.instance()
+	get_parent().add_child(grassEffect)
+	grassEffect.global_position = global_position
+
+func _on_Hurtbox_area_entered(area):
+	create_grass_effect()
+	queue_free()
+```

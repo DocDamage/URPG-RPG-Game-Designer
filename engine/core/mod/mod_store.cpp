@@ -73,7 +73,77 @@ std::filesystem::path resolveEntrypoint(const ModStoreEntry& entry, const std::f
     return root.empty() ? entryPoint : root / entryPoint;
 }
 
+bool isSupportedMarketplaceProvider(const std::string& providerId) {
+    return providerId == "disabled" || providerId == "dry_run" || providerId == "command";
+}
+
 } // namespace
+
+nlohmann::json ModMarketplaceProviderProfile::toJson() const {
+    return {
+        {"schema", "urpg.mod_marketplace_provider_profile.v1"},
+        {"profileId", profileId},
+        {"providerId", providerId},
+        {"endpoint", endpoint},
+        {"commandExecutable", commandExecutable},
+        {"credentialSourceCategory", credentialSourceCategory},
+        {"reviewed", reviewed},
+        {"reviewedBy", reviewedBy},
+        {"reviewedAt", reviewedAt},
+        {"lastTestResult", lastTestResult},
+    };
+}
+
+ModMarketplaceProviderProfile ModMarketplaceProviderProfile::fromJson(const nlohmann::json& json) {
+    ModMarketplaceProviderProfile profile;
+    if (!json.is_object()) {
+        return profile;
+    }
+    profile.profileId = json.value("profileId", "");
+    profile.providerId = json.value("providerId", std::string("disabled"));
+    profile.endpoint = json.value("endpoint", "");
+    profile.commandExecutable = json.value("commandExecutable", "");
+    profile.credentialSourceCategory = json.value("credentialSourceCategory", std::string("none"));
+    profile.reviewed = json.value("reviewed", false);
+    profile.reviewedBy = json.value("reviewedBy", "");
+    profile.reviewedAt = json.value("reviewedAt", "");
+    profile.lastTestResult = json.value("lastTestResult", std::string("not_run"));
+    return profile;
+}
+
+urpg::release::ProviderProfileStatus modMarketplaceProviderProfileStatus(
+    const ModMarketplaceProviderProfile& profile) {
+    urpg::release::ProviderProfileStatus status;
+    status.credentialSourceCategory =
+        profile.credentialSourceCategory.empty() ? "none" : profile.credentialSourceCategory;
+    status.lastTestResult = profile.lastTestResult.empty() ? "not_run" : profile.lastTestResult;
+
+    if (profile.providerId.empty() || profile.providerId == "disabled") {
+        status.status = "disabled";
+        return status;
+    }
+    if (!isSupportedMarketplaceProvider(profile.providerId)) {
+        status.status = "unsupported_provider";
+        return status;
+    }
+    if (profile.providerId == "dry_run") {
+        status.status = "dry_run";
+        status.credentialSourceCategory = "none";
+        return status;
+    }
+    if (profile.providerId == "command" && profile.commandExecutable.empty()) {
+        status.status = "missing_credentials";
+        if (status.credentialSourceCategory == "none") {
+            status.credentialSourceCategory = "command";
+        }
+        return status;
+    }
+
+    status.reviewStatus = profile.reviewed ? "reviewed" : "unreviewed";
+    status.status = profile.reviewed ? "configured_reviewed" : "configured_unreviewed";
+    status.releasePackagingAllowed = profile.reviewed && status.lastTestResult == "pass";
+    return status;
+}
 
 bool ModStoreCatalog::loadFromJson(const nlohmann::json& document, std::vector<std::string>* diagnostics) {
     m_entries.clear();

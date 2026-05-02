@@ -516,6 +516,7 @@ set(URPG_CORE_SOURCES
     editor/accessibility/accessibility_spatial_adapter.cpp
     editor/accessibility/accessibility_audio_adapter.cpp
     editor/accessibility/accessibility_battle_adapter.cpp
+    editor/accessibility/release_ui_contrast_coverage.cpp
     editor/audio/audio_mix_panel.cpp
     engine/core/audio/audio_runtime_backend.cpp
     editor/input/input_remap_panel.cpp

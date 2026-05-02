@@ -18,6 +18,11 @@ struct CharacterAppearancePartRow {
     bool enabled = false;
     std::string disabled_reason;
     std::string preview_kind;
+    std::string source_path;
+    std::string normalized_path;
+    int preview_width = 0;
+    int preview_height = 0;
+    nlohmann::json management_actions = nlohmann::json::object();
 };
 
 /**

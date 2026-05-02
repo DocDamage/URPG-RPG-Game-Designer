@@ -244,11 +244,12 @@ TEST_CASE("Project audit CLI selects a requested template from a synthetic readi
     const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_cli";
     fs::create_directories(tempRoot);
     fs::create_directories(tempRoot / "docs" / "templates");
+    fs::create_directories(tempRoot / "docs");
 
     const fs::path inputPath = tempRoot / "synthetic_readiness.json";
     writeTextFile(inputPath, json{
         {"schemaVersion", "1.0.0"},
-        {"statusDate", "2026-04-20"},
+        {"statusDate", "2026-05-01"},
         {"templates", json::array({
             {
                 {"id", "custom-template"},
@@ -260,7 +261,26 @@ TEST_CASE("Project audit CLI selects a requested template from a synthetic readi
             {
                 {"id", "core"},
                 {"status", "READY"},
-                {"summary", "Core systems are ready."}
+                {"summary", "Core systems are ready."},
+                {"signoff", {
+                    {"required", true},
+                    {"artifactPath", "docs/CORE_CLOSURE_SIGNOFF.md"},
+                    {"promotionRequiresHumanReview", false},
+                    {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                    {"reviewStatus", "APPROVED"},
+                    {"reviewedBy", "release-owner"},
+                    {"reviewedDate", "2026-05-01"},
+                    {"verificationCommand", "ctest --preset dev-project-audit --output-on-failure"},
+                    {"evidenceCommandResult", "PASS"}
+                }},
+                {"evidence", {
+                    {"runtimeOwner", true},
+                    {"editorSurface", true},
+                    {"schemaMigration", true},
+                    {"diagnostics", true},
+                    {"testsValidation", true},
+                    {"docsAligned", true}
+                }}
             }
         })}
     }.dump(2));
@@ -274,6 +294,9 @@ TEST_CASE("Project audit CLI selects a requested template from a synthetic readi
         "| Subsystem | Rationale |\n"
         "| --- | --- |\n"
         "| `core` | Core systems are ready. |\n");
+    writeTextFile(
+        tempRoot / "docs" / "CORE_CLOSURE_SIGNOFF.md",
+        "# Core Signoff\n\n> **Status:** `READY`\n\n*Sign-off approved by release-owner review for the bounded core scope on 2026-05-01.*\n");
 
     const ProcessResult result =
         runProjectAudit({"--json", "--input", inputPath.string(), "--template", "custom-template"}, tempRoot);

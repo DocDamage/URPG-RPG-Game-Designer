@@ -1,6 +1,6 @@
 # Template Readiness Matrix
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 Authority: canonical template readiness reference for product-facing template labels
 
 This matrix answers a narrower question than the roadmap: which game templates are currently safe to describe as `READY`, `PARTIAL`, `EXPERIMENTAL`, `BLOCKED`, or `PLANNED`.
@@ -33,9 +33,9 @@ These bars apply to template promotion and are tracked conservatively:
 
 | Template | Status | Required Subsystems | Accessibility | Audio | Input | Localization | Performance | Safe Scope Today | Main Blockers |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `jrpg` | `PARTIAL` | `ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | Wave 1 native-first baseline with truthful residual gaps. | Cross-cutting bars are not complete. |
-| `turn_based_rpg` | `PARTIAL` | `message_text_core`, `battle_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | A conservative turn-based template slice similar to `jrpg` without implying broader productization. | Cross-cutting readiness bars and dedicated template governance remain incomplete. |
-| `visual_novel` | `PARTIAL` | `message_text_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | Dialogue-heavy projects within current native message and save scope. | Template-grade governance is not complete. |
+| `jrpg` | `PARTIAL` | `ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core` | Ready | Ready | Ready | Ready | Partial | Wave 1 native-first baseline with truthful residual gaps. | Performance remains incomplete. |
+| `turn_based_rpg` | `PARTIAL` | `message_text_core`, `battle_core`, `save_data_core` | Ready | Ready | Ready | Ready | Partial | A conservative turn-based template slice similar to `jrpg` without implying broader productization. | Performance and dedicated template governance remain incomplete. |
+| `visual_novel` | `PARTIAL` | `message_text_core`, `save_data_core` | Ready | Ready | Partial | Ready | Partial | Dialogue-heavy projects within current native message and save scope. | Input, performance, and template-grade governance remain incomplete. |
 | `tactics_rpg` | `READY` | `battle_core`, `presentation_runtime`, `save_data_core`, `accessibility_auditor`, `audio_mix_presets` | Ready | Ready | Ready | Ready | Ready | Grid tactics starter projects with scenario authoring, deployment zones, deterministic turn-order, cross-cutting bars, and save loop. | None for claimed template scope. |
 | `arpg` | `READY` | `presentation_runtime`, `save_data_core`, `gameplay_ability_framework` | Ready | Ready | Ready | Ready | Ready | Action RPG starter projects with real-time combat states, stamina/dodge/attack actions, closure visibility cues, growth loop, and save loop. | None for claimed template scope. |
 | `monster_collector_rpg` | `READY` | `ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core`, `gameplay_ability_framework` | Ready | Ready | Ready | Ready | Ready | Monster collector starter projects with species definitions, capture formula, party assembly, battle loop, and save loop. | None for claimed template scope. |

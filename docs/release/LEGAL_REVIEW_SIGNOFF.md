@@ -39,6 +39,7 @@ Decision notes:
 - The current release-required asset manifest bundles `BND-001` only for title, map, and battle placeholder coverage; `BND-002` UI SFX WAV payloads are deferred/local-only and ignored from GitHub packaging.
 - Raw/vendor/source asset packs remain excluded from release packages unless source-specific license and attribution evidence is reviewed before inclusion.
 - Privacy policy text was checked against the editor analytics implementation: analytics starts disabled, requires explicit opt-in, and writes only to local JSONL export in the shipped editor entry point.
+- Phase 7 analytics readiness covers engine-owned endpoint profile validation and editor diagnostics only. It is not qualified privacy/legal counsel approval, and public analytics policy/legal approval remains under this release-owner waiver.
 
 ## Required Review Checklist
 
