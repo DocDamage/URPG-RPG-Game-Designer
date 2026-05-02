@@ -2,6 +2,16 @@
 
 Offline retrieval and indexing tools live here.
 
+The supported top-level entrypoints for the Phase 8 offline boundary are:
+
+- `build_index.py`: chunks one or more source paths and emits
+  `content/schemas/retrieval_index_manifest.schema.json` metadata with stable
+  chunk ids.
+- `query_index.py`: loads that manifest and returns source path, chunk id,
+  score, and excerpt rows without importing FAISS or embedding libraries.
+- `requirements.txt`: optional offline helper dependencies only. Runtime and
+  editor builds must not install these packages.
+
 Initial planned scope:
 
 - chunk manifest generation

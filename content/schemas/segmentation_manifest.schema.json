@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/segmentation_manifest.schema.json",
+  "title": "Offline Segmentation Manifest",
+  "type": "object",
+  "required": ["schema", "tool_id", "source_image", "outputs"],
+  "properties": {
+    "schema": { "type": "string", "const": "content/schemas/segmentation_manifest.schema.json" },
+    "tool_id": { "type": "string" },
+    "source_image": { "type": "string" },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "asset_id",
+          "mask_path",
+          "cutout_path",
+          "manual_override",
+          "reviewed",
+          "rerun_protection",
+          "state"
+        ],
+        "properties": {
+          "asset_id": { "type": "string" },
+          "mask_path": { "type": "string" },
+          "cutout_path": { "type": "string" },
+          "manual_override": { "type": "boolean" },
+          "reviewed": { "type": "boolean" },
+          "rerun_protection": { "type": "string" },
+          "state": { "type": "string", "enum": ["skipped", "reused", "generated"] }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

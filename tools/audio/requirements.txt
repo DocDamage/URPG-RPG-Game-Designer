@@ -1,0 +1,4 @@
+# Optional offline audio environment only.
+demucs>=4.0
+encodec>=0.1
+soundfile>=0.12

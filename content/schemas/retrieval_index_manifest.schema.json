@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/retrieval_index_manifest.schema.json",
+  "title": "Offline Retrieval Index Manifest",
+  "type": "object",
+  "required": ["schema", "tool_id", "source_paths", "chunks", "index"],
+  "properties": {
+    "schema": { "type": "string", "const": "content/schemas/retrieval_index_manifest.schema.json" },
+    "tool_id": { "type": "string" },
+    "source_paths": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "chunk_size": { "type": "integer", "minimum": 1 },
+    "overlap": { "type": "integer", "minimum": 0 },
+    "chunks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["chunk_id", "source_path", "chunk_index", "excerpt"],
+        "properties": {
+          "chunk_id": { "type": "string" },
+          "source_path": { "type": "string" },
+          "chunk_index": { "type": "integer", "minimum": 0 },
+          "excerpt": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "index": {
+      "type": "object",
+      "required": ["engine", "metadata_path", "dimension"],
+      "properties": {
+        "engine": { "type": "string" },
+        "metadata_path": { "type": "string" },
+        "dimension": { "type": "integer", "minimum": 1 },
+        "entry_count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
