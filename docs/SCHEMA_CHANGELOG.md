@@ -16,6 +16,27 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `audio_tool_manifest` (`audio_tool_manifest.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-05-02`
+- Summary: initial schema for offline audio-processing prototype manifests, including source paths, generated stems, review status, and non-release output governance
+- Migration Impact: none; additive schema for Phase 8 offline tooling outputs
+
+### `retrieval_index_manifest` (`retrieval_index_manifest.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-05-02`
+- Summary: initial schema for offline retrieval index manifests, including source corpus identity, generated index path, embedding model metadata, and tooling-boundary review notes
+- Migration Impact: none; additive schema for Phase 8 offline retrieval tooling outputs
+
+### `segmentation_manifest` (`segmentation_manifest.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-05-02`
+- Summary: initial schema for offline vision segmentation manifests, including source image, mask outputs, model metadata, and reviewable asset-output status
+- Migration Impact: none; additive schema for Phase 8 offline vision tooling outputs
+
 ### `analytics_endpoint_profile` (`analytics_endpoint_profile.schema.json`)
 
 - Version: `1.0.0`

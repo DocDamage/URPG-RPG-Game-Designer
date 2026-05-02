@@ -1,6 +1,6 @@
 {
   "schema": "urpg.release_required_asset_report.v1",
-  "generatedAt": "2026-05-02T05:03:26.4838612Z",
+  "generatedAt": "2026-05-02T09:55:14.1466407Z",
   "passed": true,
   "requiredSurfaces": [
     "title",
