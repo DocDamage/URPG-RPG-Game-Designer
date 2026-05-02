@@ -1,0 +1,259 @@
+{
+  "bundle_id": "BND-004",
+  "bundle_name": "src010_cc0_starter_pack",
+  "source_id": "SRC-010",
+  "bundle_state": "promoted",
+  "release_required": false,
+  "release_surfaces": [
+    "title",
+    "map",
+    "battle",
+    "ui",
+    "fonts"
+  ],
+  "assets": [
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Generic/Menu/Png/GenericPanel.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/ui/generic_panel.png",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "95ecb999f45f406ab33063b9c1d11d66a076826cf9dcdcec0e4dff13d99f3408",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/ui/generic_panel.png",
+      "notes": "CC0 Lucifer RPG UI generic menu panel for starter UI skin review."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Generic/Menu buttons/Png/GenericButton.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/ui/generic_button.png",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "9cd2d96c516d9f27d88b949c0e91883d6ba5fab456edd620718b28f83d656c1a",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/ui/generic_button.png",
+      "notes": "CC0 Lucifer RPG UI normal button state."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Generic/Menu buttons/Png/GenericButtonActive.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/ui/generic_button_active.png",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "a2722801c37f03bb9f1a0b9c0c60e81dd63749a91ddd76538b3db052da8d980e",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/ui/generic_button_active.png",
+      "notes": "CC0 Lucifer RPG UI active button state."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Generic/Menu buttons/Png/GenericButtonPressed.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/ui/generic_button_pressed.png",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "695bcbbe7bb8cc01aac588718aac1ce64b793e7084a153c5a82b360283389aa2",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/ui/generic_button_pressed.png",
+      "notes": "CC0 Lucifer RPG UI pressed button state."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/HUD/Minimap/Png/MinimapFrame.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/ui/minimap_frame.png",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui",
+        "map"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "2d26ee11e557ed4d97f59bcfad3ec867c8366074c9833838332b7efa79ec8b23",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/ui/minimap_frame.png",
+      "notes": "CC0 Lucifer RPG UI minimap frame for editor and template HUD coverage."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/Tile-Sets/Floors/ISS_Floor_Grass-64x32.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/isometric/iss_floor_grass_64x32.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "cb1019d27aa7d29bd090ae9c7784086ddec607f1782634d9a024f42444d2ea16",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/isometric/iss_floor_grass_64x32.png",
+      "notes": "CC0 Isometric Stone Soup grass floor tile."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/Tile-Sets/Floors/ISS_Floor_Cobble_Blood-64x32.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/isometric/iss_floor_cobble_blood_64x32.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "95f10974e579afa1274ac0a99248fa4e161857c4346385524e8084a8fe12b83c",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/isometric/iss_floor_cobble_blood_64x32.png",
+      "notes": "CC0 Isometric Stone Soup dungeon floor tile."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/Tile-Sets/Walls/Block/ISS_Block_Stone_1-64x64.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/isometric/iss_block_stone_1_64x64.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "ed9266fb746d359d78eebea18d785bb93ee7ef510511555d7fec413690717c4e",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/isometric/iss_block_stone_1_64x64.png",
+      "notes": "CC0 Isometric Stone Soup wall block tile."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/Tile-Sets/Walls/ISS-Torch_Anim-32x48.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/isometric/iss_torch_anim_32x48.png",
+      "category": "vfx_sheet",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map",
+        "battle"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "0bad6ac43586e5c84800b80e5bed0baa69a37071f1d59eceedeeaee16997d461",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/isometric/iss_torch_anim_32x48.png",
+      "notes": "CC0 Isometric Stone Soup torch animation sheet."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/void-main-ship-eb0fd960cb7e/Foozle_2DS0011_Void_MainShip/Main Ship/Main Ship - Bases/PNGs/Main Ship - Base - Full health.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/space/main_ship_base_full_health.png",
+      "category": "prototype_sprite",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "battle"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "133a1251dd6de0ec7b5762bde499086bff56f1f808988a3f2e77b7f8990e217b",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/space/main_ship_base_full_health.png",
+      "notes": "CC0 Foozle Void main ship sprite for shooter/action templates."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/void-main-ship-eb0fd960cb7e/Foozle_2DS0011_Void_MainShip/Main Ship/Main Ship - Engine Effects/PNGs/Main Ship - Engines - Base Engine - Idle.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/space/main_ship_engine_base_idle.png",
+      "category": "vfx_sheet",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "battle"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "582c5ec41e274e552dd65eee4e34228cb2bf5ac66194ab0e2ea7107b7694d27b",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/space/main_ship_engine_base_idle.png",
+      "notes": "CC0 Foozle Void engine idle sheet."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/void-environment-pack-33464a36feb1/Foozle_2DS0015_Void_EnvironmentPack/Backgrounds/PNGs/Condesed/Starry background  - Layer 03 - Stars.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/space/starry_background_layer_stars.png",
+      "category": "background",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "title",
+        "battle"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "9263148691cb6eae827109ba1c68f3585d1ccbd9a618c0b0edced2ce7a8fbe01",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/space/starry_background_layer_stars.png",
+      "notes": "CC0 Foozle Void starfield background layer."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/void-environment-pack-33464a36feb1/Foozle_2DS0015_Void_EnvironmentPack/Planets/PNGs/Earth-Like planet.png",
+      "promoted_relative_path": "src010_cc0_starter_pack/space/earth_like_planet.png",
+      "category": "background",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "title",
+        "battle"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "9deae581a07ad48f254d217acf87c9f06768bbd311051158873f7ed8054be112",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/space/earth_like_planet.png",
+      "notes": "CC0 Foozle Void planet background element."
+    },
+    {
+      "original_relative_path": "imports/raw/more_assets_to_ingest/ggbotnet-fonts-cc0-2025-dec-8c3446796773/GGBotNet Fonts CC0/Public Pixel/Web Open Font Format (.woff)/PublicPixel.woff2",
+      "promoted_relative_path": "src010_cc0_starter_pack/fonts/public_pixel.woff2",
+      "category": "font",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "fonts",
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "930e012b997ba59a7dd496968b6a9293670ec775fc4e478fa32a36636d36332e",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+      "package_destination": "share/urpg/imports/normalized/src010_cc0_starter_pack/fonts/public_pixel.woff2",
+      "notes": "CC0 GGBotNet Public Pixel web font for UI/template presentation."
+    }
+  ]
+}

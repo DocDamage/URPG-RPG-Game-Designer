@@ -18,5 +18,7 @@ TD Sprint 04 added the first promoted allowlist records:
 
 - `BND-001.json` - `SRC-002` prototype visual proof lane; release-required for title, map, and battle placeholder surfaces
 - `BND-002.json` - `SRC-003` UI SFX proof lane; retained as a governed local/deferred audio record while WAV payloads are ignored and excluded from release-required packaging
+- `BND-003.json` - `SRC-009` repo-generated Phase 9 release starter skin lane; release-required for UI frame/chrome, VFX proof, and cohesive skin metadata
+- `BND-004.json` - `SRC-010` bounded CC0 starter promotion; release-eligible but not release-required, with the broader raw drop still quarantined
 
 Current UI and audio release surfaces are satisfied by explicit fallback entries in `releaseAssets` until a non-LFS bundled audio asset is approved.

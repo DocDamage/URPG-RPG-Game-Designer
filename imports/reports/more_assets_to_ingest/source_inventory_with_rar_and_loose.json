@@ -1,0 +1,1769 @@
+{
+  "schema": "urpg.more_assets_to_ingest.inventory.v1",
+  "generated_at": "2026-05-02T19:09:05.3985954Z",
+  "source_root": "more assets to ingest",
+  "seven_zip": "C:\\Program Files\\7-Zip\\7z.exe",
+  "summary": {
+    "top_level_pack_count": 30,
+    "rar_archive_count": 88,
+    "rar_list_failed_count": 0,
+    "loose_file_count": 77,
+    "loose_total_bytes": 29178407,
+    "loose_license_or_readme_count": 0,
+    "rar_with_license_or_readme_count": 76
+  },
+  "top_level_packs": [
+    {
+      "name": "Ancient Greek Mythology",
+      "file_count": 20,
+      "total_bytes": 37885884
+    },
+    {
+      "name": "BDragon",
+      "file_count": 37,
+      "total_bytes": 241243557
+    },
+    {
+      "name": "Bots and Bolts 2D robot",
+      "file_count": 1,
+      "total_bytes": 636317
+    },
+    {
+      "name": "Cozy Cafe",
+      "file_count": 10,
+      "total_bytes": 50660068
+    },
+    {
+      "name": "Cozy Spring",
+      "file_count": 20,
+      "total_bytes": 37771062
+    },
+    {
+      "name": "Crimson Gothic Castle",
+      "file_count": 5,
+      "total_bytes": 72684060
+    },
+    {
+      "name": "Cyberpunk",
+      "file_count": 20,
+      "total_bytes": 36593896
+    },
+    {
+      "name": "Dungeon",
+      "file_count": 15,
+      "total_bytes": 25412427
+    },
+    {
+      "name": "foozle",
+      "file_count": 43,
+      "total_bytes": 1668805552
+    },
+    {
+      "name": "fossilbound",
+      "file_count": 2,
+      "total_bytes": 8082
+    },
+    {
+      "name": "GGBotNet Fonts",
+      "file_count": 1,
+      "total_bytes": 22339475
+    },
+    {
+      "name": "haydeos",
+      "file_count": 11,
+      "total_bytes": 24991104
+    },
+    {
+      "name": "jjgame4",
+      "file_count": 4,
+      "total_bytes": 9335256
+    },
+    {
+      "name": "Klyssilla",
+      "file_count": 1,
+      "total_bytes": 264064
+    },
+    {
+      "name": "low poly models",
+      "file_count": 8,
+      "total_bytes": 39811330
+    },
+    {
+      "name": "Magic Forest",
+      "file_count": 17,
+      "total_bytes": 35077013
+    },
+    {
+      "name": "Nemo",
+      "file_count": 10,
+      "total_bytes": 83047343
+    },
+    {
+      "name": "parallax",
+      "file_count": 3,
+      "total_bytes": 63581
+    },
+    {
+      "name": "Pixel Abyss",
+      "file_count": 1,
+      "total_bytes": 148963
+    },
+    {
+      "name": "Psychological Horror Dungeon",
+      "file_count": 16,
+      "total_bytes": 33008384
+    },
+    {
+      "name": "Sakura Temple",
+      "file_count": 20,
+      "total_bytes": 31989336
+    },
+    {
+      "name": "SciGo",
+      "file_count": 20,
+      "total_bytes": 918752
+    },
+    {
+      "name": "Screaming Brain",
+      "file_count": 84,
+      "total_bytes": 1881197981
+    },
+    {
+      "name": "seveneves",
+      "file_count": 30,
+      "total_bytes": 6132159
+    },
+    {
+      "name": "Shade",
+      "file_count": 24,
+      "total_bytes": 3137912
+    },
+    {
+      "name": "Snowy Village",
+      "file_count": 20,
+      "total_bytes": 39877489
+    },
+    {
+      "name": "Super Retro World",
+      "file_count": 9,
+      "total_bytes": 69547353
+    },
+    {
+      "name": "toffee",
+      "file_count": 11,
+      "total_bytes": 469300
+    },
+    {
+      "name": "Underwater Ocean Depths",
+      "file_count": 20,
+      "total_bytes": 31804919
+    },
+    {
+      "name": "Valley of Ruin",
+      "file_count": 1,
+      "total_bytes": 268891
+    }
+  ],
+  "rar_archives": [
+    {
+      "source_archive": "more assets to ingest/BDragon/Basic Pixel Health bar and Scroll bar/Pixel UI pack 3.rar",
+      "archive_kind": "rar",
+      "size_bytes": 75881,
+      "sha256": "3266207a96af9bdf1c32d3f8916dbe2889dfa182aceba914df9a88700487cd4d",
+      "list_exit_code": 0,
+      "file_count": 9,
+      "total_uncompressed_bytes": 78391,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/BDragon/Custom Border and Panels Menu All Part/Custom Border and Panels Menu All Part.rar",
+      "archive_kind": "rar",
+      "size_bytes": 4343745,
+      "sha256": "34b7570151bb5854f976fa63a956fdcf9a1da428cf8cae79ace26dadeb3342ef",
+      "list_exit_code": 0,
+      "file_count": 35,
+      "total_uncompressed_bytes": 4414121,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/BDragon/Free Effect Bullet Impact Explosion 32x32/Free  Effect Bullet Impact Explosion 32x32 V1.rar",
+      "archive_kind": "rar",
+      "size_bytes": 1189693,
+      "sha256": "e6a15a0d34a06261fb6f14694ffb23f138a0b35746042fcfd48a5a85a67075e4",
+      "list_exit_code": 0,
+      "file_count": 10,
+      "total_uncompressed_bytes": 1192852,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/BDragon/Free Trap Platformer/Trap.rar",
+      "archive_kind": "rar",
+      "size_bytes": 574697,
+      "sha256": "e6da1fdf15a06423b19200ec1d06dcdd75ee8c541883bf7cd014f09e4ed73bcb",
+      "list_exit_code": 0,
+      "file_count": 44,
+      "total_uncompressed_bytes": 781621,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/BDragon/Pixel Adventure Character 16x16/Adventure Character 16x16.rar",
+      "archive_kind": "rar",
+      "size_bytes": 272636,
+      "sha256": "5de188278627a1edb95396b09cd2f2166eef73fafc9c74dd92a9577d92567394",
+      "list_exit_code": 0,
+      "file_count": 21,
+      "total_uncompressed_bytes": 308334,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/BDragon/Pixel Holy Spell Effect 32x32 Pack 3/Pixel Holy Spell Effect 32x32 Pack 3.rar",
+      "archive_kind": "rar",
+      "size_bytes": 72773,
+      "sha256": "9a2962a4d6439d1387a7e4a3dd05cd207c10a297016d27d7c2556e0772da5235",
+      "list_exit_code": 0,
+      "file_count": 2,
+      "total_uncompressed_bytes": 74768,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/BDragon/Platformer Monster Park1/Pixel_Enemy_Platformer.rar",
+      "archive_kind": "rar",
+      "size_bytes": 66019,
+      "sha256": "919122b8b9eac63baf103c5eafcf23d04d1e8b7b541bb8fa811a621bd4b47206",
+      "list_exit_code": 0,
+      "file_count": 18,
+      "total_uncompressed_bytes": 68037,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/BDragon/Retro Impact Effect Pack All/Retro Impact Effect Pack ALL.rar",
+      "archive_kind": "rar",
+      "size_bytes": 5803331,
+      "sha256": "2c0bb95415b8140576e98649a61880b12f79679683d9305aaa66f3bf0245d549",
+      "list_exit_code": 0,
+      "file_count": 60,
+      "total_uncompressed_bytes": 6002451,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/BDragon/Retro Pixel Ribbons, Banners and Frames 2/Retro Pixel Ribbons, Banners and Frames 2.rar",
+      "archive_kind": "rar",
+      "size_bytes": 839451,
+      "sha256": "4e1baaceda183e70d24f93f60acac1ba4ab2b1a041136a781347faf0587d2ca0",
+      "list_exit_code": 0,
+      "file_count": 19,
+      "total_uncompressed_bytes": 842211,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/BDragon/Super Package Retro Pixel Effects 32x32 pack 2/Super Package Retro Pixel Effects 32x32 pack 2 Free.rar",
+      "archive_kind": "rar",
+      "size_bytes": 232295,
+      "sha256": "1b098753cbd0050183c2f30f143daeca1eabc25f7abcb620feceb81464911e37",
+      "list_exit_code": 0,
+      "file_count": 36,
+      "total_uncompressed_bytes": 236972,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/BDragon/Topdown Monsters Part 1/Topdown Monsters Part 1 Free.rar",
+      "archive_kind": "rar",
+      "size_bytes": 2406858,
+      "sha256": "e2561ffb99f988857cdda75eadd90c1f586dd3a1bf7dc58bca733feadce01153",
+      "list_exit_code": 0,
+      "file_count": 13,
+      "total_uncompressed_bytes": 2858472,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/low poly models/Amir Pack/Amir - Forest Nature Pack/Amir - Forest Nature Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 15085083,
+      "sha256": "ec5f0fa5296f15f9933a47aae06d3cb5f602b8b4ecda8d273b6f7a154e83e744",
+      "list_exit_code": 0,
+      "file_count": 502,
+      "total_uncompressed_bytes": 53177316,
+      "license_entries": [],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/2D Dominoes Pack/2D Dominoes Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 1177893,
+      "sha256": "d0d08e41475b70d5966dc7dead917aab210d1040f96d7672a4ab74546d083514",
+      "list_exit_code": 0,
+      "file_count": 10,
+      "total_uncompressed_bytes": 1198698,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/2D Planet Pack 2/2D Planet Pack 2.rar",
+      "archive_kind": "rar",
+      "size_bytes": 5337311,
+      "sha256": "640f3c47dda1cf8527b956aa80bb82bc52ba8545d1ba79da349ad723941e3fc3",
+      "list_exit_code": 0,
+      "file_count": 128,
+      "total_uncompressed_bytes": 5316426,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/2D Poker Pack/2D Poker Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 359974,
+      "sha256": "1de47748a8ac2accd45385e9d91dd9ac34ccec608027c4661f299e0f5b81bcba",
+      "list_exit_code": 0,
+      "file_count": 62,
+      "total_uncompressed_bytes": 389309,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/2D Word Game Pack/2D Word Game Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 13330875,
+      "sha256": "dce5f6412df19be204e4bdf0a7b8221a87ed5e8d520dc564941e35a56bbd6f0f",
+      "list_exit_code": 0,
+      "file_count": 314,
+      "total_uncompressed_bytes": 13820954,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Abstract Noise Pack/Abstract Noise Pack - 128x128.rar",
+      "archive_kind": "rar",
+      "size_bytes": 1128692,
+      "sha256": "a14a032807a2fe572269fe2b68db7597b12e93e95b2a8c35b5b4e258151c1068",
+      "list_exit_code": 0,
+      "file_count": 101,
+      "total_uncompressed_bytes": 1114979,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Abstract Noise Pack/Abstract Noise Pack - 256x256.rar",
+      "archive_kind": "rar",
+      "size_bytes": 3469204,
+      "sha256": "3a66eecae1c7017f5956121bdc8eba4657fb76c3e99f4eb66af3cc100e254bbb",
+      "list_exit_code": 0,
+      "file_count": 101,
+      "total_uncompressed_bytes": 3469223,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Abstract Noise Pack/Abstract Noise Pack - 512x512.rar",
+      "archive_kind": "rar",
+      "size_bytes": 9479954,
+      "sha256": "89760205ca52befac09239457fe18ebc0d15830205cf4d3a195e02e92da7fd5f",
+      "list_exit_code": 0,
+      "file_count": 101,
+      "total_uncompressed_bytes": 9678272,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Animated Transitions Pack/Animated Transitions Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 931441,
+      "sha256": "41f2ed18c670db91c4755b968eaf09197088d33086db52e4ce5a04e83dca1665",
+      "list_exit_code": 0,
+      "file_count": 1215,
+      "total_uncompressed_bytes": 1016141,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Circular Texture Pack/Circular Texture Pack - 128x128.rar",
+      "archive_kind": "rar",
+      "size_bytes": 7156843,
+      "sha256": "723077230f3068393964e84b278ab2224fbff575ae0b2947c65183cbfc7d6d65",
+      "list_exit_code": 0,
+      "file_count": 201,
+      "total_uncompressed_bytes": 7355750,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Circular Texture Pack/Circular Texture Pack - 256x256.rar",
+      "archive_kind": "rar",
+      "size_bytes": 25730432,
+      "sha256": "b750cafe03837c6149acfb8682d5539c0468444ecd7876b137d53280daf19920",
+      "list_exit_code": 0,
+      "file_count": 201,
+      "total_uncompressed_bytes": 25921399,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Circular Texture Pack/Circular Texture Pack - 512x512.rar",
+      "archive_kind": "rar",
+      "size_bytes": 233169241,
+      "sha256": "b50e5d93dbb2bb6670942f59ad2fea97c45d268d9c73ed316163ffb7c3257bd6",
+      "list_exit_code": 0,
+      "file_count": 201,
+      "total_uncompressed_bytes": 233372800,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Cloudy Skyboxes/Cloudy Skyboxes - Cubemap.rar",
+      "archive_kind": "rar",
+      "size_bytes": 22367982,
+      "sha256": "52e9e89930ade5e1d61b4a6413629ff80886890a885539c6b085b70f7f88f43c",
+      "list_exit_code": 0,
+      "file_count": 26,
+      "total_uncompressed_bytes": 22537994,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Cloudy Skyboxes/Cloudy Skyboxes - Panorama.rar",
+      "archive_kind": "rar",
+      "size_bytes": 28613426,
+      "sha256": "6daaa2bb267885a14c43ce5d6ffc5fa88d6ae93f0400fb3dd51777875b96e42e",
+      "list_exit_code": 0,
+      "file_count": 26,
+      "total_uncompressed_bytes": 28609713,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Glass Letter Tiles/Glass Letter Tiles.rar",
+      "archive_kind": "rar",
+      "size_bytes": 3637758,
+      "sha256": "50d34b5ecfd3f472afb784fd9252e359e01179f16596fd9c71b9f272abfba95a",
+      "list_exit_code": 0,
+      "file_count": 325,
+      "total_uncompressed_bytes": 4384521,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Gradient Texture Pack/Gradient Texture Pack - 128x128.rar",
+      "archive_kind": "rar",
+      "size_bytes": 1608828,
+      "sha256": "793e54c4c826c424181bdf11db3b70028a098dac1a7efd22d882f1115a57bc71",
+      "list_exit_code": 0,
+      "file_count": 113,
+      "total_uncompressed_bytes": 1591685,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Gradient Texture Pack/Gradient Texture Pack - 256x256.rar",
+      "archive_kind": "rar",
+      "size_bytes": 5285443,
+      "sha256": "3ea255aaa7c10c7126cc395a7e4507e8f8cfabb230a39fe1e768b10c6d7431bb",
+      "list_exit_code": 0,
+      "file_count": 113,
+      "total_uncompressed_bytes": 5279074,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Gradient Texture Pack/Gradient Texture Pack - 512x512.rar",
+      "archive_kind": "rar",
+      "size_bytes": 19866454,
+      "sha256": "eb6086bf5e032be6f31f0e105ab01ca5a1df73a89ec37d525099af56bcfdd766",
+      "list_exit_code": 0,
+      "file_count": 113,
+      "total_uncompressed_bytes": 19948432,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Horror Texture Pack/Horror Texture Pack 128x128.rar",
+      "archive_kind": "rar",
+      "size_bytes": 4141431,
+      "sha256": "1fee483ce0253e64096442a2c16833ec9da90bdfa2836e5d54a061f293abf6fb",
+      "list_exit_code": 0,
+      "file_count": 101,
+      "total_uncompressed_bytes": 4166328,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Horror Texture Pack/Horror Texture Pack 256x256.rar",
+      "archive_kind": "rar",
+      "size_bytes": 15599463,
+      "sha256": "6c78d279ce669d548ce77adf6dd768e40e1436498326a0bbce578f82cab6e9f0",
+      "list_exit_code": 0,
+      "file_count": 101,
+      "total_uncompressed_bytes": 15628470,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Horror Texture Pack/Horror Texture Pack 512x512.rar",
+      "archive_kind": "rar",
+      "size_bytes": 68666492,
+      "sha256": "29feed70b77a17b974cce79a4f343f5f4fdf8f56cec0af91335083bf4cceaae4",
+      "list_exit_code": 0,
+      "file_count": 101,
+      "total_uncompressed_bytes": 68826191,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Floor Texture Pack/Isometric Floor Texture Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 10024929,
+      "sha256": "71b9d1e3eae50da0a285a42011304cb6d86fb4ac333c1b1d078df5eefbb504fb",
+      "list_exit_code": 0,
+      "file_count": 157,
+      "total_uncompressed_bytes": 10051598,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Grid Pack/Isometric Grid Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 73475,
+      "sha256": "328b3ba2da96b6a5b9f695aa417051640026056c7860059b5ae10229340b4be6",
+      "list_exit_code": 0,
+      "file_count": 55,
+      "total_uncompressed_bytes": 376394,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Stone Soup/Isometric Stone Soup.rar",
+      "archive_kind": "rar",
+      "size_bytes": 2663894,
+      "sha256": "399c687f7fff231c37d02a2c15007013cdcd93c1bfdbed94eaeffa788e99b1e6",
+      "list_exit_code": 0,
+      "file_count": 183,
+      "total_uncompressed_bytes": 2689527,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": [
+        "Readme.txt"
+      ]
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Crates Pack/Isometric Tiles - Crates Pack - 128x128.rar",
+      "archive_kind": "rar",
+      "size_bytes": 5556258,
+      "sha256": "46c414b188cf4725e4f92fe0c7a11012178d473ae930996caa02aba3b8e08365",
+      "list_exit_code": 0,
+      "file_count": 17,
+      "total_uncompressed_bytes": 5554750,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Crates Pack/Isometric Tiles - Crates Pack - 64x64.rar",
+      "archive_kind": "rar",
+      "size_bytes": 1537432,
+      "sha256": "b489b848cb34fabaa77cd30f3bffe5b974fcd1af3ddeceb11f081809cccdc665",
+      "list_exit_code": 0,
+      "file_count": 17,
+      "total_uncompressed_bytes": 1535988,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Crates Pack/Isometric Tiles - Crates Pack textures - 64x64.rar",
+      "archive_kind": "rar",
+      "size_bytes": 474455,
+      "sha256": "7a87e5a3f17eae6fe60421a968f5b2484ac1de444094c8a260e668d4f5041dad",
+      "list_exit_code": 0,
+      "file_count": 49,
+      "total_uncompressed_bytes": 468971,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Doorways Pack/Isometric Tiles - Doorways Pack - Large.rar",
+      "archive_kind": "rar",
+      "size_bytes": 8826778,
+      "sha256": "6bfe343be71d6092a8ec324455b5597707a0fba62ee0a2dd803865eca9f23ed7",
+      "list_exit_code": 0,
+      "file_count": 145,
+      "total_uncompressed_bytes": 8852032,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Doorways Pack/Isometric Tiles - Doorways Pack - Small.rar",
+      "archive_kind": "rar",
+      "size_bytes": 2616106,
+      "sha256": "387da2f712db52a64d2cb64f7061a95ddd5e3081c34c777e9ce5c5be6efebdf0",
+      "list_exit_code": 0,
+      "file_count": 145,
+      "total_uncompressed_bytes": 2590735,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Floor Pack/Isometric Tiles - Floor Pack - Large 256x128.rar",
+      "archive_kind": "rar",
+      "size_bytes": 19085490,
+      "sha256": "290984a225e89dfa985eff3c1b7c0665b57d859a07b717b6914b9a440c21fda0",
+      "list_exit_code": 0,
+      "file_count": 57,
+      "total_uncompressed_bytes": 19079252,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Floor Pack/Isometric Tiles - Floor Pack - Small 128x64.rar",
+      "archive_kind": "rar",
+      "size_bytes": 5219192,
+      "sha256": "1268eb98efe6fef4fd00ae3a3f0cb85d2ceb4a45dff9968510d3b64bcdfde762",
+      "list_exit_code": 0,
+      "file_count": 57,
+      "total_uncompressed_bytes": 5213071,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Object Pack/Isometric Tiles - Object Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 3947812,
+      "sha256": "2d53040e0b25320d1a7b96c5b315c91827472997afc541add53f14deb84f52b1",
+      "list_exit_code": 0,
+      "file_count": 51,
+      "total_uncompressed_bytes": 4000625,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Overworld Pack/Isometric Tiles - Overworld Pack - Large.rar",
+      "archive_kind": "rar",
+      "size_bytes": 7137346,
+      "sha256": "876c980d79e6dc86c4b65b440f866523ca63d7e922d481ad2140bfdd5502d0f3",
+      "list_exit_code": 0,
+      "file_count": 21,
+      "total_uncompressed_bytes": 7135080,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Overworld Pack/Isometric Tiles - Overworld Pack - Small.rar",
+      "archive_kind": "rar",
+      "size_bytes": 1872466,
+      "sha256": "e83cc4471b5073ad965ed93adb5aaba796139cfb5ed128f9c7a6b18fbdbcb0f8",
+      "list_exit_code": 0,
+      "file_count": 21,
+      "total_uncompressed_bytes": 1870137,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Pathways Pack/Isometric Tiles - Pathways Pack - Large.rar",
+      "archive_kind": "rar",
+      "size_bytes": 23974266,
+      "sha256": "e00d0c06ffdb17be21af75544631df0ac9fb3f35073a11471df903e9299de93b",
+      "list_exit_code": 0,
+      "file_count": 253,
+      "total_uncompressed_bytes": 24259926,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Pathways Pack/Isometric Tiles - Pathways Pack - Small.rar",
+      "archive_kind": "rar",
+      "size_bytes": 6639530,
+      "sha256": "500a4dbd1a7fc144a63d0afc06174063f8913903c18789186380d73e8188a798",
+      "list_exit_code": 0,
+      "file_count": 253,
+      "total_uncompressed_bytes": 6813279,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Roads Pack/Isometric Tiles - Roads Pack - Large.rar",
+      "archive_kind": "rar",
+      "size_bytes": 2251966,
+      "sha256": "6b4db5483953fe60dbd1a672133037fae0d37164c16ae5c55eec888d121c561b",
+      "list_exit_code": 0,
+      "file_count": 71,
+      "total_uncompressed_bytes": 2306862,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Roads Pack/Isometric Tiles - Roads Pack - Small.rar",
+      "archive_kind": "rar",
+      "size_bytes": 675748,
+      "sha256": "c0c92036460090dd496e6ca95a92f10e511e051d7b0d5e0763f5f9ea2f4ccdb7",
+      "list_exit_code": 0,
+      "file_count": 71,
+      "total_uncompressed_bytes": 698151,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Town Pack/Isometric Tiles - Town Pack example.rar",
+      "archive_kind": "rar",
+      "size_bytes": 1996,
+      "sha256": "4598c75444ea0cf76441e559cfe61afcf4455c7739351d6c60e73122ce134a34",
+      "list_exit_code": 0,
+      "file_count": 5,
+      "total_uncompressed_bytes": 22991,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Town Pack/Isometric Tiles - Town Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 4171727,
+      "sha256": "86df678f4ae059ea130f0c134a6525cbdee042240fa38883a9f0488dc9bdd3bd",
+      "list_exit_code": 0,
+      "file_count": 5,
+      "total_uncompressed_bytes": 4170897,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Wall Pack/Isometric Tiles - Wall Pack - Large.rar",
+      "archive_kind": "rar",
+      "size_bytes": 29568920,
+      "sha256": "75d5813d6b8e74ffe8b4b6350942d160af55724e0fa5443391410a131ee5f87c",
+      "list_exit_code": 0,
+      "file_count": 43,
+      "total_uncompressed_bytes": 29610744,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Tiles - Wall Pack/Isometric Tiles - Wall Pack - Small.rar",
+      "archive_kind": "rar",
+      "size_bytes": 8239575,
+      "sha256": "b3d4acec250d131b3e9e2532079d3d6db520a9d3789c72d34c1034ef66d1059c",
+      "list_exit_code": 0,
+      "file_count": 43,
+      "total_uncompressed_bytes": 8232721,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Isometric Wall Texture Pack/Isometric Textures - Wall Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 12454799,
+      "sha256": "6262ce4ac93c5426e9ebf22a1b06ba612cefda7d7771ceba85e45b8a003e1046",
+      "list_exit_code": 0,
+      "file_count": 433,
+      "total_uncompressed_bytes": 12388413,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Old School Dungeon Crawler Pack/Old School Dungeon Crawler Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 1487222,
+      "sha256": "416e473652a332f251e96492105d5c7dbee6a6c4c5913800089ac7c35757b9ac",
+      "list_exit_code": 0,
+      "file_count": 103,
+      "total_uncompressed_bytes": 1461619,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Old School Dungeon Crawler Pack/SBS - Cave Walls Addon.rar",
+      "archive_kind": "rar",
+      "size_bytes": 1313011,
+      "sha256": "a3cee2ab0235f4efbdb58bf8e3886ce6b137d2853105e5746be0931c9f202917",
+      "list_exit_code": 0,
+      "file_count": 91,
+      "total_uncompressed_bytes": 1294449,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Photorealistic Texture Pack 1/Photorealistic Texture Pack 1 - 128x128.rar",
+      "archive_kind": "rar",
+      "size_bytes": 3013794,
+      "sha256": "4970f8d4a483915ebd3fb3b8505b9550c736714067e6eb944c34c7f59a77b87b",
+      "list_exit_code": 0,
+      "file_count": 73,
+      "total_uncompressed_bytes": 3002069,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Photorealistic Texture Pack 1/Photorealistic Texture Pack 1 - 256x256.rar",
+      "archive_kind": "rar",
+      "size_bytes": 12210742,
+      "sha256": "671f8fa5b5b373ad629119d29e8dce90eabca0ab2eea2081eced02ac09004bae",
+      "list_exit_code": 0,
+      "file_count": 73,
+      "total_uncompressed_bytes": 12198367,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Photorealistic Texture Pack 1/Photorealistic Texture Pack 1 - 512x512.rar",
+      "archive_kind": "rar",
+      "size_bytes": 47777640,
+      "sha256": "bdec73a0235aa8f995ec4c5158eb483c983d87178efb724533db30effa4df1a9",
+      "list_exit_code": 0,
+      "file_count": 73,
+      "total_uncompressed_bytes": 47767432,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Photorealistic Texture Pack 2/Photorealistic Texture Pack 2 - 128x128.rar",
+      "archive_kind": "rar",
+      "size_bytes": 7877766,
+      "sha256": "7f4615a106a4325c1fc5650c01f9671451e6dc66ca420e26d5433839af0104a7",
+      "list_exit_code": 0,
+      "file_count": 193,
+      "total_uncompressed_bytes": 7854494,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Photorealistic Texture Pack 2/Photorealistic Texture Pack 2 - 256x256.rar",
+      "archive_kind": "rar",
+      "size_bytes": 32749592,
+      "sha256": "c5f85ac499059f5432048667b4bdbaf63e63088a2a25eb70f02a6f0d4ec8d62d",
+      "list_exit_code": 0,
+      "file_count": 193,
+      "total_uncompressed_bytes": 32728766,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Photorealistic Texture Pack 2/Photorealistic Texture Pack 2 - 512x512.rar",
+      "archive_kind": "rar",
+      "size_bytes": 130695647,
+      "sha256": "692e58d20050be482f0cd92aaf05012a3d933ad195fbd395686c80725d4927c8",
+      "list_exit_code": 0,
+      "file_count": 193,
+      "total_uncompressed_bytes": 130786340,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Photorealistic Texture Pack 3/Photorealistic Texture Pack 3 - 128x128.rar",
+      "archive_kind": "rar",
+      "size_bytes": 3477299,
+      "sha256": "2dffdc9b811b052928d08814ab67bf2fcfae604367883ed1d533034e610d8784",
+      "list_exit_code": 0,
+      "file_count": 81,
+      "total_uncompressed_bytes": 3464215,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Photorealistic Texture Pack 3/Photorealistic Texture Pack 3 - 256x256.rar",
+      "archive_kind": "rar",
+      "size_bytes": 13854288,
+      "sha256": "fd1f8b5d35d233993355aed212aa23f3e74a3ccb5977beac4e7790f527048f5e",
+      "list_exit_code": 0,
+      "file_count": 81,
+      "total_uncompressed_bytes": 13841182,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Photorealistic Texture Pack 3/Photorealistic Texture Pack 3 - 512x512.rar",
+      "archive_kind": "rar",
+      "size_bytes": 54948781,
+      "sha256": "fae13bedeb1a3be3fdf216aada299e63c4184cfa91cfe302932cb10ba6011a31",
+      "list_exit_code": 0,
+      "file_count": 81,
+      "total_uncompressed_bytes": 54935650,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Planet Surface Backgrounds 1/Planet Surface Backgrounds 1 - 1280x720.rar",
+      "archive_kind": "rar",
+      "size_bytes": 113818014,
+      "sha256": "429876be11a042a7cbf1746d7d84e45278ef6f53acf567dc67c75f796d6d969e",
+      "list_exit_code": 0,
+      "file_count": 24,
+      "total_uncompressed_bytes": 146137993,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Planet Surface Backgrounds 1/Planet Surface Backgrounds 1 - 512x384.rar",
+      "archive_kind": "rar",
+      "size_bytes": 24992059,
+      "sha256": "abbc53ac56c0baae47b7521df354c7dbeaed0479661067554a312caa320cc431",
+      "list_exit_code": 0,
+      "file_count": 24,
+      "total_uncompressed_bytes": 31691180,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Planet Surface Backgrounds 1/Planet Surface Backgrounds 1 - 640x480.rar",
+      "archive_kind": "rar",
+      "size_bytes": 38910792,
+      "sha256": "ab01f3f494b35b9c4016efe886463c2f1636e9611d9fdb63c5fd283f6d44719a",
+      "list_exit_code": 0,
+      "file_count": 24,
+      "total_uncompressed_bytes": 49491200,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Planet Surface Backgrounds 1/Planet Surface Backgrounds 1 - 800x600.rar",
+      "archive_kind": "rar",
+      "size_bytes": 60528456,
+      "sha256": "cef7b07ff39a39d411ec10d3b6eb4d4af86570986a0d60391fdc3d4ac5badc40",
+      "list_exit_code": 0,
+      "file_count": 24,
+      "total_uncompressed_bytes": 77290886,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Planet Surface Skyboxes/Planet Surface Skyboxes - Cubemap.rar",
+      "archive_kind": "rar",
+      "size_bytes": 52618923,
+      "sha256": "e888a14a3df1b3897b899e90ffa01dfa021081e00e5c60be60118dd82e812e56",
+      "list_exit_code": 0,
+      "file_count": 33,
+      "total_uncompressed_bytes": 52929089,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Planet Surface Skyboxes/Planet Surface Skyboxes - Panorama.rar",
+      "archive_kind": "rar",
+      "size_bytes": 56537050,
+      "sha256": "c0bfd6b09ba417d840ee0e135205ff026febba568f9380c57d33ddcabaab06b8",
+      "list_exit_code": 0,
+      "file_count": 33,
+      "total_uncompressed_bytes": 56550631,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Portrait Frame Pack/Portrait Frame Pack - 128x128.rar",
+      "archive_kind": "rar",
+      "size_bytes": 2501759,
+      "sha256": "166f6f4146aa2de5030f6ebedc20a23b0ef285de9c3f2f7feea7c19ac00cdcde",
+      "list_exit_code": 0,
+      "file_count": 151,
+      "total_uncompressed_bytes": 2471093,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Portrait Frame Pack/Portrait Frame Pack - 256x256.rar",
+      "archive_kind": "rar",
+      "size_bytes": 9085324,
+      "sha256": "bc9c2d5ac9c7b18de4ce698770080c562f79302895aa5dd74f5f48c4c418006f",
+      "list_exit_code": 0,
+      "file_count": 151,
+      "total_uncompressed_bytes": 9054216,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Sandbox Style - Terrain Pack/Sandbox Style - Terrain Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 598560,
+      "sha256": "00751e743769b3d3ba8a863c6d4918a10fb52a6702ea8015f30a0166166fc2ce",
+      "list_exit_code": 0,
+      "file_count": 96,
+      "total_uncompressed_bytes": 586574,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Sandbox Style - Terrain Pack/Sandbox Style Terrain - Brick Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 752007,
+      "sha256": "20c62563ca32c01a0cf716a345493f3857f6710be3400e1de89c5a9d87d72364",
+      "list_exit_code": 0,
+      "file_count": 9,
+      "total_uncompressed_bytes": 770524,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Sandbox Style - Terrain Pack/Sandbox Style Terrain Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 607253,
+      "sha256": "b82799daad5e37f1a2dfd4906447fbe6633246827eff295a80596567e72262d5",
+      "list_exit_code": 0,
+      "file_count": 15,
+      "total_uncompressed_bytes": 644536,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Seamless Abstract Pack/Seamless Abstract Pack - 128x128.rar",
+      "archive_kind": "rar",
+      "size_bytes": 1151931,
+      "sha256": "b17b7ad87d921264e5bd443e4fc1d365de0ac63394dca2efa02de40741178b5a",
+      "list_exit_code": 0,
+      "file_count": 51,
+      "total_uncompressed_bytes": 1145056,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Seamless Abstract Pack/Seamless Abstract Pack - 256x256.rar",
+      "archive_kind": "rar",
+      "size_bytes": 3475283,
+      "sha256": "01f8836fed4674a2d28a630c5c7a2a0d9d584c426367f834613ce9517bad9a2e",
+      "list_exit_code": 0,
+      "file_count": 51,
+      "total_uncompressed_bytes": 3468355,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Seamless Abstract Pack/Seamless Abstract Pack - 512x512.rar",
+      "archive_kind": "rar",
+      "size_bytes": 10297516,
+      "sha256": "1afc9e1fd7ec1a477d59a3a2f4d68974e36ced9d55c8c230937c66f051c9dede",
+      "list_exit_code": 0,
+      "file_count": 51,
+      "total_uncompressed_bytes": 10290654,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Seamless Space Backgrounds/Seamless Space Backgrounds - Large.rar",
+      "archive_kind": "rar",
+      "size_bytes": 25908215,
+      "sha256": "f99b400316ca07e4ca31a6043c0d111e0eda4a9cbdaede8aad00b167dc856cd5",
+      "list_exit_code": 0,
+      "file_count": 33,
+      "total_uncompressed_bytes": 26001614,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Seamless Space Backgrounds/Seamless Space Backgrounds - Small.rar",
+      "archive_kind": "rar",
+      "size_bytes": 7850728,
+      "sha256": "743fb3d75d2bc951165e757a382929a5d78810374dcb95f1ce0a64cbccb06b42",
+      "list_exit_code": 0,
+      "file_count": 33,
+      "total_uncompressed_bytes": 7866674,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Simple Game Button Pack/Rectangular Game Buttons 192x48.rar",
+      "archive_kind": "rar",
+      "size_bytes": 661353,
+      "sha256": "8765e06d45b36ba512eab61ada839c83bc7d8b1b3e33623c6ee81f35014b5f7a",
+      "list_exit_code": 0,
+      "file_count": 288,
+      "total_uncompressed_bytes": 640982,
+      "license_entries": [
+        "Rectangular\\Blue\\Credits 192x48.png",
+        "Rectangular\\Gray\\Credits 192x48.png",
+        "Rectangular\\Green\\Credits 192x48.png",
+        "Rectangular\\Orange\\Credits 192x48.png",
+        "Rectangular\\Purple\\Credits 192x48.png",
+        "Rectangular\\Red\\Credits 192x48.png",
+        "Rectangular\\Yellow\\Credits 192x48.png",
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Simple Game Button Pack/Rounded Game Buttons 192x48.rar",
+      "archive_kind": "rar",
+      "size_bytes": 869588,
+      "sha256": "27880cfc9c4004cd8db23a1a2a56f8e838fed62d15f13405d2b90d7cd637559b",
+      "list_exit_code": 0,
+      "file_count": 288,
+      "total_uncompressed_bytes": 850397,
+      "license_entries": [
+        "Rounded\\Blue\\Credits 192x48.png",
+        "Rounded\\Gray\\Credits 192x48.png",
+        "Rounded\\Green\\Credits 192x48.png",
+        "Rounded\\Orange\\Credits 192x48.png",
+        "Rounded\\Purple\\Credits 192x48.png",
+        "Rounded\\Red\\Credits 192x48.png",
+        "Rounded\\Yellow\\Credits 192x48.png",
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Simple Interface Button Pack/Simple Interface Button Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 216514,
+      "sha256": "fd7cdf68ff07788801728546b24c634a9b8677931a35e0a94a3930bdd157f047",
+      "list_exit_code": 0,
+      "file_count": 5,
+      "total_uncompressed_bytes": 216882,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Tiny Planet Pack/Tiny Planet Pack.rar",
+      "archive_kind": "rar",
+      "size_bytes": 2010742,
+      "sha256": "c08dd5182846de3a27a6b40e71473a419d239a4d912d21dc3fb82359ff47fcac",
+      "list_exit_code": 0,
+      "file_count": 31,
+      "total_uncompressed_bytes": 2081217,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Tiny Texture Pack 3/Tiny Texture Pack 3 - Large.rar",
+      "archive_kind": "rar",
+      "size_bytes": 140699486,
+      "sha256": "f61d963d2deb60d2d9015712058f8a75abe128c866940464f8d81ce3b2d51cd3",
+      "list_exit_code": 0,
+      "file_count": 241,
+      "total_uncompressed_bytes": 140787722,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Tiny Texture Pack 3/Tiny Texture Pack 3 - Medium.rar",
+      "archive_kind": "rar",
+      "size_bytes": 35186942,
+      "sha256": "15cf995bd2fcd22164d9fcc8d2a860d7276cf957bf9f13b15a8ce6a9e300a9cd",
+      "list_exit_code": 0,
+      "file_count": 241,
+      "total_uncompressed_bytes": 35154858,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    },
+    {
+      "source_archive": "more assets to ingest/Screaming Brain/Tiny Texture Pack 3/Tiny Texture Pack 3 - Small.rar",
+      "archive_kind": "rar",
+      "size_bytes": 9447727,
+      "sha256": "7da3db266ec7031fde3f388106dc6ae4b97ebefe9bc9b1b5a066cb75cfd21df5",
+      "list_exit_code": 0,
+      "file_count": 241,
+      "total_uncompressed_bytes": 9411967,
+      "license_entries": [
+        "License.txt"
+      ],
+      "readme_entries": []
+    }
+  ],
+  "loose_files": [
+    {
+      "path": "more assets to ingest/BDragon/16x16 Pixel Adventures Character/Adventure_Character_Simple.png",
+      "extension": ".png",
+      "size_bytes": 22262,
+      "sha256": "cd695f1b2ebf9c7b94e8da72ee0c4d360cd298c42e2bb1c9f9dca87b2178b246"
+    },
+    {
+      "path": "more assets to ingest/BDragon/Basic Pixel Health bar and Scroll bar/All.png",
+      "extension": ".png",
+      "size_bytes": 48616,
+      "sha256": "580576391893560e757c1de81bd3cf4dabc271fe3ce1da270a4e4b9f53a3dee6"
+    },
+    {
+      "path": "more assets to ingest/BDragon/Circle Ball All/Circle Ball All.png",
+      "extension": ".png",
+      "size_bytes": 968980,
+      "sha256": "ac5c3fce453459bbfc132e7fb31774b812ae4644d9d53c137b4b318c1894cfa5"
+    },
+    {
+      "path": "more assets to ingest/BDragon/Pixel Buttons pack All/Pixel Buttom.png",
+      "extension": ".png",
+      "size_bytes": 92999,
+      "sha256": "5bc1ddff7832fbce60a860841685392d738f940f9e6fc4e2086ff58c51e693db"
+    },
+    {
+      "path": "more assets to ingest/foozle/30 animated traps/TrapPackDemo.c3p",
+      "extension": ".c3p",
+      "size_bytes": 1396631,
+      "sha256": "25bb09338c7b0b67b4c82518647ffc00827c402db47d699333e3a5a121a6b316"
+    },
+    {
+      "path": "more assets to ingest/fossilbound/Treasure Chests/Animated Treasure Chests – Basic & Fancy with smoke.png",
+      "extension": ".png",
+      "size_bytes": 3311,
+      "sha256": "66511a2fed23c85d890f4093287320aa5ab604a2dae53c346738bf9068c82a35"
+    },
+    {
+      "path": "more assets to ingest/fossilbound/Treasure Chests/Animated Treasure Chests – Basic & Fancy.png",
+      "extension": ".png",
+      "size_bytes": 4771,
+      "sha256": "32c5a6e892b3eea4049c614eea12c68fa91f4b4f85675a7b947a266a781b35be"
+    },
+    {
+      "path": "more assets to ingest/haydeos/Dieselpunk Houses/Dieselpunk Houses.png",
+      "extension": ".png",
+      "size_bytes": 282483,
+      "sha256": "3ba32e2d705d22ced5acd5a15bae5064b206c84a39cc46e0784a70666d777ff3"
+    },
+    {
+      "path": "more assets to ingest/haydeos/Fantasy Forest RPG Maker Tileset/Fantasy Forest RPG Maker Tileset.png",
+      "extension": ".png",
+      "size_bytes": 204668,
+      "sha256": "42c2fbe8929964d6aaba1aa15298e51619042dfe072a4ee389811a8ea4dbcd84"
+    },
+    {
+      "path": "more assets to ingest/haydeos/Fantasy Houses Tileset/Fantasy Houses Tileset.png",
+      "extension": ".png",
+      "size_bytes": 208068,
+      "sha256": "02bd8c62eae65da94cc2a88f3e0f6264985d581794d4d81ca0d2c337120a3bbb"
+    },
+    {
+      "path": "more assets to ingest/haydeos/Ferrum Junkyard 1/Ferrum Junkyard 1.png",
+      "extension": ".png",
+      "size_bytes": 315254,
+      "sha256": "eb6e972b89d745bd033a4e091d9a7c2239de05af73e638d47ec37b79a8e710ba"
+    },
+    {
+      "path": "more assets to ingest/haydeos/Ferrum Tileset Dieselpunk Slums 1/Ferrum Tileset Dieselpunk Slums 1.png",
+      "extension": ".png",
+      "size_bytes": 616887,
+      "sha256": "1d17248453bd7b87481a36248839be4107436283ac63d2e6d39ea98921c92651"
+    },
+    {
+      "path": "more assets to ingest/haydeos/Ferrum Tileset; Dieselpunk Slums 2/Ferrum Tileset; Dieselpunk Slums 2.png",
+      "extension": ".png",
+      "size_bytes": 717761,
+      "sha256": "ad3b981c8fe0a277d9fcc7a442d0760a16bdcc6f483ddcd4bd7003494fcb1705"
+    },
+    {
+      "path": "more assets to ingest/jjgame4/Fantasy RPG Pixel-Style HD Spritesheet – Tileset, Character Animations & VFX Pack/Fantasy RPG Pixel-Style HD Spritesheet – Tileset, Character Animations & VFX Pack.png",
+      "extension": ".png",
+      "size_bytes": 2887570,
+      "sha256": "dbf5d9b68a686335fadb7f1d45200f633d3e24ded06f25693e0c00db19169c03"
+    },
+    {
+      "path": "more assets to ingest/jjgame4/Game Asset Pack  Animated Character Spritesheet  UI, Effects & Enemies  Indie Game Ready/Game Asset Pack  Animated Character Spritesheet  UI, Effects & Enemies  Indie Game Ready.png",
+      "extension": ".png",
+      "size_bytes": 1499045,
+      "sha256": "4a217eb6289615f78d5697989cbf6d5dd73880544c1c63a7f500e7485373e609"
+    },
+    {
+      "path": "more assets to ingest/jjgame4/Knight Assets Pack – Pixel Art Spritesheet (RPG  Platformer  VFX  Tileset)/Knight Assets Pack – Pixel Art Spritesheet (RPG  Platformer  VFX  Tileset).png",
+      "extension": ".png",
+      "size_bytes": 2614674,
+      "sha256": "7b92090be332b07c662eb6848100a85314e21308e3de6f17b48ee03008c7e716"
+    },
+    {
+      "path": "more assets to ingest/jjgame4/Sci-Fi Magic UI & VFX Spritesheet – 2D Game Assets (HUD, Icons, Effects, PNG Sheet)/Sci-Fi Magic UI & VFX Spritesheet – 2D Game Assets (HUD, Icons, Effects, PNG Sheet).png",
+      "extension": ".png",
+      "size_bytes": 2333967,
+      "sha256": "81dc24aa2c3c0d01381ec2cc84f66375cc873740127705e136dceafab05de904"
+    },
+    {
+      "path": "more assets to ingest/Klyssilla/Rocks - Asset Pack/Rocks - Asset Pack (32x32).png",
+      "extension": ".png",
+      "size_bytes": 264064,
+      "sha256": "b5246a667c496674c1d4d97c2ad3df09f8af02a29f699b92ff22f773c8d18f49"
+    },
+    {
+      "path": "more assets to ingest/low poly models/Amir Pack/Low Poly Asset Pack 1/Vocations and Uniforms.blend",
+      "extension": ".blend",
+      "size_bytes": 12007884,
+      "sha256": "d8c1dd63c9c39200854af9973205caf32b63cb59f3d8d4852ce3701985906d18"
+    },
+    {
+      "path": "more assets to ingest/parallax/Parallax background - endless plains/Plains parallax preview.png",
+      "extension": ".png",
+      "size_bytes": 27229,
+      "sha256": "65f917affc90331b21ea92b4d4f92a3cd48de19bfc0d4995fe3b6b718bfe656a"
+    },
+    {
+      "path": "more assets to ingest/parallax/Parallax background - endless plains/Plains parallax.aseprite",
+      "extension": ".aseprite",
+      "size_bytes": 19084,
+      "sha256": "125d369ebfce0e283ae91caba7ffade1f80f14138cc5a90e8118c41290b3fd40"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Faceless Minions/Faceless Minions.png",
+      "extension": ".png",
+      "size_bytes": 4561,
+      "sha256": "5449cba03cf919e47c0644599a8b8d86677a0fd1dced60364e0941ddfc0d3688"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Font+ [80's Retro Future]/80s-retro-future.ttf",
+      "extension": ".ttf",
+      "size_bytes": 13952,
+      "sha256": "99e854d9e7b9f47f019aba48aecf834bca045e6fd7afbf9c9552728f4d189cb7"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Font+ [80's Retro Future]/Sprite_sheet 80's Retro Font.png",
+      "extension": ".png",
+      "size_bytes": 1391,
+      "sha256": "499accef95431378779ca44eb29cee3e69313df09b541ba5edf2811c1b9909d0"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Font+ [Antiquity Print]/Font+ [Antiquity Print].png",
+      "extension": ".png",
+      "size_bytes": 3172,
+      "sha256": "d4c162316e7be05bd29f829c9bafb1075d9f0764a5154030e656a5b6c85b21a3"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Font+ [Antiquity Print]/Font+ [Antiquity Print].ttf",
+      "extension": ".ttf",
+      "size_bytes": 24148,
+      "sha256": "f12394ab8bf112f8c3e96fe3b0f0f93034973af3e263051f03fd54b8a3aebcc6"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Font+ [Hero Speak]/hero-speak.ttf",
+      "extension": ".ttf",
+      "size_bytes": 18004,
+      "sha256": "c9549251d0c60e003971a7addd53a34c1138f1f0cd65d668bf5b96297e09ffff"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Font+ [Hero Speak]/HeroSpeak_Blue_SpriteSheet.png",
+      "extension": ".png",
+      "size_bytes": 8689,
+      "sha256": "cd897efe06b0ebfa0588ccb7bc8ecdd732b58307c6e737966a76d1705600f2b2"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Font+ [Hero Speak]/HeroSpeak_Dark_SpriteSheet.png",
+      "extension": ".png",
+      "size_bytes": 7740,
+      "sha256": "a6cb4e98571de6a0b51f7f956ca060998c012226f6adee5b7e251154ccab7758"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Font+ [Hero Speak]/HeroSpeak_Red_SpriteSheet.png",
+      "extension": ".png",
+      "size_bytes": 9164,
+      "sha256": "cdfa433aeea0f8be3f7b9f0d19b9f045b68c5a992eaf31d3d44d2c032762ed32"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Font+ [Hero Speak]/HeroSpeak_White_SpriteSheet.png",
+      "extension": ".png",
+      "size_bytes": 3978,
+      "sha256": "55fca4fd413511e9b0d44b3528f754bce8ec429c6b91eb6414048802f7e95033"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Font+ [Hero Speak]/HeroSpeak_Yellow_SpriteSheet.png",
+      "extension": ".png",
+      "size_bytes": 8617,
+      "sha256": "f0c612aa38c599044a9c43026df7cf83d25764560d0140e4d2be93bf9f945c4e"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Fruit/Adopt a Tree.png",
+      "extension": ".png",
+      "size_bytes": 8874,
+      "sha256": "38f0cde6b8716332b57629822afb50e99195cc1d2c4e4b0279f764dd0e7ef1b3"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Fruit/Fruit+.png",
+      "extension": ".png",
+      "size_bytes": 41976,
+      "sha256": "b5855a670bb8450b4180e91f756b65e0841f7cf3f8b0936fc9b4aa061a110cf4"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Grass/GRASS+.png",
+      "extension": ".png",
+      "size_bytes": 18930,
+      "sha256": "7fd6d65ce220b52e880d4a894f7024145fd8e97e26eb3220e7fea16363ff9939"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Silly Placeholders/Silly Placeholders.png",
+      "extension": ".png",
+      "size_bytes": 5509,
+      "sha256": "e441570860a11b66febdaae7340e43db8f455e60d04c276e7a9b8ea80664b24b"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Trees/Surplus Trees.png",
+      "extension": ".png",
+      "size_bytes": 267636,
+      "sha256": "318e4aa883dc884d2b7f7bad82c630c36ec7d9fa1a54ddf6cb897f1527d215d5"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Trees/Trees+.png",
+      "extension": ".png",
+      "size_bytes": 305083,
+      "sha256": "93a99967bbb90a8df1c4658d44ea0ef6d3a6d044a229a70f71585e411f16b643"
+    },
+    {
+      "path": "more assets to ingest/SciGo/Water/Water.png",
+      "extension": ".png",
+      "size_bytes": 8580,
+      "sha256": "5f8db9cc81c123e3f5c0e2ec6b44d2f99387fdb80d7c229b7e8f5fac78ce0f53"
+    },
+    {
+      "path": "more assets to ingest/seveneves/100+ RPG Hat Sprites Pixel Art Pack/hats-1.png",
+      "extension": ".png",
+      "size_bytes": 26978,
+      "sha256": "1e3ead80b3417f6e0c25d3ceb74b6cccb4507c58597fad7d61603a96759ada3d"
+    },
+    {
+      "path": "more assets to ingest/seveneves/100+ RPG Hat Sprites Pixel Art Pack/hats-2.png",
+      "extension": ".png",
+      "size_bytes": 30258,
+      "sha256": "6712b9d10e3ca06995b32ada2d7622aec3898152e3de9f30cd9031f900a2aea3"
+    },
+    {
+      "path": "more assets to ingest/seveneves/100+ RPG Hat Sprites Pixel Art Pack/hats-3.png",
+      "extension": ".png",
+      "size_bytes": 46685,
+      "sha256": "44cfed59d4eafe1e0b4a71bb4594e98d287189bd4cf23f224094f7eaf5e3db4c"
+    },
+    {
+      "path": "more assets to ingest/seveneves/100+ RPG Hat Sprites Pixel Art Pack/hats-4.png",
+      "extension": ".png",
+      "size_bytes": 25355,
+      "sha256": "9ee6b5aee6e3dc51f0262410640bbc39dfe2f391c266b204087d82d55ec36320"
+    },
+    {
+      "path": "more assets to ingest/seveneves/100+ RPG Hat Sprites Pixel Art Pack/hats-5.png",
+      "extension": ".png",
+      "size_bytes": 51247,
+      "sha256": "3c1b9747e3d85d52b504e6471f1fd432fa73b8708155bf8d9ee0bd63460dc5b2"
+    },
+    {
+      "path": "more assets to ingest/seveneves/250+ RPG Shield Sprites Pixel Art Pack/shields-2.png",
+      "extension": ".png",
+      "size_bytes": 11584,
+      "sha256": "306501510334b060307f06c7133dc43ffa81597413fc5760d752122ccd0bb876"
+    },
+    {
+      "path": "more assets to ingest/seveneves/250+ RPG Shield Sprites Pixel Art Pack/shields-3.png",
+      "extension": ".png",
+      "size_bytes": 37846,
+      "sha256": "12820e331e906c7f78a4445bf78a66a64911a302700ac02339d18d1f8685d699"
+    },
+    {
+      "path": "more assets to ingest/seveneves/250+ RPG Shield Sprites Pixel Art Pack/shields-4.png",
+      "extension": ".png",
+      "size_bytes": 43945,
+      "sha256": "b882cd94bcc57338494baba964581ece66f2b631611d6fa81a6ff212f87062e1"
+    },
+    {
+      "path": "more assets to ingest/seveneves/250+ RPG Shield Sprites Pixel Art Pack/shields-5.png",
+      "extension": ".png",
+      "size_bytes": 70566,
+      "sha256": "f122941e9b0c1695b534c82f9348e1368b77f6193f0c69efdf472aa9070ff468"
+    },
+    {
+      "path": "more assets to ingest/seveneves/250+ RPG Shield Sprites Pixel Art Pack/shields.png",
+      "extension": ".png",
+      "size_bytes": 51532,
+      "sha256": "f6ce37e1e861279545f9466d1d2c08bb2f872ccc893181c7bbb616b8500b7006"
+    },
+    {
+      "path": "more assets to ingest/seveneves/400+ RPG Gear Icons Pixel Art Pack/ammies.png",
+      "extension": ".png",
+      "size_bytes": 37270,
+      "sha256": "90d2682f7c691d05a2da482ba1a08756dd0c6578c99d9f2bb69c4dde06ed40ee"
+    },
+    {
+      "path": "more assets to ingest/seveneves/400+ RPG Gear Icons Pixel Art Pack/belts-1.png",
+      "extension": ".png",
+      "size_bytes": 50131,
+      "sha256": "f5da27ae2c1726bbfc0a8e6310ff6fa204e576b91b320ec78c02c789f1a502c4"
+    },
+    {
+      "path": "more assets to ingest/seveneves/400+ RPG Gear Icons Pixel Art Pack/belts-2.png",
+      "extension": ".png",
+      "size_bytes": 39353,
+      "sha256": "73cacfb0b40fa75945eafcc96d6f1a8254fc203abe5c4a0e1d590755d6a1d54f"
+    },
+    {
+      "path": "more assets to ingest/seveneves/400+ RPG Gear Icons Pixel Art Pack/boots.png",
+      "extension": ".png",
+      "size_bytes": 50044,
+      "sha256": "01915d850e8d19608764174c5235dd8fe1098b1075651ea3f72546614fdfeddb"
+    },
+    {
+      "path": "more assets to ingest/seveneves/400+ RPG Gear Icons Pixel Art Pack/bracers.png",
+      "extension": ".png",
+      "size_bytes": 70537,
+      "sha256": "4edd3311435ff33618d4670c8eef6622fb69ca7aff25c56beb499b294fa1ff3f"
+    },
+    {
+      "path": "more assets to ingest/seveneves/400+ RPG Gear Icons Pixel Art Pack/gloves.png",
+      "extension": ".png",
+      "size_bytes": 55030,
+      "sha256": "5d3d59060b0ce7df67273e8b88524661e8d1abe6dd45d568c9c493578763a77a"
+    },
+    {
+      "path": "more assets to ingest/seveneves/400+ RPG Gear Icons Pixel Art Pack/potions.png",
+      "extension": ".png",
+      "size_bytes": 22708,
+      "sha256": "42ed15e8878f85a4a041aa04569f17d77fad5e81f575f7612797094bc830fb41"
+    },
+    {
+      "path": "more assets to ingest/seveneves/500+ RPG Icons Pixel Art Pack/icons-1.png",
+      "extension": ".png",
+      "size_bytes": 126122,
+      "sha256": "9bf2cb85d1db9fa377f334912eccbdbd9f2ccc84579676d39890eb6d11ea0d1d"
+    },
+    {
+      "path": "more assets to ingest/seveneves/500+ RPG Icons Pixel Art Pack/icons-2.png",
+      "extension": ".png",
+      "size_bytes": 92719,
+      "sha256": "8bd1dd820e14237b55118a59b39efcb2f9e22d8ae409f83da1d28fdd202d364e"
+    },
+    {
+      "path": "more assets to ingest/seveneves/500+ RPG Icons Pixel Art Pack/icons-3.png",
+      "extension": ".png",
+      "size_bytes": 88445,
+      "sha256": "a456c1867210447ed516cc09c13be18ebff29522c0e2d23164776a827598de7d"
+    },
+    {
+      "path": "more assets to ingest/seveneves/500+ RPG Icons Pixel Art Pack/icons-4.png",
+      "extension": ".png",
+      "size_bytes": 99210,
+      "sha256": "c5916811c62e7f21fabf8d907f953daab6fc06af1acd1b444ad3d0d0fad3da8c"
+    },
+    {
+      "path": "more assets to ingest/seveneves/500+ RPG Icons Pixel Art Pack/icons-5.png",
+      "extension": ".png",
+      "size_bytes": 135055,
+      "sha256": "5f6aea7dfb3963bb4622faad17e5714548caa92d3ca9936d85d20495884c9d72"
+    },
+    {
+      "path": "more assets to ingest/seveneves/Autumn Feast/Autumn Feast.png",
+      "extension": ".png",
+      "size_bytes": 230741,
+      "sha256": "d5e8de0ebfe289819253643497887a0a78553935dcdb9b0c7f02c70c8704e211"
+    },
+    {
+      "path": "more assets to ingest/Shade/Assorted RPG Icons/armours.png",
+      "extension": ".png",
+      "size_bytes": 28619,
+      "sha256": "637575b7499b6256d3d471b809643e04456916af5942cae580d64e6fe9552507"
+    },
+    {
+      "path": "more assets to ingest/Shade/Assorted RPG Icons/books.png",
+      "extension": ".png",
+      "size_bytes": 6355,
+      "sha256": "afa280ed05c1e2392d5872e1734c82d60562b3787b9b9e3d2df56eb0f6e7046c"
+    },
+    {
+      "path": "more assets to ingest/Shade/Assorted RPG Icons/chests.png",
+      "extension": ".png",
+      "size_bytes": 5736,
+      "sha256": "5da2708d7a7b20c7db9b18329d918bc8c8d4513b96e79ff0115f6117cdd93b5b"
+    },
+    {
+      "path": "more assets to ingest/Shade/Assorted RPG Icons/consumables.png",
+      "extension": ".png",
+      "size_bytes": 33301,
+      "sha256": "f8773804021e04cf8c646b89d4847f04615deabf2ed8ea2e81dd2d55bdc7c0df"
+    },
+    {
+      "path": "more assets to ingest/Shade/Assorted RPG Icons/pixelquest16-aug-2025-tavern.png",
+      "extension": ".png",
+      "size_bytes": 2483,
+      "sha256": "4c65b86f57ca96c502388c72296d34546abde21e7cb75e44ac3245c44d6a0b14"
+    },
+    {
+      "path": "more assets to ingest/Shade/Assorted RPG Icons/pixelquest16-july-2025-cave.png",
+      "extension": ".png",
+      "size_bytes": 4752,
+      "sha256": "746d66a50e6f6f09ca172620231676c12e13e6fcd06438d44cebdbaf2aecae3d"
+    },
+    {
+      "path": "more assets to ingest/Shade/Assorted RPG Icons/pixelquest16-oct-2025-camping.png",
+      "extension": ".png",
+      "size_bytes": 2830,
+      "sha256": "ba2f85a54eb20e15e5124dfa509d7b420eff6e673597b2cd88efe0abcb17f048"
+    },
+    {
+      "path": "more assets to ingest/Shade/Assorted RPG Icons/potions.png",
+      "extension": ".png",
+      "size_bytes": 28152,
+      "sha256": "d3fc2937aec92152f071597c194c9fb8ad8303d6739805770490a3b1c747b937"
+    },
+    {
+      "path": "more assets to ingest/Shade/Assorted RPG Icons/weapons.png",
+      "extension": ".png",
+      "size_bytes": 4379,
+      "sha256": "f24386d020f4fa8e711c11294138396d3e0992b3c9f38cb6f2a60432189cb4d9"
+    },
+    {
+      "path": "more assets to ingest/Shade/Dungeon Tileset/punyworld-dungeon-tileset.png",
+      "extension": ".png",
+      "size_bytes": 25855,
+      "sha256": "0bec8a1262360c8828e450760551754d7cb734ae51b952df9e7100a656b656a8"
+    },
+    {
+      "path": "more assets to ingest/Shade/Puny World Tileset/punyworld-overworld-tileset.png",
+      "extension": ".png",
+      "size_bytes": 100779,
+      "sha256": "d52cfc84e46cfd1ee30c2165576d7d86d253b72109c808382409a8af378c7fbb"
+    },
+    {
+      "path": "more assets to ingest/Shade/Weapon RPG Icons/bronze-weapons.png",
+      "extension": ".png",
+      "size_bytes": 37220,
+      "sha256": "b2eb15ab6ab9e85f16817c0458b3a3e762819ea73dfc36acad36d5c1d5adf9e5"
+    },
+    {
+      "path": "more assets to ingest/Shade/Weapon RPG Icons/gold-weapons.png",
+      "extension": ".png",
+      "size_bytes": 32614,
+      "sha256": "020cf63a509a31a59df2142e319b25382433859580b5b3df2a27e549d7b013bd"
+    },
+    {
+      "path": "more assets to ingest/Shade/Weapon RPG Icons/iron-weapons.png",
+      "extension": ".png",
+      "size_bytes": 37464,
+      "sha256": "9f520f628e59e578cfd91fbc614cd5a9b8f4b982a6d45354ebb03e88ad6dcf2c"
+    },
+    {
+      "path": "more assets to ingest/Shade/Weapon RPG Icons/steel-weapons.png",
+      "extension": ".png",
+      "size_bytes": 38295,
+      "sha256": "257ef941fec1bfd8a3a86f080d91a9d4a2a100de292f32e59e35960a52356bc7"
+    }
+  ]
+}

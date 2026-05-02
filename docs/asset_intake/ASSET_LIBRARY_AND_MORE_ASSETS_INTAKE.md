@@ -162,10 +162,12 @@ editor/user settings surface should persist the same argv vector shape so the wi
 Source folder:
 
 - `more assets/`
+- `more assets to ingest/`
 
 Raw extraction folder:
 
 - `imports/raw/more_assets/`
+- `imports/raw/more_assets_to_ingest/`
 
 Generated reports:
 
@@ -175,6 +177,14 @@ Generated reports:
 - `imports/reports/more_assets/more_assets_safe_dedupe_plan.csv`
 - `imports/reports/more_assets/more_assets_safe_dedupe_applied.csv`
 - `imports/reports/more_assets/more_assets_safe_dedupe_summary.json`
+- `imports/reports/more_assets_to_ingest/more_assets_intake_manifest.json`
+- `imports/reports/more_assets_to_ingest/source_inventory_with_rar_and_loose.json`
+- `imports/reports/more_assets_to_ingest/rar_extraction_report.json`
+- `imports/reports/more_assets_to_ingest/hygiene/asset_hygiene_summary.json`
+- `imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog.json`
+- `imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/*.json`
+- `imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog.json`
+- `imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog/*.json`
 
 Intake results:
 
@@ -183,14 +193,37 @@ Intake results:
 - 3 installers were cataloged and intentionally not executed.
 - Extracted payload after junk cleanup: 109,622 files, approximately 6.53 GB.
 - Raw source folder payload: 84 files, approximately 7.02 GB.
+- The newer `more assets to ingest/` drop contains 407 archive files: 319 ZIP and 88 RAR.
+- ZIP and RAR payloads were extracted into `imports/raw/more_assets_to_ingest/` with zero extraction failures.
+- The newer drop catalog records 20,229 quarantine assets from 407 archive pack roots.
+- The newer drop includes 4,495 inferred tilesets, 2,209 sprite/character records, 1,222 UI records, 626 VFX records, 479 portraits, 553 3D model records, 344 map/tileset-data records, 273 fonts, 55 audio records, and 148 license/readme records.
+- The raw catalog remains quarantine-only, but `BND-004` now promotes 14 selected CC0/public-domain starter assets into `imports/normalized/src010_cc0_starter_pack/` with checksums and attribution metadata.
+- The full raw catalog is also converted into an editor-ingestible local promotion catalog with 20,229 records. These records are local-use-only, previewable/searchable, and export-ineligible.
+- The promotion candidate review ranked 135 useful packs and produced a curated SRC-010 plan under `imports/reports/more_assets_to_ingest/src010_curated_promotion_plan.md`.
+- The remaining recommended review cohort is restricted to packs with CC0/public-domain evidence; attribution/redistribution-restricted packs remain review holds.
 
 The raw source and extracted intake paths are intentionally ignored local quarantine, not repository payload:
 
 - `more assets/**`
+- `more assets to ingest/**`
 - `imports/raw/more_assets/**`
+- `imports/raw/more_assets_to_ingest/**`
 - `imports/raw/itch_assets/loose/**`
 
 Reports and curated promotion records remain eligible for normal Git tracking under `imports/reports/`, `imports/manifests/`, and `imports/normalized/`. Promote only selected, governed assets into those paths; do not re-add the full raw extraction trees or source archive drops.
+
+## SRC-010 Promotion Plan
+
+`imports/reports/more_assets_to_ingest/src010_curated_promotion_plan.json` and `.md` are review guidance. `BND-004` is the first governed result from that plan, promoting a small CC0 starter subset while leaving the full raw drop ignored and quarantined.
+
+Before any additional SRC-010 bundle can be marked ready:
+
+- Copy only the curated subset into `imports/normalized/src010_<bundle-scope>/`.
+- Create a governed `BND-*` bundle manifest with exact file checksums.
+- Create per-pack or per-bundle attribution records under `imports/reports/asset_intake/attribution/`.
+- Update the source registry and rerun the asset governance gate.
+
+The first promoted lane is CC0/public-domain evidence only: Lucifer UI, Screaming Brain isometric tiles, Foozle Void space/action assets, and a GGBotNet CC0 font. Packs with credit, redistribution, NFT/metaverse/AI, commercial-use-only, or unclear terms stay quarantined until those terms are explicitly reviewed.
 
 ## Hygiene Results
 
@@ -230,15 +263,18 @@ Because the savings are small compared with the value of preserving raw archive 
 
 ## Asset Catalog
 
-`tools/assets/asset_db.py` now includes `imports/raw/more_assets` in its default roots and infers:
+`tools/assets/asset_db.py` now includes `imports/raw/more_assets` and `imports/raw/more_assets_to_ingest` in its default roots and infers:
 
 - `category = more-assets-raw`
 - `pack = <extracted archive root folder>`
 
-The catalog can now search the new intake by pack and media type, for example:
+The editor/library catalog can load `imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog.json` automatically through the existing `*_promotion_catalog.json` scan. Those records carry stable virtual ids such as `asset://src-010/...`, point previews back at ignored raw files, set `local_use_allowed=true`, and keep `release_use_allowed=false`.
+
+The local SQLite catalog can also search the new intake by pack and media type, for example:
 
 ```powershell
 python .\tools\assets\asset_db.py find --category more-assets-raw --pack modernexteriors --limit 10
+python .\tools\assets\asset_db.py find --category more-assets-to-ingest-raw --query "lucifer" --limit 10
 python .\tools\assets\asset_db.py find --kind audio --category more-assets-raw --limit 10
 ```
 

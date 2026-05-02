@@ -1,0 +1,67 @@
+{
+  "schema": "urpg.more_assets_to_ingest.catalog_shard.v1",
+  "category": "audio_music_or_ambient",
+  "record_count": 4,
+  "records": [
+    {
+      "asset_id": "more_assets_to_ingest:011358:77201c194d5e",
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/bgm/Fraast's Theme.ogg",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "filename": "Fraast's Theme.ogg",
+      "extension": "ogg",
+      "media_kind": "audio",
+      "category": "audio_music_or_ambient",
+      "size_bytes": 2879867,
+      "sha256": "77201c194d5eff4d88c960dca04837aa7a9c8ed976b35d592621cde16f21e55e",
+      "export_eligible": false,
+      "license_status": "pending_per_pack_attribution_review",
+      "promotion_status": "raw_quarantine_only",
+      "notes": "Cataloged from local more assets to ingest quarantine; not release payload."
+    },
+    {
+      "asset_id": "more_assets_to_ingest:011359:30584bc7ae3f",
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/bgm/Junkyard Battle Music.ogg",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "filename": "Junkyard Battle Music.ogg",
+      "extension": "ogg",
+      "media_kind": "audio",
+      "category": "audio_music_or_ambient",
+      "size_bytes": 3387515,
+      "sha256": "30584bc7ae3f372696c7ee69d2aef2e054cb8da38cab9cd188c0e4ed5e7755cd",
+      "export_eligible": false,
+      "license_status": "pending_per_pack_attribution_review",
+      "promotion_status": "raw_quarantine_only",
+      "notes": "Cataloged from local more assets to ingest quarantine; not release payload."
+    },
+    {
+      "asset_id": "more_assets_to_ingest:011360:553e76e7c299",
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/bgm/Junkyard Doowop.ogg",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "filename": "Junkyard Doowop.ogg",
+      "extension": "ogg",
+      "media_kind": "audio",
+      "category": "audio_music_or_ambient",
+      "size_bytes": 2471075,
+      "sha256": "553e76e7c29939d23b23b8c71cb0a5f54a741891a9825e8145bdf6ef8b7d24df",
+      "export_eligible": false,
+      "license_status": "pending_per_pack_attribution_review",
+      "promotion_status": "raw_quarantine_only",
+      "notes": "Cataloged from local more assets to ingest quarantine; not release payload."
+    },
+    {
+      "asset_id": "more_assets_to_ingest:011361:a2f0c3c9dc86",
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/bgm/Streets of Gearvale.ogg",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "filename": "Streets of Gearvale.ogg",
+      "extension": "ogg",
+      "media_kind": "audio",
+      "category": "audio_music_or_ambient",
+      "size_bytes": 3783139,
+      "sha256": "a2f0c3c9dc86ee5fb1b659a83aadf41676ecba2248b295cdb4a774b1747fc003",
+      "export_eligible": false,
+      "license_status": "pending_per_pack_attribution_review",
+      "promotion_status": "raw_quarantine_only",
+      "notes": "Cataloged from local more assets to ingest quarantine; not release payload."
+    }
+  ]
+}

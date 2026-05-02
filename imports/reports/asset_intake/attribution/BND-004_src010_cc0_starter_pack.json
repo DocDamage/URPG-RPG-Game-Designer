@@ -1,0 +1,41 @@
+{
+  "asset_id": "imports/normalized/src010_cc0_starter_pack",
+  "source_id": "SRC-010",
+  "source_repo": "Local more assets to ingest drop",
+  "source_url": "local://imports/raw/more_assets_to_ingest",
+  "original_relative_path": "imports/raw/more_assets_to_ingest/{lucifer-rpg-ui,isometric-stone-soup,void-main-ship,void-environment,ggbotnet-fonts}",
+  "author": "Foozle, Screaming Brain Studios, GGBotNet asset authors",
+  "license": "CC0-1.0 / Public Domain evidence reviewed from source readme/license files",
+  "commercial_use_allowed": true,
+  "redistribution_allowed": true,
+  "promotion_status": "promoted",
+  "bundle_id": "BND-004",
+  "promoted_assets": [
+    "src010_cc0_starter_pack/ui/generic_panel.png",
+    "src010_cc0_starter_pack/ui/generic_button.png",
+    "src010_cc0_starter_pack/ui/generic_button_active.png",
+    "src010_cc0_starter_pack/ui/generic_button_pressed.png",
+    "src010_cc0_starter_pack/ui/minimap_frame.png",
+    "src010_cc0_starter_pack/isometric/iss_floor_grass_64x32.png",
+    "src010_cc0_starter_pack/isometric/iss_floor_cobble_blood_64x32.png",
+    "src010_cc0_starter_pack/isometric/iss_block_stone_1_64x64.png",
+    "src010_cc0_starter_pack/isometric/iss_torch_anim_32x48.png",
+    "src010_cc0_starter_pack/space/main_ship_base_full_health.png",
+    "src010_cc0_starter_pack/space/main_ship_engine_base_idle.png",
+    "src010_cc0_starter_pack/space/starry_background_layer_stars.png",
+    "src010_cc0_starter_pack/space/earth_like_planet.png",
+    "src010_cc0_starter_pack/fonts/public_pixel.woff2"
+  ],
+  "license_evidence": [
+    "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Readme.txt",
+    "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/License.txt",
+    "imports/raw/more_assets_to_ingest/void-main-ship-eb0fd960cb7e/Foozle_2DS0011_Void_MainShip/Readme.txt",
+    "imports/raw/more_assets_to_ingest/void-environment-pack-33464a36feb1/Foozle_2DS0015_Void_EnvironmentPack/Readme.txt",
+    "imports/raw/more_assets_to_ingest/ggbotnet-fonts-cc0-2025-dec-8c3446796773/GGBotNet Fonts CC0/LICENSE"
+  ],
+  "notes": [
+    "Bounded SRC-010 starter promotion containing only selected CC0/public-domain evidence packs.",
+    "The broader SRC-010 raw drop remains ignored quarantine and is not promoted by this record.",
+    "Assets are release eligible but not release required; existing Phase 9 release-required coverage remains BND-001 and BND-003."
+  ]
+}

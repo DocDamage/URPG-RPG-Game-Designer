@@ -135,6 +135,20 @@ python tools/assets/catalog_animation_asset_drop.py `
 
 This writes aggregate image-sequence, archive, document, and animation-metadata records. It is intended for high-volume frame folders where the editor asset browser and chatbot need pack/sequence-level assets, not hundreds of thousands of individual frame rows.
 
+SRC-010 uses the same local-catalog pattern for the `more assets to ingest` archive drop:
+
+```powershell
+python tools/assets/catalog_more_assets_to_ingest.py
+python tools/assets/asset_db.py index --roots imports/raw/more_assets_to_ingest --force
+```
+
+This writes:
+- `imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog.json`
+- `imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog/*.json`
+- `imports/reports/asset_intake/more_assets_to_ingest_promotion_summary.json`
+
+Those records make the full extracted SRC-010 drop usable for local browsing, preview, and template curation while keeping `release_use_allowed=false` and `export_eligible=false`. Promotion into a distributable bundle still requires a curated normalized subset, attribution record, bundle manifest, and governance gate pass.
+
 ### Promotion Manifest Schema Example
 
 Individual governed asset records use `content/schemas/asset_promotion_manifest.schema.json`:

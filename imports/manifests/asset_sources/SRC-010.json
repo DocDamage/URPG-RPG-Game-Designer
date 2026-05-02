@@ -1,0 +1,41 @@
+{
+  "source_id": "SRC-010",
+  "repo_name": "Local more assets to ingest drop",
+  "source_url": "local://imports/raw/more_assets_to_ingest",
+  "capture_state": "mirrored",
+  "snapshot_commit": null,
+  "snapshot_date": "2026-05-02",
+  "source_type": "direct_asset_pack",
+  "category_tags": [
+    "tilesets",
+    "sprites",
+    "portraits",
+    "ui",
+    "vfx",
+    "audio",
+    "fonts",
+    "3d_models",
+    "maps",
+    "source_art",
+    "metadata",
+    "archives"
+  ],
+  "intended_use": [
+    "Template polish candidates for the expanded RPG and non-RPG starter families",
+    "Editor asset browser discovery from quarantined local packs",
+    "Curated future bundle promotion after per-pack attribution and license review",
+    "WYSIWYG showcase visual and audio candidate review"
+  ],
+  "handling_path": "direct_ingest_when_captured",
+  "legal_disposition": "mixed_quarantine_with_bounded_cc0_starter_promotion",
+  "promotion_status": "partially_promoted",
+  "notes": [
+    "Captured from the local folder previously named 'more assets to ingest'.",
+    "407 archives were inventoried: 319 ZIP archives and 88 RAR archives.",
+    "All ZIP and RAR archives were extracted into raw quarantine under imports/raw/more_assets_to_ingest.",
+    "The catalog records 20229 raw quarantine assets across 407 pack roots.",
+    "The full drop is catalog-normalized for local editor/library use under imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog.json.",
+    "Most cataloged assets remain non-release quarantine until curated bundle manifests and attribution records are approved.",
+    "BND-004 promotes only 14 selected CC0/public-domain starter assets with checksums and attribution evidence; the rest of SRC-010 remains unpromoted."
+  ]
+}

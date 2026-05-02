@@ -1,146 +1,246 @@
-{
-  "schema": "urpg.release_required_asset_report.v1",
-  "generatedAt": "2026-05-02T13:20:14.4229054Z",
-  "passed": true,
-  "requiredSurfaces": [
-    "title",
-    "map",
-    "battle",
-    "ui",
-    "audio",
-    "icons",
-    "fonts"
-  ],
-  "connectedAssets": [
-    {
-      "id": "release.prototype_actor.title",
-      "surface": "title",
-      "source": "asset_bundle",
-      "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
-      "classification": "connected",
-      "notes": "Bounded title/startup visual proof asset."
-    },
-    {
-      "id": "release.prototype_actor.map",
-      "surface": "map",
-      "source": "asset_bundle",
-      "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
-      "classification": "connected",
-      "notes": "Bounded map-scene player placeholder asset."
-    },
-    {
-      "id": "release.prototype_actor.battle",
-      "surface": "battle",
-      "source": "asset_bundle",
-      "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
-      "classification": "connected",
-      "notes": "Bounded battle actor/enemy placeholder asset."
-    },
-    {
-      "id": "release.ui.silent_feedback_policy",
-      "surface": "ui",
-      "source": "system_fallback",
-      "path": "",
-      "classification": "connected",
-      "notes": "Current release ships without bundled UI SFX; controls remain silent instead of depending on ignored or LFS-only WAV files."
-    },
-    {
-      "id": "release.ui.frame_chrome",
-      "surface": "ui",
-      "source": "asset_bundle",
-      "path": "imports/normalized/release_skin/urpg_ui_frame.svg",
-      "classification": "connected",
-      "notes": "Repo-generated release starter UI frame/chrome asset."
-    },
-    {
-      "id": "release.ui.cohesive_skin",
-      "surface": "ui",
-      "source": "asset_bundle",
-      "path": "imports/normalized/release_skin/urpg_cohesive_ui_skin.json",
-      "classification": "connected",
-      "notes": "Repo-generated release starter skin metadata binding the governed UI/VFX assets."
-    },
-    {
-      "id": "release.battle.vfx_flash",
-      "surface": "battle",
-      "source": "asset_bundle",
-      "path": "imports/normalized/release_skin/urpg_battle_vfx_flash.svg",
-      "classification": "connected",
-      "notes": "Repo-generated single-frame battle VFX proof asset for package coverage."
-    },
-    {
-      "id": "release.audio.muted_fallback",
-      "surface": "audio",
-      "source": "system_fallback",
-      "path": "",
-      "classification": "connected",
-      "notes": "Audio release surface is satisfied by explicit muted fallback until a non-LFS release audio asset is approved."
-    },
-    {
-      "id": "release.icon.editor",
-      "surface": "icons",
-      "source": "repo_resource",
-      "path": "resources/icons/urpg_editor.png",
-      "classification": "connected",
-      "notes": "Editor application icon required by release package layout."
-    },
-    {
-      "id": "release.icon.runtime",
-      "surface": "icons",
-      "source": "repo_resource",
-      "path": "resources/icons/urpg_runtime.png",
-      "classification": "connected",
-      "notes": "Runtime application icon required by release package layout."
-    },
-    {
-      "id": "release.font.system_ui",
-      "surface": "fonts",
-      "source": "system_fallback",
-      "path": "",
-      "classification": "connected",
-      "notes": "Current release uses platform/system text rendering; no raw vendor font pack is required."
-    },
-    {
-      "id": "characters/blue.svg",
-      "surface": "title,map,battle",
-      "source": "asset_bundle",
-      "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
-      "classification": "connected",
-      "notes": "First governed visual proof asset for editor/runtime/export smoke coverage."
-    },
-    {
-      "id": "repo_generated/release_skin/urpg_ui_frame.svg",
-      "surface": "ui",
-      "source": "asset_bundle",
-      "path": "imports/normalized/release_skin/urpg_ui_frame.svg",
-      "classification": "connected",
-      "notes": "Repo-generated UI frame/chrome proof asset for the bounded release starter skin."
-    },
-    {
-      "id": "repo_generated/release_skin/urpg_battle_vfx_flash.svg",
-      "surface": "battle",
-      "source": "asset_bundle",
-      "path": "imports/normalized/release_skin/urpg_battle_vfx_flash.svg",
-      "classification": "connected",
-      "notes": "Repo-generated single-frame VFX proof asset for battle package coverage."
-    },
-    {
-      "id": "repo_generated/release_skin/urpg_cohesive_ui_skin.json",
-      "surface": "ui",
-      "source": "asset_bundle",
-      "path": "imports/normalized/release_skin/urpg_cohesive_ui_skin.json",
-      "classification": "connected",
-      "notes": "Repo-generated cohesive UI skin metadata that binds the Phase 9 frame and VFX assets."
-    }
-  ],
-  "classifiedAssets": [
-    {
-      "id": "addons/kenney_interface_sounds/click_001.wav",
-      "bundle": "BND-002",
-      "path": "ui_sfx/kenney_click_001.wav",
-      "classification": "deferred",
-      "reason": "Bundle asset is not connected to release-required surfaces."
-    }
-  ],
-  "errors": []
+﻿{
+    "schema":  "urpg.release_required_asset_report.v1",
+    "generatedAt":  "2026-05-02T19:58:11.3095784Z",
+    "passed":  true,
+    "requiredSurfaces":  [
+                             "title",
+                             "map",
+                             "battle",
+                             "ui",
+                             "audio",
+                             "icons",
+                             "fonts"
+                         ],
+    "connectedAssets":  [
+                            {
+                                "id":  "release.prototype_actor.title",
+                                "surface":  "title",
+                                "source":  "asset_bundle",
+                                "path":  "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+                                "classification":  "connected",
+                                "notes":  "Bounded title/startup visual proof asset."
+                            },
+                            {
+                                "id":  "release.prototype_actor.map",
+                                "surface":  "map",
+                                "source":  "asset_bundle",
+                                "path":  "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+                                "classification":  "connected",
+                                "notes":  "Bounded map-scene player placeholder asset."
+                            },
+                            {
+                                "id":  "release.prototype_actor.battle",
+                                "surface":  "battle",
+                                "source":  "asset_bundle",
+                                "path":  "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+                                "classification":  "connected",
+                                "notes":  "Bounded battle actor/enemy placeholder asset."
+                            },
+                            {
+                                "id":  "release.ui.silent_feedback_policy",
+                                "surface":  "ui",
+                                "source":  "system_fallback",
+                                "path":  "",
+                                "classification":  "connected",
+                                "notes":  "Current release ships without bundled UI SFX; controls remain silent instead of depending on ignored or LFS-only WAV files."
+                            },
+                            {
+                                "id":  "release.ui.frame_chrome",
+                                "surface":  "ui",
+                                "source":  "asset_bundle",
+                                "path":  "imports/normalized/release_skin/urpg_ui_frame.svg",
+                                "classification":  "connected",
+                                "notes":  "Repo-generated release starter UI frame/chrome asset."
+                            },
+                            {
+                                "id":  "release.ui.cohesive_skin",
+                                "surface":  "ui",
+                                "source":  "asset_bundle",
+                                "path":  "imports/normalized/release_skin/urpg_cohesive_ui_skin.json",
+                                "classification":  "connected",
+                                "notes":  "Repo-generated release starter skin metadata binding the governed UI/VFX assets."
+                            },
+                            {
+                                "id":  "release.battle.vfx_flash",
+                                "surface":  "battle",
+                                "source":  "asset_bundle",
+                                "path":  "imports/normalized/release_skin/urpg_battle_vfx_flash.svg",
+                                "classification":  "connected",
+                                "notes":  "Repo-generated single-frame battle VFX proof asset for package coverage."
+                            },
+                            {
+                                "id":  "release.audio.muted_fallback",
+                                "surface":  "audio",
+                                "source":  "system_fallback",
+                                "path":  "",
+                                "classification":  "connected",
+                                "notes":  "Audio release surface is satisfied by explicit muted fallback until a non-LFS release audio asset is approved."
+                            },
+                            {
+                                "id":  "release.icon.editor",
+                                "surface":  "icons",
+                                "source":  "repo_resource",
+                                "path":  "resources/icons/urpg_editor.png",
+                                "classification":  "connected",
+                                "notes":  "Editor application icon required by release package layout."
+                            },
+                            {
+                                "id":  "release.icon.runtime",
+                                "surface":  "icons",
+                                "source":  "repo_resource",
+                                "path":  "resources/icons/urpg_runtime.png",
+                                "classification":  "connected",
+                                "notes":  "Runtime application icon required by release package layout."
+                            },
+                            {
+                                "id":  "release.font.system_ui",
+                                "surface":  "fonts",
+                                "source":  "system_fallback",
+                                "path":  "",
+                                "classification":  "connected",
+                                "notes":  "Current release uses platform/system text rendering; no raw vendor font pack is required."
+                            },
+                            {
+                                "id":  "characters/blue.svg",
+                                "surface":  "title,map,battle",
+                                "source":  "asset_bundle",
+                                "path":  "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+                                "classification":  "connected",
+                                "notes":  "First governed visual proof asset for editor/runtime/export smoke coverage."
+                            },
+                            {
+                                "id":  "repo_generated/release_skin/urpg_ui_frame.svg",
+                                "surface":  "ui",
+                                "source":  "asset_bundle",
+                                "path":  "imports/normalized/release_skin/urpg_ui_frame.svg",
+                                "classification":  "connected",
+                                "notes":  "Repo-generated UI frame/chrome proof asset for the bounded release starter skin."
+                            },
+                            {
+                                "id":  "repo_generated/release_skin/urpg_battle_vfx_flash.svg",
+                                "surface":  "battle",
+                                "source":  "asset_bundle",
+                                "path":  "imports/normalized/release_skin/urpg_battle_vfx_flash.svg",
+                                "classification":  "connected",
+                                "notes":  "Repo-generated single-frame VFX proof asset for battle package coverage."
+                            },
+                            {
+                                "id":  "repo_generated/release_skin/urpg_cohesive_ui_skin.json",
+                                "surface":  "ui",
+                                "source":  "asset_bundle",
+                                "path":  "imports/normalized/release_skin/urpg_cohesive_ui_skin.json",
+                                "classification":  "connected",
+                                "notes":  "Repo-generated cohesive UI skin metadata that binds the Phase 9 frame and VFX assets."
+                            }
+                        ],
+    "classifiedAssets":  [
+                             {
+                                 "id":  "addons/kenney_interface_sounds/click_001.wav",
+                                 "bundle":  "BND-002",
+                                 "path":  "ui_sfx/kenney_click_001.wav",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Generic/Menu/Png/GenericPanel.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/ui/generic_panel.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Generic/Menu buttons/Png/GenericButton.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/ui/generic_button.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Generic/Menu buttons/Png/GenericButtonActive.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/ui/generic_button_active.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Generic/Menu buttons/Png/GenericButtonPressed.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/ui/generic_button_pressed.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/HUD/Minimap/Png/MinimapFrame.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/ui/minimap_frame.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/Tile-Sets/Floors/ISS_Floor_Grass-64x32.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/isometric/iss_floor_grass_64x32.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/Tile-Sets/Floors/ISS_Floor_Cobble_Blood-64x32.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/isometric/iss_floor_cobble_blood_64x32.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/Tile-Sets/Walls/Block/ISS_Block_Stone_1-64x64.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/isometric/iss_block_stone_1_64x64.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/Tile-Sets/Walls/ISS-Torch_Anim-32x48.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/isometric/iss_torch_anim_32x48.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/void-main-ship-eb0fd960cb7e/Foozle_2DS0011_Void_MainShip/Main Ship/Main Ship - Bases/PNGs/Main Ship - Base - Full health.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/space/main_ship_base_full_health.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/void-main-ship-eb0fd960cb7e/Foozle_2DS0011_Void_MainShip/Main Ship/Main Ship - Engine Effects/PNGs/Main Ship - Engines - Base Engine - Idle.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/space/main_ship_engine_base_idle.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/void-environment-pack-33464a36feb1/Foozle_2DS0015_Void_EnvironmentPack/Backgrounds/PNGs/Condesed/Starry background  - Layer 03 - Stars.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/space/starry_background_layer_stars.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/void-environment-pack-33464a36feb1/Foozle_2DS0015_Void_EnvironmentPack/Planets/PNGs/Earth-Like planet.png",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/space/earth_like_planet.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/more_assets_to_ingest/ggbotnet-fonts-cc0-2025-dec-8c3446796773/GGBotNet Fonts CC0/Public Pixel/Web Open Font Format (.woff)/PublicPixel.woff2",
+                                 "bundle":  "BND-004",
+                                 "path":  "src010_cc0_starter_pack/fonts/public_pixel.woff2",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             }
+                         ],
+    "errors":  [
+
+               ]
 }

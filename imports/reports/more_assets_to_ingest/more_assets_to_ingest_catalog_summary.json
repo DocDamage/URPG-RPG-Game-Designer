@@ -1,0 +1,41 @@
+{
+  "schema": "urpg.more_assets_to_ingest.catalog.v1",
+  "source_root": "imports/raw/more_assets_to_ingest",
+  "record_count": 20229,
+  "total_bytes": 5683614091,
+  "export_eligible_count": 0,
+  "license_status": "pending_per_pack_attribution_review",
+  "category_counts": {
+    "audio": 51,
+    "audio_music_or_ambient": 4,
+    "background": 216,
+    "binary_or_tool": 8,
+    "font": 273,
+    "image_uncategorized": 8525,
+    "license_or_readme": 148,
+    "map_or_tileset_data": 344,
+    "metadata": 43,
+    "model_3d": 553,
+    "nested_archive": 17,
+    "portrait": 479,
+    "source_art": 1016,
+    "sprite_or_character": 2209,
+    "tileset": 4495,
+    "ui": 1222,
+    "vfx": 626
+  },
+  "media_kind_counts": {
+    "archive": 17,
+    "audio": 55,
+    "binary": 8,
+    "font": 273,
+    "image": 17772,
+    "map_or_tileset_data": 344,
+    "model": 553,
+    "source_art": 1016,
+    "text_or_metadata": 191
+  },
+  "pack_count": 407,
+  "duplicate_group_count": 298,
+  "duplicate_file_count": 934
+}

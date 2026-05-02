@@ -42,6 +42,8 @@ imports/reports/
 !imports/reports/asset_intake/*.json
 !imports/reports/asset_intake/attribution/
 !imports/reports/asset_intake/attribution/*.json
+!imports/reports/more_assets_to_ingest/
+!imports/reports/more_assets_to_ingest/**
 !imports/reports/audio_conversion/
 !imports/reports/audio_conversion/*.json
 imports/normalized/ui_sfx/*.wav
@@ -50,7 +52,9 @@ imports/raw/plugin_feature_intake/
 urpg stuff/
 imports/raw/itch_assets/archives/
 more assets/
+more assets to ingest/
 imports/raw/more_assets/
+imports/raw/more_assets_to_ingest/
 imports/raw/itch_assets/loose/
 imports/raw/third_party_assets/aseprite/
 imports/raw/third_party_assets/rpgmaker-mz/cgmz/

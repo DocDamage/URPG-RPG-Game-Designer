@@ -18,7 +18,8 @@ Robust local asset index for this repo using SQLite + FTS5.
   - `imports/raw/third_party_assets/rpgmaker-mz`
   - `imports/raw/third_party_assets/huggingface`
   - `imports/root-drop/archives`
-  - `imports/raw/more_assets`
+- `imports/raw/more_assets`
+- `imports/raw/more_assets_to_ingest`
 
 Most broad raw/source roots are intentionally ignored local quarantine. The catalog can index them when they exist in a developer checkout, but reports and promoted manifests are the repository source of truth.
 
@@ -40,6 +41,7 @@ python .\tools\assets\asset_db.py index --roots imports/raw/third_party_assets/i
 ```
 
 `imports/raw/urpg_stuff` is included in the default roots when the local drop exists.
+`imports/raw/more_assets_to_ingest` is included for the SRC-010 zip/RAR/loose-file drop when that local quarantine exists.
 
 `report_third_party_itch_ingest.py` writes a tracked summary report to `imports/reports/asset_intake/third_party_itch_ingest_summary.json` after a third-party/itch indexing pass. The SQLite DB remains local under `.urpg/asset-index/`.
 
@@ -139,6 +141,21 @@ python .\tools\assets\promote_urpg_stuff_assets.py --exclude-audio
 ```
 
 The duplicate pruner only removes cataloged `duplicate_source_paths` under `imports/raw/urpg_stuff`, preserves canonical files, and writes `imports/reports/asset_intake/urpg_stuff_duplicate_prune_report.json`.
+
+## SRC-010 local catalog-normalization
+Build the editor-loadable local catalog for the `more assets to ingest` drop after archive extraction and raw catalog generation:
+
+```powershell
+python .\tools\assets\catalog_more_assets_to_ingest.py
+python .\tools\assets\asset_db.py index --roots imports/raw/more_assets_to_ingest --force
+```
+
+Outputs:
+- `imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog.json`
+- `imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog/*.json`
+- `imports/reports/asset_intake/more_assets_to_ingest_promotion_summary.json`
+
+These records make SRC-010 browseable/searchable in local editor/library surfaces through stable `asset://src-010/...` ids and raw preview paths. They are local-use-only records: `export_eligible=false` and `release_use_allowed=false` until a curated subset is copied into `imports/normalized/` and receives bundle plus attribution manifests.
 
 ## Local generator/tool candidate catalog
 Catalog generator and tool source folders from a local drop for engineering review without executing them.

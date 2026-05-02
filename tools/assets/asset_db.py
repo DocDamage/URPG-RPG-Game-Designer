@@ -27,6 +27,7 @@ DEFAULT_ROOTS = [
     "imports/raw/itch_assets/loose",
     "imports/root-drop/archives",
     "imports/raw/more_assets",
+    "imports/raw/more_assets_to_ingest",
     "imports/raw/urpg_stuff",
 ]
 EXCLUDED_DIRS = {
@@ -130,6 +131,11 @@ def infer_pack_category(path_rel: str) -> tuple[str | None, str | None]:
         if i + 1 < len(parts):
             pack = parts[i + 1]
         category = "more-assets-raw"
+    if "imports" in parts and "raw" in parts and "more_assets_to_ingest" in parts:
+        i = parts.index("more_assets_to_ingest")
+        if i + 1 < len(parts):
+            pack = parts[i + 1]
+        category = "more-assets-to-ingest-raw"
     if "imports" in parts and "raw" in parts and "urpg_stuff" in parts:
         i = parts.index("urpg_stuff")
         if i + 1 < len(parts):

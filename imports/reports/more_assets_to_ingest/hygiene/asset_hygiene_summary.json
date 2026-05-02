@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-05-02T19:12:33+00:00",
+  "repo_root": "C:\\dev\\URPG Maker",
+  "scan_roots": [
+    "imports/raw/more_assets_to_ingest"
+  ],
+  "file_count": 20334,
+  "junk_file_count": 105,
+  "junk_dir_count": 11,
+  "pruned_count": 116,
+  "oversize_threshold_mb": 100,
+  "oversize_count": 0,
+  "duplicate_groups": 302,
+  "duplicate_file_count": 983,
+  "duplicate_waste_bytes": 20030944,
+  "hash_skip_count": 0
+}

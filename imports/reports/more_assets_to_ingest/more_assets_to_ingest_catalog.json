@@ -1,0 +1,2554 @@
+{
+  "schema": "urpg.more_assets_to_ingest.catalog.v1",
+  "source_root": "imports/raw/more_assets_to_ingest",
+  "record_count": 20229,
+  "total_bytes": 5683614091,
+  "export_eligible_count": 0,
+  "license_status": "pending_per_pack_attribution_review",
+  "category_counts": {
+    "audio": 51,
+    "audio_music_or_ambient": 4,
+    "background": 216,
+    "binary_or_tool": 8,
+    "font": 273,
+    "image_uncategorized": 8525,
+    "license_or_readme": 148,
+    "map_or_tileset_data": 344,
+    "metadata": 43,
+    "model_3d": 553,
+    "nested_archive": 17,
+    "portrait": 479,
+    "source_art": 1016,
+    "sprite_or_character": 2209,
+    "tileset": 4495,
+    "ui": 1222,
+    "vfx": 626
+  },
+  "media_kind_counts": {
+    "archive": 17,
+    "audio": 55,
+    "binary": 8,
+    "font": 273,
+    "image": 17772,
+    "map_or_tileset_data": 344,
+    "model": 553,
+    "source_art": 1016,
+    "text_or_metadata": 191
+  },
+  "pack_count": 407,
+  "duplicate_group_count": 298,
+  "duplicate_file_count": 934,
+  "shards": [
+    {
+      "category": "audio",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/audio.json",
+      "record_count": 51
+    },
+    {
+      "category": "audio_music_or_ambient",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/audio_music_or_ambient.json",
+      "record_count": 4
+    },
+    {
+      "category": "background",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/background.json",
+      "record_count": 216
+    },
+    {
+      "category": "binary_or_tool",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/binary_or_tool.json",
+      "record_count": 8
+    },
+    {
+      "category": "font",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/font.json",
+      "record_count": 273
+    },
+    {
+      "category": "image_uncategorized",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/image_uncategorized.json",
+      "record_count": 8525
+    },
+    {
+      "category": "license_or_readme",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/license_or_readme.json",
+      "record_count": 148
+    },
+    {
+      "category": "map_or_tileset_data",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/map_or_tileset_data.json",
+      "record_count": 344
+    },
+    {
+      "category": "metadata",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/metadata.json",
+      "record_count": 43
+    },
+    {
+      "category": "model_3d",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/model_3d.json",
+      "record_count": 553
+    },
+    {
+      "category": "nested_archive",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/nested_archive.json",
+      "record_count": 17
+    },
+    {
+      "category": "portrait",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/portrait.json",
+      "record_count": 479
+    },
+    {
+      "category": "source_art",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/source_art.json",
+      "record_count": 1016
+    },
+    {
+      "category": "sprite_or_character",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/sprite_or_character.json",
+      "record_count": 2209
+    },
+    {
+      "category": "tileset",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/tileset.json",
+      "record_count": 4495
+    },
+    {
+      "category": "ui",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/ui.json",
+      "record_count": 1222
+    },
+    {
+      "category": "vfx",
+      "path": "imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/vfx.json",
+      "record_count": 626
+    }
+  ],
+  "duplicate_groups": [
+    {
+      "sha256": "0009d1261fb7d08614f197fecc43476c342a6247b2a90e0c752f0677a883776a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_1/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_10/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_11/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_12/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_13/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_14/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_15/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_16/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_17/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_18/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_19/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_2/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_20/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_21/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_22/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_23/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_24/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_25/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_26/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_27/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_28/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_29/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_3/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_30/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_31/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_32/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_4/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_5/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_6/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_7/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_8/Note.txt",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite_split/character_9/Note.txt"
+      ]
+    },
+    {
+      "sha256": "01ca00b86d5e726eb61c3844e7153be6513b0f189a6df5a768fb6c655cfbea17",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/isometric-gold-mine-1-aaade0da89a8/Foozle_2DS0008_Isometric_Gold_Mine_1/static_png/gold_mine_with_ground_active_full.png",
+        "imports/raw/more_assets_to_ingest/isometric-gold-mine-1-aaade0da89a8/Foozle_2DS0008_Isometric_Gold_Mine_1/with_ground/gold_mine0140.png"
+      ]
+    },
+    {
+      "sha256": "02604fd77802b5e35120d17aa0d76c383d9899629be341af2167af2b82291d49",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MV/characters/_srw_free_chests.png",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MZ/characters/_srw_free_chests.png"
+      ]
+    },
+    {
+      "sha256": "02d18a0b204f9d9bf2872811000e67e76ef0947f3f97e0ac76df8544ce3a2ebb",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/screenshots/screenshots (11).png",
+        "imports/raw/more_assets_to_ingest/super-retro-world-interior-pack-week42-d44d3f002d48/every_packs_screenshots/screenshot (2).png"
+      ]
+    },
+    {
+      "sha256": "02dd027d441c59d124d9b341ba3c3773e71f57ed60c550ab1862ab3e603adc85",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 13.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 23.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 3.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 33.png"
+      ]
+    },
+    {
+      "sha256": "04784016f99bc489a37259f76db2e580b8f7f47da61e991a5904ea91af7dfc6f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/control_panel_deactivate/tile017.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/control_panel_deactivate/tile018.png"
+      ]
+    },
+    {
+      "sha256": "05583ae534446a97b81917b7e25a9839b68c1d541b9507cf703476964e8a51aa",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile022.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile043.png"
+      ]
+    },
+    {
+      "sha256": "058c1f4fb1b72e99596750090270f2c478eb17e6e90a604e92926b89c3a4e26e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Hurt_2.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Hurt_2.png"
+      ]
+    },
+    {
+      "sha256": "080d1b3c82e6fbd33e7d8e265836264dfc9d2fcc4fee1c2000fb4beb918f76f6",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/2d-chess-pack-fb01679ab259/License.txt",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-1-128x128-711c0d944ed7/License.txt",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-1-256x256-93721ab46ea7/License.txt",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-1-512x512-887b72ed0c01/License.txt"
+      ]
+    },
+    {
+      "sha256": "09e9d5e4062faa12145c0b954ea2759cfb47f6cbbee01d15828223f886bf5dab",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/screenshots/screenshots (10).png",
+        "imports/raw/more_assets_to_ingest/super-retro-world-interior-pack-week42-d44d3f002d48/every_packs_screenshots/screenshot (1).png"
+      ]
+    },
+    {
+      "sha256": "0a8dad7df77fc714a281129a71d5acf56c123aa9d06e1c3e8606405676fe403b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_wall_dungeon_autotile_14.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_wall_dungeon_autotile_14.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_wall_dungeon_autotile_14.png"
+      ]
+    },
+    {
+      "sha256": "0a9964bd9d9d871c72387a799f87f42d48e4675903997a9e16d4e672c9c4c40a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/_srw_free_character_0.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/_srw_free_character_0.png"
+      ]
+    },
+    {
+      "sha256": "0b992f647bd2630fafd7257f3b72cffd40b4fcb5fb7e36080966c0e4541edc67",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/laser_deactivate/tile001.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/laser_deactivate/tile005.png"
+      ]
+    },
+    {
+      "sha256": "0bc3cab28929accca52b3d4b46aa0d293f858ddc89dd8742074352f04d4cf9e7",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MV/tilesets/SRW_Marketplace_tileset_C.png",
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MZ/tilesets/SRW_Marketplace_tileset_C.png"
+      ]
+    },
+    {
+      "sha256": "0bec8a1262360c8828e450760551754d7cb734ae51b952df9e7100a656b656a8",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/puny-dungeon-v1-22fd85633ccd/PUNY_DUNGEON_v1/punyworld-dungeon-tileset.png",
+        "imports/raw/more_assets_to_ingest/puny-dungeon-v1-22fd85633ccd/PUNY_DUNGEON_v1/Tiled/punyworld-dungeon-tileset.png"
+      ]
+    },
+    {
+      "sha256": "0c82be4b823195bc115108d2987eb896eac8b13d25ae78b94306660137619109",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/factory-monster-pack-1-20abec1e1e29/Rust_Slug.png",
+        "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/sv enemies/Rust_Slug.png"
+      ]
+    },
+    {
+      "sha256": "0caeac9aed71ff8fffe5d180039a672bdae7cfe020363746fce0e2445f8788bf",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-3266207a96af/03.png",
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-a240f85902c2/03.png"
+      ]
+    },
+    {
+      "sha256": "0d572becef1dfcd6c47891f31a23c51bd3f22a1adfa440245f863cf076a6e107",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/autotiles/free_water_tiles1.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/autotiles/free_water_tiles1.png"
+      ]
+    },
+    {
+      "sha256": "10b0b7f462fc8da9edc8d348ea17fba604f1f83e5e8baac3824d8019301a4ec1",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/isometric-tiles-doorways-pack-large-6bfe343be71d/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-doorways-pack-small-387da2f712db/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-wall-pack-large-75d5813d6b8e/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-wall-pack-small-b3d4acec250d/License.txt"
+      ]
+    },
+    {
+      "sha256": "10f49ab022f7c209f5cbaec72fd16fd0b24bc4bf79d985bf5861b362cb7ccbf1",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/factory-monster-pack-1-20abec1e1e29/Defective_Turret.png",
+        "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/sv enemies/Defective_Turret.png"
+      ]
+    },
+    {
+      "sha256": "1128a070551d73b47e3cd00263d6b1a84d74921095264e14ae94e49fb8601e15",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 14.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 24.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 34.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 4.png"
+      ]
+    },
+    {
+      "sha256": "1263a4f631c151dcd3147dba2166cd645e16a697c810064487b58b6839e7c6db",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/rpgmaker/MV/characters/_srw_free_chests.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/rpgmaker/MZ/characters/_srw_free_chests.png"
+      ]
+    },
+    {
+      "sha256": "1556c132978b8a5ea4d3cf8f121fbd493409c71a6d42df3dea605a0b6e71d50b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/brown/attack/a_009.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/brown/attack/a_010.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/brown/attack/a_011.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/brown/attack/a_012.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/brown/attack/a_013.png"
+      ]
+    },
+    {
+      "sha256": "157f27abc61310ed24b5201b5194899604474e2da111c55ba020b69418295612",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/rpgmaker/MV/characters/$_srw_free_icons2.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/rpgmaker/MZ/characters/$_srw_free_icons2.png"
+      ]
+    },
+    {
+      "sha256": "15809bf21463e9cb7086c26edef5eece2444bd5f4df39836b6173578a89b3981",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MV/characters/$waterfall_effects.png",
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MZ/characters/$waterfall_effects.png"
+      ]
+    },
+    {
+      "sha256": "1594a8449093e60726be57a1bb2a49aed800af490acf4ef5b7db23be48dc7056",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/glass-letter-tiles-50d34b5ecfd3/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-crates-pack-128x128-46c414b188cf/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-crates-pack-64x64-b489b848cb34/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-crates-pack-textures-64x64-7a87e5a3f17e/License.txt"
+      ]
+    },
+    {
+      "sha256": "163a52740402ca8d96c1aeadc20fa7dbb1cccf36bfaf7973653b89f0156b8ffa",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Back/Standing/Back_Standing_Hurt_5.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Back/Standing/Back_Standing_Land_4.png"
+      ]
+    },
+    {
+      "sha256": "17a5879cc91d3d607183c0e7549ce7caf02592263c08c4ee8782f66c3a1077a2",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile066.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile068.png"
+      ]
+    },
+    {
+      "sha256": "190a20bd31fba469f832760f142597e371b47eb763c555c6396ce566c347b155",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Be_Xich.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Be_Xich.png"
+      ]
+    },
+    {
+      "sha256": "19ee31a5e10ce6941779b815898c309899951249418f6745334a8e3fdc33d656",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_ground_autotile_29.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_ground_autotile_29.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_ground_autotile_29.png"
+      ]
+    },
+    {
+      "sha256": "1ca491c656d3442e559716173822e35896602cac9aab303ebf310c43a2d483f0",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Barcode01/Barcode01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Barcode02/Barcode02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Dissolve02/Dissolve02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Melt01/Melt01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Melt02/Melt02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Misc01/Misc01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Misc02/Misc02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Misc03/Misc03-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Misc04/Misc04-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitH04/SplitH04-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Television01/Television01-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Television02/Television02-16-128x128.png"
+      ]
+    },
+    {
+      "sha256": "1d67134fa24e7dfc0a0874142814f55dbce108cdf41345a0ca4c203d0c80bccb",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-3266207a96af/07.png",
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-a240f85902c2/07.png"
+      ]
+    },
+    {
+      "sha256": "1eba24486e06d7d94dab46a9cfa165bfe34aed125a4d67a0ab8dda3ce1e4088f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/screenshots/screenshots (3).gif",
+        "imports/raw/more_assets_to_ingest/super-retro-world-interior-pack-week42-d44d3f002d48/every_packs_screenshots/screenshot (2).gif"
+      ]
+    },
+    {
+      "sha256": "1f218142e2dad52a3178927f34cf52a7378f74892b09064e7a940df588386bb8",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Moving Platfrom_D.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Moving Platfrom_D.png"
+      ]
+    },
+    {
+      "sha256": "200ec9969e0105770bfde4716ae031c98a83b0d95edf670a65f82353b60ee47f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MV/characters/!_srw_free_doors1.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MZ/characters/!_srw_free_doors1.png"
+      ]
+    },
+    {
+      "sha256": "2045f3b490d8e1b82bb0690315b1275b76bf8a132c617598c3ca4a8c46080933",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-2-128x128-036589d7d59f/128x128/Elements/Elements_07-128x128.png",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-2-128x128-036589d7d59f/128x128/Elements/Elements_08-128x128.png"
+      ]
+    },
+    {
+      "sha256": "218f03dfc72a3308d51d0e5aa3bbe61012209f82276134b91c4bd7c1c6ba002f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-3266207a96af/04.png",
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-a240f85902c2/04.png"
+      ]
+    },
+    {
+      "sha256": "225b9a246d4b92c25d7d8e6fc2b2106faf4cdee89d2fc0eee609ac27f8304976",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MV/characters/_srw_free_farm_character_walk_frame32x32.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MZ/characters/_srw_free_farm_character_walk_frame32x32.png"
+      ]
+    },
+    {
+      "sha256": "23a35f4527e55564ef65e0e0b58355163500f0f38fa288dd7f6ee5a2c3fa391e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/Panels/SimplePanel03.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/SimplePanel03.png"
+      ]
+    },
+    {
+      "sha256": "246a8641720f144fd243a0161daff72e62366f887f0938e6bbb9671fa693d372",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/isometric-gold-mine-1-aaade0da89a8/Foozle_2DS0008_Isometric_Gold_Mine_1/static_png/gold_mine_with_ground_active_empty.png",
+        "imports/raw/more_assets_to_ingest/isometric-gold-mine-1-aaade0da89a8/Foozle_2DS0008_Isometric_Gold_Mine_1/with_ground/gold_mine0001.png"
+      ]
+    },
+    {
+      "sha256": "24c1205b5efc59e6331442fc5ef56b6b9e674ced2d13e61b94a748890e92d207",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/control_panel_idle/tile016.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/control_panel_idle/tile018.png"
+      ]
+    },
+    {
+      "sha256": "282187699925eeec631d03913be57163dc2ec7328c996a2c11d9840d7e475427",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MV/characters/!doors_02.png",
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MZ/characters/!doors_02.png"
+      ]
+    },
+    {
+      "sha256": "284831dd04644e028ec1592444c0a5aafdce8205cd8b0f4e834fb1db387ce4ca",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dragon-sprites-pack-1-6c49e5b5cf62/Thank You!.txt",
+        "imports/raw/more_assets_to_ingest/summons-pack-1-03cadd9d015d/Thank You!.txt"
+      ]
+    },
+    {
+      "sha256": "29260d3b413109782372cef9bb02d8b334425ebe3e8e0ac85dbc7c32a7a56ddb",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/_srw_free_torches.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/_srw_free_torches.png"
+      ]
+    },
+    {
+      "sha256": "2ae60253895313a5409f8b443b28a2426cfca3c3f8b34ae050e0e09bdc791f2c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Left/Crouching/Left_Crouching_Hurt_4.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Left/Crouching/Left_Crouching_Hurt_5.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Left/Crouching/Left_Crouching_Land_3.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Left/Crouching/Left_Crouching_Land_4.png"
+      ]
+    },
+    {
+      "sha256": "2b8ad01c9598a59ce997ee3fde9c49750dc6a894fa7104066a91d02dd462e597",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Left/Standing/Left_Standing_Hurt_4.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Left/Standing/Left_Standing_Jump_1.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Left/Standing/Left_Standing_Land_3.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Left/Standing/Left_Standing_Land_4.png"
+      ]
+    },
+    {
+      "sha256": "2d8a53c7499de3361f8d994b6c8e195bf4800c8cf1a504148bb8967c660be181",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Matxich.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Matxich.png"
+      ]
+    },
+    {
+      "sha256": "2e9f3efcc70fc5ef595755d83f0203faadd56c4c04a6bdd88a2f22c61867804b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/isometric-gold-mine-1-aaade0da89a8/Foozle_2DS0008_Isometric_Gold_Mine_1/static_png/gold_mine_without_ground_active_full.png",
+        "imports/raw/more_assets_to_ingest/isometric-gold-mine-1-aaade0da89a8/Foozle_2DS0008_Isometric_Gold_Mine_1/without ground/gold_mine0140.png"
+      ]
+    },
+    {
+      "sha256": "2f146f068c666a14d4b0f5a632a0b8086deb29cedd6eff3411ba1accdff3a8b7",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen16.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen8.png"
+      ]
+    },
+    {
+      "sha256": "2f1e53a77c3bf9cded515405f942043ddae50d681b68b62e67f66fd75abc4e69",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile015.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile050.png"
+      ]
+    },
+    {
+      "sha256": "30826d8f7dae3fc7c19f5e8b69c881d4d5445339b03314dc92330e98cff48484",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile031.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile034.png"
+      ]
+    },
+    {
+      "sha256": "30859c8fcf2fc6d0f740b616a1e924675a5d03f710ece48bcd19123fe08139f5",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MV/characters/_srw_character_1-8.png",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MZ/characters/_srw_character_1-8.png"
+      ]
+    },
+    {
+      "sha256": "30df13df49009635c9855273fd214f10359621117828ecb6dd5cc2b538558d3a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/screenshots/screenshots (13).png",
+        "imports/raw/more_assets_to_ingest/super-retro-world-interior-pack-week42-d44d3f002d48/every_packs_screenshots/screenshot (4).png"
+      ]
+    },
+    {
+      "sha256": "3272785ebb8ef9d6d5d9482664098773975f4e13059ee964f1f1fe4af5e2ab29",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_ground_autotile_20.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_ground_autotile_20.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_ground_autotile_20.png"
+      ]
+    },
+    {
+      "sha256": "350fac5095dc64b6b15fc9678a0303e126efd5ec7e7c1cad4f85925b1debdedc",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic01/Mosaic01-14-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic01/Mosaic01-15-128x128.png"
+      ]
+    },
+    {
+      "sha256": "35180ea03e442fe6ad9076f7aa9d09fc3ed9032c18b4c428f4765af258336b51",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen10.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen2.png"
+      ]
+    },
+    {
+      "sha256": "35223412e847f57277d81b64a994f9b3b3cce313e99404a79e20db37c86acbc3",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Jump_1.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Jump_1.png"
+      ]
+    },
+    {
+      "sha256": "35330e188b2a8a7ff9d6632fc691f65563a4fce615ae6c0c82bd4cf406c8fca9",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/$_srw_free_icons2.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/$_srw_free_icons2.png"
+      ]
+    },
+    {
+      "sha256": "35ecf9c365e04974efa7095ffab93964e15c5a9566505329b7beaaef6541cd3a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_ground_autotile_21.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_ground_autotile_21.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_ground_autotile_21.png"
+      ]
+    },
+    {
+      "sha256": "362a89ef36bbec95d8d1a051753173ec55df0cd0419956f838d757c0aa7e1239",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MV/characters/$water.png",
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MZ/characters/$water.png"
+      ]
+    },
+    {
+      "sha256": "3663520ff08c80740e8a58222575804246ac565dd9246b86abb4cfaa5a1ae625",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Matxich2.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Matxich2.png"
+      ]
+    },
+    {
+      "sha256": "369b60bbb81f5326212c179075014c9b631a292124f94dce30ec754db70bcb7f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Trap_Spike_Run.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Trap_Spike_Run.png"
+      ]
+    },
+    {
+      "sha256": "36d632e0075ebe9d8730132618373cb50d59fd41caae791ba51c90c091b791cf",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile017.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile048.png"
+      ]
+    },
+    {
+      "sha256": "375421277f924d908eb47d6ee80f4a9911a300c230027f42e40477e82a1a1d60",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/medievalfantasyadventurersprites-74041fa6864e/MedievalFantasyAdventurerSprites/Player/CharacterShadow.png",
+        "imports/raw/more_assets_to_ingest/medievalfantasyadventurersprites-74041fa6864e/MedievalFantasyAdventurerSprites/Shadows/medSHADOW.png"
+      ]
+    },
+    {
+      "sha256": "3785f3c886252a00b4fcbeaef831b8e209e61498e3cbcc9a32cd872be7bb7c43",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_02.png",
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_18.png"
+      ]
+    },
+    {
+      "sha256": "387a0765f2da6fab20edc02026f123d368cdf4fa7b7d9f1f066c1ae2fb6c4af4",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/yellow/attack/a_008.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/yellow/attack/a_009.png"
+      ]
+    },
+    {
+      "sha256": "394880bb97307d922c1f00ec6db57e2d5ba02aafb2c7b33f45499e23d5488cc8",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Fan.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Fan.png"
+      ]
+    },
+    {
+      "sha256": "39e31a0a64af0a2f7bf9625dda8642f133e50aceb5529e15b35512f58cb8bfba",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen14.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen6.png"
+      ]
+    },
+    {
+      "sha256": "39fb138867c0e07cebe4b816db9325ede7095f444e2d8c7da10adb57d56183a7",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_anim_autotile_2.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_anim_autotile_2.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_anim_autotile_2.png"
+      ]
+    },
+    {
+      "sha256": "3acf2d4e91d8d8a412712897726c48ce4939ff2516a4430dcd0418010d62dd34",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Moving Platfrom_H.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Moving Platfrom_H.png"
+      ]
+    },
+    {
+      "sha256": "3d0951d2cdb19b1dfacd6a2c5f54f73bc862168cb0dc506149e336ec345347d2",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-2-128x128-036589d7d59f/128x128/Elements/Elements_03-128x128.png",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-2-128x128-036589d7d59f/128x128/Elements/Elements_04-128x128.png"
+      ]
+    },
+    {
+      "sha256": "3d5254d8a8648d5c336aa20edeb97b7b7d9e22bd7a1a32cd4457ba8c784a2614",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile009.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile019.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile029.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile039.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile049.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile059.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile069.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile079.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile089.png"
+      ]
+    },
+    {
+      "sha256": "3eca8d993a9294b26241738c25d80f6f5fe3a530fd8cb718492430235b049efd",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Moving Platfrom_C.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Moving Platfrom_C.png"
+      ]
+    },
+    {
+      "sha256": "44894bd8becfb32ccee3073823006839a107cb9cdaaf5131dab211036a0b3c22",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile000.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile001.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile002.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile003.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile004.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile005.png"
+      ]
+    },
+    {
+      "sha256": "449499be099e1dafc5e9c5ed707321e0a63e6b6648b0a4c5441cf83bccbae730",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/FallingRock.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/FallingRock.png"
+      ]
+    },
+    {
+      "sha256": "45d59ab6c7c04e94eb02ce0bdce78bb113f3436ab57be72e1a7b1c2aced704b4",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MV/characters/$_srw_free_icons1.png",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MZ/characters/$_srw_free_icons1.png"
+      ]
+    },
+    {
+      "sha256": "466488a267431f9b30b3306eb1af70034c2bd30ec236b3495d89370a8632f33d",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/FallingPlatfrom.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/FallingPlatfrom.png"
+      ]
+    },
+    {
+      "sha256": "4779d9a1c8457acda9c426ec7371ca871082c9cb9cb96ed7ab2a9e1cbc8b5d9a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen12.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen4.png"
+      ]
+    },
+    {
+      "sha256": "4941ac45090e827a7adb4101181fa4298cf45a29a536bfc73d1f063f8aa543bf",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-2-128x128-036589d7d59f/128x128/Wood/Wood_01-128x128.png",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-2-128x128-036589d7d59f/128x128/Wood/Wood_02-128x128.png"
+      ]
+    },
+    {
+      "sha256": "4bbd1e082eb0e0cedee4d05a74af5b35c4799758ac5413c277b4413cb68a2845",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile020.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile045.png"
+      ]
+    },
+    {
+      "sha256": "4c6002457782dd6f8dae1d5ad899d870a8c044fd7c59c30b04403bcd8ae75ccc",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/rpgmaker/MV/characters/$_srw_free_campfire.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/rpgmaker/MZ/characters/$_srw_free_campfire.png"
+      ]
+    },
+    {
+      "sha256": "4f6c03557d961d135633a30fb847cb1700dff541986f22acff5ec38dbfcc7b3a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Brick1.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Brick1.png"
+      ]
+    },
+    {
+      "sha256": "5067c471c059f09c177b0a58f79128ba4dbd026610303ce91acd3ad3723ff68e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Bomb.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Bomb.png"
+      ]
+    },
+    {
+      "sha256": "5185a6a5d2989a6653e9e94790ac8bced161cad4e7a90298ac8a7b85912262de",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_03.png",
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_17.png"
+      ]
+    },
+    {
+      "sha256": "52c001bb6e99feecdeb5b2459b0d882729915f8cfb1e111f36306da632c201ce",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cragnaw-0accf62a9626/ReadMe.txt",
+        "imports/raw/more_assets_to_ingest/gaja-43c648a8d855/ReadMe.txt"
+      ]
+    },
+    {
+      "sha256": "52f324dbc511bb28ce33ba6e70f30f83d2a55468f1734c343d6fb3213b46d237",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/factory-monster-pack-1-20abec1e1e29/Magnet_Maw.png",
+        "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/sv enemies/Magnet_Maw.png"
+      ]
+    },
+    {
+      "sha256": "53222364d53b34bb7fc83c803e14ef26d8fa0919ad58199acb42215ea08e3e02",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Television02/Television02-02-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Television02/Television02-03-128x128.png"
+      ]
+    },
+    {
+      "sha256": "550b3c6f249c12f00e7a39be8240fc40c2ed987914cc343f61072d0a309b40a5",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-3266207a96af/01.png",
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-a240f85902c2/01.png"
+      ]
+    },
+    {
+      "sha256": "5574fb1ef633d862047b8765f5233d130c90b9e8fc6f0e09a0c5afcf4aee5774",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/circular-texture-pack-128x128-723077230f30/License.txt",
+        "imports/raw/more_assets_to_ingest/circular-texture-pack-256x256-b750cafe0383/License.txt",
+        "imports/raw/more_assets_to_ingest/circular-texture-pack-512x512-b50e5d93dbb2/License.txt",
+        "imports/raw/more_assets_to_ingest/gradient-texture-pack-128x128-793e54c4c826/License.txt",
+        "imports/raw/more_assets_to_ingest/gradient-texture-pack-256x256-3ea255aaa7c1/License.txt",
+        "imports/raw/more_assets_to_ingest/gradient-texture-pack-512x512-eb6086bf5e03/License.txt",
+        "imports/raw/more_assets_to_ingest/sandbox-style-terrain-pack-00751e743769/License.txt",
+        "imports/raw/more_assets_to_ingest/seamless-abstract-pack-128x128-b17b7ad87d92/License.txt",
+        "imports/raw/more_assets_to_ingest/seamless-abstract-pack-256x256-01f8836fed46/License.txt",
+        "imports/raw/more_assets_to_ingest/seamless-abstract-pack-512x512-1afc9e1fd7ec/License.txt",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-2-128x128-036589d7d59f/License.txt",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-2-256x256-fe93ef136b32/License.txt",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-2-512x512-71758ca01639/License.txt"
+      ]
+    },
+    {
+      "sha256": "55ae1f315f2974bb1c8d2b5974aa6e2a29f4a89a7e8c26fed09a3941407ba94b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile006.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile059.png"
+      ]
+    },
+    {
+      "sha256": "55dd2933620c1fb2d882253cb6f2accc18d15340bcdbbfe678ba8a5b3dc73a70",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/!_srw_free_doors2.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/!_srw_free_doors2.png"
+      ]
+    },
+    {
+      "sha256": "560e838b9e9069c05bd7442effe6eb72ee2b1b919181e1eaa155a97b657493d1",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile013.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile014.png"
+      ]
+    },
+    {
+      "sha256": "56940b589e575f571a4e06eb149cf39bc4d7aad8b194aa20ce2996a17955f135",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/horror-texture-pack-256x256-6c78d279ce66/256x256/Metal/Horror_Metal_05-256x256.png",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-3-medium-15cf995bd2fc/256x256/Metal/Metal_06-256x256.png"
+      ]
+    },
+    {
+      "sha256": "56b839ed16e9a65651bb84accccfd80e7515db556c7ca8366f05926346654a75",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/brown/die/d_000.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/brown/idle/i_000.png"
+      ]
+    },
+    {
+      "sha256": "570b9fd44bb8e9e8545326c9db08dcd97e1d276f553af55e630625e773648b44",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/blue/die/d_000.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/blue/idle/i_000.png"
+      ]
+    },
+    {
+      "sha256": "58ca47221431d2b73388e69223021333f69e6fa85c0f938a1a59900721e16404",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MV/characters/_srw_free_chests.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MZ/characters/_srw_free_chests.png"
+      ]
+    },
+    {
+      "sha256": "5a959ea9c6e757466e0c58c2b371f1bb8e7665327ec5a12c0b108f5aba440308",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/$_srw_free_coin.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/$_srw_free_coin.png"
+      ]
+    },
+    {
+      "sha256": "5ba67b36f2f481ca8711949bf8e42ba54b7ff70967dbaae87fd187cdbb76a883",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/_srw_free_monsters_0.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/_srw_free_monsters_0.png"
+      ]
+    },
+    {
+      "sha256": "5c3c0cc7863ed486183f57f6ad527936b6b1a1c15365797cd9dd243fcc807290",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_wall_dungeon_autotile_8.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_wall_dungeon_autotile_8.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_wall_dungeon_autotile_8.png"
+      ]
+    },
+    {
+      "sha256": "5c450eda12857d37d93326aa6cfbccd2edf39844df97ffff0003419079facbec",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Checker01/Checker01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Checker02/Checker02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Checker03/Checker03-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Checker04/Checker04-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Circle01/Circle01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Circle02/Circle02-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Clock01/Clock01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Cross01/Cross01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Cross02/Cross02-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Curtain01/Curtain01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Curtain02/Curtain02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Curtain03/Curtain03-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Curtain04/Curtain04-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Dissolve01/Dissolve01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris01/Iris01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris02/Iris02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris03/Iris03-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris04/Iris04-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris05/Iris05-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris06/Iris06-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Melt03/Melt03-14-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic01/Mosaic01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic01/Mosaic01-02-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic02/Mosaic02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic03/Mosaic03-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic04/Mosaic04-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Pinwheel01/Pinwheel01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Pinwheel02/Pinwheel02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Pinwheel03/Pinwheel01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Pinwheel04/Pinwheel04-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slash01/Slash01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slash01/Slash01-02-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slash02/Slash02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slash03/Slash03-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slash03/Slash03-02-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slash04/Slash04-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slats01/Slats01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slats02/Slats02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slats03/Slats03-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slats04/Slats04-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitH01/SplitH01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitH02/SplitH02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitH03/SplitH03-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitV01/SplitV01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitV02/SplitV02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitV03/SplitV03-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitV04/SplitV04-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star01/Star01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star02/Star02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star03/Star03-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star04/Star04-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star05/Star05-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star06/Star06-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Wedge01/Wedge01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Wedge02/Wedge02-36-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/WipeDown01/WipeDown01-11-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/WipeLeft01/WipeLeft01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/WipeRight01/WipeRight01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/WipeUp01/WipeUp01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/ZoomIn/ZoomIn-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/ZoomOut/ZoomOut-01-128x128.png"
+      ]
+    },
+    {
+      "sha256": "5ca0d617baf1d2531db201a857a6297833b2b1258617a8a77fdd5bde7c3b8847",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen13.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen5.png"
+      ]
+    },
+    {
+      "sha256": "5d020997dccf957a575833bce4e051ce6e94953e9178d4341f8f31a8d1c54aaa",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MV/tilesets/SRW_Marketplace_tileset_B.png",
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MZ/tilesets/SRW_Marketplace_tileset_B.png"
+      ]
+    },
+    {
+      "sha256": "5d8983f826674edf97e935d3404e66a25388f1f49118b0a2bfbf768663b00a62",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/isometric-gold-mine-1-aaade0da89a8/Foozle_2DS0008_Isometric_Gold_Mine_1/static_png/gold_mine_without_ground_active_empty.png",
+        "imports/raw/more_assets_to_ingest/isometric-gold-mine-1-aaade0da89a8/Foozle_2DS0008_Isometric_Gold_Mine_1/without ground/gold_mine0001.png"
+      ]
+    },
+    {
+      "sha256": "5f0aa17eb3c7480fbea34b841539ca007a1775edf4ea5be7e7d12454f4ee881b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MV/characters/$_srw_free_character_nude.png",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MZ/characters/$_srw_free_character_nude.png"
+      ]
+    },
+    {
+      "sha256": "5fa7fb3ef0491ebbef0ffe652886f085c28d0123e22e515ef63ffc7b7a699718",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/factory-monster-pack-1-20abec1e1e29/Trash_Rat.png",
+        "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/sv enemies/Trash_Rat.png"
+      ]
+    },
+    {
+      "sha256": "605bade3310f054a8271b6509c9ca17f94ddb8c45a10762fc06400060c50bcb2",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/green/attack/a_000.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/green/jump/j_000.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/green/jump/j_015.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/green/jump/j_016.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/green/jump/j_017.png"
+      ]
+    },
+    {
+      "sha256": "6110be88cacd03d9c89baa66aeaa9298a1d8be301c2d95bcb84930b31f54c588",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-3266207a96af/06.png",
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-a240f85902c2/06.png"
+      ]
+    },
+    {
+      "sha256": "648292157073755e14d7febb3333a6c97ff4abba535df6e1559da77f99b48d78",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_01.png",
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_19.png"
+      ]
+    },
+    {
+      "sha256": "6634a8340d518862c13dc7833bbe3750ec9dce154ce8d3f427ad78eaaa6d433c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_template_house.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_template_wall.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_template_house.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_template_wall.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_template_house.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_template_wall.png"
+      ]
+    },
+    {
+      "sha256": "668d862b2d1a49c546bbb3e7cff571f5a7d7fff41a9ac2d6a7fc0236ddab36e2",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile027.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile038.png"
+      ]
+    },
+    {
+      "sha256": "685b09a5096f3a82ed173d3f139439774b1c9cae7937006ee64ffb0d911a23ef",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/horror-texture-pack-512x512-29feed70b77a/512x512/Metal/Horror_Metal_05-512x512.png",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-3-large-f61d963d2deb/512x512/Metal/Metal_06-512x512.png"
+      ]
+    },
+    {
+      "sha256": "69a04f5cad8bbe8c523103d7aadc7587a63d2807e464ce0c4ca75fdece62ee71",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_ground_autotile_17.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_ground_autotile_17.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_ground_autotile_17.png"
+      ]
+    },
+    {
+      "sha256": "6a1952bed0304e1430a870fddda4d2d99f6edd573935801a1b0dc4ff60f7a480",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile026.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile039.png"
+      ]
+    },
+    {
+      "sha256": "6a340d1ab071e7a3f18e216f3026e858035795866cfe72cfd9d29cfedfd16f77",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_ground_dungeon_autotile_8.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_ground_dungeon_autotile_8.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_ground_dungeon_autotile_8.png"
+      ]
+    },
+    {
+      "sha256": "6a6f690b37ffe2b9bb90c4806e689d2eba95b29e16cdbbe28d74c8dd0b53e98f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile023.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile042.png"
+      ]
+    },
+    {
+      "sha256": "6ac67fdc6f2ea398fb985ed203eacaf59cc08283990c5d71b7d1fb22d0554350",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MV/characters/$_srw_free_campfire.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MZ/characters/$_srw_free_campfire.png"
+      ]
+    },
+    {
+      "sha256": "6b92418bccef55fa5e9a42c24cf7a7a34b9527108d0d586f49f07d710ffa281a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Jump_2.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Jump_2.png"
+      ]
+    },
+    {
+      "sha256": "6c30adddf4dd810bd405f4beea79f3823cce1ff27485ee33b09eef89418718ff",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite/free_icons2.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/sprite/free_icons2.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/sprite/free_icons2.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/sprite/free_icons2.png",
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/sprite/free_icons2.png",
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/sprite/free_icons2.png"
+      ]
+    },
+    {
+      "sha256": "6c8d402121d8f6fcd8d53c335836fc1b5e446ee65d327c22144a65a3c3140ffc",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Trap_Spike.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Trap_Spike.png"
+      ]
+    },
+    {
+      "sha256": "6e555b49d5ce91c8197b5b3b68352c9535c931dd68fdbd307819117a01000647",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/yellow/attack/a_000.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/yellow/jump/j_000.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/yellow/jump/j_015.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/yellow/jump/j_016.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/yellow/jump/j_017.png"
+      ]
+    },
+    {
+      "sha256": "6ed80d080a941101118e2368b1d968451d3b015500980d82b475d7d1696aaf5f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-3266207a96af/All.png",
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-a240f85902c2/All.png"
+      ]
+    },
+    {
+      "sha256": "705e945aceb332aff9b05fc1c0d5595dd31fbd9d8eff7a11dedbf4f7777d80ce",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/control_panel_deactivate/tile012.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/control_panel_deactivate/tile013.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/control_panel_deactivate/tile014.png"
+      ]
+    },
+    {
+      "sha256": "71ae885b762eb68cacc8488c87e9fbfaebbf14fce0fd81c0b90d102c5966420f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MV/characters/_srw_character_25-32.png",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MZ/characters/_srw_character_25-32.png"
+      ]
+    },
+    {
+      "sha256": "722914d84e842c773fba8898b396d0d1af33153c80818e1ca161cd8dfa8d3bc0",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile012.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile053.png"
+      ]
+    },
+    {
+      "sha256": "723d9b89db3d6e949fc87154de21c16d9a70ff630250dcf3d51cb23ad5daf666",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/rpgmaker/MV/characters/$_srw_free_icons1.png",
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/rpgmaker/MZ/characters/$_srw_free_icons1.png"
+      ]
+    },
+    {
+      "sha256": "7243171d2fabe8a673a72526ea7ec8c62f3c68d92052a9ad959ecbe6165c68f5",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Jump_3.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Jump_3.png"
+      ]
+    },
+    {
+      "sha256": "7252e79f7df8e63a3eb5c7fed4a25749ca3e87e9098ad50c5d08a219996a1716",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Checker01/Checker01-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Checker02/Checker02-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Checker03/Checker03-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Checker04/Checker04-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Circle01/Circle01-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Circle02/Circle02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Clock01/Clock01-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Cross01/Cross01-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Cross02/Cross02-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Curtain01/Curtain01-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Curtain02/Curtain02-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Curtain03/Curtain03-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Curtain04/Curtain04-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Dissolve01/Dissolve01-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris01/Iris01-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris02/Iris02-15-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris02/Iris02-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris03/Iris03-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris04/Iris04-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris05/Iris05-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Iris06/Iris06-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic01/Mosaic01-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic02/Mosaic02-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic03/Mosaic03-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic04/Mosaic04-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Pinwheel01/Pinwheel01-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Pinwheel02/Pinwheel02-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Pinwheel03/Pinwheel01-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Pinwheel04/Pinwheel04-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slash01/Slash01-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slash02/Slash02-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slash03/Slash03-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slash04/Slash04-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slats01/Slats01-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slats02/Slats02-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slats03/Slats03-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Slats04/Slats04-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitH01/SplitH01-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitH02/SplitH02-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitH03/SplitH03-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitV01/SplitV01-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitV02/SplitV02-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitV03/SplitV03-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitV04/SplitV04-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star01/Star01-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star02/Star02-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star02/Star02-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star02/Star02-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star03/Star03-15-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star03/Star03-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star03/Star03-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star04/Star04-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star05/Star05-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star05/Star05-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star06/Star06-16-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Star06/Star06-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Wedge01/Wedge01-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Wedge02/Wedge02-19-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/WipeDown01/WipeDown01-10-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/WipeLeft01/WipeLeft01-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/WipeRight01/WipeRight01-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/WipeUp01/WipeUp01-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/ZoomIn/ZoomIn-18-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/ZoomOut/ZoomOut-18-128x128.png"
+      ]
+    },
+    {
+      "sha256": "729546acd70ae7e142ca7990b45ea9ca1a85e3995db939b7d08c9cc06b4ad413",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/rpgmaker/MV/characters/$_srw_free_icons1.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/rpgmaker/MZ/characters/$_srw_free_icons1.png"
+      ]
+    },
+    {
+      "sha256": "7496c09bf436901eb7b2b512482909e30f9c19c6043f4d6376194e740eb44cba",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MV/characters/$_srw_free_icons2.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MZ/characters/$_srw_free_icons2.png"
+      ]
+    },
+    {
+      "sha256": "74f40e77b89093cfd12dcf3d288a3d9c10e863a76e5a70ad5fe75ec1f87cc41d",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 15.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 25.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 35.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 5.png"
+      ]
+    },
+    {
+      "sha256": "752d1a473ea1fe338076c8ef359b3d328c940a95b0cd4b2ef0349c513138c936",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile006.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile007.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile008.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile009.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile010.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile011.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile012.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile028.png"
+      ]
+    },
+    {
+      "sha256": "76897bb2befe7b3a837b2770fca0f6761e7640daffee0383aa3e49dd75e692ed",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile010.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile055.png"
+      ]
+    },
+    {
+      "sha256": "76b4501a9f112cce17224a40166bc2eadb507f1532333d753ed99314ebeb112d",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile038.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile067.png"
+      ]
+    },
+    {
+      "sha256": "77cae81cfcc75f2910ff94f30d2b6ccfbe53b083a467dfb96bd67f65bee43751",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MV/characters/$_srw_free_icons2.png",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MZ/characters/$_srw_free_icons2.png"
+      ]
+    },
+    {
+      "sha256": "78459457eeb0982dbd898d35621f93b60e60a40fbea631df3a18ec832a44d60a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/screenshots/screenshots (12).png",
+        "imports/raw/more_assets_to_ingest/super-retro-world-interior-pack-week42-d44d3f002d48/every_packs_screenshots/screenshot (3).png"
+      ]
+    },
+    {
+      "sha256": "7850ef3efda845f219dbfb17dc3a0fd9e6353b733e1d42a6e94e26b1d041ac77",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen11.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen3.png"
+      ]
+    },
+    {
+      "sha256": "7983fb28841d461e8fce4cbf35e24ae1347d9489e05af789450da28fc808afe4",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MV/characters/_srw_free_farm_plants2.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MZ/characters/_srw_free_farm_plants2.png"
+      ]
+    },
+    {
+      "sha256": "7b771a43c18546774d0c970f31302e4113aebfdce41d659ceebf3b49db2a10bf",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile032.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile033.png"
+      ]
+    },
+    {
+      "sha256": "7ba344d2626857781c2d7b32e09fc359812ec0fcbba341d8901deeaa4d8cd65e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile002.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile063.png"
+      ]
+    },
+    {
+      "sha256": "7c7bbc871d9dcc1d5d55cc17e8ba467835c9e657f0a9ed66345e13e835802699",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 18.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 28.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 38.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 8.png"
+      ]
+    },
+    {
+      "sha256": "7fadea5d3c5fc7332416fcd15d8d070200277b6a9e4f1de8b0787769699cba11",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_00.png",
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_20.png"
+      ]
+    },
+    {
+      "sha256": "7fce3c15dacba595c65588b3929bd2eaa745eebf3eb9e27f65f428705576abcf",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 10.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 20.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 30.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 40.png"
+      ]
+    },
+    {
+      "sha256": "80c5888aa0440da0afbf0babc8b857fd788e8d398ab2b20ff046881af7b46b08",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/isometric-tiles-roads-pack-large-6b4db5483953/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-roads-pack-small-c0c920364600/License.txt"
+      ]
+    },
+    {
+      "sha256": "81027b4dbf6aada32853f2cb173d21ddb76bca336eaba2aee1c9cb0ddd13d8df",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/Panels/SimplePanel02.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/SimplePanel02.png"
+      ]
+    },
+    {
+      "sha256": "816fa7714410b2b20baa089a8eb82ccfc14ebfb41b13ea2fb5411c873bd8eb53",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/photorealistic-texture-pack-1-128x128-4970f8d4a483/License.txt",
+        "imports/raw/more_assets_to_ingest/photorealistic-texture-pack-1-256x256-671f8fa5b5b3/License.txt",
+        "imports/raw/more_assets_to_ingest/photorealistic-texture-pack-1-512x512-bdec73a0235a/License.txt",
+        "imports/raw/more_assets_to_ingest/photorealistic-texture-pack-2-128x128-7f4615a106a4/License.txt",
+        "imports/raw/more_assets_to_ingest/photorealistic-texture-pack-2-256x256-c5f85ac49905/License.txt",
+        "imports/raw/more_assets_to_ingest/photorealistic-texture-pack-2-512x512-692e58d20050/License.txt",
+        "imports/raw/more_assets_to_ingest/planet-surface-backgrounds-1-1280x720-429876be11a0/License.txt",
+        "imports/raw/more_assets_to_ingest/planet-surface-backgrounds-1-512x384-abbc53ac56c0/License.txt",
+        "imports/raw/more_assets_to_ingest/planet-surface-backgrounds-1-640x480-ab01f3f494b3/License.txt",
+        "imports/raw/more_assets_to_ingest/planet-surface-backgrounds-1-800x600-cef7b07ff39a/License.txt",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-3-large-f61d963d2deb/License.txt",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-3-medium-15cf995bd2fc/License.txt",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-3-small-7da3db266ec7/License.txt"
+      ]
+    },
+    {
+      "sha256": "81fa5dae8b96a5b6cf8023faa3ed8f1ec2a760e94b6264636ebfb94c6000df26",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Left/Crouching/Left_Crouching_Jump_6.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Left/Standing/Left_Standing_Jump_6.png"
+      ]
+    },
+    {
+      "sha256": "843118857b8521336d01e7f722a59d6a46d6061a3292b90a91345162118d88e7",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_anim_autotile_9.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_anim_autotile_9.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_anim_autotile_9.png"
+      ]
+    },
+    {
+      "sha256": "850d208d95e6ab8561348d13ccf4153d2068ac623d4f04e1529201086fa3914c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/factory-monster-pack-1-20abec1e1e29/Scrap_Bandit.png",
+        "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/sv enemies/Scrap_Bandit.png"
+      ]
+    },
+    {
+      "sha256": "85acd0ed7aef624a280955569aae4950b88d0ee5714e983130f1e38fc3eebe44",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_template_waterfall.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_template_waterfall.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_template_waterfall.png"
+      ]
+    },
+    {
+      "sha256": "85b61bdc13daf509558370187ac9aee07b57a08bd8ea00a37d5a292280fabfda",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/_srw_free_switches.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/_srw_free_switches.png"
+      ]
+    },
+    {
+      "sha256": "87114dbbdb7b17ef15062515ee08fddb1308c2369654fd5b2ba26268a4e51dea",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/!$_srw_free_traps1.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/!$_srw_free_traps1.png"
+      ]
+    },
+    {
+      "sha256": "884fc9a6300fbd0c28a7d561a4bf48907b9bf35c2e45b4cdb09720187a117a44",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Spike_B.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Spike_B.png"
+      ]
+    },
+    {
+      "sha256": "89b2d09bee29eddae1181c809af576493881890c2c60e66cbf8d110906ee880e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cursed-trees-325ceed068dc/Credits.txt",
+        "imports/raw/more_assets_to_ingest/dragon-evolutions-4c3dc61dc043/Credits.txt",
+        "imports/raw/more_assets_to_ingest/goblin-gang-e1ce48f9d690/Credits.txt"
+      ]
+    },
+    {
+      "sha256": "89b6df498cf825511cc2e475559e66bd23350d49a68ae602e64120fc268b25fc",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/rpgmaker/MV/characters/$_srw_free_campfire.png",
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/rpgmaker/MZ/characters/$_srw_free_campfire.png"
+      ]
+    },
+    {
+      "sha256": "89c44643dfade63cc1d9debe43b11ac99c8d45f257e94b416e74fe8043822a36",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/factory-monster-pack-1-20abec1e1e29/Junk_Bot.png",
+        "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/sv enemies/Junk_Bot.png"
+      ]
+    },
+    {
+      "sha256": "8a18ede03b030c525351f281014664ee54ee170b18aedd191f28e39ea22ac7cc",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Skill Icons/Necromancer Icons/Necromancer Purple Skills/Ase/Necromancer Icon 01.aseprite",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Skill Icons/Necromancer Icons/Necromancer Purple Skills/Ase/Necromancer Icon 12.aseprite"
+      ]
+    },
+    {
+      "sha256": "8c809c29f8121a662355a60352b13ff2f37a37dd43d7ca14258fd04889a6b9ee",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile019.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile024.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile025.png"
+      ]
+    },
+    {
+      "sha256": "8d161db42ebabf702fb92636607937c229e11318e7d79a0f79f3c55078b909ae",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MV/characters/$_srw_free_icons1.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MZ/characters/$_srw_free_icons1.png"
+      ]
+    },
+    {
+      "sha256": "8d7f716ad7e92ddaa5baf5eee3f4080e82ce385506f82b7ffc0745a2cfd6814b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/laser_spikes_activate/tile008.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/laser_spikes_activate/tile009.png"
+      ]
+    },
+    {
+      "sha256": "8d96e00fbb716c659669da6d85657edad1672ef9798f871ba45167c6794f5e6b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/$_srw_free_icons1.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/$_srw_free_icons1.png"
+      ]
+    },
+    {
+      "sha256": "8ef70235f771ef17d0ee8996e4db0744b99251debc8ce1d78077c669e4a5faee",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Spear.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Spear.png"
+      ]
+    },
+    {
+      "sha256": "8fd07f08c68a4d07f25a8565bafc72ee76e77a867e622150facc7c4611b2d697",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Shooter_Arrow_Trap.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Shooter_Arrow_Trap.png"
+      ]
+    },
+    {
+      "sha256": "90642edd4c5667d640ef64294273982b4f49aa4b606ded666094abb412037ed7",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/isometric-tiles-pathways-pack-large-e00d0c06ffdb/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-pathways-pack-small-500a4dbd1a7f/License.txt"
+      ]
+    },
+    {
+      "sha256": "906ae823f7da3a563b66e115b93ead6de71077a5708a59b8d7e1ecba20e2cf45",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/factory-monster-pack-1-20abec1e1e29/Volt_Viper.png",
+        "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/sv enemies/Volt_Viper.png"
+      ]
+    },
+    {
+      "sha256": "9135a33f970278bc8f866ae683a786ed7f136926a8a67d2141b9aa71e2ebe4d3",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Be_Spear.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Be_Spear.png"
+      ]
+    },
+    {
+      "sha256": "92db2a66d91f61396916a9547bbc7d0783bbacaa0dcd2a8b0f5d96d55ebcf7f7",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/rpgmaker/MV/characters/$_srw_free_icons2.png",
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/rpgmaker/MZ/characters/$_srw_free_icons2.png"
+      ]
+    },
+    {
+      "sha256": "936996b8a4e9f1cdec4e12b0c477c61810afaa3ac7dacb81361d693b0af7347a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile028.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile037.png"
+      ]
+    },
+    {
+      "sha256": "941f33a0d43366a8245c1b56b5c472fc7d0d89eca519962e682271cf8a9dd23e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/control_panel_deactivate/tile011.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/control_panel_deactivate/tile016.png"
+      ]
+    },
+    {
+      "sha256": "951feeb6845327cf1eb3424787e2f2116fe613a1ec7cea9f52d0c444323e27d6",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/2d-dominoes-pack-d0d08e41475b/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-floor-texture-pack-71b9d1e3eae5/License.txt",
+        "imports/raw/more_assets_to_ingest/old-school-dungeon-crawler-pack-416e473652a3/License.txt",
+        "imports/raw/more_assets_to_ingest/seamless-space-backgrounds-large-f99b400316ca/License.txt"
+      ]
+    },
+    {
+      "sha256": "95730d8f2db18d76f10773d1a71c5558f17e48d7c42b91ae9e7e9ce3565fe157",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Right/Standing/Right_Standing_Hurt_4.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Right/Standing/Right_Standing_Hurt_5.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Right/Standing/Right_Standing_Land_3.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Right/Standing/Right_Standing_Land_4.png"
+      ]
+    },
+    {
+      "sha256": "95ddc610d08179cdc5b148b8613c652ead00fa45bfc537cd702cc18b198b853f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cloudy-skyboxes-cubemap-52e9e89930ad/License.txt",
+        "imports/raw/more_assets_to_ingest/cloudy-skyboxes-panorama-6daaa2bb2678/License.txt",
+        "imports/raw/more_assets_to_ingest/planet-surface-skyboxes-cubemap-e888a14a3df1/License.txt",
+        "imports/raw/more_assets_to_ingest/planet-surface-skyboxes-panorama-c0bfd6b09ba4/License.txt"
+      ]
+    },
+    {
+      "sha256": "9620fa7f40df88e9db8a866f8d29eacb6656b7deb4f56466002fca0cdc208c0e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/horror-texture-pack-128x128-1fee483ce025/128x128/Metal/Horror_Metal_05-128x128.png",
+        "imports/raw/more_assets_to_ingest/tiny-texture-pack-3-small-7da3db266ec7/128x128/Metal/Metal_06-128x128.png"
+      ]
+    },
+    {
+      "sha256": "96ed25f9bb3360e02bed077cf154eb406902aaa9cd3e1d393015bea5251770c6",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MV/characters/$_srw_free_campfire.png",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MZ/characters/$_srw_free_campfire.png"
+      ]
+    },
+    {
+      "sha256": "975fc2b613664add88bf853dfba92f23bc07fa7efb69d2e629d3bd4de5024a6e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/2d-poker-pack-1de47748a8ac/License.txt",
+        "imports/raw/more_assets_to_ingest/abstract-noise-pack-128x128-a14a032807a2/License.txt",
+        "imports/raw/more_assets_to_ingest/abstract-noise-pack-256x256-3a66eecae1c7/License.txt",
+        "imports/raw/more_assets_to_ingest/abstract-noise-pack-512x512-89760205ca52/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-floor-pack-large-256x128-290984a225e8/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-floor-pack-small-128x64-1268eb98efe6/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-town-pack-example-4598c75444ea/License.txt",
+        "imports/raw/more_assets_to_ingest/seamless-space-backgrounds-small-743fb3d75d2b/License.txt",
+        "imports/raw/more_assets_to_ingest/simple-interface-button-pack-fd7cdf68ff07/License.txt"
+      ]
+    },
+    {
+      "sha256": "97bb755f3357cd0c7ea89ff9e09b39bdb0654c9acfe11225eacbcd0d11b54d7f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Arrow_Double_Jump.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Arrow_Double_Jump.png"
+      ]
+    },
+    {
+      "sha256": "986359d4c560fbea102d4d8521c23011dbf180010271414be3241caab762294f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/electric_turret/tile016.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/electric_turret/tile021.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/electric_turret/tile024.png"
+      ]
+    },
+    {
+      "sha256": "9bcd7ffa3b8f55f30051b71e264e4a87866db250e36b463b7e5fc0f101d58f0c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_06.png",
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_14.png"
+      ]
+    },
+    {
+      "sha256": "9bfaa0b734ed529b82f4ad4feead1a81ca79bf838aa1fb7775ba78651ba3262d",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Suriken.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Suriken.png"
+      ]
+    },
+    {
+      "sha256": "9c3998d7ced40dc0382b802f864bb1d75e37e107ec9dcc6e8b1274274e15488b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile013.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile052.png"
+      ]
+    },
+    {
+      "sha256": "9e05ca20e4351b23dfcd264d5e7e0ebd79303b567f68a943b39fac087954be90",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/Panels/SimplePanel03.aseprite",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/SimplePanel03.aseprite"
+      ]
+    },
+    {
+      "sha256": "9e0747b1625295f55757301ed97e6eeac4da2fb430ab91f0e63ee943cbeaf028",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/License.txt",
+        "imports/raw/more_assets_to_ingest/photorealistic-texture-pack-3-128x128-2dffdc9b811b/License.txt",
+        "imports/raw/more_assets_to_ingest/photorealistic-texture-pack-3-256x256-fd1f8b5d35d2/License.txt",
+        "imports/raw/more_assets_to_ingest/photorealistic-texture-pack-3-512x512-fae13bedeb1a/License.txt"
+      ]
+    },
+    {
+      "sha256": "9f530db1c01c6bb5870a6f8cab5aa150d1d7757c17fa6b0cb0c7d490be042954",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MV/characters/$_srw_free_coin.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MZ/characters/$_srw_free_coin.png"
+      ]
+    },
+    {
+      "sha256": "9fa3958ee1953e56411f10fdcc32844aa22f6bdf040a2d713b9ef5b65b83c3a0",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile005.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile060.png"
+      ]
+    },
+    {
+      "sha256": "a2605a73bbc1f13f57928129eb9cb6140a8d19afcea97e2510d98703e639c8b2",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/void-fleet-pack-1-c08ec56ea625/Foozle_2DS0012_Void_EnemyFleet_1/Kla'ed/Engine/PNGs/Kla'ed - Fighter - Engine.png",
+        "imports/raw/more_assets_to_ingest/void-fleet-pack-1-c08ec56ea625/Foozle_2DS0012_Void_EnemyFleet_1/Kla'ed/Engine/PNGs/Kla'ed - Scout - Engine.png"
+      ]
+    },
+    {
+      "sha256": "a4303db5234849f13796082662b49bded240ccd61193dab755499fdc72798f81",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/factory-monster-pack-1-20abec1e1e29/Sawblade_Skitterer.png",
+        "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/sv enemies/Sawblade_Skitterer.png"
+      ]
+    },
+    {
+      "sha256": "a525f583acd505934d73d8c4c463460b55696bc68dac1e3b4fef83fd9a966faa",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Wood.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Wood.png"
+      ]
+    },
+    {
+      "sha256": "a5d4182fdc5de76e3741cbc591c95755d8020292ef6ea2944721e3f7d33d7b58",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/rpgmaker/MV/characters/$_srw_free_icons2.png",
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/rpgmaker/MZ/characters/$_srw_free_icons2.png"
+      ]
+    },
+    {
+      "sha256": "a6647fd0ffd97141c21f5de3c4b2bcfd332e04368fa8dd3cd96c11a2fe1a75e0",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/FireBox.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/FireBox.png"
+      ]
+    },
+    {
+      "sha256": "a666f540ce5f36fcac9b32b2da0fa5d24014bc04a18937b861b9a53a1aff2278",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Moving Platfrom_A.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Moving Platfrom_A.png"
+      ]
+    },
+    {
+      "sha256": "a83536a429379fdb07a3d61f05871793bbec7dd7f7421824065e7e82d494e902",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile024.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile041.png"
+      ]
+    },
+    {
+      "sha256": "a8a89ca07edf15f7d4518e026a59928cd5e90693130a13b6496453caaa51dedc",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MV/characters/_srw_free_farm_character_shovel.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MZ/characters/_srw_free_farm_character_shovel.png"
+      ]
+    },
+    {
+      "sha256": "a8b7aaf931015af91d7e6bed176dc8c9ff3e767f9030a767658a1c07cf563d3d",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/rpgmaker/MV/characters/!_srw_free_balloon_001.png",
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/rpgmaker/MZ/characters/!_srw_free_balloon_001.png"
+      ]
+    },
+    {
+      "sha256": "a9539795302c887712c8e9af6350335c46cd86a0cb847b094abc2149164dc674",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile016.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile049.png"
+      ]
+    },
+    {
+      "sha256": "abe65525ac0e26d36ba0bd9dfb7649f41c2f2c1a32d848e2db7598fbfbbae411",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile004.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile061.png"
+      ]
+    },
+    {
+      "sha256": "acf54b9237f18a4fa74e05494f547b3e536c5c6fab095b483b2cd764bf16dbc9",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/factory-monster-pack-1-20abec1e1e29/Boiler_Golem.png",
+        "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/sv enemies/Boiler_Golem.png"
+      ]
+    },
+    {
+      "sha256": "ae84d909c7c2a12700f63b67590d221cd34d0b099e55175bae9464e48839a813",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile025.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile040.png"
+      ]
+    },
+    {
+      "sha256": "aeeef0c75ffc657ac72175d5a2d6699c2ddeeed5e34eaaf4185e75a063f0371a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/Panels/SimplePanel01.aseprite",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/SimplePanel01.aseprite"
+      ]
+    },
+    {
+      "sha256": "af42cc93a743e77a6cb0095e78268ad470e30a223270b73792e2278ff2f601a2",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile008.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile018.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile028.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile080.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile081.png"
+      ]
+    },
+    {
+      "sha256": "b0ee92b63dbbcfb692c51c06a3cab5a7f0f220478602c302049f9e4f1acd8676",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Jump_4.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Jump_4.png"
+      ]
+    },
+    {
+      "sha256": "b1e21f703a25a51f997568f555df33611e557a246691fb9236217666f7e63b10",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/green/attack/a_006.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/green/attack/a_008.png"
+      ]
+    },
+    {
+      "sha256": "b22c2e12265f71c7b4841d0ba2f7ee7d3bbe70f65018dff799e907816f3d9960",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite/free_chests.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/sprite/free_chests.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/sprite/free_chests.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/sprite/free_chests.png",
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/sprite/free_chests.png",
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/sprite/free_chests.png"
+      ]
+    },
+    {
+      "sha256": "b2567103cded7020ac9583009ca83e8b28107b53c28a495a8ed7860fae786b2f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_08.png",
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_12.png"
+      ]
+    },
+    {
+      "sha256": "b315ec5f839009dae8329ed31439629b2e1047b56facd9cf2ccfbb93a9295c35",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/SpikeBall.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/SpikeBall.png"
+      ]
+    },
+    {
+      "sha256": "b34ffb55e06de106bc4231d8dcf7997107e550aa8fe8a7efc1ae16916b023e71",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/rpgmaker/MV/characters/_srw_free_chests.png",
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/rpgmaker/MZ/characters/_srw_free_chests.png"
+      ]
+    },
+    {
+      "sha256": "b3845511de32cc1e4a143a94a18e32e9389e9a8a8e9de8afdd12e8775df45034",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile019.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile046.png"
+      ]
+    },
+    {
+      "sha256": "b576e8d08ee4fae2ba4fe86c7a434a599d1a39cb25200e0534a2c50fdaed9b07",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile011.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile022.png"
+      ]
+    },
+    {
+      "sha256": "b77208cdf22e0cd64772b56712a5871a8787a7c6b536311e3aff1d2b1fdba6c8",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-3266207a96af/02.png",
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-a240f85902c2/02.png"
+      ]
+    },
+    {
+      "sha256": "b7d6602d8f03cea7dd4f83bc47734a6e1a6dfe4d84f3134d1c2c80346bc0b6cd",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_ground_autotile_13.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_ground_autotile_13.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_ground_autotile_13.png"
+      ]
+    },
+    {
+      "sha256": "b866bec0e9f4860abd91aafee765ad571fd065f2c5e2c1546e7a3bc8be8d5989",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/yellow/die/d_000.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/yellow/idle/i_000.png"
+      ]
+    },
+    {
+      "sha256": "b875461caad84cf361d408534de20d84075337eed59904a81b8596cbe297a58f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MV/tilesets/SRW_Marketplace_A1.png",
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MZ/tilesets/SRW_Marketplace_A1.png"
+      ]
+    },
+    {
+      "sha256": "b95f9a183cf99c2c4852cb5fc1ff757543de6a222c408ad0d94f04ead222b88c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/blue/attack/a_009.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/blue/attack/a_010.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/blue/attack/a_011.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/blue/attack/a_012.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/blue/attack/a_013.png"
+      ]
+    },
+    {
+      "sha256": "bb6d605e5889b056ba779d81d815d7fd39ab684ff84cccb6b3b08fc2f2b03709",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/rpgmaker/MV/characters/_srw_free_chests.png",
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/rpgmaker/MZ/characters/_srw_free_chests.png"
+      ]
+    },
+    {
+      "sha256": "bb7d148f4d3d55ec91eb239a3a5e32ee235c2748cd3f53af3a92e73ab28a8b02",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Matxich3.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Matxich3.png"
+      ]
+    },
+    {
+      "sha256": "bb97d874b393e3f3d8d2e3c2fa7304b06152174f89cbf9ea827782998ec84235",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile030.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile035.png"
+      ]
+    },
+    {
+      "sha256": "bc88d785b3fa6b2e70d74644434b00d8674f1961a14225bdb4bdf5ed168354df",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/isometric-tiles-object-pack-2d53040e0b25/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-overworld-pack-large-876c980d79e6/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-overworld-pack-small-e83cc4471b50/License.txt",
+        "imports/raw/more_assets_to_ingest/isometric-tiles-town-pack-86df678f4ae0/License.txt",
+        "imports/raw/more_assets_to_ingest/rectangular-game-buttons-192x48-8765e06d45b3/License.txt",
+        "imports/raw/more_assets_to_ingest/rounded-game-buttons-192x48-27880cfc9c40/License.txt",
+        "imports/raw/more_assets_to_ingest/sandbox-style-terrain-brick-pack-20c62563ca32/License.txt",
+        "imports/raw/more_assets_to_ingest/sandbox-style-terrain-pack-b82799daad5e/License.txt",
+        "imports/raw/more_assets_to_ingest/sbs-cave-walls-addon-a3cee2ab0235/License.txt"
+      ]
+    },
+    {
+      "sha256": "bce0d9145ce2ce60236faa1396c24a413d9bd3963c50135366ab2ce7dfe24b7c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/blue/jump/j_000.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/blue/jump/j_015.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/blue/jump/j_016.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/blue/jump/j_017.png"
+      ]
+    },
+    {
+      "sha256": "bddd292dc177d3c143c3e5ef40a2b4f99ca17104a9e22d42b5e1963deede8c37",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_ground_autotile_2.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_ground_autotile_2.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_ground_autotile_2.png"
+      ]
+    },
+    {
+      "sha256": "be5647af36003f824f4fcee3671334825add3bd402b75ed5ce1a6057e5d623a1",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/horror-texture-pack-128x128-1fee483ce025/License.txt",
+        "imports/raw/more_assets_to_ingest/horror-texture-pack-256x256-6c78d279ce66/License.txt",
+        "imports/raw/more_assets_to_ingest/horror-texture-pack-512x512-29feed70b77a/License.txt"
+      ]
+    },
+    {
+      "sha256": "bf041616b153c052023b770eda91e0585456302cd7358f7a21c68bc8c110ff98",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/control_panel_idle/tile002.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/control_panel_idle/tile003.png"
+      ]
+    },
+    {
+      "sha256": "bfd1103fdd20d861dc67e2c4934505228de20c8f42416462a2b70c27025dec4b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Hurt_1.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Hurt_1.png"
+      ]
+    },
+    {
+      "sha256": "c0a5f60eeb5f902dc0483028981e1d47884cfc84b97d421078f07fb4e6e64d67",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite/free_campfire.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/sprite/free_campfire.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/sprite/free_campfire.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/sprite/free_campfire.png",
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/sprite/free_campfire.png",
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/sprite/free_campfire.png"
+      ]
+    },
+    {
+      "sha256": "c190e2f0a82b2554bca9a2a9e91792aa1e78af645ddf561dc7b8897e98298a84",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Barcode01/Barcode01-28-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Barcode02/Barcode02-23-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Dissolve02/Dissolve02-17-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Melt01/Melt01-15-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Melt03/Melt03-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Misc01/Misc01-25-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Misc02/Misc02-25-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Misc03/Misc03-14-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Misc04/Misc04-12-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/SplitH04/SplitH04-19-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Television01/Television01-01-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Television02/Television02-01-128x128.png"
+      ]
+    },
+    {
+      "sha256": "c1f5d5ed542adff9ba16f38bcc915dcedd98e4e3bc070be43343f7a1eaaeeed7",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/sprite/free_icons1.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/sprite/free_icons1.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/sprite/free_icons1.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/sprite/free_icons1.png",
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/sprite/free_icons1.png",
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/sprite/free_icons1.png"
+      ]
+    },
+    {
+      "sha256": "c2605aa7ce5978c6cb764f5565fc3732d66ab4561023ca4d47114c7a2993452b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 12.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 2.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 22.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 32.png"
+      ]
+    },
+    {
+      "sha256": "c262131cfae968c2770434df4054a03d063f82d766904ee2172096f235598e4e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile014.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile051.png"
+      ]
+    },
+    {
+      "sha256": "c270beed534186e941bdee8a28ebc3ffd94a103792bd1a02e036c41a5a0cb59c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/screenshots/screenshots (2).gif",
+        "imports/raw/more_assets_to_ingest/super-retro-world-interior-pack-week42-d44d3f002d48/every_packs_screenshots/screenshot (1).gif"
+      ]
+    },
+    {
+      "sha256": "c30bdb1959bc0c7a76fa706b158f393b9451feaafbe50f368575bb723e8aec1c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 16.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 26.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 36.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 6.png"
+      ]
+    },
+    {
+      "sha256": "c316b6d1cd7c03cca75dd6ec1557012eef0c865af032125f1ffb673ce8d66c63",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MV/characters/_srw_free_farm_character_walk_frame16x20.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MZ/characters/_srw_free_farm_character_walk_frame16x20.png"
+      ]
+    },
+    {
+      "sha256": "c4606b6b87ee7091d1d71a28e4baa98c1d625575c1f15ce7ac322c0086f1a823",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 1.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 11.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 21.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 31.png"
+      ]
+    },
+    {
+      "sha256": "c47254a425260dd4bba4dc6b522f33845304e079b1be615f9bc5f252bb3ef064",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/autotiles/free_water_tiles2.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/autotiles/free_water_tiles2.png"
+      ]
+    },
+    {
+      "sha256": "c52b2d0506c6d73e028b6be258e3e42c8c2bf3b5b16dcf4f44ce7d9d9bf5e1ba",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MV/characters/_srw_character_9-16.png",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MZ/characters/_srw_character_9-16.png"
+      ]
+    },
+    {
+      "sha256": "c5b93985a5dec8a390c8e9097f57d3b1037650a183ef0d0d5c39047794176ae1",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/laser_spikes_deactivate/tile000.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/laser_spikes_deactivate/tile001.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/laser_spikes_deactivate/tile002.png"
+      ]
+    },
+    {
+      "sha256": "c653f2e11052db2d914071d0a91736bb395e81677cb0108735fd18ecb9f5e65a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen1.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen9.png"
+      ]
+    },
+    {
+      "sha256": "c672e6e255c0c598d482dd479453fd593c4cdbd5842907767cc149f6a1420c99",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/sprite/free_doors1.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/sprite/free_doors1.png"
+      ]
+    },
+    {
+      "sha256": "c78b89d8dbb0e12d0af6fd6951b03c82851017566d709edb7a8ca83df51e5d4a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_template_ground.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_template_ground.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_template_ground.png"
+      ]
+    },
+    {
+      "sha256": "c80f4dbb1c4ab71f3d955b365253d4665e4e3fe232b7968ce39957f5a7ca1396",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile007.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile058.png"
+      ]
+    },
+    {
+      "sha256": "c9eca51bb1689bfa163c855b7f1e3b433ed4b5e7a789d33d91f57bbc48d81f9c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile018.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile047.png"
+      ]
+    },
+    {
+      "sha256": "cbfbd1469c7408cd3b20d2891fd142fd0e09c799c7b4c9a16e7595dd883c81cd",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/rpgmaker/MV/characters/$_srw_free_icons1.png",
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/rpgmaker/MZ/characters/$_srw_free_icons1.png"
+      ]
+    },
+    {
+      "sha256": "cc4cabfc041abf74573988abf0c70a541d5d18c8dcd0d0b231d20ceb2cbc9351",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile021.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile044.png"
+      ]
+    },
+    {
+      "sha256": "ce28adb6639995f4318cd1b4bab9c9d64cd52f33104422b123d2cb57744a9498",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/Panels/SimplePanel04.aseprite",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/SimplePanel04.aseprite"
+      ]
+    },
+    {
+      "sha256": "cf6a5e49adc530308ac10f36e44a2f74dc60003c8ce5a5b33ca3bff07e78b06c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Land_1.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Land_1.png"
+      ]
+    },
+    {
+      "sha256": "cfb58ccddf80150961dcc5cd31cda04cb55ed0bad72acb7847af732a63d5d231",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_07.png",
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_13.png"
+      ]
+    },
+    {
+      "sha256": "d0af90e0c7620487d566cdcd490969c3a374ecf73776fe7e644bda689dbf3729",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-3266207a96af/00.png",
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-a240f85902c2/00.png"
+      ]
+    },
+    {
+      "sha256": "d1887c7ce5fca51c8783844549f2c6ed16a27ff8956e65ee54aa22c6fca6e872",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/90-fishing-pixel-art-icons-5bf6daa1f748/fish_fishing-harborpike.png",
+        "imports/raw/more_assets_to_ingest/90-fishing-pixel-art-icons-5bf6daa1f748/fish_fishing-northernpike.png"
+      ]
+    },
+    {
+      "sha256": "d24f5fd474e97408e10819d460303954d97aec43e8586f9066068ddf2839b895",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/Panels/SimplePanel01.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/SimplePanel01.png"
+      ]
+    },
+    {
+      "sha256": "d360fda197bd066441caaea38793908c468622353d344a00b9c1aa51ff3f5ab1",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MV/characters/!doors_01.png",
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MZ/characters/!doors_01.png"
+      ]
+    },
+    {
+      "sha256": "d40473bc0f6c7c95fe248f6660dcb74c887be679985633fa7d55a116527ad491",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Attack_3.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Attack_3.png"
+      ]
+    },
+    {
+      "sha256": "d46992440a97d0e589fdb81ecf9bd3adee4345a4256e92fe140b3ae7bc8420d1",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_ground_dungeon_autotile_14.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_ground_dungeon_autotile_14.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_ground_dungeon_autotile_14.png"
+      ]
+    },
+    {
+      "sha256": "d7218d5990108cd07f533737ad719a61ccc56b64aa49428e727f80700a1fb3b5",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/rpgmaker/MV/characters/!_srw_free_doors1.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/rpgmaker/MZ/characters/!_srw_free_doors1.png"
+      ]
+    },
+    {
+      "sha256": "d764593f26f3b126347cd6b0b0be47041f8d196185d37d3db8a87723be98110c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/_srw_free_chests.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/_srw_free_chests.png"
+      ]
+    },
+    {
+      "sha256": "d834174f0ec413519edeb19b6a804f059c5a0e2d9a68cb1bd598db546dc93243",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic01/Mosaic01-03-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic01/Mosaic01-04-128x128.png"
+      ]
+    },
+    {
+      "sha256": "d869942e079091ce0eb428f8be06b065f0e8f80c25466b4b18663735d411167e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/2d-word-game-pack-dce5f6412df1/Isometric/Boards/Isometric Boards.tiled-project",
+        "imports/raw/more_assets_to_ingest/2d-word-game-pack-dce5f6412df1/Top Down/Boards/Top Down Boards.tiled-project"
+      ]
+    },
+    {
+      "sha256": "d8a42a42ce10b6ae8379f838630213920aeb15db4cfb4a7278cfe70514d31efa",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_09.png",
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_11.png"
+      ]
+    },
+    {
+      "sha256": "d9752f5b7cc82fda6c070b572d128565a68da08a13a24350baf6485f1a593224",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Hurt_5.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Land_4.png"
+      ]
+    },
+    {
+      "sha256": "d9ac8f749ba72050fc6280d077a72ae4d61e33a051a7359457e03e13a2eca199",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/$_srw_free_fire.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/$_srw_free_fire.png"
+      ]
+    },
+    {
+      "sha256": "daaa9b97b0904a0c5877d0a7bfa5dbe9b3715aaecd60fd331b880a630c4d1235",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MV/characters/$_srw_free_campfire.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/rpgmaker/MZ/characters/$_srw_free_campfire.png"
+      ]
+    },
+    {
+      "sha256": "db4b9e14c8f9a8b095aae842a8347659e083c1ea028f42d81a7f72e3149a46a3",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Skill Icons/Necromancer Icons/Necromancer Purple Skills/Png/Necromancer Icon 01.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Skill Icons/Necromancer Icons/Necromancer Purple Skills/Png/Necromancer Icon 12.png"
+      ]
+    },
+    {
+      "sha256": "dc01e90dc11f6794bd8db2ee1a3a4d7ba3c55267dbe2f3d060b2d9c2b3d777af",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic01/Mosaic01-07-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic01/Mosaic01-08-128x128.png",
+        "imports/raw/more_assets_to_ingest/animated-transitions-pack-41f2ed18c670/Transitions/Mosaic01/Mosaic01-09-128x128.png"
+      ]
+    },
+    {
+      "sha256": "dd5c5fe1e6bfe56fe0824ad22a21dc8a09e1771605867f9c94e7bc34c29aef94",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/isometric-textures-wall-pack-6262ce4ac93c/License.txt",
+        "imports/raw/more_assets_to_ingest/portrait-frame-pack-128x128-166f6f4146aa/License.txt",
+        "imports/raw/more_assets_to_ingest/portrait-frame-pack-256x256-bc9c2d5ac9c7/License.txt"
+      ]
+    },
+    {
+      "sha256": "df7b2308f7828b29dfe1fbffdf82aec88e50be2cd3b80909cd0fa87ed6767bda",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/isometric-grid-pack-328b3ba2da96/License.txt",
+        "imports/raw/more_assets_to_ingest/tiny-planet-pack-c08dd5182846/License.txt"
+      ]
+    },
+    {
+      "sha256": "e0d2c41bfa62424d71bc2b028db21ece1f2b8b158a66e7b503f580b600c9e35f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Moving Platfrom_G.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Moving Platfrom_G.png"
+      ]
+    },
+    {
+      "sha256": "e1784064933d830779595bff7a32405dbd79482a24488053824be433857ad4c0",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/barrier_deactivate/tile013.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Barrier_Control_Panel/Individual_PNGs/barrier_deactivate/tile014.png"
+      ]
+    },
+    {
+      "sha256": "e2d8589f56e89222019c5cd87df4362579319c921087d06f7e6b2efc22b169e4",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile029.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile036.png"
+      ]
+    },
+    {
+      "sha256": "e2e62d3fdda952b52e2f5607dca726f639d9d684361fd7102814f09e33fb76cf",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile008.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile057.png"
+      ]
+    },
+    {
+      "sha256": "e516e6cedf5a534efab454f6415cfc066fb12fdd868b6ad44b83641b6ff99ebf",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_ground_dungeon_autotile_9.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_ground_dungeon_autotile_9.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_ground_dungeon_autotile_9.png"
+      ]
+    },
+    {
+      "sha256": "e5292a8b0e11e355b7c8d9eb7bba4970608bcb4a11c77cb5fc2452209f987eda",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile090.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile091.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile092.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile093.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile094.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile095.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile096.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile097.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/Level_Tileset/tile098.png"
+      ]
+    },
+    {
+      "sha256": "e559e7876c033fa090c53e566f481bcd425563f9b10a9d16c40285bec6c5d499",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 17.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 27.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 37.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 7.png"
+      ]
+    },
+    {
+      "sha256": "e749c41b97c5493cd77f8609b95cb73319466170644331c02a2a57066e6a0480",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/Panels/SimplePanel04.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/SimplePanel04.png"
+      ]
+    },
+    {
+      "sha256": "e783e244775986a56a03d79321bd1f7d4f1eb0762ef50bae48bd1a1079fd2813",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Jumper.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Jumper.png"
+      ]
+    },
+    {
+      "sha256": "e97e10065bbcddaa05bafbda1ad514343d22ec7ca2c390ddfec3ca6c076dc435",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile003.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile062.png"
+      ]
+    },
+    {
+      "sha256": "eb6e2378117c12a7b32df561eae9e640180dc839a7679aba8092652aae62a798",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/sprite/free_coin.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/sprite/free_coin.png",
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/sprite/free_coin.png"
+      ]
+    },
+    {
+      "sha256": "ed37fc74e3a89d784902ce54cee656dc41e2b9a8201f836f9a395e66acc87929",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MV/characters/_srw_free_character_1-3.png",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MZ/characters/_srw_free_character_1-3.png"
+      ]
+    },
+    {
+      "sha256": "edbd94d4f3a5e23a5517ff3a2ef6105343a86469b62b9b56432ec88cd1d4211f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Attack_2.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Attack_2.png"
+      ]
+    },
+    {
+      "sha256": "f15c040a8db8249744af4f89a94427c314121d986bedb9cb31d90712e0ef40b5",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Land_2.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Land_2.png"
+      ]
+    },
+    {
+      "sha256": "f19ceaa17b592ea21254a06fb11bcb9bd41fecf62e9a539c2e0a4367dd3a5efa",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-3266207a96af/05.png",
+        "imports/raw/more_assets_to_ingest/pixel-ui-pack-3-a240f85902c2/05.png"
+      ]
+    },
+    {
+      "sha256": "f2351c0078190bfafeb5acfe131abd49a3bd69cc26ee5c8c2c90282409bfaf4e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/LICENCE.txt",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/LICENCE.txt",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/LICENCE.txt",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/LICENCE.txt",
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/LICENCE.txt",
+        "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/LICENCE.txt"
+      ]
+    },
+    {
+      "sha256": "f2bedc6d11206f878b12230d2c66de2636a16dd854e4f470b130cd6a8082e28d",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MV/tilesets/SRW_Marketplace_autotile_A2.png",
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MZ/tilesets/SRW_Marketplace_autotile_A2.png"
+      ]
+    },
+    {
+      "sha256": "f3466afa9a61670173c1a018668347d02d20b751c9d11d74ad5aef64d733ae1c",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MV/characters/_srw_free_farm_plants1.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/rpgmaker/MZ/characters/_srw_free_farm_plants1.png"
+      ]
+    },
+    {
+      "sha256": "f3fe198cf0736f816c0ef5266eb921a3b85c8370bc8aa8c30f4ca362f56e5333",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile009.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile056.png"
+      ]
+    },
+    {
+      "sha256": "f4e3014630638649d4a404db77552d115f6149cf331e7d3b401a68aa3973ae28",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen15.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Login Screen/Png/Login screen7.png"
+      ]
+    },
+    {
+      "sha256": "f5b2f88e584f58ef5db2ca12863b7de5958b79a66ca69f6657f12c0b924356f6",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/rpgmaker/MV/characters/$_srw_free_coin.png",
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/rpgmaker/MZ/characters/$_srw_free_coin.png"
+      ]
+    },
+    {
+      "sha256": "f629ad9f2d6d5ee893f33df5c03632c3a0af3165ff8cf2991122380b94688fdc",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile000.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile001.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile064.png"
+      ]
+    },
+    {
+      "sha256": "f645b8d52064f0c2f9cb64f3e5a626fc0334a3e15fafb515a6d95e76afde15a3",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_04.png",
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_16.png"
+      ]
+    },
+    {
+      "sha256": "f714417c89c3d1b2b8fcda3c67801c778b3faba802bf87d1d3886b715dd62a2f",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile011.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Tileset/Individual_PNGs/platform_moving/tile054.png"
+      ]
+    },
+    {
+      "sha256": "f7be39de4e742f16dfbb230657744b5e492ef5026cd3f0e43a45d968fa7e527b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MV/characters/!chests.png",
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/rpgmaker/MZ/characters/!chests.png"
+      ]
+    },
+    {
+      "sha256": "f7f38699541efd399cfed1be29714e22c738a175d2f0eb5f008a35ca5c16dc5b",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/package-marketplace-week40-0ff0c5f1aa47/Package_Marketplace/screenshots/screenshots (14).png",
+        "imports/raw/more_assets_to_ingest/super-retro-world-interior-pack-week42-d44d3f002d48/every_packs_screenshots/screenshot (5).png"
+      ]
+    },
+    {
+      "sha256": "fa0db77b3c3e219f87fd4414270da838df0d1668a5cef0f8ea149b136d063a6a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 19.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 29.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 39.png",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 9.png"
+      ]
+    },
+    {
+      "sha256": "fa6b7800c7b5d7ebe37dc7f3474cc8015a78a330b01783cf8deae0bfce7afe4e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MV/characters/_srw_character_17-24.png",
+        "imports/raw/more_assets_to_ingest/character-pack-full-version-f1cc2853099b/rpgmaker/MZ/characters/_srw_character_17-24.png"
+      ]
+    },
+    {
+      "sha256": "fadc43397f6d18938c5f4711585885ed676789c44123ac0e3007959d0f96d323",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/autotiles/free_waterfall_tiles1.png",
+        "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/godot_autotiles/free_anim_autotile_7.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/autotiles/free_waterfall_tiles1.png",
+        "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/godot_autotiles/free_anim_autotile_7.png",
+        "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/godot_autotiles/free_anim_autotile_7.png"
+      ]
+    },
+    {
+      "sha256": "fb35b884576dd95db09e5cd32a64cb77273adb8b8c8a6273f37d41a276bc6ae9",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Fire.png",
+        "imports/raw/more_assets_to_ingest/trap-e6da1fdf15a0/Fire.png"
+      ]
+    },
+    {
+      "sha256": "fc8f02fa2f99fcf11796fc0773c72f751364f0b3029674b4205d7c6f4a6a93ba",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/Panels/SimplePanel02.aseprite",
+        "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/SimplePanel02.aseprite"
+      ]
+    },
+    {
+      "sha256": "fd48a3e42d4f4258dad457897488bee3ac2dfbb7d9687bdea66bdf5bb0c95d0e",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_05.png",
+        "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Assets/Idle/Armature_Idle_15.png"
+      ]
+    },
+    {
+      "sha256": "fea45785785eebc901bdae1f151fa9e5d245077e1e2ebd8154597e1f2938e115",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/green/attack/a_005.png",
+        "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/green/attack/a_007.png"
+      ]
+    },
+    {
+      "sha256": "feeac6e6efb8962862a980774c254f2f18858c4377b1623e9898d95a4f6d0867",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Jump_5.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Jump_5.png"
+      ]
+    },
+    {
+      "sha256": "feee325561900091304618e100ee8574537e2de1eb5678bc1be1f2e7e4aa0d01",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/factory-monster-pack-1-20abec1e1e29/Oil_Spill.png",
+        "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/sv enemies/Oil_Spill.png"
+      ]
+    },
+    {
+      "sha256": "ff379ed8376b8746750635d31db67191d7a93fda65b4c122ef5adb869b9fde01",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile015.png",
+        "imports/raw/more_assets_to_ingest/sci-fi-lab-assets-fce942e893ff/Foozle_2DT0001_Science_Fiction_Labs_Tileset/Traps/Individual_PNGs/wall_blades/tile016.png"
+      ]
+    },
+    {
+      "sha256": "ffa8a8ca4da0f9323662c0bc604499999668c3a25e6e8370827bdb3795d4a37a",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/rpgmaker/MV/characters/$_srw_free_campfire.png",
+        "imports/raw/more_assets_to_ingest/gigantic-tree-pack-free-version-5157ac448182/rpgmaker/MZ/characters/$_srw_free_campfire.png"
+      ]
+    },
+    {
+      "sha256": "ffc48909cd55311aab893d4ec2bc3578050ababdc6c7cbef47e9f25ed2e05790",
+      "paths": [
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Crouching/Front_Crouching_Run_1.png",
+        "imports/raw/more_assets_to_ingest/bots-and-bolts-robot-0b4b52d5174a/Character/Front/Standing/Front_Standing_Run_1.png"
+      ]
+    }
+  ]
+}

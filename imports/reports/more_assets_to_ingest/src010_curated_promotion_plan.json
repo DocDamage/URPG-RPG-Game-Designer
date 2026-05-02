@@ -1,0 +1,1243 @@
+{
+  "schema": "urpg.src010.curated_promotion_plan.v1",
+  "source_id": "SRC-010",
+  "generated_at": "2026-05-02T19:28:16Z",
+  "decision": {
+    "owner_decision": "bounded_cc0_starter_promoted",
+    "promotion_owner": "URPG asset intake governance",
+    "release_claim_allowed": true,
+    "export_eligible_count": 14,
+    "raw_payload_policy": "raw source and extracted payloads remain ignored quarantine",
+    "promotion_gate": "BND-004 created for 14 selected CC0/public-domain starter assets; additional SRC-010 promotion still requires normalized curated copies, per-pack attribution records, checksum capture, bundle manifest, and asset governance gate verification."
+  },
+  "source_summary": {
+    "pack_count": 407,
+    "candidate_review_count": 135,
+    "blocked_count": 0,
+    "needs_source_or_license_notes_count": 264,
+    "license_evidence_record_count": 148,
+    "export_eligible_count": 0,
+    "policy": "No SRC-010 asset is promoted or export eligible until per-pack attribution and license review approves a curated subset."
+  },
+  "recommended_promote_after_focused_review": [
+    {
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "usefulness_score": 348,
+      "file_count": 421,
+      "total_bytes": 31414554,
+      "categories": {
+        "ui": 187,
+        "source_art": 169,
+        "background": 47,
+        "sprite_or_character": 14,
+        "font": 1,
+        "license_or_readme": 1,
+        "metadata": 1,
+        "nested_archive": 1
+      },
+      "media_kinds": {
+        "image": 248,
+        "source_art": 169,
+        "text_or_metadata": 2,
+        "font": 1,
+        "archive": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "all_templates",
+        "beat_em_up",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "narrative_adventure",
+        "platformer",
+        "point_and_click_adventure",
+        "shmup",
+        "showcase_ready_upgrade",
+        "top_down_action"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Readme.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "c54223e63c6487ba481841d0bea7597c1f5674637e4f7efc3bbfbb64e2c42d6c",
+          "excerpt": "------------------------------ Lucifer RPG UI (1.0) Commissioned from: Baldur (https://twitter.com/the__baldur) Distributed by Foozle (www.foozle.io) ------------------------------ License: (Creative Commons Zero, CC0) http://creativecommons.org/publicdomain/zero/1.0/ This content is free to use and modify for all projects, including commercial projects. Attribution not required. If you would like to support, consider a voluntary donation. ------------------------------ Donate: https://foozlecc."
+        }
+      ]
+    },
+    {
+      "pack": "isometric-stone-soup-399c687f7fff",
+      "usefulness_score": 325,
+      "file_count": 183,
+      "total_bytes": 2689527,
+      "categories": {
+        "tileset": 95,
+        "map_or_tileset_data": 86,
+        "license_or_readme": 2
+      },
+      "media_kinds": {
+        "image": 95,
+        "map_or_tileset_data": 86,
+        "text_or_metadata": 2
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "9e0747b1625295f55757301ed97e6eeac4da2fb430ab91f0e63ee943cbeaf028",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        },
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/isometric-stone-soup-399c687f7fff/Readme.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "d2b7c22a78593dc15ed3fe8828f2f4685760a8fa93d3b479e9a4b4c34dc4df11",
+          "excerpt": "Isometric Stone Soup by Screaming Brain Studios (CC0) This pack has been converted from the Dungeon Crawl Stone Soup (CC0) tileset collection. Original Source: https://opengameart.org/content/dungeon-crawl-32x32-tiles-supplemental Wall Tiles ========== There are *.tsx tile-sheets for Tiled Map Editor for every tileset, which lets you mix and match tiles as needed. All Block tile-sheets also contain flat \"Top Face\" tiles which can be used as overlays on top of walls. These are found right beneath"
+        }
+      ]
+    },
+    {
+      "pack": "isometric-tiles-floor-pack-large-256x128-290984a225e8",
+      "usefulness_score": 325,
+      "file_count": 57,
+      "total_bytes": 19079252,
+      "categories": {
+        "map_or_tileset_data": 28,
+        "tileset": 28,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "map_or_tileset_data": 28,
+        "image": 28,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/isometric-tiles-floor-pack-large-256x128-290984a225e8/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "975fc2b613664add88bf853dfba92f23bc07fa7efb69d2e629d3bd4de5024a6e",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    },
+    {
+      "pack": "isometric-tiles-floor-pack-small-128x64-1268eb98efe6",
+      "usefulness_score": 325,
+      "file_count": 57,
+      "total_bytes": 5213071,
+      "categories": {
+        "map_or_tileset_data": 28,
+        "tileset": 28,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "map_or_tileset_data": 28,
+        "image": 28,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/isometric-tiles-floor-pack-small-128x64-1268eb98efe6/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "975fc2b613664add88bf853dfba92f23bc07fa7efb69d2e629d3bd4de5024a6e",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    },
+    {
+      "pack": "isometric-tiles-roads-pack-large-6b4db5483953",
+      "usefulness_score": 325,
+      "file_count": 71,
+      "total_bytes": 2306862,
+      "categories": {
+        "map_or_tileset_data": 35,
+        "tileset": 35,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "map_or_tileset_data": 35,
+        "image": 35,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/isometric-tiles-roads-pack-large-6b4db5483953/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "80c5888aa0440da0afbf0babc8b857fd788e8d398ab2b20ff046881af7b46b08",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    },
+    {
+      "pack": "isometric-tiles-roads-pack-small-c0c920364600",
+      "usefulness_score": 325,
+      "file_count": 71,
+      "total_bytes": 698151,
+      "categories": {
+        "map_or_tileset_data": 35,
+        "tileset": 35,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "map_or_tileset_data": 35,
+        "image": 35,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/isometric-tiles-roads-pack-small-c0c920364600/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "80c5888aa0440da0afbf0babc8b857fd788e8d398ab2b20ff046881af7b46b08",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    },
+    {
+      "pack": "isometric-tiles-object-pack-2d53040e0b25",
+      "usefulness_score": 321,
+      "file_count": 51,
+      "total_bytes": 4000625,
+      "categories": {
+        "tileset": 26,
+        "map_or_tileset_data": 24,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 26,
+        "map_or_tileset_data": 24,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/isometric-tiles-object-pack-2d53040e0b25/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "bc88d785b3fa6b2e70d74644434b00d8674f1961a14225bdb4bdf5ed168354df",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit."
+        }
+      ]
+    },
+    {
+      "pack": "2d-word-game-pack-dce5f6412df1",
+      "usefulness_score": 297,
+      "file_count": 314,
+      "total_bytes": 13820954,
+      "categories": {
+        "tileset": 225,
+        "image_uncategorized": 66,
+        "map_or_tileset_data": 18,
+        "binary_or_tool": 4,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 291,
+        "map_or_tileset_data": 18,
+        "binary": 4,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/2d-word-game-pack-dce5f6412df1/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "c4732c823916c842062df662caedab4908e4e1b9744a26237d60bdb678769c17",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    },
+    {
+      "pack": "void-fleet-pack-3-nautolan-c300e1f74070",
+      "usefulness_score": 285,
+      "file_count": 132,
+      "total_bytes": 3489754,
+      "categories": {
+        "sprite_or_character": 75,
+        "source_art": 44,
+        "tileset": 12,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 87,
+        "source_art": 44,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/void-fleet-pack-3-nautolan-c300e1f74070/Foozle_2DS0014_Void_EnemyFleet_3/Readme.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "3915603aa56e41c2adee6a753e388eca22fcdd10204ef1abb62880b900d34768",
+          "excerpt": "------------------------------ Void - Fleet Pack 3 (1.0) Commissioned from: Baldur (https://twitter.com/the__baldur) Distributed by Foozle (www.foozle.io) ------------------------------ License: (Creative Commons Zero, CC0) http://creativecommons.org/publicdomain/zero/1.0/ This content is free to use and modify for all projects, including commercial projects. Attribution not required. If you would like to support, consider a voluntary donation. ------------------------------ Donate: https://fooz"
+        }
+      ]
+    },
+    {
+      "pack": "void-fleet-pack-1-c08ec56ea625",
+      "usefulness_score": 275,
+      "file_count": 129,
+      "total_bytes": 4723286,
+      "categories": {
+        "sprite_or_character": 75,
+        "source_art": 43,
+        "tileset": 10,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 85,
+        "source_art": 43,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/void-fleet-pack-1-c08ec56ea625/Foozle_2DS0012_Void_EnemyFleet_1/Readme.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "15a55f3b8aeda3936c7cf0a77a8f3eb6c738f0cd590f664c9d18f4a932d6a67b",
+          "excerpt": "------------------------------ Void - Fleet Pack 1 (1.0) Commissioned from: Baldur (https://twitter.com/the__baldur) Distributed by Foozle (www.foozle.io) ------------------------------ License: (Creative Commons Zero, CC0) http://creativecommons.org/publicdomain/zero/1.0/ This content is free to use and modify for all projects, including commercial projects. Attribution not required. If you would like to support, consider a voluntary donation. ------------------------------ Donate: https://fooz"
+        }
+      ]
+    },
+    {
+      "pack": "void-fleet-pack-2-cc5a74acce24",
+      "usefulness_score": 265,
+      "file_count": 126,
+      "total_bytes": 3813235,
+      "categories": {
+        "sprite_or_character": 75,
+        "source_art": 42,
+        "tileset": 8,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 83,
+        "source_art": 42,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/void-fleet-pack-2-cc5a74acce24/Foozle_2DS0013_Void_EnemyFleet_2/Readme.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "e0778e3fe1dcf1c2d2a1e258579359d3f3c60d6b3828a77911d900db05fc1b18",
+          "excerpt": "------------------------------ Void - Fleet Pack 2 (1.0) Commissioned from: Baldur (https://twitter.com/the__baldur) Distributed by Foozle (www.foozle.io) ------------------------------ License: (Creative Commons Zero, CC0) http://creativecommons.org/publicdomain/zero/1.0/ This content is free to use and modify for all projects, including commercial projects. Attribution not required. If you would like to support, consider a voluntary donation. ------------------------------ Donate: https://fooz"
+        }
+      ]
+    },
+    {
+      "pack": "2d-chess-pack-fb01679ab259",
+      "usefulness_score": 240,
+      "file_count": 109,
+      "total_bytes": 20576616,
+      "categories": {
+        "image_uncategorized": 74,
+        "map_or_tileset_data": 26,
+        "tileset": 8,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 82,
+        "map_or_tileset_data": 26,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/2d-chess-pack-fb01679ab259/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "080d1b3c82e6fbd33e7d8e265836264dfc9d2fcc4fee1c2000fb4beb918f76f6",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    },
+    {
+      "pack": "lucifer-equipment-815df63748df",
+      "usefulness_score": 236,
+      "file_count": 111,
+      "total_bytes": 61862,
+      "categories": {
+        "source_art": 55,
+        "ui": 43,
+        "background": 12,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 55,
+        "source_art": 55,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "all_templates",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "narrative_adventure",
+        "point_and_click_adventure",
+        "showcase_ready_upgrade",
+        "turn_based_rpg",
+        "visual_novel",
+        "western_crpg"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/lucifer-equipment-815df63748df/Foozle_2DS0005_Lucifer_Equipment_Pixel_Art/Readme.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "827e515dbc466bc47d379ab3f1092086a93055b1f1faa8fb75c13c8384b996a0",
+          "excerpt": "------------------------------ Lucifer Equipment (1.0) Commissioned from: Baldur (https://twitter.com/the__baldur) Distributed by Foozle (www.foozle.io) ------------------------------ License: (Creative Commons Zero, CC0) http://creativecommons.org/publicdomain/zero/1.0/ This content is free to use and modify for all projects, including commercial projects. Attribution not required. If you would like to support, consider a voluntary donation. ------------------------------ Donate: https://foozle"
+        }
+      ]
+    },
+    {
+      "pack": "ggbotnet-fonts-cc0-2025-dec-8c3446796773",
+      "usefulness_score": 227,
+      "file_count": 452,
+      "total_bytes": 37717873,
+      "categories": {
+        "font": 272,
+        "image_uncategorized": 163,
+        "tileset": 8,
+        "background": 4,
+        "source_art": 3,
+        "binary_or_tool": 1,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "font": 272,
+        "image": 175,
+        "source_art": 3,
+        "binary": 1,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "narrative_adventure",
+        "platformer",
+        "point_and_click_adventure",
+        "shmup",
+        "strategy_kingdom_rpg"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/ggbotnet-fonts-cc0-2025-dec-8c3446796773/GGBotNet Fonts CC0/README.md",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "2046f9bc79bf1dc000b0926b86ee05f3ef0717af60cdf4d3b61f53816ec33169",
+          "excerpt": "# GGBotNet Fonts CC0 ![](PREVIEW.png) ## License Please read file \"[LICENSE](LICENSE)\" for details. ## Credits **Type designer**\\ GGBotNet"
+        }
+      ]
+    },
+    {
+      "pack": "circular-texture-pack-128x128-723077230f30",
+      "usefulness_score": 225,
+      "file_count": 201,
+      "total_bytes": 7355750,
+      "categories": {
+        "image_uncategorized": 150,
+        "tileset": 50,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 200,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/circular-texture-pack-128x128-723077230f30/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "5574fb1ef633d862047b8765f5233d130c90b9e8fc6f0e09a0c5afcf4aee5774",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- A Special thanks to all my Patrons: Dwayne Jarvis Peardox"
+        }
+      ]
+    },
+    {
+      "pack": "circular-texture-pack-256x256-b750cafe0383",
+      "usefulness_score": 225,
+      "file_count": 201,
+      "total_bytes": 25921399,
+      "categories": {
+        "image_uncategorized": 150,
+        "tileset": 50,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 200,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/circular-texture-pack-256x256-b750cafe0383/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "5574fb1ef633d862047b8765f5233d130c90b9e8fc6f0e09a0c5afcf4aee5774",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- A Special thanks to all my Patrons: Dwayne Jarvis Peardox"
+        }
+      ]
+    },
+    {
+      "pack": "circular-texture-pack-512x512-b50e5d93dbb2",
+      "usefulness_score": 225,
+      "file_count": 201,
+      "total_bytes": 233372800,
+      "categories": {
+        "image_uncategorized": 150,
+        "tileset": 50,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 200,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/circular-texture-pack-512x512-b50e5d93dbb2/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "5574fb1ef633d862047b8765f5233d130c90b9e8fc6f0e09a0c5afcf4aee5774",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- A Special thanks to all my Patrons: Dwayne Jarvis Peardox"
+        }
+      ]
+    },
+    {
+      "pack": "colorful-robot-pack-0eeae656af77",
+      "usefulness_score": 225,
+      "file_count": 378,
+      "total_bytes": 68750618,
+      "categories": {
+        "sprite_or_character": 376,
+        "binary_or_tool": 1,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 376,
+        "binary": 1,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "top_down_action",
+        "turn_based_rpg",
+        "western_crpg"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/colorful-robot-pack-0eeae656af77/Foozle_2DC0003_Colorful_Robot_Pack/Readme.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "5ec97f783bdc8c2bfdd81231b41b9a79fe724f8581fb0b35ba80422c11794841",
+          "excerpt": "------------------------------ Colorful Robot Pack (1.0) Commissioned from: muhammad_sid (https://www.fiverr.com/muhammad_sid) Distributed by Foozle (www.foozle.io) ------------------------------ License: (Creative Commons Zero, CC0) http://creativecommons.org/publicdomain/zero/1.0/ This content is free to use and modify for all projects, including commercial projects. Attribution not required. If you would like to support, consider a voluntary donation. ------------------------------ Donate: ht"
+        }
+      ]
+    },
+    {
+      "pack": "cute-platformer-robot-8d604cd1096c",
+      "usefulness_score": 225,
+      "file_count": 112,
+      "total_bytes": 14521613,
+      "categories": {
+        "sprite_or_character": 111,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 111,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "top_down_action",
+        "turn_based_rpg",
+        "western_crpg"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/cute-platformer-robot-8d604cd1096c/Foozle_2DC0001_Cute_Robot/Foozle_File_License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "9369d6e73f572572858471441100fff1796c8c6314220f69ea7475c21b91460e",
+          "excerpt": "Cute Robot (1.0) Commissioned from: mayakhan95 Distributed by Foozle (www.foozle.io) ------------------------------ License: (Creative Commons Zero, CC0) http://creativecommons.org/publicdomain/zero/1.0/ This content is free to use and modify for all projects, including commercial projects. Attribution not required. If you would like to support, consider a voluntary donation. ------------------------------ Donate: https://foozlecc.itch.io/ Patreon: https://www.patreon.com/bePatron?u=48464594 Fol"
+        }
+      ]
+    },
+    {
+      "pack": "glass-letter-tiles-50d34b5ecfd3",
+      "usefulness_score": 225,
+      "file_count": 325,
+      "total_bytes": 4384521,
+      "categories": {
+        "tileset": 324,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 324,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/glass-letter-tiles-50d34b5ecfd3/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "1594a8449093e60726be57a1bb2a49aed800af490acf4ef5b7db23be48dc7056",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    },
+    {
+      "pack": "horror-texture-pack-128x128-1fee483ce025",
+      "usefulness_score": 225,
+      "file_count": 101,
+      "total_bytes": 4166328,
+      "categories": {
+        "image_uncategorized": 72,
+        "tileset": 28,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 100,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/horror-texture-pack-128x128-1fee483ce025/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "be5647af36003f824f4fcee3671334825add3bd402b75ed5ce1a6057e5d623a1",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    },
+    {
+      "pack": "horror-texture-pack-256x256-6c78d279ce66",
+      "usefulness_score": 225,
+      "file_count": 101,
+      "total_bytes": 15628470,
+      "categories": {
+        "image_uncategorized": 72,
+        "tileset": 28,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 100,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/horror-texture-pack-256x256-6c78d279ce66/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "be5647af36003f824f4fcee3671334825add3bd402b75ed5ce1a6057e5d623a1",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    },
+    {
+      "pack": "horror-texture-pack-512x512-29feed70b77a",
+      "usefulness_score": 225,
+      "file_count": 101,
+      "total_bytes": 68826191,
+      "categories": {
+        "image_uncategorized": 72,
+        "tileset": 28,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 100,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/horror-texture-pack-512x512-29feed70b77a/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "be5647af36003f824f4fcee3671334825add3bd402b75ed5ce1a6057e5d623a1",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    },
+    {
+      "pack": "isometric-floor-texture-pack-71b9d1e3eae5",
+      "usefulness_score": 225,
+      "file_count": 157,
+      "total_bytes": 10051598,
+      "categories": {
+        "tileset": 156,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 156,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/isometric-floor-texture-pack-71b9d1e3eae5/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "951feeb6845327cf1eb3424787e2f2116fe613a1ec7cea9f52d0c444323e27d6",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    },
+    {
+      "pack": "isometric-textures-wall-pack-6262ce4ac93c",
+      "usefulness_score": 225,
+      "file_count": 433,
+      "total_bytes": 12388413,
+      "categories": {
+        "tileset": 432,
+        "license_or_readme": 1
+      },
+      "media_kinds": {
+        "image": 432,
+        "text_or_metadata": 1
+      },
+      "license_confidence": "reviewable_permissive_evidence",
+      "license_statuses": [
+        "permissive_cc0_or_public_domain"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/isometric-textures-wall-pack-6262ce4ac93c/License.txt",
+          "license_status": "permissive_cc0_or_public_domain",
+          "sha256": "dd5c5fe1e6bfe56fe0824ad22a21dc8a09e1771605867f9c94e7bc34c29aef94",
+          "excerpt": "All Screaming Brain Studios assets have been released under the CC0/Public Domain License. You are free to use these assets in any and all projects, commercial or non-commercial, with no restrictions, and can be released with or without credit. -------------------------------------------------- CC0 1.0 Universal (CC0 1.0) Public Domain https://creativecommons.org/publicdomain/zero/1.0/ -------------------------------------------------- || A Very Special Thanks to all my Patrons || Dwayne Jarvis "
+        }
+      ]
+    }
+  ],
+  "review_hold_attribution_or_redistribution": [
+    {
+      "pack": "dungeon-pack-free-version-1dac9c624af1",
+      "usefulness_score": 290,
+      "file_count": 234,
+      "total_bytes": 14921453,
+      "categories": {
+        "tileset": 141,
+        "sprite_or_character": 88,
+        "license_or_readme": 2,
+        "metadata": 2,
+        "image_uncategorized": 1
+      },
+      "media_kinds": {
+        "image": 230,
+        "text_or_metadata": 4
+      },
+      "license_confidence": "reviewable_license_text_present",
+      "license_statuses": [
+        "commercial_use_stated_review_required",
+        "unknown_review_required"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/LICENCE.txt",
+          "license_status": "commercial_use_stated_review_required",
+          "sha256": "f2351c0078190bfafeb5acfe131abd49a3bd69cc26ee5c8c2c90282409bfaf4e",
+          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) ✔️ You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. ❌ You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
+        },
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/README.txt",
+          "license_status": "unknown_review_required",
+          "sha256": "25efeb09cdd1a5aac17f45263585dd7b3e17395f8df98074d2a43d8d549e2cbc",
+          "excerpt": "-------------------------------------------- v44 updating godot autotiles with more content -------------------------------------------- v43 add legacy tiles to the full version -------------------------------------------- v42 fix version indexes in the README -------------------------------------------- v41 fix version indexes in the README ------------------------------------------- v40 fix atlas censor ------------------------------------------- v39 add free content for rpgmaker users -------"
+        }
+      ]
+    },
+    {
+      "pack": "farming-pack-free-version-0d25b506f7b5",
+      "usefulness_score": 290,
+      "file_count": 211,
+      "total_bytes": 11622118,
+      "categories": {
+        "tileset": 118,
+        "sprite_or_character": 88,
+        "license_or_readme": 2,
+        "metadata": 2,
+        "image_uncategorized": 1
+      },
+      "media_kinds": {
+        "image": 207,
+        "text_or_metadata": 4
+      },
+      "license_confidence": "reviewable_license_text_present",
+      "license_statuses": [
+        "commercial_use_stated_review_required",
+        "unknown_review_required"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/LICENCE.txt",
+          "license_status": "commercial_use_stated_review_required",
+          "sha256": "f2351c0078190bfafeb5acfe131abd49a3bd69cc26ee5c8c2c90282409bfaf4e",
+          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) ✔️ You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. ❌ You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
+        },
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/README.txt",
+          "license_status": "unknown_review_required",
+          "sha256": "37badb9bbf5a1e6c5578c27ac0c48ec7f0788585cb5dad3b25d4a0e2ebb712be",
+          "excerpt": "-------------------------------------------- v21 updating godot autotiles with more content -------------------------------------------- v20 add watered dirt autotile with rpgmaker and godot convention -------------------------------------------- v19 add leek -------------------------------------------- v18 add watered dirt autotile for rpg maker users -------------------------------------------- v17 add vine of grappes -------------------------------------------- v16 add berry -----------------"
+        }
+      ]
+    },
+    {
+      "pack": "exterior-pack-free-version-89fca2d76b14",
+      "usefulness_score": 265,
+      "file_count": 162,
+      "total_bytes": 10905447,
+      "categories": {
+        "tileset": 139,
+        "sprite_or_character": 20,
+        "image_uncategorized": 1,
+        "license_or_readme": 1,
+        "metadata": 1
+      },
+      "media_kinds": {
+        "image": 160,
+        "text_or_metadata": 2
+      },
+      "license_confidence": "reviewable_license_text_present",
+      "license_statuses": [
+        "commercial_use_stated_review_required"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/LICENCE.txt",
+          "license_status": "commercial_use_stated_review_required",
+          "sha256": "f2351c0078190bfafeb5acfe131abd49a3bd69cc26ee5c8c2c90282409bfaf4e",
+          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) ✔️ You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. ❌ You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
+        }
+      ]
+    },
+    {
+      "pack": "overworld-pack-free-version-e2e019f48719",
+      "usefulness_score": 265,
+      "file_count": 90,
+      "total_bytes": 5242406,
+      "categories": {
+        "tileset": 67,
+        "sprite_or_character": 20,
+        "image_uncategorized": 1,
+        "license_or_readme": 1,
+        "metadata": 1
+      },
+      "media_kinds": {
+        "image": 88,
+        "text_or_metadata": 2
+      },
+      "license_confidence": "reviewable_license_text_present",
+      "license_statuses": [
+        "commercial_use_stated_review_required"
+      ],
+      "template_fit": [
+        "beat_em_up",
+        "board_game_digital",
+        "city_builder",
+        "dungeon_crawler_rpg",
+        "jrpg",
+        "platformer",
+        "shmup",
+        "strategy_kingdom_rpg",
+        "top_down_action",
+        "tower_defense"
+      ],
+      "license_evidence": [
+        {
+          "source_path": "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/LICENCE.txt",
+          "license_status": "commercial_use_stated_review_required",
+          "sha256": "f2351c0078190bfafeb5acfe131abd49a3bd69cc26ee5c8c2c90282409bfaf4e",
+          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) ✔️ You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. ❌ You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
+        }
+      ]
+    }
+  ],
+  "backlog": {
+    "needs_source_or_license_notes_count": 264,
+    "candidate_review_count": 135,
+    "pack_count": 407,
+    "notes": [
+      "Prefer the CC0/public-domain cohort for the first curated SRC-010 bundle.",
+      "Do not include packs with credit, redistribution, NFT/metaverse/AI, or unclear language until attribution and redistribution terms are explicitly resolved.",
+      "Treat generated plan records as review guidance only; they are not asset bundle manifests."
+    ]
+  },
+  "next_bundle_plan": {
+    "suggested_bundle_id": "BND-004",
+    "suggested_bundle_status": "created_bnd_004_bounded_cc0_starter_pack",
+    "suggested_scope": [
+      "UI baseline: lucifer-rpg-ui and lucifer-equipment after evidence review",
+      "Isometric/top-down baseline: isometric stone soup, floors, roads, objects",
+      "Space/action baseline: void fleet/main ship/environment/pickups packs",
+      "Non-RPG baseline: word/chess/letter-tile packs and CC0 fonts"
+    ],
+    "required_outputs_before_status_ready": [
+      "imports/normalized/src010_<bundle-scope>/ curated files only",
+      "imports/manifests/asset_bundles/BND-004.json with exact file checksums",
+      "imports/reports/asset_intake/attribution/SRC-010_<pack-or-bundle>.json",
+      "docs/asset_intake registry update linking the bundle and attribution records",
+      "governance gate pass"
+    ],
+    "promoted_bundle_manifest": "imports/manifests/asset_bundles/BND-004.json",
+    "promoted_attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
+    "promoted_normalized_root": "imports/normalized/src010_cc0_starter_pack",
+    "promoted_asset_count": 14
+  }
+}
