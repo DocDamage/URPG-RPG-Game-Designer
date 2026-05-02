@@ -137,7 +137,8 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
         hasPositiveIssueCount(report["governance"]["localizationArtifacts"]) ||
         hasPositiveIssueCount(report["governance"]["localizationEvidence"]) ||
         hasPositiveIssueCount(report["governance"]["exportArtifacts"]) ||
-        (report["governance"].contains("inputArtifacts") && hasPositiveIssueCount(report["governance"]["inputArtifacts"])) ||
+        (report["governance"].contains("inputArtifacts") &&
+         hasPositiveIssueCount(report["governance"]["inputArtifacts"])) ||
         hasPositiveIssueCount(report["governance"]["accessibilityArtifacts"]) ||
         hasPositiveIssueCount(report["governance"]["audioArtifacts"]) ||
         hasPositiveIssueCount(report["governance"]["characterArtifacts"]) ||
@@ -155,7 +156,8 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
         if (hasPositiveIssueCount(report["governance"]["exportArtifacts"])) {
             CHECK(report["summary"].get<std::string>().find("Export artifact issues:") != std::string::npos);
         }
-        if (report["governance"].contains("inputArtifacts") && hasPositiveIssueCount(report["governance"]["inputArtifacts"])) {
+        if (report["governance"].contains("inputArtifacts") &&
+            hasPositiveIssueCount(report["governance"]["inputArtifacts"])) {
             CHECK(report["summary"].get<std::string>().find("Input artifact issues:") != std::string::npos);
         }
         if (hasPositiveIssueCount(report["governance"]["accessibilityArtifacts"])) {
@@ -193,15 +195,50 @@ TEST_CASE("Project audit CLI flags normalized or promoted asset intake regressio
     const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_asset_regression";
     fs::remove_all(tempRoot);
     fs::create_directories(tempRoot);
-    const fs::path readinessPath = repoRoot / "content" / "readiness" / "readiness_status.json";
+    const fs::path readinessPath = tempRoot / "synthetic_partial_readiness.json";
+    writeTextFile(
+        readinessPath,
+        json{
+            {"schemaVersion", "1.0.0"},
+            {"statusDate", "2026-05-01"},
+            {"subsystems", json::array({{{"id", "core"},
+                                         {"status", "READY"},
+                                         {"summary", "Core systems are ready."},
+                                         {"mainGaps", json::array()},
+                                         {"evidence",
+                                          {{"runtimeOwner", true},
+                                           {"runtimeExecution", true},
+                                           {"editorSurface", true},
+                                           {"visualAuthoringSurface", true},
+                                           {"livePreview", true},
+                                           {"schemaMigration", true},
+                                           {"savedProjectData", true},
+                                           {"diagnostics", true},
+                                           {"testsValidation", true},
+                                           {"docsAligned", true}}}}})},
+            {"templates",
+             json::array({{{"id", "asset-regression-template"},
+                           {"status", "PARTIAL"},
+                           {"requiredSubsystems", json::array({"core"})},
+                           {"bars",
+                            {{"accessibility", "READY"},
+                             {"audio", "READY"},
+                             {"input", "READY"},
+                             {"localization", "READY"},
+                             {"performance", "PARTIAL"}}},
+                           {"safeScope", "Synthetic partial template used to verify asset-intake regression warnings."},
+                           {"mainBlockers",
+                            json::array({"Asset-intake counters are intentionally incomplete in this fixture."})}}})}}
+            .dump(2));
 
     const auto runWithAssetSummary = [&](const json& summary) {
-        const fs::path reportPath = tempRoot / ("asset_report_" + std::to_string(summary.value("normalized", 0)) +
-                                                "_" + std::to_string(summary.value("promoted", 0)) + ".json");
+        const fs::path reportPath = tempRoot / ("asset_report_" + std::to_string(summary.value("normalized", 0)) + "_" +
+                                                std::to_string(summary.value("promoted", 0)) + ".json");
         writeTextFile(reportPath, json{{"summary", summary}, {"sources", json::array()}}.dump(2));
-        const ProcessResult result = runProjectAudit(
-            {"--json", "--input", readinessPath.string(), "--asset-report", reportPath.string()},
-            repoRoot);
+        const ProcessResult result =
+            runProjectAudit({"--json", "--input", readinessPath.string(), "--template", "asset-regression-template",
+                             "--asset-report", reportPath.string()},
+                            repoRoot);
         REQUIRE(result.exitCode == 0);
         return json::parse(result.stdoutText);
     };
@@ -247,56 +284,46 @@ TEST_CASE("Project audit CLI selects a requested template from a synthetic readi
     fs::create_directories(tempRoot / "docs");
 
     const fs::path inputPath = tempRoot / "synthetic_readiness.json";
-    writeTextFile(inputPath, json{
-        {"schemaVersion", "1.0.0"},
-        {"statusDate", "2026-05-01"},
-        {"templates", json::array({
-            {
-                {"id", "custom-template"},
-                {"status", "READY"},
-                {"requiredSubsystems", json::array({"core"})}
-            }
-        })},
-        {"subsystems", json::array({
-            {
-                {"id", "core"},
-                {"status", "READY"},
-                {"summary", "Core systems are ready."},
-                {"signoff", {
-                    {"required", true},
-                    {"artifactPath", "docs/CORE_CLOSURE_SIGNOFF.md"},
-                    {"promotionRequiresHumanReview", false},
-                    {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
-                    {"reviewStatus", "APPROVED"},
-                    {"reviewedBy", "release-owner"},
-                    {"reviewedDate", "2026-05-01"},
-                    {"verificationCommand", "ctest --preset dev-project-audit --output-on-failure"},
-                    {"evidenceCommandResult", "PASS"}
-                }},
-                {"evidence", {
-                    {"runtimeOwner", true},
-                    {"editorSurface", true},
-                    {"schemaMigration", true},
-                    {"diagnostics", true},
-                    {"testsValidation", true},
-                    {"docsAligned", true}
-                }}
-            }
-        })}
-    }.dump(2));
+    writeTextFile(inputPath,
+                  json{{"schemaVersion", "1.0.0"},
+                       {"statusDate", "2026-05-01"},
+                       {"templates", json::array({{{"id", "custom-template"},
+                                                   {"status", "READY"},
+                                                   {"requiredSubsystems", json::array({"core"})}}})},
+                       {"subsystems",
+                        json::array({{{"id", "core"},
+                                      {"status", "READY"},
+                                      {"summary", "Core systems are ready."},
+                                      {"signoff",
+                                       {{"required", true},
+                                        {"artifactPath", "docs/CORE_CLOSURE_SIGNOFF.md"},
+                                        {"promotionRequiresHumanReview", false},
+                                        {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                                        {"reviewStatus", "APPROVED"},
+                                        {"reviewedBy", "release-owner"},
+                                        {"reviewedDate", "2026-05-01"},
+                                        {"verificationCommand", "ctest --preset dev-project-audit --output-on-failure"},
+                                        {"evidenceCommandResult", "PASS"}}},
+                                      {"evidence",
+                                       {{"runtimeOwner", true},
+                                        {"editorSurface", true},
+                                        {"schemaMigration", true},
+                                        {"diagnostics", true},
+                                        {"testsValidation", true},
+                                        {"docsAligned", true}}}}})}}
+                      .dump(2));
 
-    writeTextFile(
-        tempRoot / "docs" / "templates" / "custom-template_spec.md",
-        "# Custom Template Spec\n\n"
-        "Status Date: 2026-04-20\n"
-        "Authority: canonical template spec for `custom-template`\n\n"
-        "## Required Subsystems\n\n"
-        "| Subsystem | Rationale |\n"
-        "| --- | --- |\n"
-        "| `core` | Core systems are ready. |\n");
-    writeTextFile(
-        tempRoot / "docs" / "CORE_CLOSURE_SIGNOFF.md",
-        "# Core Signoff\n\n> **Status:** `READY`\n\n*Sign-off approved by release-owner review for the bounded core scope on 2026-05-01.*\n");
+    writeTextFile(tempRoot / "docs" / "templates" / "custom-template_spec.md",
+                  "# Custom Template Spec\n\n"
+                  "Status Date: 2026-04-20\n"
+                  "Authority: canonical template spec for `custom-template`\n\n"
+                  "## Required Subsystems\n\n"
+                  "| Subsystem | Rationale |\n"
+                  "| --- | --- |\n"
+                  "| `core` | Core systems are ready. |\n");
+    writeTextFile(tempRoot / "docs" / "CORE_CLOSURE_SIGNOFF.md",
+                  "# Core Signoff\n\n> **Status:** `READY`\n\n*Sign-off approved by release-owner review for the "
+                  "bounded core scope on 2026-05-01.*\n");
 
     const ProcessResult result =
         runProjectAudit({"--json", "--input", inputPath.string(), "--template", "custom-template"}, tempRoot);
@@ -312,52 +339,41 @@ TEST_CASE("Project audit CLI selects a requested template from a synthetic readi
     REQUIRE(report["exportBlockerCount"] == 0);
 }
 
-TEST_CASE("Project audit CLI keeps governance shape stable for conservative artifact checks",
-          "[project_audit_cli]") {
+TEST_CASE("Project audit CLI keeps governance shape stable for conservative artifact checks", "[project_audit_cli]") {
     const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_cli_governance";
     fs::remove_all(tempRoot);
     fs::create_directories(tempRoot / "content" / "readiness");
 
-    writeTextFile(tempRoot / "content" / "readiness" / "synthetic_readiness.json", json{
-        {"schemaVersion", "1.0.0"},
-        {"statusDate", "2026-04-20"},
-        {"subsystems", json::array({
-            {
-                {"id", "core"},
-                {"status", "READY"},
-                {"summary", "Core systems are ready."},
-                {"mainGaps", json::array()},
-                {"evidence", {
-                    {"runtimeOwner", true},
-                    {"editorSurface", true},
-                    {"schemaMigration", true},
-                    {"diagnostics", true},
-                    {"testsValidation", true},
-                    {"docsAligned", true}
-                }}
-            }
-        })},
-        {"templates", json::array({
-            {
-                {"id", "artifact-template"},
-                {"status", "PARTIAL"},
-                {"requiredSubsystems", json::array({"core"})},
-                {"bars", {
-                    {"accessibility", "PLANNED"},
-                    {"audio", "PARTIAL"},
-                    {"input", "PARTIAL"},
-                    {"localization", "PLANNED"},
-                    {"performance", "PARTIAL"}
-                }},
-                {"safeScope", "Synthetic template for artifact checks."},
-                {"mainBlockers", json::array()}
-            }
-        })}
-    }.dump(2));
+    writeTextFile(tempRoot / "content" / "readiness" / "synthetic_readiness.json",
+                  json{{"schemaVersion", "1.0.0"},
+                       {"statusDate", "2026-04-20"},
+                       {"subsystems", json::array({{{"id", "core"},
+                                                    {"status", "READY"},
+                                                    {"summary", "Core systems are ready."},
+                                                    {"mainGaps", json::array()},
+                                                    {"evidence",
+                                                     {{"runtimeOwner", true},
+                                                      {"editorSurface", true},
+                                                      {"schemaMigration", true},
+                                                      {"diagnostics", true},
+                                                      {"testsValidation", true},
+                                                      {"docsAligned", true}}}}})},
+                       {"templates", json::array({{{"id", "artifact-template"},
+                                                   {"status", "PARTIAL"},
+                                                   {"requiredSubsystems", json::array({"core"})},
+                                                   {"bars",
+                                                    {{"accessibility", "PLANNED"},
+                                                     {"audio", "PARTIAL"},
+                                                     {"input", "PARTIAL"},
+                                                     {"localization", "PLANNED"},
+                                                     {"performance", "PARTIAL"}}},
+                                                   {"safeScope", "Synthetic template for artifact checks."},
+                                                   {"mainBlockers", json::array()}}})}}
+                      .dump(2));
 
     const ProcessResult result = runProjectAudit(
-        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
-         "--template", "artifact-template"},
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(), "--template",
+         "artifact-template"},
         tempRoot);
 
     REQUIRE(result.exitCode == 0);
@@ -410,16 +426,19 @@ TEST_CASE("Project audit CLI keeps governance shape stable for conservative arti
     requireIssueCountConsistencyIfPresent(report, "signoffArtifactIssueCount", "signoffArtifacts");
     requireIssueCountConsistencyIfPresent(report, "templateSpecArtifactIssueCount", "templateSpecArtifacts");
 
-    CHECK(report["summary"].get<std::string>().find("Selected template artifact-template is PARTIAL.") != std::string::npos);
+    CHECK(report["summary"].get<std::string>().find("Selected template artifact-template is PARTIAL.") !=
+          std::string::npos);
     CHECK(report["issues"].is_array());
     CHECK(report["assetGovernanceIssueCount"].get<std::size_t>() <= report["issues"].size());
     CHECK(report["schemaGovernanceIssueCount"].get<std::size_t>() <= report["issues"].size());
 }
 
-TEST_CASE("Project schema defines canonical governance sections and fixture shape", "[project_audit_cli][project_schema]") {
+TEST_CASE("Project schema defines canonical governance sections and fixture shape",
+          "[project_audit_cli][project_schema]") {
     const fs::path repoRoot = fs::path(URPG_SOURCE_DIR);
     const json schema = json::parse(readTextFile(repoRoot / "content" / "schemas" / "project.schema.json"));
-    const json fixture = json::parse(readTextFile(repoRoot / "content" / "fixtures" / "project_governance_fixture.json"));
+    const json fixture =
+        json::parse(readTextFile(repoRoot / "content" / "fixtures" / "project_governance_fixture.json"));
 
     REQUIRE(schema["properties"].contains("localization"));
     REQUIRE(schema["properties"]["localization"]["type"] == "object");
@@ -443,9 +462,8 @@ TEST_CASE("Project schema defines canonical governance sections and fixture shap
     REQUIRE(jsonArrayContainsString(schema["properties"]["exportProfiles"]["items"]["required"], "id"));
     REQUIRE(jsonArrayContainsString(schema["properties"]["exportProfiles"]["items"]["required"], "target"));
     REQUIRE(jsonArrayContainsString(schema["properties"]["exportProfiles"]["items"]["required"], "configSchemaPath"));
-    REQUIRE(jsonArrayContainsString(
-        schema["properties"]["exportProfiles"]["items"]["required"],
-        "validationReportSchemaPath"));
+    REQUIRE(jsonArrayContainsString(schema["properties"]["exportProfiles"]["items"]["required"],
+                                    "validationReportSchemaPath"));
 
     REQUIRE(fixture["localization"]["schemaPath"] == "content/schemas/localization_bundle.schema.json");
     REQUIRE(fixture["localization"]["reportPath"] ==
@@ -464,13 +482,12 @@ TEST_CASE("Project audit accepts the canonical project governance schema vocabul
     fs::create_directories(tempRoot / "content" / "schemas");
 
     writeProjectGovernanceReadinessFixture(tempRoot / "content" / "readiness" / "synthetic_readiness.json");
-    writeTextFile(
-        tempRoot / "content" / "schemas" / "project.schema.json",
-        readTextFile(repoRoot / "content" / "schemas" / "project.schema.json"));
+    writeTextFile(tempRoot / "content" / "schemas" / "project.schema.json",
+                  readTextFile(repoRoot / "content" / "schemas" / "project.schema.json"));
 
     const ProcessResult result = runProjectAudit(
-        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
-         "--template", "governance_template"},
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(), "--template",
+         "governance_template"},
         tempRoot);
 
     REQUIRE(result.exitCode == 0);
@@ -494,17 +511,15 @@ TEST_CASE("Project audit reports missing canonical project governance sections",
     fs::create_directories(tempRoot / "content" / "schemas");
 
     writeProjectGovernanceReadinessFixture(tempRoot / "content" / "readiness" / "synthetic_readiness.json");
-    writeTextFile(
-        tempRoot / "content" / "schemas" / "project.schema.json",
-        json{
-            {"$schema", "https://json-schema.org/draft/2020-12/schema"},
-            {"type", "object"},
-            {"properties", {{"determinism", {{"type", "object"}}}}}
-        }.dump(2));
+    writeTextFile(tempRoot / "content" / "schemas" / "project.schema.json",
+                  json{{"$schema", "https://json-schema.org/draft/2020-12/schema"},
+                       {"type", "object"},
+                       {"properties", {{"determinism", {{"type", "object"}}}}}}
+                      .dump(2));
 
     const ProcessResult result = runProjectAudit(
-        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
-         "--template", "governance_template"},
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(), "--template",
+         "governance_template"},
         tempRoot);
 
     REQUIRE(result.exitCode == 0);
@@ -525,25 +540,21 @@ TEST_CASE("Project audit reports malformed canonical project governance sections
     fs::create_directories(tempRoot / "content" / "schemas");
 
     writeProjectGovernanceReadinessFixture(tempRoot / "content" / "readiness" / "synthetic_readiness.json");
-    writeTextFile(
-        tempRoot / "content" / "schemas" / "project.schema.json",
-        json{
-            {"$schema", "https://json-schema.org/draft/2020-12/schema"},
-            {"type", "object"},
-            {"properties", {
-                {"localization", {{"type", "string"}}},
-                {"input", {
-                    {"type", "object"},
-                    {"required", json::array({"fixturePath"})},
-                    {"properties", {{"fixturePath", {{"type", "string"}}}}}
-                }},
-                {"exportProfiles", {{"type", "object"}}}
-            }}
-        }.dump(2));
+    writeTextFile(tempRoot / "content" / "schemas" / "project.schema.json",
+                  json{{"$schema", "https://json-schema.org/draft/2020-12/schema"},
+                       {"type", "object"},
+                       {"properties",
+                        {{"localization", {{"type", "string"}}},
+                         {"input",
+                          {{"type", "object"},
+                           {"required", json::array({"fixturePath"})},
+                           {"properties", {{"fixturePath", {{"type", "string"}}}}}}},
+                         {"exportProfiles", {{"type", "object"}}}}}}
+                      .dump(2));
 
     const ProcessResult result = runProjectAudit(
-        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
-         "--template", "governance_template"},
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(), "--template",
+         "governance_template"},
         tempRoot);
 
     REQUIRE(result.exitCode == 0);

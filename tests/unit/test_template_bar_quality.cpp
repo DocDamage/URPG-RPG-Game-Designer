@@ -12,20 +12,20 @@
 // template namespace, accessibility rule parity for template-specific UI,
 // performance budget assertions, and that WYSIWYG proof artifacts are reachable.
 
-#include <catch2/catch_test_macros.hpp>
+#include "editor/message/visual_novel_pacing_panel.h"
+#include "engine/core/accessibility/accessibility_auditor.h"
 #include "engine/core/localization/completeness_checker.h"
 #include "engine/core/localization/locale_catalog.h"
 #include "engine/core/localization/template_localization_audit.h"
-#include "engine/core/accessibility/accessibility_auditor.h"
 #include "engine/core/message/visual_novel_pacing.h"
-#include "editor/message/visual_novel_pacing_panel.h"
+#include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
 #include <filesystem>
 #include <fstream>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 using namespace urpg::localization;
 using namespace urpg::accessibility;
@@ -107,8 +107,7 @@ json makeTemplateMasterCatalog(const std::string& templateId) {
     return json::parse(R"({"locale": "en", "keys": {}})");
 }
 
-json makeTemplateTargetCatalog(const std::string& locale,
-                               const json& masterCatalog) {
+json makeTemplateTargetCatalog(const std::string& locale, const json& masterCatalog) {
     // Build a complete target catalog (all keys present) for the locale.
     json target = {{"locale", locale}, {"keys", json::object()}};
     for (const auto& [key, value] : masterCatalog["keys"].items()) {
@@ -121,8 +120,8 @@ json makeTemplateTargetCatalog(const std::string& locale,
 
 TEST_CASE("visual_novel pacing controls enforce backlog auto advance and skip-read UX",
           "[visual_novel][pacing][template][wysiwyg]") {
-    const auto fixture = loadTemplateBarJson(
-        templateBarRepoRoot() / "content" / "fixtures" / "visual_novel_pacing_fixture.json");
+    const auto fixture =
+        loadTemplateBarJson(templateBarRepoRoot() / "content" / "fixtures" / "visual_novel_pacing_fixture.json");
     const auto document = urpg::message::VisualNovelPacingDocument::fromJson(fixture);
 
     urpg::editor::VisualNovelPacingPanel panel;
@@ -162,8 +161,7 @@ TEST_CASE("visual_novel pacing controls enforce backlog auto advance and skip-re
     REQUIRE(panel.snapshot().ux_focus_lane == "backlog");
 }
 
-TEST_CASE("visual_novel pacing diagnostics block invalid controls",
-          "[visual_novel][pacing][template][wysiwyg]") {
+TEST_CASE("visual_novel pacing diagnostics block invalid controls", "[visual_novel][pacing][template][wysiwyg]") {
     urpg::message::VisualNovelPacingDocument document;
     document.id = "";
     document.controls.text_speed_cps = 0.0f;
@@ -181,8 +179,7 @@ TEST_CASE("visual_novel pacing diagnostics block invalid controls",
     REQUIRE(panel.snapshot().status_message == "Visual novel pacing preview has diagnostics.");
 }
 
-TEST_CASE("jrpg localization: complete ja locale passes completeness check",
-          "[localization][template][s30bt01]") {
+TEST_CASE("jrpg localization: complete ja locale passes completeness check", "[localization][template][s30bt01]") {
     LocaleCatalog master;
     master.loadFromJson(makeTemplateMasterCatalog("jrpg"));
 
@@ -238,8 +235,7 @@ TEST_CASE("visual_novel localization: complete ja locale passes completeness che
     REQUIRE(missing.empty());
 }
 
-TEST_CASE("visual_novel localization: missing dialogue.backlog key is detected",
-          "[localization][template][s30bt01]") {
+TEST_CASE("visual_novel localization: missing dialogue.backlog key is detected", "[localization][template][s30bt01]") {
     LocaleCatalog master;
     master.loadFromJson(makeTemplateMasterCatalog("visual_novel"));
 
@@ -278,8 +274,7 @@ TEST_CASE("turn_based_rpg localization: complete ja locale passes completeness c
     REQUIRE(missing.empty());
 }
 
-TEST_CASE("turn_based_rpg localization: missing system.defeat key is detected",
-          "[localization][template][s30bt01]") {
+TEST_CASE("turn_based_rpg localization: missing system.defeat key is detected", "[localization][template][s30bt01]") {
     LocaleCatalog master;
     master.loadFromJson(makeTemplateMasterCatalog("turn_based_rpg"));
 
@@ -304,12 +299,12 @@ TEST_CASE("turn_based_rpg localization: missing system.defeat key is detected",
     REQUIRE(missing[0] == "system.defeat");
 }
 
-TEST_CASE("partial templates declare complete manifest-driven localization coverage",
+TEST_CASE("template readiness candidates declare complete manifest-driven localization coverage",
           "[localization][template][audit]") {
     for (const std::string templateId : {"jrpg", "visual_novel", "turn_based_rpg"}) {
         INFO("Template: " << templateId);
-        const auto manifest = loadTemplateBarJson(
-            templateBarRepoRoot() / "content" / "templates" / (templateId + "_starter.json"));
+        const auto manifest =
+            loadTemplateBarJson(templateBarRepoRoot() / "content" / "templates" / (templateId + "_starter.json"));
 
         const auto result = auditTemplateLocalization(manifest);
 
@@ -322,10 +317,8 @@ TEST_CASE("partial templates declare complete manifest-driven localization cover
     }
 }
 
-TEST_CASE("template localization audit reports missing keys and font profiles",
-          "[localization][template][audit]") {
-    auto manifest = loadTemplateBarJson(
-        templateBarRepoRoot() / "content" / "templates" / "visual_novel_starter.json");
+TEST_CASE("template localization audit reports missing keys and font profiles", "[localization][template][audit]") {
+    auto manifest = loadTemplateBarJson(templateBarRepoRoot() / "content" / "templates" / "visual_novel_starter.json");
     manifest["localization"]["locale_bundles"][1].erase("font_profile_id");
     manifest["localization"]["locale_bundles"][1]["keys"].erase("dialogue.speaker_name");
 
@@ -343,16 +336,13 @@ TEST_CASE("template localization audit reports missing keys and font profiles",
 // S30B-T02 — Accessibility/input parity for template-specific UI
 // ============================================================================
 
-TEST_CASE("jrpg accessibility: all battle menu buttons have labels",
-          "[accessibility][template][s30bt02]") {
+TEST_CASE("jrpg accessibility: all battle menu buttons have labels", "[accessibility][template][s30bt02]") {
     AccessibilityAuditor auditor;
-    auditor.ingestElements({
-        UiElementSnapshot{"btn_attack", "Attack", true, 1, 5.5f},
-        UiElementSnapshot{"btn_defend", "Defend", true, 2, 5.5f},
-        UiElementSnapshot{"btn_skill",  "Skill",  true, 3, 5.5f},
-        UiElementSnapshot{"btn_item",   "Item",   true, 4, 5.5f},
-        UiElementSnapshot{"btn_escape", "Escape", true, 5, 5.5f}
-    });
+    auditor.ingestElements({UiElementSnapshot{"btn_attack", "Attack", true, 1, 5.5f},
+                            UiElementSnapshot{"btn_defend", "Defend", true, 2, 5.5f},
+                            UiElementSnapshot{"btn_skill", "Skill", true, 3, 5.5f},
+                            UiElementSnapshot{"btn_item", "Item", true, 4, 5.5f},
+                            UiElementSnapshot{"btn_escape", "Escape", true, 5, 5.5f}});
 
     const auto issues = auditor.audit();
     bool hasMissingLabel = false;
@@ -364,13 +354,10 @@ TEST_CASE("jrpg accessibility: all battle menu buttons have labels",
     REQUIRE_FALSE(hasMissingLabel);
 }
 
-TEST_CASE("jrpg accessibility: unlabelled battle button is flagged",
-          "[accessibility][template][s30bt02]") {
+TEST_CASE("jrpg accessibility: unlabelled battle button is flagged", "[accessibility][template][s30bt02]") {
     AccessibilityAuditor auditor;
-    auditor.ingestElements({
-        UiElementSnapshot{"btn_attack", "", true, 1, 5.5f},  // Missing label
-        UiElementSnapshot{"btn_defend", "Defend", true, 2, 5.5f}
-    });
+    auditor.ingestElements({UiElementSnapshot{"btn_attack", "", true, 1, 5.5f}, // Missing label
+                            UiElementSnapshot{"btn_defend", "Defend", true, 2, 5.5f}});
 
     const auto issues = auditor.audit();
     bool hasMissingLabel = false;
@@ -385,13 +372,11 @@ TEST_CASE("jrpg accessibility: unlabelled battle button is flagged",
 TEST_CASE("visual_novel accessibility: dialogue UI elements have required labels",
           "[accessibility][template][s30bt02]") {
     AccessibilityAuditor auditor;
-    auditor.ingestElements({
-        UiElementSnapshot{"btn_advance",  "Advance dialogue",   true, 1, 5.5f},
-        UiElementSnapshot{"btn_auto",     "Auto advance",       true, 2, 5.5f},
-        UiElementSnapshot{"btn_skip",     "Skip scene",         true, 3, 5.5f},
-        UiElementSnapshot{"btn_backlog",  "Open backlog",       true, 4, 5.5f},
-        UiElementSnapshot{"text_speaker", "Speaker name label", false, 0, 5.5f}
-    });
+    auditor.ingestElements({UiElementSnapshot{"btn_advance", "Advance dialogue", true, 1, 5.5f},
+                            UiElementSnapshot{"btn_auto", "Auto advance", true, 2, 5.5f},
+                            UiElementSnapshot{"btn_skip", "Skip scene", true, 3, 5.5f},
+                            UiElementSnapshot{"btn_backlog", "Open backlog", true, 4, 5.5f},
+                            UiElementSnapshot{"text_speaker", "Speaker name label", false, 0, 5.5f}});
 
     const auto issues = auditor.audit();
     bool hasMissingLabel = false;
@@ -406,13 +391,11 @@ TEST_CASE("visual_novel accessibility: dialogue UI elements have required labels
 TEST_CASE("turn_based_rpg accessibility: turn-order UI focusable elements have labels",
           "[accessibility][template][s30bt02]") {
     AccessibilityAuditor auditor;
-    auditor.ingestElements({
-        UiElementSnapshot{"btn_attack",     "Attack",          true, 1, 5.5f},
-        UiElementSnapshot{"btn_defend",     "Defend",          true, 2, 5.5f},
-        UiElementSnapshot{"btn_skill",      "Use Skill",       true, 3, 5.5f},
-        UiElementSnapshot{"btn_item",       "Use Item",        true, 4, 5.5f},
-        UiElementSnapshot{"turn_indicator", "Turn indicator",  false, 0, 5.5f}
-    });
+    auditor.ingestElements({UiElementSnapshot{"btn_attack", "Attack", true, 1, 5.5f},
+                            UiElementSnapshot{"btn_defend", "Defend", true, 2, 5.5f},
+                            UiElementSnapshot{"btn_skill", "Use Skill", true, 3, 5.5f},
+                            UiElementSnapshot{"btn_item", "Use Item", true, 4, 5.5f},
+                            UiElementSnapshot{"turn_indicator", "Turn indicator", false, 0, 5.5f}});
 
     const auto issues = auditor.audit();
     bool hasMissingLabel = false;
@@ -444,42 +427,30 @@ struct FrameMetrics {
 };
 
 json evaluateBudget(const TemplateBudget& budget, const FrameMetrics& metrics) {
-    json result = {
-        {"templateId", budget.templateId},
-        {"withinBudget", true},
-        {"violations", json::array()}
-    };
+    json result = {{"templateId", budget.templateId}, {"withinBudget", true}, {"violations", json::array()}};
     if (metrics.lastFrameMs > budget.frameTimeBudgetMs) {
         result["withinBudget"] = false;
-        result["violations"].push_back({
-            {"field", "frameTimeMs"},
-            {"actual", metrics.lastFrameMs},
-            {"budget", budget.frameTimeBudgetMs}
-        });
+        result["violations"].push_back(
+            {{"field", "frameTimeMs"}, {"actual", metrics.lastFrameMs}, {"budget", budget.frameTimeBudgetMs}});
     }
     if (metrics.arenaUsedBytes > budget.maxArenaUsageBytes) {
         result["withinBudget"] = false;
-        result["violations"].push_back({
-            {"field", "arenaUsedBytes"},
-            {"actual", static_cast<int>(metrics.arenaUsedBytes)},
-            {"budget", static_cast<int>(budget.maxArenaUsageBytes)}
-        });
+        result["violations"].push_back({{"field", "arenaUsedBytes"},
+                                        {"actual", static_cast<int>(metrics.arenaUsedBytes)},
+                                        {"budget", static_cast<int>(budget.maxArenaUsageBytes)}});
     }
     if (metrics.activeEntityCount > budget.maxActiveEntities) {
         result["withinBudget"] = false;
-        result["violations"].push_back({
-            {"field", "activeEntityCount"},
-            {"actual", static_cast<int>(metrics.activeEntityCount)},
-            {"budget", static_cast<int>(budget.maxActiveEntities)}
-        });
+        result["violations"].push_back({{"field", "activeEntityCount"},
+                                        {"actual", static_cast<int>(metrics.activeEntityCount)},
+                                        {"budget", static_cast<int>(budget.maxActiveEntities)}});
     }
     return result;
 }
 
 } // namespace
 
-TEST_CASE("jrpg performance budget: nominal metrics are within budget",
-          "[performance][template][s30bt03]") {
+TEST_CASE("jrpg performance budget: nominal metrics are within budget", "[performance][template][s30bt03]") {
     const TemplateBudget budget{"jrpg", 33.3f, 512 * 1024, 256};
     const FrameMetrics metrics{16.7f, 200 * 1024, 64};
 
@@ -489,10 +460,9 @@ TEST_CASE("jrpg performance budget: nominal metrics are within budget",
     REQUIRE(result["violations"].empty());
 }
 
-TEST_CASE("jrpg performance budget: frame time overrun is reported",
-          "[performance][template][s30bt03]") {
+TEST_CASE("jrpg performance budget: frame time overrun is reported", "[performance][template][s30bt03]") {
     const TemplateBudget budget{"jrpg", 33.3f, 512 * 1024, 256};
-    const FrameMetrics metrics{50.0f, 200 * 1024, 64};  // 50ms > 33.3ms
+    const FrameMetrics metrics{50.0f, 200 * 1024, 64}; // 50ms > 33.3ms
 
     const json result = evaluateBudget(budget, metrics);
     REQUIRE(result["withinBudget"] == false);
@@ -512,10 +482,9 @@ TEST_CASE("visual_novel performance budget: nominal dialogue-heavy metrics are w
     REQUIRE(result["violations"].empty());
 }
 
-TEST_CASE("turn_based_rpg performance budget: large battle overruns entity count",
-          "[performance][template][s30bt03]") {
+TEST_CASE("turn_based_rpg performance budget: large battle overruns entity count", "[performance][template][s30bt03]") {
     const TemplateBudget budget{"turn_based_rpg", 33.3f, 512 * 1024, 128};
-    const FrameMetrics metrics{20.0f, 200 * 1024, 200};  // 200 > 128
+    const FrameMetrics metrics{20.0f, 200 * 1024, 200}; // 200 > 128
 
     const json result = evaluateBudget(budget, metrics);
     REQUIRE(result["withinBudget"] == false);
@@ -523,10 +492,9 @@ TEST_CASE("turn_based_rpg performance budget: large battle overruns entity count
     REQUIRE(result["violations"][0]["field"] == "activeEntityCount");
 }
 
-TEST_CASE("performance budget evaluator reports multiple simultaneous violations",
-          "[performance][template][s30bt03]") {
+TEST_CASE("performance budget evaluator reports multiple simultaneous violations", "[performance][template][s30bt03]") {
     const TemplateBudget budget{"jrpg", 33.3f, 512 * 1024, 256};
-    const FrameMetrics metrics{60.0f, 700 * 1024, 300};  // All three over budget
+    const FrameMetrics metrics{60.0f, 700 * 1024, 300}; // All three over budget
 
     const json result = evaluateBudget(budget, metrics);
     REQUIRE(result["withinBudget"] == false);
@@ -545,45 +513,42 @@ namespace {
 
 struct BarProofLink {
     std::string bar;
-    std::string artifactType;   // "test_file", "ci_script", "fixture", "spec_section"
+    std::string artifactType; // "test_file", "ci_script", "fixture", "spec_section"
     std::string artifactPath;
     std::string description;
 };
 
-json buildWysiwygProofDescriptor(
-    const std::string& templateId,
-    const std::vector<BarProofLink>& links) {
-    json descriptor = {
-        {"templateId", templateId},
-        {"proofLinks", json::array()}
-    };
+json buildWysiwygProofDescriptor(const std::string& templateId, const std::vector<BarProofLink>& links) {
+    json descriptor = {{"templateId", templateId}, {"proofLinks", json::array()}};
     for (const auto& link : links) {
-        descriptor["proofLinks"].push_back({
-            {"bar", link.bar},
-            {"artifactType", link.artifactType},
-            {"artifactPath", link.artifactPath},
-            {"description", link.description}
-        });
+        descriptor["proofLinks"].push_back({{"bar", link.bar},
+                                            {"artifactType", link.artifactType},
+                                            {"artifactPath", link.artifactPath},
+                                            {"description", link.description}});
     }
     return descriptor;
 }
 
 } // namespace
 
-TEST_CASE("jrpg WYSIWYG proof descriptor covers all five bars",
-          "[wysiwyg][template][s30bt04]") {
-    const auto descriptor = buildWysiwygProofDescriptor("jrpg", {
-        {"accessibility", "test_file",  "tests/unit/test_accessibility_auditor.cpp",   "AccessibilityAuditor label/focus/contrast unit tests"},
-        {"accessibility", "ci_script",  "tools/ci/check_accessibility_governance.ps1", "Accessibility governance CI script"},
-        {"audio",         "test_file",  "tests/unit/test_audio_mix_presets.cpp",        "AudioMixPresets validation unit tests"},
-        {"audio",         "ci_script",  "tools/ci/check_audio_governance.ps1",          "Audio governance CI script"},
-        {"input",         "test_file",  "tests/unit/test_input_remap_store.cpp",         "Input remap governance tests"},
-        {"input",         "ci_script",  "tools/ci/check_input_governance.ps1",           "Input governance CI script"},
-        {"localization",  "test_file",  "tests/unit/test_completeness_checker.cpp",      "Localization completeness checker tests"},
-        {"localization",  "ci_script",  "tools/ci/check_localization_consistency.ps1",   "Localization consistency CI script"},
-        {"performance",   "test_file",  "tests/unit/test_presentation_runtime.cpp",      "Presentation runtime arena/profile tests"},
-        {"performance",   "spec_section", "docs/templates/jrpg_spec.md",                 "jrpg spec performance bar notes"}
-    });
+TEST_CASE("jrpg WYSIWYG proof descriptor covers all five bars", "[wysiwyg][template][s30bt04]") {
+    const auto descriptor = buildWysiwygProofDescriptor(
+        "jrpg",
+        {{"accessibility", "test_file", "tests/unit/test_accessibility_auditor.cpp",
+          "AccessibilityAuditor label/focus/contrast unit tests"},
+         {"accessibility", "ci_script", "tools/ci/check_accessibility_governance.ps1",
+          "Accessibility governance CI script"},
+         {"audio", "test_file", "tests/unit/test_audio_mix_presets.cpp", "AudioMixPresets validation unit tests"},
+         {"audio", "ci_script", "tools/ci/check_audio_governance.ps1", "Audio governance CI script"},
+         {"input", "test_file", "tests/unit/test_input_remap_store.cpp", "Input remap governance tests"},
+         {"input", "ci_script", "tools/ci/check_input_governance.ps1", "Input governance CI script"},
+         {"localization", "test_file", "tests/unit/test_completeness_checker.cpp",
+          "Localization completeness checker tests"},
+         {"localization", "ci_script", "tools/ci/check_localization_consistency.ps1",
+          "Localization consistency CI script"},
+         {"performance", "test_file", "tests/unit/test_presentation_runtime.cpp",
+          "Presentation runtime arena/profile tests"},
+         {"performance", "spec_section", "docs/templates/jrpg_spec.md", "jrpg spec performance bar notes"}});
 
     REQUIRE(descriptor["templateId"] == "jrpg");
 
@@ -601,15 +566,15 @@ TEST_CASE("jrpg WYSIWYG proof descriptor covers all five bars",
     }
 }
 
-TEST_CASE("visual_novel WYSIWYG proof descriptor covers all five bars",
-          "[wysiwyg][template][s30bt04]") {
-    const auto descriptor = buildWysiwygProofDescriptor("visual_novel", {
-        {"accessibility", "test_file",    "tests/unit/test_accessibility_auditor.cpp",    "AccessibilityAuditor tests"},
-        {"audio",         "test_file",    "tests/unit/test_audio_mix_presets.cpp",         "Audio preset tests"},
-        {"input",         "test_file",    "tests/unit/test_input_core.cpp",                "Input core tests"},
-        {"localization",  "test_file",    "tests/unit/test_completeness_checker.cpp",      "Localization completeness tests"},
-        {"performance",   "spec_section", "docs/templates/visual_novel_spec.md",           "visual_novel spec performance bar notes"}
-    });
+TEST_CASE("visual_novel WYSIWYG proof descriptor covers all five bars", "[wysiwyg][template][s30bt04]") {
+    const auto descriptor = buildWysiwygProofDescriptor(
+        "visual_novel",
+        {{"accessibility", "test_file", "tests/unit/test_accessibility_auditor.cpp", "AccessibilityAuditor tests"},
+         {"audio", "test_file", "tests/unit/test_audio_mix_presets.cpp", "Audio preset tests"},
+         {"input", "test_file", "tests/unit/test_input_core.cpp", "Input core tests"},
+         {"localization", "test_file", "tests/unit/test_completeness_checker.cpp", "Localization completeness tests"},
+         {"performance", "spec_section", "docs/templates/visual_novel_spec.md",
+          "visual_novel spec performance bar notes"}});
 
     REQUIRE(descriptor["templateId"] == "visual_novel");
     REQUIRE(descriptor["proofLinks"].size() == 5);
@@ -619,15 +584,15 @@ TEST_CASE("visual_novel WYSIWYG proof descriptor covers all five bars",
     }
 }
 
-TEST_CASE("turn_based_rpg WYSIWYG proof descriptor covers all five bars",
-          "[wysiwyg][template][s30bt04]") {
-    const auto descriptor = buildWysiwygProofDescriptor("turn_based_rpg", {
-        {"accessibility", "test_file",    "tests/unit/test_accessibility_auditor.cpp",    "AccessibilityAuditor tests"},
-        {"audio",         "test_file",    "tests/unit/test_audio_mix_presets.cpp",         "Audio preset tests"},
-        {"input",         "test_file",    "tests/unit/test_input_remap_store.cpp",         "Input remap governance tests"},
-        {"localization",  "test_file",    "tests/unit/test_completeness_checker.cpp",      "Localization completeness tests"},
-        {"performance",   "spec_section", "docs/templates/turn_based_rpg_spec.md",         "turn_based_rpg spec performance bar notes"}
-    });
+TEST_CASE("turn_based_rpg WYSIWYG proof descriptor covers all five bars", "[wysiwyg][template][s30bt04]") {
+    const auto descriptor = buildWysiwygProofDescriptor(
+        "turn_based_rpg",
+        {{"accessibility", "test_file", "tests/unit/test_accessibility_auditor.cpp", "AccessibilityAuditor tests"},
+         {"audio", "test_file", "tests/unit/test_audio_mix_presets.cpp", "Audio preset tests"},
+         {"input", "test_file", "tests/unit/test_input_remap_store.cpp", "Input remap governance tests"},
+         {"localization", "test_file", "tests/unit/test_completeness_checker.cpp", "Localization completeness tests"},
+         {"performance", "spec_section", "docs/templates/turn_based_rpg_spec.md",
+          "turn_based_rpg spec performance bar notes"}});
 
     REQUIRE(descriptor["templateId"] == "turn_based_rpg");
     REQUIRE(descriptor["proofLinks"].size() == 5);
@@ -639,9 +604,8 @@ TEST_CASE("turn_based_rpg WYSIWYG proof descriptor covers all five bars",
 
 TEST_CASE("WYSIWYG proof descriptor with empty artifact path is structurally incomplete",
           "[wysiwyg][template][s30bt04]") {
-    const auto descriptor = buildWysiwygProofDescriptor("jrpg", {
-        {"accessibility", "test_file", "", "Missing artifact path"}
-    });
+    const auto descriptor =
+        buildWysiwygProofDescriptor("jrpg", {{"accessibility", "test_file", "", "Missing artifact path"}});
 
     for (const auto& link : descriptor["proofLinks"]) {
         if (link["bar"] == "accessibility") {

@@ -477,7 +477,7 @@
   "templates": [
     {
       "id": "jrpg",
-      "status": "PARTIAL",
+      "status": "READY",
       "requiredSubsystems": [
         "ui_menu_core",
         "message_text_core",
@@ -489,23 +489,21 @@
         "audio": "READY",
         "input": "READY",
         "localization": "READY",
-        "performance": "PARTIAL"
+        "performance": "READY"
       },
       "barEvidence": {
         "accessibility": "AccessibilityAuditor label/focus/contrast tests, live adapters, renderer-derived contrast ingestion, and release top-level panel contrast coverage evidence are governed by test_accessibility_auditor and check_accessibility_governance.ps1.",
         "audio": "AudioMixPresets validator, live backend smoke diagnostics, backend/device matrix fixtures, muted release fallback diagnostics, and AudioMixPanel matrix exposure are governed by test_audio_mix_presets and check_audio_governance.ps1.",
         "input": "JRPG starter manifests and generated projects declare the full menu/battle required action set with keyboard and controller defaults. test_template_acceptance verifies template input closure, and test_input_remap_store proves those action names survive save/load. Touch remains hit-test UI/world behavior and reports touch_binding_unsupported for remap profiles.",
         "localization": "JRPG starter manifest declares required menu, battle, and system keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. TemplateLocalizationAudit and test_template_bar_quality verify manifest-driven required-key completeness and font-profile coverage.",
-        "performance": "General RPG frame-time budgets are enforced through presentation_runtime arena allocation and profile_arena tests. Large-world streaming and extended-play battle-sequence consistency are not production-validated."
+        "performance": "JRPG frame-time, arena-usage, and active-entity budgets are governed by template-specific performance budget diagnostics in test_template_bar_quality, presentation runtime arena allocation, and profile_arena tests for the claimed bounded starter scope."
       },
-      "safeScope": "Wave 1 native-first baseline with truthful residual gaps.",
-      "mainBlockers": [
-        "Cross-cutting readiness bars are not complete; accessibility, audio, input, and localization are READY, while performance remains PARTIAL"
-      ]
+      "safeScope": "Wave 1 native-first JRPG starter projects with narrative dialogue, menu-driven party management, turn-based combat, save/load loops, governed input, manifest-audited localization, accessibility/audio evidence, WYSIWYG proof descriptors, and bounded performance budgets.",
+      "mainBlockers": []
     },
     {
       "id": "visual_novel",
-      "status": "PARTIAL",
+      "status": "READY",
       "requiredSubsystems": [
         "message_text_core",
         "save_data_core"
@@ -513,25 +511,23 @@
       "bars": {
         "accessibility": "READY",
         "audio": "READY",
-        "input": "PARTIAL",
+        "input": "READY",
         "localization": "READY",
-        "performance": "PARTIAL"
+        "performance": "READY"
       },
       "barEvidence": {
         "accessibility": "AccessibilityAuditor label/focus/contrast tests, live adapters, renderer-derived contrast ingestion, and release top-level panel contrast coverage evidence are governed by test_accessibility_auditor and check_accessibility_governance.ps1.",
         "audio": "AudioMixPresets validator, live backend smoke diagnostics, backend/device matrix fixtures, muted release fallback diagnostics, and AudioMixPanel matrix exposure are governed by test_audio_mix_presets and check_audio_governance.ps1.",
-        "input": "Dialogue-advance and menu-navigation input paths are covered by test_input_core. Accessibility-input alternatives (auto-advance, skip) are scaffolded but not yet fully governed.",
+        "input": "Dialogue-advance, menu-navigation, auto-advance, skip-read, backlog, and text-speed controls are governed by test_input_core plus VisualNovelPacingDocument runtime preview commands and VisualNovelPacingPanel snapshots in test_template_bar_quality.",
         "localization": "Visual novel starter manifest declares required menu, dialogue control, speaker-name, and name-interpolation keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. TemplateLocalizationAudit and test_template_bar_quality verify manifest-driven required-key completeness and font-profile coverage.",
-        "performance": "Presentation runtime and profile_arena tests provide frame-time budget coverage. Sustained dialogue-heavy session load and asset streaming are not production-validated."
+        "performance": "Visual-novel frame-time, arena-usage, and active-entity budgets are governed by template-specific dialogue-heavy performance budget diagnostics in test_template_bar_quality, presentation runtime arena allocation, and profile_arena tests for the claimed bounded starter scope."
       },
-      "safeScope": "Dialogue-heavy projects within current native message and save scope.",
-      "mainBlockers": [
-        "Template-grade governance is not complete; accessibility, audio, and localization are READY, while input and performance remain PARTIAL"
-      ]
+      "safeScope": "Dialogue-heavy visual-novel starter projects with branching narrative data, persistent choice state, portrait sequences, chapter-level save points, backlog review, auto-advance, skip-read, text-speed controls, manifest-audited localization, governed accessibility/audio evidence, and bounded performance budgets.",
+      "mainBlockers": []
     },
     {
       "id": "turn_based_rpg",
-      "status": "PARTIAL",
+      "status": "READY",
       "requiredSubsystems": [
         "message_text_core",
         "battle_core",
@@ -542,19 +538,17 @@
         "audio": "READY",
         "input": "READY",
         "localization": "READY",
-        "performance": "PARTIAL"
+        "performance": "READY"
       },
       "barEvidence": {
         "accessibility": "AccessibilityAuditor label/focus/contrast tests, live adapters, renderer-derived contrast ingestion, and release top-level panel contrast coverage evidence are governed by test_accessibility_auditor and check_accessibility_governance.ps1.",
         "audio": "AudioMixPresets validator, live backend smoke diagnostics, backend/device matrix fixtures, muted release fallback diagnostics, and AudioMixPanel matrix exposure are governed by test_audio_mix_presets and check_audio_governance.ps1.",
         "input": "Turn-based RPG starter manifests and generated projects declare the full navigation/menu/battle required action set with keyboard and controller defaults. test_template_acceptance verifies template input closure, and test_input_remap_store proves those action names survive save/load. Touch remains hit-test UI/world behavior and reports touch_binding_unsupported for remap profiles.",
         "localization": "Turn-based RPG starter manifest declares required command, battle, result, turn-order, and status-effect keys with en-US and ja-JP locale bundles plus Latin/CJK font profiles. TemplateLocalizationAudit and test_template_bar_quality verify manifest-driven required-key completeness and font-profile coverage.",
-        "performance": "Presentation runtime arena and profile_arena frame-time budget tests apply. Battle-sequence scalability under extended play is not production-validated."
+        "performance": "Turn-based RPG frame-time, arena-usage, and active-entity budgets are governed by template-specific battle performance budget diagnostics in test_template_bar_quality, presentation runtime arena allocation, and profile_arena tests for the claimed bounded starter scope."
       },
-      "safeScope": "A conservative turn-based template slice similar to jrpg without implying broader productization.",
-      "mainBlockers": [
-        "Cross-cutting readiness bars and dedicated template governance remain incomplete; accessibility, audio, input, and localization are READY, while performance remains PARTIAL"
-      ]
+      "safeScope": "Conservative turn-based RPG starter projects with combat-focused progression, battle log/status text, save/recovery loops, governed input, manifest-audited localization, accessibility/audio evidence, WYSIWYG proof descriptors, and bounded performance budgets.",
+      "mainBlockers": []
     },
     {
       "id": "tactics_rpg",
