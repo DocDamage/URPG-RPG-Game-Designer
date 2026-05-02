@@ -20,10 +20,11 @@ foreach ($entry in $readiness.subsystems) {
     if ($matrixText -notmatch $pattern) {
         throw "Release readiness matrix is missing row for subsystem '$($entry.id)'."
     }
-}
 
-if ($matrixText -match [regex]::Escape("| " + $tick + "governance_foundation" + $tick + " | " + $tick + "READY" + $tick + " |")) {
-    throw "Governance foundation must not be labeled READY yet."
+    $statusPattern = [regex]::Escape("| " + $tick + $entry.id + $tick + " | " + $tick + $entry.status + $tick + " |")
+    if ($matrixText -notmatch $statusPattern) {
+        throw "Release readiness matrix status for subsystem '$($entry.id)' does not match readiness_status.json '$($entry.status)'."
+    }
 }
 
 Write-Host "Subsystem status claims are aligned with the current readiness dataset."

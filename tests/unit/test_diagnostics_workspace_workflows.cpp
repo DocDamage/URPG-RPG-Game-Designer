@@ -369,4 +369,3 @@ TEST_CASE("DiagnosticsWorkspace - Menu preview actions drive runtime selection a
     REQUIRE(exported["active_tab_detail"]["selected_row"]["pane_id"] == "side_pane");
     REQUIRE(exported["active_tab_detail"]["selected_row"]["command_id"] == "urpg.menu.item");
 }
-

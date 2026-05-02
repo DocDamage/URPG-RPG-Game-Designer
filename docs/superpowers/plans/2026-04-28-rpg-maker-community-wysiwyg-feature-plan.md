@@ -565,4 +565,3 @@ Expected: worktree clean and `development` pushed.
 ## Execution Notes
 
 This plan intentionally uses one shared runtime/panel contract for the first complete WYSIWYG pass. If a feature later needs deeper product behavior, split it into a specialist module only after the shared contract is green and registered.
-

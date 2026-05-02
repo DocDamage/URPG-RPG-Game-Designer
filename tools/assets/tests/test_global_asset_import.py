@@ -16,7 +16,7 @@ from unittest import mock
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
-from tools.assets import global_asset_import
+from tools.assets import global_asset_import  # noqa: E402
 
 
 PNG_1X1 = (
@@ -88,9 +88,19 @@ class GlobalAssetImportTests(unittest.TestCase):
             self.assertEqual(duplicate_flags.count(True), 1)
             self.assertTrue(by_path["source/hero.psd"]["sourceOnly"])
             self.assertFalse(by_path["source/hero.psd"]["previewAvailable"])
-            self.assertEqual(by_path["source/hero.psd"]["noPreviewDiagnostic"], "no_preview_source_only")
+            self.assertEqual(
+                by_path["source/hero.psd"]["noPreviewDiagnostic"],
+                "no_preview_source_only",
+            )
 
-            manifest_path = root / ".urpg" / "asset-library" / "sources" / "import_test_001" / "source_manifest.json"
+            manifest_path = (
+                root
+                / ".urpg"
+                / "asset-library"
+                / "sources"
+                / "import_test_001"
+                / "source_manifest.json"
+            )
             self.assertTrue(manifest_path.is_file())
             loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
             self.assertEqual(loaded["sessionId"], "import_test_001")
@@ -165,7 +175,9 @@ class GlobalAssetImportTests(unittest.TestCase):
             self.assertIn("nested/inner_pack.zip", by_path)
             self.assertNotIn("nested/img/characters/Inside.png", by_path)
             self.assertEqual(by_path["nested/inner_pack.zip"]["mediaKind"], "archive")
-            self.assertIn("unsupported_format", by_path["nested/inner_pack.zip"]["diagnostics"])
+            self.assertIn(
+                "unsupported_format", by_path["nested/inner_pack.zip"]["diagnostics"]
+            )
             self.assertEqual(session["summary"]["filesScanned"], 2)
             self.assertEqual(session["summary"]["unsupportedCount"], 1)
 
@@ -185,9 +197,19 @@ class GlobalAssetImportTests(unittest.TestCase):
             )
 
             self.assertEqual(session["status"], "failed")
-            self.assertEqual(session["diagnostics"][0]["code"], "import_byte_limit_exceeded")
+            self.assertEqual(
+                session["diagnostics"][0]["code"], "import_byte_limit_exceeded"
+            )
             self.assertEqual(session["summary"]["filesScanned"], 0)
-            copied = root / ".urpg" / "asset-library" / "sources" / "import_file_limit" / "original" / "hero.png"
+            copied = (
+                root
+                / ".urpg"
+                / "asset-library"
+                / "sources"
+                / "import_file_limit"
+                / "original"
+                / "hero.png"
+            )
             self.assertFalse(copied.exists())
 
     def test_malformed_zip_reports_stable_diagnostic(self) -> None:
@@ -277,11 +299,17 @@ class GlobalAssetImportTests(unittest.TestCase):
             ]:
                 (source / folder).mkdir(parents=True, exist_ok=True)
             (source / "img" / "characters" / "Actor1.png").write_bytes(PNG_1X1)
-            (source / "img" / "sv_actors" / "Actor1.png").write_bytes(PNG_1X1 + b"battle")
+            (source / "img" / "sv_actors" / "Actor1.png").write_bytes(
+                PNG_1X1 + b"battle"
+            )
             (source / "img" / "tilesets" / "Outside_A1.png").write_bytes(PNG_1X1)
             (source / "img" / "faces" / "Actor1.png").write_bytes(PNG_1X1 + b"face")
-            (source / "img" / "parallaxes" / "Forest.png").write_bytes(PNG_1X1 + b"parallax")
-            (source / "img" / "pictures" / "Title.png").write_bytes(PNG_1X1 + b"picture")
+            (source / "img" / "parallaxes" / "Forest.png").write_bytes(
+                PNG_1X1 + b"parallax"
+            )
+            (source / "img" / "pictures" / "Title.png").write_bytes(
+                PNG_1X1 + b"picture"
+            )
             (source / "img" / "animations" / "Slash.png").write_bytes(PNG_1X1 + b"vfx")
             (source / "img" / "system" / "Window.png").write_bytes(PNG_1X1 + b"system")
             write_wav(source / "audio" / "se" / "Attack1.wav")
@@ -297,12 +325,22 @@ class GlobalAssetImportTests(unittest.TestCase):
             )
 
             by_path = {record["relativePath"]: record for record in session["records"]}
-            self.assertEqual(by_path["img/characters/Actor1.png"]["category"], "character/field")
-            self.assertEqual(by_path["img/sv_actors/Actor1.png"]["category"], "character/battle")
-            self.assertEqual(by_path["img/tilesets/Outside_A1.png"]["category"], "tileset")
+            self.assertEqual(
+                by_path["img/characters/Actor1.png"]["category"], "character/field"
+            )
+            self.assertEqual(
+                by_path["img/sv_actors/Actor1.png"]["category"], "character/battle"
+            )
+            self.assertEqual(
+                by_path["img/tilesets/Outside_A1.png"]["category"], "tileset"
+            )
             self.assertEqual(by_path["img/faces/Actor1.png"]["category"], "portrait")
-            self.assertEqual(by_path["img/parallaxes/Forest.png"]["category"], "background")
-            self.assertEqual(by_path["img/pictures/Title.png"]["category"], "background")
+            self.assertEqual(
+                by_path["img/parallaxes/Forest.png"]["category"], "background"
+            )
+            self.assertEqual(
+                by_path["img/pictures/Title.png"]["category"], "background"
+            )
             self.assertEqual(by_path["img/animations/Slash.png"]["category"], "vfx")
             self.assertEqual(by_path["img/system/Window.png"]["category"], "ui")
             self.assertEqual(by_path["audio/se/Attack1.wav"]["category"], "audio/se")
@@ -328,8 +366,13 @@ class GlobalAssetImportTests(unittest.TestCase):
             self.assertFalse(record["runtimeReady"])
             self.assertTrue(record["conversionRequired"])
             self.assertIn("conversion_required", record["diagnostics"])
-            self.assertEqual(record["conversionTargetPath"], "converted/audio/bgm/theme.wav")
-            self.assertEqual(record["conversionCommand"][-2:], ["audio/bgm/theme.ogg", "converted/audio/bgm/theme.wav"])
+            self.assertEqual(
+                record["conversionTargetPath"], "converted/audio/bgm/theme.wav"
+            )
+            self.assertEqual(
+                record["conversionCommand"][-2:],
+                ["audio/bgm/theme.ogg", "converted/audio/bgm/theme.wav"],
+            )
             self.assertEqual(session["summary"]["needsConversionCount"], 1)
 
     def test_optional_external_archive_extractor_invocation(self) -> None:
@@ -358,11 +401,17 @@ class GlobalAssetImportTests(unittest.TestCase):
 
             self.assertEqual(session["sourceKind"], "external_archive")
             self.assertEqual(session["status"], "review_ready")
-            self.assertEqual(session["diagnostics"][0]["code"], "external_archive_extracted")
-            self.assertEqual(session["records"][0]["relativePath"], "img/characters/Hero.png")
+            self.assertEqual(
+                session["diagnostics"][0]["code"], "external_archive_extracted"
+            )
+            self.assertEqual(
+                session["records"][0]["relativePath"], "img/characters/Hero.png"
+            )
             self.assertEqual(session["records"][0]["category"], "character/field")
 
-    def test_failed_external_archive_extraction_does_not_catalog_partial_outputs(self) -> None:
+    def test_failed_external_archive_extraction_does_not_catalog_partial_outputs(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             archive = root / "pack.7z"
@@ -389,11 +438,15 @@ class GlobalAssetImportTests(unittest.TestCase):
 
             self.assertEqual(session["sourceKind"], "external_archive")
             self.assertEqual(session["status"], "failed")
-            self.assertEqual(session["diagnostics"][0]["code"], "external_extractor_failed")
+            self.assertEqual(
+                session["diagnostics"][0]["code"], "external_extractor_failed"
+            )
             self.assertEqual(session["summary"]["filesScanned"], 0)
             self.assertEqual(session["records"], [])
 
-    def test_external_archive_extractor_handoff_supports_source_destination_placeholders(self) -> None:
+    def test_external_archive_extractor_handoff_supports_source_destination_placeholders(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             archive = root / "pack.7z"
@@ -415,16 +468,27 @@ class GlobalAssetImportTests(unittest.TestCase):
                 license_note="User-provided test license.",
                 max_files=100,
                 max_bytes=1024 * 1024,
-                external_extractor_command=[sys.executable, str(extractor), "{source}", "{destination}"],
+                external_extractor_command=[
+                    sys.executable,
+                    str(extractor),
+                    "{source}",
+                    "{destination}",
+                ],
             )
 
             self.assertEqual(session["sourceKind"], "external_archive")
             self.assertEqual(session["status"], "review_ready")
-            self.assertEqual(session["diagnostics"][0]["code"], "external_archive_extracted")
-            self.assertEqual(session["records"][0]["relativePath"], "audio/se/confirm.wav")
+            self.assertEqual(
+                session["diagnostics"][0]["code"], "external_archive_extracted"
+            )
+            self.assertEqual(
+                session["records"][0]["relativePath"], "audio/se/confirm.wav"
+            )
             self.assertEqual(session["records"][0]["category"], "audio/se")
 
-    def test_external_archive_extractor_handoff_supports_embedded_placeholders(self) -> None:
+    def test_external_archive_extractor_handoff_supports_embedded_placeholders(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             archive = root / "pack.7z"
@@ -447,13 +511,20 @@ class GlobalAssetImportTests(unittest.TestCase):
                 license_note="User-provided test license.",
                 max_files=100,
                 max_bytes=1024 * 1024,
-                external_extractor_command=[sys.executable, str(extractor), "{source}", "--out={destination}"],
+                external_extractor_command=[
+                    sys.executable,
+                    str(extractor),
+                    "{source}",
+                    "--out={destination}",
+                ],
             )
 
             self.assertEqual(session["sourceKind"], "external_archive")
             self.assertEqual(session["status"], "review_ready")
             self.assertEqual(len(session["records"]), 1)
-            self.assertEqual(session["records"][0]["relativePath"], "img/system/Window.png")
+            self.assertEqual(
+                session["records"][0]["relativePath"], "img/system/Window.png"
+            )
             self.assertEqual(session["records"][0]["category"], "ui")
 
     def test_cli_uses_configured_external_extractor_from_environment(self) -> None:
@@ -472,34 +543,50 @@ class GlobalAssetImportTests(unittest.TestCase):
             )
             env_command = f"{shlex.quote(sys.executable)} {shlex.quote(str(extractor))} {{source}} {{destination}}"
 
-            with mock.patch.dict(os.environ, {"URPG_ASSET_ARCHIVE_EXTRACTOR": env_command}), mock.patch(
-                "sys.stdout", new_callable=io.StringIO
+            with (
+                mock.patch.dict(
+                    os.environ, {"URPG_ASSET_ARCHIVE_EXTRACTOR": env_command}
+                ),
+                mock.patch("sys.stdout", new_callable=io.StringIO),
             ):
-                exit_code = global_asset_import.main([
-                    "--source",
-                    str(archive),
-                    "--library-root",
-                    str(root / ".urpg" / "asset-library"),
-                    "--session-id",
-                    "import_env_extractor",
-                    "--license-note",
-                    "User-provided test license.",
-                    "--output",
-                    str(output),
-                ])
+                exit_code = global_asset_import.main(
+                    [
+                        "--source",
+                        str(archive),
+                        "--library-root",
+                        str(root / ".urpg" / "asset-library"),
+                        "--session-id",
+                        "import_env_extractor",
+                        "--license-note",
+                        "User-provided test license.",
+                        "--output",
+                        str(output),
+                    ]
+                )
 
             self.assertEqual(exit_code, 0)
             session = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(session["sourceKind"], "external_archive")
-            self.assertEqual(session["records"][0]["relativePath"], "img/faces/Hero.png")
+            self.assertEqual(
+                session["records"][0]["relativePath"], "img/faces/Hero.png"
+            )
             self.assertEqual(session["records"][0]["category"], "portrait")
 
-    def test_configured_external_extractor_command_ignores_whitespace_only_environment(self) -> None:
+    def test_configured_external_extractor_command_ignores_whitespace_only_environment(
+        self,
+    ) -> None:
         with mock.patch.dict(os.environ, {"URPG_ASSET_ARCHIVE_EXTRACTOR": "   \t  "}):
-            self.assertIsNone(global_asset_import.configured_external_extractor_command(None))
+            self.assertIsNone(
+                global_asset_import.configured_external_extractor_command(None)
+            )
 
-    def test_configured_external_extractor_command_rejects_unclosed_quotes(self) -> None:
-        with mock.patch.dict(os.environ, {"URPG_ASSET_ARCHIVE_EXTRACTOR": '"C:/Program Files/7-Zip/7z.exe'}):
+    def test_configured_external_extractor_command_rejects_unclosed_quotes(
+        self,
+    ) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {"URPG_ASSET_ARCHIVE_EXTRACTOR": '"C:/Program Files/7-Zip/7z.exe'},
+        ):
             with self.assertRaises(ValueError):
                 global_asset_import.configured_external_extractor_command(None)
 
@@ -509,7 +596,9 @@ class GlobalAssetImportTests(unittest.TestCase):
             source = root / "animations"
             (source / "img" / "animations").mkdir(parents=True)
             for index in range(3):
-                (source / "img" / "animations" / f"Slash_{index:03}.png").write_bytes(PNG_1X1 + bytes([index]))
+                (source / "img" / "animations" / f"Slash_{index:03}.png").write_bytes(
+                    PNG_1X1 + bytes([index])
+                )
 
             session = global_asset_import.build_session(
                 source=source,
@@ -522,15 +611,22 @@ class GlobalAssetImportTests(unittest.TestCase):
 
             self.assertEqual(len(session["sequenceGroups"]), 1)
             group = session["sequenceGroups"][0]
-            self.assertEqual(group["sequenceId"], "import_animation_sequence:img-animations-slash")
+            self.assertEqual(
+                group["sequenceId"], "import_animation_sequence:img-animations-slash"
+            )
             self.assertEqual(group["category"], "vfx")
             self.assertEqual(group["frameCount"], 3)
-            self.assertEqual(group["frames"], [
-                "img/animations/Slash_000.png",
-                "img/animations/Slash_001.png",
-                "img/animations/Slash_002.png",
-            ])
-            for index, record in enumerate(sorted(session["records"], key=lambda item: item["relativePath"])):
+            self.assertEqual(
+                group["frames"],
+                [
+                    "img/animations/Slash_000.png",
+                    "img/animations/Slash_001.png",
+                    "img/animations/Slash_002.png",
+                ],
+            )
+            for index, record in enumerate(
+                sorted(session["records"], key=lambda item: item["relativePath"])
+            ):
                 self.assertEqual(record["sequenceId"], group["sequenceId"])
                 self.assertEqual(record["sequenceFrameIndex"], index)
                 self.assertEqual(record["sequenceFrameCount"], 3)

@@ -41,11 +41,17 @@ def query_manifest(manifest: dict, query: str, limit: int) -> list[dict]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Query an offline retrieval index manifest.")
-    parser.add_argument("--manifest", required=True, help="Manifest produced by build_index.py.")
+    parser = argparse.ArgumentParser(
+        description="Query an offline retrieval index manifest."
+    )
+    parser.add_argument(
+        "--manifest", required=True, help="Manifest produced by build_index.py."
+    )
     parser.add_argument("--query", required=True)
     parser.add_argument("--limit", type=int, default=5)
-    parser.add_argument("--json", action="store_true", help="Emit JSON rows instead of text.")
+    parser.add_argument(
+        "--json", action="store_true", help="Emit JSON rows instead of text."
+    )
     args = parser.parse_args()
 
     manifest = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
@@ -54,7 +60,9 @@ def main() -> int:
         print(json.dumps({"query": args.query, "results": rows}, indent=2))
     else:
         for row in rows:
-            print(f"{row['score']:.4f}\t{row['chunk_id']}\t{row['source_path']}\t{row['excerpt']}")
+            print(
+                f"{row['score']:.4f}\t{row['chunk_id']}\t{row['source_path']}\t{row['excerpt']}"
+            )
     return 0
 
 

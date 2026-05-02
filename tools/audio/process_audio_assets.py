@@ -58,7 +58,9 @@ def build_outputs(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Create an offline audio tool manifest.")
+    parser = argparse.ArgumentParser(
+        description="Create an offline audio tool manifest."
+    )
     parser.add_argument("--source-audio", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--output-root", required=True)

@@ -25,12 +25,17 @@ TEST_CASE("Thread registry tolerates concurrent registration and queries", "[thr
     urpg::ThreadRegistry registry;
     std::atomic<bool> start{false};
     std::atomic<bool> stop{false};
+    std::atomic<int> readersReady{0};
     std::atomic<int> querySuccesses{0};
     std::atomic<bool> writerObservedFailure{false};
 
     std::vector<std::thread> threads;
     threads.emplace_back([&]() {
         while (!start.load(std::memory_order_acquire)) {
+        }
+
+        while (querySuccesses.load(std::memory_order_acquire) < 10) {
+            std::this_thread::yield();
         }
 
         for (int i = 0; i < 1000; ++i) {
@@ -49,6 +54,7 @@ TEST_CASE("Thread registry tolerates concurrent registration and queries", "[thr
 
     for (int i = 0; i < 3; ++i) {
         threads.emplace_back([&]() {
+            readersReady.fetch_add(1, std::memory_order_release);
             while (!start.load(std::memory_order_acquire)) {
             }
 
@@ -61,6 +67,9 @@ TEST_CASE("Thread registry tolerates concurrent registration and queries", "[thr
         });
     }
 
+    while (readersReady.load(std::memory_order_acquire) < 3) {
+        std::this_thread::yield();
+    }
     start.store(true, std::memory_order_release);
 
     for (auto& thread : threads) {

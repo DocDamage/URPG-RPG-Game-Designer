@@ -36,7 +36,11 @@ FATAL_IMPORT_DIAGNOSTICS = {
 
 
 def iso_now() -> str:
-    return dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+    return (
+        dt.datetime.now(dt.timezone.utc)
+        .isoformat(timespec="seconds")
+        .replace("+00:00", "Z")
+    )
 
 
 def slugify(value: str) -> str:
@@ -57,11 +61,17 @@ def read_image_size(path: Path) -> tuple[int, int] | None:
         with path.open("rb") as handle:
             if ext == "png":
                 data = handle.read(24)
-                if len(data) >= 24 and data[:8] == b"\x89PNG\r\n\x1a\n" and data[12:16] == b"IHDR":
+                if (
+                    len(data) >= 24
+                    and data[:8] == b"\x89PNG\r\n\x1a\n"
+                    and data[12:16] == b"IHDR"
+                ):
                     return struct.unpack(">II", data[16:24])
             if ext == "gif":
                 data = handle.read(10)
-                if len(data) >= 10 and (data.startswith(b"GIF87a") or data.startswith(b"GIF89a")):
+                if len(data) >= 10 and (
+                    data.startswith(b"GIF87a") or data.startswith(b"GIF89a")
+                ):
                     return struct.unpack("<HH", data[6:10])
             if ext == "bmp":
                 data = handle.read(26)
@@ -88,7 +98,21 @@ def read_image_size(path: Path) -> tuple[int, int] | None:
                     segment_length = struct.unpack(">H", length_bytes)[0]
                     if segment_length < 2:
                         return None
-                    if marker in {b"\xc0", b"\xc1", b"\xc2", b"\xc3", b"\xc5", b"\xc6", b"\xc7", b"\xc9", b"\xca", b"\xcb", b"\xcd", b"\xce", b"\xcf"}:
+                    if marker in {
+                        b"\xc0",
+                        b"\xc1",
+                        b"\xc2",
+                        b"\xc3",
+                        b"\xc5",
+                        b"\xc6",
+                        b"\xc7",
+                        b"\xc9",
+                        b"\xca",
+                        b"\xcb",
+                        b"\xcd",
+                        b"\xce",
+                        b"\xcf",
+                    }:
                         data = handle.read(5)
                         if len(data) != 5:
                             return None
@@ -121,7 +145,11 @@ def safe_join(root: Path, relative: str) -> Path:
 
 def zip_entry_safe(name: str) -> bool:
     normalized = name.replace("\\", "/")
-    if not normalized or normalized.startswith("/") or re.match(r"^[A-Za-z]:", normalized):
+    if (
+        not normalized
+        or normalized.startswith("/")
+        or re.match(r"^[A-Za-z]:", normalized)
+    ):
         return False
     return ".." not in Path(normalized).parts
 
@@ -156,10 +184,20 @@ def run_external_archive_extractor(
     target_root = session_root / "extracted"
     target_root.mkdir(parents=True, exist_ok=True)
     if not external_extractor_command:
-        diagnostics.append({"code": "unsupported_extractor", "message": "RAR/7z import requires a configured extractor.", "path": str(source)})
+        diagnostics.append(
+            {
+                "code": "unsupported_extractor",
+                "message": "RAR/7z import requires a configured extractor.",
+                "path": str(source),
+            }
+        )
         return target_root, diagnostics
     placeholders = {"{source}": str(source), "{destination}": str(target_root)}
-    uses_template = any(placeholder in token for token in external_extractor_command for placeholder in placeholders)
+    uses_template = any(
+        placeholder in token
+        for token in external_extractor_command
+        for placeholder in placeholders
+    )
     command = []
     for token in external_extractor_command:
         expanded = token
@@ -169,27 +207,55 @@ def run_external_archive_extractor(
     if not uses_template:
         command.extend([str(source), str(target_root)])
     try:
-        result = subprocess.run(command, check=False, capture_output=True, text=True, timeout=120)
+        result = subprocess.run(
+            command, check=False, capture_output=True, text=True, timeout=120
+        )
     except FileNotFoundError:
-        diagnostics.append({"code": "external_extractor_missing", "message": "Configured archive extractor could not be started.", "path": str(source)})
+        diagnostics.append(
+            {
+                "code": "external_extractor_missing",
+                "message": "Configured archive extractor could not be started.",
+                "path": str(source),
+            }
+        )
         return target_root, diagnostics
     except subprocess.TimeoutExpired:
-        diagnostics.append({"code": "external_extractor_timeout", "message": "Configured archive extractor exceeded the import timeout.", "path": str(source)})
+        diagnostics.append(
+            {
+                "code": "external_extractor_timeout",
+                "message": "Configured archive extractor exceeded the import timeout.",
+                "path": str(source),
+            }
+        )
         return target_root, diagnostics
     if result.returncode != 0:
-        diagnostics.append({
-            "code": "external_extractor_failed",
-            "message": "Configured archive extractor failed.",
-            "path": str(source),
-            "stderr": result.stderr.strip()[:1000],
-        })
+        diagnostics.append(
+            {
+                "code": "external_extractor_failed",
+                "message": "Configured archive extractor failed.",
+                "path": str(source),
+                "stderr": result.stderr.strip()[:1000],
+            }
+        )
         return target_root, diagnostics
     try:
         validate_tree_limits(target_root, max_files, max_bytes)
     except ValueError as exc:
-        diagnostics.append({"code": str(exc), "message": "External archive extraction exceeded configured safety limits.", "path": str(source)})
+        diagnostics.append(
+            {
+                "code": str(exc),
+                "message": "External archive extraction exceeded configured safety limits.",
+                "path": str(source),
+            }
+        )
         return target_root, diagnostics
-    diagnostics.append({"code": "external_archive_extracted", "message": "Archive was extracted with the configured external extractor.", "path": str(source)})
+    diagnostics.append(
+        {
+            "code": "external_archive_extracted",
+            "message": "Archive was extracted with the configured external extractor.",
+            "path": str(source),
+        }
+    )
     return target_root, diagnostics
 
 
@@ -205,7 +271,13 @@ def copy_source_to_quarantine(
     if source_kind == "file":
         target_root = session_root / "original"
         if source.suffix.lower() in {".rar", ".7z"}:
-            diagnostics.append({"code": "unsupported_extractor", "message": "RAR/7z import requires a configured extractor.", "path": str(source)})
+            diagnostics.append(
+                {
+                    "code": "unsupported_extractor",
+                    "message": "RAR/7z import requires a configured extractor.",
+                    "path": str(source),
+                }
+            )
             return target_root, diagnostics
         if max_files < 1:
             raise ValueError("import_file_count_limit_exceeded")
@@ -239,7 +311,13 @@ def copy_source_to_quarantine(
                 if info.is_dir():
                     continue
                 if not zip_entry_safe(info.filename):
-                    diagnostics.append({"code": "unsafe_archive_path", "message": "ZIP entry escaped the managed import root.", "path": info.filename})
+                    diagnostics.append(
+                        {
+                            "code": "unsafe_archive_path",
+                            "message": "ZIP entry escaped the managed import root.",
+                            "path": info.filename,
+                        }
+                    )
                     continue
                 extracted_files += 1
                 extracted_bytes += int(info.file_size)
@@ -249,10 +327,19 @@ def copy_source_to_quarantine(
                     raise ValueError("import_byte_limit_exceeded")
                 target = safe_join(target_root, info.filename)
                 target.parent.mkdir(parents=True, exist_ok=True)
-                with archive.open(info) as source_handle, target.open("wb") as target_handle:
+                with (
+                    archive.open(info) as source_handle,
+                    target.open("wb") as target_handle,
+                ):
                     shutil.copyfileobj(source_handle, target_handle)
     except zipfile.BadZipFile:
-        diagnostics.append({"code": "archive_read_failed", "message": "ZIP archive could not be read.", "path": str(source)})
+        diagnostics.append(
+            {
+                "code": "archive_read_failed",
+                "message": "ZIP archive could not be read.",
+                "path": str(source),
+            }
+        )
     return target_root, diagnostics
 
 
@@ -304,7 +391,14 @@ def infer_category(path: Path, media_kind: str) -> str:
                 return "tileset"
             if parts[1] == "faces":
                 return "portrait"
-            if parts[1] in {"parallaxes", "pictures", "battlebacks1", "battlebacks2", "titles1", "titles2"}:
+            if parts[1] in {
+                "parallaxes",
+                "pictures",
+                "battlebacks1",
+                "battlebacks2",
+                "titles1",
+                "titles2",
+            }:
                 return "background"
             if parts[1] == "animations":
                 return "vfx"
@@ -334,7 +428,9 @@ def conversion_target_for(relative: Path) -> str:
     return (Path("converted") / relative).with_suffix(".wav").as_posix()
 
 
-def preview_metadata(kind: str, source_only: bool, tooling_only: bool) -> tuple[bool, str, str]:
+def preview_metadata(
+    kind: str, source_only: bool, tooling_only: bool
+) -> tuple[bool, str, str]:
     if kind in {"image", "audio"}:
         return True, kind, ""
     if source_only:
@@ -346,7 +442,9 @@ def preview_metadata(kind: str, source_only: bool, tooling_only: bool) -> tuple[
     return False, "none", "no_preview_unsupported_format"
 
 
-def build_record(path: Path, scan_root: Path, session_id: str, source_name: str, license_note: str) -> dict:
+def build_record(
+    path: Path, scan_root: Path, session_id: str, source_name: str, license_note: str
+) -> dict:
     relative = path.relative_to(scan_root)
     ext = path.suffix.lower().lstrip(".")
     kind = infer_media_kind(ext)
@@ -374,14 +472,20 @@ def build_record(path: Path, scan_root: Path, session_id: str, source_name: str,
         duration_ms = read_wav_duration_ms(path) or 0
     conversion_required = ext in CONVERSION_AUDIO_EXTS
     conversion_target = conversion_target_for(relative) if conversion_required else ""
-    conversion_command = [
-        "ffmpeg",
-        "-y",
-        "-i",
-        relative.as_posix(),
-        conversion_target,
-    ] if conversion_required else []
-    preview_available, preview_kind, no_preview_diagnostic = preview_metadata(kind, source_only, tooling_only)
+    conversion_command = (
+        [
+            "ffmpeg",
+            "-y",
+            "-i",
+            relative.as_posix(),
+            conversion_target,
+        ]
+        if conversion_required
+        else []
+    )
+    preview_available, preview_kind, no_preview_diagnostic = preview_metadata(
+        kind, source_only, tooling_only
+    )
     return {
         "assetId": f"{session_id}:{digest[:16]}",
         "relativePath": relative.as_posix(),
@@ -414,7 +518,9 @@ def build_record(path: Path, scan_root: Path, session_id: str, source_name: str,
     }
 
 
-def scan_records(scan_root: Path, session_id: str, source_name: str, license_note: str) -> list[dict]:
+def scan_records(
+    scan_root: Path, session_id: str, source_name: str, license_note: str
+) -> list[dict]:
     records = [
         build_record(path, scan_root, session_id, source_name, license_note)
         for path in sorted(scan_root.rglob("*"))
@@ -453,19 +559,23 @@ def assemble_sequence_groups(records: list[dict], session_id: str) -> list[dict]
         if len(frames) < 2:
             continue
         frames.sort(key=lambda item: item["relativePath"])
-        sequence_id = f"{session_id}:{slugify('/'.join(part for part in [folder, stem] if part))}"
+        sequence_id = (
+            f"{session_id}:{slugify('/'.join(part for part in [folder, stem] if part))}"
+        )
         for index, frame in enumerate(frames):
             frame["sequenceId"] = sequence_id
             frame["sequenceFrameIndex"] = index
             frame["sequenceFrameCount"] = len(frames)
-        sequence_groups.append({
-            "sequenceId": sequence_id,
-            "category": frames[0]["category"],
-            "mediaKind": "image_sequence",
-            "frameCount": len(frames),
-            "representativePath": frames[0]["relativePath"],
-            "frames": [frame["relativePath"] for frame in frames],
-        })
+        sequence_groups.append(
+            {
+                "sequenceId": sequence_id,
+                "category": frames[0]["category"],
+                "mediaKind": "image_sequence",
+                "frameCount": len(frames),
+                "representativePath": frames[0]["relativePath"],
+                "frames": [frame["relativePath"] for frame in frames],
+            }
+        )
     return sequence_groups
 
 
@@ -498,7 +608,9 @@ def summarize(records: list[dict]) -> dict:
 
 
 def has_fatal_diagnostic(diagnostics: list[dict]) -> bool:
-    return any(diagnostic.get("code") in FATAL_IMPORT_DIAGNOSTICS for diagnostic in diagnostics)
+    return any(
+        diagnostic.get("code") in FATAL_IMPORT_DIAGNOSTICS for diagnostic in diagnostics
+    )
 
 
 def build_session(
@@ -519,24 +631,51 @@ def build_session(
     if source_kind == "unsupported_archive":
         if external_extractor_command:
             manifest_source_kind = "external_archive"
-            scan_root, diagnostics = run_external_archive_extractor(source, session_root, external_extractor_command, max_files, max_bytes)
+            scan_root, diagnostics = run_external_archive_extractor(
+                source, session_root, external_extractor_command, max_files, max_bytes
+            )
         else:
-            diagnostics.append({"code": "unsupported_extractor", "message": "RAR/7z import requires a configured extractor.", "path": str(source)})
+            diagnostics.append(
+                {
+                    "code": "unsupported_extractor",
+                    "message": "RAR/7z import requires a configured extractor.",
+                    "path": str(source),
+                }
+            )
             scan_root = session_root / "original"
             scan_root.mkdir(parents=True, exist_ok=True)
     else:
         try:
-            scan_root, diagnostics = copy_source_to_quarantine(source, session_root, source_kind, max_files, max_bytes, external_extractor_command)
+            scan_root, diagnostics = copy_source_to_quarantine(
+                source,
+                session_root,
+                source_kind,
+                max_files,
+                max_bytes,
+                external_extractor_command,
+            )
         except ValueError as exc:
             code = str(exc)
-            diagnostics.append({"code": code, "message": "Import session exceeded configured safety limits.", "path": str(source)})
-            scan_root = session_root / ("extracted" if source_kind == "zip" else "original")
+            diagnostics.append(
+                {
+                    "code": code,
+                    "message": "Import session exceeded configured safety limits.",
+                    "path": str(source),
+                }
+            )
+            scan_root = session_root / (
+                "extracted" if source_kind == "zip" else "original"
+            )
             scan_root.mkdir(parents=True, exist_ok=True)
-    records = [] if has_fatal_diagnostic(diagnostics) else scan_records(
-        scan_root,
-        session_id,
-        source.stem if source.is_file() else source.name,
-        license_note,
+    records = (
+        []
+        if has_fatal_diagnostic(diagnostics)
+        else scan_records(
+            scan_root,
+            session_id,
+            source.stem if source.is_file() else source.name,
+            license_note,
+        )
     )
     sequence_groups = assemble_sequence_groups(records, session_id)
     status = "review_ready" if not has_fatal_diagnostic(diagnostics) else "failed"
@@ -556,18 +695,34 @@ def build_session(
     }
     source_manifest = session_root / "source_manifest.json"
     source_manifest.write_text(json.dumps(session, indent=2), encoding="utf-8")
-    catalog_manifest = library_root / "catalog" / "import_sessions" / f"{session_id}.json"
+    catalog_manifest = (
+        library_root / "catalog" / "import_sessions" / f"{session_id}.json"
+    )
     catalog_manifest.parent.mkdir(parents=True, exist_ok=True)
     catalog_manifest.write_text(json.dumps(session, indent=2), encoding="utf-8")
     return session
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Import a file, folder, or ZIP into the URPG global asset library quarantine.")
-    parser.add_argument("--source", required=True, help="Source file, folder, or ZIP archive.")
-    parser.add_argument("--library-root", default=".urpg/asset-library", help="Managed global asset library root.")
-    parser.add_argument("--session-id", help="Stable session id. Defaults to import_<UTC timestamp>.")
-    parser.add_argument("--license-note", default="", help="User-provided license/attribution note for review.")
+    parser = argparse.ArgumentParser(
+        description="Import a file, folder, or ZIP into the URPG global asset library quarantine."
+    )
+    parser.add_argument(
+        "--source", required=True, help="Source file, folder, or ZIP archive."
+    )
+    parser.add_argument(
+        "--library-root",
+        default=".urpg/asset-library",
+        help="Managed global asset library root.",
+    )
+    parser.add_argument(
+        "--session-id", help="Stable session id. Defaults to import_<UTC timestamp>."
+    )
+    parser.add_argument(
+        "--license-note",
+        default="",
+        help="User-provided license/attribution note for review.",
+    )
     parser.add_argument("--max-files", type=int, default=10000)
     parser.add_argument("--max-bytes", type=int, default=1024 * 1024 * 1024)
     parser.add_argument(
@@ -582,13 +737,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def configured_external_extractor_command(cli_value: str | None) -> list[str] | None:
-    command = cli_value if cli_value is not None else os.environ.get(EXTERNAL_EXTRACTOR_ENV)
+    command = (
+        cli_value if cli_value is not None else os.environ.get(EXTERNAL_EXTRACTOR_ENV)
+    )
     if command is None or not command.strip():
         return None
     try:
         return shlex.split(command)
     except ValueError as exc:
-        raise ValueError(f"{EXTERNAL_EXTRACTOR_ENV} could not be parsed: {exc}") from exc
+        raise ValueError(
+            f"{EXTERNAL_EXTRACTOR_ENV} could not be parsed: {exc}"
+        ) from exc
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -596,17 +755,44 @@ def main(argv: list[str] | None = None) -> int:
     source = Path(args.source)
     if not source.exists():
         raise SystemExit(f"source not found: {source}")
-    session_id = args.session_id or f"import_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+    session_id = (
+        args.session_id
+        or f"import_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+    )
     library_root = Path(args.library_root)
     try:
-        external_extractor_command = configured_external_extractor_command(args.external_extractor_command)
+        external_extractor_command = configured_external_extractor_command(
+            args.external_extractor_command
+        )
     except ValueError as exc:
         raise SystemExit(str(exc))
-    session = build_session(source, library_root, session_id, args.license_note, args.max_files, args.max_bytes, external_extractor_command)
-    output = Path(args.output) if args.output else library_root / "catalog" / "import_sessions" / f"{session_id}.json"
+    session = build_session(
+        source,
+        library_root,
+        session_id,
+        args.license_note,
+        args.max_files,
+        args.max_bytes,
+        external_extractor_command,
+    )
+    output = (
+        Path(args.output)
+        if args.output
+        else library_root / "catalog" / "import_sessions" / f"{session_id}.json"
+    )
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(session, indent=2), encoding="utf-8")
-    print(json.dumps({"sessionId": session_id, "status": session["status"], "output": output.as_posix(), "summary": session["summary"]}, indent=2))
+    print(
+        json.dumps(
+            {
+                "sessionId": session_id,
+                "status": session["status"],
+                "output": output.as_posix(),
+                "summary": session["summary"],
+            },
+            indent=2,
+        )
+    )
     return 0 if session["status"] == "review_ready" else 2
 
 

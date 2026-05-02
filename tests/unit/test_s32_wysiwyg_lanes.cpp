@@ -14,13 +14,13 @@
 // wording drifts back to vague placeholders or stale deferred claims, these
 // tests fail.
 
+#include <algorithm>
 #include <catch2/catch_test_macros.hpp>
-#include <nlohmann/json.hpp>
 #include <fstream>
 #include <iterator>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 using nlohmann::json;
 
@@ -78,7 +78,8 @@ json loadWysiwygDoneRule() {
 }
 
 json findSubsystem(const json& readiness, const std::string& subsystemId) {
-    if (!readiness.contains("subsystems")) return json{};
+    if (!readiness.contains("subsystems"))
+        return json{};
     for (const auto& sub : readiness["subsystems"]) {
         if (sub.value("id", "") == subsystemId) {
             return sub;
@@ -88,7 +89,8 @@ json findSubsystem(const json& readiness, const std::string& subsystemId) {
 }
 
 bool hasGapContaining(const json& entry, const std::string& keyword) {
-    if (!entry.contains("mainGaps")) return false;
+    if (!entry.contains("mainGaps"))
+        return false;
     for (const auto& gap : entry["mainGaps"]) {
         if (gap.get<std::string>().find(keyword) != std::string::npos) {
             return true;
@@ -101,15 +103,15 @@ std::string readTextFile(const std::vector<std::string>& candidates) {
     for (const auto& path : candidates) {
         std::ifstream ifs(path);
         if (ifs.is_open()) {
-            return std::string((std::istreambuf_iterator<char>(ifs)),
-                               std::istreambuf_iterator<char>());
+            return std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
         }
     }
     return {};
 }
 
 bool jsonArrayContainsString(const json& values, const std::string& expected) {
-    if (!values.is_array()) return false;
+    if (!values.is_array())
+        return false;
     return std::any_of(values.begin(), values.end(), [&expected](const json& value) {
         return value.is_string() && value.get<std::string>() == expected;
     });
@@ -131,8 +133,7 @@ TEST_CASE("character_identity: readiness record acknowledges bounded runtime cre
     REQUIRE(sub.value("summary", "").find("runtime creator screen") != std::string::npos);
 }
 
-TEST_CASE("character_identity: readiness record acknowledges compositor as landed",
-          "[wysiwyg][character][s32t02]") {
+TEST_CASE("character_identity: readiness record acknowledges compositor as landed", "[wysiwyg][character][s32t02]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "character_identity");
 
@@ -144,8 +145,7 @@ TEST_CASE("character_identity: readiness record acknowledges compositor as lande
     REQUIRE_FALSE(hasGapContaining(sub, "appearance preview pipeline"));
 }
 
-TEST_CASE("character_identity: landed evidence flags are all set",
-          "[wysiwyg][character][s32t01]") {
+TEST_CASE("character_identity: landed evidence flags are all set", "[wysiwyg][character][s32t01]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "character_identity");
 
@@ -182,8 +182,7 @@ TEST_CASE("achievement_registry: readiness record acknowledges platform backend 
 // S32-T04 — Reconcile mainGaps entries for partial systems
 // ============================================================================
 
-TEST_CASE("mod_registry: mainGaps entries have specific wording (not generic future work)",
-          "[wysiwyg][s32t04]") {
+TEST_CASE("mod_registry: mainGaps entries have specific wording (not generic future work)", "[wysiwyg][s32t04]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "mod_registry");
 
@@ -241,24 +240,29 @@ TEST_CASE("visual_regression_harness: mainGaps entries have specific wording (no
         }
     }
     REQUIRE_FALSE(hasVagueGap);
-    REQUIRE(sub["mainGaps"].size() >= 2);
+    REQUIRE(sub.value("status", "") == "READY");
+    REQUIRE(sub["mainGaps"].empty());
+    REQUIRE(sub.value("summary", "").find("phase-one shell-owned MapScene") != std::string::npos);
+    REQUIRE(sub.value("summary", "").find("run_presentation_gate.ps1") != std::string::npos);
 }
 
 // ============================================================================
 // S32-T05 — Export validator signature-enforcement boundary in scope
 // ============================================================================
 
-TEST_CASE("export_validator: mainGaps acknowledges runtime-side signature enforcement is landed but export remains partial",
-          "[wysiwyg][export][s32t05]") {
+TEST_CASE(
+    "export_validator: mainGaps acknowledges runtime-side signature enforcement is landed but export remains partial",
+    "[wysiwyg][export][s32t05]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "export_validator");
 
     REQUIRE(!sub.empty());
-    REQUIRE(sub.value("status", "") == "PARTIAL");
+    REQUIRE(sub.value("status", "") == "READY");
     REQUIRE(sub.value("summary", "").find("runtime/load-time bundle rejection") != std::string::npos);
-    REQUIRE(hasGapContaining(sub, "signature"));
-    REQUIRE_FALSE(hasGapContaining(sub, "mandatory current backlog"));
-    REQUIRE(hasGapContaining(sub, "native signing"));
+    REQUIRE(sub.value("summary", "").find("release-profile signing/notarization/artifact-policy enforcement") !=
+            std::string::npos);
+    REQUIRE(sub.value("summary", "").find("structured bundle-summary JSON reporting") != std::string::npos);
+    REQUIRE(sub["mainGaps"].empty());
 }
 
 TEST_CASE("export_validator: runtime signature enforcement design note keeps non-runtime boundary explicit",
@@ -297,8 +301,7 @@ TEST_CASE("achievement_registry: readiness record keeps trophy export and platfo
             std::string::npos);
 }
 
-TEST_CASE("achievement_registry: landed evidence flags are all set",
-          "[wysiwyg][achievement][s32t06]") {
+TEST_CASE("achievement_registry: landed evidence flags are all set", "[wysiwyg][achievement][s32t06]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "achievement_registry");
 
@@ -312,8 +315,7 @@ TEST_CASE("achievement_registry: landed evidence flags are all set",
     REQUIRE(ev.value("docsAligned", false) == true);
 }
 
-TEST_CASE("partial product lanes have owned next vertical slices",
-          "[wysiwyg][partial_lanes][td_aud_05]") {
+TEST_CASE("partial product lanes have owned next vertical slices", "[wysiwyg][partial_lanes][td_aud_05]") {
     const json slices = loadPartialLaneSlices();
 
     REQUIRE(!slices.empty());
@@ -322,21 +324,14 @@ TEST_CASE("partial product lanes have owned next vertical slices",
     REQUIRE(slices["lanes"].is_array());
 
     const std::vector<std::string> requiredLanes = {
-        "compat_bridge_exit",
-        "presentation_runtime",
-        "gameplay_ability_framework",
-        "governance_foundation",
-        "character_identity",
-        "achievement_registry",
-        "accessibility_auditor",
-        "audio_mix_presets",
-        "mod_registry",
-        "analytics_dispatcher",
+        "compat_bridge_exit", "presentation_runtime", "gameplay_ability_framework", "governance_foundation",
+        "character_identity", "achievement_registry", "accessibility_auditor",      "audio_mix_presets",
+        "mod_registry",       "analytics_dispatcher",
     };
 
     for (const auto& id : requiredLanes) {
         auto it = std::find_if(slices["lanes"].begin(), slices["lanes"].end(),
-            [&id](const json& lane) { return lane.value("id", "") == id; });
+                               [&id](const json& lane) { return lane.value("id", "") == id; });
         REQUIRE(it != slices["lanes"].end());
         REQUIRE_FALSE(it->value("ownerTrack", "").empty());
         REQUIRE_FALSE(it->value("nextVerticalSlice", "").empty());
@@ -344,8 +339,7 @@ TEST_CASE("partial product lanes have owned next vertical slices",
     }
 }
 
-TEST_CASE("WYSIWYG done rule defines the non-negotiable completion bars",
-          "[wysiwyg][done_rule]") {
+TEST_CASE("WYSIWYG done rule defines the non-negotiable completion bars", "[wysiwyg][done_rule]") {
     const json rule = loadWysiwygDoneRule();
 
     REQUIRE(!rule.empty());
@@ -353,12 +347,8 @@ TEST_CASE("WYSIWYG done rule defines the non-negotiable completion bars",
     REQUIRE(rule.value("rule", "").find("No system is done") != std::string::npos);
 
     const std::vector<std::string> requiredEvidence = {
-        "visualAuthoringSurface",
-        "livePreview",
-        "savedProjectData",
-        "runtimeExecution",
-        "diagnostics",
-        "testsValidation",
+        "visualAuthoringSurface", "livePreview", "savedProjectData",
+        "runtimeExecution",       "diagnostics", "testsValidation",
     };
 
     REQUIRE(rule.contains("requiredEvidence"));
@@ -367,8 +357,7 @@ TEST_CASE("WYSIWYG done rule defines the non-negotiable completion bars",
     }
 }
 
-TEST_CASE("READY subsystems satisfy every WYSIWYG done-rule evidence bar",
-          "[wysiwyg][done_rule][readiness]") {
+TEST_CASE("READY subsystems satisfy every WYSIWYG done-rule evidence bar", "[wysiwyg][done_rule][readiness]") {
     const json readiness = loadReadinessStatus();
     const json rule = loadWysiwygDoneRule();
 
@@ -406,8 +395,8 @@ TEST_CASE("WYSIWYG priority surface list keeps the next creator-tool pushes expl
     };
 
     for (const auto& id : requiredSurfaces) {
-        const auto it = std::find_if(rule["prioritySurfaces"].begin(), rule["prioritySurfaces"].end(),
-            [&id](const json& surface) {
+        const auto it =
+            std::find_if(rule["prioritySurfaces"].begin(), rule["prioritySurfaces"].end(), [&id](const json& surface) {
                 return surface.value("id", "") == id && !surface.value("label", "").empty();
             });
         REQUIRE(it != rule["prioritySurfaces"].end());

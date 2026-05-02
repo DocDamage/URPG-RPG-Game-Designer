@@ -44,7 +44,9 @@ def output_row(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Create an offline segmentation manifest.")
+    parser = argparse.ArgumentParser(
+        description="Create an offline segmentation manifest."
+    )
     parser.add_argument("--source-image", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--output-root", required=True)

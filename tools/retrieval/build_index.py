@@ -104,7 +104,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Build an offline retrieval index manifest."
     )
-    parser.add_argument("source_paths", nargs="+", help="Files or directories to chunk.")
+    parser.add_argument(
+        "source_paths", nargs="+", help="Files or directories to chunk."
+    )
     parser.add_argument("--output", required=True, help="Manifest path to write.")
     parser.add_argument("--chunk-size", type=int, default=400)
     parser.add_argument("--overlap", type=int, default=80)
