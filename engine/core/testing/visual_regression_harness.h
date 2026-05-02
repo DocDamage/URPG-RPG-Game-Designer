@@ -22,6 +22,7 @@ namespace urpg::testing {
 enum class CaptureBackend : uint8_t {
     OpenGL = 0,
     Headless = 1,
+    SoftwareReference = 2,
 };
 
 struct GoldenSnapshot {
@@ -39,6 +40,13 @@ struct RendererBackendParityEntry {
     bool scene_capture_supported = false;
     bool engine_tick_capture_supported = false;
     std::string boundary_note;
+};
+
+struct CaptureFrameResult {
+    SceneSnapshot snapshot;
+    std::string backendId;
+    size_t commandCount = 0;
+    uint64_t stableHash = 0;
 };
 
 class VisualRegressionHarness {
@@ -68,6 +76,12 @@ public:
                                               int width,
                                               int height,
                                               std::string* errorMessage = nullptr) const;
+
+    std::optional<CaptureFrameResult> captureFrameResult(CaptureBackend backend,
+                                                         const std::vector<FrameRenderCommand>& commands,
+                                                         int width,
+                                                         int height,
+                                                         std::string* errorMessage = nullptr) const;
 
     std::optional<SceneSnapshot> captureScene(CaptureBackend backend,
                                               const std::function<void(urpg::RendererBackend&)>& renderCallback,

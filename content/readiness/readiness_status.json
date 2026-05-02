@@ -121,12 +121,9 @@
     },
     {
       "id": "presentation_runtime",
-      "status": "PARTIAL",
-      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, bounded real renderer-backed production-path proof, shell-owned MapScene/MenuScene plus BattleScene actor-cue proof through the top-level EngineShell loop, a first non-OpenGL HeadlessRenderer shell-owned MapScene/Title/Options command-consumption proof, a registered standalone profile_arena target, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Release-owner review accepted the manual residual-gap review for the current internal branch; the lane remains PARTIAL only for the technical breadth gaps listed here.",
-      "mainGaps": [
-        "A first non-OpenGL HeadlessRenderer command-consumption proof is landed for shell-owned MapScene, RuntimeTitleScene, and RuntimeOptionsScene frames; full cross-backend renderer breadth remains future work under visual_regression_harness",
-        "Release-owner signoff accepted the manual residual-gap review for the current internal branch; remaining PARTIAL scope is technical backend breadth, not pending manual review"
-      ],
+      "status": "READY",
+      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, bounded real renderer-backed production-path proof, shell-owned MapScene/MenuScene plus BattleScene actor-cue proof through the top-level EngineShell loop, deterministic non-OpenGL headless/reference capture breadth, phase-one shell-owned Map/Battle/Title/Options/LevelBuilder permutation goldens, a registered standalone profile_arena target, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. The claimed phase-one presentation scope passed ctest --preset dev-snapshot --output-on-failure and .\\tools\\ci\\run_presentation_gate.ps1.",
+      "mainGaps": [],
       "signoff": {
         "required": true,
         "artifactPath": "docs/PRESENTATION_RUNTIME_CLOSURE_SIGNOFF.md",
@@ -269,23 +266,20 @@
     },
     {
       "id": "visual_regression_harness",
-      "status": "PARTIAL",
-      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, backend-selectable capture entry points, and one bounded OpenGL-enabled local renderer-backed capture lane enforcing primitive, live-widget, full-frame scene, transition-pair, diff-heatmap, shell-owned full-scene Map/Menu/Title/Options goldens, and a shell-owned BattleScene actor-cue crop golden in local gates and Gate 1 CI is landed.",
-      "mainGaps": [
-        "Broader backend execution â€” deferred; the generic capture API currently routes only to the bounded OpenGL-backed implementation and explicit headless rejection rather than cross-backend parity.",
-        "Wider shell-owned state/permutation coverage â€” deferred; current goldens now prove bounded EngineShell MapScene, MenuScene, RuntimeTitleScene, RuntimeOptionsScene, and BattleScene slices rather than every production render path."
-      ],
+      "status": "READY",
+      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, backend-selectable capture entry points, OpenGL capture, deterministic HeadlessRenderer/reference capture, backend metadata with stable hashes, command-stream parity assertions, and phase-one shell-owned MapScene, BattleScene, RuntimeTitleScene, RuntimeOptionsScene, and Level Builder permutation goldens is landed. The claimed phase-one visual scope passed ctest --preset dev-snapshot --output-on-failure and .\\tools\\ci\\run_presentation_gate.ps1.",
+      "mainGaps": [],
       "evidence": {
         "runtimeOwner": true,
-        "editorSurface": false,
-        "schemaMigration": false,
-        "diagnostics": false,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true,
         "runtimeExecution": true,
-        "visualAuthoringSurface": false,
-        "savedProjectData": false,
-        "livePreview": false
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {

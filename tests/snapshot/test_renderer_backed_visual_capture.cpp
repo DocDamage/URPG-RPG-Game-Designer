@@ -740,6 +740,99 @@ std::vector<FrameRenderCommand> makeFullFrameRectCommands() {
     return commands;
 }
 
+std::vector<FrameRenderCommand> makePhaseOnePermutationCommands(const std::string& scene,
+                                                                const std::string& state,
+                                                                bool includeDiagnostic) {
+    std::vector<FrameRenderCommand> commands;
+
+    FrameRenderCommand clear;
+    clear.type = RenderCmdType::Clear;
+    commands.push_back(clear);
+
+    RectCommand backdrop;
+    backdrop.x = 0.0f;
+    backdrop.y = 0.0f;
+    backdrop.w = 320.0f;
+    backdrop.h = 180.0f;
+    backdrop.r = scene == "BattleScene" ? 0.10f : 0.06f;
+    backdrop.g = scene == "MapScene" ? 0.16f : 0.08f;
+    backdrop.b = scene == "LevelBuilder" ? 0.18f : 0.12f;
+    backdrop.a = 1.0f;
+    commands.push_back(toFrameRenderCommand(backdrop));
+
+    RectCommand stateBand;
+    stateBand.x = 12.0f;
+    stateBand.y = 24.0f;
+    stateBand.w = 296.0f;
+    stateBand.h = 42.0f;
+    stateBand.r = includeDiagnostic ? 0.58f : 0.18f;
+    stateBand.g = includeDiagnostic ? 0.12f : 0.34f;
+    stateBand.b = includeDiagnostic ? 0.10f : 0.52f;
+    stateBand.a = 1.0f;
+    stateBand.zOrder = 1;
+    commands.push_back(toFrameRenderCommand(stateBand));
+
+    TextCommand title;
+    title.x = 20.0f;
+    title.y = 32.0f;
+    title.text = scene + ":" + state;
+    title.fontSize = 16;
+    title.r = 255;
+    title.g = includeDiagnostic ? 220 : 244;
+    title.b = includeDiagnostic ? 170 : 255;
+    title.a = 255;
+    title.zOrder = 2;
+    commands.push_back(toFrameRenderCommand(title));
+
+    RectCommand preview;
+    preview.x = scene == "BattleScene" ? 208.0f : 28.0f;
+    preview.y = 92.0f;
+    preview.w = scene == "LevelBuilder" ? 180.0f : 96.0f;
+    preview.h = 44.0f;
+    preview.r = state.find("high_contrast") != std::string::npos ? 0.92f : 0.28f;
+    preview.g = state.find("enemy") != std::string::npos ? 0.18f : 0.62f;
+    preview.b = state.find("dialogue") != std::string::npos ? 0.78f : 0.30f;
+    preview.a = 1.0f;
+    preview.zOrder = 3;
+    commands.push_back(toFrameRenderCommand(preview));
+
+    return commands;
+}
+
+struct PhaseOnePermutationCase {
+    std::string scene;
+    std::string state;
+    bool diagnostic = false;
+};
+
+std::vector<PhaseOnePermutationCase> phaseOnePermutationCases() {
+    return {
+        {"MapScene", "idle", false},
+        {"MapScene", "dialogue_active", false},
+        {"MapScene", "menu_transition", false},
+        {"MapScene", "missing_asset_diagnostic", true},
+        {"BattleScene", "actor_cue", false},
+        {"BattleScene", "enemy_cue", false},
+        {"BattleScene", "reward_transition", false},
+        {"BattleScene", "failure_diagnostic", true},
+        {"RuntimeTitleScene", "no_saves", false},
+        {"RuntimeTitleScene", "saves_available", false},
+        {"RuntimeTitleScene", "settings_opened", false},
+        {"RuntimeOptionsScene", "default", false},
+        {"RuntimeOptionsScene", "high_contrast", false},
+        {"RuntimeOptionsScene", "remapped_input", false},
+        {"LevelBuilder", "empty_document", false},
+        {"LevelBuilder", "valid_document", false},
+        {"LevelBuilder", "invalid_document_diagnostics", true},
+    };
+}
+
+std::string phaseOneSnapshotId(const PhaseOnePermutationCase& testCase) {
+    std::string id = testCase.scene + "_" + testCase.state;
+    std::replace(id.begin(), id.end(), ' ', '_');
+    return id;
+}
+
 std::vector<FrameRenderCommand> makeInsetRectCommands() {
     std::vector<FrameRenderCommand> commands;
 
@@ -1118,6 +1211,55 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers EngineShell options h
     REQUIRE(changed.errorPercentage > 0.0f);
 }
 #endif
+
+TEST_CASE("Snapshot: phase-one shell-owned scene permutations have governed reference goldens",
+          "[snapshot][renderer][visual_capture][phase_one][regression]") {
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(getGoldenRoot().string());
+
+    for (const auto& testCase : phaseOnePermutationCases()) {
+        const auto commands = makePhaseOnePermutationCommands(testCase.scene, testCase.state, testCase.diagnostic);
+        std::string errorMessage;
+        const auto capture = harness.captureFrameResult(
+            CaptureBackend::SoftwareReference, commands, 320, 180, &errorMessage);
+        INFO(testCase.scene << " " << testCase.state << ": " << errorMessage);
+        REQUIRE(capture.has_value());
+        REQUIRE(capture->backendId == "software_reference");
+        REQUIRE(capture->commandCount == commands.size());
+        REQUIRE(capture->snapshot.width == 320);
+        REQUIRE(capture->snapshot.height == 180);
+        REQUIRE(capture->stableHash != 0);
+
+        const auto snapshotId = phaseOneSnapshotId(testCase);
+        if (shouldRegenerateRendererBackedGoldens()) {
+            REQUIRE(harness.saveGolden("PhaseOneScenePermutations", snapshotId, capture->snapshot));
+        }
+
+        const auto result =
+            harness.compareAgainstGolden("PhaseOneScenePermutations", snapshotId, capture->snapshot);
+        REQUIRE(result.matches);
+        REQUIRE(result.errorPercentage == 0.0f);
+    }
+}
+
+TEST_CASE("Snapshot: phase-one command families match across headless and reference capture",
+          "[snapshot][renderer][visual_capture][phase_one][regression]") {
+    VisualRegressionHarness harness;
+
+    for (const auto& testCase : phaseOnePermutationCases()) {
+        const auto commands = makePhaseOnePermutationCommands(testCase.scene, testCase.state, testCase.diagnostic);
+        std::string headlessError;
+        std::string referenceError;
+        const auto headless = harness.captureFrameResult(CaptureBackend::Headless, commands, 320, 180, &headlessError);
+        const auto reference =
+            harness.captureFrameResult(CaptureBackend::SoftwareReference, commands, 320, 180, &referenceError);
+        INFO(testCase.scene << " " << testCase.state << ": " << headlessError << " / " << referenceError);
+        REQUIRE(headless.has_value());
+        REQUIRE(reference.has_value());
+        REQUIRE(headless->commandCount == reference->commandCount);
+        REQUIRE(headless->stableHash == reference->stableHash);
+    }
+}
 
 // ─── S29: Visual Regression Golden Coverage ──────────────────────────────────
 

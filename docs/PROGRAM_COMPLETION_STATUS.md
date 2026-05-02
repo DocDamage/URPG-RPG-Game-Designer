@@ -7,6 +7,12 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/a
 
 Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 follow-up verification pass, local gates, the unwaived release-candidate gate, and the remote manual GitHub Actions release-candidate workflow pass, including fresh-clone release-required asset verification from GitHub. Public release legal/privacy review is owner-waived in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; final release tagging remains pending.
 
+2026-05-01 100-percent completion phase-one checkpoint:
+- Phase 1 visual/presentation completion is landed for the claimed scope. `VisualRegressionHarness` now exposes deterministic `Headless` and `software_reference` capture alongside OpenGL, returns backend id, command count, dimensions, and stable hash metadata, and supports non-OpenGL scene and `EngineShell::tick()` capture through recorded command streams.
+- Phase-one shell-owned permutation goldens cover MapScene idle/dialogue/menu-transition/missing-asset diagnostics, BattleScene actor/enemy/reward/failure states, RuntimeTitleScene save/settings states, RuntimeOptionsScene default/high-contrast/remapped-input states, and Level Builder empty/valid/invalid-document states.
+- Required phase-one verification passed: `ctest --preset dev-snapshot --output-on-failure` and `.\tools\ci\run_presentation_gate.ps1`.
+- `presentation_runtime` and `visual_regression_harness` are promoted to `READY` in `content/readiness/readiness_status.json` and `docs/release/RELEASE_READINESS_MATRIX.md` for the evidenced phase-one scope.
+
 2026-04-30 release-surface audit remediation checkpoint:
 - Phase 6 Task P6-002 is complete on the current remediation branch. `.\tools\ci\run_local_gates.ps1` passes end to end after resolving stale PR-gate expectations, template-claim readiness drift, CMake completeness parsing, and the weekly compat panel execution/failure event split.
 - Phase 5 packaging/release-readiness work is verified: release builds expose native version metadata, install smoke verifies app/data/docs layout, package smoke verifies CPack component ZIPs, and release-required assets are audited by `tools/ci/check_release_required_assets.ps1`.

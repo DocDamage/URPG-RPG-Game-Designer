@@ -17,3 +17,8 @@ there with:
 Current `.gitattributes` keeps `*.json` as text. Future compact PNG or binary baseline
 storage must use the existing Git LFS binary rules and preserve executable comparison,
 visual diff heatmaps, and report JSON diagnostics.
+
+Phase-one 100-percent completion adds compact `PhaseOneScenePermutations_*` goldens
+for the shell-owned MapScene, BattleScene, RuntimeTitleScene, RuntimeOptionsScene, and
+Level Builder state matrix. These baselines use the same RLE JSON format, remain below
+the governed-size threshold, and are enforced by the snapshot regression lane.

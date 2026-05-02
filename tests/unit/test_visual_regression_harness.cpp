@@ -1,4 +1,7 @@
 #include "engine/core/testing/visual_regression_harness.h"
+#include "engine/core/engine_shell.h"
+#include "engine/core/scene/map_scene.h"
+#include "engine/core/scene/scene_manager.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
@@ -30,6 +33,34 @@ SceneSnapshot makeTestSnapshot(int width, int height) {
     snapshot.height = height;
     snapshot.pixels.assign(static_cast<size_t>(width) * height, {128, 128, 128, 255});
     return snapshot;
+}
+
+std::vector<urpg::FrameRenderCommand> makeMetadataCaptureCommands() {
+    urpg::FrameRenderCommand clear;
+    clear.type = urpg::RenderCmdType::Clear;
+
+    urpg::RectCommand rect;
+    rect.x = 1.0f;
+    rect.y = 1.0f;
+    rect.w = 2.0f;
+    rect.h = 2.0f;
+    rect.r = 0.8f;
+    rect.g = 0.1f;
+    rect.b = 0.2f;
+    rect.a = 1.0f;
+    rect.zOrder = 1;
+
+    return {
+        clear,
+        urpg::toFrameRenderCommand(rect),
+    };
+}
+
+void clearSceneStack() {
+    auto& sceneManager = urpg::scene::SceneManager::getInstance();
+    while (sceneManager.stackSize() > 0) {
+        sceneManager.popScene();
+    }
 }
 
 } // namespace
@@ -204,12 +235,13 @@ TEST_CASE("VisualRegressionHarness buildReportJson contains expected fields", "[
 TEST_CASE("VisualRegressionHarness exposes stable backend names", "[testing][visual_regression]") {
     REQUIRE(VisualRegressionHarness::captureBackendToString(CaptureBackend::OpenGL) == "OpenGL");
     REQUIRE(VisualRegressionHarness::captureBackendToString(CaptureBackend::Headless) == "Headless");
+    REQUIRE(VisualRegressionHarness::captureBackendToString(CaptureBackend::SoftwareReference) == "software_reference");
 }
 
 TEST_CASE("VisualRegressionHarness reports local renderer backend parity matrix",
           "[testing][visual_regression][task5]") {
     const auto matrix = VisualRegressionHarness::buildLocalBackendParityMatrix();
-    REQUIRE(matrix.size() == 2);
+    REQUIRE(matrix.size() == 3);
 
     const auto openGl = std::find_if(matrix.begin(), matrix.end(), [](const auto& entry) {
         return entry.backend == CaptureBackend::OpenGL;
@@ -217,14 +249,22 @@ TEST_CASE("VisualRegressionHarness reports local renderer backend parity matrix"
     const auto headless = std::find_if(matrix.begin(), matrix.end(), [](const auto& entry) {
         return entry.backend == CaptureBackend::Headless;
     });
+    const auto reference = std::find_if(matrix.begin(), matrix.end(), [](const auto& entry) {
+        return entry.backend == CaptureBackend::SoftwareReference;
+    });
 
     REQUIRE(openGl != matrix.end());
     REQUIRE(headless != matrix.end());
+    REQUIRE(reference != matrix.end());
     REQUIRE(headless->local_runnable);
-    REQUIRE_FALSE(headless->frame_capture_supported);
-    REQUIRE_FALSE(headless->scene_capture_supported);
-    REQUIRE_FALSE(headless->engine_tick_capture_supported);
+    REQUIRE(headless->frame_capture_supported);
+    REQUIRE(headless->scene_capture_supported);
+    REQUIRE(headless->engine_tick_capture_supported);
     REQUIRE_FALSE(headless->boundary_note.empty());
+    REQUIRE(reference->local_runnable);
+    REQUIRE(reference->frame_capture_supported);
+    REQUIRE(reference->scene_capture_supported);
+    REQUIRE(reference->engine_tick_capture_supported);
 #ifdef URPG_HEADLESS
     REQUIRE_FALSE(openGl->local_runnable);
     REQUIRE_FALSE(openGl->frame_capture_supported);
@@ -236,14 +276,83 @@ TEST_CASE("VisualRegressionHarness reports local renderer backend parity matrix"
 #endif
 }
 
-TEST_CASE("VisualRegressionHarness generic capture API rejects unsupported headless pixel capture",
+TEST_CASE("VisualRegressionHarness generic capture API returns backend metadata for local capture modes",
           "[testing][visual_regression]") {
     VisualRegressionHarness harness;
-    std::string errorMessage;
+    const auto commands = makeMetadataCaptureCommands();
 
-    const auto frame = harness.captureFrame(CaptureBackend::Headless, {}, 4, 4, &errorMessage);
-    REQUIRE_FALSE(frame.has_value());
-    REQUIRE(errorMessage.find("Headless backend") != std::string::npos);
+    for (const CaptureBackend backend : {
+#ifndef URPG_HEADLESS
+             CaptureBackend::OpenGL,
+#endif
+             CaptureBackend::Headless,
+             CaptureBackend::SoftwareReference,
+         }) {
+        std::string errorMessage;
+        const auto capture = harness.captureFrameResult(backend, commands, 8, 6, &errorMessage);
+        INFO(errorMessage);
+        REQUIRE(capture.has_value());
+        REQUIRE(capture->backendId == VisualRegressionHarness::captureBackendToString(backend));
+        REQUIRE(capture->commandCount == commands.size());
+        REQUIRE(capture->snapshot.width == 8);
+        REQUIRE(capture->snapshot.height == 6);
+        REQUIRE(capture->snapshot.pixels.size() == 48);
+        REQUIRE(capture->stableHash != 0);
+    }
+}
+
+TEST_CASE("VisualRegressionHarness non-OpenGL scene capture consumes command streams",
+          "[testing][visual_regression]") {
+    VisualRegressionHarness harness;
+
+    for (const CaptureBackend backend : {CaptureBackend::Headless, CaptureBackend::SoftwareReference}) {
+        std::string errorMessage;
+        const auto snapshot = harness.captureScene(
+            backend,
+            [](urpg::RendererBackend& renderer) {
+                renderer.beginFrame();
+                renderer.processFrameCommands(makeMetadataCaptureCommands());
+                renderer.endFrame();
+            },
+            8,
+            6,
+            &errorMessage);
+
+        INFO(errorMessage);
+        REQUIRE(snapshot.has_value());
+        REQUIRE(snapshot->width == 8);
+        REQUIRE(snapshot->height == 6);
+        REQUIRE(snapshot->pixels.size() == 48);
+    }
+}
+
+TEST_CASE("VisualRegressionHarness headless EngineShell capture consumes MapScene commands",
+          "[testing][visual_regression]") {
+    VisualRegressionHarness harness;
+    clearSceneStack();
+    urpg::RenderLayer::getInstance().flush();
+
+    std::string errorMessage;
+    const auto snapshot = harness.captureEngineTick(
+        CaptureBackend::Headless,
+        [](urpg::EngineShell& /*shell*/) {
+            auto map = std::make_shared<urpg::scene::MapScene>("VisualHarnessHeadlessMap", 2, 2);
+            map->setTile(0, 0, 1, true);
+            map->setTile(1, 0, 2, true);
+            urpg::scene::SceneManager::getInstance().pushScene(map);
+        },
+        96,
+        96,
+        &errorMessage);
+
+    INFO(errorMessage);
+    REQUIRE(snapshot.has_value());
+    REQUIRE(snapshot->width == 96);
+    REQUIRE(snapshot->height == 96);
+    REQUIRE(snapshot->pixels.size() == 9216);
+
+    clearSceneStack();
+    urpg::RenderLayer::getInstance().flush();
 }
 
 TEST_CASE("VisualRegressionHarness approval script writes a golden consumable by the harness",

@@ -1,10 +1,13 @@
 #include "engine/core/testing/visual_regression_harness.h"
 
-#ifndef URPG_HEADLESS
 #include "engine/core/engine_shell.h"
+#include "engine/core/platform/headless_renderer.h"
+#include "engine/core/platform/headless_surface.h"
 #include "engine/core/platform/renderer_backend.h"
-#include "engine/core/platform/opengl_renderer.h"
 #include "engine/core/scene/scene_manager.h"
+
+#ifndef URPG_HEADLESS
+#include "engine/core/platform/opengl_renderer.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
@@ -15,6 +18,7 @@
 #include <fstream>
 #include <filesystem>
 #include <limits>
+#include <memory>
 
 namespace urpg::testing {
 
@@ -53,6 +57,129 @@ namespace {
 
 constexpr const char* kCompactGoldenFormat = "urpg.visual_golden.rle.v1";
 constexpr int kRleRunFieldCount = 5;
+constexpr uint64_t kFnvOffsetBasis = 14695981039346656037ull;
+constexpr uint64_t kFnvPrime = 1099511628211ull;
+
+uint8_t colorChannel(float value) {
+    return static_cast<uint8_t>(std::clamp(value, 0.0f, 1.0f) * 255.0f);
+}
+
+void fillRect(SceneSnapshot& snapshot,
+              int x,
+              int y,
+              int width,
+              int height,
+              const SnapshotPixel& pixel) {
+    const int x0 = std::clamp(x, 0, snapshot.width);
+    const int y0 = std::clamp(y, 0, snapshot.height);
+    const int x1 = std::clamp(x + std::max(width, 0), 0, snapshot.width);
+    const int y1 = std::clamp(y + std::max(height, 0), 0, snapshot.height);
+
+    for (int row = y0; row < y1; ++row) {
+        for (int col = x0; col < x1; ++col) {
+            snapshot.pixels[static_cast<size_t>(row) * snapshot.width + col] = pixel;
+        }
+    }
+}
+
+void clearEngineShellCaptureState() {
+    auto& sceneManager = urpg::scene::SceneManager::getInstance();
+    while (sceneManager.stackSize() > 0) {
+        sceneManager.popScene();
+    }
+    urpg::RenderLayer::getInstance().flush();
+}
+
+SceneSnapshot rasterizeReferenceFrame(const std::vector<FrameRenderCommand>& commands, int width, int height) {
+    SceneSnapshot snapshot;
+    snapshot.width = std::max(width, 1);
+    snapshot.height = std::max(height, 1);
+    snapshot.pixels.assign(static_cast<size_t>(snapshot.width) * snapshot.height, {0, 0, 0, 255});
+
+    for (const auto& command : commands) {
+        switch (command.type) {
+        case RenderCmdType::Clear:
+            snapshot.pixels.assign(static_cast<size_t>(snapshot.width) * snapshot.height, SnapshotPixel{0, 0, 0, 255});
+            break;
+        case RenderCmdType::Rect: {
+            const auto* rect = command.tryGet<RectRenderData>();
+            if (rect == nullptr) {
+                break;
+            }
+            fillRect(snapshot,
+                     static_cast<int>(command.x),
+                     static_cast<int>(command.y),
+                     static_cast<int>(rect->w),
+                     static_cast<int>(rect->h),
+                     {colorChannel(rect->r),
+                      colorChannel(rect->g),
+                      colorChannel(rect->b),
+                      colorChannel(rect->a)});
+            break;
+        }
+        case RenderCmdType::Text: {
+            const auto* text = command.tryGet<TextRenderData>();
+            if (text == nullptr) {
+                break;
+            }
+            fillRect(snapshot,
+                     static_cast<int>(command.x),
+                     static_cast<int>(command.y),
+                     std::max<int>(static_cast<int>(text->text.size()) * std::max(text->fontSize / 3, 1), 1),
+                     std::max(text->fontSize, 1),
+                     {text->r, text->g, text->b, text->a});
+            break;
+        }
+        case RenderCmdType::Sprite: {
+            const auto* sprite = command.tryGet<SpriteRenderData>();
+            if (sprite == nullptr) {
+                break;
+            }
+            fillRect(snapshot,
+                     static_cast<int>(command.x),
+                     static_cast<int>(command.y),
+                     static_cast<int>(sprite->width),
+                     static_cast<int>(sprite->height),
+                     {96, 160, 224, 255});
+            break;
+        }
+        case RenderCmdType::Tile:
+            fillRect(snapshot,
+                     static_cast<int>(command.x),
+                     static_cast<int>(command.y),
+                     48,
+                     48,
+                     {112, 176, 104, 255});
+            break;
+        }
+    }
+
+    return snapshot;
+}
+
+uint64_t stableSnapshotHash(const SceneSnapshot& snapshot, const std::vector<FrameRenderCommand>& commands) {
+    uint64_t hash = kFnvOffsetBasis;
+    const auto mixByte = [&](uint8_t value) {
+        hash ^= value;
+        hash *= kFnvPrime;
+    };
+    const auto mixSize = [&](size_t value) {
+        for (size_t i = 0; i < sizeof(size_t); ++i) {
+            mixByte(static_cast<uint8_t>((value >> (i * 8)) & 0xffu));
+        }
+    };
+
+    mixSize(static_cast<size_t>(snapshot.width));
+    mixSize(static_cast<size_t>(snapshot.height));
+    mixSize(commands.size());
+    for (const auto& pixel : snapshot.pixels) {
+        mixByte(pixel.r);
+        mixByte(pixel.g);
+        mixByte(pixel.b);
+        mixByte(pixel.a);
+    }
+    return hash == 0 ? 1 : hash;
+}
 
 bool decodeLegacyPixels(const nlohmann::json& pixels, GoldenSnapshot& golden) {
     if (!pixels.is_array()) {
@@ -145,6 +272,8 @@ std::string VisualRegressionHarness::captureBackendToString(CaptureBackend backe
             return "OpenGL";
         case CaptureBackend::Headless:
             return "Headless";
+        case CaptureBackend::SoftwareReference:
+            return "software_reference";
         default:
             return "Unknown";
     }
@@ -169,10 +298,16 @@ std::vector<RendererBackendParityEntry> VisualRegressionHarness::buildLocalBacke
 #endif
     entries.push_back({CaptureBackend::Headless,
                        true,
-                       false,
-                       false,
-                       false,
-                       "Headless backend is locally runnable for deterministic command/state tests but has no pixel capture surface."});
+                       true,
+                       true,
+                       true,
+                       "Headless backend records command streams and uses deterministic reference rasterization for capture."});
+    entries.push_back({CaptureBackend::SoftwareReference,
+                       true,
+                       true,
+                       true,
+                       true,
+                       "Software reference capture deterministically rasterizes frame commands without platform graphics."});
     return entries;
 }
 
@@ -314,16 +449,33 @@ std::optional<SceneSnapshot> VisualRegressionHarness::captureFrame(
         case CaptureBackend::OpenGL:
             return captureOpenGLFrame(commands, width, height, errorMessage);
         case CaptureBackend::Headless:
-            if (errorMessage != nullptr) {
-                *errorMessage = "Headless backend does not support pixel-backed visual capture.";
-            }
-            return std::nullopt;
+        case CaptureBackend::SoftwareReference:
+            return rasterizeReferenceFrame(commands, width, height);
         default:
             if (errorMessage != nullptr) {
                 *errorMessage = "Unknown renderer-backed capture backend.";
             }
             return std::nullopt;
     }
+}
+
+std::optional<CaptureFrameResult> VisualRegressionHarness::captureFrameResult(
+    CaptureBackend backend,
+    const std::vector<FrameRenderCommand>& commands,
+    int width,
+    int height,
+    std::string* errorMessage) const {
+    auto snapshot = captureFrame(backend, commands, width, height, errorMessage);
+    if (!snapshot.has_value()) {
+        return std::nullopt;
+    }
+
+    CaptureFrameResult result;
+    result.snapshot = std::move(*snapshot);
+    result.backendId = captureBackendToString(backend);
+    result.commandCount = commands.size();
+    result.stableHash = stableSnapshotHash(result.snapshot, commands);
+    return result;
 }
 
 std::optional<SceneSnapshot> VisualRegressionHarness::captureScene(
@@ -352,10 +504,34 @@ std::optional<SceneSnapshot> VisualRegressionHarness::captureScene(
                 errorMessage);
 #endif
         case CaptureBackend::Headless:
-            if (errorMessage != nullptr) {
-                *errorMessage = "Headless backend does not support pixel-backed visual capture.";
+        case CaptureBackend::SoftwareReference: {
+            HeadlessRenderer renderer;
+            renderer.onResize(width, height);
+            if (!renderer.initialize(nullptr)) {
+                if (errorMessage != nullptr) {
+                    *errorMessage = "HeadlessRenderer::initialize failed for deterministic scene capture.";
+                }
+                return std::nullopt;
             }
-            return std::nullopt;
+            try {
+                renderCallback(renderer);
+            } catch (const std::exception& ex) {
+                if (errorMessage != nullptr) {
+                    *errorMessage = std::string("Deterministic scene callback failed: ") + ex.what();
+                }
+                renderer.shutdown();
+                return std::nullopt;
+            } catch (...) {
+                if (errorMessage != nullptr) {
+                    *errorMessage = "Deterministic scene callback failed with a non-standard exception.";
+                }
+                renderer.shutdown();
+                return std::nullopt;
+            }
+            const auto commands = renderer.lastFrameCommands();
+            renderer.shutdown();
+            return rasterizeReferenceFrame(commands, width, height);
+        }
         default:
             if (errorMessage != nullptr) {
                 *errorMessage = "Unknown renderer-backed capture backend.";
@@ -374,10 +550,47 @@ std::optional<SceneSnapshot> VisualRegressionHarness::captureEngineTick(
         case CaptureBackend::OpenGL:
             return captureOpenGLEngineTick(setupCallback, width, height, errorMessage);
         case CaptureBackend::Headless:
-            if (errorMessage != nullptr) {
-                *errorMessage = "Headless backend does not support pixel-backed visual capture.";
+        case CaptureBackend::SoftwareReference: {
+            auto& shell = urpg::EngineShell::getInstance();
+            clearEngineShellCaptureState();
+            shell.shutdown();
+
+            auto surface = std::make_unique<HeadlessSurface>();
+            auto renderer = std::make_unique<HeadlessRenderer>();
+            auto* rendererPtr = renderer.get();
+            renderer->onResize(width, height);
+            if (!shell.startup(std::move(surface), std::move(renderer))) {
+                if (errorMessage != nullptr) {
+                    *errorMessage = "EngineShell::startup failed for deterministic headless capture.";
+                }
+                clearEngineShellCaptureState();
+                return std::nullopt;
             }
-            return std::nullopt;
+
+            try {
+                setupCallback(shell);
+                shell.tick();
+            } catch (const std::exception& ex) {
+                if (errorMessage != nullptr) {
+                    *errorMessage = std::string("Deterministic EngineShell callback failed: ") + ex.what();
+                }
+                shell.shutdown();
+                clearEngineShellCaptureState();
+                return std::nullopt;
+            } catch (...) {
+                if (errorMessage != nullptr) {
+                    *errorMessage = "Deterministic EngineShell callback failed with a non-standard exception.";
+                }
+                shell.shutdown();
+                clearEngineShellCaptureState();
+                return std::nullopt;
+            }
+
+            const auto commands = rendererPtr->lastFrameCommands();
+            shell.shutdown();
+            clearEngineShellCaptureState();
+            return rasterizeReferenceFrame(commands, width, height);
+        }
         default:
             if (errorMessage != nullptr) {
                 *errorMessage = "Unknown renderer-backed capture backend.";
