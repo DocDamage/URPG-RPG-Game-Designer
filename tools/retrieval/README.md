@@ -9,15 +9,15 @@ The supported top-level entrypoints for the Phase 8 offline boundary are:
   chunk ids.
 - `query_index.py`: loads that manifest and returns source path, chunk id,
   score, and excerpt rows without importing FAISS or embedding libraries.
-- `requirements.txt`: optional offline helper dependencies only. Runtime and
+- `requirements.txt`: isolated offline helper dependencies only. Runtime and
   editor builds must not install these packages.
 
-Initial planned scope:
+Mandatory Phase 10 scope:
 
 - chunk manifest generation
 - FAISS-compatible index building
 - local query/debug tooling
-- lightweight built-in retrieval bundle generation before FAISS is installed
+- lightweight built-in retrieval bundle generation for deterministic local execution before FAISS acceleration is installed
 - pluggable embedding adapters that preserve the same manifest/bundle/query boundary
 - external `command_adapter` support for local model runners behind the same bundle contract
 - persistent `command_adapter` worker support with chunked batching for heavier local embedding models
@@ -79,9 +79,10 @@ Run the new adapter-resolution guard tests directly with:
 python tools/retrieval/tests/test_build_retrieval_bundle.py
 ```
 
-This test is also registered in the top-level `pr` CTest lane as:
+These tests are also registered in the top-level `pr` CTest lane as:
 
 - `urpg_audio_preprocessing_acceptance_test` (labels: `pr;tools;python`)
+- `urpg_offline_job_runner_test` (labels: `pr;tools;python`)
 - `urpg_retrieval_artifact_contracts_test` (labels: `pr;tools;python`)
 - `urpg_retrieval_adapter_resolution_test` (labels: `pr;tools;python`)
 - `urpg_retrieval_acceptance_test` (labels: `pr;tools;python`)

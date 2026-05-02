@@ -874,7 +874,10 @@ The scope in this document is considered 100% complete when all items below are 
    - update README/remediation/kickoff/checklist language whenever closure state or residual compat scope changes.
 6. Wave 2 roadmap execution:
    - The initial Wave 2 baseline slices tracked on this branch are landed, but the documented Wave 2 roadmap remains mandatory first-class scope.
-   - Any documented Wave 2 lane that is not yet product-complete must be treated as required execution work, not optional follow-on scope.
+   - Any documented Wave 2 lane that is not yet product-complete must be treated as required execution work.
+7. No remaining 100-percent lane is optional.
+   - WYSIWYG roadmap closure, offline tooling adoption, curated asset/content promotion, final gate reruns, and release tagging are mandatory completion work.
+   - If a lane is not in the current public release package, it is still tracked as required backlog rather than optional scope.
 
 ## Remaining work to reach 100%
 
@@ -926,15 +929,15 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 
 ### 7. WYSIWYG closure and ease-of-use (remaining)
 
-- [ ] Treat remaining roadmap lanes as dual-delivery work: runtime capability plus visual authoring/live preview.
-- [ ] Close the remaining feature lanes with direct editor workflows suitable for non-technical creators, not diagnostics-only or fixture-only paths.
-- [ ] Keep public docs, readiness language, and completion claims aligned with that WYSIWYG definition of done.
+- [ ] Mandatory: treat every remaining roadmap lane as dual-delivery work: runtime capability plus visual authoring/live preview.
+- [ ] Mandatory: close every remaining feature lane with direct editor workflows suitable for non-technical creators, not diagnostics-only or fixture-only paths.
+- [ ] Mandatory: keep public docs, readiness language, and completion claims aligned with that WYSIWYG definition of done.
 
 ### 8. Offline tooling boundary and pipeline adoption (remaining)
 
-- [ ] Keep heavy ML/research dependencies isolated under `tools/` or separate helper environments.
-- [ ] Land the first approved offline tooling lanes: FAISS retrieval, SAM/SAM2 segmentation, and Demucs/Encodec audio tooling.
-- [ ] Ensure the runtime consumes only exported artifacts from those pipelines and does not silently acquire heavyweight research dependencies.
+- [ ] Mandatory: keep heavy ML/research dependencies isolated under `tools/` or separate helper environments.
+- [ ] Mandatory: land the approved offline tooling lanes: FAISS retrieval, SAM/SAM2 segmentation, and Demucs/Encodec audio tooling.
+- [ ] Mandatory: ensure the runtime consumes only exported artifacts from those pipelines and does not silently acquire heavyweight research dependencies.
 
 ## Work complete, not remaining
 

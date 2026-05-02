@@ -7,7 +7,7 @@ The Phase 8 entrypoint is `process_audio_assets.py`. It writes
 stems and Encodec-style compression experiments. Generated prototype outputs
 are non-release by default until reviewed and promoted.
 
-Planned scope:
+Mandatory Phase 10 scope:
 
 - stem separation
 - compression experiments

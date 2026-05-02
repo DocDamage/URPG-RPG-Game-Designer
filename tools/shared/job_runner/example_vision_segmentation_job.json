@@ -1,0 +1,8 @@
+{
+  "job_type": "vision_segmentation",
+  "source_image": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+  "output": ".urpg/offline-tooling/examples/grunge_segmentation_manifest.json",
+  "output_root": ".urpg/offline-tooling/examples/grunge_segments",
+  "asset_ids": ["grunge_tileset"],
+  "manual_override": false
+}

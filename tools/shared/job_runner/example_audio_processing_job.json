@@ -1,0 +1,8 @@
+{
+  "job_type": "audio_processing",
+  "source_audio": "content/fixtures/audio/silence.ogg",
+  "output": ".urpg/offline-tooling/examples/silence_audio_tool_manifest.json",
+  "output_root": ".urpg/offline-tooling/examples/silence_audio",
+  "mode": "compression",
+  "reviewed": false
+}

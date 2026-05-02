@@ -69,6 +69,36 @@ def main() -> int:
             adapter_command = str(job.get("adapter_command", ""))
             if adapter_command:
                 command.extend(["--adapter-command", adapter_command])
+    elif job_type == "vision_segmentation":
+        command = [
+            sys.executable,
+            str(repo_root / "tools" / "vision" / "segment_assets.py"),
+            "--source-image",
+            str(repo_root / job["source_image"]),
+            "--output",
+            str(repo_root / job["output"]),
+            "--output-root",
+            str(repo_root / job["output_root"]),
+        ]
+        for asset_id in job.get("asset_ids", []):
+            command.extend(["--asset-id", str(asset_id)])
+        if job.get("manual_override", False):
+            command.append("--manual-override")
+    elif job_type == "audio_processing":
+        command = [
+            sys.executable,
+            str(repo_root / "tools" / "audio" / "process_audio_assets.py"),
+            "--source-audio",
+            str(repo_root / job["source_audio"]),
+            "--output",
+            str(repo_root / job["output"]),
+            "--output-root",
+            str(repo_root / job["output_root"]),
+            "--mode",
+            str(job.get("mode", "stems")),
+        ]
+        if job.get("reviewed", False):
+            command.append("--reviewed")
     else:
         raise SystemExit(f"Unsupported job_type: {job_type}")
 

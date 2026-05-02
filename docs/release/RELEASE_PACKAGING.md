@@ -205,7 +205,7 @@ That report classifies connected release assets and non-connected bundle rows. C
 - `vfx_sheet` through `BND-003`
 - `cohesive_ui_skin` through `BND-003`
 
-Environmental SFX, BGM, final portrait art, final music identity, and polished VFX identity remain outside the current 100% release content claim unless a future release owner promotes cleared bundles for those categories.
+Environmental SFX, BGM, final portrait art, final music identity, and polished VFX identity are mandatory content backlog until cleared bundles are promoted for those categories. They are not bundled by the current package gate without attribution evidence, checksums, package destinations, and promoted payloads.
 
 ## Full Local Gate Status
 

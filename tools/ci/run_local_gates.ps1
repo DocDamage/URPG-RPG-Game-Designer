@@ -186,6 +186,9 @@ try {
     Write-Host "== Validate truth alignment ==" -ForegroundColor Cyan
     & "$PSScriptRoot\..\docs\check_truth_alignment.ps1"
 
+    Write-Host "== Validate mandatory completion scope ==" -ForegroundColor Cyan
+    & "$PSScriptRoot\check_mandatory_completion_scope.ps1"
+
     Write-Host "== Validate template claims ==" -ForegroundColor Cyan
     & "$PSScriptRoot\..\docs\check_template_claims.ps1"
 

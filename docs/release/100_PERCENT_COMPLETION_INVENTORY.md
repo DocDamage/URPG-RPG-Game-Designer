@@ -24,3 +24,14 @@ Phase 4 focused character/asset CTest command:
 ```powershell
 ctest --preset dev-all -R "Character|character|AssetLibrary" --output-on-failure
 ```
+
+## Mandatory Open Lanes
+
+These lanes are mandatory for the full 100-percent program scope. They may be outside the currently packaged release payload until their evidence exists, but they are not optional and must not be described as optional follow-on work.
+
+| Lane ID | Current Status | Exact Blocker | Required Implementation Evidence | Required Verification Command | Release Claim Impact |
+| --- | --- | --- | --- | --- | --- |
+| `wysiwyg_roadmap_completion` | `MANDATORY_OPEN` | Remaining roadmap features must be closed as runtime plus direct visual authoring/live-preview workflows, not diagnostics-only fixtures. | Feature-specific editor surfaces, saved project data, runtime execution proof, diagnostics, and focused tests for every remaining roadmap lane. | Feature-specific CTest lanes plus `.\tools\ci\truth_reconciler.ps1` and `.\tools\ci\run_local_gates.ps1`. | No final 100-percent claim until every remaining roadmap lane has WYSIWYG evidence. |
+| `offline_tooling_pipelines` | `MANDATORY_OPEN` | Retrieval, segmentation, and audio tooling must remain offline, artifact-producing, and job-runner-addressable. | Shared offline job runner coverage for retrieval, SAM/SAM2-compatible segmentation manifests, and Demucs/Encodec-compatible audio manifests; runtime consumes exported artifacts only. | Python tool CTest lane; `ctest --preset dev-all -R "offline|retrieval|vision|audio|job_runner|tools" --output-on-failure`; `.\tools\ci\check_mandatory_completion_scope.ps1`. | No final 100-percent tooling claim until approved offline lanes are verified through shared jobs and artifact contracts. |
+| `curated_asset_content_completion` | `MANDATORY_OPEN` | Raw/cataloged assets remain local-use-only until curated subsets have attribution evidence and bundle manifests. | Per-bundle attribution records, checksums, package destinations, release eligibility metadata, and promoted payloads under `imports/normalized/`. | `.\tools\ci\check_asset_library_governance.ps1`; `.\tools\ci\check_release_required_assets.ps1`; focused asset/export CTest lanes. | No final content-complete claim until every desired bundled content category has governed promoted bundles. |
+| `final_release_gate_and_tag` | `MANDATORY_OPEN` | Current `main` must be rerun through final gates and tagged by the release owner. | Fresh final gate outputs on the exact commit to tag, updated release-readiness report, and annotated release or prerelease tag. | `pre-commit run --all-files`; `.\tools\ci\run_local_gates.ps1`; `.\tools\ci\run_presentation_gate.ps1`; `.\tools\ci\run_release_candidate_gate.ps1`; `git tag -a`. | The project remains untagged until this lane closes. |

@@ -5,7 +5,7 @@ Authority: canonical app-level release-readiness tracker for runtime, editor, pa
 
 This matrix maps release-facing application workflows to the execution-plan task that proves or blocks them. It complements `docs/release/RELEASE_READINESS_MATRIX.md`, which remains the subsystem status reference.
 
-Latest audit-remediation checkpoint: Phase 0 through Phase 9 Task P9-002 are landed and verified on the current remediation branch. Editor navigation is verified against app-shell factories, release authoring surfaces have persistence/input/error-state coverage, release-required assets are classified, selected Phase 9 release bundle categories are checksumed and package-gated, install/package smoke passes against `build/dev-ninja-release`, and `.\tools\ci\run_local_gates.ps1` passes end to end.
+Latest audit-remediation checkpoint: Phase 0 through Phase 9 Task P9-002 are landed and verified on the current remediation branch. The mandatory completion-scope lock is active: remaining WYSIWYG roadmap work, offline tooling adoption, curated asset/content promotion, final gate reruns, and release tagging are tracked as required completion work rather than optional scope. Editor navigation is verified against app-shell factories, release authoring surfaces have persistence/input/error-state coverage, release-required assets are classified, selected Phase 9 release bundle categories are checksumed and package-gated, install/package smoke passes against `build/dev-ninja-release`, and `.\tools\ci\run_local_gates.ps1` passes end to end.
 
 ## Status Values
 

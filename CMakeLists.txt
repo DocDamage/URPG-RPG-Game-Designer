@@ -1708,6 +1708,10 @@ if(Python3_FOUND)
         tools/vision/tests/test_segmentation_acceptance.py
     )
     urpg_add_python_tool_test(
+        urpg_offline_job_runner_test
+        tools/shared/job_runner/tests/test_offline_job_runner.py
+    )
+    urpg_add_python_tool_test(
         urpg_global_asset_import_tool_test
         tools/assets/tests/test_global_asset_import.py
     )

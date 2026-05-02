@@ -1,4 +1,4 @@
-# Optional offline segmentation environment only.
+# Isolated offline segmentation environment only.
 numpy>=1.26
 pillow>=10.0
 segment-anything; python_version < "3.13"
