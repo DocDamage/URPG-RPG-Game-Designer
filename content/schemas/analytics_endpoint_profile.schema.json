@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urpg.analytics_endpoint_profile.v1",
+  "title": "URPG Analytics Endpoint Profile",
+  "type": "object",
+  "required": ["schema", "profileId", "mode"],
+  "properties": {
+    "schema": {
+      "const": "urpg.analytics_endpoint_profile.v1"
+    },
+    "profileId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "providerId": {
+      "enum": ["", "disabled", "local_jsonl", "http_json", "command"]
+    },
+    "mode": {
+      "enum": ["disabled", "local_jsonl", "http_json"]
+    },
+    "localJsonlPath": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "headers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "bearerToken": {
+      "type": "string"
+    },
+    "curlExecutable": {
+      "type": "string"
+    },
+    "credentialSourceCategory": {
+      "enum": ["none", "not_required", "environment", "command", "secret_store"]
+    },
+    "credentialsRequired": {
+      "type": "boolean"
+    },
+    "reviewed": {
+      "type": "boolean"
+    },
+    "reviewedBy": {
+      "type": "string"
+    },
+    "reviewedAt": {
+      "type": "string"
+    },
+    "lastTestResult": {
+      "enum": ["not_run", "pass", "fail"]
+    },
+    "privacyReview": {
+      "type": "object",
+      "required": ["approved", "reviewer", "dataCategories"],
+      "properties": {
+        "approved": {
+          "type": "boolean"
+        },
+        "reviewer": {
+          "type": "string"
+        },
+        "approvedAt": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "dataCategories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

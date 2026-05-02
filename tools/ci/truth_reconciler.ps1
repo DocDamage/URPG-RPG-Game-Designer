@@ -59,6 +59,9 @@ $signoffArtifactMap = @{
     "audio_mix_presets" = "docs/AUDIO_MIX_PRESETS_CLOSURE_SIGNOFF.md"
     "visual_regression_harness" = "docs/VISUAL_REGRESSION_HARNESS_CLOSURE_SIGNOFF.md"
     "export_validator" = "docs/EXPORT_VALIDATOR_CLOSURE_SIGNOFF.md"
+    "achievement_registry" = "docs/ACHIEVEMENT_REGISTRY_CLOSURE_SIGNOFF.md"
+    "mod_registry" = "docs/MOD_REGISTRY_CLOSURE_SIGNOFF.md"
+    "analytics_dispatcher" = "docs/ANALYTICS_DISPATCHER_CLOSURE_SIGNOFF.md"
 }
 $signoffArtifactText = @{}
 foreach ($subsystemId in $signoffArtifactMap.Keys) {

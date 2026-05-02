@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/analytics/analytics_uploader.h"
+#include "engine/core/release/provider_profile_status.h"
 
 #include <nlohmann/json.hpp>
 
@@ -23,12 +24,19 @@ struct AnalyticsPrivacyReviewEvidence {
 
 struct AnalyticsEndpointProfile {
     std::string profileId;
+    std::string providerId;
     AnalyticsEndpointMode mode = AnalyticsEndpointMode::Disabled;
     std::filesystem::path localJsonlPath;
     std::string url;
     std::unordered_map<std::string, std::string> headers;
     std::string bearerToken;
     std::string curlExecutable = "curl";
+    std::string credentialSourceCategory = "not_required";
+    bool credentialsRequired = false;
+    bool reviewed = false;
+    std::string reviewedBy;
+    std::string reviewedAt;
+    std::string lastTestResult = "not_run";
     AnalyticsPrivacyReviewEvidence privacyReview;
 
     nlohmann::json toJson() const;
@@ -50,6 +58,8 @@ struct AnalyticsEndpointProfileApplyResult {
 const char* analyticsEndpointModeName(AnalyticsEndpointMode mode);
 AnalyticsEndpointMode analyticsEndpointModeFromString(const std::string& value);
 std::vector<AnalyticsEndpointProfileDiagnostic> validateAnalyticsEndpointProfile(
+    const AnalyticsEndpointProfile& profile);
+urpg::release::ProviderProfileStatus analyticsEndpointProfileStatus(
     const AnalyticsEndpointProfile& profile);
 AnalyticsEndpointProfileApplyResult applyAnalyticsEndpointProfile(
     AnalyticsUploader& uploader, const AnalyticsEndpointProfile& profile);

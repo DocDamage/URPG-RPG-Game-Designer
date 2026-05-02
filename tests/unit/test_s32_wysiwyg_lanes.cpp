@@ -171,8 +171,11 @@ TEST_CASE("achievement_registry: readiness record acknowledges platform backend 
     const json sub = findSubsystem(readiness, "achievement_registry");
 
     REQUIRE(!sub.empty());
-    REQUIRE(sub.value("status", "") == "PARTIAL");
-    REQUIRE(hasGapContaining(sub, "Platform backend synchronization is landed"));
+    REQUIRE(sub.value("status", "") == "READY");
+    REQUIRE(sub.value("summary", "").find("platform backend synchronization") != std::string::npos);
+    REQUIRE(sub.value("summary", "").find("provider-profile status validation") != std::string::npos);
+    REQUIRE(sub.value("summary", "").find("Proprietary store SDK credentials remain project configuration") !=
+            std::string::npos);
 }
 
 // ============================================================================
@@ -186,6 +189,7 @@ TEST_CASE("mod_registry: mainGaps entries have specific wording (not generic fut
 
     REQUIRE(!sub.empty());
     REQUIRE(sub.contains("mainGaps"));
+    REQUIRE(sub.value("status", "") == "READY");
     // Must not have a single catch-all "remain future work" gap
     bool hasVagueGap = false;
     for (const auto& gap : sub["mainGaps"]) {
@@ -195,8 +199,9 @@ TEST_CASE("mod_registry: mainGaps entries have specific wording (not generic fut
         }
     }
     REQUIRE_FALSE(hasVagueGap);
-    // Must have at least 3 specific gap entries
-    REQUIRE(sub["mainGaps"].size() >= 3);
+    REQUIRE(sub["mainGaps"].empty());
+    REQUIRE(sub.value("summary", "").find("ModMarketplaceProviderProfile") != std::string::npos);
+    REQUIRE(sub.value("summary", "").find("External marketplace services") != std::string::npos);
 }
 
 TEST_CASE("analytics_dispatcher: mainGaps entries have specific wording (not generic future work)",
@@ -206,6 +211,7 @@ TEST_CASE("analytics_dispatcher: mainGaps entries have specific wording (not gen
 
     REQUIRE(!sub.empty());
     REQUIRE(sub.contains("mainGaps"));
+    REQUIRE(sub.value("status", "") == "READY");
     bool hasVagueGap = false;
     for (const auto& gap : sub["mainGaps"]) {
         const auto& text = gap.get<std::string>();
@@ -214,7 +220,10 @@ TEST_CASE("analytics_dispatcher: mainGaps entries have specific wording (not gen
         }
     }
     REQUIRE_FALSE(hasVagueGap);
-    REQUIRE(sub["mainGaps"].size() >= 3);
+    REQUIRE(sub["mainGaps"].empty());
+    REQUIRE(sub.value("summary", "").find("AnalyticsEndpointProfile status validation") != std::string::npos);
+    REQUIRE(sub.value("summary", "").find("Qualified production privacy/legal approval remains separate") !=
+            std::string::npos);
 }
 
 TEST_CASE("visual_regression_harness: mainGaps entries have specific wording (not generic future work)",
@@ -282,8 +291,10 @@ TEST_CASE("achievement_registry: readiness record keeps trophy export and platfo
 
     REQUIRE(!sub.empty());
     REQUIRE(sub.value("summary", "").find("trophy export payload") != std::string::npos);
-    REQUIRE(hasGapContaining(sub, "Platform backend synchronization is landed"));
-    REQUIRE(hasGapContaining(sub, "IAchievementPlatformBackend"));
+    REQUIRE(sub.value("summary", "").find("platform backend synchronization") != std::string::npos);
+    REQUIRE(sub.value("summary", "").find("AchievementPlatformProfile") != std::string::npos);
+    REQUIRE(sub.value("summary", "").find("Proprietary store SDK credentials remain project configuration") !=
+            std::string::npos);
 }
 
 TEST_CASE("achievement_registry: landed evidence flags are all set",

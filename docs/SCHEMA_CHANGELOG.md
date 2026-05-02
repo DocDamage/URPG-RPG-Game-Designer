@@ -16,6 +16,20 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `analytics_endpoint_profile` (`analytics_endpoint_profile.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-05-01`
+- Summary: initial governed schema for analytics endpoint provider profiles, including provider id, transport mode, credential source category, review metadata, test result, and privacy review evidence
+- Migration Impact: none; additive schema for Phase 7 external-service boundary validation
+
+### `mod_marketplace_provider_profile` (`mod_marketplace_provider_profile.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-05-01`
+- Summary: initial governed schema for mod marketplace provider profiles, including disabled, dry-run, command-backed, credential source, review metadata, and test-result fields
+- Migration Impact: none; additive schema for Phase 7 external-service boundary validation
+
 ### `asset_promotion_manifest` (`asset_promotion_manifest.schema.json`)
 
 - Version: `1.0.0`

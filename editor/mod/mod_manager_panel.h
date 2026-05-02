@@ -20,6 +20,7 @@ class ModManagerPanel {
     void bindLoader(urpg::mod::ModLoader* loader);
     void bindHotLoader(urpg::mod::ModHotLoader* hot_loader);
     void bindStoreCatalog(urpg::mod::ModStoreCatalog* store_catalog);
+    void bindMarketplaceProviderProfile(const urpg::mod::ModMarketplaceProviderProfile* provider_profile);
     void render();
 
     bool importManifest(const std::filesystem::path& manifest_path, const urpg::mod::ModSandboxPolicy& policy = {});
@@ -44,6 +45,7 @@ class ModManagerPanel {
     urpg::mod::ModLoader* loader_ = nullptr;
     urpg::mod::ModHotLoader* hot_loader_ = nullptr;
     urpg::mod::ModStoreCatalog* store_catalog_ = nullptr;
+    const urpg::mod::ModMarketplaceProviderProfile* marketplace_provider_profile_ = nullptr;
     nlohmann::json last_render_snapshot_;
     nlohmann::json last_action_snapshot_;
     urpg::mod::ModHotLoadPollResult last_hot_poll_result_;

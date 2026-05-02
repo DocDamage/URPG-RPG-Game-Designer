@@ -325,10 +325,20 @@ TEST_CASE("ModManagerPanel: Store catalog entries install through the editor sur
     panel.bindRegistry(&registry);
     panel.bindLoader(&loader);
     panel.bindStoreCatalog(&catalog);
+    ModMarketplaceProviderProfile providerProfile;
+    providerProfile.profileId = "dry-run-marketplace";
+    providerProfile.providerId = "dry_run";
+    providerProfile.lastTestResult = "pass";
+    panel.bindMarketplaceProviderProfile(&providerProfile);
     panel.render();
 
     auto snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot["store_catalog_bound"] == true);
+    REQUIRE(snapshot["marketplace_provider_profile_bound"] == true);
+    REQUIRE(snapshot["marketplace_provider_profile_status"]["status"] == "dry_run");
+    REQUIRE(snapshot["marketplace_provider_profile_status"]["credentialSourceCategory"] == "none");
+    REQUIRE(snapshot["marketplace_provider_profile_status"]["lastTestResult"] == "pass");
+    REQUIRE(snapshot["marketplace_provider_profile_status"]["releasePackagingAllowed"] == false);
     REQUIRE(snapshot["store"]["entry_count"] == 1);
     REQUIRE(snapshot["store"]["entries"][0]["id"] == "store.ui");
     REQUIRE(snapshot["actions"]["install_store_entry"] == true);

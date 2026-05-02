@@ -132,6 +132,10 @@ TEST_CASE("AchievementPanel applies platform profile and syncs unlocked achievem
     const auto snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot["platform_profile_bound"] == true);
     REQUIRE(snapshot["platform_profile"]["profileId"] == "panel-profile");
+    REQUIRE(snapshot["platform_profile_status"]["status"] == "dry_run");
+    REQUIRE(snapshot["platform_profile_status"]["credentialSourceCategory"] == "none");
+    REQUIRE(snapshot["platform_profile_status"]["reviewStatus"] == "not_required");
+    REQUIRE(snapshot["platform_profile_status"]["releasePackagingAllowed"] == false);
     REQUIRE(snapshot["platform_backends"]["backendCount"] == 1);
     REQUIRE(snapshot["last_action"]["action"] == "sync_unlocked_achievements");
     REQUIRE(snapshot["actions"]["applyPlatformProfile"] == true);

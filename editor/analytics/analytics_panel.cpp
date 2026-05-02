@@ -332,6 +332,8 @@ void AnalyticsPanel::rebuildSnapshot() {
 
     if (m_endpointProfile) {
         snapshot["endpointProfile"] = m_endpointProfile->toJson();
+        snapshot["endpointProfileStatus"] = urpg::release::providerProfileStatusToJson(
+            urpg::analytics::analyticsEndpointProfileStatus(*m_endpointProfile));
         const auto profileDiagnostics = urpg::analytics::validateAnalyticsEndpointProfile(*m_endpointProfile);
         nlohmann::json diagnostics = nlohmann::json::array();
         for (const auto& diagnostic : profileDiagnostics) {
@@ -344,6 +346,7 @@ void AnalyticsPanel::rebuildSnapshot() {
         snapshot["endpointProfileDiagnostics"] = diagnostics;
         snapshot["endpointProfilePrivacyApproved"] = m_endpointProfile->privacyReview.approved;
     } else {
+        snapshot["endpointProfileStatus"] = nullptr;
         snapshot["endpointProfileDiagnostics"] = nlohmann::json::array();
         snapshot["endpointProfilePrivacyApproved"] = false;
         snapshot["statusMessages"].push_back("No analytics endpoint profile is bound.");

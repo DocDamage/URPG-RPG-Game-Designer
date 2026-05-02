@@ -295,6 +295,51 @@ TEST_CASE("AchievementPlatformProfile validates command backend configuration",
     REQUIRE(diagnostics[0].code == "missing_command_executable");
 }
 
+TEST_CASE("AchievementPlatformProfile reports release provider profile status vocabulary",
+          "[achievement][platform][profile][phase7]") {
+    AchievementPlatformProfile disabled;
+    disabled.profileId = "disabled-achievements";
+    disabled.packageId = "com.example.disabled";
+    REQUIRE(achievementPlatformProfileStatus(disabled).status == "disabled");
+
+    auto unsupported = AchievementPlatformProfile::fromJson({
+        {"schema", "urpg.achievement_platform_profile.v1"},
+        {"profileId", "unsupported-achievements"},
+        {"packageId", "com.example.unsupported"},
+        {"backends", {{{"platformId", "unknown-store"}, {"type", "proprietary_sdk"}}}},
+    });
+    REQUIRE(achievementPlatformProfileStatus(unsupported).status == "unsupported_provider");
+
+    AchievementPlatformProfile dryRun;
+    dryRun.profileId = "dry-run-achievements";
+    dryRun.packageId = "com.example.dryrun";
+    dryRun.backends.push_back({"urpg-local", AchievementPlatformProfileBackendType::Memory, "", {}});
+    REQUIRE(achievementPlatformProfileStatus(dryRun).status == "dry_run");
+    REQUIRE_FALSE(achievementPlatformProfileStatus(dryRun).releasePackagingAllowed);
+
+    AchievementPlatformProfile missingCredentials;
+    missingCredentials.profileId = "missing-command-achievements";
+    missingCredentials.packageId = "com.example.missing";
+    missingCredentials.backends.push_back({"steam", AchievementPlatformProfileBackendType::Command, "", {}});
+    REQUIRE(achievementPlatformProfileStatus(missingCredentials).status == "missing_credentials");
+
+    AchievementPlatformProfile commandUnreviewed;
+    commandUnreviewed.profileId = "command-achievements";
+    commandUnreviewed.packageId = "com.example.command";
+    commandUnreviewed.backends.push_back({"steam", AchievementPlatformProfileBackendType::Command, "steamcmd", {}});
+    REQUIRE(achievementPlatformProfileStatus(commandUnreviewed).status == "configured_unreviewed");
+
+    AchievementPlatformProfile reviewed = commandUnreviewed;
+    reviewed.reviewed = true;
+    reviewed.reviewedBy = "release-owner";
+    reviewed.reviewedAt = "2026-05-01";
+    reviewed.lastTestResult = "pass";
+    const auto reviewedStatus = achievementPlatformProfileStatus(reviewed);
+    REQUIRE(reviewedStatus.status == "configured_reviewed");
+    REQUIRE(reviewedStatus.credentialSourceCategory == "command");
+    REQUIRE(reviewedStatus.releasePackagingAllowed);
+}
+
 TEST_CASE("AchievementRegistry trophy payload defaults to neutral platform", "[achievement][export]") {
     AchievementRegistry registry;
 

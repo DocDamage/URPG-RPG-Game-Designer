@@ -42,6 +42,19 @@
         },
         "additionalProperties": false
       }
+    },
+    "reviewed": {
+      "type": "boolean"
+    },
+    "reviewedBy": {
+      "type": "string"
+    },
+    "reviewedAt": {
+      "type": "string"
+    },
+    "lastTestResult": {
+      "type": "string",
+      "enum": ["not_run", "pass", "fail"]
     }
   },
   "additionalProperties": false

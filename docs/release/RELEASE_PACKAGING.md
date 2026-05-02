@@ -36,6 +36,21 @@ That manifest records the one packaged source per plugin key and the raw DLC can
 
 `urpg_pack_cli --release` also requires an explicit release artifact profile before it will label an export as release staging: `--signing-mode`, `--certificate-ref`, `--notarization-mode`, `--artifact-policy`, and `--owner-approval`. Development/package-smoke exports may use explicit non-production values such as `unsigned_dev`, `none`, `not_applicable`, and `dev_package_smoke_only`; production credentials and account identifiers remain project configuration.
 
+## External Service Provider Profiles
+
+Achievement, mod marketplace, and analytics release integrations use validated provider profiles rather than repository-owned proprietary service credentials. The shared status vocabulary is:
+
+```text
+disabled
+dry_run
+configured_unreviewed
+configured_reviewed
+missing_credentials
+unsupported_provider
+```
+
+Release packaging may include a provider only when its profile reports `configured_reviewed` and the last test result is acceptable for that provider. Dry-run/local providers remain useful for deterministic tests and editor diagnostics but are not evidence of live external marketplace, store SDK, payment/review, or telemetry-service operation. Proprietary account credentials, platform SDK authorization, marketplace payment/review setup, and qualified legal/privacy approval remain project-configuration or release-owner review boundaries.
+
 ## Required Signing Inputs
 
 | Target | Required inputs | Hook |
