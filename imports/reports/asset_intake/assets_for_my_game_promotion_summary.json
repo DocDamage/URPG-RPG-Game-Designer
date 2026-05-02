@@ -1,0 +1,49 @@
+{
+  "schema": "urpg/asset_promotion_summary/v1",
+  "generated_at": "2026-05-02T21:15:42+00:00",
+  "source_id": "SRC-011",
+  "source_root": "imports/raw/assets_for_my_game",
+  "promotion_status": "cataloged_local_available",
+  "export_eligible": false,
+  "asset_count": 12985,
+  "canonical_asset_count": 12579,
+  "duplicate_group_count": 317,
+  "duplicate_asset_count": 406,
+  "unsupported_count": 26,
+  "kind_counts": {
+    "archive": 61,
+    "document": 81,
+    "image": 12826,
+    "map": 17
+  },
+  "category_counts": {
+    "archives": 61,
+    "backgrounds": 77,
+    "characters": 1831,
+    "characters/portraits": 12,
+    "documentation": 81,
+    "props": 2709,
+    "tilesets": 920,
+    "ui": 6400,
+    "vfx": 894
+  },
+  "extension_counts": {
+    "aseprite": 72,
+    "gif": 113,
+    "pdf": 11,
+    "png": 12357,
+    "psd": 284,
+    "rar": 1,
+    "tmx": 15,
+    "tsx": 2,
+    "txt": 70,
+    "zip": 60
+  },
+  "pack_count": 60,
+  "notes": [
+    "All supported SRC-011 records are catalog-normalized for local editor/library use.",
+    "Raw binaries remain in ignored quarantine under imports/raw/assets_for_my_game.",
+    "normalized_path values are stable virtual asset ids, not copied release payload paths.",
+    "local_use_allowed is true for creator/editor browsing; release_use_allowed and export_eligible remain false until curated bundle promotion."
+  ]
+}

@@ -17,9 +17,11 @@ Robust local asset index for this repo using SQLite + FTS5.
   - `imports/raw/third_party_assets/itch-assets/loose-files`
   - `imports/raw/third_party_assets/rpgmaker-mz`
   - `imports/raw/third_party_assets/huggingface`
-  - `imports/root-drop/archives`
+- `imports/root-drop/archives`
 - `imports/raw/more_assets`
 - `imports/raw/more_assets_to_ingest`
+- `imports/raw/assets_for_my_game`
+- `imports/raw/godogenui_assets`
 
 Most broad raw/source roots are intentionally ignored local quarantine. The catalog can index them when they exist in a developer checkout, but reports and promoted manifests are the repository source of truth.
 
@@ -42,6 +44,7 @@ python .\tools\assets\asset_db.py index --roots imports/raw/third_party_assets/i
 
 `imports/raw/urpg_stuff` is included in the default roots when the local drop exists.
 `imports/raw/more_assets_to_ingest` is included for the SRC-010 zip/RAR/loose-file drop when that local quarantine exists.
+`imports/raw/assets_for_my_game` and `imports/raw/godogenui_assets` are included for the SRC-011/SRC-012 local quarantine drops when present.
 
 `report_third_party_itch_ingest.py` writes a tracked summary report to `imports/reports/asset_intake/third_party_itch_ingest_summary.json` after a third-party/itch indexing pass. The SQLite DB remains local under `.urpg/asset-index/`.
 
@@ -156,6 +159,35 @@ Outputs:
 - `imports/reports/asset_intake/more_assets_to_ingest_promotion_summary.json`
 
 These records make SRC-010 browseable/searchable in local editor/library surfaces through stable `asset://src-010/...` ids and raw preview paths. They are local-use-only records: `export_eligible=false` and `release_use_allowed=false` until a curated subset is copied into `imports/normalized/` and receives bundle plus attribution manifests.
+
+## Generic local-drop catalog-normalization
+Build editor-loadable local catalogs for additional raw quarantine drops:
+
+```powershell
+python .\tools\assets\catalog_local_asset_drop.py `
+  --source-id SRC-011 `
+  --source-root imports/raw/assets_for_my_game `
+  --output-catalog imports/reports/asset_intake/assets_for_my_game_promotion_catalog.json `
+  --output-summary imports/reports/asset_intake/assets_for_my_game_promotion_summary.json `
+  --output-shard-root imports/reports/asset_intake/assets_for_my_game_promotion_catalog
+
+python .\tools\assets\catalog_local_asset_drop.py `
+  --source-id SRC-012 `
+  --source-root imports/raw/godogenui_assets `
+  --output-catalog imports/reports/asset_intake/godogenui_assets_promotion_catalog.json `
+  --output-summary imports/reports/asset_intake/godogenui_assets_promotion_summary.json `
+  --output-shard-root imports/reports/asset_intake/godogenui_assets_promotion_catalog
+```
+
+These catalogs are local-use-only. They provide stable virtual asset ids and preview paths for editor/library browsing, but do not make raw files release/export eligible.
+
+`BND-005` is the first governed promotion from these local drops:
+
+- `imports/manifests/asset_bundles/BND-005.json`
+- `imports/reports/asset_intake/attribution/BND-005_src012_cc0_tiles_vfx.json`
+- `imports/normalized/src012_cc0_tiles_vfx/`
+
+It promotes only six selected `SRC-012` CC0/public-domain tiles/VFX PNGs. All other `SRC-011` and `SRC-012` records remain local-use-only until curated attribution review.
 
 ## Local generator/tool candidate catalog
 Catalog generator and tool source folders from a local drop for engineering review without executing them.

@@ -1,0 +1,3980 @@
+{
+  "schema": "urpg/local_computer_asset_candidate_inventory_refined/v1",
+  "generated_at": "2026-05-02T21:08:42Z",
+  "scope": "user/project roots plus C:\\dev, with known URPG intake roots and build/cache folders excluded",
+  "scan_roots": [
+    "C:\\Users\\Doc\\Desktop",
+    "C:\\Users\\Doc\\Downloads",
+    "C:\\Users\\Doc\\Documents",
+    "C:\\dev"
+  ],
+  "known_ingested_prefixes": [
+    "C:\\dev\\URPG Maker\\imports\\raw",
+    "C:\\dev\\URPG Maker\\imports\\normalized",
+    "C:\\dev\\URPG Maker\\.urpg\\archive\\source_drops",
+    "C:\\dev\\URPG Maker\\.urpg\\fresh-clone-checks",
+    "C:\\dev\\URPG Maker\\more assets",
+    "C:\\dev\\URPG Maker\\more assets to ingest"
+  ],
+  "candidate_directory_count": 2282,
+  "candidate_archive_count": 8946,
+  "archive_summary": [
+    {
+      "extension": ".7z",
+      "count": 15,
+      "bytes": 53591979
+    },
+    {
+      "extension": ".gz",
+      "count": 50,
+      "bytes": 45876270
+    },
+    {
+      "extension": ".rar",
+      "count": 10,
+      "bytes": 988580255
+    },
+    {
+      "extension": ".zip",
+      "count": 8871,
+      "bytes": 112114367030
+    }
+  ],
+  "top_candidate_directories": [
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo NES\\roms",
+      "file_count": 2105,
+      "archive_count": 2105,
+      "asset_like_count": 0,
+      "bytes": 228078527,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo NES\\roms\\10-Yard Fight (U) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo NES\\roms\\10-Yard Fight (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo NES\\roms\\10000000-in-1 [p1][!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo NES\\roms\\10YardFight.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo NES\\roms\\11-in-1 Ball Games [p1][!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo NES\\roms\\118-in-1 [p1][!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo NES\\roms\\150-in-1 (Mapper 202) [p1][!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo NES\\roms\\1942 (U) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo NES\\roms\\1942.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo NES\\roms\\1943 (U).zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms",
+      "file_count": 947,
+      "archive_count": 947,
+      "asset_like_count": 0,
+      "bytes": 659973018,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\16 Tiles Mahjong (Unl) [c].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\3 Ninjas Kick Back (U) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\36 Great Holes Starring Fred Couples 32X (E) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\688 Attack Sub (U) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\777 Casino (Unl) [c].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\A Bug's Life (Unl).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\AAAHH!!! Real Monsters (4) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\Abrams Battle Tanks (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\Addams Family Values (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\Addams Family, The (UE) [!].zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\Roms\\#Unsorted",
+      "file_count": 925,
+      "archive_count": 925,
+      "asset_like_count": 0,
+      "bytes": 4316251108,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\Roms\\#Unsorted\\007 - Everything or Nothing (U) (M3).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\#Unsorted\\2 Games in 1 - Power Rangers - Ninja Storm & Power Rangers - Time Force (U).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\#Unsorted\\2 Games in 1 - Scooby-Doo! - Mystery Mayhem & Scooby-Doo! and the Cyber Chase (U).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\#Unsorted\\2 Games in 1 - SpongeBob SquarePants - SuperSponge & Revenge of the Flying Dutchman (U).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\#Unsorted\\2-in-1 - Cartoon Network - Block Party & Cartoon Network - Speedway (U).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\#Unsorted\\2-in-1 - Castlevania Double Pack - Harmony of Dissonance & Aria of Sorrow (U).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\#Unsorted\\2-in-1 - Crash Bandicoot Purple - Ripto's Rampage & Spyro Orange - The Cortex Conspiracy (U).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\#Unsorted\\2-in-1 - Dragon Ball Z Gamepack - Buu's Fury & GT - Transformation (U).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\#Unsorted\\2-in-1 - Dragon Ball Z Gamepack - The Legacy of Goku I & II (U).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\#Unsorted\\2-in-1 - Golden Nugget Casino & Texas Hold'em Poker (U).zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted",
+      "file_count": 925,
+      "archive_count": 925,
+      "asset_like_count": 0,
+      "bytes": 4316251108,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\007 - Everything or Nothing (U) (M3).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2 Games in 1 - Power Rangers - Ninja Storm & Power Rangers - Time Force (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2 Games in 1 - Scooby-Doo! - Mystery Mayhem & Scooby-Doo! and the Cyber Chase (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2 Games in 1 - SpongeBob SquarePants - SuperSponge & Revenge of the Flying Dutchman (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Cartoon Network - Block Party & Cartoon Network - Speedway (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Castlevania Double Pack - Harmony of Dissonance & Aria of Sorrow (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Crash Bandicoot Purple - Ripto's Rampage & Spyro Orange - The Cortex Conspiracy (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Dragon Ball Z Gamepack - Buu's Fury & GT - Transformation (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Dragon Ball Z Gamepack - The Legacy of Goku I & II (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Golden Nugget Casino & Texas Hold'em Poker (U).zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\SNES\\rom",
+      "file_count": 790,
+      "archive_count": 790,
+      "asset_like_count": 0,
+      "bytes": 688331113,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\SNES\\rom\\2020 Super Baseball (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\SNES\\rom\\3 Ninjas Kick Back (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\SNES\\rom\\7th Saga, The (U) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\SNES\\rom\\A.S.P. Air Strike Patrol (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\SNES\\rom\\AAAHH!!! Real Monsters (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\SNES\\rom\\ABC Monday Night Football (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\SNES\\rom\\ACME Animation Factory (U).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\SNES\\rom\\ActRaiser (U) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\SNES\\rom\\ActRaiser 2 (U) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\SNES\\rom\\AD&D - Eye of the Beholder (U).zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\TurboGrafX\\roms",
+      "file_count": 664,
+      "archive_count": 664,
+      "asset_like_count": 0,
+      "bytes": 93150932,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\TurboGrafX\\roms\\15-in-1 Mega Collection - Backtracking Ten Years (J).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\TurboGrafX\\roms\\1941 - Counter Attack (J) (SGX).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\TurboGrafX\\roms\\1941 - Counter Attack Sounds.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\TurboGrafX\\roms\\1943 Kai (J).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\TurboGrafX\\roms\\1943 Kai Sounds.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\TurboGrafX\\roms\\21-Emon - Mezase Hotel Ou!! (J).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\TurboGrafX\\roms\\3 GFX Procedures Demo by Aramis (PD).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\TurboGrafX\\roms\\4 Seconds of Speech Sound Demo by Trilinear (PD).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\TurboGrafX\\roms\\5-in-1 Fami Collection - NES Collection Nr 1 (J).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\TurboGrafX\\roms\\6-in-1 Fami Collection - NES Collection Nr 2 (J).zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\ROMS",
+      "file_count": 531,
+      "archive_count": 531,
+      "asset_like_count": 0,
+      "bytes": 52921377,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\ROMS\\005.ZIP",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\ROMS\\1942.ZIP",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\ROMS\\1943.ZIP",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\ROMS\\1943kai.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\ROMS\\3STOOGES.ZIP",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\ROMS\\AEROBOTO.ZIP",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\ROMS\\ALLPROMS.ZIP",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\ROMS\\ALPINE.ZIP",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\ROMS\\AMIDAR.ZIP",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\ROMS\\AMIDARJP.ZIP"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms",
+      "file_count": 370,
+      "archive_count": 370,
+      "asset_like_count": 0,
+      "bytes": 44777504,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Ace of Aces (UE) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Action Fighter (UE) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Addams Family, The (UE) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Aerial Assault (UE) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\After Burner (UE) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Air Rescue (UE) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Aladdin (UE) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Aleste (JUE) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Alex Kidd - The Lost Stars (UE) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Alex Kidd BMX Trial (UE) [!].zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms",
+      "file_count": 370,
+      "archive_count": 370,
+      "asset_like_count": 0,
+      "bytes": 44777504,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Ace of Aces (UE) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Action Fighter (UE) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Addams Family, The (UE) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Aerial Assault (UE) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\After Burner (UE) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Air Rescue (UE) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Aladdin (UE) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Aleste (JUE) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Alex Kidd - The Lost Stars (UE) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\roms\\Alex Kidd BMX Trial (UE) [!].zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\roms",
+      "file_count": 327,
+      "archive_count": 327,
+      "asset_like_count": 0,
+      "bytes": 2901851180,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\roms\\2020superbaseball.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\roms\\3countbout.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\roms\\3D Engine V2 (PD).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\roms\\Adventures of Gus and Rob V1, The by Mickey McMurray (PD).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\roms\\Adventures of Gus and Rob V2, The by Mickey McMurray (PD).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\roms\\aggressorsofdarkkombat.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\roms\\alphamission2.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\roms\\androdunos.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\roms\\Anime Video (PD).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\roms\\artoffighting1.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads",
+      "file_count": 160,
+      "archive_count": 154,
+      "asset_like_count": 6,
+      "bytes": 1541727219,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\10-18-25 app-20251018T194640Z-1-001.zip",
+        "C:\\Users\\Doc\\Downloads\\10-18-25 app.rar",
+        "C:\\Users\\Doc\\Downloads\\activetag.zip",
+        "C:\\Users\\Doc\\Downloads\\aimixer---mission-control.zip",
+        "C:\\Users\\Doc\\Downloads\\AI_Mastering_Suite_Build_Guide.zip",
+        "C:\\Users\\Doc\\Downloads\\ai_mix_diagrams_v1.zip",
+        "C:\\Users\\Doc\\Downloads\\AI_Mix_OS_118_NASA_CrossLinked_With_TOC.zip",
+        "C:\\Users\\Doc\\Downloads\\AI_Mix_OS_NASA_Specs (1).zip",
+        "C:\\Users\\Doc\\Downloads\\AI_Mix_OS_NASA_Specs.zip",
+        "C:\\Users\\Doc\\Downloads\\AI_Mix_OS_NASA_Specs_CrossLinked.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameboy Advance\\roms",
+      "file_count": 99,
+      "archive_count": 99,
+      "asset_like_count": 0,
+      "bytes": 401739091,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameboy Advance\\roms\\2 Games in 1 - Dr. Mario & Puzzle League.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameboy Advance\\roms\\Alienators - Evolution Continues.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameboy Advance\\roms\\Atlantis - The Lost Empire.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameboy Advance\\roms\\BackTrack.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameboy Advance\\roms\\Batman - Vengeance.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameboy Advance\\roms\\Caesars Palace Advance - Millennium Gold Edition.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameboy Advance\\roms\\Castlevania - Aria of Sorrow (U)(GBATemp).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameboy Advance\\roms\\Castlevania - Circle of the Moon (U)(Cezar).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameboy Advance\\roms\\Castlevania - Harmony of Dissonance (U)(Independent).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameboy Advance\\roms\\Classic NES Series  Dr. Mario.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\AssetsForMyGame",
+      "file_count": 213,
+      "archive_count": 58,
+      "asset_like_count": 155,
+      "bytes": 206456218,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\AssetsForMyGame\\!Animated CRYSTALICE.png",
+        "C:\\Users\\Doc\\Downloads\\AssetsForMyGame\\!Animated CRYSTALs.png",
+        "C:\\Users\\Doc\\Downloads\\AssetsForMyGame\\!tf_insidebelly_doors_3.png",
+        "C:\\Users\\Doc\\Downloads\\AssetsForMyGame\\2011_1.png",
+        "C:\\Users\\Doc\\Downloads\\AssetsForMyGame\\2011_2.png",
+        "C:\\Users\\Doc\\Downloads\\AssetsForMyGame\\2017patronbundle.zip",
+        "C:\\Users\\Doc\\Downloads\\AssetsForMyGame\\2018patronbundle.zip",
+        "C:\\Users\\Doc\\Downloads\\AssetsForMyGame\\2024patronbundle.zip",
+        "C:\\Users\\Doc\\Downloads\\AssetsForMyGame\\2025pbundle.zip",
+        "C:\\Users\\Doc\\Downloads\\AssetsForMyGame\\airshipA_3.png"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\Roms\\Hacks",
+      "file_count": 58,
+      "archive_count": 58,
+      "asset_like_count": 0,
+      "bytes": 441100160,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\Roms\\Hacks\\Breath of Fire (Sound Restoration).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Hacks\\Breath of Fire II (Sound Restoration).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Hacks\\Castlevania - Aria of Sorrow (Ikusatatsu's Castle).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Hacks\\Castlevania - Aria of Sorrow (Zangetsu Mod).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Hacks\\Castlevania - Harmony of Dissonance (New Game Plus).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Hacks\\Castlevania - Harmony of Dissonance (Revenge of the Findesiecle).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Hacks\\Doom (PC Conversion).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Hacks\\Final Fantasy IV Advance (Sound Restoration).zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Hacks\\Final Fantasy Tactics Advanced Battle.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Hacks\\Final Fantasy V Advance (Sound Restoration).zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Hacks",
+      "file_count": 58,
+      "archive_count": 58,
+      "asset_like_count": 0,
+      "bytes": 441100160,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Hacks\\Breath of Fire (Sound Restoration).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Hacks\\Breath of Fire II (Sound Restoration).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Hacks\\Castlevania - Aria of Sorrow (Ikusatatsu's Castle).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Hacks\\Castlevania - Aria of Sorrow (Zangetsu Mod).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Hacks\\Castlevania - Harmony of Dissonance (New Game Plus).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Hacks\\Castlevania - Harmony of Dissonance (Revenge of the Findesiecle).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Hacks\\Doom (PC Conversion).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Hacks\\Final Fantasy IV Advance (Sound Restoration).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Hacks\\Final Fantasy Tactics Advanced Battle.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Hacks\\Final Fantasy V Advance (Sound Restoration).zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated",
+      "file_count": 48,
+      "archive_count": 48,
+      "asset_like_count": 0,
+      "bytes": 104905330,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass100.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass101.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass102.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass103.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass104.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass105.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass106.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass62.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass63.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass64.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms",
+      "file_count": 46,
+      "archive_count": 46,
+      "asset_like_count": 0,
+      "bytes": 732942483,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\1080 Snowboarding (JU) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Banjo-Kazooie (U) (!).zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Banjo-Tooie (U) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Bomberman 64 (U) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Command and Conquer 3D (U) (!).zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Conker's Bad Fur Day (U) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Cruis'n World (U) (!).zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Diddy Kong Racing (U) (V1.1) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Donkey Kong 64 (J) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Doom 64 (U) [!].zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms",
+      "file_count": 46,
+      "archive_count": 46,
+      "asset_like_count": 0,
+      "bytes": 732942483,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\1080 Snowboarding (JU) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Banjo-Kazooie (U) (!).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Banjo-Tooie (U) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Bomberman 64 (U) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Command and Conquer 3D (U) (!).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Conker's Bad Fur Day (U) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Cruis'n World (U) (!).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Diddy Kong Racing (U) (V1.1) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Donkey Kong 64 (J) [!].zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Nintendo 64\\roms\\Doom 64 (U) [!].zip"
+      ]
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz",
+      "file_count": 44,
+      "archive_count": 44,
+      "asset_like_count": 0,
+      "bytes": 961587,
+      "samples": [
+        "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Achievements.zip",
+        "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-BattleResultEvents.zip",
+        "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Changelog.zip",
+        "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Core.zip",
+        "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Crafting.zip",
+        "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Credits.zip",
+        "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Difficulty.zip",
+        "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Encyclopedia.zip",
+        "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-EquipCommandWindow.zip",
+        "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-ExitToDesktop.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\SAMPLES",
+      "file_count": 41,
+      "archive_count": 41,
+      "asset_like_count": 0,
+      "bytes": 9903902,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\SAMPLES\\astdelux.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\SAMPLES\\asteroid.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\SAMPLES\\astrob.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\SAMPLES\\berzerk.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\SAMPLES\\boothill.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\SAMPLES\\bosco.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\SAMPLES\\bzone.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\SAMPLES\\carnival.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\SAMPLES\\congo.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\SAMPLES\\Dkong.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\Roms\\Japan",
+      "file_count": 38,
+      "archive_count": 38,
+      "asset_like_count": 0,
+      "bytes": 151149168,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\Roms\\Japan\\bit Generations - Boundish.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Japan\\bit Generations - Coloris.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Japan\\bit Generations - Dialhex.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Japan\\bit Generations - Digidrive.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Japan\\bit Generations - Dotstream.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Japan\\bit Generations - Orbital.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Japan\\bit Generations - Soundvoyager.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Japan\\Custom Robo GX.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Japan\\Dancing Sword - Senkou.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Japan\\Darius R.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Japan",
+      "file_count": 38,
+      "archive_count": 38,
+      "asset_like_count": 0,
+      "bytes": 151149168,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Japan\\bit Generations - Boundish.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Japan\\bit Generations - Coloris.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Japan\\bit Generations - Dialhex.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Japan\\bit Generations - Digidrive.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Japan\\bit Generations - Dotstream.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Japan\\bit Generations - Orbital.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Japan\\bit Generations - Soundvoyager.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Japan\\Custom Robo GX.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Japan\\Dancing Sword - Senkou.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Japan\\Darius R.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives",
+      "file_count": 29,
+      "archive_count": 29,
+      "asset_like_count": 0,
+      "bytes": 10328252,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\11.txt.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1184.txt.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1228.txt.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1232.txt.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\132.txt.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1342.txt.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\135.txt.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1400.txt.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\16328.txt.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1661.txt.gz"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6",
+      "file_count": 28,
+      "archive_count": 28,
+      "asset_like_count": 0,
+      "bytes": 165045287,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_3_pass142_upgraded.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_4_pass143_continued.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_7_pass150_upgraded.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_8_pass161_upgraded.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_deep_upgrade.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass107_fd_hdma_finalizer_closure.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass108_fd_builder_structure_closure.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass109_lowbank_commit_tail_closure.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass110_vram_split_closure.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass111_descriptor_builder_and_prelude_closure.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms",
+      "file_count": 28,
+      "archive_count": 28,
+      "asset_like_count": 0,
+      "bytes": 24889036,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\World Series Baseball 95 (U) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\World Series Baseball 96 (F) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\World Series Baseball 98 (U).zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\World Trophy Soccer (U) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\World War 2 (J).zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\Worms (8) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\Wrestle War (JE).zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\Wrestleball (JUE).zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\WWF RAW (JUE) [!].zip",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Mega Drive (Sega Genesis)\\roms\\WWF Royal Rumble (JUE) [!].zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Translations",
+      "file_count": 18,
+      "archive_count": 18,
+      "asset_like_count": 0,
+      "bytes": 112157276,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Translations\\Dragon Quest Monsters - Caravan Heart.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Translations\\F-Zero Climax.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Translations\\Fire Emblem - Fuuin no Tsurugi.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Translations\\Gensou Suikoden Card Stories.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Translations\\Hagane no Renkinjutsushi - Meisou no Rondo.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Translations\\Hajime no Ippo - The Fighting!.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Translations\\Magical Vacation.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Translations\\Metroid Fusion.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Translations\\Mother 1+2.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Translations\\Mother 3.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\Roms\\Translations",
+      "file_count": 18,
+      "archive_count": 18,
+      "asset_like_count": 0,
+      "bytes": 112157276,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\Roms\\Translations\\Dragon Quest Monsters - Caravan Heart.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Translations\\F-Zero Climax.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Translations\\Fire Emblem - Fuuin no Tsurugi.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Translations\\Gensou Suikoden Card Stories.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Translations\\Hagane no Renkinjutsushi - Meisou no Rondo.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Translations\\Hajime no Ippo - The Fighting!.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Translations\\Magical Vacation.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Translations\\Metroid Fusion.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Translations\\Mother 1+2.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Translations\\Mother 3.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips",
+      "file_count": 16,
+      "archive_count": 16,
+      "asset_like_count": 0,
+      "bytes": 3605395,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (1).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (10).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (11).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (12).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (13).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (14).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (15).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (2).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (3).zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (4).zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\ZX Spectrum",
+      "file_count": 13,
+      "archive_count": 12,
+      "asset_like_count": 1,
+      "bytes": 5238363,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\ZX Spectrum\\01 jetpac_pc_v1.10.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\ZX Spectrum\\01 ZXSpectrum48k.jpg",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\ZX Spectrum\\02 pssst.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\ZX Spectrum\\03 cookie.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\ZX Spectrum\\als_dos.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\ZX Spectrum\\antattackpc-releasezero.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\ZX Spectrum\\assault.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\ZX Spectrum\\bnb.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\ZX Spectrum\\ddr18.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\ZX Spectrum\\deflektor.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\Roms\\Homebrew & Unlicensed",
+      "file_count": 10,
+      "archive_count": 10,
+      "asset_like_count": 0,
+      "bytes": 14412205,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\Roms\\Homebrew & Unlicensed\\Anguna - Warriors of Virtue.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Homebrew & Unlicensed\\Blast Arena Advance.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Homebrew & Unlicensed\\Broken Circle.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Homebrew & Unlicensed\\Celeste Classic.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Homebrew & Unlicensed\\Deadpool.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Homebrew & Unlicensed\\Gorf.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Homebrew & Unlicensed\\Qwak.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Homebrew & Unlicensed\\Super Star Shooter Advance.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Homebrew & Unlicensed\\Waimanu - Grinding Blocks Adventure.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Homebrew & Unlicensed\\World Reborn.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Homebrew & Unlicensed",
+      "file_count": 10,
+      "archive_count": 10,
+      "asset_like_count": 0,
+      "bytes": 14412205,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Homebrew & Unlicensed\\Anguna - Warriors of Virtue.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Homebrew & Unlicensed\\Blast Arena Advance.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Homebrew & Unlicensed\\Broken Circle.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Homebrew & Unlicensed\\Celeste Classic.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Homebrew & Unlicensed\\Deadpool.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Homebrew & Unlicensed\\Gorf.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Homebrew & Unlicensed\\Qwak.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Homebrew & Unlicensed\\Super Star Shooter Advance.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Homebrew & Unlicensed\\Waimanu - Grinding Blocks Adventure.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Homebrew & Unlicensed\\World Reborn.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios",
+      "file_count": 8,
+      "archive_count": 8,
+      "asset_like_count": 0,
+      "bytes": 4675185,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\atarisy1.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\atluspsx.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\bctvidbs.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\cd32.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\cdi.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\konamigx.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\neogeo.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\pgm.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\!BIOS Torrent\\#Unsorted BIOS Files",
+      "file_count": 7,
+      "archive_count": 7,
+      "asset_like_count": 0,
+      "bytes": 3186985,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\!BIOS Torrent\\#Unsorted BIOS Files\\atarisy1.zip",
+        "C:\\Users\\Doc\\Downloads\\!BIOS Torrent\\#Unsorted BIOS Files\\atluspsx.zip",
+        "C:\\Users\\Doc\\Downloads\\!BIOS Torrent\\#Unsorted BIOS Files\\bctvidbs.zip",
+        "C:\\Users\\Doc\\Downloads\\!BIOS Torrent\\#Unsorted BIOS Files\\cd32.zip",
+        "C:\\Users\\Doc\\Downloads\\!BIOS Torrent\\#Unsorted BIOS Files\\cdi.zip",
+        "C:\\Users\\Doc\\Downloads\\!BIOS Torrent\\#Unsorted BIOS Files\\konamigx.zip",
+        "C:\\Users\\Doc\\Downloads\\!BIOS Torrent\\#Unsorted BIOS Files\\pgm.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop",
+      "file_count": 5,
+      "archive_count": 5,
+      "asset_like_count": 0,
+      "bytes": 69423434049,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\aetherium-game-engine.zip",
+        "C:\\Users\\Doc\\Desktop\\Borderlands 4 Save Editor 1.0-47-1-0-1758092911.zip",
+        "C:\\Users\\Doc\\Desktop\\SaveStateReborn.zip",
+        "C:\\Users\\Doc\\Desktop\\songverse-standalone.rar",
+        "C:\\Users\\Doc\\Desktop\\src.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\extras",
+      "file_count": 4,
+      "archive_count": 4,
+      "asset_like_count": 0,
+      "bytes": 5010498,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\extras\\mame031b.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\extras\\mame031s.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\extras\\mame32b-031.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\extras\\pmame31.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile",
+      "file_count": 4,
+      "archive_count": 4,
+      "asset_like_count": 0,
+      "bytes": 195686,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062267853.profile.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062267900.profile.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062270822.profile.gz",
+        "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062271338.profile.gz"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile",
+      "file_count": 4,
+      "archive_count": 4,
+      "asset_like_count": 0,
+      "bytes": 195686,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062267853.profile.gz",
+        "C:\\Users\\Doc\\Downloads\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062267900.profile.gz",
+        "C:\\Users\\Doc\\Downloads\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062270822.profile.gz",
+        "C:\\Users\\Doc\\Downloads\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062271338.profile.gz"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Unreleased",
+      "file_count": 3,
+      "archive_count": 3,
+      "asset_like_count": 0,
+      "bytes": 5110194,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Unreleased\\Dune - Ornithopter Assault.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Unreleased\\Kien.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\Unreleased\\Motocross Challenge.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\Roms\\Unreleased",
+      "file_count": 3,
+      "archive_count": 3,
+      "asset_like_count": 0,
+      "bytes": 5110194,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\Roms\\Unreleased\\Dune - Ornithopter Assault.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Unreleased\\Kien.zip",
+        "C:\\Users\\Doc\\Downloads\\Roms\\Unreleased\\Motocross Challenge.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator",
+      "file_count": 6,
+      "archive_count": 2,
+      "asset_like_count": 4,
+      "bytes": 5254633138,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\another 6g back up.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Dont forget to share with your friends!.jpg",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Gameplay Screenshots [Retro Legends].jpg",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\NAS.rar",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Retro Legends [Box].png",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Retro Legends [Cover Art] - print ready.jpg"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo",
+      "file_count": 5,
+      "archive_count": 2,
+      "asset_like_count": 3,
+      "bytes": 754838,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\01 Neo Geo.jpg",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\02 Neogeo arcade.JPG",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\03 NeoGeo with stick.jpg",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\neogeo.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Neo Geo\\uni-bios 1.3.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\processed\\blackbelt",
+      "file_count": 2,
+      "archive_count": 2,
+      "asset_like_count": 0,
+      "bytes": 6408704,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\processed\\blackbelt\\inv_072025_0.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\processed\\blackbelt\\non-cbi-tsca-inventory-072025.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5",
+      "file_count": 2,
+      "archive_count": 2,
+      "asset_like_count": 0,
+      "bytes": 6390557,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5\\ct_disasm_toolkit_v5.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5\\ct_disasm_toolkit_v5_1_focused_upgrade.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\emulators\\playstation 1\\resources",
+      "file_count": 2,
+      "archive_count": 2,
+      "asset_like_count": 0,
+      "bytes": 2615526,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\emulators\\playstation 1\\resources\\cheats.zip",
+        "C:\\Users\\Doc\\Desktop\\Projects\\emulators\\playstation 1\\resources\\patches.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\legacy",
+      "file_count": 2,
+      "archive_count": 2,
+      "asset_like_count": 0,
+      "bytes": 102709,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\legacy\\ct_disasm_toolkit.zip",
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\legacy\\ct_disasm_toolkit_v2.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Documents",
+      "file_count": 2,
+      "archive_count": 2,
+      "asset_like_count": 0,
+      "bytes": 6306,
+      "samples": [
+        "C:\\Users\\Doc\\Documents\\API Keys.zip",
+        "C:\\Users\\Doc\\Documents\\Lvl 30 Amon (New Game Plus)-123-5-5-4-1-1759060007.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System",
+      "file_count": 3,
+      "archive_count": 1,
+      "asset_like_count": 2,
+      "bytes": 347498,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\01 Sega Master System.png",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\02 Master System II.jpg",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\icons.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System",
+      "file_count": 3,
+      "archive_count": 1,
+      "asset_like_count": 2,
+      "bytes": 347498,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\01 Sega Master System.png",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\02 Master System II.jpg",
+        "C:\\Users\\Doc\\Downloads\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\Sega Master System\\icons.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME",
+      "file_count": 2,
+      "archive_count": 1,
+      "asset_like_count": 1,
+      "bytes": 440889,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\01 MAME.jpg",
+        "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\6666 games _ Nintendo NES-SNES-Sega-GBA-Atari-Arcade ROMs Collection + emulator\\MAME\\mmawvc30.zip"
+      ]
+    },
+    {
+      "path": "C:\\dev",
+      "file_count": 1,
+      "archive_count": 1,
+      "asset_like_count": 0,
+      "bytes": 19595791135,
+      "samples": [
+        "C:\\dev\\URPG Maker.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64",
+      "file_count": 1,
+      "archive_count": 1,
+      "asset_like_count": 0,
+      "bytes": 51777919,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\src.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64",
+      "file_count": 1,
+      "archive_count": 1,
+      "asset_like_count": 0,
+      "bytes": 51777919,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\src.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\library\\books\\books\\Conspirology\\Secret societies\\Illuminism",
+      "file_count": 1,
+      "archive_count": 1,
+      "asset_like_count": 0,
+      "bytes": 39057464,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\library\\books\\books\\Conspirology\\Secret societies\\Illuminism\\armageddonconspiracy.co.uk.7z"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\IObit Driver Booster Pro 13.3.0.229\\IObit Driver Booster Pro 13.3.0.229\\Crack",
+      "file_count": 1,
+      "archive_count": 1,
+      "asset_like_count": 0,
+      "bytes": 5437261,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\IObit Driver Booster Pro 13.3.0.229\\IObit Driver Booster Pro 13.3.0.229\\Crack\\Crack.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\IObit Driver Booster Pro 11.6.0.128\\IObit Driver Booster Pro 11.6.0.128\\Crack",
+      "file_count": 1,
+      "archive_count": 1,
+      "asset_like_count": 0,
+      "bytes": 5437251,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\IObit Driver Booster Pro 11.6.0.128\\IObit Driver Booster Pro 11.6.0.128\\Crack\\Crack.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\emulators",
+      "file_count": 1,
+      "archive_count": 1,
+      "asset_like_count": 0,
+      "bytes": 5090974,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\emulators\\bsnes-windows.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\library\\books\\books\\Conspirology\\Other\\Death by Food Pyramid How Shoddy Science, Sketchy Politics and Shady Special Interests Have Ruined Our Health",
+      "file_count": 1,
+      "archive_count": 1,
+      "asset_like_count": 0,
+      "bytes": 4466856,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\library\\books\\books\\Conspirology\\Other\\Death by Food Pyramid How Shoddy Science, Sketchy Politics and Shady Special Interests Have Ruined Our Health\\Death by Food Pyramid.rar"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\repo_native",
+      "file_count": 1,
+      "archive_count": 1,
+      "asset_like_count": 0,
+      "bytes": 2669983,
+      "samples": [
+        "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\repo_native\\ct_repo_native_toolkit_pass306_note100_release.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\emulators",
+      "file_count": 1,
+      "archive_count": 1,
+      "asset_like_count": 0,
+      "bytes": 1537833,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\emulators\\4DO_1.3.2.4.zip"
+      ]
+    },
+    {
+      "path": "C:\\Users\\Doc\\Downloads\\!BIOS Torrent\\Neo Geo BIOS",
+      "file_count": 1,
+      "archive_count": 1,
+      "asset_like_count": 0,
+      "bytes": 1488200,
+      "samples": [
+        "C:\\Users\\Doc\\Downloads\\!BIOS Torrent\\Neo Geo BIOS\\neogeo.zip"
+      ]
+    }
+  ],
+  "candidate_archives": [
+    {
+      "path": "C:\\dev\\URPG Maker.zip",
+      "extension": ".zip",
+      "bytes": 19595791135,
+      "last_write_utc": "2026-04-29T02:33:22Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\aseprite\\AseGitv0.8.1.zip",
+      "extension": ".zip",
+      "bytes": 94935,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ_DropTables.zip",
+      "extension": ".zip",
+      "bytes": 6019,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ_PixiFilters.zip",
+      "extension": ".zip",
+      "bytes": 497331,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Achievements.zip",
+      "extension": ".zip",
+      "bytes": 33619,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-BattleResultEvents.zip",
+      "extension": ".zip",
+      "bytes": 2296,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Changelog.zip",
+      "extension": ".zip",
+      "bytes": 6079,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Core.zip",
+      "extension": ".zip",
+      "bytes": 34900,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Crafting.zip",
+      "extension": ".zip",
+      "bytes": 48642,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Credits.zip",
+      "extension": ".zip",
+      "bytes": 7319,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Difficulty.zip",
+      "extension": ".zip",
+      "bytes": 14412,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Encyclopedia.zip",
+      "extension": ".zip",
+      "bytes": 65845,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-EquipCommandWindow.zip",
+      "extension": ".zip",
+      "bytes": 5218,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-ExitToDesktop.zip",
+      "extension": ".zip",
+      "bytes": 3607,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-ExtraStats.zip",
+      "extension": ".zip",
+      "bytes": 13531,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-FastTravel.zip",
+      "extension": ".zip",
+      "bytes": 15001,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-GameEndWindow.zip",
+      "extension": ".zip",
+      "bytes": 6902,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-GameInfo.zip",
+      "extension": ".zip",
+      "bytes": 6525,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-GameOver.zip",
+      "extension": ".zip",
+      "bytes": 7553,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-GlobalData.zip",
+      "extension": ".zip",
+      "bytes": 4532,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Holidays.zip",
+      "extension": ".zip",
+      "bytes": 5475,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Idle.zip",
+      "extension": ".zip",
+      "bytes": 3613,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-InfiniteBalloons.zip",
+      "extension": ".zip",
+      "bytes": 4500,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-InfiniteColors.zip",
+      "extension": ".zip",
+      "bytes": 4601,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-ItchIOBuyLink.zip",
+      "extension": ".zip",
+      "bytes": 4757,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-ItemConditions.zip",
+      "extension": ".zip",
+      "bytes": 4673,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-MenuCommandWindow.zip",
+      "extension": ".zip",
+      "bytes": 8058,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-MenuTheme.zip",
+      "extension": ".zip",
+      "bytes": 3632,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-NumPad.zip",
+      "extension": ".zip",
+      "bytes": 4651,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-PluginCommands.zip",
+      "extension": ".zip",
+      "bytes": 9053,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Professions.zip",
+      "extension": ".zip",
+      "bytes": 24847,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-SaveFile.zip",
+      "extension": ".zip",
+      "bytes": 14845,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-Screenshots.zip",
+      "extension": ".zip",
+      "bytes": 4589,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-ShopCommandWindow.zip",
+      "extension": ".zip",
+      "bytes": 4657,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-SkillConditions.zip",
+      "extension": ".zip",
+      "bytes": 5078,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-SkillShop.zip",
+      "extension": ".zip",
+      "bytes": 13022,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-SoundIDs.zip",
+      "extension": ".zip",
+      "bytes": 3201,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-SplashScreen.zip",
+      "extension": ".zip",
+      "bytes": 6686,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-SystemSettings.zip",
+      "extension": ".zip",
+      "bytes": 5961,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-TitleCommandWindow.zip",
+      "extension": ".zip",
+      "bytes": 8586,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-TitleSystem.zip",
+      "extension": ".zip",
+      "bytes": 4849,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-ToastManager.zip",
+      "extension": ".zip",
+      "bytes": 12097,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-UnlimitedEventConditions.zip",
+      "extension": ".zip",
+      "bytes": 5686,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-VehicleEncounters.zip",
+      "extension": ".zip",
+      "bytes": 4178,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-VehicleInteriors.zip",
+      "extension": ".zip",
+      "bytes": 7821,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\rpgmaker\\cgmz\\CGMZ-VehicleLandingRestrictions.zip",
+      "extension": ".zip",
+      "bytes": 3140,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\dev\\URPG Maker\\imports\\root-drop\\archives\\ui\\game-button-ui.zip",
+      "extension": ".zip",
+      "bytes": 95608,
+      "last_write_utc": "2026-05-02T00:25:03Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\aetherium-game-engine.zip",
+      "extension": ".zip",
+      "bytes": 3515766,
+      "last_write_utc": "2025-11-26T20:37:49Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Borderlands 4 Save Editor 1.0-47-1-0-1758092911.zip",
+      "extension": ".zip",
+      "bytes": 9422,
+      "last_write_utc": "2025-09-28T19:48:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\emulators\\bsnes-windows.zip",
+      "extension": ".zip",
+      "bytes": 5090974,
+      "last_write_utc": "2026-04-05T23:53:11Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\legacy\\ct_disasm_toolkit_v2.zip",
+      "extension": ".zip",
+      "bytes": 90832,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\legacy\\ct_disasm_toolkit.zip",
+      "extension": ".zip",
+      "bytes": 11877,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\repo_native\\ct_repo_native_toolkit_pass306_note100_release.zip",
+      "extension": ".zip",
+      "bytes": 2669983,
+      "last_write_utc": "2026-04-07T03:11:41Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass100.zip",
+      "extension": ".zip",
+      "bytes": 5208561,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass101.zip",
+      "extension": ".zip",
+      "bytes": 5220985,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass102.zip",
+      "extension": ".zip",
+      "bytes": 5238678,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass103.zip",
+      "extension": ".zip",
+      "bytes": 5257907,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass104.zip",
+      "extension": ".zip",
+      "bytes": 5276666,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass105.zip",
+      "extension": ".zip",
+      "bytes": 5294993,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass106.zip",
+      "extension": ".zip",
+      "bytes": 5327840,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass62.zip",
+      "extension": ".zip",
+      "bytes": 1043778,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass63.zip",
+      "extension": ".zip",
+      "bytes": 1037430,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass64.zip",
+      "extension": ".zip",
+      "bytes": 1045414,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass65.zip",
+      "extension": ".zip",
+      "bytes": 1068876,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass66.zip",
+      "extension": ".zip",
+      "bytes": 1087057,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass67.zip",
+      "extension": ".zip",
+      "bytes": 1088002,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass68.zip",
+      "extension": ".zip",
+      "bytes": 1103136,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass69.zip",
+      "extension": ".zip",
+      "bytes": 1155823,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass70.zip",
+      "extension": ".zip",
+      "bytes": 1198881,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass71.zip",
+      "extension": ".zip",
+      "bytes": 1227517,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass72.zip",
+      "extension": ".zip",
+      "bytes": 1258385,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass73.zip",
+      "extension": ".zip",
+      "bytes": 1249915,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass74.zip",
+      "extension": ".zip",
+      "bytes": 1258472,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass75.zip",
+      "extension": ".zip",
+      "bytes": 1307193,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass76.zip",
+      "extension": ".zip",
+      "bytes": 1319362,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass77.zip",
+      "extension": ".zip",
+      "bytes": 1383112,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass78.zip",
+      "extension": ".zip",
+      "bytes": 1404315,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass79.zip",
+      "extension": ".zip",
+      "bytes": 1535116,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass80.zip",
+      "extension": ".zip",
+      "bytes": 1561462,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass81 (1).zip",
+      "extension": ".zip",
+      "bytes": 1571496,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass81.zip",
+      "extension": ".zip",
+      "bytes": 1571496,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass82.zip",
+      "extension": ".zip",
+      "bytes": 1596220,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass83.zip",
+      "extension": ".zip",
+      "bytes": 1653468,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass84.zip",
+      "extension": ".zip",
+      "bytes": 1675889,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass85.zip",
+      "extension": ".zip",
+      "bytes": 1692374,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass86.zip",
+      "extension": ".zip",
+      "bytes": 1713913,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass87.zip",
+      "extension": ".zip",
+      "bytes": 14524,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass88.zip",
+      "extension": ".zip",
+      "bytes": 1620403,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass89.zip",
+      "extension": ".zip",
+      "bytes": 1692173,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass90.zip",
+      "extension": ".zip",
+      "bytes": 1792890,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass91.zip",
+      "extension": ".zip",
+      "bytes": 1881448,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass92.zip",
+      "extension": ".zip",
+      "bytes": 1894751,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass93.zip",
+      "extension": ".zip",
+      "bytes": 1917162,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass94.zip",
+      "extension": ".zip",
+      "bytes": 1903838,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass95_tooling_refresh.zip",
+      "extension": ".zip",
+      "bytes": 2013364,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass95.zip",
+      "extension": ".zip",
+      "bytes": 1963917,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass96_runtime_evidence_refresh.zip",
+      "extension": ".zip",
+      "bytes": 2071187,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass96.zip",
+      "extension": ".zip",
+      "bytes": 2043715,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass97.zip",
+      "extension": ".zip",
+      "bytes": 2086591,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass98.zip",
+      "extension": ".zip",
+      "bytes": 5187961,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5_updated\\ct_disasm_toolkit_v5_updated_pass99.zip",
+      "extension": ".zip",
+      "bytes": 5187674,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5\\ct_disasm_toolkit_v5_1_focused_upgrade.zip",
+      "extension": ".zip",
+      "bytes": 5369472,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v5\\ct_disasm_toolkit_v5.zip",
+      "extension": ".zip",
+      "bytes": 1021085,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_3_pass142_upgraded.zip",
+      "extension": ".zip",
+      "bytes": 6457697,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_4_pass143_continued.zip",
+      "extension": ".zip",
+      "bytes": 6734399,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_7_pass150_upgraded.zip",
+      "extension": ".zip",
+      "bytes": 6648405,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_8_pass161_upgraded.zip",
+      "extension": ".zip",
+      "bytes": 6544488,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_deep_upgrade.zip",
+      "extension": ".zip",
+      "bytes": 5489006,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass107_fd_hdma_finalizer_closure.zip",
+      "extension": ".zip",
+      "bytes": 5508826,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass108_fd_builder_structure_closure.zip",
+      "extension": ".zip",
+      "bytes": 5525508,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass109_lowbank_commit_tail_closure.zip",
+      "extension": ".zip",
+      "bytes": 5515503,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass110_vram_split_closure.zip",
+      "extension": ".zip",
+      "bytes": 5530956,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass111_descriptor_builder_and_prelude_closure.zip",
+      "extension": ".zip",
+      "bytes": 5456093,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass112_selector_writer_chain_closure.zip",
+      "extension": ".zip",
+      "bytes": 5468829,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass113_vm_selector_packed_seed_and_66_persist_closure.zip",
+      "extension": ".zip",
+      "bytes": 5527519,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass114_one_byte_family_and_packet_consumer_closure.zip",
+      "extension": ".zip",
+      "bytes": 5532483,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass115_fallback_and_working_pair_closure.zip",
+      "extension": ".zip",
+      "bytes": 5497131,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass116_candidate_search_quadrant_closure.zip",
+      "extension": ".zip",
+      "bytes": 5554027,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass117_enclosing_solver_pipeline_closure.zip",
+      "extension": ".zip",
+      "bytes": 5615005,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass119_bank_correction_and_c2_sibling_caller_closure.zip",
+      "extension": ".zip",
+      "bytes": 5645364,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass119_deep_maintenance_upgrade.zip",
+      "extension": ".zip",
+      "bytes": 5901975,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass119_toolkit_patch_bank_header_guardrails.zip",
+      "extension": ".zip",
+      "bytes": 5674512,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass120_continued.zip",
+      "extension": ".zip",
+      "bytes": 5956704,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass123_toolkit_deep_refresh_round2.zip",
+      "extension": ".zip",
+      "bytes": 5822853,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass123_toolkit_release_refresh.zip",
+      "extension": ".zip",
+      "bytes": 5799708,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass124_continued.zip",
+      "extension": ".zip",
+      "bytes": 5861240,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass126_continued.zip",
+      "extension": ".zip",
+      "bytes": 6239723,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass130_toolkit_deep_refresh_round3.zip",
+      "extension": ".zip",
+      "bytes": 6121547,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass133_continued.zip",
+      "extension": ".zip",
+      "bytes": 6409686,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass139_continued.zip",
+      "extension": ".zip",
+      "bytes": 6349438,
+      "last_write_utc": "2026-04-05T23:53:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\chronotrigger_disassembly\\toolkits\\v6\\ct_disasm_toolkit_v6_pass140_continued.zip",
+      "extension": ".zip",
+      "bytes": 6656662,
+      "last_write_utc": "2026-04-05T23:53:13Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\blackbelt\\reach_md_pipeline_per_substance_v1.zip",
+      "extension": ".zip",
+      "bytes": 10692,
+      "last_write_utc": "2025-12-25T21:08:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\11.txt.gz",
+      "extension": ".gz",
+      "bytes": 53364,
+      "last_write_utc": "2025-12-26T04:36:42Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1184.txt.gz",
+      "extension": ".gz",
+      "bytes": 1005446,
+      "last_write_utc": "2025-12-26T04:36:46Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1228.txt.gz",
+      "extension": ".gz",
+      "bytes": 311808,
+      "last_write_utc": "2025-12-26T04:36:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1232.txt.gz",
+      "extension": ".gz",
+      "bytes": 105418,
+      "last_write_utc": "2025-12-26T04:36:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\132.txt.gz",
+      "extension": ".gz",
+      "bytes": 123430,
+      "last_write_utc": "2025-12-26T04:36:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1342.txt.gz",
+      "extension": ".gz",
+      "bytes": 268094,
+      "last_write_utc": "2025-12-26T04:36:40Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\135.txt.gz",
+      "extension": ".gz",
+      "bytes": 1279503,
+      "last_write_utc": "2025-12-26T04:36:46Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1400.txt.gz",
+      "extension": ".gz",
+      "bytes": 389238,
+      "last_write_utc": "2025-12-26T04:36:40Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\16328.txt.gz",
+      "extension": ".gz",
+      "bytes": 103646,
+      "last_write_utc": "2025-12-26T04:36:42Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1661.txt.gz",
+      "extension": ".gz",
+      "bytes": 227129,
+      "last_write_utc": "2025-12-26T04:36:40Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1727.txt.gz",
+      "extension": ".gz",
+      "bytes": 263997,
+      "last_write_utc": "2025-12-26T04:36:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\174.txt.gz",
+      "extension": ".gz",
+      "bytes": 167874,
+      "last_write_utc": "2025-12-26T04:36:46Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\175.txt.gz",
+      "extension": ".gz",
+      "bytes": 187612,
+      "last_write_utc": "2025-12-26T04:36:42Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\1952.txt.gz",
+      "extension": ".gz",
+      "bytes": 13280,
+      "last_write_utc": "2025-12-26T04:36:40Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\2554.txt.gz",
+      "extension": ".gz",
+      "bytes": 427589,
+      "last_write_utc": "2025-12-26T04:36:48Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\2591.txt.gz",
+      "extension": ".gz",
+      "bytes": 193068,
+      "last_write_utc": "2025-12-26T04:36:42Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\2600.txt.gz",
+      "extension": ".gz",
+      "bytes": 1221695,
+      "last_write_utc": "2025-12-26T04:36:40Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\2701.txt.gz",
+      "extension": ".gz",
+      "bytes": 504585,
+      "last_write_utc": "2025-12-26T04:36:40Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\28054.txt.gz",
+      "extension": ".gz",
+      "bytes": 743209,
+      "last_write_utc": "2025-12-26T04:36:48Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\345.txt.gz",
+      "extension": ".gz",
+      "bytes": 329730,
+      "last_write_utc": "2025-12-26T04:36:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\35.txt.gz",
+      "extension": ".gz",
+      "bytes": 70937,
+      "last_write_utc": "2025-12-26T04:36:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\43.txt.gz",
+      "extension": ".gz",
+      "bytes": 55466,
+      "last_write_utc": "2025-12-26T04:36:42Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\4363.txt.gz",
+      "extension": ".gz",
+      "bytes": 161503,
+      "last_write_utc": "2025-12-26T04:36:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\5200.txt.gz",
+      "extension": ".gz",
+      "bytes": 51105,
+      "last_write_utc": "2025-12-26T04:36:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\6130.txt.gz",
+      "extension": ".gz",
+      "bytes": 449678,
+      "last_write_utc": "2025-12-26T04:36:42Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\84.txt.gz",
+      "extension": ".gz",
+      "bytes": 160212,
+      "last_write_utc": "2025-12-26T04:36:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\8800.txt.gz",
+      "extension": ".gz",
+      "bytes": 265752,
+      "last_write_utc": "2025-12-26T04:36:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\98.txt.gz",
+      "extension": ".gz",
+      "bytes": 301389,
+      "last_write_utc": "2025-12-26T04:36:46Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\archives\\996.txt.gz",
+      "extension": ".gz",
+      "bytes": 892495,
+      "last_write_utc": "2025-12-26T04:36:42Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\library\\books\\books\\Conspirology\\Other\\Death by Food Pyramid How Shoddy Science, Sketchy Politics and Shady Special Interests Have Ruined Our Health\\Death by Food Pyramid.rar",
+      "extension": ".rar",
+      "bytes": 4466856,
+      "last_write_utc": "2025-12-26T05:51:16Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\library\\books\\books\\Conspirology\\Secret societies\\Illuminism\\armageddonconspiracy.co.uk.7z",
+      "extension": ".7z",
+      "bytes": 39057464,
+      "last_write_utc": "2025-12-26T05:54:52Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\processed\\blackbelt\\inv_072025_0.zip",
+      "extension": ".zip",
+      "bytes": 2411849,
+      "last_write_utc": "2026-01-31T21:16:51Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\processed\\blackbelt\\non-cbi-tsca-inventory-072025.zip",
+      "extension": ".zip",
+      "bytes": 3996855,
+      "last_write_utc": "2026-01-31T21:16:48Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ChatBot\\rag_data\\processed\\dateutil\\zoneinfo\\dateutil-zoneinfo.tar.gz",
+      "extension": ".gz",
+      "bytes": 156400,
+      "last_write_utc": "2025-12-25T21:10:42Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\ContextLattice\\.ops\\snapshots\\compose-make-snapshot.20250923-022405.tar.gz",
+      "extension": ".gz",
+      "bytes": 7551,
+      "last_write_utc": "2026-04-10T20:54:04Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\DanTheDick\\assets\\kenney-1bit-platformer.zip",
+      "extension": ".zip",
+      "bytes": 402959,
+      "last_write_utc": "2025-12-20T19:03:53Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\dareaschatbot\\backend\\rag_data\\Mathematics-Notes\\Abstract Algebra\\Abstract Algebra.synctex.gz",
+      "extension": ".gz",
+      "bytes": 398737,
+      "last_write_utc": "2025-12-26T00:36:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\dareaschatbot\\backend\\rag_data\\Mathematics-Notes\\Linear Algebra\\Linear_Algebra.synctex.gz",
+      "extension": ".gz",
+      "bytes": 211547,
+      "last_write_utc": "2025-12-26T00:36:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\dareaschatbot\\backend\\rag_data\\Mathematics-Notes\\Mathematical Analysis\\Mathematical Analysis.synctex.gz",
+      "extension": ".gz",
+      "bytes": 1278678,
+      "last_write_utc": "2025-12-26T00:36:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\dareaschatbot\\backend\\rag_data\\Mathematics-Notes\\Mathematical_Logic\\Mathematical_Logic.synctex.gz",
+      "extension": ".gz",
+      "bytes": 74087,
+      "last_write_utc": "2025-12-26T00:36:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\dareaschatbot\\backend\\rag_data\\Mathematics-Notes\\MultiVariable Calculus\\MultiVariable Differential Calculus.synctex.gz",
+      "extension": ".gz",
+      "bytes": 117807,
+      "last_write_utc": "2025-12-26T00:36:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\dareaschatbot\\backend\\rag_data\\Mathematics-Notes\\Ordinary_Differential_Equations\\Ordinary_Differential_Equations.synctex.gz",
+      "extension": ".gz",
+      "bytes": 75928,
+      "last_write_utc": "2025-12-26T00:36:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\dareaschatbot\\backend\\rag_data\\Mathematics-Notes\\Point-Set_Topology\\Point-Set_Topology.synctex.gz",
+      "extension": ".gz",
+      "bytes": 549680,
+      "last_write_utc": "2025-12-26T00:36:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\dareaschatbot\\backend\\rag_data\\Mathematics-Notes\\Problem_Sets.synctex.gz",
+      "extension": ".gz",
+      "bytes": 18513,
+      "last_write_utc": "2025-12-26T00:36:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\dareaschatbot\\backend\\rag_data\\Mathematics-Notes\\Theory of Numbers\\Theory_of_Numbers.synctex.gz",
+      "extension": ".gz",
+      "bytes": 125803,
+      "last_write_utc": "2025-12-26T00:36:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\dareaschatbot\\backend\\rag_data\\papers-we-love\\languages\\scp91-felleisen.ps.gz",
+      "extension": ".gz",
+      "bytes": 153929,
+      "last_write_utc": "2025-12-26T01:56:50Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\emulators\\playstation 1\\resources\\cheats.zip",
+      "extension": ".zip",
+      "bytes": 2540390,
+      "last_write_utc": "2026-03-03T02:47:04Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\emulators\\playstation 1\\resources\\patches.zip",
+      "extension": ".zip",
+      "bytes": 75136,
+      "last_write_utc": "2026-03-03T02:47:05Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (1).zip",
+      "extension": ".zip",
+      "bytes": 154014,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (10).zip",
+      "extension": ".zip",
+      "bytes": 200013,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (11).zip",
+      "extension": ".zip",
+      "bytes": 262163,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (12).zip",
+      "extension": ".zip",
+      "bytes": 318661,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (13).zip",
+      "extension": ".zip",
+      "bytes": 162939,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (14).zip",
+      "extension": ".zip",
+      "bytes": 203761,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (15).zip",
+      "extension": ".zip",
+      "bytes": 195182,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (2).zip",
+      "extension": ".zip",
+      "bytes": 156520,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (3).zip",
+      "extension": ".zip",
+      "bytes": 194351,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (4).zip",
+      "extension": ".zip",
+      "bytes": 338263,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (5).zip",
+      "extension": ".zip",
+      "bytes": 252063,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (6).zip",
+      "extension": ".zip",
+      "bytes": 252586,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (7).zip",
+      "extension": ".zip",
+      "bytes": 249690,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (8).zip",
+      "extension": ".zip",
+      "bytes": 161542,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu (9).zip",
+      "extension": ".zip",
+      "bytes": 159989,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\fftacticsmod\\tactics\\tactics\\docs\\uizips\\stitch_mod_main_menu.zip",
+      "extension": ".zip",
+      "bytes": 343658,
+      "last_write_utc": "2026-01-26T15:42:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062267853.profile.gz",
+      "extension": ".gz",
+      "bytes": 335,
+      "last_write_utc": "2023-10-11T19:25:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062267900.profile.gz",
+      "extension": ".gz",
+      "bytes": 339,
+      "last_write_utc": "2023-10-11T19:25:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062270822.profile.gz",
+      "extension": ".gz",
+      "bytes": 97507,
+      "last_write_utc": "2023-10-11T19:25:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\missioncontrol\\p2\\org.eclipse.equinox.p2.engine\\profileRegistry\\DefaultProfile.profile\\1697062271338.profile.gz",
+      "extension": ".gz",
+      "bytes": 97505,
+      "last_write_utc": "2023-10-11T19:25:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\java-1.8.0-openjdk-1.8.0.392-1.b08.redhat.windows.x86_64\\src.zip",
+      "extension": ".zip",
+      "bytes": 51777919,
+      "last_write_utc": "2023-10-11T19:25:40Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\OfficialFFVIEditor\\io\\backup\\backups\\backup_20260303_123111_5ed1a68a\\payload.zip",
+      "extension": ".zip",
+      "bytes": 207,
+      "last_write_utc": "2026-03-03T17:31:11Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\OfficialFFVIEditor\\io\\backup\\backups\\backup_20260303_123135_694dd3d3\\payload.zip",
+      "extension": ".zip",
+      "bytes": 207,
+      "last_write_utc": "2026-03-03T17:31:35Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\OfficialFFVIEditor\\io\\backup\\backups\\backup_20260303_123214_8acbc4ea\\payload.zip",
+      "extension": ".zip",
+      "bytes": 207,
+      "last_write_utc": "2026-03-03T17:32:14Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\OfficialFFVIEditor\\io\\backup\\backups\\backup_20260303_123236_f33c4323\\payload.zip",
+      "extension": ".zip",
+      "bytes": 207,
+      "last_write_utc": "2026-03-03T17:32:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\OfficialFFVIEditor\\io\\backup\\backups\\backup_20260303_123248_b36489a8\\payload.zip",
+      "extension": ".zip",
+      "bytes": 207,
+      "last_write_utc": "2026-03-03T17:32:48Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\OfficialFFVIEditorC#Remake\\archive\\01_legacy_code\\OLD_PROJECT_REFERENCE_FOLDER\\OfficialFFVIEditor\\io\\backup\\backups\\backup_20260303_123111_5ed1a68a\\payload.zip",
+      "extension": ".zip",
+      "bytes": 207,
+      "last_write_utc": "2026-03-03T17:31:11Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\OfficialFFVIEditorC#Remake\\archive\\01_legacy_code\\OLD_PROJECT_REFERENCE_FOLDER\\OfficialFFVIEditor\\io\\backup\\backups\\backup_20260303_123135_694dd3d3\\payload.zip",
+      "extension": ".zip",
+      "bytes": 207,
+      "last_write_utc": "2026-03-03T17:31:35Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\OfficialFFVIEditorC#Remake\\archive\\01_legacy_code\\OLD_PROJECT_REFERENCE_FOLDER\\OfficialFFVIEditor\\io\\backup\\backups\\backup_20260303_123214_8acbc4ea\\payload.zip",
+      "extension": ".zip",
+      "bytes": 207,
+      "last_write_utc": "2026-03-03T17:32:14Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\OfficialFFVIEditorC#Remake\\archive\\01_legacy_code\\OLD_PROJECT_REFERENCE_FOLDER\\OfficialFFVIEditor\\io\\backup\\backups\\backup_20260303_123236_f33c4323\\payload.zip",
+      "extension": ".zip",
+      "bytes": 207,
+      "last_write_utc": "2026-03-03T17:32:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\OfficialFFVIEditorC#Remake\\archive\\01_legacy_code\\OLD_PROJECT_REFERENCE_FOLDER\\OfficialFFVIEditor\\io\\backup\\backups\\backup_20260303_123248_b36489a8\\payload.zip",
+      "extension": ".zip",
+      "bytes": 207,
+      "last_write_utc": "2026-03-03T17:32:48Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\atarisy1.zip",
+      "extension": ".zip",
+      "bytes": 49173,
+      "last_write_utc": "2025-12-19T07:40:39Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\atluspsx.zip",
+      "extension": ".zip",
+      "bytes": 126093,
+      "last_write_utc": "2025-12-19T07:41:03Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\bctvidbs.zip",
+      "extension": ".zip",
+      "bytes": 3775,
+      "last_write_utc": "2025-12-19T07:41:03Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\cd32.zip",
+      "extension": ".zip",
+      "bytes": 673571,
+      "last_write_utc": "2025-12-19T07:41:03Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\cdi.zip",
+      "extension": ".zip",
+      "bytes": 231003,
+      "last_write_utc": "2025-12-19T07:41:01Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\konamigx.zip",
+      "extension": ".zip",
+      "bytes": 8734,
+      "last_write_utc": "2025-12-19T07:40:54Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\neogeo.zip",
+      "extension": ".zip",
+      "bytes": 1488200,
+      "last_write_utc": "2025-12-19T07:41:06Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\bios\\pgm.zip",
+      "extension": ".zip",
+      "bytes": 2094636,
+      "last_write_utc": "2025-12-19T07:41:06Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\007 - Everything or Nothing (U) (M3).zip",
+      "extension": ".zip",
+      "bytes": 5799120,
+      "last_write_utc": "2025-12-19T08:30:10Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2 Games in 1 - Power Rangers - Ninja Storm & Power Rangers - Time Force (U).zip",
+      "extension": ".zip",
+      "bytes": 5159239,
+      "last_write_utc": "2025-12-19T08:33:55Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2 Games in 1 - Scooby-Doo! - Mystery Mayhem & Scooby-Doo! and the Cyber Chase (U).zip",
+      "extension": ".zip",
+      "bytes": 3987963,
+      "last_write_utc": "2025-12-19T08:33:53Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2 Games in 1 - SpongeBob SquarePants - SuperSponge & Revenge of the Flying Dutchman (U).zip",
+      "extension": ".zip",
+      "bytes": 6379672,
+      "last_write_utc": "2025-12-19T08:33:31Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Cartoon Network - Block Party & Cartoon Network - Speedway (U).zip",
+      "extension": ".zip",
+      "bytes": 3463874,
+      "last_write_utc": "2025-12-19T08:33:31Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Castlevania Double Pack - Harmony of Dissonance & Aria of Sorrow (U).zip",
+      "extension": ".zip",
+      "bytes": 9590148,
+      "last_write_utc": "2025-12-19T08:33:22Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Crash Bandicoot Purple - Ripto's Rampage & Spyro Orange - The Cortex Conspiracy (U).zip",
+      "extension": ".zip",
+      "bytes": 15917057,
+      "last_write_utc": "2025-12-19T08:32:09Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Dragon Ball Z Gamepack - Buu's Fury & GT - Transformation (U).zip",
+      "extension": ".zip",
+      "bytes": 12446511,
+      "last_write_utc": "2025-12-19T08:32:39Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Dragon Ball Z Gamepack - The Legacy of Goku I & II (U).zip",
+      "extension": ".zip",
+      "bytes": 11350313,
+      "last_write_utc": "2025-12-19T08:29:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Golden Nugget Casino & Texas Hold'em Poker (U).zip",
+      "extension": ".zip",
+      "bytes": 4529981,
+      "last_write_utc": "2025-12-19T08:19:27Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Hot Wheels - Stunt Track Challenge & Hot Wheels - World Race (U).zip",
+      "extension": ".zip",
+      "bytes": 6961794,
+      "last_write_utc": "2025-12-19T08:35:18Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Hot Wheels - Velocity X & Hot Wheels - World Race (U).zip",
+      "extension": ".zip",
+      "bytes": 6504763,
+      "last_write_utc": "2025-12-19T08:34:31Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Matchbox Missions (U).zip",
+      "extension": ".zip",
+      "bytes": 2315850,
+      "last_write_utc": "2025-12-19T08:15:55Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Paperboy & Rampage (U).zip",
+      "extension": ".zip",
+      "bytes": 1236674,
+      "last_write_utc": "2025-12-19T08:01:43Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Quad Desert Fury & Monster Trucks (U).zip",
+      "extension": ".zip",
+      "bytes": 5574464,
+      "last_write_utc": "2025-12-19T08:11:52Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Shark Tale & Shrek 2 (U).zip",
+      "extension": ".zip",
+      "bytes": 8754477,
+      "last_write_utc": "2025-12-19T08:21:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Sonic Gamepack - Sonic Pinball Party & Sonic Advance (U).zip",
+      "extension": ".zip",
+      "bytes": 6483262,
+      "last_write_utc": "2025-12-19T08:21:06Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Spider-Man - Mysterio's Menace & X2 - Wolverine's Revenge (U).zip",
+      "extension": ".zip",
+      "bytes": 8291084,
+      "last_write_utc": "2025-12-19T08:33:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Spider-Man & Spider-Man 2 (U).zip",
+      "extension": ".zip",
+      "bytes": 9369536,
+      "last_write_utc": "2025-12-19T08:31:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Spy Hunter & Super Sprint (U).zip",
+      "extension": ".zip",
+      "bytes": 705500,
+      "last_write_utc": "2025-12-19T08:12:49Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Tony Hawk's Underground & Kelly Slater's Pro Surfer (U).zip",
+      "extension": ".zip",
+      "bytes": 11494615,
+      "last_write_utc": "2025-12-19T08:31:29Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Uno & Skin Bo (U).zip",
+      "extension": ".zip",
+      "bytes": 1379559,
+      "last_write_utc": "2025-12-19T08:30:25Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\2-in-1 - Yu-Gi-Oh! Gamepack - The Sacred Cards & Reshef of Destruction (U).zip",
+      "extension": ".zip",
+      "bytes": 21214343,
+      "last_write_utc": "2025-12-19T08:33:26Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\3-in-1 - Candy Land, Chutes and Ladders, Memory (U).zip",
+      "extension": ".zip",
+      "bytes": 1113781,
+      "last_write_utc": "2025-12-19T08:34:09Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\3-in-1 - Life, Yahtzee, Payday (U).zip",
+      "extension": ".zip",
+      "bytes": 1496971,
+      "last_write_utc": "2025-12-19T08:34:09Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\3-in-1 - Majesco Sports Pack - Paintball Splat! & Dodgeball & Big Alley Bowling (U).zip",
+      "extension": ".zip",
+      "bytes": 2963928,
+      "last_write_utc": "2025-12-19T08:24:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\3-in-1 - Mousetrap, Simon, Operation (U).zip",
+      "extension": ".zip",
+      "bytes": 1160709,
+      "last_write_utc": "2025-12-19T07:54:26Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\3-in-1 - Sorry & Aggravation & Scrabble Junior (U).zip",
+      "extension": ".zip",
+      "bytes": 1453988,
+      "last_write_utc": "2025-12-19T08:23:34Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\3-in-1 - Super Breakout & Lunar Lander & Millipede (U).zip",
+      "extension": ".zip",
+      "bytes": 765567,
+      "last_write_utc": "2025-12-19T08:21:40Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\3-in-1 Pong, Asteroids, Yar's Revenge (U).zip",
+      "extension": ".zip",
+      "bytes": 1072880,
+      "last_write_utc": "2025-12-19T08:21:41Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Ace Combat Advance (U).zip",
+      "extension": ".zip",
+      "bytes": 2105663,
+      "last_write_utc": "2025-12-19T08:20:50Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Activision Anthology (U).zip",
+      "extension": ".zip",
+      "bytes": 5078167,
+      "last_write_utc": "2025-12-19T08:22:32Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Advance Guardian Heroes (U).zip",
+      "extension": ".zip",
+      "bytes": 4554111,
+      "last_write_utc": "2025-12-19T08:35:16Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Advance Wars (U) (V1.1) [!].zip",
+      "extension": ".zip",
+      "bytes": 2415828,
+      "last_write_utc": "2025-12-19T08:30:45Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Advance Wars 2 - Black Hole Rising (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 4243180,
+      "last_write_utc": "2025-12-19T08:30:45Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Adventures of Jimmy Neutron Boy Genius vs. Jimmy Negatron, The (U).zip",
+      "extension": ".zip",
+      "bytes": 2562768,
+      "last_write_utc": "2025-12-19T08:28:25Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Adventures of Jimmy Neutron Boy Genius, The - Attack of the Twonkies (U).zip",
+      "extension": ".zip",
+      "bytes": 2779434,
+      "last_write_utc": "2025-12-19T08:22:00Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Adventures of Jimmy Neutron Boy Genius, The - Jet Fusion (U).zip",
+      "extension": ".zip",
+      "bytes": 2278943,
+      "last_write_utc": "2025-12-19T08:22:00Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Adventures of Jimmy Neutron Boy Genius, The - Volume 1 (U).zip",
+      "extension": ".zip",
+      "bytes": 33250485,
+      "last_write_utc": "2025-12-19T08:35:07Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Aero the Acro-Bat - Rascal Rival Revenge (U).zip",
+      "extension": ".zip",
+      "bytes": 1615736,
+      "last_write_utc": "2025-12-19T08:30:34Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Agassi Tennis Generation (U).zip",
+      "extension": ".zip",
+      "bytes": 1632591,
+      "last_write_utc": "2025-12-19T08:26:21Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Aggressive Inline (U).zip",
+      "extension": ".zip",
+      "bytes": 4398974,
+      "last_write_utc": "2025-12-19T08:29:26Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Alex Rider Stormbreaker (U).zip",
+      "extension": ".zip",
+      "bytes": 2448855,
+      "last_write_utc": "2025-12-19T08:27:00Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Alienators - Evolution Continues (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 1657845,
+      "last_write_utc": "2025-12-19T08:27:00Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\All-Star Baseball 2003 (U).zip",
+      "extension": ".zip",
+      "bytes": 2202904,
+      "last_write_utc": "2025-12-19T08:32:35Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\All-Star Baseball 2004 (U).zip",
+      "extension": ".zip",
+      "bytes": 4828250,
+      "last_write_utc": "2025-12-19T08:31:49Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Altered Beast - Guardian of the Realms (U).zip",
+      "extension": ".zip",
+      "bytes": 5005820,
+      "last_write_utc": "2025-12-19T08:22:34Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Amazing Virtual Sea Monkeys, The (U).zip",
+      "extension": ".zip",
+      "bytes": 2480376,
+      "last_write_utc": "2025-12-19T08:35:34Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\American Bass Challenge (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 1490194,
+      "last_write_utc": "2025-12-19T08:21:28Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\American Idol (U).zip",
+      "extension": ".zip",
+      "bytes": 12670510,
+      "last_write_utc": "2025-12-19T08:28:40Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\An American Tail - Fievel's Gold Rush (U) (M2).zip",
+      "extension": ".zip",
+      "bytes": 1740509,
+      "last_write_utc": "2025-12-19T08:11:44Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Animal Snap - Rescue Them 2 by 2 (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 859621,
+      "last_write_utc": "2025-12-19T08:00:03Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Ant Bully, The (U).zip",
+      "extension": ".zip",
+      "bytes": 3355871,
+      "last_write_utc": "2025-12-19T08:30:35Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Antz - Extreme Racing (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 2036620,
+      "last_write_utc": "2025-12-19T08:30:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Archer Maclean's 3D Pool (U).zip",
+      "extension": ".zip",
+      "bytes": 340631,
+      "last_write_utc": "2025-12-19T08:17:31Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Archer Maclean's Super Dropzone (U).zip",
+      "extension": ".zip",
+      "bytes": 1929144,
+      "last_write_utc": "2025-12-19T08:17:31Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Army Men - Operation Green (U) (M5).zip",
+      "extension": ".zip",
+      "bytes": 2209285,
+      "last_write_utc": "2025-12-19T08:17:24Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Army Men - Turf Wars (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 3733735,
+      "last_write_utc": "2025-12-19T08:17:25Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Army Men Advance (U) (M5) [!].zip",
+      "extension": ".zip",
+      "bytes": 1434054,
+      "last_write_utc": "2025-12-19T08:05:58Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Around the World in 80 Days (U).zip",
+      "extension": ".zip",
+      "bytes": 2327340,
+      "last_write_utc": "2025-12-19T08:04:49Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Astro Boy - Omega Factor (U) (M6).zip",
+      "extension": ".zip",
+      "bytes": 5259292,
+      "last_write_utc": "2025-12-19T08:33:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Atari Anniversary Advance (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 1023080,
+      "last_write_utc": "2025-12-19T08:23:30Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Atlantis - The Lost Empire (U).zip",
+      "extension": ".zip",
+      "bytes": 2287032,
+      "last_write_utc": "2025-12-19T08:23:30Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Atomic Betty (U).zip",
+      "extension": ".zip",
+      "bytes": 2539760,
+      "last_write_utc": "2025-12-19T08:29:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\ATV Quad Power Racing (U).zip",
+      "extension": ".zip",
+      "bytes": 3286028,
+      "last_write_utc": "2025-12-19T08:23:47Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\ATV Thunder Ridge Riders (U).zip",
+      "extension": ".zip",
+      "bytes": 2921249,
+      "last_write_utc": "2025-12-19T08:29:25Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Avatar - The Last Airbender (U).zip",
+      "extension": ".zip",
+      "bytes": 3002329,
+      "last_write_utc": "2025-12-19T08:08:29Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Babar to The Rescue (U) (M3).zip",
+      "extension": ".zip",
+      "bytes": 2081443,
+      "last_write_utc": "2025-12-19T08:06:43Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Backtrack (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 1919734,
+      "last_write_utc": "2025-12-19T08:35:11Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Backyard Baseball (U).zip",
+      "extension": ".zip",
+      "bytes": 2857484,
+      "last_write_utc": "2025-12-19T08:18:25Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Backyard Baseball 2006 (U).zip",
+      "extension": ".zip",
+      "bytes": 2553684,
+      "last_write_utc": "2025-12-19T08:03:48Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Backyard Basketball (U).zip",
+      "extension": ".zip",
+      "bytes": 1938003,
+      "last_write_utc": "2025-12-19T08:12:45Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Backyard Football (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 2058473,
+      "last_write_utc": "2025-12-19T08:32:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Backyard Football 2006 (U).zip",
+      "extension": ".zip",
+      "bytes": 2008468,
+      "last_write_utc": "2025-12-19T08:29:46Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Backyard Hockey (U).zip",
+      "extension": ".zip",
+      "bytes": 2211618,
+      "last_write_utc": "2025-12-19T08:28:19Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Backyard Skateboarding (U).zip",
+      "extension": ".zip",
+      "bytes": 2340185,
+      "last_write_utc": "2025-12-19T08:24:11Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Backyard Sports Baseball 2007 (U).zip",
+      "extension": ".zip",
+      "bytes": 2447859,
+      "last_write_utc": "2025-12-19T08:16:10Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Backyard Sports Basketball 2007 (U).zip",
+      "extension": ".zip",
+      "bytes": 1673715,
+      "last_write_utc": "2025-12-19T08:22:31Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Backyard Sports Football 2007 (U).zip",
+      "extension": ".zip",
+      "bytes": 1962447,
+      "last_write_utc": "2025-12-19T08:22:32Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Baldur's Gate - Dark Alliance (U).zip",
+      "extension": ".zip",
+      "bytes": 5690625,
+      "last_write_utc": "2025-12-19T08:35:14Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Ballistic - Ecks vs. Sever (U).zip",
+      "extension": ".zip",
+      "bytes": 4298792,
+      "last_write_utc": "2025-12-19T08:25:56Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Banjo Pilot (U).zip",
+      "extension": ".zip",
+      "bytes": 7481845,
+      "last_write_utc": "2025-12-19T08:15:21Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Banjo-Kazooie - Grunty's Revenge (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 4301407,
+      "last_write_utc": "2025-12-19T08:19:19Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Barbie - The Princess and the Pauper (U).zip",
+      "extension": ".zip",
+      "bytes": 1114462,
+      "last_write_utc": "2025-12-19T08:15:48Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Barbie and The Magic of Pegasus (U).zip",
+      "extension": ".zip",
+      "bytes": 1901279,
+      "last_write_utc": "2025-12-19T08:15:48Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Barbie Diaries, The - High School Mystery (U).zip",
+      "extension": ".zip",
+      "bytes": 4792358,
+      "last_write_utc": "2025-12-19T08:34:33Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Barbie Groovy Games (U).zip",
+      "extension": ".zip",
+      "bytes": 1319414,
+      "last_write_utc": "2025-12-19T08:29:19Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Barbie Horse Adventures (U).zip",
+      "extension": ".zip",
+      "bytes": 2220066,
+      "last_write_utc": "2025-12-19T08:29:20Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Barbie in the 12 Dancing Princesses (U).zip",
+      "extension": ".zip",
+      "bytes": 1606108,
+      "last_write_utc": "2025-12-19T08:12:15Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Barbie Secret Agent (U).zip",
+      "extension": ".zip",
+      "bytes": 1282384,
+      "last_write_utc": "2025-12-19T08:05:28Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Barbie Superpack - Secret Agent & Groovy Games (U).zip",
+      "extension": ".zip",
+      "bytes": 2625607,
+      "last_write_utc": "2025-12-19T08:31:11Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Barnyard (U).zip",
+      "extension": ".zip",
+      "bytes": 3525977,
+      "last_write_utc": "2025-12-19T08:31:11Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Baseball Advance (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 3279116,
+      "last_write_utc": "2025-12-19T08:21:03Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Batman - Rise of Sin Tzu (U) (M3) [t1].zip",
+      "extension": ".zip",
+      "bytes": 4688007,
+      "last_write_utc": "2025-12-19T08:21:02Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Batman - Vengeance (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 5408108,
+      "last_write_utc": "2025-12-19T08:34:15Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Batman Begins (U) (M6).zip",
+      "extension": ".zip",
+      "bytes": 7083545,
+      "last_write_utc": "2025-12-19T08:34:37Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Battle B-Daman - Fire Spirits! (U).zip",
+      "extension": ".zip",
+      "bytes": 5992492,
+      "last_write_utc": "2025-12-19T08:30:00Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Battle B-Daman (U).zip",
+      "extension": ".zip",
+      "bytes": 5769753,
+      "last_write_utc": "2025-12-19T08:30:00Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\BattleBots - Beyond the Battlebox (U).zip",
+      "extension": ".zip",
+      "bytes": 5158598,
+      "last_write_utc": "2025-12-19T08:30:40Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\BattleBots - Design & Destroy (U).zip",
+      "extension": ".zip",
+      "bytes": 3106485,
+      "last_write_utc": "2025-12-19T08:20:50Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Berenstain Bears and the Spooky Old Tree, The (U).zip",
+      "extension": ".zip",
+      "bytes": 1686757,
+      "last_write_utc": "2025-12-19T08:28:21Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Beyblade G-Revolution (U).zip",
+      "extension": ".zip",
+      "bytes": 2063937,
+      "last_write_utc": "2025-12-19T08:30:51Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Beyblade VForce - Ultimate Blader Jam (U).zip",
+      "extension": ".zip",
+      "bytes": 3913810,
+      "last_write_utc": "2025-12-19T08:30:51Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Bible Game, The (U).zip",
+      "extension": ".zip",
+      "bytes": 3919544,
+      "last_write_utc": "2025-12-19T08:09:48Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Big Mutha Truckers (U).zip",
+      "extension": ".zip",
+      "bytes": 2318837,
+      "last_write_utc": "2025-12-19T08:20:01Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Bionicle - Maze of Shadows (U).zip",
+      "extension": ".zip",
+      "bytes": 5593206,
+      "last_write_utc": "2025-12-19T08:24:22Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\BlackThorne (U).zip",
+      "extension": ".zip",
+      "bytes": 2178367,
+      "last_write_utc": "2025-12-19T08:16:34Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Blades of Thunder (U).zip",
+      "extension": ".zip",
+      "bytes": 3377478,
+      "last_write_utc": "2025-12-19T08:17:16Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Blender Bros. (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 2573731,
+      "last_write_utc": "2025-12-19T08:05:14Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\BMX Trick Racer (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 4904983,
+      "last_write_utc": "2025-12-19T08:31:00Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Board Game Classics (U).zip",
+      "extension": ".zip",
+      "bytes": 1180953,
+      "last_write_utc": "2025-12-19T08:18:29Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Boktai - The Sun is in Your Hand (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 8429741,
+      "last_write_utc": "2025-12-19T08:31:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Boktai 2 - Solar Boy Django (U).zip",
+      "extension": ".zip",
+      "bytes": 7579648,
+      "last_write_utc": "2025-12-19T08:32:01Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Bomberman Max 2 - Blue (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 4541922,
+      "last_write_utc": "2025-12-19T08:32:02Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Bomberman Max 2 - Red (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 4560381,
+      "last_write_utc": "2025-12-19T08:32:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Bomberman Tournament (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 2482616,
+      "last_write_utc": "2025-12-19T08:29:22Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Bookworm (U).zip",
+      "extension": ".zip",
+      "bytes": 1855453,
+      "last_write_utc": "2025-12-19T08:11:01Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Boulder Dash EX (U).zip",
+      "extension": ".zip",
+      "bytes": 2383409,
+      "last_write_utc": "2025-12-19T08:26:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Boxing Fever (U).zip",
+      "extension": ".zip",
+      "bytes": 5061852,
+      "last_write_utc": "2025-12-19T08:26:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Bratz - Forever Diamondz (U).zip",
+      "extension": ".zip",
+      "bytes": 2397273,
+      "last_write_utc": "2025-12-19T08:33:44Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Bratz - Rock Angelz (U).zip",
+      "extension": ".zip",
+      "bytes": 4050657,
+      "last_write_utc": "2025-12-19T08:33:44Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Bratz (U) (M3).zip",
+      "extension": ".zip",
+      "bytes": 3455193,
+      "last_write_utc": "2025-12-19T08:25:14Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Breakout, Centipede, Warlords (U).zip",
+      "extension": ".zip",
+      "bytes": 1067699,
+      "last_write_utc": "2025-12-19T08:14:35Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Breath of Fire (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 1800205,
+      "last_write_utc": "2025-12-19T08:14:35Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Breath of Fire II (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 2350968,
+      "last_write_utc": "2025-12-19T08:10:49Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Britney's Dance Beat (U).zip",
+      "extension": ".zip",
+      "bytes": 7171012,
+      "last_write_utc": "2025-12-19T08:35:44Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Broken Sword - The Shadow of The Templars (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 5870876,
+      "last_write_utc": "2025-12-19T08:35:25Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Bruce Lee - Return of the Legend (U).zip",
+      "extension": ".zip",
+      "bytes": 4530653,
+      "last_write_utc": "2025-12-19T08:34:52Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Bubble Bobble - Old & New (U).zip",
+      "extension": ".zip",
+      "bytes": 1392576,
+      "last_write_utc": "2025-12-19T08:19:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Buffy - The Vampire Slayer (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 2653373,
+      "last_write_utc": "2025-12-19T08:19:10Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Butt-Ugly Martians - B.K.M. Battles (U).zip",
+      "extension": ".zip",
+      "bytes": 2069834,
+      "last_write_utc": "2025-12-19T08:12:13Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cabbage Patch Kids - The Patch Puppy Rescue (U).zip",
+      "extension": ".zip",
+      "bytes": 1744392,
+      "last_write_utc": "2025-12-19T08:15:15Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cabela's Big Game Hunter - 2005 Adventures (U).zip",
+      "extension": ".zip",
+      "bytes": 2272892,
+      "last_write_utc": "2025-12-19T08:13:34Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cabela's Big Game Hunter (U).zip",
+      "extension": ".zip",
+      "bytes": 3237674,
+      "last_write_utc": "2025-12-19T08:15:15Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Caesar's Palace Advance (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 3513251,
+      "last_write_utc": "2025-12-19T08:21:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Camp Lazlo - Leaky Lake Games (U).zip",
+      "extension": ".zip",
+      "bytes": 1339015,
+      "last_write_utc": "2025-12-19T08:01:56Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Capcom Classics - Mini Mix (U).zip",
+      "extension": ".zip",
+      "bytes": 596734,
+      "last_write_utc": "2025-12-19T08:12:49Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Car Battler Joe (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 3330593,
+      "last_write_utc": "2025-12-19T08:23:29Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Card E-Reader+ (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 3392860,
+      "last_write_utc": "2025-12-19T08:27:41Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Care Bears - The Care Quests (U) (M3).zip",
+      "extension": ".zip",
+      "bytes": 1549685,
+      "last_write_utc": "2025-12-19T08:24:54Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cars (U).zip",
+      "extension": ".zip",
+      "bytes": 4558505,
+      "last_write_utc": "2025-12-19T08:32:32Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cartoon Network - Block Party (U).zip",
+      "extension": ".zip",
+      "bytes": 1616445,
+      "last_write_utc": "2025-12-19T08:24:50Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cartoon Network - Speedway (U).zip",
+      "extension": ".zip",
+      "bytes": 1807651,
+      "last_write_utc": "2025-12-19T08:10:22Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cartoon Network Collection - Limited Edition (U).zip",
+      "extension": ".zip",
+      "bytes": 32728377,
+      "last_write_utc": "2025-12-19T08:34:42Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cartoon Network Collection - Platinum Edition (U).zip",
+      "extension": ".zip",
+      "bytes": 31539276,
+      "last_write_utc": "2025-12-19T08:34:27Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cartoon Network Collection - Special Edition (U).zip",
+      "extension": ".zip",
+      "bytes": 33206742,
+      "last_write_utc": "2025-12-19T08:34:05Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cartoon Network Collection - Volume 1 (U).zip",
+      "extension": ".zip",
+      "bytes": 33024349,
+      "last_write_utc": "2025-12-19T08:33:18Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cartoon Network Collection - Volume 2 (U).zip",
+      "extension": ".zip",
+      "bytes": 25961853,
+      "last_write_utc": "2025-12-19T08:34:30Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Casper (U).zip",
+      "extension": ".zip",
+      "bytes": 1319968,
+      "last_write_utc": "2025-12-19T08:18:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Castlevania - Aria of Sorrow (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 4388783,
+      "last_write_utc": "2025-12-19T08:13:07Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Castlevania - Circle of the Moon (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 3959554,
+      "last_write_utc": "2025-12-19T08:29:31Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Castlevania - Harmony of Dissonance (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 5174150,
+      "last_write_utc": "2025-12-19T08:34:52Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Catwoman (U) (M7).zip",
+      "extension": ".zip",
+      "bytes": 6339936,
+      "last_write_utc": "2025-12-19T08:34:52Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Catz (U).zip",
+      "extension": ".zip",
+      "bytes": 1263902,
+      "last_write_utc": "2025-12-19T08:21:09Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Charlie and the Chocolate Factory (U) (M4).zip",
+      "extension": ".zip",
+      "bytes": 3982171,
+      "last_write_utc": "2025-12-19T08:31:19Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cheetah Girls, The (U).zip",
+      "extension": ".zip",
+      "bytes": 4427489,
+      "last_write_utc": "2025-12-19T08:24:51Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Chessmaster (U).zip",
+      "extension": ".zip",
+      "bytes": 1630558,
+      "last_write_utc": "2025-12-19T08:20:58Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Chicken Little (U) (M6).zip",
+      "extension": ".zip",
+      "bytes": 3578519,
+      "last_write_utc": "2025-12-19T08:09:55Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Chicken Shoot (U).zip",
+      "extension": ".zip",
+      "bytes": 1374072,
+      "last_write_utc": "2025-12-19T08:26:47Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Chicken Shoot 2 (U).zip",
+      "extension": ".zip",
+      "bytes": 1359336,
+      "last_write_utc": "2025-12-19T08:26:47Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Chronicles of Narnia, The (UE) (M8).zip",
+      "extension": ".zip",
+      "bytes": 14560671,
+      "last_write_utc": "2025-12-19T08:35:14Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Chu Chu Rocket (U) (M5) [!].zip",
+      "extension": ".zip",
+      "bytes": 2385217,
+      "last_write_utc": "2025-12-19T08:32:24Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\CIMA - The Enemy (U).zip",
+      "extension": ".zip",
+      "bytes": 2477105,
+      "last_write_utc": "2025-12-19T08:34:57Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - Bomberman (U).zip",
+      "extension": ".zip",
+      "bytes": 1042015,
+      "last_write_utc": "2025-12-19T08:34:58Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - Castlevania (U).zip",
+      "extension": ".zip",
+      "bytes": 1034931,
+      "last_write_utc": "2025-12-19T08:26:32Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - Donkey Kong (U).zip",
+      "extension": ".zip",
+      "bytes": 1012770,
+      "last_write_utc": "2025-12-19T08:26:33Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - Dr. Mario (U).zip",
+      "extension": ".zip",
+      "bytes": 955125,
+      "last_write_utc": "2025-12-19T08:29:25Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - Excitebike (U).zip",
+      "extension": ".zip",
+      "bytes": 1042609,
+      "last_write_utc": "2025-12-19T08:30:41Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - Ice Climber (U).zip",
+      "extension": ".zip",
+      "bytes": 1011956,
+      "last_write_utc": "2025-12-19T08:30:42Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - Metroid (U).zip",
+      "extension": ".zip",
+      "bytes": 1018950,
+      "last_write_utc": "2025-12-19T08:22:31Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - Pac-Man (U).zip",
+      "extension": ".zip",
+      "bytes": 1011308,
+      "last_write_utc": "2025-12-19T08:22:31Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - Super Mario Bros. (U).zip",
+      "extension": ".zip",
+      "bytes": 1011867,
+      "last_write_utc": "2025-12-19T08:01:02Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - The Legend of Zelda (U).zip",
+      "extension": ".zip",
+      "bytes": 1037877,
+      "last_write_utc": "2025-12-19T08:31:23Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - Xevious (U).zip",
+      "extension": ".zip",
+      "bytes": 984395,
+      "last_write_utc": "2025-12-19T08:31:25Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Classic NES Series - Zelda II - The Adventure of Link (U).zip",
+      "extension": ".zip",
+      "bytes": 559797,
+      "last_write_utc": "2025-12-19T08:31:25Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Code Breaker (U).zip",
+      "extension": ".zip",
+      "bytes": 45442,
+      "last_write_utc": "2025-12-19T08:06:37Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Codename Kids Next Door - Operation S.O.D.A. (U).zip",
+      "extension": ".zip",
+      "bytes": 3873896,
+      "last_write_utc": "2025-12-19T08:24:43Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Codename Kids Next Door - Volume 1 (U).zip",
+      "extension": ".zip",
+      "bytes": 33095948,
+      "last_write_utc": "2025-12-19T08:33:57Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Colin McRae Rally 2.0 (U).zip",
+      "extension": ".zip",
+      "bytes": 2170555,
+      "last_write_utc": "2025-12-19T08:25:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Columns Crown (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 3330630,
+      "last_write_utc": "2025-12-19T08:25:54Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Connect Four, Perfection, Trouble (U).zip",
+      "extension": ".zip",
+      "bytes": 908088,
+      "last_write_utc": "2025-12-19T08:10:28Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Contra Advance - The Alien Wars EX (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 1908586,
+      "last_write_utc": "2025-12-19T08:10:37Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Corvette 50th Anniversary (U) (M5).zip",
+      "extension": ".zip",
+      "bytes": 5692983,
+      "last_write_utc": "2025-12-19T08:35:02Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Crash Bandicoot - The Huge Adventure (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 4457008,
+      "last_write_utc": "2025-12-19T08:22:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Crash Bandicoot 2 - N-Tranced (U).zip",
+      "extension": ".zip",
+      "bytes": 4320952,
+      "last_write_utc": "2025-12-19T08:22:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Crash Bandicoot Purple - Ripto's Rampage (U).zip",
+      "extension": ".zip",
+      "bytes": 7788685,
+      "last_write_utc": "2025-12-19T08:35:06Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Crash Nitro Kart (U).zip",
+      "extension": ".zip",
+      "bytes": 4117917,
+      "last_write_utc": "2025-12-19T08:27:02Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Crash Superpack - Crash Bandicoot 2 - N-Tranced & Crash Nitro Kart (U).zip",
+      "extension": ".zip",
+      "bytes": 8514276,
+      "last_write_utc": "2025-12-19T08:15:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Crazy Chase (U).zip",
+      "extension": ".zip",
+      "bytes": 2148422,
+      "last_write_utc": "2025-12-19T08:23:50Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Crazy Taxi (U).zip",
+      "extension": ".zip",
+      "bytes": 3467496,
+      "last_write_utc": "2025-12-19T08:25:43Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Crouching Tiger, Hidden Dragon (U) (M3) [hI].zip",
+      "extension": ".zip",
+      "bytes": 4350835,
+      "last_write_utc": "2025-12-19T08:30:33Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cruis'n Velocity (U).zip",
+      "extension": ".zip",
+      "bytes": 1886358,
+      "last_write_utc": "2025-12-19T08:24:50Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Crushed Baseball (U).zip",
+      "extension": ".zip",
+      "bytes": 2623124,
+      "last_write_utc": "2025-12-19T08:08:27Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\CT Special Forces (U) (M6).zip",
+      "extension": ".zip",
+      "bytes": 1974123,
+      "last_write_utc": "2025-12-19T08:19:08Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\CT Special Forces 2 - Back in The Trenches (U) (M6).zip",
+      "extension": ".zip",
+      "bytes": 3748978,
+      "last_write_utc": "2025-12-19T08:29:36Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\CT Special Forces 3 - Bioterror (E) (M6).zip",
+      "extension": ".zip",
+      "bytes": 3747046,
+      "last_write_utc": "2025-12-19T08:27:55Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Cubix - Robots for Everyone - Clash 'n Bash (U).zip",
+      "extension": ".zip",
+      "bytes": 4989434,
+      "last_write_utc": "2025-12-19T08:29:41Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Curious George (U).zip",
+      "extension": ".zip",
+      "bytes": 2050424,
+      "last_write_utc": "2025-12-19T08:26:40Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Danny Phantom - The Ultimate Enemy (U).zip",
+      "extension": ".zip",
+      "bytes": 1922565,
+      "last_write_utc": "2025-12-19T08:26:41Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Danny Phantom - Urban Jungle (U).zip",
+      "extension": ".zip",
+      "bytes": 2471016,
+      "last_write_utc": "2025-12-19T08:24:19Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Daredevil (U).zip",
+      "extension": ".zip",
+      "bytes": 3272621,
+      "last_write_utc": "2025-12-19T08:24:16Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dark Arena (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 3792651,
+      "last_write_utc": "2025-12-19T08:27:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dave Mirra Freestyle BMX 2 (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 2156939,
+      "last_write_utc": "2025-12-19T08:27:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dave Mirra Freestyle BMX 3 (U).zip",
+      "extension": ".zip",
+      "bytes": 4327112,
+      "last_write_utc": "2025-12-19T08:25:02Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\David Beckham Soccer (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 825377,
+      "last_write_utc": "2025-12-19T08:25:02Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Davis Cup (U).zip",
+      "extension": ".zip",
+      "bytes": 1290687,
+      "last_write_utc": "2025-12-19T07:52:48Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dead to Rights (U).zip",
+      "extension": ".zip",
+      "bytes": 3664137,
+      "last_write_utc": "2025-12-19T08:34:07Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Defender (U).zip",
+      "extension": ".zip",
+      "bytes": 1810963,
+      "last_write_utc": "2025-12-19T08:28:01Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Defender of The Crown (U).zip",
+      "extension": ".zip",
+      "bytes": 1591032,
+      "last_write_utc": "2025-12-19T08:28:00Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\DemiKids - Dark Version (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 5656259,
+      "last_write_utc": "2025-12-19T08:29:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\DemiKids - Light Version (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 5599300,
+      "last_write_utc": "2025-12-19T08:27:06Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Demon Driver - Time to Burn Rubber! (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 1607695,
+      "last_write_utc": "2025-12-19T08:32:18Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Denki Blocks! (U) (M2).zip",
+      "extension": ".zip",
+      "bytes": 1119410,
+      "last_write_utc": "2025-12-19T08:32:19Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Desert Strike Advance (U).zip",
+      "extension": ".zip",
+      "bytes": 2293973,
+      "last_write_utc": "2025-12-19T08:19:22Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dexter's Lab - Chess Challenge (U).zip",
+      "extension": ".zip",
+      "bytes": 3102374,
+      "last_write_utc": "2025-12-19T07:59:24Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dexter's Lab - Deesaster Strikes! (U) (M5).zip",
+      "extension": ".zip",
+      "bytes": 1401199,
+      "last_write_utc": "2025-12-19T07:45:39Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Digimon - Battle Spirit (U).zip",
+      "extension": ".zip",
+      "bytes": 1216913,
+      "last_write_utc": "2025-12-19T08:22:10Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Digimon - Battle Spirit 2 (U) (M5).zip",
+      "extension": ".zip",
+      "bytes": 1540468,
+      "last_write_utc": "2025-12-19T08:22:10Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Digimon Racing (U) (M5).zip",
+      "extension": ".zip",
+      "bytes": 6037548,
+      "last_write_utc": "2025-12-19T08:32:47Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dinotopia - The Timestone Pirates (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 4445711,
+      "last_write_utc": "2025-12-19T08:29:06Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney Channel Collection - Volume 1 (U).zip",
+      "extension": ".zip",
+      "bytes": 32755005,
+      "last_write_utc": "2025-12-19T08:30:49Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney Princess - Royal Adventure (U).zip",
+      "extension": ".zip",
+      "bytes": 3601972,
+      "last_write_utc": "2025-12-19T08:18:51Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney Princess (U) [t1].zip",
+      "extension": ".zip",
+      "bytes": 3166577,
+      "last_write_utc": "2025-12-19T08:18:49Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney Sports - American Football (U).zip",
+      "extension": ".zip",
+      "bytes": 8113507,
+      "last_write_utc": "2025-12-19T08:30:48Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney Sports - Basketball (U).zip",
+      "extension": ".zip",
+      "bytes": 8559526,
+      "last_write_utc": "2025-12-19T08:33:20Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney Sports - Motocross (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 7071263,
+      "last_write_utc": "2025-12-19T08:30:17Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney Sports - Skateboarding (U).zip",
+      "extension": ".zip",
+      "bytes": 7918696,
+      "last_write_utc": "2025-12-19T08:16:07Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney Sports - Snowboarding (U).zip",
+      "extension": ".zip",
+      "bytes": 12130236,
+      "last_write_utc": "2025-12-19T08:29:00Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney Sports - Soccer (U).zip",
+      "extension": ".zip",
+      "bytes": 10347206,
+      "last_write_utc": "2025-12-19T08:28:15Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Aladdin (U) (M4).zip",
+      "extension": ".zip",
+      "bytes": 2428925,
+      "last_write_utc": "2025-12-19T08:12:03Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's American Dragon Jake Long - Rise of the Huntsclan! (U) (M5).zip",
+      "extension": ".zip",
+      "bytes": 3240837,
+      "last_write_utc": "2025-12-19T08:22:42Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Brother Bear (U).zip",
+      "extension": ".zip",
+      "bytes": 4593911,
+      "last_write_utc": "2025-12-19T08:22:43Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Cinderella - Magical Dreams (U) (M5).zip",
+      "extension": ".zip",
+      "bytes": 5760832,
+      "last_write_utc": "2025-12-19T08:26:20Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Extreme Skate Adventure (U).zip",
+      "extension": ".zip",
+      "bytes": 5099175,
+      "last_write_utc": "2025-12-19T08:30:54Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Finding Nemo - The Continuing Adventures (U).zip",
+      "extension": ".zip",
+      "bytes": 3166266,
+      "last_write_utc": "2025-12-19T08:21:12Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Finding Nemo (U).zip",
+      "extension": ".zip",
+      "bytes": 5021815,
+      "last_write_utc": "2025-12-19T08:11:41Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Herbie - Fully Loaded (U).zip",
+      "extension": ".zip",
+      "bytes": 3381032,
+      "last_write_utc": "2025-12-19T08:23:47Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Home on the Range (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 3427022,
+      "last_write_utc": "2025-12-19T08:24:59Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Kim Possible - Revenge of Monkey Fist (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 3184337,
+      "last_write_utc": "2025-12-19T08:33:18Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Kim Possible 2 - Drakken's Demise (U).zip",
+      "extension": ".zip",
+      "bytes": 3879072,
+      "last_write_utc": "2025-12-19T08:33:18Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Kim Possible 3 - Team Possible (U).zip",
+      "extension": ".zip",
+      "bytes": 3789833,
+      "last_write_utc": "2025-12-19T08:11:13Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Lilo & Stitch (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 3571352,
+      "last_write_utc": "2025-12-19T08:29:44Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Lilo & Stitch 2 - Haemsterviel Havoc (U).zip",
+      "extension": ".zip",
+      "bytes": 4113980,
+      "last_write_utc": "2025-12-19T08:31:54Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Little Einstein (U).zip",
+      "extension": ".zip",
+      "bytes": 5518640,
+      "last_write_utc": "2025-12-19T08:32:02Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Magical Quest (U) [hI][t1][f_5].zip",
+      "extension": ".zip",
+      "bytes": 1572291,
+      "last_write_utc": "2025-12-19T08:21:22Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Magical Quest 2 (U) (M3).zip",
+      "extension": ".zip",
+      "bytes": 2385158,
+      "last_write_utc": "2025-12-19T08:10:25Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Magical Quest 3 Starring Mickey & Donald (U).zip",
+      "extension": ".zip",
+      "bytes": 2478418,
+      "last_write_utc": "2025-12-19T07:57:55Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Party (U) (M5).zip",
+      "extension": ".zip",
+      "bytes": 2563044,
+      "last_write_utc": "2025-12-19T08:25:22Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Peter Pan - Return to Neverland (U).zip",
+      "extension": ".zip",
+      "bytes": 4367649,
+      "last_write_utc": "2025-12-19T08:31:50Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Tarzan - Return to the Jungle (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 4526822,
+      "last_write_utc": "2025-12-19T08:28:58Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's That's SO Raven (U).zip",
+      "extension": ".zip",
+      "bytes": 3916481,
+      "last_write_utc": "2025-12-19T08:30:37Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's That's SO Raven 2 - Supernatural Style (U).zip",
+      "extension": ".zip",
+      "bytes": 3019289,
+      "last_write_utc": "2025-12-19T08:28:50Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's The Haunted Mansion (U).zip",
+      "extension": ".zip",
+      "bytes": 3182324,
+      "last_write_utc": "2025-12-19T08:27:16Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's The Jungle Book (U) (M6).zip",
+      "extension": ".zip",
+      "bytes": 6988145,
+      "last_write_utc": "2025-12-19T08:32:30Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's The Lion King 1.5 (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 4575567,
+      "last_write_utc": "2025-12-19T08:23:45Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's The Little Mermaid - Magic in Two Kingdoms (U) (M5).zip",
+      "extension": ".zip",
+      "bytes": 4373732,
+      "last_write_utc": "2025-12-19T08:34:20Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Disney's Treasure Planet (U).zip",
+      "extension": ".zip",
+      "bytes": 5517360,
+      "last_write_utc": "2025-12-19T08:35:25Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\DK - King of Swing (U).zip",
+      "extension": ".zip",
+      "bytes": 2007493,
+      "last_write_utc": "2025-12-19T08:12:58Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dogz - Fashion (U).zip",
+      "extension": ".zip",
+      "bytes": 2862712,
+      "last_write_utc": "2025-12-19T08:30:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dogz (U).zip",
+      "extension": ".zip",
+      "bytes": 3284630,
+      "last_write_utc": "2025-12-19T08:30:38Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dokapon Monster Hunter (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 3196427,
+      "last_write_utc": "2025-12-19T08:35:19Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Donald Duck Advance (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 4283547,
+      "last_write_utc": "2025-12-19T08:29:18Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Donkey Kong Country (U) [!].zip",
+      "extension": ".zip",
+      "bytes": 5657337,
+      "last_write_utc": "2025-12-19T08:29:15Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Donkey Kong Country 2 (U).zip",
+      "extension": ".zip",
+      "bytes": 6267260,
+      "last_write_utc": "2025-12-19T08:29:16Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Donkey Kong Country 3 (U).zip",
+      "extension": ".zip",
+      "bytes": 11834967,
+      "last_write_utc": "2025-12-19T08:32:07Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Doom (U) (M7) [!].zip",
+      "extension": ".zip",
+      "bytes": 3159813,
+      "last_write_utc": "2025-12-19T08:21:05Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Doom II (U).zip",
+      "extension": ".zip",
+      "bytes": 8832127,
+      "last_write_utc": "2025-12-19T08:33:27Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dora the Explorer - Super Spies (U).zip",
+      "extension": ".zip",
+      "bytes": 2625815,
+      "last_write_utc": "2025-12-19T08:31:05Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dora the Explorer - Super Star Adventures! (U).zip",
+      "extension": ".zip",
+      "bytes": 2598466,
+      "last_write_utc": "2025-12-19T08:25:34Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dora the Explorer - The Search for Pirate Pig's Treasure (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 2627491,
+      "last_write_utc": "2025-12-19T08:25:34Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dora the Explorer - Volume 1 (U).zip",
+      "extension": ".zip",
+      "bytes": 32789532,
+      "last_write_utc": "2025-12-19T08:35:03Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dora's World Adventure (U).zip",
+      "extension": ".zip",
+      "bytes": 2036028,
+      "last_write_utc": "2025-12-19T08:25:51Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Double Dragon Advance (U).zip",
+      "extension": ".zip",
+      "bytes": 1867958,
+      "last_write_utc": "2025-12-19T08:21:54Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Downforce (U) [hI].zip",
+      "extension": ".zip",
+      "bytes": 2013108,
+      "last_write_utc": "2025-12-19T08:09:26Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dr. Mario & Puzzle League (U).zip",
+      "extension": ".zip",
+      "bytes": 2340352,
+      "last_write_utc": "2025-12-19T08:20:14Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dr. Seuss' Green Eggs and Ham (U).zip",
+      "extension": ".zip",
+      "bytes": 1228151,
+      "last_write_utc": "2025-12-19T08:05:29Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dr. Seuss' The Cat in the Hat - Super Stoop (U).zip",
+      "extension": ".zip",
+      "bytes": 1988817,
+      "last_write_utc": "2025-12-19T08:07:47Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dr. Seuss' The Cat in the Hat (U).zip",
+      "extension": ".zip",
+      "bytes": 1253164,
+      "last_write_utc": "2025-12-19T08:05:29Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dr. Sudoku (U).zip",
+      "extension": ".zip",
+      "bytes": 910540,
+      "last_write_utc": "2025-12-19T08:08:03Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dragon Ball - Advanced Adventure (U).zip",
+      "extension": ".zip",
+      "bytes": 5379107,
+      "last_write_utc": "2025-12-19T08:17:29Z"
+    },
+    {
+      "path": "C:\\Users\\Doc\\Desktop\\Projects\\SaveStateReborn\\downloads\\roms\\#Unsorted\\Dragon Ball GT - Transformation (U).zip",
+      "extension": ".zip",
+      "bytes": 6199470,
+      "last_write_utc": "2025-12-19T08:24:46Z"
+    }
+  ],
+  "notes": [
+    "Read-only refinement of the broad computer scan.",
+    "Candidate directories still require license review before any release promotion.",
+    "Ingestion recommendation should copy into ignored raw quarantine first, not imports/normalized."
+  ]
+}

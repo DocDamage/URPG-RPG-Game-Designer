@@ -1,0 +1,118 @@
+{
+  "bundle_id": "BND-005",
+  "bundle_name": "src012_cc0_tiles_vfx",
+  "source_id": "SRC-012",
+  "bundle_state": "promoted",
+  "release_required": false,
+  "release_surfaces": [
+    "title",
+    "map",
+    "battle"
+  ],
+  "assets": [
+    {
+      "original_relative_path": "imports/raw/godogenui_assets/environment/tilesets/grunge/grunge-tileset.png",
+      "promoted_relative_path": "src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "fe8fa194bf829c49a2860e440580eb03abde7be8a04f97f4c42bb778d8c62182",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-005_src012_cc0_tiles_vfx.json",
+      "package_destination": "share/urpg/imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "notes": "CC0 Ansimuz grunge tileset for map/template environment coverage."
+    },
+    {
+      "original_relative_path": "imports/raw/godogenui_assets/environment/tilesets/caverns/layers/tiles.png",
+      "promoted_relative_path": "src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "c62bdddb3b544018fae2e68cca3c89bd4d9bd0afbf671ad147839a84634945bf",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-005_src012_cc0_tiles_vfx.json",
+      "package_destination": "share/urpg/imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "notes": "CC0 Ansimuz cavern foreground tiles layer."
+    },
+    {
+      "original_relative_path": "imports/raw/godogenui_assets/environment/tilesets/caverns/layers/back-walls.png",
+      "promoted_relative_path": "src012_cc0_tiles_vfx/tilesets/caverns_back_walls.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "782ec7ba32521bbbc1fabbeb7fe974bd9aa8d5b58196b6043ff100ad1be4cbd2",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-005_src012_cc0_tiles_vfx.json",
+      "package_destination": "share/urpg/imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_back_walls.png",
+      "notes": "CC0 Ansimuz cavern back-wall layer."
+    },
+    {
+      "original_relative_path": "imports/raw/godogenui_assets/environment/tilesets/caverns/layers/background.png",
+      "promoted_relative_path": "src012_cc0_tiles_vfx/backgrounds/caverns_background.png",
+      "category": "background",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map",
+        "title"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "fc8c5fc6992cdd6da447336bb2cce805c273d0a6ec8b10665a11365218171f4b",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-005_src012_cc0_tiles_vfx.json",
+      "package_destination": "share/urpg/imports/normalized/src012_cc0_tiles_vfx/backgrounds/caverns_background.png",
+      "notes": "CC0 Ansimuz cavern background layer."
+    },
+    {
+      "original_relative_path": "imports/raw/godogenui_assets/effects/misc/destruction_effects/hit_effect_sheet.png",
+      "promoted_relative_path": "src012_cc0_tiles_vfx/vfx/hit_effect_sheet.png",
+      "category": "vfx_sheet",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "battle",
+        "map"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "0d6e170314b0ffbd1daee4aa7c5ba87dcfd8f22732d4ae05bee6fa80f851f666",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-005_src012_cc0_tiles_vfx.json",
+      "package_destination": "share/urpg/imports/normalized/src012_cc0_tiles_vfx/vfx/hit_effect_sheet.png",
+      "notes": "Public-domain Ansimuz hit effect sheet for template VFX coverage."
+    },
+    {
+      "original_relative_path": "imports/raw/godogenui_assets/effects/misc/animated_decorations/torch-A-01.png",
+      "promoted_relative_path": "src012_cc0_tiles_vfx/vfx/torch_a_01.png",
+      "category": "vfx_frame",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "c530545375aef4bf389d94ed410f3d902ac90b25fe21f8b0e99d5cfeb77d2faf",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-005_src012_cc0_tiles_vfx.json",
+      "package_destination": "share/urpg/imports/normalized/src012_cc0_tiles_vfx/vfx/torch_a_01.png",
+      "notes": "Public-domain Ansimuz torch decoration frame for map ambience."
+    }
+  ]
+}

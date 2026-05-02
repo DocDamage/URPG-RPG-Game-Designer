@@ -1,6 +1,6 @@
 # Asset Library And More Assets Intake
 
-Status Date: 2026-05-01
+Status Date: 2026-05-02
 
 This document records the current asset-library vertical slice and the local `more assets/` intake that was unpacked, cleaned, indexed, and kept as non-release raw quarantine.
 
@@ -168,6 +168,8 @@ Raw extraction folder:
 
 - `imports/raw/more_assets/`
 - `imports/raw/more_assets_to_ingest/`
+- `imports/raw/assets_for_my_game/`
+- `imports/raw/godogenui_assets/`
 
 Generated reports:
 
@@ -185,6 +187,14 @@ Generated reports:
 - `imports/reports/more_assets_to_ingest/more_assets_to_ingest_catalog/*.json`
 - `imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog.json`
 - `imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog/*.json`
+- `imports/reports/asset_intake/src007_rar_extraction_report.json`
+- `imports/reports/asset_intake/local_computer_asset_candidate_inventory.json`
+- `imports/reports/asset_intake/local_computer_asset_candidate_inventory_refined.json`
+- `imports/reports/asset_intake/src011_archive_extraction_report.json`
+- `imports/reports/asset_intake/assets_for_my_game_promotion_catalog.json`
+- `imports/reports/asset_intake/assets_for_my_game_promotion_catalog/*.json`
+- `imports/reports/asset_intake/godogenui_assets_promotion_catalog.json`
+- `imports/reports/asset_intake/godogenui_assets_promotion_catalog/*.json`
 
 Intake results:
 
@@ -201,6 +211,12 @@ Intake results:
 - The full raw catalog is also converted into an editor-ingestible local promotion catalog with 20,229 records. These records are local-use-only, previewable/searchable, and export-ineligible.
 - The promotion candidate review ranked 135 useful packs and produced a curated SRC-010 plan under `imports/reports/more_assets_to_ingest/src010_curated_promotion_plan.md`.
 - The remaining recommended review cohort is restricted to packs with CC0/public-domain evidence; attribution/redistribution-restricted packs remain review holds.
+- Three old-intake SRC-007 RAR archives that were missed before RAR support was configured were extracted into `imports/raw/urpg_stuff/refresh_20260428_2206/__rar_extracted/` with zero failures and 21,413 files present.
+- The SRC-007 local promotion catalog was regenerated with SRC-008 excluded, producing 77,509 local-use records, 56,096 canonical exact-hash records, and 21,413 exact-duplicate recovered RAR records.
+- A computer-wide read-only scan identified two high-signal additional local asset drops: `C:\Users\Doc\Downloads\AssetsForMyGame` and `C:\Users\Doc\Desktop\Projects\GoDoGenUI\godogenwithui-master\assets`.
+- `SRC-011` mirrors `AssetsForMyGame` into ignored raw quarantine, extracts 58 ZIP/RAR archives with zero failures and 13,313 extracted files present, and catalog-normalizes 12,985 supported local-use records.
+- `SRC-012` mirrors the GoDoGenUI asset folder into ignored raw quarantine, intentionally skips duplicate ProgramData/All Users mirrors, and catalog-normalizes 29,516 supported local-use records from 46,285 mirrored files.
+- `BND-005` promotes 6 selected `SRC-012` CC0/public-domain tiles/VFX assets into `imports/normalized/src012_cc0_tiles_vfx/` with checksums and attribution metadata. The rest of `SRC-011` and `SRC-012` remains quarantine-only.
 
 The raw source and extracted intake paths are intentionally ignored local quarantine, not repository payload:
 
@@ -208,6 +224,9 @@ The raw source and extracted intake paths are intentionally ignored local quaran
 - `more assets to ingest/**`
 - `imports/raw/more_assets/**`
 - `imports/raw/more_assets_to_ingest/**`
+- `imports/raw/urpg_stuff/**`
+- `imports/raw/assets_for_my_game/**`
+- `imports/raw/godogenui_assets/**`
 - `imports/raw/itch_assets/loose/**`
 
 Reports and curated promotion records remain eligible for normal Git tracking under `imports/reports/`, `imports/manifests/`, and `imports/normalized/`. Promote only selected, governed assets into those paths; do not re-add the full raw extraction trees or source archive drops.
@@ -224,6 +243,18 @@ Before any additional SRC-010 bundle can be marked ready:
 - Update the source registry and rerun the asset governance gate.
 
 The first promoted lane is CC0/public-domain evidence only: Lucifer UI, Screaming Brain isometric tiles, Foozle Void space/action assets, and a GGBotNet CC0 font. Packs with credit, redistribution, NFT/metaverse/AI, commercial-use-only, or unclear terms stay quarantined until those terms are explicitly reviewed.
+
+## SRC-011 / SRC-012 Promotion Plan
+
+`BND-005` is the first governed promotion from the computer-wide scan follow-up, promoting a small Ansimuz/GoDoGenUI CC0/public-domain subset while leaving both new raw drops ignored and quarantined.
+
+Before any additional `SRC-011` or `SRC-012` bundle can be marked ready:
+
+- Copy only the curated subset into `imports/normalized/src011_<bundle-scope>/` or `imports/normalized/src012_<bundle-scope>/`.
+- Create a governed `BND-*` bundle manifest with exact file checksums.
+- Create per-pack or per-bundle attribution records under `imports/reports/asset_intake/attribution/`.
+- Keep Patreon/supporter, no-redistribution, CraftPix web-license-only, ROM-derived, and unclear-license packs quarantined until their terms are explicitly reviewed.
+- Update the source registry and rerun the asset governance gate.
 
 ## Hygiene Results
 

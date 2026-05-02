@@ -1,0 +1,31 @@
+{
+  "asset_id": "imports/normalized/src012_cc0_tiles_vfx",
+  "source_id": "SRC-012",
+  "source_repo": "Local GoDoGenUI asset library drop",
+  "source_url": "local://imports/raw/godogenui_assets",
+  "original_relative_path": "imports/raw/godogenui_assets/{environment/tilesets/grunge,environment/tilesets/caverns,effects/misc}",
+  "author": "Luis Zuno / Ansimuz",
+  "license": "CC0-1.0 / Public Domain evidence reviewed from source license files",
+  "commercial_use_allowed": true,
+  "redistribution_allowed": true,
+  "promotion_status": "promoted",
+  "bundle_id": "BND-005",
+  "promoted_assets": [
+    "src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+    "src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+    "src012_cc0_tiles_vfx/tilesets/caverns_back_walls.png",
+    "src012_cc0_tiles_vfx/backgrounds/caverns_background.png",
+    "src012_cc0_tiles_vfx/vfx/hit_effect_sheet.png",
+    "src012_cc0_tiles_vfx/vfx/torch_a_01.png"
+  ],
+  "license_evidence": [
+    "imports/raw/godogenui_assets/effects/misc/public-license.txt",
+    "imports/raw/godogenui_assets/environment/tilesets/caverns/license.txt",
+    "imports/raw/godogenui_assets/environment/tilesets/grunge/license.txt"
+  ],
+  "notes": [
+    "Bounded SRC-012 promotion containing only selected CC0/public-domain evidence packs.",
+    "The broader SRC-012 raw drop remains ignored quarantine and is not promoted by this record.",
+    "Assets are release eligible but not release required; existing Phase 9 release-required coverage remains unchanged."
+  ]
+}

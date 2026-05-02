@@ -55,6 +55,8 @@ more assets/
 more assets to ingest/
 imports/raw/more_assets/
 imports/raw/more_assets_to_ingest/
+imports/raw/assets_for_my_game/
+imports/raw/godogenui_assets/
 imports/raw/itch_assets/loose/
 imports/raw/third_party_assets/aseprite/
 imports/raw/third_party_assets/rpgmaker-mz/cgmz/

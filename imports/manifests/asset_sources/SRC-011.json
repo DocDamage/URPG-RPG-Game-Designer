@@ -1,0 +1,33 @@
+{
+  "source_id": "SRC-011",
+  "repo_name": "Local AssetsForMyGame drop",
+  "source_url": "local://imports/raw/assets_for_my_game",
+  "capture_state": "mirrored",
+  "snapshot_commit": null,
+  "snapshot_date": "2026-05-02",
+  "source_type": "direct_asset_pack",
+  "category_tags": [
+    "tilesets",
+    "sprites",
+    "characters",
+    "ui",
+    "vfx",
+    "backgrounds",
+    "source_art",
+    "archives"
+  ],
+  "intended_use": [
+    "Editor asset browser discovery from quarantined local packs",
+    "Template polish candidates for RPG and non-RPG starters",
+    "Curated future bundle promotion after per-pack attribution and license review"
+  ],
+  "handling_path": "direct_ingest_when_captured",
+  "legal_disposition": "local_quarantine_requires_per_pack_attribution_and_bundle_review",
+  "promotion_status": "cataloged_local",
+  "notes": [
+    "Captured from C:\\Users\\Doc\\Downloads\\AssetsForMyGame into ignored raw quarantine.",
+    "58 ZIP/RAR archives were extracted into imports/raw/assets_for_my_game/__archive_extracted with zero extraction failures.",
+    "The full drop is catalog-normalized for local editor/library use under imports/reports/asset_intake/assets_for_my_game_promotion_catalog.json.",
+    "Records are local-use-only and export-ineligible until a curated subset receives attribution evidence, bundle metadata, and promoted payloads under imports/normalized/."
+  ]
+}

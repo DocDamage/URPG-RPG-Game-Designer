@@ -1,0 +1,58 @@
+{
+  "schema": "urpg/asset_promotion_summary/v1",
+  "generated_at": "2026-05-02T21:15:42+00:00",
+  "source_id": "SRC-012",
+  "source_root": "imports/raw/godogenui_assets",
+  "promotion_status": "cataloged_local_available",
+  "export_eligible": false,
+  "asset_count": 29516,
+  "canonical_asset_count": 17157,
+  "duplicate_group_count": 7149,
+  "duplicate_asset_count": 12359,
+  "unsupported_count": 15814,
+  "kind_counts": {
+    "audio": 2689,
+    "document": 584,
+    "image": 26011,
+    "map": 13,
+    "source": 219
+  },
+  "category_counts": {
+    "audio": 2224,
+    "audio/music": 465,
+    "characters": 9960,
+    "characters/portraits": 1339,
+    "documentation": 584,
+    "tilesets": 3240,
+    "tooling/source": 219,
+    "ui": 11485
+  },
+  "extension_counts": {
+    "ase": 342,
+    "aseprite": 142,
+    "gd": 4,
+    "gif": 1200,
+    "jpg": 5,
+    "js": 215,
+    "json": 295,
+    "m4a": 320,
+    "mp3": 10,
+    "ogg": 2302,
+    "pdf": 48,
+    "png": 23442,
+    "psd": 879,
+    "svg": 1,
+    "tmx": 12,
+    "tsx": 1,
+    "txt": 222,
+    "wav": 57,
+    "xml": 19
+  },
+  "pack_count": 14,
+  "notes": [
+    "All supported SRC-012 records are catalog-normalized for local editor/library use.",
+    "Raw binaries remain in ignored quarantine under imports/raw/godogenui_assets.",
+    "normalized_path values are stable virtual asset ids, not copied release payload paths.",
+    "local_use_allowed is true for creator/editor browsing; release_use_allowed and export_eligible remain false until curated bundle promotion."
+  ]
+}

@@ -28,6 +28,8 @@ DEFAULT_ROOTS = [
     "imports/root-drop/archives",
     "imports/raw/more_assets",
     "imports/raw/more_assets_to_ingest",
+    "imports/raw/assets_for_my_game",
+    "imports/raw/godogenui_assets",
     "imports/raw/urpg_stuff",
 ]
 EXCLUDED_DIRS = {
@@ -136,6 +138,16 @@ def infer_pack_category(path_rel: str) -> tuple[str | None, str | None]:
         if i + 1 < len(parts):
             pack = parts[i + 1]
         category = "more-assets-to-ingest-raw"
+    if "imports" in parts and "raw" in parts and "assets_for_my_game" in parts:
+        i = parts.index("assets_for_my_game")
+        if i + 1 < len(parts):
+            pack = parts[i + 1]
+        category = "assets-for-my-game-raw"
+    if "imports" in parts and "raw" in parts and "godogenui_assets" in parts:
+        i = parts.index("godogenui_assets")
+        if i + 1 < len(parts):
+            pack = parts[i + 1]
+        category = "godogenui-assets-raw"
     if "imports" in parts and "raw" in parts and "urpg_stuff" in parts:
         i = parts.index("urpg_stuff")
         if i + 1 < len(parts):

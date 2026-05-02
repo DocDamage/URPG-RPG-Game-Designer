@@ -1,6 +1,6 @@
 ﻿{
     "schema":  "urpg.release_required_asset_report.v1",
-    "generatedAt":  "2026-05-02T19:58:11.3095784Z",
+    "generatedAt":  "2026-05-02T22:25:42.7305819Z",
     "passed":  true,
     "requiredSurfaces":  [
                              "title",
@@ -236,6 +236,48 @@
                                  "id":  "imports/raw/more_assets_to_ingest/ggbotnet-fonts-cc0-2025-dec-8c3446796773/GGBotNet Fonts CC0/Public Pixel/Web Open Font Format (.woff)/PublicPixel.woff2",
                                  "bundle":  "BND-004",
                                  "path":  "src010_cc0_starter_pack/fonts/public_pixel.woff2",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/godogenui_assets/environment/tilesets/grunge/grunge-tileset.png",
+                                 "bundle":  "BND-005",
+                                 "path":  "src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/godogenui_assets/environment/tilesets/caverns/layers/tiles.png",
+                                 "bundle":  "BND-005",
+                                 "path":  "src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/godogenui_assets/environment/tilesets/caverns/layers/back-walls.png",
+                                 "bundle":  "BND-005",
+                                 "path":  "src012_cc0_tiles_vfx/tilesets/caverns_back_walls.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/godogenui_assets/environment/tilesets/caverns/layers/background.png",
+                                 "bundle":  "BND-005",
+                                 "path":  "src012_cc0_tiles_vfx/backgrounds/caverns_background.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/godogenui_assets/effects/misc/destruction_effects/hit_effect_sheet.png",
+                                 "bundle":  "BND-005",
+                                 "path":  "src012_cc0_tiles_vfx/vfx/hit_effect_sheet.png",
+                                 "classification":  "deferred",
+                                 "reason":  "Bundle asset is not connected to release-required surfaces."
+                             },
+                             {
+                                 "id":  "imports/raw/godogenui_assets/effects/misc/animated_decorations/torch-A-01.png",
+                                 "bundle":  "BND-005",
+                                 "path":  "src012_cc0_tiles_vfx/vfx/torch_a_01.png",
                                  "classification":  "deferred",
                                  "reason":  "Bundle asset is not connected to release-required surfaces."
                              }

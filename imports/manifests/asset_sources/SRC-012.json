@@ -1,0 +1,36 @@
+{
+  "source_id": "SRC-012",
+  "repo_name": "Local GoDoGenUI asset library drop",
+  "source_url": "local://imports/raw/godogenui_assets",
+  "capture_state": "mirrored",
+  "snapshot_commit": null,
+  "snapshot_date": "2026-05-02",
+  "source_type": "direct_asset_pack",
+  "category_tags": [
+    "tilesets",
+    "sprites",
+    "characters",
+    "portraits",
+    "ui",
+    "vfx",
+    "audio",
+    "backgrounds",
+    "source_art"
+  ],
+  "intended_use": [
+    "Editor asset browser discovery from a large expanded local asset library",
+    "Template polish candidates for RPG and non-RPG starters",
+    "Curated future bundle promotion after per-pack attribution and license review"
+  ],
+  "handling_path": "direct_ingest_when_captured",
+  "legal_disposition": "mixed_quarantine_with_bounded_cc0_starter_promotion",
+  "promotion_status": "partially_promoted",
+  "notes": [
+    "Captured from C:\\Users\\Doc\\Desktop\\Projects\\GoDoGenUI\\godogenwithui-master\\assets into ignored raw quarantine.",
+    "Mirrored ProgramData/All Users copies were intentionally skipped to avoid duplicate intake.",
+    "The full supported subset is catalog-normalized for local editor/library use under imports/reports/asset_intake/godogenui_assets_promotion_catalog.json.",
+    "BND-005 promotes only 6 selected CC0/public-domain tiles/VFX assets with checksums and attribution evidence.",
+    "Unsupported source/tool/development files remain reported but are not exposed as usable editor assets.",
+    "All non-BND-005 records are local-use-only and export-ineligible until a curated subset receives attribution evidence, bundle metadata, and promoted payloads under imports/normalized/."
+  ]
+}

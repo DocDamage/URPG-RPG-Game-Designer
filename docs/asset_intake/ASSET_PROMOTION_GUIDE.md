@@ -94,6 +94,9 @@ Large local drops can enter the editor library before release promotion by produ
 ```powershell
 python .\tools\assets\promote_urpg_stuff_assets.py
 python .\tools\assets\promote_urpg_stuff_assets.py --exclude-audio
+python .\tools\assets\promote_urpg_stuff_assets.py --exclude-audio `
+  --source-root imports/raw/urpg_stuff `
+  --exclude-root imports/raw/urpg_stuff/assets_to_ingest_20260429
 ```
 
 This writes:
@@ -102,6 +105,15 @@ This writes:
 - `imports/reports/asset_intake/urpg_stuff_promotion_summary.json`
 
 The top-level catalog is a small manifest plus duplicate index; category shards give each raw asset a stable virtual `asset://` normalized path, inferred category, pack, tags, preview path, checksum, and duplicate marker. The editor asset library loads this optional catalog from the canonical report directory. These records are usable for local browsing, preview, and curation, but are not release/export eligible until a curated subset receives bundle manifests, attribution records, and copied or otherwise hydrated promoted payloads.
+
+The SRC-007 catalog tool excludes `imports/raw/urpg_stuff/assets_to_ingest_20260429` by default when regenerating from the full `imports/raw/urpg_stuff` root. Keep that exclusion in place because SRC-008 uses its own aggregate animation/background catalog and should not be flattened into the SRC-007 shard set.
+
+Old-intake RAR recovery is recorded separately:
+
+- `imports/reports/asset_intake/src007_rar_extraction_report.json`
+- extracted quarantine root `imports/raw/urpg_stuff/refresh_20260428_2206/__rar_extracted/`
+
+The recovered RAR payloads are local-use-only SRC-007 material. Keep the original archives in place and do not promote any recovered file to release/export until a curated subset has attribution evidence, bundle metadata, and copied promoted payloads under `imports/normalized/`.
 
 After catalog-normalization, exact raw duplicates can be pruned from the ignored `SRC-007` raw root while preserving the canonical catalog copy:
 
@@ -148,6 +160,34 @@ This writes:
 - `imports/reports/asset_intake/more_assets_to_ingest_promotion_summary.json`
 
 Those records make the full extracted SRC-010 drop usable for local browsing, preview, and template curation while keeping `release_use_allowed=false` and `export_eligible=false`. Promotion into a distributable bundle still requires a curated normalized subset, attribution record, bundle manifest, and governance gate pass.
+
+Additional local drops use the generic local-drop cataloger:
+
+```powershell
+python tools/assets/catalog_local_asset_drop.py `
+  --source-id SRC-011 `
+  --source-root imports/raw/assets_for_my_game `
+  --output-catalog imports/reports/asset_intake/assets_for_my_game_promotion_catalog.json `
+  --output-summary imports/reports/asset_intake/assets_for_my_game_promotion_summary.json `
+  --output-shard-root imports/reports/asset_intake/assets_for_my_game_promotion_catalog
+
+python tools/assets/catalog_local_asset_drop.py `
+  --source-id SRC-012 `
+  --source-root imports/raw/godogenui_assets `
+  --output-catalog imports/reports/asset_intake/godogenui_assets_promotion_catalog.json `
+  --output-summary imports/reports/asset_intake/godogenui_assets_promotion_summary.json `
+  --output-shard-root imports/reports/asset_intake/godogenui_assets_promotion_catalog
+```
+
+`SRC-011` archives are extracted first into `imports/raw/assets_for_my_game/__archive_extracted/` and recorded in `imports/reports/asset_intake/src011_archive_extraction_report.json`. `SRC-012` is already expanded; mirrored ProgramData/All Users copies are intentionally skipped to avoid duplicate intake. Both sources remain local-use-only and export-ineligible until curated subsets receive attribution evidence and bundle manifests.
+
+The first promoted result from those local drops is `BND-005`:
+
+- `imports/manifests/asset_bundles/BND-005.json`
+- `imports/reports/asset_intake/attribution/BND-005_src012_cc0_tiles_vfx.json`
+- `imports/normalized/src012_cc0_tiles_vfx/`
+
+`BND-005` promotes only six selected `SRC-012` Ansimuz/GoDoGenUI tiles/VFX PNGs whose local license files state CC0/public-domain style terms. The rest of `SRC-011` and `SRC-012` remains local quarantine until per-pack license evidence is reviewed.
 
 ### Promotion Manifest Schema Example
 

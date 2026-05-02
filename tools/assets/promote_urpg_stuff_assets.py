@@ -260,10 +260,15 @@ def ffprobe_duration_ms(path: Path) -> int | None:
         return None
 
 
-def iter_files(root: Path):
+def iter_files(root: Path, excluded_roots: set[Path] | None = None):
+    excluded_roots = excluded_roots or set()
     for current, dirs, files in os.walk(root, topdown=True, followlinks=False):
-        dirs[:] = [d for d in dirs if d not in EXCLUDED_DIRS]
         base = Path(current)
+        dirs[:] = [
+            d
+            for d in dirs
+            if d not in EXCLUDED_DIRS and (base / d).resolve() not in excluded_roots
+        ]
         for name in files:
             if name in JUNK_NAMES or name.startswith("._"):
                 continue
@@ -433,6 +438,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--exclude-audio", action="store_true", help="Skip audio files entirely."
     )
+    parser.add_argument(
+        "--exclude-root",
+        action="append",
+        default=["imports/raw/urpg_stuff/assets_to_ingest_20260429"],
+        help="Relative source subtree to exclude. Can be passed more than once.",
+    )
     return parser.parse_args()
 
 
@@ -446,6 +457,9 @@ def main() -> int:
     source_root = (repo_root / args.source_root).resolve()
     if not source_root.is_dir():
         raise SystemExit(f"source root not found: {source_root}")
+    excluded_roots = {
+        (repo_root / excluded).resolve() for excluded in args.exclude_root
+    }
 
     source_root_rel = rel(source_root, repo_root)
     assets: list[dict] = []
@@ -454,7 +468,7 @@ def main() -> int:
     category_counts: dict[str, int] = {}
     unsupported: list[str] = []
 
-    for path in iter_files(source_root):
+    for path in iter_files(source_root, excluded_roots):
         ext = path.suffix.lower().lstrip(".")
         if args.exclude_audio and ext in AUDIO_EXTS:
             continue

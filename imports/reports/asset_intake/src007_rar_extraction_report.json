@@ -1,0 +1,82 @@
+{
+  "schema": "urpg/src007_rar_extraction_report/v1",
+  "generated_at": "2026-05-02T20:17:33Z",
+  "source": "SRC-007",
+  "source_root": "imports/raw/urpg_stuff/refresh_20260428_2206",
+  "output_root": "imports/raw/urpg_stuff/refresh_20260428_2206/__rar_extracted",
+  "extractor": "C:\\Program Files\\7-Zip\\7z.exe",
+  "archive_count": 3,
+  "extracted_archive_count": 3,
+  "failed_archive_count": 0,
+  "extracted_file_count": 21413,
+  "archives": [
+    {
+      "archive": "imports/raw/urpg_stuff/refresh_20260428_2206/HoriHori Assets/20000 Icons RPG + Recolors - Full version.rar",
+      "archive_sha256": "0631790fa1b18c918b427594ff8499ee1b095e420cfbf81b993d0ca968452f51",
+      "archive_bytes": 21920333,
+      "output_root": "imports/raw/urpg_stuff/refresh_20260428_2206/__rar_extracted/20000-icons-rpg-recolors-full-version-0631790fa1b1",
+      "exit_code": 0,
+      "status": "extracted",
+      "file_count_before": 0,
+      "file_count_after": 21402,
+      "file_count_added_or_present": 21402,
+      "output_tail": [
+        "Volumes = 1",
+        "",
+        "Everything is Ok",
+        "",
+        "Folders: 1149",
+        "Files: 21402",
+        "Size:       19192151",
+        "Compressed: 21920333"
+      ]
+    },
+    {
+      "archive": "imports/raw/urpg_stuff/refresh_20260428_2206/isometric/Generic Pixel Dropship.rar",
+      "archive_sha256": "0c21cb1e6a347846eb2675949fafa82d9dca71da9833dbedc14b5d5c58450949",
+      "archive_bytes": 76782,
+      "output_root": "imports/raw/urpg_stuff/refresh_20260428_2206/__rar_extracted/generic-pixel-dropship-0c21cb1e6a34",
+      "exit_code": 0,
+      "status": "extracted",
+      "file_count_before": 0,
+      "file_count_after": 10,
+      "file_count_added_or_present": 10,
+      "output_tail": [
+        "Volumes = 1",
+        "",
+        "Everything is Ok",
+        "",
+        "Folders: 1",
+        "Files: 10",
+        "Size:       79275",
+        "Compressed: 76782"
+      ]
+    },
+    {
+      "archive": "imports/raw/urpg_stuff/refresh_20260428_2206/openmon/royal_props.rar",
+      "archive_sha256": "9837a8307d23eefd1f25579cc4919fe7249311dcb64c11a8202c00d345d087b3",
+      "archive_bytes": 49435,
+      "output_root": "imports/raw/urpg_stuff/refresh_20260428_2206/__rar_extracted/royal-props-9837a8307d23",
+      "exit_code": 0,
+      "status": "extracted",
+      "file_count_before": 0,
+      "file_count_after": 1,
+      "file_count_added_or_present": 1,
+      "output_tail": [
+        "Method = v6:128K:m0",
+        "Multivolume = -",
+        "Volumes = 1",
+        "",
+        "Everything is Ok",
+        "",
+        "Size:       49274",
+        "Compressed: 49435"
+      ]
+    }
+  ],
+  "notes": [
+    "RAR payloads are local-use-only SRC-007 raw quarantine material.",
+    "Original RAR archives were left in place.",
+    "Release/export remains blocked pending per-pack attribution and curated bundle promotion."
+  ]
+}
