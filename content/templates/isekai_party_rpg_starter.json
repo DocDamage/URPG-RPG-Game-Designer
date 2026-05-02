@@ -1,0 +1,78 @@
+{
+  "template_id": "isekai_party_rpg",
+  "display_name": "Isekai Party RPG Starter",
+  "status": "READY",
+  "loops": [
+    "guild_quest_loop",
+    "party_recruit_loop",
+    "portal_story_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "portal_origin",
+      "guild_quests",
+      "party_recruitment",
+      "fantasy_jobs"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "portal_origin",
+        "guild_quests",
+        "party_recruitment"
+      ]
+    }
+  },
+  "quality_contract": {
+    "tier": "starter_ready",
+    "quality_score": 70,
+    "genre_family": "party_rpg",
+    "target_camera": "top_down",
+    "core_loops": [
+      "guild_quest_loop",
+      "party_recruit_loop",
+      "portal_story_loop",
+      "save_loop"
+    ],
+    "starter_content": {
+      "maps_or_scenes": 3,
+      "sample_entities": 4,
+      "sample_progression_hooks": 2,
+      "wysiwyg_surfaces": [
+        "portal_origin",
+        "guild_quests",
+        "party_recruitment"
+      ]
+    },
+    "required_inputs": [
+      "Confirm",
+      "Cancel",
+      "Menu"
+    ],
+    "default_accessibility": [
+      "focus_labels",
+      "readable_contrast",
+      "remap_visible_actions"
+    ],
+    "audio_profile": "starter_mix",
+    "localization_namespaces": [
+      "isekai_party_rpg"
+    ],
+    "performance_budget": {
+      "frame_time_ms": 33.3,
+      "arena_kb": 512,
+      "active_entities": 128
+    },
+    "export_profile": "standalone_strict",
+    "known_limits": [
+      "bounded starter content only",
+      "no platform-holder certification",
+      "no online services or live economy"
+    ]
+  }
+}

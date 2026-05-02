@@ -2,10 +2,60 @@
   "template_id": "tactics_rpg",
   "display_name": "Tactics RPG Starter",
   "status": "READY",
-  "loops": ["tactical_battle_loop", "scenario_authoring_loop", "save_loop"],
+  "loops": [
+    "tactical_battle_loop",
+    "scenario_authoring_loop",
+    "save_loop"
+  ],
   "systems": {
     "scenario_authoring": true,
     "deployment_zones": true,
     "turn_order": "speed_then_team_priority"
+  },
+  "quality_contract": {
+    "tier": "starter_ready",
+    "quality_score": 70,
+    "genre_family": "strategy_tactics",
+    "target_camera": "top_down",
+    "core_loops": [
+      "tactical_battle_loop",
+      "scenario_authoring_loop",
+      "save_loop"
+    ],
+    "starter_content": {
+      "maps_or_scenes": 3,
+      "sample_entities": 4,
+      "sample_progression_hooks": 2,
+      "wysiwyg_surfaces": [
+        "map_intro",
+        "starter_menu",
+        "save_preview"
+      ]
+    },
+    "required_inputs": [
+      "Confirm",
+      "Cancel",
+      "Menu"
+    ],
+    "default_accessibility": [
+      "focus_labels",
+      "readable_contrast",
+      "remap_visible_actions"
+    ],
+    "audio_profile": "starter_mix",
+    "localization_namespaces": [
+      "tactics_rpg"
+    ],
+    "performance_budget": {
+      "frame_time_ms": 33.3,
+      "arena_kb": 512,
+      "active_entities": 128
+    },
+    "export_profile": "standalone_strict",
+    "known_limits": [
+      "bounded starter content only",
+      "no platform-holder certification",
+      "no online services or live economy"
+    ]
   }
 }

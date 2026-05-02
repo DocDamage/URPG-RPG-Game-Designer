@@ -22,6 +22,7 @@
 
 #include "engine/core/input/input_remap_store.h"
 #include "engine/core/project/project_template_generator.h"
+#include "engine/core/project/template_runtime_profile.h"
 
 using nlohmann::json;
 
@@ -45,20 +46,8 @@ json loadTemplateAcceptanceJson(const std::filesystem::path& path) {
 
 const std::set<std::string>& rpgRequiredInputActions() {
     static const std::set<std::string> actions = {
-        "MoveUp",
-        "MoveDown",
-        "MoveLeft",
-        "MoveRight",
-        "Confirm",
-        "Cancel",
-        "Menu",
-        "PageLeft",
-        "PageRight",
-        "BattleAttack",
-        "BattleSkill",
-        "BattleItem",
-        "BattleDefend",
-        "BattleEscape",
+        "MoveUp",   "MoveDown",  "MoveLeft",     "MoveRight",   "Confirm",    "Cancel",       "Menu",
+        "PageLeft", "PageRight", "BattleAttack", "BattleSkill", "BattleItem", "BattleDefend", "BattleEscape",
     };
     return actions;
 }
@@ -95,29 +84,47 @@ void requireRpgInputClosure(const json& starter) {
     REQUIRE(collectActionStrings(saved.at("bindings")) == requiredActions);
 }
 
+void requireTemplateQualityContract(const json& owner) {
+    REQUIRE(owner.contains("quality_contract"));
+    const auto& quality = owner["quality_contract"];
+    REQUIRE(quality.value("tier", "") == "starter_ready");
+    REQUIRE(quality.value("quality_score", 0) >= 70);
+    REQUIRE_FALSE(quality.value("genre_family", "").empty());
+    REQUIRE_FALSE(quality.value("target_camera", "").empty());
+    REQUIRE(quality.contains("core_loops"));
+    REQUIRE_FALSE(quality["core_loops"].empty());
+    REQUIRE(quality.contains("starter_content"));
+    REQUIRE(quality["starter_content"].value("maps_or_scenes", 0) >= 1);
+    REQUIRE(quality["starter_content"].value("sample_entities", 0) >= 1);
+    REQUIRE(quality["starter_content"].value("sample_progression_hooks", 0) >= 1);
+    REQUIRE_FALSE(quality["starter_content"]["wysiwyg_surfaces"].empty());
+    REQUIRE_FALSE(quality["required_inputs"].empty());
+    REQUIRE_FALSE(quality["default_accessibility"].empty());
+    REQUIRE(quality.value("audio_profile", "") == "starter_mix");
+    REQUIRE_FALSE(quality["localization_namespaces"].empty());
+    REQUIRE(quality.contains("performance_budget"));
+    REQUIRE(quality["performance_budget"].value("frame_time_ms", 0.0) > 0.0);
+    REQUIRE(quality["performance_budget"].value("arena_kb", 0) > 0);
+    REQUIRE(quality["performance_budget"].value("active_entities", 0) > 0);
+    REQUIRE(quality.value("export_profile", "") == "standalone_strict");
+    REQUIRE(quality["known_limits"].size() >= 3);
+}
+
 // ---------------------------------------------------------------------------
 // Helpers — minimal template project document factory
 // ---------------------------------------------------------------------------
 
-json makeProjectDocument(const std::string& templateId,
-                         const std::vector<std::string>& requiredSubsystems,
+json makeProjectDocument(const std::string& templateId, const std::vector<std::string>& requiredSubsystems,
                          const std::string& projectName) {
-    return json{
-        {"schemaVersion", "1.0.0"},
-        {"projectName", projectName},
-        {"templateId", templateId},
-        {"requiredSubsystems", requiredSubsystems},
-        {"scenes", json::array({
-            {{"id", "intro"}, {"type", "map"}, {"displayName", "Introduction Map"}},
-            {{"id", "battle_01"}, {"type", "battle"}, {"displayName", "First Battle"}}
-        })},
-        {"assets", json::object()},
-        {"exportConfig", {
-            {"integrityMode", "strict"},
-            {"target", "standalone"},
-            {"outputName", projectName + ".pck"}
-        }}
-    };
+    return json{{"schemaVersion", "1.0.0"},
+                {"projectName", projectName},
+                {"templateId", templateId},
+                {"requiredSubsystems", requiredSubsystems},
+                {"scenes", json::array({{{"id", "intro"}, {"type", "map"}, {"displayName", "Introduction Map"}},
+                                        {{"id", "battle_01"}, {"type", "battle"}, {"displayName", "First Battle"}}})},
+                {"assets", json::object()},
+                {"exportConfig",
+                 {{"integrityMode", "strict"}, {"target", "standalone"}, {"outputName", projectName + ".pck"}}}};
 }
 
 // ---------------------------------------------------------------------------
@@ -125,13 +132,11 @@ json makeProjectDocument(const std::string& templateId,
 // ---------------------------------------------------------------------------
 
 json extractPreviewMetadata(const json& projectDoc) {
-    return json{
-        {"templateId", projectDoc.value("templateId", "")},
-        {"projectName", projectDoc.value("projectName", "")},
-        {"sceneCount", projectDoc.value("scenes", json::array()).size()},
-        {"requiredSubsystems", projectDoc.value("requiredSubsystems", json::array())},
-        {"exportTarget", projectDoc["exportConfig"].value("target", "")}
-    };
+    return json{{"templateId", projectDoc.value("templateId", "")},
+                {"projectName", projectDoc.value("projectName", "")},
+                {"sceneCount", projectDoc.value("scenes", json::array()).size()},
+                {"requiredSubsystems", projectDoc.value("requiredSubsystems", json::array())},
+                {"exportTarget", projectDoc["exportConfig"].value("target", "")}};
 }
 
 // ---------------------------------------------------------------------------
@@ -139,23 +144,21 @@ json extractPreviewMetadata(const json& projectDoc) {
 // ---------------------------------------------------------------------------
 
 json buildExportDescriptor(const json& projectDoc) {
-    return json{
-        {"magic", "URPGPCK1"},
-        {"version", 1},
-        {"templateId", projectDoc.value("templateId", "")},
-        {"projectName", projectDoc.value("projectName", "")},
-        {"integrityMode", projectDoc["exportConfig"].value("integrityMode", "")},
-        {"entries", json::array()},
-        {"manifestHash", "sha256:placeholder"}
-    };
+    return json{{"magic", "URPGPCK1"},
+                {"version", 1},
+                {"templateId", projectDoc.value("templateId", "")},
+                {"projectName", projectDoc.value("projectName", "")},
+                {"integrityMode", projectDoc["exportConfig"].value("integrityMode", "")},
+                {"entries", json::array()},
+                {"manifestHash", "sha256:placeholder"}};
 }
 
 } // namespace
 
 TEST_CASE("WYSIWYG template showcase examples bind completed systems to starter projects",
           "[template][acceptance][wysiwyg][examples]") {
-    const auto showcase = loadTemplateAcceptanceJson(
-        templateAcceptanceRepoRoot() / "content" / "examples" / "wysiwyg_template_showcase.json");
+    const auto showcase = loadTemplateAcceptanceJson(templateAcceptanceRepoRoot() / "content" / "examples" /
+                                                     "wysiwyg_template_showcase.json");
 
     REQUIRE(showcase["schema"] == "urpg.wysiwyg_template_showcase.v1");
     std::set<std::string> requiredEvidence;
@@ -163,51 +166,23 @@ TEST_CASE("WYSIWYG template showcase examples bind completed systems to starter 
         requiredEvidence.insert(evidence.get<std::string>());
     }
     REQUIRE(requiredEvidence == std::set<std::string>({
-        "visual_authoring_surface",
-        "live_preview",
-        "saved_project_data",
-        "runtime_execution",
-        "diagnostics",
-        "tests",
-    }));
+                                    "visual_authoring_surface",
+                                    "live_preview",
+                                    "saved_project_data",
+                                    "runtime_execution",
+                                    "diagnostics",
+                                    "tests",
+                                }));
 
-    const std::set<std::string> expectedTemplates = {
-        "jrpg",
-        "tactics_rpg",
-        "arpg",
-        "monster_collector_rpg",
-        "cozy_life_rpg",
-        "metroidvania_lite",
-        "2_5d_rpg",
-        "roguelite_dungeon",
-        "survival_horror_rpg",
-        "farming_adventure_rpg",
-        "card_battler_rpg",
-        "platformer_rpg",
-        "gacha_hero_rpg",
-        "mystery_detective_rpg",
-        "world_exploration_rpg",
-        "space_opera_rpg",
-        "post_apocalyptic_rpg",
-        "tactical_mecha_rpg",
-        "monster_tamer_arena",
-        "soulslike_lite_rpg",
-        "idle_incremental_rpg",
-        "strategy_kingdom_rpg",
-        "racing_adventure_rpg",
-        "rhythm_rpg",
-        "cooking_restaurant_rpg",
-        "school_life_rpg",
-        "pirate_rpg",
-        "sports_team_rpg",
-        "pet_shop_creature_care_rpg",
-        "detective_noir_vn_rpg",
-        "city_builder_rpg",
-        "tower_defense_rpg",
-        "beat_em_up_rpg",
-        "open_world_survival_rpg",
-        "faction_politics_rpg",
-    };
+    const auto readiness =
+        loadTemplateAcceptanceJson(templateAcceptanceRepoRoot() / "content" / "readiness" / "readiness_status.json");
+    std::set<std::string> expectedTemplates;
+    for (const auto& tmpl : readiness["templates"]) {
+        const auto templateId = tmpl["id"].get<std::string>();
+        if (templateId != "visual_novel" && templateId != "turn_based_rpg") {
+            expectedTemplates.insert(templateId);
+        }
+    }
     std::set<std::string> seenTemplates;
     std::set<std::string> seenSurfaceKinds;
 
@@ -260,46 +235,47 @@ TEST_CASE("WYSIWYG template showcase examples bind completed systems to starter 
     REQUIRE(seenSurfaceKinds.count("map_zoom_system") == 1);
 }
 
-TEST_CASE("new template starter manifests declare WYSIWYG integration hooks",
-          "[template][acceptance][integrations]") {
-    const std::set<std::string> templateIds = {
-        "roguelite_dungeon",
-        "survival_horror_rpg",
-        "farming_adventure_rpg",
-        "card_battler_rpg",
-        "platformer_rpg",
-        "gacha_hero_rpg",
-        "mystery_detective_rpg",
-        "world_exploration_rpg",
-        "space_opera_rpg",
-        "post_apocalyptic_rpg",
-        "tactical_mecha_rpg",
-        "monster_tamer_arena",
-        "soulslike_lite_rpg",
-        "idle_incremental_rpg",
-        "strategy_kingdom_rpg",
-        "racing_adventure_rpg",
-        "rhythm_rpg",
-        "cooking_restaurant_rpg",
-        "school_life_rpg",
-        "pirate_rpg",
-        "sports_team_rpg",
-        "pet_shop_creature_care_rpg",
-        "detective_noir_vn_rpg",
-        "city_builder_rpg",
-        "tower_defense_rpg",
-        "beat_em_up_rpg",
-        "open_world_survival_rpg",
-        "faction_politics_rpg",
-    };
+TEST_CASE("new template starter manifests declare WYSIWYG integration hooks", "[template][acceptance][integrations]") {
+    const auto readiness =
+        loadTemplateAcceptanceJson(templateAcceptanceRepoRoot() / "content" / "readiness" / "readiness_status.json");
 
-    for (const auto& templateId : templateIds) {
-        const auto starter = loadTemplateAcceptanceJson(
-            templateAcceptanceRepoRoot() / "content" / "templates" / (templateId + "_starter.json"));
+    for (const auto& tmpl : readiness["templates"]) {
+        const auto templateId = tmpl["id"].get<std::string>();
+        const auto starter = loadTemplateAcceptanceJson(templateAcceptanceRepoRoot() / "content" / "templates" /
+                                                        (templateId + "_starter.json"));
+        if (!starter.contains("systems")) {
+            continue;
+        }
+        if (!starter["systems"].contains("integrations")) {
+            continue;
+        }
         INFO("Template: " << templateId);
-        REQUIRE(starter["systems"].contains("integrations"));
         REQUIRE_FALSE(starter["systems"]["integrations"]["export_validation"].empty());
         REQUIRE_FALSE(starter["systems"]["integrations"]["wysiwyg_surfaces"].empty());
+    }
+}
+
+TEST_CASE("all canonical starter manifests declare the template quality contract", "[template][acceptance][quality]") {
+    const auto readiness =
+        loadTemplateAcceptanceJson(templateAcceptanceRepoRoot() / "content" / "readiness" / "readiness_status.json");
+
+    for (const auto& tmpl : readiness["templates"]) {
+        const auto templateId = tmpl["id"].get<std::string>();
+        INFO("Template: " << templateId);
+        const auto starter = loadTemplateAcceptanceJson(templateAcceptanceRepoRoot() / "content" / "templates" /
+                                                        (templateId + "_starter.json"));
+        requireTemplateQualityContract(starter);
+        REQUIRE(starter["quality_contract"]["localization_namespaces"][0] == templateId);
+    }
+}
+
+TEST_CASE("generated runtime profile JSON declares the template quality contract",
+          "[template][acceptance][quality][project]") {
+    for (const auto& profile : urpg::project::allTemplateRuntimeProfiles()) {
+        INFO("Template: " << profile.id);
+        const auto profileJson = urpg::project::templateRuntimeProfileToJson(profile);
+        requireTemplateQualityContract(profileJson);
+        REQUIRE(profileJson["quality_contract"]["localization_namespaces"][0] == profile.id);
     }
 }
 
@@ -307,12 +283,9 @@ TEST_CASE("new template starter manifests declare WYSIWYG integration hooks",
 // S30-T04 — jrpg template acceptance: edit → preview → export
 // ============================================================================
 
-TEST_CASE("jrpg template: project document has correct schema and template id",
-          "[template][acceptance][s30t04]") {
-    const json doc = makeProjectDocument(
-        "jrpg",
-        {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"},
-        "MyJrpgGame");
+TEST_CASE("jrpg template: project document has correct schema and template id", "[template][acceptance][s30t04]") {
+    const json doc = makeProjectDocument("jrpg", {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"},
+                                         "MyJrpgGame");
 
     REQUIRE(doc["templateId"] == "jrpg");
     REQUIRE(doc["schemaVersion"] == "1.0.0");
@@ -326,12 +299,9 @@ TEST_CASE("jrpg template: project document has correct schema and template id",
     REQUIRE(subsystems[3] == "save_data_core");
 }
 
-TEST_CASE("jrpg template: preview metadata is extractable and structurally valid",
-          "[template][acceptance][s30t04]") {
-    const json doc = makeProjectDocument(
-        "jrpg",
-        {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"},
-        "MyJrpgGame");
+TEST_CASE("jrpg template: preview metadata is extractable and structurally valid", "[template][acceptance][s30t04]") {
+    const json doc = makeProjectDocument("jrpg", {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"},
+                                         "MyJrpgGame");
     const json preview = extractPreviewMetadata(doc);
 
     REQUIRE(preview["templateId"] == "jrpg");
@@ -343,10 +313,8 @@ TEST_CASE("jrpg template: preview metadata is extractable and structurally valid
 
 TEST_CASE("jrpg template: export bundle descriptor is valid and contains required fields",
           "[template][acceptance][s30t04]") {
-    const json doc = makeProjectDocument(
-        "jrpg",
-        {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"},
-        "MyJrpgGame");
+    const json doc = makeProjectDocument("jrpg", {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"},
+                                         "MyJrpgGame");
     const json descriptor = buildExportDescriptor(doc);
 
     REQUIRE(descriptor["magic"] == "URPGPCK1");
@@ -357,12 +325,9 @@ TEST_CASE("jrpg template: export bundle descriptor is valid and contains require
     REQUIRE(descriptor.contains("manifestHash"));
 }
 
-TEST_CASE("jrpg template: scenes are preserved in project document",
-          "[template][acceptance][s30t04]") {
-    const json doc = makeProjectDocument(
-        "jrpg",
-        {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"},
-        "MyJrpgGame");
+TEST_CASE("jrpg template: scenes are preserved in project document", "[template][acceptance][s30t04]") {
+    const json doc = makeProjectDocument("jrpg", {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"},
+                                         "MyJrpgGame");
 
     REQUIRE(doc["scenes"].size() == 2);
     REQUIRE(doc["scenes"][0]["id"] == "intro");
@@ -377,10 +342,7 @@ TEST_CASE("jrpg template: scenes are preserved in project document",
 
 TEST_CASE("visual_novel template: project document has correct schema and template id",
           "[template][acceptance][s30t04]") {
-    const json doc = makeProjectDocument(
-        "visual_novel",
-        {"message_text_core", "save_data_core"},
-        "MyVisualNovel");
+    const json doc = makeProjectDocument("visual_novel", {"message_text_core", "save_data_core"}, "MyVisualNovel");
 
     REQUIRE(doc["templateId"] == "visual_novel");
     REQUIRE(doc["schemaVersion"] == "1.0.0");
@@ -394,10 +356,7 @@ TEST_CASE("visual_novel template: project document has correct schema and templa
 
 TEST_CASE("visual_novel template: preview metadata is extractable and structurally valid",
           "[template][acceptance][s30t04]") {
-    const json doc = makeProjectDocument(
-        "visual_novel",
-        {"message_text_core", "save_data_core"},
-        "MyVisualNovel");
+    const json doc = makeProjectDocument("visual_novel", {"message_text_core", "save_data_core"}, "MyVisualNovel");
     const json preview = extractPreviewMetadata(doc);
 
     REQUIRE(preview["templateId"] == "visual_novel");
@@ -409,10 +368,7 @@ TEST_CASE("visual_novel template: preview metadata is extractable and structural
 
 TEST_CASE("visual_novel template: export bundle descriptor is valid and contains required fields",
           "[template][acceptance][s30t04]") {
-    const json doc = makeProjectDocument(
-        "visual_novel",
-        {"message_text_core", "save_data_core"},
-        "MyVisualNovel");
+    const json doc = makeProjectDocument("visual_novel", {"message_text_core", "save_data_core"}, "MyVisualNovel");
     const json descriptor = buildExportDescriptor(doc);
 
     REQUIRE(descriptor["magic"] == "URPGPCK1");
@@ -429,10 +385,8 @@ TEST_CASE("visual_novel template: export bundle descriptor is valid and contains
 
 TEST_CASE("turn_based_rpg template: project document has correct schema and template id",
           "[template][acceptance][s30t04]") {
-    const json doc = makeProjectDocument(
-        "turn_based_rpg",
-        {"message_text_core", "battle_core", "save_data_core"},
-        "MyTurnBasedGame");
+    const json doc = makeProjectDocument("turn_based_rpg", {"message_text_core", "battle_core", "save_data_core"},
+                                         "MyTurnBasedGame");
 
     REQUIRE(doc["templateId"] == "turn_based_rpg");
     REQUIRE(doc["schemaVersion"] == "1.0.0");
@@ -447,10 +401,8 @@ TEST_CASE("turn_based_rpg template: project document has correct schema and temp
 
 TEST_CASE("turn_based_rpg template: preview metadata is extractable and structurally valid",
           "[template][acceptance][s30t04]") {
-    const json doc = makeProjectDocument(
-        "turn_based_rpg",
-        {"message_text_core", "battle_core", "save_data_core"},
-        "MyTurnBasedGame");
+    const json doc = makeProjectDocument("turn_based_rpg", {"message_text_core", "battle_core", "save_data_core"},
+                                         "MyTurnBasedGame");
     const json preview = extractPreviewMetadata(doc);
 
     REQUIRE(preview["templateId"] == "turn_based_rpg");
@@ -462,10 +414,8 @@ TEST_CASE("turn_based_rpg template: preview metadata is extractable and structur
 
 TEST_CASE("turn_based_rpg template: export bundle descriptor is valid and contains required fields",
           "[template][acceptance][s30t04]") {
-    const json doc = makeProjectDocument(
-        "turn_based_rpg",
-        {"message_text_core", "battle_core", "save_data_core"},
-        "MyTurnBasedGame");
+    const json doc = makeProjectDocument("turn_based_rpg", {"message_text_core", "battle_core", "save_data_core"},
+                                         "MyTurnBasedGame");
     const json descriptor = buildExportDescriptor(doc);
 
     REQUIRE(descriptor["magic"] == "URPGPCK1");
@@ -476,12 +426,11 @@ TEST_CASE("turn_based_rpg template: export bundle descriptor is valid and contai
     REQUIRE(descriptor.contains("manifestHash"));
 }
 
-TEST_CASE("JRPG and turn-based RPG starter manifests close required input bindings",
-          "[template][acceptance][input]") {
+TEST_CASE("JRPG and turn-based RPG starter manifests close required input bindings", "[template][acceptance][input]") {
     for (const std::string templateId : {"jrpg", "turn_based_rpg"}) {
         INFO("Template: " << templateId);
-        const auto starter = loadTemplateAcceptanceJson(
-            templateAcceptanceRepoRoot() / "content" / "templates" / (templateId + "_starter.json"));
+        const auto starter = loadTemplateAcceptanceJson(templateAcceptanceRepoRoot() / "content" / "templates" /
+                                                        (templateId + "_starter.json"));
         REQUIRE(starter.value("template_id", "") == templateId);
         requireRpgInputClosure(starter);
     }
@@ -492,7 +441,8 @@ TEST_CASE("JRPG and turn-based RPG generated projects close required input bindi
     urpg::project::ProjectTemplateGenerator generator;
     for (const std::string templateId : {"jrpg", "turn_based_rpg"}) {
         INFO("Template: " << templateId);
-        const auto result = generator.generate({templateId, templateId + "_input_project", templateId + " Input Project"});
+        const auto result =
+            generator.generate({templateId, templateId + "_input_project", templateId + " Input Project"});
         REQUIRE(result.success);
         requireRpgInputClosure(result.project["subsystems"]);
     }
@@ -505,16 +455,9 @@ TEST_CASE("JRPG and turn-based RPG generated projects close required input bindi
 TEST_CASE("all three READY candidate templates share consistent export descriptor shape",
           "[template][acceptance][s30t04]") {
     const std::vector<json> docs = {
-        makeProjectDocument("jrpg",
-            {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"},
-            "JrpgGame"),
-        makeProjectDocument("visual_novel",
-            {"message_text_core", "save_data_core"},
-            "VnGame"),
-        makeProjectDocument("turn_based_rpg",
-            {"message_text_core", "battle_core", "save_data_core"},
-            "TbrGame")
-    };
+        makeProjectDocument("jrpg", {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"}, "JrpgGame"),
+        makeProjectDocument("visual_novel", {"message_text_core", "save_data_core"}, "VnGame"),
+        makeProjectDocument("turn_based_rpg", {"message_text_core", "battle_core", "save_data_core"}, "TbrGame")};
 
     for (const auto& doc : docs) {
         const json descriptor = buildExportDescriptor(doc);
@@ -526,12 +469,9 @@ TEST_CASE("all three READY candidate templates share consistent export descripto
     }
 }
 
-TEST_CASE("template project document without templateId is structurally incomplete",
-          "[template][acceptance][s30t04]") {
-    json doc = makeProjectDocument(
-        "jrpg",
-        {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"},
-        "IncompleteGame");
+TEST_CASE("template project document without templateId is structurally incomplete", "[template][acceptance][s30t04]") {
+    json doc = makeProjectDocument("jrpg", {"ui_menu_core", "message_text_core", "battle_core", "save_data_core"},
+                                   "IncompleteGame");
     doc.erase("templateId");
 
     REQUIRE_FALSE(doc.contains("templateId"));

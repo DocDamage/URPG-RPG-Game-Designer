@@ -1,0 +1,78 @@
+{
+  "template_id": "sports_arcade",
+  "display_name": "Sports Arcade Starter",
+  "status": "READY",
+  "loops": [
+    "match_play_loop",
+    "team_stat_loop",
+    "season_round_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "matches",
+      "stats",
+      "simple_ai",
+      "teams"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "matches",
+        "stats",
+        "simple_ai"
+      ]
+    }
+  },
+  "quality_contract": {
+    "tier": "starter_ready",
+    "quality_score": 70,
+    "genre_family": "action_arcade",
+    "target_camera": "side_or_top_down",
+    "core_loops": [
+      "match_play_loop",
+      "team_stat_loop",
+      "season_round_loop",
+      "save_loop"
+    ],
+    "starter_content": {
+      "maps_or_scenes": 3,
+      "sample_entities": 4,
+      "sample_progression_hooks": 2,
+      "wysiwyg_surfaces": [
+        "matches",
+        "stats",
+        "simple_ai"
+      ]
+    },
+    "required_inputs": [
+      "Confirm",
+      "Cancel",
+      "Menu"
+    ],
+    "default_accessibility": [
+      "focus_labels",
+      "readable_contrast",
+      "remap_visible_actions"
+    ],
+    "audio_profile": "starter_mix",
+    "localization_namespaces": [
+      "sports_arcade"
+    ],
+    "performance_budget": {
+      "frame_time_ms": 33.3,
+      "arena_kb": 512,
+      "active_entities": 128
+    },
+    "export_profile": "standalone_strict",
+    "known_limits": [
+      "bounded starter content only",
+      "no platform-holder certification",
+      "no online services or live economy"
+    ]
+  }
+}

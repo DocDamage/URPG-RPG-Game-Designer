@@ -33,7 +33,7 @@ TEST_CASE("Template certification covers all conservative template suites", "[ce
     urpg::project::TemplateCertification certification;
     const auto suites = certification.defaultSuites();
 
-    REQUIRE(suites.size() == 37);
+    REQUIRE(suites.size() == 76);
     REQUIRE(suites[0].templateId == "jrpg");
     REQUIRE(suites[1].templateId == "visual_novel");
     REQUIRE(suites[2].templateId == "turn_based_rpg");
@@ -53,6 +53,7 @@ TEST_CASE("Template certification covers all conservative template suites", "[ce
     REQUIRE(suites[16].templateId == "world_exploration_rpg");
     REQUIRE(suites[17].templateId == "space_opera_rpg");
     REQUIRE(suites[36].templateId == "faction_politics_rpg");
+    REQUIRE(suites[75].templateId == "educational_quiz");
     for (const auto& suite : suites) {
         REQUIRE(suite.status == "READY");
     }

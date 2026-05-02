@@ -1,0 +1,78 @@
+{
+  "template_id": "hidden_object_adventure",
+  "display_name": "Hidden Object Adventure Starter",
+  "status": "READY",
+  "loops": [
+    "object_search_loop",
+    "hint_recharge_loop",
+    "scene_goal_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "object_lists",
+      "hints",
+      "timed_search",
+      "scene_goals"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "object_lists",
+        "hints",
+        "timed_search"
+      ]
+    }
+  },
+  "quality_contract": {
+    "tier": "starter_ready",
+    "quality_score": 70,
+    "genre_family": "narrative_adventure",
+    "target_camera": "scene_framed",
+    "core_loops": [
+      "object_search_loop",
+      "hint_recharge_loop",
+      "scene_goal_loop",
+      "save_loop"
+    ],
+    "starter_content": {
+      "maps_or_scenes": 3,
+      "sample_entities": 4,
+      "sample_progression_hooks": 2,
+      "wysiwyg_surfaces": [
+        "object_lists",
+        "hints",
+        "timed_search"
+      ]
+    },
+    "required_inputs": [
+      "Confirm",
+      "Cancel",
+      "Menu"
+    ],
+    "default_accessibility": [
+      "focus_labels",
+      "readable_contrast",
+      "remap_visible_actions"
+    ],
+    "audio_profile": "starter_mix",
+    "localization_namespaces": [
+      "hidden_object_adventure"
+    ],
+    "performance_budget": {
+      "frame_time_ms": 33.3,
+      "arena_kb": 512,
+      "active_entities": 128
+    },
+    "export_profile": "standalone_strict",
+    "known_limits": [
+      "bounded starter content only",
+      "no platform-holder certification",
+      "no online services or live economy"
+    ]
+  }
+}
