@@ -1410,6 +1410,7 @@ add_executable(urpg_tests
     tests/unit/test_governance_regression.cpp
     tests/unit/test_analytics_dispatcher.cpp
     tests/unit/test_analytics_panel.cpp
+    tests/unit/test_offline_tool_manifests.cpp
     tests/unit/test_app_cli.cpp
     tests/unit/test_app_settings_store.cpp
     tests/unit/test_template_acceptance.cpp

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/audio_tool_manifest.schema.json",
+  "title": "Offline Audio Tool Manifest",
+  "type": "object",
+  "required": ["schema", "tool_id", "source_audio", "outputs"],
+  "properties": {
+    "schema": { "type": "string", "const": "content/schemas/audio_tool_manifest.schema.json" },
+    "tool_id": { "type": "string" },
+    "source_audio": { "type": "string" },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "output_id",
+          "kind",
+          "path",
+          "source_attribution",
+          "review_status",
+          "generated_prototype",
+          "release_eligible"
+        ],
+        "properties": {
+          "output_id": { "type": "string" },
+          "kind": {
+            "type": "string",
+            "enum": ["demucs_stem", "encodec_compression_experiment"]
+          },
+          "path": { "type": "string" },
+          "source_attribution": { "type": "string" },
+          "review_status": {
+            "type": "string",
+            "enum": ["pending_review", "reviewed", "rejected"]
+          },
+          "generated_prototype": { "type": "boolean" },
+          "release_eligible": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
