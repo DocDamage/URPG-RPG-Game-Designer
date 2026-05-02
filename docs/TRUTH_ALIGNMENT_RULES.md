@@ -1,6 +1,6 @@
 # Truth Alignment Rules
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 
 This document defines how readiness claims stay aligned across canonical docs, template docs, diagnostics surfaces, and machine-readable readiness records.
 

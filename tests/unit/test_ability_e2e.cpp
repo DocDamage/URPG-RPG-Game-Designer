@@ -614,8 +614,13 @@ TEST_CASE("Ability orchestration task composition validates branch targets and c
     document.source.id = "actor.mage";
     document.source.mp = 10.0f;
     document.targets.push_back({"enemy.slime", 0.0f, 30.0f, 0, 0, {}});
-    document.tasks.push_back({"branch", "branch_on_condition", "", 0, "source.hp + source.mp > 10", "missing_true",
-                              "missing_false", "", "", ""});
+    AbilityOrchestrationTask branch;
+    branch.id = "branch";
+    branch.kind = "branch_on_condition";
+    branch.condition = "source.hp + source.mp > 10";
+    branch.on_true = "missing_true";
+    branch.on_false = "missing_false";
+    document.tasks.push_back(branch);
 
     const auto diagnostics = document.validate();
     const auto hasCode = [&diagnostics](const std::string& code) {
@@ -626,6 +631,271 @@ TEST_CASE("Ability orchestration task composition validates branch targets and c
 
     REQUIRE(hasCode("ability_task_branch_missing_target"));
     REQUIRE(hasCode("ability_task_branch_condition_invalid"));
+}
+
+TEST_CASE("Ability orchestration executes authored task graphs deterministically",
+          "[ability][orchestration][task][phase_two]") {
+    AbilityOrchestrationDocument document;
+    document.id = "phase_two_task_graph";
+    document.mode = AbilityOrchestrationMode::Battle;
+    document.ability.ability_id = "skill.phase_two";
+    document.ability.cooldown_seconds = 3.0f;
+    document.ability.mp_cost = 8.0f;
+    document.ability.effect_id = "effect.phase_two_default";
+    document.ability.effect_attribute = "HP";
+    document.ability.effect_operation = urpg::ModifierOp::Add;
+    document.ability.effect_value = -10.0f;
+    document.ability.effect_duration = 1.0f;
+    document.source.id = "actor.mage";
+    document.source.mp = 24.0f;
+    document.targets.push_back({"enemy.slime", 0.0f, 50.0f, 0, 0, {}});
+
+    auto task = [](std::string id, std::string kind) {
+        AbilityOrchestrationTask value;
+        value.id = std::move(id);
+        value.kind = std::move(kind);
+        return value;
+    };
+
+    auto cost = task("cost", "cost");
+    cost.next = "confirm";
+    document.tasks.push_back(cost);
+    auto confirm = task("confirm", "wait_input");
+    confirm.action = "Confirm";
+    confirm.next = "impact";
+    document.tasks.push_back(confirm);
+    auto impact = task("impact", "wait_projectile_collision");
+    impact.target = "primary";
+    impact.next = "apply_hit";
+    document.tasks.push_back(impact);
+    auto apply = task("apply_hit", "apply_effect");
+    apply.effect_id = "effect.phase_two_hit";
+    apply.target = "primary";
+    apply.next = "cooldown";
+    document.tasks.push_back(apply);
+    document.tasks.push_back(task("cooldown", "cooldown"));
+
+    const auto result = runAbilityOrchestration(document);
+    REQUIRE(result.valid);
+    REQUIRE(result.activation_executed);
+    REQUIRE(result.source_mp_before == 24.0f);
+    REQUIRE(result.source_mp_after == 16.0f);
+    REQUIRE(result.cooldown_after == 3.0f);
+    REQUIRE(result.targets[0].effect_attribute_after == 40.0f);
+
+    const auto runtime = abilityOrchestrationResultToJson(result);
+    REQUIRE(runtime["taskExecutionEvents"].size() == 12);
+    REQUIRE(runtime["taskExecutionEvents"][0]["taskId"] == "cost");
+    REQUIRE(runtime["taskExecutionEvents"][0]["status"] == "started");
+    REQUIRE(runtime["taskExecutionEvents"][3]["taskId"] == "confirm");
+    REQUIRE(runtime["taskExecutionEvents"][3]["status"] == "waiting");
+    REQUIRE(runtime["taskExecutionEvents"][9]["taskId"] == "apply_hit");
+    REQUIRE(runtime["taskExecutionEvents"][9]["status"] == "completed");
+    REQUIRE(runtime["taskExecutionEvents"][11]["taskId"] == "cooldown");
+    REQUIRE(runtime["taskExecutionEvents"][11]["status"] == "completed");
+}
+
+TEST_CASE("Ability orchestration branches, joins parallel waits, and cancels authored task graphs",
+          "[ability][orchestration][task][phase_two]") {
+    auto baseDocument = [] {
+        AbilityOrchestrationDocument document;
+        document.id = "phase_two_branch_parallel";
+        document.mode = AbilityOrchestrationMode::Map;
+        document.ability.ability_id = "skill.phase_two";
+        document.ability.cooldown_seconds = 2.0f;
+        document.ability.mp_cost = 4.0f;
+        document.ability.effect_id = "effect.default";
+        document.ability.effect_attribute = "HP";
+        document.ability.effect_operation = urpg::ModifierOp::Add;
+        document.ability.effect_value = -7.0f;
+        document.source.id = "actor.mage";
+        document.source.mp = 12.0f;
+        document.targets.push_back({"enemy.slime", 0.0f, 30.0f, 0, 0, {}});
+        return document;
+    };
+    auto task = [](std::string id, std::string kind) {
+        AbilityOrchestrationTask value;
+        value.id = std::move(id);
+        value.kind = std::move(kind);
+        return value;
+    };
+
+    auto branchDoc = baseDocument();
+    auto branch = task("branch", "branch_on_condition");
+    branch.condition = "source.mp >= 4";
+    branch.on_true = "apply_true";
+    branch.on_false = "apply_false";
+    branchDoc.tasks.push_back(branch);
+    auto applyTrue = task("apply_true", "apply_effect");
+    applyTrue.effect_id = "effect.true";
+    applyTrue.target = "primary";
+    branchDoc.tasks.push_back(applyTrue);
+    auto applyFalse = task("apply_false", "apply_effect");
+    applyFalse.effect_id = "effect.false";
+    applyFalse.target = "primary";
+    branchDoc.tasks.push_back(applyFalse);
+
+    auto branchResult = abilityOrchestrationResultToJson(runAbilityOrchestration(branchDoc));
+    REQUIRE(branchResult["activationExecuted"] == true);
+    REQUIRE(branchResult["targets"][0]["effectAttributeAfter"] == 23.0f);
+    REQUIRE(branchResult["taskExecutionEvents"][1]["status"] == "branched");
+    REQUIRE(branchResult["taskExecutionEvents"][1]["detail"] == "true -> apply_true");
+
+    auto parallelDoc = baseDocument();
+    auto waitEvent = task("wait_event", "wait_event");
+    waitEvent.action = "AnimationFinished";
+    waitEvent.next = "final_effect";
+    parallelDoc.tasks.push_back(waitEvent);
+    auto delay = task("delay", "delay");
+    delay.timeout_ms = 250;
+    delay.next = "final_effect";
+    parallelDoc.tasks.push_back(delay);
+    auto finalEffect = task("final_effect", "apply_effect");
+    finalEffect.depends_on = {"wait_event", "delay"};
+    finalEffect.effect_id = "effect.final";
+    finalEffect.target = "primary";
+    parallelDoc.tasks.push_back(finalEffect);
+
+    const auto parallel = abilityOrchestrationResultToJson(runAbilityOrchestration(parallelDoc));
+    REQUIRE(parallel["taskExecutionEvents"][1]["taskId"] == "wait_event");
+    REQUIRE(parallel["taskExecutionEvents"][4]["taskId"] == "delay");
+    REQUIRE(parallel["taskExecutionEvents"][6]["taskId"] == "final_effect");
+    REQUIRE(parallel["targets"][0]["effectAttributeAfter"] == 23.0f);
+
+    auto cancelDoc = baseDocument();
+    auto cancel = task("cancel_input", "wait_input");
+    cancel.action = "Cancel";
+    cancel.skip_cooldown_on_cancel = true;
+    cancel.next = "cooldown";
+    cancelDoc.tasks.push_back(cancel);
+    cancelDoc.tasks.push_back(task("cooldown", "cooldown"));
+
+    const auto cancelled = abilityOrchestrationResultToJson(runAbilityOrchestration(cancelDoc));
+    REQUIRE(cancelled["activationExecuted"] == false);
+    REQUIRE(cancelled["cooldownAfter"] == 0.0f);
+    REQUIRE(cancelled["targets"][0]["effectAttributeAfter"] == 30.0f);
+    REQUIRE(cancelled["taskExecutionEvents"][2]["status"] == "cancelled");
+    REQUIRE(cancelled["taskExecutionEvents"].back()["taskId"] != "cooldown");
+}
+
+TEST_CASE("Ability orchestration rejects script task strings and detects graph cycles",
+          "[ability][orchestration][task][phase_two]") {
+    AbilityOrchestrationDocument document;
+    document.id = "bad_script_graph";
+    document.mode = AbilityOrchestrationMode::Map;
+    document.ability.ability_id = "skill.scripted";
+    document.ability.cooldown_seconds = 1.0f;
+    document.ability.mp_cost = 1.0f;
+    document.ability.effect_id = "effect.scripted";
+    document.ability.effect_attribute = "HP";
+    document.source.id = "actor.mage";
+    document.source.mp = 5.0f;
+    document.targets.push_back({"enemy.slime", 0.0f, 10.0f, 0, 0, {}});
+
+    AbilityOrchestrationTask script;
+    script.id = "script";
+    script.kind = "script";
+    script.action = "eval('target.hp -= 999')";
+    document.tasks.push_back(script);
+
+    AbilityOrchestrationTask first;
+    first.id = "first";
+    first.kind = "delay";
+    first.next = "second";
+    document.tasks.push_back(first);
+
+    AbilityOrchestrationTask second;
+    second.id = "second";
+    second.kind = "delay";
+    second.next = "first";
+    document.tasks.push_back(second);
+
+    const auto diagnostics = document.validate();
+    const auto hasCode = [&diagnostics](const std::string& code) {
+        return std::any_of(diagnostics.begin(), diagnostics.end(), [&code](const auto& diagnostic) {
+            return diagnostic.code == code;
+        });
+    };
+
+    REQUIRE(hasCode("ability_task_script_unsupported"));
+    REQUIRE(hasCode("ability_task_graph_cycle"));
+}
+
+TEST_CASE("Ability orchestration task graph fixtures document valid examples and invalid cycle diagnostics",
+          "[ability][orchestration][task][phase_two]") {
+    const auto examples =
+        loadAbilityJson(abilityRepoRoot() / "content" / "fixtures" / "ability_orchestration_task_graph_examples.json");
+
+    for (const auto& key : {"valid_sequence", "valid_branch", "valid_parallel"}) {
+        const auto document = AbilityOrchestrationDocument::fromJson(examples.at(key));
+        const auto result = runAbilityOrchestration(document);
+        REQUIRE(result.valid);
+        REQUIRE(result.diagnostics.empty());
+        REQUIRE(result.activation_executed);
+        REQUIRE_FALSE(result.task_execution_events.empty());
+    }
+
+    const auto invalid = AbilityOrchestrationDocument::fromJson(examples.at("invalid_cycle"));
+    const auto diagnostics = invalid.validate();
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "ability_task_graph_cycle";
+    }));
+}
+
+TEST_CASE("Ability orchestration panel authors, previews, saves, applies, and reverts task graph rows",
+          "[ability][orchestration][task][phase_two]") {
+    AbilityOrchestrationDocument document;
+    document.id = "editor_task_graph";
+    document.mode = AbilityOrchestrationMode::Map;
+    document.ability.ability_id = "skill.editor_graph";
+    document.ability.cooldown_seconds = 1.0f;
+    document.ability.mp_cost = 2.0f;
+    document.ability.effect_id = "effect.editor";
+    document.ability.effect_attribute = "HP";
+    document.ability.effect_value = -5.0f;
+    document.source.id = "actor.editor";
+    document.source.mp = 8.0f;
+    document.targets.push_back({"enemy.preview", 0.0f, 20.0f, 0, 0, {}});
+
+    AbilityOrchestrationPanel panel;
+    panel.loadDocument(document);
+
+    AbilityOrchestrationTask wait;
+    wait.id = "wait_confirm";
+    wait.kind = "wait_input";
+    wait.action = "Confirm";
+    wait.next = "apply";
+    REQUIRE(panel.addTask(wait));
+
+    AbilityOrchestrationTask apply;
+    apply.id = "apply";
+    apply.kind = "apply_effect";
+    apply.effect_id = "effect.editor";
+    apply.target = "primary";
+    REQUIRE(panel.addTask(apply));
+
+    panel.render();
+    REQUIRE(panel.snapshot().task_count == 2);
+    REQUIRE(panel.snapshot().task_preview_rows[0].detail.find("Confirm") != std::string::npos);
+    REQUIRE(panel.snapshot().task_execution_events.size() == 5);
+    REQUIRE(panel.snapshot().validation_messages.empty());
+    REQUIRE(panel.snapshot().can_save);
+    REQUIRE(panel.snapshot().can_apply);
+
+    const auto saved = panel.saveProjectData();
+    REQUIRE(saved["tasks"][0]["next"] == "apply");
+    REQUIRE(saved["tasks"][1]["kind"] == "apply_effect");
+
+    AbilityOrchestrationPanel loaded;
+    REQUIRE(loaded.loadProjectData(saved));
+    loaded.render();
+    REQUIRE(loaded.snapshot().task_count == 2);
+    REQUIRE(loaded.applyPreview());
+    REQUIRE(loaded.snapshot().can_revert);
+    REQUIRE(loaded.snapshot().applied_project_json["id"] == "editor_task_graph");
+    REQUIRE(loaded.revertLastApply());
+    REQUIRE_FALSE(loaded.snapshot().can_revert);
+    REQUIRE(loaded.snapshot().applied_project_json.empty());
 }
 
 TEST_CASE("Ability orchestration reports map pattern and tag gate diagnostics",

@@ -44,15 +44,24 @@ $subsystemStatusRulesText = Get-Content -Raw -Path $subsystemStatusRulesPath
 $projectAuditDocText = Get-Content -Raw -Path $projectAuditDocPath
 $compatSignoffText = Get-Content -Raw -Path $compatSignoffPath
 $releaseSignoffWorkflowText = Get-Content -Raw -Path $releaseSignoffWorkflowPath
-$battleSignoffPath = Join-Path $repoRoot "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"
-$saveSignoffPath = Join-Path $repoRoot "docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"
-$battleSignoffText = Get-Content -Raw -Path $battleSignoffPath
-$saveSignoffText = Get-Content -Raw -Path $saveSignoffPath
 $releaseSignoffWorkflowRelativePath = "docs/RELEASE_SIGNOFF_WORKFLOW.md"
 $signoffArtifactMap = @{
+    "ui_menu_core" = "docs/UI_MENU_CORE_CLOSURE_SIGNOFF.md"
+    "message_text_core" = "docs/MESSAGE_TEXT_CORE_CLOSURE_SIGNOFF.md"
     "battle_core" = "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"
     "save_data_core" = "docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"
     "compat_bridge_exit" = "docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md"
+    "presentation_runtime" = "docs/PRESENTATION_RUNTIME_CLOSURE_SIGNOFF.md"
+    "gameplay_ability_framework" = "docs/GAF_CLOSURE_SIGNOFF.md"
+    "governance_foundation" = "docs/GOVERNANCE_FOUNDATION_CLOSURE_SIGNOFF.md"
+    "visual_regression_harness" = "docs/VISUAL_REGRESSION_HARNESS_CLOSURE_SIGNOFF.md"
+}
+$signoffArtifactText = @{}
+foreach ($subsystemId in $signoffArtifactMap.Keys) {
+    $signoffPath = Join-Path $repoRoot $signoffArtifactMap[$subsystemId]
+    if (Test-Path $signoffPath) {
+        $signoffArtifactText[$subsystemId] = Get-Content -Raw -Path $signoffPath
+    }
 }
 
 $tick = [string][char]96
@@ -266,6 +275,9 @@ foreach ($entry in $readiness.subsystems) {
                 $mismatches += "Subsystem '$($entry.id)' is READY but evidence.$field is not true."
             }
         }
+        if (-not $signoffArtifactMap.ContainsKey($entry.id)) {
+            $mismatches += "READY subsystem '$($entry.id)' has no configured signoff artifact."
+        }
     }
 }
 
@@ -372,8 +384,8 @@ foreach ($requiredPhrase in @(
 # i. Signoff artifacts must match their current review state
 # ---------------------------------------------------------------------------
 foreach ($signoffDoc in @(
-        @{ Name = "BATTLE_CORE_CLOSURE_SIGNOFF.md"; Text = $battleSignoffText; SubsystemId = "battle_core"; ReadyPhrases = @("Status:** ``READY``", "approved by release-owner review"); PendingPhrases = @("Human review is required", "residual gaps", "PARTIAL") },
-        @{ Name = "SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"; Text = $saveSignoffText; SubsystemId = "save_data_core"; ReadyPhrases = @("Status:** ``READY``", "approved by release-owner review"); PendingPhrases = @("Human review is required", "residual gaps", "PARTIAL") },
+        @{ Name = "BATTLE_CORE_CLOSURE_SIGNOFF.md"; Text = $signoffArtifactText["battle_core"]; SubsystemId = "battle_core"; ReadyPhrases = @("Status:** ``READY``", "approved by release-owner review"); PendingPhrases = @("Human review is required", "residual gaps", "PARTIAL") },
+        @{ Name = "SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"; Text = $signoffArtifactText["save_data_core"]; SubsystemId = "save_data_core"; ReadyPhrases = @("Status:** ``READY``", "approved by release-owner review"); PendingPhrases = @("Human review is required", "residual gaps", "PARTIAL") },
         @{ Name = "COMPAT_BRIDGE_EXIT_SIGNOFF.md"; Text = $compatSignoffText; SubsystemId = "compat_bridge_exit"; ReadyPhrases = @("Compat Bridge Exit", "Status:** ``READY``", "approved by release-owner review"); PendingPhrases = @("Compat Bridge Exit", "Human review is required", "compat bridge exit", "residual gaps", "PARTIAL") }
     )) {
     $entry = $readiness.subsystems | Where-Object { $_.id -eq $signoffDoc.SubsystemId } | Select-Object -First 1
@@ -407,6 +419,10 @@ foreach ($subsystemId in $signoffArtifactMap.Keys) {
     if ([string]$entry.signoff.artifactPath -ne $signoffArtifactMap[$subsystemId]) {
         $mismatches += "Subsystem '$subsystemId' signoff.artifactPath must be '$($signoffArtifactMap[$subsystemId])'."
     }
+    $signoffPath = Join-Path $repoRoot $signoffArtifactMap[$subsystemId]
+    if (-not (Test-Path $signoffPath)) {
+        $mismatches += "Subsystem '$subsystemId' signoff artifact is missing at '$($signoffArtifactMap[$subsystemId])'."
+    }
 
     if ($entry.status -eq "READY") {
         if ($entry.signoff.promotionRequiresHumanReview -ne $false) {
@@ -414,6 +430,27 @@ foreach ($subsystemId in $signoffArtifactMap.Keys) {
         }
         if ([string]$entry.signoff.reviewStatus -ne "APPROVED") {
             $mismatches += "READY subsystem '$subsystemId' must set signoff.reviewStatus to APPROVED."
+        }
+        if ([string]$entry.signoff.reviewedBy -eq "") {
+            $mismatches += "READY subsystem '$subsystemId' must set signoff.reviewedBy."
+        }
+        if ([string]$entry.signoff.reviewedDate -eq "") {
+            $mismatches += "READY subsystem '$subsystemId' must set signoff.reviewedDate."
+        }
+        if ([string]$entry.signoff.reviewedDate -lt [string]$readiness.statusDate) {
+            $mismatches += "READY subsystem '$subsystemId' signoff.reviewedDate '$($entry.signoff.reviewedDate)' is older than readiness status date '$($readiness.statusDate)'."
+        }
+        if ([string]$entry.signoff.verificationCommand -eq "") {
+            $mismatches += "READY subsystem '$subsystemId' must set signoff.verificationCommand."
+        }
+        if ([string]$entry.signoff.evidenceCommandResult -ne "PASS") {
+            $mismatches += "READY subsystem '$subsystemId' must set signoff.evidenceCommandResult to PASS."
+        }
+        $text = $signoffArtifactText[$subsystemId]
+        foreach ($requiredPhrase in @("Status:** ``READY``", "approved by release-owner review")) {
+            if ($text -and $text -notmatch [regex]::Escape($requiredPhrase)) {
+                $mismatches += "$($signoffArtifactMap[$subsystemId]) is missing expected phrase '$requiredPhrase'."
+            }
         }
     } elseif ($entry.signoff.promotionRequiresHumanReview -ne $true) {
         $mismatches += "Subsystem '$subsystemId' must keep signoff.promotionRequiresHumanReview set to true while it is not READY."

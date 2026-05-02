@@ -3,6 +3,8 @@
 #include "engine/core/ability/ability_condition_evaluator.h"
 
 #include <algorithm>
+#include <cctype>
+#include <functional>
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>
@@ -14,14 +16,17 @@ namespace {
 class OrchestratedAbility final : public GameplayAbility {
 public:
     OrchestratedAbility(AuthoredAbilityAsset asset, std::vector<std::string> requiredTags,
-                        std::vector<std::string> blockingTags)
+                        std::vector<std::string> blockingTags, bool taskGraphMode = false)
         : asset_(std::move(asset)),
           required_tags_(std::move(requiredTags)),
           blocking_tags_(std::move(blockingTags)),
-          pattern_(std::make_shared<urpg::PatternField>(asset_.pattern)) {
+          task_graph_mode_(taskGraphMode) {
         id = asset_.ability_id;
         cooldownTime = asset_.cooldown_seconds;
         mpCost = asset_.mp_cost;
+        if (!asset_.pattern.getPoints().empty()) {
+            pattern_ = std::make_shared<urpg::PatternField>(asset_.pattern);
+        }
     }
 
     const std::string& getId() const override { return id; }
@@ -47,6 +52,9 @@ public:
 
     void activate(AbilitySystemComponent& source, const AbilityExecutionContext& context) override {
         commitAbility(source);
+        if (task_graph_mode_) {
+            return;
+        }
         applyEffectTargets(context);
     }
 
@@ -81,6 +89,7 @@ private:
     std::vector<std::string> required_tags_;
     std::vector<std::string> blocking_tags_;
     std::shared_ptr<urpg::PatternField> pattern_;
+    bool task_graph_mode_ = false;
     mutable ActivationInfo activation_info_;
 };
 
@@ -95,6 +104,13 @@ std::vector<std::string> stringsFromJsonArray(const nlohmann::json& json) {
         }
     }
     return values;
+}
+
+std::string toLower(std::string value) {
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
+        return static_cast<char>(std::tolower(c));
+    });
+    return value;
 }
 
 AbilityOrchestrationActor actorFromJson(const nlohmann::json& json) {
@@ -143,6 +159,9 @@ AbilityOrchestrationTask taskFromJson(const nlohmann::json& json) {
     task.effect_id = json.value("effect_id", "");
     task.cue_id = json.value("cue_id", "");
     task.target = json.value("target", "");
+    task.next = json.value("next", "");
+    task.depends_on = stringsFromJsonArray(json.value("depends_on", nlohmann::json::array()));
+    task.skip_cooldown_on_cancel = json.value("skip_cooldown_on_cancel", task.skip_cooldown_on_cancel);
     return task;
 }
 
@@ -174,6 +193,15 @@ nlohmann::json taskToJson(const AbilityOrchestrationTask& task) {
     }
     if (!task.target.empty()) {
         json["target"] = task.target;
+    }
+    if (!task.next.empty()) {
+        json["next"] = task.next;
+    }
+    if (!task.depends_on.empty()) {
+        json["depends_on"] = task.depends_on;
+    }
+    if (task.skip_cooldown_on_cancel) {
+        json["skip_cooldown_on_cancel"] = true;
     }
     return json;
 }
@@ -223,6 +251,12 @@ std::vector<AbilityTaskPreviewRow> buildTaskPreviewRows(const AbilityOrchestrati
             row.detail = "Wait for event action '" + task.action + "'";
         } else if (task.kind == "wait_projectile_collision") {
             row.detail = "Wait for projectile collision target '" + task.target + "'";
+        } else if (task.kind == "cost") {
+            row.detail = "Commit authored MP cost";
+        } else if (task.kind == "delay") {
+            row.detail = "Delay for " + std::to_string(task.timeout_ms) + "ms";
+        } else if (task.kind == "cooldown") {
+            row.detail = "Commit authored cooldown";
         } else if (task.kind == "branch_on_condition") {
             row.detail = "Branch on " + task.condition + " true=" + task.on_true + " false=" + task.on_false;
         } else if (task.kind == "apply_effect") {
@@ -239,6 +273,163 @@ std::vector<AbilityTaskPreviewRow> buildTaskPreviewRows(const AbilityOrchestrati
         rows.push_back(std::move(row));
     }
     return rows;
+}
+
+urpg::GameplayEffect buildTaskEffect(const AuthoredAbilityAsset& asset, const AbilityOrchestrationTask& task) {
+    urpg::GameplayEffect effect;
+    effect.id = task.effect_id.empty() ? asset.effect_id : task.effect_id;
+    effect.name = effect.id;
+    effect.duration = asset.effect_duration;
+
+    urpg::GameplayEffectModifier modifier;
+    modifier.attributeName = asset.effect_attribute;
+    modifier.operation = asset.effect_operation;
+    modifier.value = asset.effect_value;
+    effect.modifiers.push_back(modifier);
+    return effect;
+}
+
+void applyTaskEffect(const AbilityOrchestrationDocument& document,
+                     const AbilityOrchestrationTask& task,
+                     const GameplayAbility::AbilityExecutionContext& context) {
+    const auto effect = buildTaskEffect(document.ability, task);
+    const auto lowerTarget = toLower(task.target);
+    for (size_t index = 0; index < context.targets.size(); ++index) {
+        const auto& target = context.targets[index];
+        const bool apply = lowerTarget.empty() || lowerTarget == "all" ||
+                           (lowerTarget == "primary" && index == 0) ||
+                           toLower(target.runtimeId) == lowerTarget;
+        if (apply && target.abilitySystem) {
+            target.abilitySystem->applyEffect(effect);
+        }
+    }
+}
+
+bool isSupportedTaskKind(const std::string& kind) {
+    return kind == "cost" || kind == "wait_input" || kind == "wait_event" ||
+           kind == "wait_projectile_collision" || kind == "delay" ||
+           kind == "apply_effect" || kind == "play_cue" ||
+           kind == "branch_on_condition" || kind == "cooldown";
+}
+
+bool taskRequestsCancellation(const AbilityOrchestrationDocument& document) {
+    return std::any_of(document.tasks.begin(), document.tasks.end(), [](const auto& task) {
+        return task.kind == "wait_input" && task.skip_cooldown_on_cancel && toLower(task.action) == "cancel";
+    });
+}
+
+struct TaskGraphRunState {
+    const AbilityOrchestrationDocument& document;
+    const std::unordered_map<std::string, const AbilityOrchestrationTask*>& taskById;
+    AbilitySystemComponent& sourceAsc;
+    const GameplayAbility::AbilityExecutionContext& context;
+    AbilityOrchestrationResult& result;
+    std::unordered_set<std::string> completed;
+    std::unordered_set<std::string> visited;
+    bool cancelled = false;
+    size_t sequence = 0;
+
+    void addEvent(const AbilityOrchestrationTask& task, std::string status, std::string detail = {}) {
+        result.task_execution_events.push_back({++sequence, task.id, task.kind, std::move(status), std::move(detail)});
+    }
+
+    bool dependenciesSatisfied(const AbilityOrchestrationTask& task) const {
+        return std::all_of(task.depends_on.begin(), task.depends_on.end(), [this](const auto& dependency) {
+            return completed.find(dependency) != completed.end();
+        });
+    }
+
+    bool run(const std::string& id) {
+        const auto it = taskById.find(id);
+        if (it == taskById.end() || visited.find(id) != visited.end() || cancelled) {
+            return !cancelled;
+        }
+        const auto& task = *it->second;
+        if (!dependenciesSatisfied(task)) {
+            return true;
+        }
+
+        visited.insert(id);
+        addEvent(task, "started");
+
+        if (task.kind == "wait_input" || task.kind == "wait_event" || task.kind == "wait_projectile_collision" ||
+            task.kind == "delay") {
+            addEvent(task, "waiting", task.action.empty() ? task.target : task.action);
+            if (task.kind == "wait_input" && task.skip_cooldown_on_cancel && toLower(task.action) == "cancel") {
+                addEvent(task, "cancelled", "input cancel");
+                cancelled = true;
+                result.activation_executed = false;
+                result.blocking_reason = "cancelled";
+                return false;
+            }
+            addEvent(task, "completed");
+        } else if (task.kind == "branch_on_condition") {
+            AbilityConditionEvaluator evaluator;
+            const auto decision = evaluator.evaluate(task.condition, sourceAsc, &context);
+            const bool branchTrue = decision.parsed && decision.value;
+            const auto& next = branchTrue ? task.on_true : task.on_false;
+            addEvent(task, "branched", std::string(branchTrue ? "true -> " : "false -> ") + next);
+            completed.insert(task.id);
+            return run(next);
+        } else if (task.kind == "apply_effect") {
+            applyTaskEffect(document, task, context);
+            addEvent(task, "completed", task.effect_id.empty() ? document.ability.effect_id : task.effect_id);
+        } else if (task.kind == "play_cue") {
+            addEvent(task, "completed", task.cue_id);
+        } else {
+            addEvent(task, "completed");
+        }
+
+        completed.insert(task.id);
+        if (!task.next.empty()) {
+            return run(task.next);
+        }
+        return true;
+    }
+};
+
+void runTaskGraph(const AbilityOrchestrationDocument& document,
+                  AbilitySystemComponent& sourceAsc,
+                  const GameplayAbility::AbilityExecutionContext& context,
+                  AbilityOrchestrationResult& result) {
+    if (document.tasks.empty()) {
+        return;
+    }
+
+    std::unordered_map<std::string, const AbilityOrchestrationTask*> taskById;
+    std::unordered_set<std::string> referenced;
+    for (const auto& task : document.tasks) {
+        taskById[task.id] = &task;
+        if (!task.next.empty()) {
+            referenced.insert(task.next);
+        }
+        if (!task.on_true.empty()) {
+            referenced.insert(task.on_true);
+        }
+        if (!task.on_false.empty()) {
+            referenced.insert(task.on_false);
+        }
+        for (const auto& dependency : task.depends_on) {
+            referenced.insert(task.id);
+            (void)dependency;
+        }
+    }
+
+    TaskGraphRunState state{document, taskById, sourceAsc, context, result, {}, {}, false, 0};
+    for (const auto& task : document.tasks) {
+        if (referenced.find(task.id) != referenced.end() && task.depends_on.empty()) {
+            continue;
+        }
+        state.run(task.id);
+        for (const auto& candidate : document.tasks) {
+            if (!candidate.depends_on.empty() && state.dependenciesSatisfied(candidate)) {
+                state.run(candidate.id);
+            }
+        }
+        if (state.cancelled) {
+            break;
+        }
+    }
 }
 
 nlohmann::json taskPreviewRowsToJson(const std::vector<AbilityTaskPreviewRow>& rows) {
@@ -377,6 +568,18 @@ std::vector<AbilityOrchestrationDiagnostic> AbilityOrchestrationDocument::valida
     (void)conditionTargets;
 
     for (const auto& task : tasks) {
+        if (!task.next.empty() && !hasTaskId(taskIds, task.next)) {
+            diagnostics.push_back({"ability_task_missing_next",
+                                   "Ability orchestration task next must reference a task id in the same document.",
+                                   task.id});
+        }
+        for (const auto& dependency : task.depends_on) {
+            if (!hasTaskId(taskIds, dependency)) {
+                diagnostics.push_back({"ability_task_missing_dependency",
+                                       "Ability orchestration task dependency must reference a task id in the same document.",
+                                       task.id});
+            }
+        }
         if (task.kind == "branch_on_condition") {
             if (!hasTaskId(taskIds, task.on_true) || !hasTaskId(taskIds, task.on_false)) {
                 diagnostics.push_back({"ability_task_branch_missing_target",
@@ -398,12 +601,62 @@ std::vector<AbilityOrchestrationDiagnostic> AbilityOrchestrationDocument::valida
                 diagnostics.push_back({"ability_task_branch_cycle",
                                        "Branch task cannot create an immediate two-node cycle.", task.id});
             }
-        } else if (task.kind != "wait_input" && task.kind != "wait_event" &&
-                   task.kind != "wait_projectile_collision" && task.kind != "apply_effect" &&
-                   task.kind != "play_cue") {
+        } else if (task.kind == "script") {
+            diagnostics.push_back({"ability_task_script_unsupported",
+                                   "Ability orchestration rejects arbitrary script task strings.", task.id});
+        } else if (!isSupportedTaskKind(task.kind)) {
             diagnostics.push_back({"ability_task_kind_unsupported",
                                    "Ability orchestration task kind is unsupported.", task.id});
         }
+    }
+
+    enum class VisitState { Visiting, Done };
+    std::unordered_map<std::string, VisitState> visitState;
+    auto referencesFor = [&taskById](const AbilityOrchestrationTask& task) {
+        std::vector<std::string> refs;
+        if (!task.next.empty()) {
+            refs.push_back(task.next);
+        }
+        if (!task.on_true.empty()) {
+            refs.push_back(task.on_true);
+        }
+        if (!task.on_false.empty()) {
+            refs.push_back(task.on_false);
+        }
+        for (const auto& other : taskById) {
+            if (std::find(other.second.depends_on.begin(), other.second.depends_on.end(), task.id) !=
+                other.second.depends_on.end()) {
+                refs.push_back(other.first);
+            }
+        }
+        return refs;
+    };
+    bool foundCycle = false;
+    std::function<void(const std::string&)> visit = [&](const std::string& taskId) {
+        if (foundCycle) {
+            return;
+        }
+        const auto stateIt = visitState.find(taskId);
+        if (stateIt != visitState.end()) {
+            if (stateIt->second == VisitState::Visiting) {
+                diagnostics.push_back({"ability_task_graph_cycle",
+                                       "Ability orchestration task graph cannot contain cycles.", taskId});
+                foundCycle = true;
+            }
+            return;
+        }
+        const auto taskIt = taskById.find(taskId);
+        if (taskIt == taskById.end()) {
+            return;
+        }
+        visitState[taskId] = VisitState::Visiting;
+        for (const auto& ref : referencesFor(taskIt->second)) {
+            visit(ref);
+        }
+        visitState[taskId] = VisitState::Done;
+    };
+    for (const auto& task : tasks) {
+        visit(task.id);
     }
     return diagnostics;
 }
@@ -499,8 +752,9 @@ AbilityOrchestrationResult runAbilityOrchestration(const AbilityOrchestrationDoc
         targetComponents.push_back(std::move(targetAsc));
     }
 
+    const bool hasTaskGraph = !document.tasks.empty();
     auto ability = std::make_shared<OrchestratedAbility>(document.ability, document.required_tags,
-                                                        document.blocking_tags);
+                                                        document.blocking_tags, hasTaskGraph);
     result.diagnostics = patternDiagnostics(document, *ability);
     if (!result.diagnostics.empty()) {
         result.source_mp_after = sourceAsc.getAttribute("MP", 0.0f);
@@ -510,7 +764,10 @@ AbilityOrchestrationResult runAbilityOrchestration(const AbilityOrchestrationDoc
     }
 
     result.activation_attempted = true;
-    if (document.mode == AbilityOrchestrationMode::Battle) {
+    const bool cancelledBeforeCommit = taskRequestsCancellation(document);
+    if (cancelledBeforeCommit) {
+        runTaskGraph(document, sourceAsc, context, result);
+    } else if (document.mode == AbilityOrchestrationMode::Battle) {
         sourceAsc.grantAbility(ability);
         AbilityBattleQueue queue;
         queue.enqueue({document.source.id, {}, document.ability.ability_id, document.battle_speed,
@@ -524,13 +781,18 @@ AbilityOrchestrationResult runAbilityOrchestration(const AbilityOrchestrationDoc
         if (!snapshot.outcomes.empty()) {
             result.blocking_reason = snapshot.outcomes.front().reason;
         }
-        if (result.activation_executed) {
+        if (result.activation_executed && hasTaskGraph) {
+            runTaskGraph(document, sourceAsc, context, result);
+        } else if (result.activation_executed) {
             ability->applyEffectTargets(context);
         }
     } else {
         const auto check = ability->evaluateActivation(sourceAsc, context);
         result.blocking_reason = check.reason;
         result.activation_executed = sourceAsc.tryActivateAbility(*ability, context);
+        if (result.activation_executed && hasTaskGraph) {
+            runTaskGraph(document, sourceAsc, context, result);
+        }
     }
 
     result.source_mp_after = sourceAsc.getAttribute("MP", 0.0f);
@@ -560,6 +822,17 @@ nlohmann::json abilityOrchestrationResultToJson(const AbilityOrchestrationResult
         });
     }
 
+    nlohmann::json taskExecutionJson = nlohmann::json::array();
+    for (const auto& event : result.task_execution_events) {
+        taskExecutionJson.push_back({
+            {"sequence", event.sequence},
+            {"taskId", event.task_id},
+            {"kind", event.kind},
+            {"status", event.status},
+            {"detail", event.detail},
+        });
+    }
+
     return {
         {"documentId", result.document_id},
         {"abilityId", result.ability_id},
@@ -576,6 +849,7 @@ nlohmann::json abilityOrchestrationResultToJson(const AbilityOrchestrationResult
         {"battleCommandsBlocked", result.battle_commands_blocked},
         {"targets", targetJson},
         {"taskPreviewRows", taskPreviewRowsToJson(result.task_preview_rows)},
+        {"taskExecutionEvents", taskExecutionJson},
         {"diagnostics", diagnosticsJson},
         {"battleSnapshot", result.battle_snapshot},
     };

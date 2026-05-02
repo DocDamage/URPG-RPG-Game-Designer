@@ -114,17 +114,150 @@ TEST_CASE("Project audit CLI exposes structured signoff contract state for gover
     const json report = json::parse(result.stdoutText);
     REQUIRE(report["governance"].contains("signoffArtifacts"));
     REQUIRE(report["governance"]["signoffArtifacts"]["expectedArtifacts"].is_array());
-    REQUIRE(report["governance"]["signoffArtifacts"]["expectedArtifacts"].size() == 3);
+    REQUIRE(report["governance"]["signoffArtifacts"]["expectedArtifacts"].size() >= 3);
 
-    const auto& battleArtifact = report["governance"]["signoffArtifacts"]["expectedArtifacts"][0];
+    const json* battleArtifactPtr = nullptr;
+    for (const auto& artifact : report["governance"]["signoffArtifacts"]["expectedArtifacts"]) {
+        if (artifact["subsystemId"] == "battle_core") {
+            battleArtifactPtr = &artifact;
+            break;
+        }
+    }
+    REQUIRE(battleArtifactPtr != nullptr);
+    const auto& battleArtifact = *battleArtifactPtr;
     REQUIRE(battleArtifact["subsystemId"] == "battle_core");
     REQUIRE(battleArtifact.contains("signoffContract"));
     REQUIRE(battleArtifact["signoffContract"]["required"] == true);
     REQUIRE(battleArtifact["signoffContract"]["artifactPath"] == "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md");
     REQUIRE(battleArtifact["signoffContract"]["promotionRequiresHumanReview"] == false);
     REQUIRE(battleArtifact["signoffContract"]["reviewStatus"] == "APPROVED");
+    REQUIRE(battleArtifact["signoffContract"]["reviewedBy"] == "release-owner");
+    REQUIRE(battleArtifact["signoffContract"]["reviewedDate"] == "2026-05-01");
+    REQUIRE(battleArtifact["signoffContract"]["verificationCommand"].is_string());
+    REQUIRE(battleArtifact["signoffContract"]["verificationCommand"].get<std::string>().empty() == false);
+    REQUIRE(battleArtifact["signoffContract"]["evidenceCommandResult"] == "PASS");
     REQUIRE(battleArtifact["signoffContract"]["workflow"] == "docs/RELEASE_SIGNOFF_WORKFLOW.md");
     REQUIRE(battleArtifact["signoffContract"]["contractOk"] == true);
+}
+
+TEST_CASE("Project audit CLI blocks READY subsystem signoff evidence gaps",
+          "[project_audit_cli]") {
+    const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_cli_ready_signoff_gaps";
+    fs::remove_all(tempRoot);
+    fs::create_directories(tempRoot / "content" / "readiness");
+    fs::create_directories(tempRoot / "docs");
+
+    const auto readySubsystem = [](const std::string& id, json signoff) {
+        json subsystem = {
+            {"id", id},
+            {"status", "READY"},
+            {"summary", id + " claims ready."},
+            {"mainGaps", json::array()},
+            {"evidence", {
+                {"runtimeOwner", true},
+                {"editorSurface", true},
+                {"schemaMigration", true},
+                {"diagnostics", true},
+                {"testsValidation", true},
+                {"docsAligned", true}
+            }}
+        };
+        if (!signoff.is_null()) {
+            subsystem["signoff"] = std::move(signoff);
+        }
+        return subsystem;
+    };
+
+    json syntheticReadiness = {
+        {"schemaVersion", "1.0.0"},
+        {"statusDate", "2026-05-01"},
+        {"subsystems", json::array({
+            readySubsystem("missing_signoff", nullptr),
+            readySubsystem("missing_reviewer", {
+                {"required", true},
+                {"artifactPath", "docs/MISSING_REVIEWER_SIGNOFF.md"},
+                {"promotionRequiresHumanReview", false},
+                {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                {"reviewStatus", "APPROVED"},
+                {"reviewedDate", "2026-05-01"},
+                {"verificationCommand", "ctest --preset dev-project-audit --output-on-failure"},
+                {"evidenceCommandResult", "PASS"}
+            }),
+            readySubsystem("missing_date", {
+                {"required", true},
+                {"artifactPath", "docs/MISSING_DATE_SIGNOFF.md"},
+                {"promotionRequiresHumanReview", false},
+                {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                {"reviewStatus", "APPROVED"},
+                {"reviewedBy", "release-owner"},
+                {"verificationCommand", "ctest --preset dev-project-audit --output-on-failure"},
+                {"evidenceCommandResult", "PASS"}
+            }),
+            readySubsystem("missing_command", {
+                {"required", true},
+                {"artifactPath", "docs/MISSING_COMMAND_SIGNOFF.md"},
+                {"promotionRequiresHumanReview", false},
+                {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                {"reviewStatus", "APPROVED"},
+                {"reviewedBy", "release-owner"},
+                {"reviewedDate", "2026-05-01"},
+                {"evidenceCommandResult", "PASS"}
+            }),
+            readySubsystem("missing_result", {
+                {"required", true},
+                {"artifactPath", "docs/MISSING_RESULT_SIGNOFF.md"},
+                {"promotionRequiresHumanReview", false},
+                {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                {"reviewStatus", "APPROVED"},
+                {"reviewedBy", "release-owner"},
+                {"reviewedDate", "2026-05-01"},
+                {"verificationCommand", "ctest --preset dev-project-audit --output-on-failure"}
+            }),
+            readySubsystem("missing_docs_alignment", {
+                {"required", true},
+                {"artifactPath", "docs/MISSING_DOCS_ALIGNMENT_SIGNOFF.md"},
+                {"promotionRequiresHumanReview", false},
+                {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                {"reviewStatus", "APPROVED"},
+                {"reviewedBy", "release-owner"},
+                {"reviewedDate", "2026-05-01"},
+                {"verificationCommand", "ctest --preset dev-project-audit --output-on-failure"},
+                {"evidenceCommandResult", "PASS"}
+            })
+        })},
+        {"templates", json::array({
+            {
+                {"id", "artifact_template"},
+                {"status", "READY"},
+                {"requiredSubsystems", json::array()},
+                {"bars", json::object()},
+                {"mainBlockers", json::array()}
+            }
+        })}
+    };
+    syntheticReadiness["subsystems"][5]["evidence"]["docsAligned"] = false;
+    writeTextFile(tempRoot / "content" / "readiness" / "synthetic_readiness.json", syntheticReadiness.dump(2));
+
+    writeTextFile(tempRoot / "docs" / "MISSING_REVIEWER_SIGNOFF.md", "Status:** `READY`\napproved by release-owner review\n");
+    writeTextFile(tempRoot / "docs" / "MISSING_DATE_SIGNOFF.md", "Status:** `READY`\napproved by release-owner review\n");
+    writeTextFile(tempRoot / "docs" / "MISSING_COMMAND_SIGNOFF.md", "Status:** `READY`\napproved by release-owner review\n");
+    writeTextFile(tempRoot / "docs" / "MISSING_RESULT_SIGNOFF.md", "Status:** `READY`\napproved by release-owner review\n");
+    writeTextFile(tempRoot / "docs" / "MISSING_DOCS_ALIGNMENT_SIGNOFF.md", "Status:** `READY`\napproved by release-owner review\n");
+
+    const ProcessResult result = runProjectAudit(
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
+         "--template", "artifact_template"},
+        tempRoot);
+
+    REQUIRE(result.exitCode == 0);
+    const json report = json::parse(result.stdoutText);
+    REQUIRE(report["releaseBlockerCount"].get<std::size_t>() >= 6);
+    REQUIRE(report["signoffArtifactIssueCount"].get<std::size_t>() >= 6);
+    REQUIRE(reportContainsIssueCode(report, "signoff_artifact.ready_missing_contract"));
+    REQUIRE(reportContainsIssueCode(report, "signoff_artifact.ready_contract_incomplete"));
+    REQUIRE(reportContainsIssueCode(report, "signoff_artifact.ready_docs_alignment_missing"));
+
+    fs::remove_all(tempRoot);
 }
 
 TEST_CASE("Project audit CLI reports structured signoff contract drift for governed subsystem artifacts",
@@ -237,7 +370,7 @@ TEST_CASE("Project audit CLI reports structured signoff contract drift for gover
 
     bool foundContractIssue = false;
     for (const auto& issue : report["issues"]) {
-        if (issue["code"] == "signoff_artifact.battle_contract_mismatch") {
+        if (issue["code"] == "signoff_artifact.battle_core_contract_mismatch") {
             foundContractIssue = true;
             REQUIRE(issue["detail"].get<std::string>().find("structured signoff contract") != std::string::npos);
         }

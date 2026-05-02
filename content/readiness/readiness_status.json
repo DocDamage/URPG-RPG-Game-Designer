@@ -1,12 +1,23 @@
 {
   "schemaVersion": "1.0.0",
-  "statusDate": "2026-04-28",
+  "statusDate": "2026-05-01",
   "subsystems": [
     {
       "id": "ui_menu_core",
       "status": "READY",
       "summary": "Wave 1 native menu ownership is closed for the claimed scope.",
       "mainGaps": [],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/UI_MENU_CORE_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": false,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
+        "reviewStatus": "APPROVED",
+        "reviewedBy": "release-owner",
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-pr --output-on-failure",
+        "evidenceCommandResult": "PASS"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
@@ -25,6 +36,17 @@
       "status": "READY",
       "summary": "Wave 1 native message/text ownership is closed for the claimed scope.",
       "mainGaps": [],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/MESSAGE_TEXT_CORE_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": false,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
+        "reviewStatus": "APPROVED",
+        "reviewedBy": "release-owner",
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-pr --output-on-failure",
+        "evidenceCommandResult": "PASS"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
@@ -50,7 +72,9 @@
         "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
         "reviewStatus": "APPROVED",
         "reviewedBy": "release-owner",
-        "reviewedDate": "2026-04-28"
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-pr --output-on-failure",
+        "evidenceCommandResult": "PASS"
       },
       "evidence": {
         "runtimeOwner": true,
@@ -77,7 +101,9 @@
         "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
         "reviewStatus": "APPROVED",
         "reviewedBy": "release-owner",
-        "reviewedDate": "2026-04-28"
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-pr --output-on-failure",
+        "evidenceCommandResult": "PASS"
       },
       "evidence": {
         "runtimeOwner": true,
@@ -104,7 +130,9 @@
         "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
         "reviewStatus": "APPROVED",
         "reviewedBy": "release-owner",
-        "reviewedDate": "2026-04-28"
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-pr --output-on-failure",
+        "evidenceCommandResult": "PASS"
       },
       "evidence": {
         "runtimeOwner": true,
@@ -131,7 +159,9 @@
         "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
         "reviewStatus": "APPROVED",
         "reviewedBy": "release-owner",
-        "reviewedDate": "2026-04-28"
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-snapshot --output-on-failure; .\\tools\\ci\\run_presentation_gate.ps1",
+        "evidenceCommandResult": "PASS"
       },
       "evidence": {
         "runtimeOwner": true,
@@ -148,13 +178,9 @@
     },
     {
       "id": "gameplay_ability_framework",
-      "status": "PARTIAL",
-      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), live BattleScene activation, AbilityBattleQueue integration into BattleFlowController (S24-T03/T04), deterministic AbilityTask WaitInput/WaitEvent/WaitProjectileCollision backends, bounded active-condition evaluation, authored task-composition preview/validation rows, and authored battle/map ability orchestration with editor preview are landed. Release-owner review accepted the manual residual-gap review for the current internal branch; the lane remains PARTIAL only for the technical product-depth gaps listed here.",
-      "mainGaps": [
-        "One authored battle/map ability orchestration asset path is landed with runtime activation, target pattern diagnostics, editor preview, saved JSON, and tests; task-composition JSON, preview rows, branch validation, and diagnostics are landed, while full task-graph runtime sequencing remains product-depth backlog",
-        "Bounded activeCondition evaluation is landed for source attributes, source/target tag checks, comparisons, and &&/|| connectors; arbitrary scripting, arithmetic, parentheses, and passiveCondition cancellation remain out of scope.",
-        "Release-owner signoff accepted the manual residual-gap review for the current internal branch; remaining PARTIAL scope is technical product depth, not pending manual review"
-      ],
+      "status": "READY",
+      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade tests, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), live BattleScene activation, AbilityBattleQueue integration into BattleFlowController (S24-T03/T04), deterministic AbilityTask WaitInput/WaitEvent/WaitProjectileCollision backends, bounded active-condition evaluation, authored battle/map task-graph runtime sequencing, branch/parallel/cancel diagnostics, script-task rejection, schema examples, and AbilityOrchestrationPanel author/preview/save/load/apply/revert workflow are landed for the claimed phase-two scope.",
+      "mainGaps": [],
       "signoff": {
         "required": true,
         "artifactPath": "docs/GAF_CLOSURE_SIGNOFF.md",
@@ -162,7 +188,9 @@
         "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
         "reviewStatus": "APPROVED",
         "reviewedBy": "release-owner",
-        "reviewedDate": "2026-04-28"
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-all -R \"Ability|ability|BattleScene|MapScene\" --output-on-failure",
+        "evidenceCommandResult": "PASS"
       },
       "evidence": {
         "runtimeOwner": true,
@@ -179,22 +207,31 @@
     },
     {
       "id": "governance_foundation",
-      "status": "PARTIAL",
-      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, canonical project schema governance sections for localization/input/exportProfiles, project-audit shape checks for that vocabulary, artifact checks for input, localization-bundle, accessibility, audio, character, mod, analytics, and performance, a bounded controller-binding runtime/panel plus input governance script/fixture contract, a canonical release-signoff workflow artifact, truth reconciliation wired into the full PR gate pipeline (S25-T02), template-spec-bar drift detection (S25-T04 check_template_spec_bar_drift.ps1), governance gate regression tests (S25-T05/T06/T07), and a ProjectAudit CLI-to-DiagnosticsWorkspace parity contract with mismatch diagnostics.",
-      "mainGaps": [
-        "Release-owner review accepted the manual governance residual review for the current internal branch; remaining PARTIAL scope is full release-signoff enforcement depth"
-      ],
+      "status": "READY",
+      "summary": "Governance foundation enforces release-signoff completeness for READY subsystem claims through ProjectAudit, release-readiness checks, truth reconciliation, canonical signoff artifacts, reviewer/date/verification/result/docs-alignment metadata, and diagnostics parity.",
+      "mainGaps": [],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/GOVERNANCE_FOUNDATION_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": false,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
+        "reviewStatus": "APPROVED",
+        "reviewedBy": "release-owner",
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-project-audit --output-on-failure; .\\build\\dev-ninja-debug\\urpg_project_audit.exe --json; .\\tools\\ci\\check_release_readiness.ps1",
+        "evidenceCommandResult": "PASS"
+      },
       "evidence": {
-        "runtimeOwner": false,
+        "runtimeOwner": true,
         "editorSurface": true,
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true,
-        "runtimeExecution": false,
-        "visualAuthoringSurface": false,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
         "savedProjectData": true,
-        "livePreview": false
+        "livePreview": true
       }
     },
     {
@@ -269,6 +306,17 @@
       "status": "READY",
       "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, backend-selectable capture entry points, OpenGL capture, deterministic HeadlessRenderer/reference capture, backend metadata with stable hashes, command-stream parity assertions, and phase-one shell-owned MapScene, BattleScene, RuntimeTitleScene, RuntimeOptionsScene, and Level Builder permutation goldens is landed. The claimed phase-one visual scope passed ctest --preset dev-snapshot --output-on-failure and .\\tools\\ci\\run_presentation_gate.ps1.",
       "mainGaps": [],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/VISUAL_REGRESSION_HARNESS_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": false,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
+        "reviewStatus": "APPROVED",
+        "reviewedBy": "release-owner",
+        "reviewedDate": "2026-05-01",
+        "verificationCommand": "ctest --preset dev-snapshot --output-on-failure; .\\tools\\ci\\run_presentation_gate.ps1",
+        "evidenceCommandResult": "PASS"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,

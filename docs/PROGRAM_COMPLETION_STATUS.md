@@ -12,6 +12,8 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - Phase-one shell-owned permutation goldens cover MapScene idle/dialogue/menu-transition/missing-asset diagnostics, BattleScene actor/enemy/reward/failure states, RuntimeTitleScene save/settings states, RuntimeOptionsScene default/high-contrast/remapped-input states, and Level Builder empty/valid/invalid-document states.
 - Required phase-one verification passed: `ctest --preset dev-snapshot --output-on-failure` and `.\tools\ci\run_presentation_gate.ps1`.
 - `presentation_runtime` and `visual_regression_harness` are promoted to `READY` in `content/readiness/readiness_status.json` and `docs/release/RELEASE_READINESS_MATRIX.md` for the evidenced phase-one scope.
+- Phase 2 promotes `gameplay_ability_framework` to `READY` for the claimed authored ability scope: battle/map task-graph sequencing, branch/parallel/cancel execution diagnostics, script-task rejection, schema examples, and `AbilityOrchestrationPanel` author/preview/save/load/apply/revert workflow are landed.
+- Phase 3 promotes `governance_foundation` to `READY` for release-signoff enforcement: ProjectAudit now blocks incomplete `READY` signoff claims, release-readiness checks fail on signoff blockers, truth reconciliation validates reviewer/date/verification/result/docs-alignment metadata, and closure artifacts exist for every currently claimed `READY` subsystem.
 
 2026-04-30 release-surface audit remediation checkpoint:
 - Phase 6 Task P6-002 is complete on the current remediation branch. `.\tools\ci\run_local_gates.ps1` passes end to end after resolving stale PR-gate expectations, template-claim readiness drift, CMake completeness parsing, and the weekly compat panel execution/failure event split.

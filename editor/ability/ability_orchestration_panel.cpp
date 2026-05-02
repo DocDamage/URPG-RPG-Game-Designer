@@ -8,6 +8,54 @@ void AbilityOrchestrationPanel::loadDocument(urpg::ability::AbilityOrchestration
     refreshPreview();
 }
 
+bool AbilityOrchestrationPanel::loadProjectData(const nlohmann::json& json) {
+    if (!json.is_object()) {
+        return false;
+    }
+    loadDocument(urpg::ability::AbilityOrchestrationDocument::fromJson(json));
+    return has_document_;
+}
+
+nlohmann::json AbilityOrchestrationPanel::saveProjectData() const {
+    if (!has_document_) {
+        return nlohmann::json::object();
+    }
+    return document_.toJson();
+}
+
+bool AbilityOrchestrationPanel::addTask(urpg::ability::AbilityOrchestrationTask task) {
+    if (!has_document_ || task.id.empty() || task.kind.empty()) {
+        return false;
+    }
+    document_.tasks.push_back(std::move(task));
+    refreshPreview();
+    return true;
+}
+
+bool AbilityOrchestrationPanel::applyPreview() {
+    if (!has_document_) {
+        return false;
+    }
+    refreshPreview();
+    if (!result_.valid || !result_.diagnostics.empty()) {
+        return false;
+    }
+    applied_project_json_ = document_.toJson();
+    has_applied_project_ = true;
+    refreshPreview();
+    return true;
+}
+
+bool AbilityOrchestrationPanel::revertLastApply() {
+    if (!has_applied_project_) {
+        return false;
+    }
+    applied_project_json_ = nlohmann::json::object();
+    has_applied_project_ = false;
+    refreshPreview();
+    return true;
+}
+
 void AbilityOrchestrationPanel::render() {
     snapshot_.rendered = true;
     if (!has_document_) {
@@ -34,8 +82,18 @@ void AbilityOrchestrationPanel::refreshPreview() {
     snapshot_.target_count = result_.targets.size();
     snapshot_.task_count = result_.task_preview_rows.size();
     snapshot_.task_preview_rows = result_.task_preview_rows;
+    snapshot_.task_execution_events = result_.task_execution_events;
     snapshot_.diagnostic_count = result_.diagnostics.size();
+    snapshot_.validation_messages.clear();
+    for (const auto& diagnostic : result_.diagnostics) {
+        snapshot_.validation_messages.push_back(diagnostic.code + ": " + diagnostic.message);
+    }
+    snapshot_.can_save = has_document_ && result_.valid && result_.diagnostics.empty();
+    snapshot_.can_load = true;
+    snapshot_.can_apply = snapshot_.can_save && result_.activation_executed;
+    snapshot_.can_revert = has_applied_project_;
     snapshot_.saved_project_json = document_.toJson();
+    snapshot_.applied_project_json = has_applied_project_ ? applied_project_json_ : nlohmann::json::object();
     snapshot_.runtime_result_json = urpg::ability::abilityOrchestrationResultToJson(result_);
     snapshot_.status_message = result_.diagnostics.empty() ? "Ability orchestration preview is ready."
                                                            : "Ability orchestration preview has diagnostics.";

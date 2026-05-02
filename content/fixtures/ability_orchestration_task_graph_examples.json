@@ -1,0 +1,93 @@
+{
+  "schema": "urpg.ability_orchestration_task_graph_examples.v1",
+  "valid_sequence": {
+    "schema": "urpg.ability_orchestration.v1",
+    "id": "fixture_valid_sequence",
+    "mode": "battle",
+    "ability": {
+      "ability_id": "skill.fixture_sequence",
+      "cooldown_seconds": 3.0,
+      "mp_cost": 8.0,
+      "effect_id": "effect.fixture_hit",
+      "effect_attribute": "HP",
+      "effect_operation": "Add",
+      "effect_value": -10.0,
+      "effect_duration": 0.0
+    },
+    "source": {"id": "actor.mage", "mp": 24.0, "effect_attribute_base": 100.0, "x": 0, "y": 0, "tags": []},
+    "targets": [{"id": "enemy.slime", "mp": 0.0, "effect_attribute_base": 50.0, "x": 0, "y": 0, "tags": []}],
+    "tasks": [
+      {"id": "cost", "kind": "cost", "next": "confirm"},
+      {"id": "confirm", "kind": "wait_input", "action": "Confirm", "next": "impact"},
+      {"id": "impact", "kind": "wait_projectile_collision", "target": "primary", "next": "apply"},
+      {"id": "apply", "kind": "apply_effect", "target": "primary", "next": "cooldown"},
+      {"id": "cooldown", "kind": "cooldown"}
+    ]
+  },
+  "valid_branch": {
+    "schema": "urpg.ability_orchestration.v1",
+    "id": "fixture_valid_branch",
+    "mode": "map",
+    "ability": {
+      "ability_id": "skill.fixture_branch",
+      "cooldown_seconds": 1.0,
+      "mp_cost": 1.0,
+      "effect_id": "effect.fixture_default",
+      "effect_attribute": "HP",
+      "effect_operation": "Add",
+      "effect_value": -5.0,
+      "effect_duration": 0.0
+    },
+    "source": {"id": "actor.mage", "mp": 10.0, "effect_attribute_base": 100.0, "x": 0, "y": 0, "tags": []},
+    "targets": [{"id": "enemy.slime", "mp": 0.0, "effect_attribute_base": 20.0, "x": 0, "y": 0, "tags": []}],
+    "tasks": [
+      {"id": "branch", "kind": "branch_on_condition", "condition": "source.mp >= 1", "on_true": "apply_true", "on_false": "apply_false"},
+      {"id": "apply_true", "kind": "apply_effect", "effect_id": "effect.fixture_true", "target": "primary"},
+      {"id": "apply_false", "kind": "apply_effect", "effect_id": "effect.fixture_false", "target": "primary"}
+    ]
+  },
+  "valid_parallel": {
+    "schema": "urpg.ability_orchestration.v1",
+    "id": "fixture_valid_parallel",
+    "mode": "map",
+    "ability": {
+      "ability_id": "skill.fixture_parallel",
+      "cooldown_seconds": 1.0,
+      "mp_cost": 1.0,
+      "effect_id": "effect.fixture_final",
+      "effect_attribute": "HP",
+      "effect_operation": "Add",
+      "effect_value": -5.0,
+      "effect_duration": 0.0
+    },
+    "source": {"id": "actor.mage", "mp": 10.0, "effect_attribute_base": 100.0, "x": 0, "y": 0, "tags": []},
+    "targets": [{"id": "enemy.slime", "mp": 0.0, "effect_attribute_base": 20.0, "x": 0, "y": 0, "tags": []}],
+    "tasks": [
+      {"id": "wait_event", "kind": "wait_event", "action": "AnimationFinished", "next": "final"},
+      {"id": "delay", "kind": "delay", "timeout_ms": 250, "next": "final"},
+      {"id": "final", "kind": "apply_effect", "depends_on": ["wait_event", "delay"], "target": "primary"}
+    ]
+  },
+  "invalid_cycle": {
+    "schema": "urpg.ability_orchestration.v1",
+    "id": "fixture_invalid_cycle",
+    "mode": "map",
+    "ability": {
+      "ability_id": "skill.fixture_cycle",
+      "cooldown_seconds": 1.0,
+      "mp_cost": 1.0,
+      "effect_id": "effect.fixture_cycle",
+      "effect_attribute": "HP",
+      "effect_operation": "Add",
+      "effect_value": -5.0,
+      "effect_duration": 0.0
+    },
+    "source": {"id": "actor.mage", "mp": 10.0, "effect_attribute_base": 100.0, "x": 0, "y": 0, "tags": []},
+    "targets": [{"id": "enemy.slime", "mp": 0.0, "effect_attribute_base": 20.0, "x": 0, "y": 0, "tags": []}],
+    "tasks": [
+      {"id": "first", "kind": "delay", "timeout_ms": 10, "next": "second"},
+      {"id": "second", "kind": "delay", "timeout_ms": 10, "next": "first"}
+    ],
+    "expected_diagnostics": ["ability_task_graph_cycle"]
+  }
+}

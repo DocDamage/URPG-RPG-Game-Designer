@@ -20,6 +20,7 @@ void addSignoffArtifactGovernance(
     const nlohmann::json& readiness,
     std::vector<AuditIssue>& issues,
     std::size_t& signoffArtifactIssueCount,
+    std::size_t& releaseBlockerCount,
     nlohmann::json& governanceReport);
 
 } // namespace urpg::tools::audit

@@ -8,11 +8,15 @@ $truthRulesPath = Join-Path $repoRoot "docs\TRUTH_ALIGNMENT_RULES.md"
 $projectAuditDocPath = Join-Path $repoRoot "docs\PROJECT_AUDIT.md"
 $releaseSignoffWorkflowPath = Join-Path $repoRoot "docs\RELEASE_SIGNOFF_WORKFLOW.md"
 $signoffDocPaths = @{
+    "ui_menu_core" = Join-Path $repoRoot "docs\UI_MENU_CORE_CLOSURE_SIGNOFF.md"
+    "message_text_core" = Join-Path $repoRoot "docs\MESSAGE_TEXT_CORE_CLOSURE_SIGNOFF.md"
     "battle_core" = Join-Path $repoRoot "docs\BATTLE_CORE_CLOSURE_SIGNOFF.md"
     "save_data_core" = Join-Path $repoRoot "docs\SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"
     "compat_bridge_exit" = Join-Path $repoRoot "docs\COMPAT_BRIDGE_EXIT_SIGNOFF.md"
     "gameplay_ability_framework" = Join-Path $repoRoot "docs\GAF_CLOSURE_SIGNOFF.md"
     "presentation_runtime" = Join-Path $repoRoot "docs\PRESENTATION_RUNTIME_CLOSURE_SIGNOFF.md"
+    "governance_foundation" = Join-Path $repoRoot "docs\GOVERNANCE_FOUNDATION_CLOSURE_SIGNOFF.md"
+    "visual_regression_harness" = Join-Path $repoRoot "docs\VISUAL_REGRESSION_HARNESS_CLOSURE_SIGNOFF.md"
 }
 $releaseSignoffWorkflowRelativePath = "docs/RELEASE_SIGNOFF_WORKFLOW.md"
 
@@ -208,6 +212,9 @@ foreach ($entry in $readiness.subsystems) {
                 throw "Subsystem '$($entry.id)' is marked READY but evidence field '$field' is not true."
             }
         }
+        if (-not $signoffDocPaths.ContainsKey($entry.id)) {
+            throw "Subsystem '$($entry.id)' is marked READY but has no configured release signoff artifact path."
+        }
     }
 }
 
@@ -281,6 +288,21 @@ foreach ($subsystemId in $signoffDocPaths.Keys) {
         if ([string]$signoff.reviewStatus -ne "APPROVED") {
             throw "Approved-review subsystem '$subsystemId' must set signoff.reviewStatus to APPROVED."
         }
+        if ([string]$signoff.reviewedBy -eq "") {
+            throw "Approved-review subsystem '$subsystemId' must set signoff.reviewedBy."
+        }
+        if ([string]$signoff.reviewedDate -eq "") {
+            throw "Approved-review subsystem '$subsystemId' must set signoff.reviewedDate."
+        }
+        if ([string]$signoff.reviewedDate -lt [string]$readiness.statusDate) {
+            throw "Approved-review subsystem '$subsystemId' signoff.reviewedDate '$($signoff.reviewedDate)' is older than readiness status date '$($readiness.statusDate)'."
+        }
+        if ([string]$signoff.verificationCommand -eq "") {
+            throw "Approved-review subsystem '$subsystemId' must set signoff.verificationCommand."
+        }
+        if ([string]$signoff.evidenceCommandResult -ne "PASS") {
+            throw "Approved-review subsystem '$subsystemId' must set signoff.evidenceCommandResult to PASS."
+        }
     } elseif ($signoff.promotionRequiresHumanReview -ne $true) {
         throw "Subsystem '$subsystemId' must keep signoff.promotionRequiresHumanReview set to true while it is not READY."
     }
@@ -326,6 +348,9 @@ if ($projectAuditReport.completenessAdvisory.nonAuthoritative -ne $true) {
 
 if ($projectAuditReport.statusDate -ne $readiness.statusDate) {
     throw "urpg_project_audit statusDate '$($projectAuditReport.statusDate)' does not match readiness_status.json date '$($readiness.statusDate)'."
+}
+if ([int]$projectAuditReport.releaseBlockerCount -ne 0) {
+    throw "urpg_project_audit reports releaseBlockerCount=$($projectAuditReport.releaseBlockerCount); release readiness requires zero signoff/readiness blockers."
 }
 
 foreach ($section in @(

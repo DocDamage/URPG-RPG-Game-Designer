@@ -1,9 +1,9 @@
 # Presentation Runtime — Release Closure Sign-off
 
-> **Status:** `PARTIAL`
-> **Purpose:** Evidence-gathering artifact for Presentation Runtime release closure review.
-> **Date:** 2026-04-23
-> **Rule:** This document records release-owner acceptance of the manual residual-gap review for the current internal branch. It does **not** claim full backend parity or public release approval; passing tests or gate scripts never imply scope beyond the evidence below.
+> **Status:** `READY`
+> **Purpose:** Approved closure artifact for the bounded phase-one Presentation Runtime scope.
+> **Date:** 2026-05-01
+> **Rule:** This document records release-owner approval for the claimed phase-one presentation scope. Future renderer, backend, or platform expansion requires new evidence.
 
 ---
 
@@ -75,20 +75,20 @@ Tests in `test_presentation_runtime.cpp` verify:
 
 ---
 
-## 7. Residual Gaps (Intentional — Not Blocking Current Evidence)
+## 7. Closed Scope And Future Work
 
 | Gap | Owner | Notes |
 |-----|-------|-------|
 | Cross-backend renderer breadth | Adjacent `visual_regression_harness` lane | The current claimed production path now has bounded real renderer-backed proof, but broader backend parity still belongs to the adjacent visual-regression/readiness lane rather than this signoff artifact |
-| Manual residual-gap review | Maintainer / release owner | Accepted for the current internal branch on 2026-04-28; any owner-observed regressions are follow-up bugs rather than an open manual gate |
+| Future renderer expansion | Maintainer / release owner | Any owner-observed regressions or broader platform/backend additions are follow-up work outside the approved phase-one scope. |
 
 These gaps are explicit and scoped. They do not invalidate the evidence above.
 
 ---
 
-## 8. Promotion Condition
+## 8. Approval
 
-Manual residual-gap review is accepted for the current internal branch by release-owner direction on 2026-04-28. The subsystem remains `PARTIAL` because broader cross-backend renderer breadth is still a technical validation backlog under `visual_regression_harness`, not because manual review is pending.
+The claimed phase-one presentation scope is approved by release-owner review on 2026-05-01.
 
 **No automated gate grants public release approval or implies full backend parity.**
 

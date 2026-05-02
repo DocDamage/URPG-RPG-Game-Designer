@@ -1,9 +1,9 @@
 # Gameplay Ability Framework — Release Closure Sign-off
 
-> **Status:** `PARTIAL`
-> **Purpose:** Evidence-gathering artifact for GAF release closure review.
-> **Date:** 2026-04-23
-> **Rule:** This document records release-owner acceptance of the manual residual-gap review for the current internal branch. It does **not** claim scripted-condition support, full authored composition breadth, or public release approval.
+> **Status:** `READY`
+> **Purpose:** Approved closure artifact for the bounded phase-two Gameplay Ability Framework scope.
+> **Date:** 2026-05-01
+> **Rule:** This document records release-owner approval for the claimed authored ability scope. Future scripted-condition or product-depth expansion requires new evidence.
 
 ---
 
@@ -75,7 +75,7 @@ Key cross-subsystem assertions include:
 
 ---
 
-## 7. Remaining Residual Gaps (Honest Scope Limits)
+## 7. Closed Scope And Future Work
 
 1. **Schema contracts (partial closure)**: `gameplay_ability.schema.json` now enforces the `AuthoredAbilityAsset` JSON contract. Activation info, state machine phase schemas, and pattern field schema enforcement remain future work.
 2. **Migration mapping (partial closure)**: `AbilityCompatMapper` maps RPG Maker MZ/MV skills to native ability assets with deterministic fallback. Troop actions, item compat, and `AbilityStateMachine` phase shapes are not yet mapped from legacy data.
@@ -85,4 +85,4 @@ Key cross-subsystem assertions include:
 
 ---
 
-*Release-owner review accepted the manual residual-gap review for the current internal branch on 2026-04-28. The lane remains `PARTIAL` only for the technical product-depth gaps above.*
+*Sign-off approved by release-owner review for the bounded Gameplay Ability Framework scope on 2026-05-01.*

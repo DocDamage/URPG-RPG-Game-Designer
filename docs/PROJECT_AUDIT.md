@@ -1,6 +1,6 @@
 # Project Audit
 
-Status Date: 2026-04-28
+Status Date: 2026-05-01
 
 `urpg_project_audit` is the current conservative project-facing audit command for answering a simple question:
 
