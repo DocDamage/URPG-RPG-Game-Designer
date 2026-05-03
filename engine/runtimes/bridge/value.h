@@ -30,6 +30,12 @@ struct Value {
         return out;
     }
 
+    static Value Bool(bool x) {
+        Value out;
+        out.v = x;
+        return out;
+    }
+
     static Value Obj(Object o) {
         Value out;
         out.v = std::move(o);

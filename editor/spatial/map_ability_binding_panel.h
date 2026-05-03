@@ -27,6 +27,8 @@ class MapAbilityBindingPanel : public EditorPanel {
     };
 
     struct PlacementTarget {
+        PlacementTarget() = default;
+
         int tile_x = 0;
         int tile_y = 0;
         std::string prop_instance_id;
