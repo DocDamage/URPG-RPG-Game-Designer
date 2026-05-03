@@ -274,24 +274,24 @@ Boundary rules:
 
 ### 4.1 Retrieval and search tooling
 
-- [ ] Add an offline FAISS-based retrieval lane under `tools/retrieval`.
-- [ ] Build searchable indexes for lore, dialogue, quests, items, and imported project metadata.
-- [ ] Export chunk manifests with source paths and stable chunk IDs.
-- [ ] Add a local query/debug CLI for authoring and import workflows.
+- [x] Add an offline FAISS-based retrieval lane under `tools/retrieval`.
+- [x] Build searchable indexes for lore, dialogue, quests, items, and imported project metadata.
+- [x] Export chunk manifests with source paths and stable chunk IDs.
+- [x] Add a local query/debug CLI for authoring and import workflows.
 
 ### 4.2 Vision and segmentation tooling
 
-- [ ] Add a SAM / SAM2-compatible segmentation lane under `tools/vision`.
-- [ ] Support batch mask generation, cutout export, and per-asset manifest export.
-- [ ] Preserve manual overrides so reruns do not wipe reviewed work.
-- [ ] Keep the runtime consuming exported cutouts and manifests rather than segmentation code directly.
+- [x] Add a SAM / SAM2-compatible segmentation lane under `tools/vision`.
+- [x] Support batch mask generation, cutout export, and per-asset manifest export.
+- [x] Preserve manual overrides so reruns do not wipe reviewed work.
+- [x] Keep the runtime consuming exported cutouts and manifests rather than segmentation code directly.
 
 ### 4.3 Audio tooling pipeline
 
-- [ ] Add Demucs-based separation tooling under `tools/audio`.
-- [ ] Add Encodec-based compression experiment tooling and output manifests.
+- [x] Add Demucs-based separation tooling under `tools/audio`.
+- [x] Add Encodec-based compression experiment tooling and output manifests.
 - [ ] Add AudioCraft-based prototype-generation workflow only as temp-asset ideation, not as a shipped runtime dependency.
-- [ ] Keep all generated/prototype outputs clearly marked and manifest-backed.
+- [x] Keep all generated/prototype outputs clearly marked and manifest-backed.
 
 ### 4.4 Optional later tooling
 

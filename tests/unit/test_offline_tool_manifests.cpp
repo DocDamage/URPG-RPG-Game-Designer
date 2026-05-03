@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -23,6 +24,14 @@ nlohmann::json loadJson(const std::filesystem::path& path) {
     nlohmann::json parsed;
     file >> parsed;
     return parsed;
+}
+
+std::string readText(const std::filesystem::path& path) {
+    std::ifstream file(path);
+    REQUIRE(file.good());
+    std::ostringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
 }
 
 void requireStringProperty(const nlohmann::json& properties, const std::string& name) {
@@ -169,4 +178,28 @@ TEST_CASE("offline audio tool manifests keep generated prototypes non-release", 
     };
     REQUIRE(example.at("outputs").at(0).at("generated_prototype") == true);
     REQUIRE(example.at("outputs").at(0).at("release_eligible") == false);
+}
+
+TEST_CASE("Phase 11 offline tooling closure is ready in canonical release docs",
+          "[offline][tools][phase11]") {
+    const auto root = repoRoot();
+    const auto inventory = readText(root / "docs" / "release" / "100_PERCENT_COMPLETION_INVENTORY.md");
+    const auto programStatus = readText(root / "docs" / "PROGRAM_COMPLETION_STATUS.md");
+    const auto statusMirror = readText(root / "docs" / "status" / "PROGRAM_COMPLETION_STATUS.md");
+
+    const auto phase11Pos = inventory.find("`phase_11_offline_tooling_pipelines`");
+    REQUIRE(phase11Pos != std::string::npos);
+    const auto phase11LineEnd = inventory.find('\n', phase11Pos);
+    const auto phase11Line = inventory.substr(phase11Pos, phase11LineEnd - phase11Pos);
+
+    REQUIRE(phase11Line.find("`READY`") != std::string::npos);
+    REQUIRE(phase11Line.find("`MANDATORY_OPEN`") == std::string::npos);
+    REQUIRE(phase11Line.find("FAISS retrieval") != std::string::npos);
+    REQUIRE(phase11Line.find("SAM/SAM2-compatible segmentation manifests") != std::string::npos);
+    REQUIRE(phase11Line.find("Demucs/Encodec-compatible audio manifests") != std::string::npos);
+    REQUIRE(phase11Line.find("job-runner-addressable") != std::string::npos);
+
+    REQUIRE(inventory.find("\nun_local_gates.ps1`") == std::string::npos);
+    REQUIRE(programStatus.find("Phase 11 offline tooling closure is complete") != std::string::npos);
+    REQUIRE(statusMirror.find("Phase 11 offline tooling closure is complete") != std::string::npos);
 }

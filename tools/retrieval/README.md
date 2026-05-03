@@ -2,17 +2,17 @@
 
 Offline retrieval and indexing tools live here.
 
-The supported top-level entrypoints for the Phase 8 offline boundary are:
+The supported top-level entrypoints for the Phase 11 offline tooling boundary are:
 
 - `build_index.py`: chunks one or more source paths and emits
   `content/schemas/retrieval_index_manifest.schema.json` metadata with stable
   chunk ids.
 - `query_index.py`: loads that manifest and returns source path, chunk id,
   score, and excerpt rows without importing FAISS or embedding libraries.
-- `requirements.txt`: isolated offline helper dependencies only. Runtime and
+- `requirements.txt`: isolated helper dependencies for offline jobs. Runtime and
   editor builds must not install these packages.
 
-Mandatory Phase 10 scope:
+Mandatory Phase 11 scope:
 
 - chunk manifest generation
 - FAISS-compatible index building

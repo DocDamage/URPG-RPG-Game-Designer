@@ -76,6 +76,57 @@ class OfflineJobRunnerTests(unittest.TestCase):
                 manifest["outputs"][0]["kind"], "encodec_compression_experiment"
             )
 
+    def test_retrieval_jobs_write_chunk_manifest_and_bundle(self) -> None:
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT / ".urpg") as tmp:
+            tmp_path = Path(tmp)
+            source_root = tmp_path / "docs"
+            source_root.mkdir()
+            (source_root / "lore.txt").write_text(
+                "Ancient ruins define the retrieval smoke corpus.\n"
+                "Offline indexing produces artifacts for authoring only.\n",
+                encoding="utf-8",
+            )
+            tmp_rel = tmp_path.relative_to(REPO_ROOT).as_posix()
+            source_rel = source_root.relative_to(REPO_ROOT).as_posix()
+            manifest_output = f"{tmp_rel}/retrieval_chunks.json"
+            bundle_output = f"{tmp_rel}/retrieval_bundle.json"
+
+            self.run_job(
+                {
+                    "job_type": "retrieval_chunk_manifest",
+                    "source_root": source_rel,
+                    "output": manifest_output,
+                    "chunk_size": 80,
+                    "overlap": 10,
+                }
+            )
+            manifest = json.loads(
+                (REPO_ROOT / manifest_output).read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                manifest["schema"], "content/schemas/retrieval_chunk_manifest.schema.json"
+            )
+            self.assertGreaterEqual(len(manifest["chunks"]), 1)
+
+            self.run_job(
+                {
+                    "job_type": "retrieval_bundle",
+                    "manifest": manifest_output,
+                    "output": bundle_output,
+                    "dimension": 16,
+                    "adapter": "builtin_hashed",
+                }
+            )
+            bundle = json.loads((REPO_ROOT / bundle_output).read_text(encoding="utf-8"))
+            self.assertEqual(
+                bundle["schema"], "content/schemas/retrieval_index_bundle.schema.json"
+            )
+            self.assertEqual(bundle["entry_count"], len(manifest["chunks"]))
+            self.assertEqual(bundle["engine"], "builtin_hashed")
+            self.assertEqual(
+                bundle["embedding_adapter"]["adapter_id"], "builtin_hashed"
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

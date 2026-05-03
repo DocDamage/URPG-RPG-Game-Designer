@@ -2,13 +2,13 @@
 
 Offline segmentation and asset-prep tools live here.
 
-The Phase 8 entrypoint is `segment_assets.py`. It writes
+The Phase 11 entrypoint is `segment_assets.py`. It writes
 `content/schemas/segmentation_manifest.schema.json` manifests and records
 `skipped`, `reused`, or `generated` rows so reruns preserve manual overrides.
-Dependencies in `requirements.txt` are isolated offline tooling dependencies;
+Dependencies in `requirements.txt` are isolated helper dependencies for offline jobs;
 the shipped runtime consumes only masks, cutouts, and JSON manifests.
 
-Mandatory Phase 10 scope:
+Mandatory Phase 11 scope:
 
 - SAM / SAM2-compatible batch segmentation
 - cutout and mask export
