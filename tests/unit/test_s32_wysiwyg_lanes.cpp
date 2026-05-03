@@ -97,8 +97,7 @@ json loadWysiwygTemplateShowcase() {
 }
 
 bool isRoutableEditorExposure(urpg::editor::EditorPanelExposure exposure) {
-    return exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel ||
-           exposure == urpg::editor::EditorPanelExposure::Nested;
+    return urpg::editor::isRoutableEditorPanelExposure(exposure);
 }
 
 std::size_t countUnwiredWysiwygShowcaseSurfaces(const json& showcase) {
@@ -465,17 +464,11 @@ TEST_CASE("Phase 10 WYSIWYG roadmap completion truth follows routed showcase sur
     const auto phase10Line = inventory.substr(phase10Pos, phase10LineEnd - phase10Pos);
 
     const auto unwiredSurfaceCount = countUnwiredWysiwygShowcaseSurfaces(showcase);
-    if (unwiredSurfaceCount == 0) {
-        REQUIRE(phase10Line.find("`READY`") != std::string::npos);
-        REQUIRE(phase10Line.find("`MANDATORY_OPEN`") == std::string::npos);
-        REQUIRE(phase10Line.find("WYSIWYG done-rule evidence") != std::string::npos);
-    } else {
-        REQUIRE(phase10Line.find("`MANDATORY_OPEN`") != std::string::npos);
-        REQUIRE(phase10Line.find("`READY`") == std::string::npos);
-        REQUIRE(phase10Line.find("showcase surfaces are not wired to registry-backed editor panel routes") !=
-                std::string::npos);
-        REQUIRE(programStatus.find("Phase 10 WYSIWYG roadmap closure remains open") != std::string::npos);
-    }
+    REQUIRE(unwiredSurfaceCount == 0);
+    REQUIRE(phase10Line.find("`READY`") != std::string::npos);
+    REQUIRE(phase10Line.find("`MANDATORY_OPEN`") == std::string::npos);
+    REQUIRE(phase10Line.find("registry-backed editor panel routes") != std::string::npos);
+    REQUIRE(programStatus.find("Phase 10 WYSIWYG roadmap closure is complete") != std::string::npos);
 
     REQUIRE(programStatus.find("- [ ] Mandatory: treat every remaining roadmap lane as dual-delivery work") ==
             std::string::npos);

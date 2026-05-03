@@ -14,12 +14,15 @@
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <set>
 #include <string>
 #include <vector>
 
+#include "apps/editor/editor_app_panels.h"
+#include "engine/core/editor/editor_panel_registry.h"
 #include "engine/core/input/input_remap_store.h"
 #include "engine/core/project/project_template_generator.h"
 #include "engine/core/project/template_runtime_profile.h"
@@ -61,6 +64,11 @@ std::set<std::string> collectActionStrings(const json& bindings) {
         actions.insert(binding["action"].get<std::string>());
     }
     return actions;
+}
+
+bool isTemplateShowcaseRoutableExposure(urpg::editor::EditorPanelExposure exposure) {
+    return exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel ||
+           exposure == urpg::editor::EditorPanelExposure::Nested;
 }
 
 void requireRpgInputClosure(const json& starter) {
@@ -200,6 +208,13 @@ TEST_CASE("WYSIWYG template showcase examples bind completed systems to starter 
             REQUIRE_FALSE(surface.value("id", "").empty());
             REQUIRE_FALSE(surface.value("runtime_hook", "").empty());
             REQUIRE_FALSE(surface.value("editor_panel", "").empty());
+            const auto registryId = surface.value("editor_panel_registry_id", "");
+            REQUIRE_FALSE(registryId.empty());
+            const auto* registryEntry = urpg::editor::findEditorPanelRegistryEntry(registryId);
+            REQUIRE(registryEntry != nullptr);
+            REQUIRE(isTemplateShowcaseRoutableExposure(registryEntry->exposure));
+            const auto appFactoryIds = urpg::editor_app::editorAppRoutablePanelFactoryIds();
+            REQUIRE(std::find(appFactoryIds.begin(), appFactoryIds.end(), registryId) != appFactoryIds.end());
             REQUIRE(std::filesystem::exists(templateAcceptanceRepoRoot() / surface["fixture"].get<std::string>()));
             std::set<std::string> evidence;
             for (const auto& item : surface["evidence"]) {

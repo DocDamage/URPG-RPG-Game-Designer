@@ -39,3 +39,15 @@ TEST_CASE("editor app panels expose exactly the canonical release factories", "[
     REQUIRE(factoryIds == canonicalIds);
     REQUIRE(std::set<std::string>(factoryIds.begin(), factoryIds.end()).size() == factoryIds.size());
 }
+
+TEST_CASE("editor app panels have route factories for release and nested showcase panels", "[editor][app][panel]") {
+    REQUIRE(urpg::editor_app::editorAppMissingRoutablePanelFactoryIds().empty());
+
+    const auto routableFactoryIds = urpg::editor_app::editorAppRoutablePanelFactoryIds();
+    REQUIRE(std::find(routableFactoryIds.begin(), routableFactoryIds.end(), "message_inspector") !=
+            routableFactoryIds.end());
+    REQUIRE(std::find(routableFactoryIds.begin(), routableFactoryIds.end(), "event_authoring") !=
+            routableFactoryIds.end());
+    REQUIRE(std::find(routableFactoryIds.begin(), routableFactoryIds.end(), "showcase_crew_management") !=
+            routableFactoryIds.end());
+}

@@ -29,7 +29,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "message_inspector"
         },
         {
           "id": "forest_gate_event",
@@ -44,7 +45,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "event_authoring"
         },
         {
           "id": "first_save_lab",
@@ -59,7 +61,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "save_inspector"
         }
       ]
     },
@@ -81,7 +84,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "spatial_authoring"
         },
         {
           "id": "slash_combo",
@@ -96,7 +100,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "battle_presentation"
         }
       ]
     },
@@ -118,7 +123,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "ability"
         },
         {
           "id": "export_release_preview",
@@ -133,7 +139,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "export_diagnostics"
         }
       ]
     },
@@ -155,7 +162,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "monster_collection"
         }
       ]
     },
@@ -177,7 +185,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_crafting_economy_loop"
         },
         {
           "id": "relationship_affinity",
@@ -192,7 +201,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_relationship_affinity"
         }
       ]
     },
@@ -214,7 +224,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "metroidvania_gates"
         },
         {
           "id": "dungeon_depth",
@@ -229,7 +240,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "3d_dungeon_world"
         }
       ]
     },
@@ -251,7 +263,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "3d_dungeon_world"
         },
         {
           "id": "lighting_weather",
@@ -266,7 +279,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "spatial_authoring"
         }
       ]
     },
@@ -288,7 +302,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_procedural_dungeon"
         },
         {
           "id": "weighted_loot_rewards",
@@ -303,7 +318,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "loot_generator"
         },
         {
           "id": "run_depth_preview",
@@ -318,7 +334,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "3d_dungeon_world"
         }
       ]
     },
@@ -340,7 +357,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "horror_fx_builder"
         },
         {
           "id": "clue_dialogue_preview",
@@ -355,7 +373,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "message_inspector"
         },
         {
           "id": "safe_room_save_lab",
@@ -370,7 +389,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "save_inspector"
         }
       ]
     },
@@ -392,7 +412,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "farming_garden_plot_builder"
         },
         {
           "id": "crafting_shop_loop",
@@ -407,7 +428,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_crafting_economy_loop"
         },
         {
           "id": "friendship_progression",
@@ -422,7 +444,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_relationship_affinity"
         }
       ]
     },
@@ -444,7 +467,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_card_battle"
         },
         {
           "id": "card_effect_sandbox",
@@ -459,7 +483,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "ability"
         },
         {
           "id": "card_release_preview",
@@ -474,7 +499,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "export_diagnostics"
         }
       ]
     },
@@ -496,7 +522,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "platformer_physics_lab"
         },
         {
           "id": "side_action_kit",
@@ -511,7 +538,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "side_view_action_combat_kit"
         },
         {
           "id": "traversal_gate_preview",
@@ -526,7 +554,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "metroidvania_gates"
         }
       ]
     },
@@ -548,7 +577,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "summon_gacha_banner_builder"
         },
         {
           "id": "pity_rate_simulation",
@@ -563,7 +593,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "gacha_system"
         },
         {
           "id": "hero_roster_milestones",
@@ -578,7 +609,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "achievement_visual_builder"
         }
       ]
     },
@@ -600,7 +632,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_quest_objective_graph"
         },
         {
           "id": "interrogation_preview",
@@ -615,7 +648,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "message_inspector"
         },
         {
           "id": "deduction_logic_board",
@@ -630,7 +664,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "puzzle_logic_board"
         }
       ]
     },
@@ -652,7 +687,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "world_map_route_planner"
         },
         {
           "id": "fast_travel_network",
@@ -667,7 +703,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "fast_travel_map_builder"
         },
         {
           "id": "world_zoom_preview",
@@ -682,7 +719,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "map_zoom_system"
         }
       ]
     },
@@ -704,7 +742,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_crew_management"
         },
         {
           "id": "starship_route",
@@ -719,7 +758,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_starship_route"
         },
         {
           "id": "faction_mission",
@@ -734,7 +774,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_faction_mission"
         }
       ]
     },
@@ -756,7 +797,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_scavenge_rules"
         },
         {
           "id": "settlement_crafting",
@@ -771,7 +813,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_settlement_crafting"
         },
         {
           "id": "wasteland_biomes",
@@ -786,7 +829,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_wasteland_biomes"
         }
       ]
     },
@@ -808,7 +852,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_mech_loadout"
         },
         {
           "id": "grid_battle",
@@ -823,7 +868,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_grid_battle"
         },
         {
           "id": "pilot_bonds",
@@ -838,7 +884,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_pilot_bonds"
         }
       ]
     },
@@ -860,7 +907,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_team_roster"
         },
         {
           "id": "arena_rules",
@@ -875,7 +923,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_arena_rules"
         },
         {
           "id": "league_rewards",
@@ -890,7 +939,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_league_rewards"
         }
       ]
     },
@@ -912,7 +962,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_stamina_combat"
         },
         {
           "id": "boss_phases",
@@ -927,7 +978,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_boss_phases"
         },
         {
           "id": "checkpoint_save",
@@ -942,7 +994,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_checkpoint_save"
         }
       ]
     },
@@ -964,7 +1017,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_offline_rewards"
         },
         {
           "id": "auto_battle",
@@ -979,7 +1033,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_auto_battle"
         },
         {
           "id": "upgrade_tree",
@@ -994,7 +1049,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_upgrade_tree"
         }
       ]
     },
@@ -1016,7 +1072,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_recruiting"
         },
         {
           "id": "missions",
@@ -1031,7 +1088,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_missions"
         },
         {
           "id": "economy",
@@ -1046,7 +1104,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_economy"
         }
       ]
     },
@@ -1068,7 +1127,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_vehicles"
         },
         {
           "id": "route_planner",
@@ -1083,7 +1143,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_route_planner"
         },
         {
           "id": "license_rewards",
@@ -1098,7 +1159,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_license_rewards"
         }
       ]
     },
@@ -1120,7 +1182,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_timed_input"
         },
         {
           "id": "battle_vfx",
@@ -1135,7 +1198,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "battle_presentation"
         },
         {
           "id": "grades",
@@ -1150,7 +1214,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_grades"
         }
       ]
     },
@@ -1172,7 +1237,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_recipes"
         },
         {
           "id": "customer_queue",
@@ -1187,7 +1253,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_customer_queue"
         },
         {
           "id": "shop_economy",
@@ -1202,7 +1269,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_shop_economy"
         }
       ]
     },
@@ -1224,7 +1292,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_calendar"
         },
         {
           "id": "clubs",
@@ -1239,7 +1308,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_clubs"
         },
         {
           "id": "social_links",
@@ -1254,7 +1324,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_social_links"
         }
       ]
     },
@@ -1276,7 +1347,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_crew"
         },
         {
           "id": "treasure_routes",
@@ -1291,7 +1363,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_treasure_routes"
         },
         {
           "id": "naval_encounters",
@@ -1306,7 +1379,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_naval_encounters"
         }
       ]
     },
@@ -1328,7 +1402,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_team_roster"
         },
         {
           "id": "training",
@@ -1343,7 +1418,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_training"
         },
         {
           "id": "match_day",
@@ -1358,7 +1434,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_match_day"
         }
       ]
     },
@@ -1380,7 +1457,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_pet_roster"
         },
         {
           "id": "care_schedule",
@@ -1395,7 +1473,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_care_schedule"
         },
         {
           "id": "shop_requests",
@@ -1410,7 +1489,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_shop_requests"
         }
       ]
     },
@@ -1432,7 +1512,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_evidence_dialogue"
         },
         {
           "id": "case_graph",
@@ -1447,7 +1528,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_case_graph"
         },
         {
           "id": "ending_branches",
@@ -1462,7 +1544,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_ending_branches"
         }
       ]
     },
@@ -1484,7 +1567,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_districts"
         },
         {
           "id": "citizens",
@@ -1499,7 +1583,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_citizens"
         },
         {
           "id": "resource_chains",
@@ -1514,7 +1599,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_resource_chains"
         }
       ]
     },
@@ -1536,7 +1622,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_waves"
         },
         {
           "id": "tower_grid",
@@ -1551,7 +1638,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_tower_grid"
         },
         {
           "id": "hero_abilities",
@@ -1566,7 +1654,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_hero_abilities"
         }
       ]
     },
@@ -1588,7 +1677,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_brawler_combat"
         },
         {
           "id": "combos",
@@ -1603,7 +1693,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_combos"
         },
         {
           "id": "stage_rewards",
@@ -1618,7 +1709,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_stage_rewards"
         }
       ]
     },
@@ -1640,7 +1732,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_camps"
         },
         {
           "id": "biomes",
@@ -1655,7 +1748,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_biomes"
         },
         {
           "id": "crafting",
@@ -1670,7 +1764,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_crafting"
         }
       ]
     },
@@ -1692,7 +1787,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_reputation"
         },
         {
           "id": "diplomacy",
@@ -1707,7 +1803,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_diplomacy"
         },
         {
           "id": "territory",
@@ -1722,7 +1819,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_territory"
         }
       ]
     },
@@ -1744,7 +1842,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_companions"
         },
         {
           "id": "dialogue_trees",
@@ -1759,7 +1858,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_dialogue_trees"
         },
         {
           "id": "reputation",
@@ -1774,7 +1874,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_reputation"
         }
       ]
     },
@@ -1796,7 +1897,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_automap"
         },
         {
           "id": "traps",
@@ -1811,7 +1913,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_traps"
         },
         {
           "id": "encounter_tables",
@@ -1826,7 +1929,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_encounter_tables"
         }
       ]
     },
@@ -1848,7 +1952,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_resources"
         },
         {
           "id": "recipes",
@@ -1863,7 +1968,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_recipes"
         },
         {
           "id": "crafting_stations",
@@ -1878,7 +1984,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_crafting_stations"
         }
       ]
     },
@@ -1900,7 +2007,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_schedules"
         },
         {
           "id": "relationships",
@@ -1915,7 +2023,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_relationships"
         },
         {
           "id": "jobs",
@@ -1930,7 +2039,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_jobs"
         }
       ]
     },
@@ -1952,7 +2062,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_zones"
         },
         {
           "id": "quests",
@@ -1967,7 +2078,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_quests"
         },
         {
           "id": "role_abilities",
@@ -1982,7 +2094,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_role_abilities"
         }
       ]
     },
@@ -2004,7 +2117,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_dungeons"
         },
         {
           "id": "key_items",
@@ -2019,7 +2133,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_key_items"
         },
         {
           "id": "puzzles",
@@ -2034,7 +2149,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_puzzles"
         }
       ]
     },
@@ -2056,7 +2172,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_grid_movement"
         },
         {
           "id": "automap",
@@ -2071,7 +2188,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_automap"
         },
         {
           "id": "rows",
@@ -2086,7 +2204,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_rows"
         }
       ]
     },
@@ -2108,7 +2227,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_route_map"
         },
         {
           "id": "relics",
@@ -2123,7 +2243,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_relics"
         },
         {
           "id": "deck_drafts",
@@ -2138,7 +2259,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_deck_drafts"
         }
       ]
     },
@@ -2160,7 +2282,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_jobs"
         },
         {
           "id": "colonist_stats",
@@ -2175,7 +2298,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_colonist_stats"
         },
         {
           "id": "raids",
@@ -2190,7 +2314,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_raids"
         }
       ]
     },
@@ -2212,7 +2337,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_markets"
         },
         {
           "id": "routes",
@@ -2227,7 +2353,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_routes"
         },
         {
           "id": "reputation",
@@ -2242,7 +2369,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_reputation"
         }
       ]
     },
@@ -2264,7 +2392,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_affection"
         },
         {
           "id": "schedules",
@@ -2279,7 +2408,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_schedules"
         },
         {
           "id": "date_events",
@@ -2294,7 +2424,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_date_events"
         }
       ]
     },
@@ -2316,7 +2447,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_world_seed"
         },
         {
           "id": "generated_towns",
@@ -2331,7 +2463,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_generated_towns"
         },
         {
           "id": "procedural_dungeons",
@@ -2346,7 +2479,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_procedural_dungeons"
         }
       ]
     },
@@ -2368,7 +2502,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_portal_origin"
         },
         {
           "id": "guild_quests",
@@ -2383,7 +2518,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_guild_quests"
         },
         {
           "id": "party_recruitment",
@@ -2398,7 +2534,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_party_recruitment"
         }
       ]
     },
@@ -2420,7 +2557,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_boss_phases"
         },
         {
           "id": "builds",
@@ -2435,7 +2573,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_builds"
         },
         {
           "id": "upgrades",
@@ -2450,7 +2589,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_upgrades"
         }
       ]
     },
@@ -2472,7 +2612,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_grid_tactics"
         },
         {
           "id": "cards",
@@ -2487,7 +2628,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_cards"
         },
         {
           "id": "hand_management",
@@ -2502,7 +2644,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_hand_management"
         }
       ]
     },
@@ -2524,7 +2667,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_hotspots"
         },
         {
           "id": "inventory_items",
@@ -2539,7 +2683,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_inventory_items"
         },
         {
           "id": "item_use",
@@ -2554,7 +2699,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_item_use"
         }
       ]
     },
@@ -2576,7 +2722,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_object_lists"
         },
         {
           "id": "hints",
@@ -2591,7 +2738,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_hints"
         },
         {
           "id": "timed_search",
@@ -2606,7 +2754,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_timed_search"
         }
       ]
     },
@@ -2628,7 +2777,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_room_puzzles"
         },
         {
           "id": "switches",
@@ -2643,7 +2793,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_switches"
         },
         {
           "id": "keys",
@@ -2658,7 +2809,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_keys"
         }
       ]
     },
@@ -2680,7 +2832,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_choices"
         },
         {
           "id": "branching_state",
@@ -2695,7 +2848,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_branching_state"
         },
         {
           "id": "scenes",
@@ -2710,7 +2864,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_scenes"
         }
       ]
     },
@@ -2732,7 +2887,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_movement"
         },
         {
           "id": "collision",
@@ -2747,7 +2903,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_collision"
         },
         {
           "id": "hazards",
@@ -2762,7 +2919,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_hazards"
         }
       ]
     },
@@ -2784,7 +2942,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_retries"
         },
         {
           "id": "timers",
@@ -2799,7 +2958,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_timers"
         },
         {
           "id": "hazards",
@@ -2814,7 +2974,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_hazards"
         }
       ]
     },
@@ -2836,7 +2997,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_movement"
         },
         {
           "id": "attacks",
@@ -2851,7 +3013,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_attacks"
         },
         {
           "id": "enemies",
@@ -2866,7 +3029,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_enemies"
         }
       ]
     },
@@ -2888,7 +3052,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_lanes"
         },
         {
           "id": "waves",
@@ -2903,7 +3068,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_waves"
         },
         {
           "id": "combos",
@@ -2918,7 +3084,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_combos"
         }
       ]
     },
@@ -2940,7 +3107,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_waves"
         },
         {
           "id": "towers",
@@ -2955,7 +3123,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_towers"
         },
         {
           "id": "lanes",
@@ -2970,7 +3139,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_lanes"
         }
       ]
     },
@@ -2992,7 +3162,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_zoning"
         },
         {
           "id": "resources",
@@ -3007,7 +3178,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_resources"
         },
         {
           "id": "placement",
@@ -3022,7 +3194,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_placement"
         }
       ]
     },
@@ -3044,7 +3217,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_staff"
         },
         {
           "id": "rooms",
@@ -3059,7 +3233,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_rooms"
         },
         {
           "id": "queues",
@@ -3074,7 +3249,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_queues"
         }
       ]
     },
@@ -3096,7 +3272,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_buildings"
         },
         {
           "id": "pricing",
@@ -3111,7 +3288,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_pricing"
         },
         {
           "id": "optimization",
@@ -3126,7 +3304,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_optimization"
         }
       ]
     },
@@ -3148,7 +3327,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_generators"
         },
         {
           "id": "prestige",
@@ -3163,7 +3343,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_prestige"
         },
         {
           "id": "automation",
@@ -3178,7 +3359,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_automation"
         }
       ]
     },
@@ -3200,7 +3382,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_board_matching"
         },
         {
           "id": "cascades",
@@ -3215,7 +3398,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_cascades"
         },
         {
           "id": "goals",
@@ -3230,7 +3414,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_goals"
         }
       ]
     },
@@ -3252,7 +3437,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_pieces"
         },
         {
           "id": "board_logic",
@@ -3267,7 +3453,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_board_logic"
         },
         {
           "id": "scoring",
@@ -3282,7 +3469,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_scoring"
         }
       ]
     },
@@ -3304,7 +3492,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_paddle"
         },
         {
           "id": "ball_physics",
@@ -3319,7 +3508,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_ball_physics"
         },
         {
           "id": "bricks",
@@ -3334,7 +3524,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_bricks"
         }
       ]
     },
@@ -3356,7 +3547,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_waves"
         },
         {
           "id": "bullets",
@@ -3371,7 +3563,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_bullets"
         },
         {
           "id": "powerups",
@@ -3386,7 +3579,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_powerups"
         }
       ]
     },
@@ -3408,7 +3602,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_arena_movement"
         },
         {
           "id": "aiming",
@@ -3423,7 +3618,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_aiming"
         },
         {
           "id": "waves",
@@ -3438,7 +3634,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_waves"
         }
       ]
     },
@@ -3460,7 +3657,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_tracks"
         },
         {
           "id": "laps",
@@ -3475,7 +3673,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_laps"
         },
         {
           "id": "checkpoints",
@@ -3490,7 +3689,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_checkpoints"
         }
       ]
     },
@@ -3512,7 +3712,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_charts"
         },
         {
           "id": "timing_windows",
@@ -3527,7 +3728,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_timing_windows"
         },
         {
           "id": "scoring",
@@ -3542,7 +3744,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_scoring"
         }
       ]
     },
@@ -3564,7 +3767,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_matches"
         },
         {
           "id": "stats",
@@ -3579,7 +3783,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_stats"
         },
         {
           "id": "simple_ai",
@@ -3594,7 +3799,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_simple_ai"
         }
       ]
     },
@@ -3616,7 +3822,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_turn_order"
         },
         {
           "id": "pieces",
@@ -3631,7 +3838,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_pieces"
         },
         {
           "id": "cards",
@@ -3646,7 +3854,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_cards"
         }
       ]
     },
@@ -3668,7 +3877,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_minigames"
         },
         {
           "id": "scoring",
@@ -3683,7 +3893,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_scoring"
         },
         {
           "id": "rounds",
@@ -3698,7 +3909,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_rounds"
         }
       ]
     },
@@ -3720,7 +3932,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_questions"
         },
         {
           "id": "categories",
@@ -3735,7 +3948,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_categories"
         },
         {
           "id": "scoring",
@@ -3750,7 +3964,8 @@
             "runtime_execution",
             "diagnostics",
             "tests"
-          ]
+          ],
+          "editor_panel_registry_id": "showcase_scoring"
         }
       ]
     }

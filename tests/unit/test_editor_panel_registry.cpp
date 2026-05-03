@@ -1,6 +1,7 @@
 #include "engine/core/editor/editor_panel_registry.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <nlohmann/json.hpp>
 
 #include <algorithm>
 #include <filesystem>
@@ -344,6 +345,24 @@ TEST_CASE("Editor panel registry classifies diagnostics and incubating workspace
 
     const auto topLevel = urpg::editor::topLevelEditorPanels();
     REQUIRE(topLevel.size() == urpg::editor::requiredTopLevelPanelIds().size());
+}
+
+TEST_CASE("WYSIWYG showcase route ids are registered and routable", "[editor][panel][registry][wysiwyg]") {
+    const auto showcasePath =
+        std::filesystem::path(URPG_SOURCE_DIR) / "content" / "examples" / "wysiwyg_template_showcase.json";
+    const auto showcase = readTextFile(showcasePath);
+    const auto parsed = nlohmann::json::parse(showcase);
+
+    for (const auto& example : parsed["examples"]) {
+        for (const auto& surface : example["surfaces"]) {
+            const auto routeId = surface.value("editor_panel_registry_id", "");
+            INFO(routeId);
+            REQUIRE_FALSE(routeId.empty());
+            const auto* entry = urpg::editor::findEditorPanelRegistryEntry(routeId);
+            REQUIRE(entry != nullptr);
+            REQUIRE(urpg::editor::isRoutableEditorPanelExposure(entry->exposure));
+        }
+    }
 }
 
 TEST_CASE("Editor smoke coverage follows every registered top-level panel", "[editor][panel][registry][smoke]") {

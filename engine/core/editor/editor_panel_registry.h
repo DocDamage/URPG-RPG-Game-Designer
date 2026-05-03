@@ -28,5 +28,6 @@ std::vector<std::string> requiredTopLevelPanelIds();
 std::vector<std::string> smokeRequiredEditorPanelIds();
 const EditorPanelRegistryEntry* findEditorPanelRegistryEntry(std::string_view id);
 bool hiddenEditorPanelEntriesHaveReasons();
+bool isRoutableEditorPanelExposure(EditorPanelExposure exposure);
 
 } // namespace urpg::editor
