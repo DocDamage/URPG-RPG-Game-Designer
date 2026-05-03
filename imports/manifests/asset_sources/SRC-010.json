@@ -27,7 +27,7 @@
     "WYSIWYG showcase visual and audio candidate review"
   ],
   "handling_path": "direct_ingest_when_captured",
-  "legal_disposition": "mixed_quarantine_with_bounded_cc0_starter_promotion",
+  "legal_disposition": "mixed_quarantine_with_cc0_public_domain_promotions",
   "promotion_status": "partially_promoted",
   "notes": [
     "Captured from the local folder previously named 'more assets to ingest'.",
@@ -36,6 +36,9 @@
     "The catalog records 20229 raw quarantine assets across 407 pack roots.",
     "The full drop is catalog-normalized for local editor/library use under imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog.json.",
     "Most cataloged assets remain non-release quarantine until curated bundle manifests and attribution records are approved.",
-    "BND-004 promotes only 14 selected CC0/public-domain starter assets with checksums and attribution evidence; the rest of SRC-010 remains unpromoted."
+    "BND-004 promotes 14 selected CC0/public-domain starter assets with checksums and attribution evidence.",
+    "BND-006 promotes 12430 unique app-usable CC0/public-domain payloads with checksums, attribution evidence, and package destinations; default export bundling is deferred until project selection.",
+    "BND-007 promotes 4697 additional app-usable payloads unlocked by source-folder and archive license evidence; default export bundling is deferred until project selection.",
+    "Duplicate payloads, source/tool/archive files, invalid payloads, non-OGG audio originals, and packs without CC0/public-domain release evidence remain raw quarantine/local catalog only."
   ]
 }

@@ -1,0 +1,25 @@
+{
+  "schema": "urpg.itch_loose_license_scan.v1",
+  "generated_at": "2026-05-03T16:48:31+00:00",
+  "root": "itch/loose",
+  "file_count": 397,
+  "license_file_count": 1,
+  "license_classification": "permissive_cc0_or_public_domain",
+  "extension_counts": {
+    "json": 2,
+    "png": 394,
+    "txt": 1
+  },
+  "png_usable_count": 394,
+  "invalid_png_count": 0,
+  "csv": "imports/reports/asset_intake/itch_loose_file_scan.csv",
+  "licenses": [
+    {
+      "path": "itch/loose/license.txt",
+      "bytes": 1272,
+      "sha256": "da5ca129716c7ee53d88425bc6e0ac4b616bd2ddda72c4a136c66ad66c11b156",
+      "classification": "permissive_cc0_or_public_domain",
+      "snippet": "You are free to: Use these assets in any project (games, apps, films, etc.) Use them for commercial or non-commercial purposes Modify, remix, and redistribute them Use them without attribution (credit is optional, not required) Public Domain Dedication (CC0 1.0) To the fullest extent permitted by law, the creator(s) of these assets have waived all copyright and related rights to these assets worldwide. You may use the assets for any purpose whatsoever, without permission, restrictions, or attribution. Fallback License If any part of the public domain dedication is not legally valid in your jurisdiction, you are granted a: Royalty-free Non-exclusive Irrevocable Worldwide license to use the assets for any purpose, including commercial use. No Warranty These assets are provided \u201cas-is\u201d, without warranty of any kind, express or implied, including but not limited to: Merchantability Fitness for a particular purpose Non-infringement The creator(s) are not liable for any damages or legal clai"
+    }
+  ]
+}

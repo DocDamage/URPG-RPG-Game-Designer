@@ -1,0 +1,29 @@
+{
+  "source_id": "SRC-013",
+  "repo_name": "Local itch loose asset drop",
+  "source_url": "local://itch/loose",
+  "capture_state": "mirrored",
+  "snapshot_commit": null,
+  "snapshot_date": "2026-05-03",
+  "source_type": "direct_asset_pack",
+  "category_tags": [
+    "sprites",
+    "tilesets",
+    "ui",
+    "vfx",
+    "props"
+  ],
+  "intended_use": [
+    "Editor asset browser discovery from local itch loose payloads",
+    "Template polish candidates after project selection",
+    "Release-eligible app/library selection with deferred default export bundling"
+  ],
+  "handling_path": "direct_ingest_when_captured",
+  "legal_disposition": "cc0_public_domain_promoted",
+  "promotion_status": "promoted",
+  "notes": [
+    "Captured from C:\\dev\\URPG Maker\\itch\\loose.",
+    "BND-008 promotes valid PNG payloads with checksums and attribution evidence.",
+    "Default export bundling is deferred until a project explicitly selects assets."
+  ]
+}

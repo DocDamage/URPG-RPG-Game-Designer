@@ -26,3 +26,18 @@ Exact raw duplicates were pruned after preserving canonical copies, so the refre
 currently reports zero duplicate groups.
 
 Future additions should continue to arrive through source manifests, bundle manifests, and asset-intake reports rather than broad content dumps.
+
+`SRC-010` now has three governed normalized promotions:
+
+- `src010_cc0_starter_pack/` is the original small starter subset tracked by `BND-004`.
+- `src010_cc0_release_bulk/` is the bulk app-usable CC0/public-domain subset tracked by `BND-006`.
+- `src010_newly_licensed_bulk/` is the follow-up app-usable subset unlocked by folder/archive license evidence and tracked by `BND-007`.
+
+The `BND-006` and `BND-007` promotions intentionally exclude duplicate payloads, source/tool/archive files, invalid payloads,
+non-OGG audio originals, and packs without CC0/public-domain release evidence. It is release-eligible for
+app/library selection, but default export bundling is deferred so export smoke lanes do not package the entire
+bulk catalog unless selected by a project. Its scan evidence is recorded in
+`imports/reports/asset_intake/src010_release_bulk_scan_report.json`.
+
+`SRC-013` promotes `itch_loose_cc0/` through `BND-008` from the local `itch/loose` CC0 PNG drop. Its evidence is
+recorded in `imports/reports/asset_intake/itch_loose_license_scan.json`.
