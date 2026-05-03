@@ -1860,7 +1860,9 @@ add_test(
 )
 set_tests_properties(
     urpg_export_unit_lane
-    PROPERTIES LABELS "pr;export"
+    PROPERTIES
+        LABELS "pr;export"
+        TIMEOUT 900
 )
 
 add_test(

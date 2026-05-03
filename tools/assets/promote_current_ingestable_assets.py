@@ -13,17 +13,29 @@ from pathlib import Path
 
 SRC010_SOURCE_ID = "SRC-010"
 ITCH_SOURCE_ID = "SRC-013"
-SRC010_CATALOG_ROOT = Path("imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog")
-SRC010_ARCHIVE_LICENSE_SCAN = Path("imports/reports/asset_intake/src010_archive_license_scan_with_folder_licenses.json")
-SRC010_SOURCE_LICENSE_SCAN = Path("imports/reports/asset_intake/src010_source_folder_license_scan.json")
+SRC010_CATALOG_ROOT = Path(
+    "imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog"
+)
+SRC010_ARCHIVE_LICENSE_SCAN = Path(
+    "imports/reports/asset_intake/src010_archive_license_scan_with_folder_licenses.json"
+)
+SRC010_SOURCE_LICENSE_SCAN = Path(
+    "imports/reports/asset_intake/src010_source_folder_license_scan.json"
+)
 ITCH_LICENSE_SCAN = Path("imports/reports/asset_intake/itch_loose_license_scan.json")
 ITCH_ROOT = Path("itch/loose")
 
 SRC010_BUNDLE = Path("imports/manifests/asset_bundles/BND-007.json")
 ITCH_BUNDLE = Path("imports/manifests/asset_bundles/BND-008.json")
-SRC010_ATTRIBUTION = Path("imports/reports/asset_intake/attribution/BND-007_src010_newly_licensed_bulk.json")
-ITCH_ATTRIBUTION = Path("imports/reports/asset_intake/attribution/BND-008_itch_loose_cc0.json")
-SCAN_REPORT = Path("imports/reports/asset_intake/current_ingestable_promotion_report.json")
+SRC010_ATTRIBUTION = Path(
+    "imports/reports/asset_intake/attribution/BND-007_src010_newly_licensed_bulk.json"
+)
+ITCH_ATTRIBUTION = Path(
+    "imports/reports/asset_intake/attribution/BND-008_itch_loose_cc0.json"
+)
+SCAN_REPORT = Path(
+    "imports/reports/asset_intake/current_ingestable_promotion_report.json"
+)
 ITCH_SOURCE_MANIFEST = Path("imports/manifests/asset_sources/SRC-013.json")
 
 APP_USABLE_EXTS = {"png", "gif", "jpg", "jpeg", "ogg", "ttf", "otf", "woff", "woff2"}
@@ -89,10 +101,26 @@ def jpeg_size(path: Path) -> tuple[int, int] | None:
             if len(size_data) != 2:
                 return None
             size = struct.unpack(">H", size_data)[0]
-            if code in {0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF}:
+            if code in {
+                0xC0,
+                0xC1,
+                0xC2,
+                0xC3,
+                0xC5,
+                0xC6,
+                0xC7,
+                0xC9,
+                0xCA,
+                0xCB,
+                0xCD,
+                0xCE,
+                0xCF,
+            }:
                 payload = stream.read(size - 2)
                 if len(payload) >= 5:
-                    return struct.unpack(">H", payload[3:5])[0], struct.unpack(">H", payload[1:3])[0]
+                    return struct.unpack(">H", payload[3:5])[0], struct.unpack(
+                        ">H", payload[1:3]
+                    )[0]
                 return None
             stream.seek(size - 2, 1)
 
@@ -141,7 +169,9 @@ def technical_ok(path: Path, ext: str) -> tuple[bool, str]:
     if path.stat().st_size <= 0:
         return False, "empty_file"
     if ext in {"png", "gif", "jpg", "jpeg"}:
-        return (True, "ok") if image_size(path, ext) else (False, "invalid_image_header")
+        return (
+            (True, "ok") if image_size(path, ext) else (False, "invalid_image_header")
+        )
     if ext == "ogg":
         return (True, "ok") if valid_ogg(path) else (False, "invalid_ogg_header")
     if ext in {"ttf", "otf", "woff", "woff2"}:
@@ -193,7 +223,10 @@ def infer_itch_category(path: Path) -> str:
         return "vfx"
     if "ui" in stem or "icon" in stem or "button" in stem:
         return "ui"
-    if any(token in stem for token in ["char", "walk", "base", "bandit", "alien", "astronaut", "slime"]):
+    if any(
+        token in stem
+        for token in ["char", "walk", "base", "bandit", "alien", "astronaut", "slime"]
+    ):
         return "characters"
     return "props"
 
@@ -232,7 +265,11 @@ def src010_cc0_pack_suffixes() -> set[str]:
     for item in source_scan.get("licenses", []):
         if item.get("classification") == "permissive_cc0_or_public_domain":
             parts = Path(item.get("relative_path", "")).parts
-            if len(parts) >= 4 and parts[0] == "imports" and parts[2] == "more_assets_to_ingest":
+            if (
+                len(parts) >= 4
+                and parts[0] == "imports"
+                and parts[2] == "more_assets_to_ingest"
+            ):
                 # raw folder license lives under imports/raw/more_assets_to_ingest/<pack>/...
                 suffixes.add(parts[3].split("-")[-1].lower())
     return suffixes
@@ -265,7 +302,9 @@ def make_bundle_asset(
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Promote currently ingestable local assets.")
+    parser = argparse.ArgumentParser(
+        description="Promote currently ingestable local assets."
+    )
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
 
@@ -287,7 +326,9 @@ def main() -> int:
         reason = ""
         if source_path in already_promoted:
             reason = "already_promoted"
-        elif not any(pack.lower().endswith(suffix) for suffix in src010_allowed_suffixes):
+        elif not any(
+            pack.lower().endswith(suffix) for suffix in src010_allowed_suffixes
+        ):
             reason = "no_cc0_folder_or_archive_license"
         elif asset.get("status") == "duplicate" or asset.get("sha256") in seen_hashes:
             reason = "duplicate_payload"
@@ -305,10 +346,20 @@ def main() -> int:
                     src010_selected.append((asset, source_file, digest))
                     seen_hashes.add(digest)
                     continue
-        src010_rejected.append({"source_path": source_path, "pack": pack, "category": category, "ext": ext, "reason": reason})
+        src010_rejected.append(
+            {
+                "source_path": source_path,
+                "pack": pack,
+                "category": category,
+                "ext": ext,
+                "reason": reason,
+            }
+        )
 
     src010_bundle_assets = []
-    for asset, source_file, digest in sorted(src010_selected, key=lambda item: item[0]["source_path"]):
+    for asset, source_file, digest in sorted(
+        src010_selected, key=lambda item: item[0]["source_path"]
+    ):
         category = asset["category"]
         ext = asset["ext"].lower()
         pack_slug = slug(asset["pack"])
@@ -348,16 +399,28 @@ def main() -> int:
                 ok, reason = technical_ok(source_file, ext)
                 if ok:
                     digest = sha256_file(source_file)
-                    itch_selected.append((source_file, digest, infer_itch_category(source_file)))
+                    itch_selected.append(
+                        (source_file, digest, infer_itch_category(source_file))
+                    )
                     continue
-            itch_rejected.append({"source_path": source_path, "ext": ext, "reason": reason})
+            itch_rejected.append(
+                {"source_path": source_path, "ext": ext, "reason": reason}
+            )
     else:
-        itch_rejected.append({"source_path": ITCH_ROOT.as_posix(), "ext": "", "reason": "license_not_cc0_public_domain"})
+        itch_rejected.append(
+            {
+                "source_path": ITCH_ROOT.as_posix(),
+                "ext": "",
+                "reason": "license_not_cc0_public_domain",
+            }
+        )
 
     itch_bundle_assets = []
     for source_file, digest, category in itch_selected:
         ext = source_file.suffix.lower().lstrip(".")
-        promoted_rel = f"itch_loose_cc0/{category}/{slug(source_file.stem)}-{digest[:12]}.{ext}"
+        promoted_rel = (
+            f"itch_loose_cc0/{category}/{slug(source_file.stem)}-{digest[:12]}.{ext}"
+        )
         target = Path("imports/normalized") / promoted_rel
         if not args.dry_run:
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -475,9 +538,13 @@ def main() -> int:
         },
     }
     for item in src010_rejected:
-        report["src010"]["rejection_summary"][item["reason"]] = report["src010"]["rejection_summary"].get(item["reason"], 0) + 1
+        report["src010"]["rejection_summary"][item["reason"]] = (
+            report["src010"]["rejection_summary"].get(item["reason"], 0) + 1
+        )
     for item in itch_rejected:
-        report["itch_loose"]["rejection_summary"][item["reason"]] = report["itch_loose"]["rejection_summary"].get(item["reason"], 0) + 1
+        report["itch_loose"]["rejection_summary"][item["reason"]] = (
+            report["itch_loose"]["rejection_summary"].get(item["reason"], 0) + 1
+        )
 
     if not args.dry_run:
         write_json(SRC010_BUNDLE, src010_bundle)

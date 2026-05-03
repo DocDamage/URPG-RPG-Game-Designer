@@ -457,7 +457,7 @@ Run:
 
 ```powershell
 cmake --build --preset dev-debug --target urpg_tests -- -j1
-ctest --preset dev-all -R "WYSIWYG showcase|template|editor panel registry|editor app panels" --output-on-failure
+ctest --preset dev-all -R "WYSIWYG showcase|template|Editor panel registry|editor app panels" --output-on-failure
 ```
 
 Expected result: all selected tests pass and no showcase route is unknown or deferred.
@@ -494,7 +494,7 @@ In `tests/unit/test_s32_wysiwyg_lanes.cpp`, replace the conditional `if (unwired
 In `docs/release/100_PERCENT_COMPLETION_INVENTORY.md`, set `phase_10_wysiwyg_roadmap_completion` to:
 
 ```markdown
-| `phase_10_wysiwyg_roadmap_completion` | `READY` | None for the WYSIWYG route-wiring scope. Phase 11 offline tooling and Phase 12 curated release/tag work remain mandatory open lanes. | Every WYSIWYG showcase surface names a valid registry-backed editor panel route, every route is exposed as `ReleaseTopLevel` or `Nested`, app factory inventory covers every route, WYSIWYG done-rule evidence remains recorded across `READY` subsystem records, and focused regression coverage lives in `tests/unit/test_s32_wysiwyg_lanes.cpp`, `tests/unit/test_template_acceptance.cpp`, `tests/unit/test_editor_panel_registry.cpp`, and `tests/unit/test_editor_app_panels.cpp`. | `ctest --preset dev-all -R "WYSIWYG|readiness_status|template|editor panel registry|editor app panels" --output-on-failure`; `.\tools\ci\truth_reconciler.ps1`; `.\tools\ci\run_local_gates.ps1` before release tagging. | May be claimed ready for the WYSIWYG route-wiring scope; no final 100-percent release claim until Phase 11 and Phase 12 are complete. |
+| `phase_10_wysiwyg_roadmap_completion` | `READY` | None for the WYSIWYG route-wiring scope. Phase 11 offline tooling and Phase 12 curated release/tag work remain mandatory open lanes. | Every WYSIWYG showcase surface names a valid registry-backed editor panel route, every route is exposed as `ReleaseTopLevel` or `Nested`, app factory inventory covers every route, WYSIWYG done-rule evidence remains recorded across `READY` subsystem records, and focused regression coverage lives in `tests/unit/test_s32_wysiwyg_lanes.cpp`, `tests/unit/test_template_acceptance.cpp`, `tests/unit/test_editor_panel_registry.cpp`, and `tests/unit/test_editor_app_panels.cpp`. | `ctest --preset dev-all -R "WYSIWYG|readiness_status|template|Editor panel registry|editor app panels" --output-on-failure`; `.\tools\ci\truth_reconciler.ps1`; `.\tools\ci\run_local_gates.ps1` before release tagging. | May be claimed ready for the WYSIWYG route-wiring scope; no final 100-percent release claim until Phase 11 and Phase 12 are complete. |
 ```
 
 - [ ] **Step 3: Update program status docs**
@@ -510,7 +510,7 @@ Phase 10 WYSIWYG roadmap closure is complete for the current 100-percent program
 Run:
 
 ```powershell
-ctest --preset dev-all -R "WYSIWYG|readiness_status|template|editor panel registry|editor app panels" --output-on-failure
+ctest --preset dev-all -R "WYSIWYG|readiness_status|template|Editor panel registry|editor app panels" --output-on-failure
 .\tools\ci\truth_reconciler.ps1
 .\tools\ci\check_mandatory_completion_scope.ps1
 git diff --check
@@ -546,7 +546,7 @@ Expected result: build succeeds. If MinGW archive/link fragility appears, rerun 
 Run:
 
 ```powershell
-ctest --preset dev-all -R "WYSIWYG|readiness_status|template|editor panel registry|editor app panels" --output-on-failure
+ctest --preset dev-all -R "WYSIWYG|readiness_status|template|Editor panel registry|editor app panels" --output-on-failure
 ```
 
 Expected result: all matching tests pass.

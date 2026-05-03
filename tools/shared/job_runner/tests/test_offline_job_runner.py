@@ -104,7 +104,8 @@ class OfflineJobRunnerTests(unittest.TestCase):
                 (REPO_ROOT / manifest_output).read_text(encoding="utf-8")
             )
             self.assertEqual(
-                manifest["schema"], "content/schemas/retrieval_chunk_manifest.schema.json"
+                manifest["schema"],
+                "content/schemas/retrieval_chunk_manifest.schema.json",
             )
             self.assertGreaterEqual(len(manifest["chunks"]), 1)
 

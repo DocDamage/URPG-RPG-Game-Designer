@@ -554,7 +554,8 @@ TEST_CASE("3D dungeon world persists visual verification and template bindings",
     REQUIRE(preview.template_binding_count == 2);
     REQUIRE(containsCommand(preview.runtime_commands, "bind_template_3d:2_5d_rpg"));
 
-    REQUIRE(document.markVisualVerification("runtime_preview_match", true, "captures/dungeon3d/runtime-preview-match.png"));
+    REQUIRE(
+        document.markVisualVerification("runtime_preview_match", true, "captures/dungeon3d/runtime-preview-match.png"));
     preview = document.preview();
     REQUIRE(preview.passed_verification_step_count == 1);
     REQUIRE(preview.verification_completion == 0.5f);
@@ -582,18 +583,16 @@ TEST_CASE("3D dungeon world persists visual verification and template bindings",
     invalid.visual_verification_steps.push_back(invalid.visual_verification_steps.front());
     invalid.template_bindings.push_back(invalid.template_bindings.front());
     const auto diagnostics = invalid.validate();
-    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
-        return diagnostic.code == "duplicate_visual_verification_id";
-    }));
-    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
-        return diagnostic.code == "duplicate_template_binding_id";
-    }));
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(),
+                        [](const auto& diagnostic) { return diagnostic.code == "duplicate_visual_verification_id"; }));
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(),
+                        [](const auto& diagnostic) { return diagnostic.code == "duplicate_template_binding_id"; }));
 }
 
 TEST_CASE("3D dungeon world is release registered with native level building", "[dungeon3d][wysiwyg]") {
     const auto* dungeon = urpg::editor::findEditorPanelRegistryEntry("3d_dungeon_world");
     REQUIRE(dungeon != nullptr);
-    REQUIRE(dungeon->exposure == urpg::editor::EditorPanelExposure::Deferred);
+    REQUIRE(dungeon->exposure == urpg::editor::EditorPanelExposure::Nested);
 
     const auto* levelBuilder = urpg::editor::findEditorPanelRegistryEntry("level_builder");
     REQUIRE(levelBuilder != nullptr);
@@ -610,7 +609,8 @@ TEST_CASE("3D dungeon world reports broken authoring diagnostics", "[dungeon3d][
     document.map_id = "bad_map";
     document.width = 2;
     document.height = 2;
-    document.cells.push_back({"floor", "missing_material", "", "", "", "", "", false, false, false, false, false, false});
+    document.cells.push_back(
+        {"floor", "missing_material", "", "", "", "", "", false, false, false, false, false, false});
     document.materials["stone"] = {"stone", "", "floor.png", "ceiling.png", -1.0f, ""};
 
     const auto diagnostics = document.validate();

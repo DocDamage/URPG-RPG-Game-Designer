@@ -13,11 +13,19 @@ from pathlib import Path
 
 SOURCE_ID = "SRC-010"
 RAW_ROOT = Path("imports/raw/more_assets_to_ingest")
-CATALOG_SHARD_ROOT = Path("imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog")
-CANDIDATE_REPORT = Path("imports/reports/more_assets_to_ingest/promotion_candidate_report.json")
+CATALOG_SHARD_ROOT = Path(
+    "imports/reports/asset_intake/more_assets_to_ingest_promotion_catalog"
+)
+CANDIDATE_REPORT = Path(
+    "imports/reports/more_assets_to_ingest/promotion_candidate_report.json"
+)
 BUNDLE_PATH = Path("imports/manifests/asset_bundles/BND-006.json")
-ATTRIBUTION_PATH = Path("imports/reports/asset_intake/attribution/BND-006_src010_cc0_release_bulk.json")
-SCAN_REPORT_PATH = Path("imports/reports/asset_intake/src010_release_bulk_scan_report.json")
+ATTRIBUTION_PATH = Path(
+    "imports/reports/asset_intake/attribution/BND-006_src010_cc0_release_bulk.json"
+)
+SCAN_REPORT_PATH = Path(
+    "imports/reports/asset_intake/src010_release_bulk_scan_report.json"
+)
 NORMALIZED_ROOT = Path("imports/normalized/src010_cc0_release_bulk")
 
 APP_USABLE_EXTS = {"png", "gif", "jpg", "jpeg", "ogg", "ttf", "otf", "woff", "woff2"}
@@ -83,10 +91,26 @@ def jpeg_size(path: Path) -> tuple[int, int] | None:
             if len(size_data) != 2:
                 return None
             size = struct.unpack(">H", size_data)[0]
-            if code in {0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF}:
+            if code in {
+                0xC0,
+                0xC1,
+                0xC2,
+                0xC3,
+                0xC5,
+                0xC6,
+                0xC7,
+                0xC9,
+                0xCA,
+                0xCB,
+                0xCD,
+                0xCE,
+                0xCF,
+            }:
                 payload = stream.read(size - 2)
                 if len(payload) >= 5:
-                    return struct.unpack(">H", payload[3:5])[0], struct.unpack(">H", payload[1:3])[0]
+                    return struct.unpack(">H", payload[3:5])[0], struct.unpack(
+                        ">H", payload[1:3]
+                    )[0]
                 return None
             stream.seek(size - 2, 1)
 
@@ -140,9 +164,17 @@ def technical_ok(path: Path, ext: str) -> tuple[bool, str, tuple[int, int] | Non
             return False, "invalid_image_header", None
         return True, "ok", size
     if ext == "ogg":
-        return (True, "ok", None) if valid_ogg(path) else (False, "invalid_ogg_header", None)
+        return (
+            (True, "ok", None)
+            if valid_ogg(path)
+            else (False, "invalid_ogg_header", None)
+        )
     if ext in {"ttf", "otf", "woff", "woff2"}:
-        return (True, "ok", None) if valid_font(path, ext) else (False, "invalid_font_header", None)
+        return (
+            (True, "ok", None)
+            if valid_font(path, ext)
+            else (False, "invalid_font_header", None)
+        )
     return False, "unsupported_extension", None
 
 
@@ -228,7 +260,9 @@ def promoted_source_paths() -> set[str]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Promote all release-safe SRC-010 app-usable assets.")
+    parser = argparse.ArgumentParser(
+        description="Promote all release-safe SRC-010 app-usable assets."
+    )
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
 
@@ -343,7 +377,9 @@ def main() -> int:
         "bundle_id": "BND-006",
         "promoted_asset_count": len(promoted_assets),
         "promoted_assets": promoted_assets,
-        "license_evidence": sorted({path for paths in evidence_by_pack.values() for path in paths}),
+        "license_evidence": sorted(
+            {path for paths in evidence_by_pack.values() for path in paths}
+        ),
         "notes": [
             "Bulk SRC-010 promotion includes only app-usable unique payload files from packs with permissive CC0/public-domain evidence.",
             "Duplicate payloads, archives, executable/tools, source-art files, source map files, and non-OGG audio originals remain raw quarantine/local catalog only.",
@@ -364,9 +400,13 @@ def main() -> int:
         "rejected_samples": rejected[:200],
     }
     for asset, _source_file, _digest, _size in selected:
-        scan["selected_by_category"][asset["category"]] = scan["selected_by_category"].get(asset["category"], 0) + 1
+        scan["selected_by_category"][asset["category"]] = (
+            scan["selected_by_category"].get(asset["category"], 0) + 1
+        )
     for item in rejected:
-        scan["rejection_summary"][item["reason"]] = scan["rejection_summary"].get(item["reason"], 0) + 1
+        scan["rejection_summary"][item["reason"]] = (
+            scan["rejection_summary"].get(item["reason"], 0) + 1
+        )
 
     if not args.dry_run:
         write_json(BUNDLE_PATH, bundle)

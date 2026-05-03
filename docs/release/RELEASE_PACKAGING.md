@@ -1,6 +1,6 @@
 # Release Packaging
 
-Status Date: 2026-04-30
+Status Date: 2026-05-03
 
 This document records the native release packaging contract for URPG exports. It does not claim that production signing credentials are present in the repository.
 
@@ -207,6 +207,14 @@ That report classifies connected release assets and non-connected bundle rows. C
 
 Environmental SFX, BGM, final portrait art, final music identity, and polished VFX identity are mandatory content backlog until cleared bundles are promoted for those categories. They are not bundled by the current package gate without attribution evidence, checksums, package destinations, and promoted payloads.
 
+Phase 12 local curated bulk promotions add three release-eligible, non-release-required deferred bundles:
+
+- `BND-006` - 12,430 SRC-010 CC0/public-domain app-usable payloads.
+- `BND-007` - 4,697 SRC-010 app-usable payloads unlocked by source-folder/archive license evidence.
+- `BND-008` - 394 `SRC-013` / `itch/loose` CC0 PNG payloads.
+
+Each promoted row carries an attribution record, SHA-256 checksum, package destination, promoted payload path under `imports/normalized/`, and `release_eligible: true`. Because these bundles are `distribution: deferred` and `release_required: false`, release packages install their governed manifests but do not default-bundle the full curated bulk payload set unless a project explicitly selects those assets.
+
 ## Full Local Gate Status
 
 The release-surface remediation branch was verified with the full local gate:
@@ -215,4 +223,4 @@ The release-surface remediation branch was verified with the full local gate:
 .\tools\ci\run_local_gates.ps1
 ```
 
-Status on 2026-04-30: passed end to end. The gate covers waiver validation, doc/readiness/truth/governance checks, CMake completeness, debug and warnings-as-errors builds, PR tests, nightly tests, weekly compat tests, install smoke, package smoke, grid-part integration, and presentation release validation.
+Status on 2026-05-03: passed end to end on `codex/asset-release-ingestion` after Phase 12 curated bulk promotion. The gate covers waiver validation, doc/readiness/truth/governance checks, CMake completeness, debug and warnings-as-errors builds, PR tests, nightly tests, weekly compat tests, install smoke, package smoke, grid-part integration, and presentation release validation.
