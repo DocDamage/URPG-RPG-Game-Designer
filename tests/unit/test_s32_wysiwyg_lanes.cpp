@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#include "engine/core/editor/editor_panel_registry.h"
+
 using nlohmann::json;
 
 namespace {
@@ -75,6 +77,42 @@ json loadWysiwygDoneRule() {
         }
     }
     return json{};
+}
+
+json loadWysiwygTemplateShowcase() {
+    const std::vector<std::string> candidates = {
+        "content/examples/wysiwyg_template_showcase.json",
+        "../content/examples/wysiwyg_template_showcase.json",
+        "../../content/examples/wysiwyg_template_showcase.json",
+    };
+    for (const auto& path : candidates) {
+        std::ifstream ifs(path);
+        if (ifs.is_open()) {
+            json doc;
+            ifs >> doc;
+            return doc;
+        }
+    }
+    return json{};
+}
+
+bool isRoutableEditorExposure(urpg::editor::EditorPanelExposure exposure) {
+    return exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel ||
+           exposure == urpg::editor::EditorPanelExposure::Nested;
+}
+
+std::size_t countUnwiredWysiwygShowcaseSurfaces(const json& showcase) {
+    std::size_t unwired = 0;
+    for (const auto& example : showcase.value("examples", json::array())) {
+        for (const auto& surface : example.value("surfaces", json::array())) {
+            const auto registryId = surface.value("editor_panel_registry_id", "");
+            const auto* entry = urpg::editor::findEditorPanelRegistryEntry(registryId);
+            if (registryId.empty() || entry == nullptr || !isRoutableEditorExposure(entry->exposure)) {
+                ++unwired;
+            }
+        }
+    }
+    return unwired;
 }
 
 json findSubsystem(const json& readiness, const std::string& subsystemId) {
@@ -403,7 +441,7 @@ TEST_CASE("WYSIWYG priority surface list keeps the next creator-tool pushes expl
     }
 }
 
-TEST_CASE("Phase 10 WYSIWYG roadmap completion is closed in canonical release docs",
+TEST_CASE("Phase 10 WYSIWYG roadmap completion truth follows routed showcase surfaces",
           "[wysiwyg][done_rule][phase10]") {
     const std::string inventory = readTextFile({
         "docs/release/100_PERCENT_COMPLETION_INVENTORY.md",
@@ -415,18 +453,29 @@ TEST_CASE("Phase 10 WYSIWYG roadmap completion is closed in canonical release do
         "../docs/PROGRAM_COMPLETION_STATUS.md",
         "../../docs/PROGRAM_COMPLETION_STATUS.md",
     });
+    const json showcase = loadWysiwygTemplateShowcase();
 
     REQUIRE_FALSE(inventory.empty());
     REQUIRE_FALSE(programStatus.empty());
+    REQUIRE(!showcase.empty());
 
     const auto phase10Pos = inventory.find("`phase_10_wysiwyg_roadmap_completion`");
     REQUIRE(phase10Pos != std::string::npos);
     const auto phase10LineEnd = inventory.find('\n', phase10Pos);
     const auto phase10Line = inventory.substr(phase10Pos, phase10LineEnd - phase10Pos);
 
-    REQUIRE(phase10Line.find("`READY`") != std::string::npos);
-    REQUIRE(phase10Line.find("`MANDATORY_OPEN`") == std::string::npos);
-    REQUIRE(phase10Line.find("WYSIWYG done-rule evidence") != std::string::npos);
+    const auto unwiredSurfaceCount = countUnwiredWysiwygShowcaseSurfaces(showcase);
+    if (unwiredSurfaceCount == 0) {
+        REQUIRE(phase10Line.find("`READY`") != std::string::npos);
+        REQUIRE(phase10Line.find("`MANDATORY_OPEN`") == std::string::npos);
+        REQUIRE(phase10Line.find("WYSIWYG done-rule evidence") != std::string::npos);
+    } else {
+        REQUIRE(phase10Line.find("`MANDATORY_OPEN`") != std::string::npos);
+        REQUIRE(phase10Line.find("`READY`") == std::string::npos);
+        REQUIRE(phase10Line.find("showcase surfaces are not wired to registry-backed editor panel routes") !=
+                std::string::npos);
+        REQUIRE(programStatus.find("Phase 10 WYSIWYG roadmap closure remains open") != std::string::npos);
+    }
 
     REQUIRE(programStatus.find("- [ ] Mandatory: treat every remaining roadmap lane as dual-delivery work") ==
             std::string::npos);
