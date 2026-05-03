@@ -402,3 +402,42 @@ TEST_CASE("WYSIWYG priority surface list keeps the next creator-tool pushes expl
         REQUIRE(it != rule["prioritySurfaces"].end());
     }
 }
+
+TEST_CASE("Phase 10 WYSIWYG roadmap completion is closed in canonical release docs",
+          "[wysiwyg][done_rule][phase10]") {
+    const std::string inventory = readTextFile({
+        "docs/release/100_PERCENT_COMPLETION_INVENTORY.md",
+        "../docs/release/100_PERCENT_COMPLETION_INVENTORY.md",
+        "../../docs/release/100_PERCENT_COMPLETION_INVENTORY.md",
+    });
+    const std::string programStatus = readTextFile({
+        "docs/PROGRAM_COMPLETION_STATUS.md",
+        "../docs/PROGRAM_COMPLETION_STATUS.md",
+        "../../docs/PROGRAM_COMPLETION_STATUS.md",
+    });
+
+    REQUIRE_FALSE(inventory.empty());
+    REQUIRE_FALSE(programStatus.empty());
+
+    const auto phase10Pos = inventory.find("`phase_10_wysiwyg_roadmap_completion`");
+    REQUIRE(phase10Pos != std::string::npos);
+    const auto phase10LineEnd = inventory.find('\n', phase10Pos);
+    const auto phase10Line = inventory.substr(phase10Pos, phase10LineEnd - phase10Pos);
+
+    REQUIRE(phase10Line.find("`READY`") != std::string::npos);
+    REQUIRE(phase10Line.find("`MANDATORY_OPEN`") == std::string::npos);
+    REQUIRE(phase10Line.find("WYSIWYG done-rule evidence") != std::string::npos);
+
+    REQUIRE(programStatus.find("- [ ] Mandatory: treat every remaining roadmap lane as dual-delivery work") ==
+            std::string::npos);
+    REQUIRE(programStatus.find("- [ ] Mandatory: close every remaining feature lane with direct editor workflows") ==
+            std::string::npos);
+    REQUIRE(programStatus.find("- [ ] Mandatory: keep public docs, readiness language, and completion claims aligned") ==
+            std::string::npos);
+    REQUIRE(programStatus.find("- [x] Mandatory: treat every remaining roadmap lane as dual-delivery work") !=
+            std::string::npos);
+    REQUIRE(programStatus.find("- [x] Mandatory: close every remaining feature lane with direct editor workflows") !=
+            std::string::npos);
+    REQUIRE(programStatus.find("- [x] Mandatory: keep public docs, readiness language, and completion claims aligned") !=
+            std::string::npos);
+}

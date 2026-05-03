@@ -929,9 +929,11 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 
 ### 7. WYSIWYG closure and ease-of-use (remaining)
 
-- [ ] Mandatory: treat every remaining roadmap lane as dual-delivery work: runtime capability plus visual authoring/live preview.
-- [ ] Mandatory: close every remaining feature lane with direct editor workflows suitable for non-technical creators, not diagnostics-only or fixture-only paths.
-- [ ] Mandatory: keep public docs, readiness language, and completion claims aligned with that WYSIWYG definition of done.
+- [x] Mandatory: treat every remaining roadmap lane as dual-delivery work: runtime capability plus visual authoring/live preview.
+- [x] Mandatory: close every remaining feature lane with direct editor workflows suitable for non-technical creators, not diagnostics-only or fixture-only paths.
+- [x] Mandatory: keep public docs, readiness language, and completion claims aligned with that WYSIWYG definition of done.
+
+Phase 10 WYSIWYG roadmap closure is complete for the current 100-percent program scope. The closure evidence is the enforced WYSIWYG done rule in `content/readiness/wysiwyg_done_rule.json`, READY subsystem evidence fields for visual authoring, live preview, saved project data, runtime execution, diagnostics, and tests, feature-specific editor/runtime rows in the readiness matrix, template WYSIWYG showcase bindings, and the focused `tests/unit/test_s32_wysiwyg_lanes.cpp` regression. Phase 11 offline tooling and Phase 12 curated content/release-tag work remain mandatory before a final 100-percent release claim.
 
 ### 8. Offline tooling boundary and pipeline adoption (remaining)
 
