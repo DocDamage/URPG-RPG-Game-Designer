@@ -6,7 +6,7 @@ The project is built for creators who want RPG Maker-style production speed with
 
 ## Current Status
 
-Status date: 2026-04-30
+Status date: 2026-05-04
 
 The current `codex/release-surface-p0` branch has completed the release-surface audit remediation plan through Phase 6 Task P6-002. The full local gate now passes end to end:
 
@@ -16,7 +16,10 @@ The current `codex/release-surface-p0` branch has completed the release-surface 
 
 This means the current branch has verified editor release navigation, Level Builder exposure, release authoring persistence, input and pause behavior, release-required asset checks, install/package smoke, PR tests, nightly tests, weekly compat tests, and documentation/readiness guard scripts.
 
-Public release is now release-owner-waived for legal/privacy review, not qualified-counsel-approved. Final public distribution still requires a release tag and any platform-specific signing/notarization credentials required for final distribution.
+Public release is release-owner-waived for legal/privacy review, not qualified-counsel-approved. `EULA.md`,
+`PRIVACY_POLICY.md`, and `docs/release/LEGAL_REVIEW_SIGNOFF.md` now state the same distribution scope. Final public
+distribution still requires a release tag and any platform-specific signing/notarization credentials required for final
+distribution.
 
 ## Verified Release Surface
 
@@ -35,6 +38,10 @@ Within the bounded internal/private release-candidate scope:
 - Editor release navigation starts headlessly, lists panels, and opens `level_builder`.
 - Ability draft save/load/apply, ability project-content save, pattern editing, Level Builder save/load/export/playtest/package, analytics consent/local JSONL export, and app settings persistence are covered by deterministic tests.
 - Release-required assets are validated by `tools/ci/check_release_required_assets.ps1`; raw/vendor intake paths are not eligible release payloads.
+- Current release visuals are bounded starter/proof assets, not final AAA art direction. The release asset gate requires this scope to be declared before prototype actor, starter UI skin/chrome, or VFX proof rows can satisfy release coverage.
+- Cloud sync is not a production-visible release feature in the shipped tree. `LocalInMemoryCloudService` is process-local
+  test/dev storage only, and release UI must keep cloud/cross-device sync hidden unless an out-of-tree provider reports a
+  reviewed remote transport through `ICloudService::releaseVisibility()`.
 - Native release builds expose version metadata through `urpg_runtime.exe --version` and `urpg_editor.exe --version`.
 - Install and package smoke checks verify app binaries, runtime data, docs/legal files, icons, desktop entries, and component ZIP archives.
 - Compat diagnostics distinguish successful execution diagnostics from failure diagnostics in both model and live panel refresh paths.

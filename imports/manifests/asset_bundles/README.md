@@ -24,4 +24,6 @@ TD Sprint 04 added the first promoted allowlist records:
 - `BND-007.json` - `SRC-010` newly license-covered app-usable promotion; release-eligible but not release-required or default-bundled
 - `BND-008.json` - `SRC-013` itch loose CC0 PNG promotion; release-eligible but not release-required or default-bundled
 
-Current UI and audio release surfaces are satisfied by explicit fallback entries in `releaseAssets` until a non-LFS bundled audio asset is approved.
+Current UI and audio release surfaces are satisfied by explicit fallback entries in `releaseAssets` until a non-LFS
+bundled audio asset is approved. The release-required asset gate enforces this policy: the audio surface must be covered
+by either an explicit muted/silent `system_fallback` `audio_policy` row or a bundled release-required audio asset.

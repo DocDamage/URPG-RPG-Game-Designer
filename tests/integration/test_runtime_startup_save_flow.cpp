@@ -1,9 +1,12 @@
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/save/runtime_save_startup.h"
 #include "engine/core/save/save_serialization_hub.h"
+#include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/runtime_title_scene.h"
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -45,16 +48,14 @@ class TempProject {
 };
 
 std::string metadataJson(int slot_id, const std::string& timestamp, const std::string& map_name) {
-    return std::string("{") + "\"_slot_id\":" + std::to_string(slot_id) + "," +
-           "\"_slot_category\":\"manual\"," + "\"_retention_class\":\"manual\"," +
-           "\"_save_version\":\"1.0\"," + "\"_timestamp\":\"" + timestamp + "\"," +
+    return std::string("{") + "\"_slot_id\":" + std::to_string(slot_id) + "," + "\"_slot_category\":\"manual\"," +
+           "\"_retention_class\":\"manual\"," + "\"_save_version\":\"1.0\"," + "\"_timestamp\":\"" + timestamp + "\"," +
            "\"_map_display_name\":\"" + map_name + "\"}";
 }
 
 } // namespace
 
-TEST_CASE("Runtime startup save discovery disables Continue when no saves exist",
-          "[integration][runtime][save]") {
+TEST_CASE("Runtime startup save discovery disables Continue when no saves exist", "[integration][runtime][save]") {
     const TempProject project;
 
     const auto state = urpg::discoverRuntimeSaves(project.root());
@@ -96,11 +97,14 @@ TEST_CASE("Runtime startup save discovery enables Continue for newest valid prim
     REQUIRE(result.active_meta.map_display_name == "NewestMap");
 
     bool continueCalled = false;
-    urpg::scene::RuntimeTitleScene title({{}, {}, [&continueCalled] {
+    urpg::scene::RuntimeTitleScene title({{},
+                                          {},
+                                          [&continueCalled] {
                                               continueCalled = true;
                                               return urpg::scene::RuntimeTitleCommandResult{
                                                   true, true, "continue_loaded", "loaded"};
-                                          }, {}});
+                                          },
+                                          {}});
     title.setContinueAvailability(state.hasLoadableSave(), state.continueDisabledReason());
     const auto commandResult = title.activateCommand(urpg::scene::RuntimeTitleCommandId::Continue);
     REQUIRE(commandResult.success);
@@ -108,11 +112,90 @@ TEST_CASE("Runtime startup save discovery enables Continue for newest valid prim
     REQUIRE(continueCalled);
 }
 
+TEST_CASE("MapScene saves use runtime project root and are discoverable by Continue",
+          "[integration][runtime][save][scene][map]") {
+    const TempProject project;
+
+    urpg::scene::MapScene map("SaveMap", 1, 1);
+    map.setProjectRoot(project.root());
+
+    REQUIRE(map.saveGame(8));
+    REQUIRE(std::filesystem::is_regular_file(project.saves() / "slot_8.json"));
+    REQUIRE_FALSE(std::filesystem::exists(project.saves() / "slot_8.usr"));
+
+    const auto state = urpg::discoverRuntimeSaves(project.root());
+    REQUIRE(state.hasLoadableSave());
+    REQUIRE(state.newestLoadableSave() != nullptr);
+    REQUIRE(state.newestLoadableSave()->slot_id == 8);
+
+    const auto result = urpg::continueNewestRuntimeSave(state);
+    REQUIRE(result.ok);
+    REQUIRE(result.slot_id == 8);
+    REQUIRE(result.recovery_tier == urpg::SaveRecoveryTier::None);
+
+    const auto& saveResult = map.lastSaveLoadResult();
+    REQUIRE(saveResult.ok);
+    REQUIRE(saveResult.slot_id == 8);
+    REQUIRE(saveResult.primary_path == project.saves() / "slot_8.json");
+}
+
+TEST_CASE("MapScene save failures and load recovery expose structured diagnostics",
+          "[integration][runtime][save][scene][map][diagnostics]") {
+    const TempProject project;
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+
+    const auto blockedRoot = project.root() / "blocked_root";
+    {
+        std::ofstream out(blockedRoot, std::ios::binary);
+        out << "not a directory";
+    }
+
+    urpg::scene::MapScene map("FailureMap", 1, 1);
+    map.setProjectRoot(blockedRoot);
+
+    const auto saveResult = map.saveGameDetailed(3);
+    REQUIRE_FALSE(saveResult.ok);
+    REQUIRE(saveResult.operation == urpg::scene::MapSceneSaveLoadOperation::Save);
+    REQUIRE(saveResult.slot_id == 3);
+    REQUIRE(saveResult.primary_path == blockedRoot / "saves" / "slot_3.json");
+    REQUIRE(saveResult.failure_reason == "runtime_save_write_failed");
+    REQUIRE_FALSE(saveResult.diagnostics.empty());
+
+    project.writeSaveFile("slot_42.json", "{not-json");
+    map.setProjectRoot(project.root());
+    const auto loadResult = map.loadGameDetailed(42);
+    REQUIRE(loadResult.ok);
+    REQUIRE(loadResult.operation == urpg::scene::MapSceneSaveLoadOperation::Load);
+    REQUIRE(loadResult.slot_id == 42);
+    REQUIRE(loadResult.primary_path == project.saves() / "slot_42.json");
+    REQUIRE(loadResult.loaded_from_recovery);
+    REQUIRE(loadResult.recovery_tier == urpg::SaveRecoveryTier::Level3SafeSkeleton);
+    REQUIRE(loadResult.boot_safe_mode);
+    REQUIRE(loadResult.failure_reason.empty());
+    REQUIRE_FALSE(loadResult.diagnostics.empty());
+    REQUIRE(std::find(loadResult.diagnostics.begin(), loadResult.diagnostics.end(),
+                      "primary_payload_json_parse_failed") != loadResult.diagnostics.end());
+
+    const auto diagnostics = urpg::diagnostics::RuntimeDiagnostics::snapshot();
+    REQUIRE(std::count_if(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+                return diagnostic.subsystem == "scene.map" &&
+                       diagnostic.severity == urpg::diagnostics::DiagnosticSeverity::Error &&
+                       (diagnostic.code == "map.save_failed" || diagnostic.code == "map.load_failed");
+            }) == 1);
+    REQUIRE(std::count_if(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+                return diagnostic.subsystem == "scene.map" &&
+                       diagnostic.severity == urpg::diagnostics::DiagnosticSeverity::Warning &&
+                       diagnostic.code == "map.load_recovered";
+            }) == 1);
+
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+}
+
 TEST_CASE("Runtime startup Continue loads valid URSV payloads through checksum path",
           "[integration][runtime][save][checksum]") {
     const TempProject project;
-    const auto binary = urpg::save::SaveSerializationHub::jsonToBinary(R"({"state":"binary-primary"})",
-                                                                       urpg::save::SaveSerializationHub::CompressionLevel::None);
+    const auto binary = urpg::save::SaveSerializationHub::jsonToBinary(
+        R"({"state":"binary-primary"})", urpg::save::SaveSerializationHub::CompressionLevel::None);
     project.writeSaveFile("slot_5.ursv", binary);
     project.writeSaveFile("slot_5_meta.json", metadataJson(5, "2026-04-26T12:00:00Z", "BinaryMap"));
 
@@ -134,8 +217,8 @@ TEST_CASE("Runtime startup Continue loads valid URSV payloads through checksum p
 TEST_CASE("Runtime startup Continue recovers from corrupt URSV primary through autosave",
           "[integration][runtime][save][recovery][checksum][autosave]") {
     const TempProject project;
-    auto binary = urpg::save::SaveSerializationHub::jsonToBinary(R"({"state":"broken-primary"})",
-                                                                 urpg::save::SaveSerializationHub::CompressionLevel::None);
+    auto binary = urpg::save::SaveSerializationHub::jsonToBinary(
+        R"({"state":"broken-primary"})", urpg::save::SaveSerializationHub::CompressionLevel::None);
     binary[12] = static_cast<uint8_t>(binary[12] ^ 0x7F);
     project.writeSaveFile("slot_6.ursv", binary);
     project.writeSaveFile("slot_6_meta.json", metadataJson(6, "2026-04-26T13:00:00Z", "CorruptPrimaryMap"));
@@ -160,8 +243,8 @@ TEST_CASE("Runtime startup Continue recovers from corrupt URSV primary through a
 TEST_CASE("Runtime startup Continue recovers corrupt primary and corrupt autosave through safe skeleton",
           "[integration][runtime][save][recovery][checksum]") {
     const TempProject project;
-    auto binary = urpg::save::SaveSerializationHub::jsonToBinary(R"({"state":"broken-primary"})",
-                                                                 urpg::save::SaveSerializationHub::CompressionLevel::None);
+    auto binary = urpg::save::SaveSerializationHub::jsonToBinary(
+        R"({"state":"broken-primary"})", urpg::save::SaveSerializationHub::CompressionLevel::None);
     binary.back() = static_cast<uint8_t>(binary.back() ^ 0x7F);
     project.writeSaveFile("slot_7.ursv", binary);
     project.writeSaveFile("slot_7_meta.json", metadataJson(7, "2026-04-26T14:00:00Z", "SkeletonMap"));

@@ -1,6 +1,6 @@
 # Legal Review Signoff
 
-Status Date: 2026-04-30
+Status Date: 2026-05-04
 
 This file records the legal/privacy/distribution review decision for the current URPG release candidate.
 
@@ -37,6 +37,8 @@ Decision notes:
 - This is an explicit release-owner waiver, not qualified legal counsel approval for public binary distribution.
 - The release owner stated that their shipped assets are paid/licensed for use in games and are usable in distributed games.
 - The current release-required asset manifest bundles `BND-001` only for title, map, and battle placeholder coverage; `BND-002` UI SFX WAV payloads are deferred/local-only and ignored from GitHub packaging.
+- The 2026-05-04 release asset gate records current visuals as bounded starter/proof assets, not final AAA art direction, through `releaseAssets.visualClaimScope`.
+- The current release-required audio surface is intentionally silent/muted unless a future non-LFS bundled release-required audio asset is promoted.
 - Raw/vendor/source asset packs remain excluded from release packages unless source-specific license and attribution evidence is reviewed before inclusion.
 - Privacy policy text was checked against the editor analytics implementation: analytics starts disabled, requires explicit opt-in, and writes only to local JSONL export in the shipped editor entry point.
 - Phase 7 analytics readiness covers engine-owned endpoint profile validation and editor diagnostics only. It is not qualified privacy/legal counsel approval, and public analytics policy/legal approval remains under this release-owner waiver.
@@ -55,6 +57,7 @@ Decision notes:
 - [x] Raw/vendor/source asset packs are confirmed excluded from the current package scope.
 - [x] Release owner certifies paid/licensed shipped assets are usable in distributed games.
 - [x] Promoted proof-lane asset scope is accepted for private/internal RC scope: `BND-001` visual proof is bundled; `BND-002` audio proof is deferred/local-only.
+- [x] Bounded starter/proof visual scope is accepted for the current release-candidate package and is not represented as final AAA art direction.
 - [x] Release-required UI/audio surfaces are covered by explicit silent/muted fallback policy entries instead of a bundled WAV dependency.
 - [x] Repository-wide source/vendor LFS budget/access constraint is accepted as non-release-package scope for private/internal RC use.
 - [x] Any required changes are listed below.
@@ -74,7 +77,7 @@ Reviewer name: DocDamage
 
 Reviewer role: Release owner
 
-Reviewer contact: Not recorded in repository
+Reviewer contact: URPG Project support via GitHub Issues: https://github.com/DocDamage/URPG-RPG-Game-Designer/issues
 
 Review date: 2026-04-30
 
@@ -85,7 +88,8 @@ Distribution scope: Public source, public binary prerelease, and public binary r
 Required changes:
 
 - Qualified legal/privacy/distribution approval has not been performed; public distribution proceeds only under this release-owner waiver.
-- Public release contact/support routing remains release-owner responsibility.
+- Public release contact/support routing is recorded as URPG Project GitHub Issues and remains release-owner
+  responsibility to monitor.
 - Public release should not ship raw/vendor/source asset packs unless source-specific license and attribution review approves them.
 - If any audio asset becomes release-required, it must be hosted as a hydrated non-LFS release artifact or covered by a reviewed external artifact process before public distribution.
 
@@ -93,6 +97,8 @@ Approval or rejection notes:
 
 - The release owner accepts the current legal/release files for public distribution and records an explicit waiver of qualified legal review.
 - This decision does not replace qualified legal advice; it records owner acceptance of the risk and distribution responsibility.
+- `EULA.md` has been reconciled with this waiver decision and no longer describes the current waiver-approved
+  distribution scope as forbidden under obsolete internal-only text.
 
 ## Release Owner Follow-Up
 

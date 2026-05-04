@@ -238,7 +238,6 @@ set(URPG_CORE_SOURCES
     engine/core/debug/debug_ai_bridge.cpp
     engine/core/editor/editor_panel_registry.cpp
     engine/core/engine_shell.cpp
-    engine/core/global_state_hub.cpp
     engine/core/gameplay/gameplay_wysiwyg_system.cpp
     engine/core/community/community_wysiwyg_feature.cpp
     engine/core/maker/maker_wysiwyg_feature.cpp
@@ -1018,15 +1017,19 @@ if(WIN32)
 endif()
 
 if(WIN32 AND NOT MSVC)
-    foreach(_urpg_app_target IN ITEMS urpg_runtime urpg_editor urpg_audio_smoke)
+    function(urpg_copy_runtime_dlls target_name)
         add_custom_command(
-            TARGET ${_urpg_app_target}
+            TARGET ${target_name}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:${_urpg_app_target}>
-                $<TARGET_FILE_DIR:${_urpg_app_target}>
+                $<TARGET_RUNTIME_DLLS:${target_name}>
+                $<TARGET_FILE_DIR:${target_name}>
             COMMAND_EXPAND_LISTS
         )
+    endfunction()
+
+    foreach(_urpg_app_target IN ITEMS urpg_runtime urpg_editor urpg_audio_smoke)
+        urpg_copy_runtime_dlls(${_urpg_app_target})
     endforeach()
 endif()
 
@@ -1470,6 +1473,9 @@ if(MINGW)
     target_compile_options(urpg_tests PRIVATE -Wa,-mbig-obj)
 endif()
 urpg_enable_windows_test_binary_unlock(urpg_tests)
+if(WIN32 AND NOT MSVC)
+    urpg_copy_runtime_dlls(urpg_tests)
+endif()
 function(urpg_configure_unit_test_target target_name)
     target_link_libraries(${target_name} PRIVATE urpg_core Catch2::Catch2WithMain)
     target_include_directories(${target_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -1478,6 +1484,9 @@ function(urpg_configure_unit_test_target target_name)
         target_compile_options(${target_name} PRIVATE -Wa,-mbig-obj)
     endif()
     urpg_enable_windows_test_binary_unlock(${target_name})
+    if(WIN32 AND NOT MSVC)
+        urpg_copy_runtime_dlls(${target_name})
+    endif()
 endfunction()
 
 add_executable(urpg_project_audit_unit_tests

@@ -4,6 +4,7 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace urpg::input {
@@ -28,7 +29,7 @@ enum class InputAction : uint32_t {
     BattleItem,
     BattleDefend,
     BattleEscape,
-    Debug    // '~'
+    Debug // '~'
 };
 
 /**
@@ -68,14 +69,29 @@ class InputCore {
         }
     }
 
+    void appendTextInput(std::string text) {
+        if (!text.empty()) {
+            m_textInput.append(std::move(text));
+        }
+    }
+
+    void setTextEditing(std::string text) { m_textEditing = std::move(text); }
+
+    void recordBackspace() { ++m_backspaceCount; }
+
+    const std::string& textInput() const { return m_textInput; }
+
+    const std::string& textEditing() const { return m_textEditing; }
+
+    size_t backspaceCount() const { return m_backspaceCount; }
+
     /**
      * @brief Provides a way to manually update an action state (e.g., from a mapping function).
      */
     void updateActionState(InputAction action, ActionState state) {
         if (state == ActionState::Pressed) {
             if (auto it = m_actionStates.find(action);
-                it != m_actionStates.end() &&
-                (it->second == ActionState::Pressed || it->second == ActionState::Held)) {
+                it != m_actionStates.end() && (it->second == ActionState::Pressed || it->second == ActionState::Held)) {
                 return;
             }
         }
@@ -130,9 +146,17 @@ class InputCore {
                 ++it;
             }
         }
+        m_textInput.clear();
+        m_textEditing.clear();
+        m_backspaceCount = 0;
     }
 
-    void clearActionStates() { m_actionStates.clear(); }
+    void clearActionStates() {
+        m_actionStates.clear();
+        m_textInput.clear();
+        m_textEditing.clear();
+        m_backspaceCount = 0;
+    }
 
     void addHandler(ActionHandler handler) { m_handlers.push_back(std::move(handler)); }
 
@@ -147,6 +171,9 @@ class InputCore {
     std::map<int32_t, InputAction> m_keyMaps;
     std::map<InputAction, ActionState> m_actionStates;
     std::vector<ActionHandler> m_handlers;
+    std::string m_textInput;
+    std::string m_textEditing;
+    size_t m_backspaceCount = 0;
 };
 
 } // namespace urpg::input

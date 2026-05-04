@@ -1,8 +1,12 @@
 # Release Packaging
 
-Status Date: 2026-05-03
+Status Date: 2026-05-04
 
 This document records the native release packaging contract for URPG exports. It does not claim that production signing credentials are present in the repository.
+
+Native CPack package identity is finalized in `cmake/packaging.cmake` with vendor `URPG Project`, homepage
+`https://github.com/DocDamage/URPG-RPG-Game-Designer`, and support contact
+`URPG Project support via GitHub Issues: https://github.com/DocDamage/URPG-RPG-Game-Designer/issues`.
 
 ## Packaging Command
 
@@ -50,6 +54,12 @@ unsupported_provider
 ```
 
 Release packaging may include a provider only when its profile reports `configured_reviewed` and the last test result is acceptable for that provider. Dry-run/local providers remain useful for deterministic tests and editor diagnostics but are not evidence of live external marketplace, store SDK, payment/review, or telemetry-service operation. Proprietary account credentials, platform SDK authorization, marketplace payment/review setup, and qualified legal/privacy approval remain project-configuration or release-owner review boundaries.
+
+Cloud/cross-device sync is not production-visible in the shipped tree. `LocalInMemoryCloudService` is process-local
+test/dev storage only, reports `release_visible=false` and `remote_transport=false` through
+`ICloudService::releaseVisibility()`, and must not be surfaced as live cloud sync in release UI or package metadata. A
+real provider must be supplied out of tree and report reviewed remote transport before cloud sync can appear in release
+surfaces.
 
 ## Required Signing Inputs
 
@@ -198,7 +208,11 @@ The gate also writes an audit report:
 imports/reports/asset_intake/release_required_asset_report.json
 ```
 
-That report classifies connected release assets and non-connected bundle rows. Current UI/audio sound surfaces use explicit system fallback entries, while `BND-002` UI SFX remains `deferred` until an approved bundled OGG asset is promoted. Phase 9 also requires selected promoted bundle categories to carry release eligibility, SHA-256 checksum, attribution record, and package-destination metadata. The current selected release bundle categories are:
+That report classifies connected release assets and non-connected bundle rows. Current UI/audio sound surfaces use explicit system fallback entries, while `BND-002` UI SFX remains `deferred` until an approved bundled OGG asset is promoted. The audio release policy is intentionally silent/muted for the current package scope: the release-required asset gate enforces that audio is covered by either an explicit muted/silent `system_fallback` `audio_policy` row or a bundled release-required audio asset. Deferred WAV proof records do not satisfy release audio.
+
+Current release visuals are also bounded starter/proof assets, not final AAA art direction. The governance fixture must declare `releaseAssets.visualClaimScope.tier: bounded_release_starter`, allow the prototype/starter visual categories explicitly, and state that the visuals are not final art direction. The release-required asset gate rejects `prototype_sprite`, starter UI chrome/skin, and VFX proof rows if that bounded scope is missing or if the asset notes do not identify their prototype/starter/proof status.
+
+Phase 9 also requires selected promoted bundle categories to carry release eligibility, SHA-256 checksum, attribution record, and package-destination metadata. The current selected release bundle categories are:
 
 - `prototype_sprite` through `BND-001`
 - `ui_frames_chrome` through `BND-003`

@@ -2,6 +2,7 @@
 
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/ability/authored_ability_asset.h"
+#include "engine/core/animation/animation_components.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/input/input_core.h"
 #include "engine/core/message/chatbot_component.h"
@@ -10,12 +11,15 @@
 #include "engine/core/render/render_layer.h"
 #include "engine/core/render/sprite_animator.h"
 #include "engine/core/render/tilemap_renderer.h"
+#include "engine/core/runtime_asset_mode.h"
+#include "engine/core/save/save_recovery.h"
 #include "engine/core/scene/movement_authority.h"
 #include "engine/core/ui/chat_window.h"
 #include "scene_manager.h"
 #include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -37,6 +41,23 @@ struct MapAssetReference {
 struct MapAssetReferences {
     MapAssetReference player_sprite;
     MapAssetReference tileset;
+};
+
+enum class MapSceneSaveLoadOperation : uint8_t {
+    Save,
+    Load,
+};
+
+struct MapSceneSaveLoadResult {
+    bool ok = false;
+    MapSceneSaveLoadOperation operation = MapSceneSaveLoadOperation::Save;
+    int slot_id = -1;
+    std::filesystem::path primary_path;
+    urpg::SaveRecoveryTier recovery_tier = urpg::SaveRecoveryTier::None;
+    bool loaded_from_recovery = false;
+    bool boot_safe_mode = false;
+    std::string failure_reason;
+    std::vector<std::string> diagnostics;
 };
 
 /**
@@ -98,6 +119,8 @@ class MapScene : public GameScene {
     void setAssetReferences(MapAssetReferences references);
     const MapAssetReferences& assetReferences() const { return m_assetReferences; }
     const std::vector<std::string>& assetDiagnostics() const { return m_assetDiagnostics; }
+    void setRuntimeAssetMode(urpg::RuntimeAssetMode mode);
+    urpg::RuntimeAssetMode runtimeAssetMode() const { return m_runtimeAssetMode; }
 
     /**
      * @brief Manually override passability for a specific tile.
@@ -156,21 +179,33 @@ class MapScene : public GameScene {
      * @brief Injects the AI animation bridge into the scene logic.
      */
     void processAiAnimationCommands(const std::string& aiResponse);
+    const urpg::Vector3& playerAiAnimationOffset() const { return m_playerAiAnimationOffset; }
+    bool hasActivePlayerAiAnimation() const {
+        return m_playerAiAnimation.has_value() && m_playerAiAnimation->isPlaying;
+    }
+    const std::vector<std::string>& aiAnimationDiagnostics() const { return m_aiAnimationDiagnostics; }
 
     /**
      * @brief Performs a manual save of the current world state.
      */
     bool saveGame(int slotId = 0);
+    MapSceneSaveLoadResult saveGameDetailed(int slotId = 0);
 
     /**
      * @brief Attempts to load a saved game state.
      */
     bool loadGame(int slotId = 0);
+    MapSceneSaveLoadResult loadGameDetailed(int slotId = 0);
+    const MapSceneSaveLoadResult& lastSaveLoadResult() const { return m_lastSaveLoadResult; }
+    void setProjectRoot(std::filesystem::path project_root);
+    const std::filesystem::path& projectRoot() const { return m_projectRoot; }
 
     /**
      * @brief Checks if a dialogue is currently active, blocking movement.
      */
     bool isDialogueActive() const { return m_messageRunner.isActive() || m_isChatInputOpen; }
+    bool isChatInputOpen() const { return m_isChatInputOpen; }
+    const std::string& currentChatInputBuffer() const { return m_currentInputBuffer; }
 
     urpg::ability::AbilitySystemComponent& playerAbilitySystem() { return m_playerAbilitySystem; }
     const urpg::ability::AbilitySystemComponent& playerAbilitySystem() const { return m_playerAbilitySystem; }
@@ -216,11 +251,17 @@ class MapScene : public GameScene {
     MapAssetReferences m_assetReferences;
     std::vector<std::string> m_assetDiagnostics;
     bool m_assetReferencesValidated = false;
+    urpg::RuntimeAssetMode m_runtimeAssetMode = urpg::RuntimeAssetMode::Development;
+    std::filesystem::path m_projectRoot;
+    MapSceneSaveLoadResult m_lastSaveLoadResult;
 
     // Components
     urpg::MovementComponent m_playerMovement;
     std::unique_ptr<TilemapRenderer> m_renderer;
     std::unique_ptr<SpriteAnimator> m_playerAnimator;
+    std::optional<urpg::AnimationComponent> m_playerAiAnimation;
+    urpg::Vector3 m_playerAiAnimationOffset = urpg::Vector3::Zero();
+    std::vector<std::string> m_aiAnimationDiagnostics;
 
     // Dialogue & AI Runtime
     urpg::message::MessageFlowRunner m_messageRunner;

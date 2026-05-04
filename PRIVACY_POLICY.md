@@ -1,8 +1,9 @@
 # URPG Privacy Policy
 
-Last updated: 2026-04-27
+Last updated: 2026-05-04
 
-Review status: implementation-accurate engineering policy; legal sufficiency is unverified until reviewed by a qualified legal reviewer.
+Review status: implementation-accurate engineering policy accepted by release-owner waiver; legal sufficiency is not
+qualified-counsel-approved.
 
 URPG does not upload analytics by default. The editor starts with analytics consent set to `unknown`, keeps uploads disabled, and records a user decision only when the analytics settings control is changed.
 
@@ -44,4 +45,13 @@ Implementation evidence for this policy lives in `apps/editor/main.cpp`, `engine
 
 ## Contact And Review
 
-Until a public support channel is approved, privacy questions for release candidates must be routed through the project owner or release manager recorded in the release signoff workflow. A public release must replace this internal routing note with the approved support/contact address.
+Privacy and support questions for the current release-owner-waived distribution scope should be routed through URPG
+Project GitHub Issues:
+
+```text
+https://github.com/DocDamage/URPG-RPG-Game-Designer/issues
+```
+
+Do not include private project data, secrets, account credentials, unreleased asset packs, or personal information in
+public issues. If a future release enables a private support mailbox, store platform, or remote analytics endpoint, this
+policy and the package contact metadata must be updated before release.

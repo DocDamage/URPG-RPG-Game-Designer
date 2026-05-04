@@ -924,6 +924,11 @@ void OpenGLRenderer::drawSpriteCommand(const SpriteCommand& command) {
         return;
     }
 
+    if (m_runtimeAssetMode == RuntimeAssetMode::Release) {
+        emitUnresolvedTextureDiagnostic("opengl.sprite_texture_unresolved_release", "sprite", command.textureId);
+        return;
+    }
+
     const float width = static_cast<float>(std::max(command.width, 1));
     const float height = static_cast<float>(std::max(command.height, 1));
     const uint32_t hash = stableHash(command.textureId);
@@ -939,6 +944,11 @@ void OpenGLRenderer::drawSpriteCommand(const SpriteCommand& command) {
 void OpenGLRenderer::drawTileCommand(const TileCommand& command) {
     if (const auto texture = resolveTextureHandle(command.tilesetId)) {
         submitTexturedBatch(buildTileCommandBatch(command, *texture));
+        return;
+    }
+
+    if (m_runtimeAssetMode == RuntimeAssetMode::Release) {
+        emitUnresolvedTextureDiagnostic("opengl.tileset_texture_unresolved_release", "tileset", command.tilesetId);
         return;
     }
 
@@ -984,6 +994,14 @@ std::shared_ptr<GLTexture> OpenGLRenderer::resolveTextureHandle(const std::strin
 
     auto loaded = m_textures.find(id);
     return loaded != m_textures.end() ? loaded->second : nullptr;
+}
+
+void OpenGLRenderer::emitUnresolvedTextureDiagnostic(const char* code, const std::string& role,
+                                                     const std::string& id) const {
+    const std::string resolvedId = id.empty() ? "<empty>" : id;
+    diagnostics::RuntimeDiagnostics::error("platform.opengl", code,
+                                           "Release renderer could not resolve " + role + " texture '" + resolvedId +
+                                               "'; deterministic placeholder rendering is disabled.");
 }
 
 bool OpenGLRenderer::loadTexture(const std::string& id, const std::string& filePath) {

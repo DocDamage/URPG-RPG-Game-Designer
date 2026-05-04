@@ -1,6 +1,6 @@
 set(CPACK_PACKAGE_NAME "URPG")
 set(CPACK_PACKAGE_VENDOR "URPG Project")
-set(CPACK_PACKAGE_CONTACT "Release manager pending legal/public support approval")
+set(CPACK_PACKAGE_CONTACT "URPG Project support via GitHub Issues: https://github.com/DocDamage/URPG-RPG-Game-Designer/issues")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "URPG native runtime and editor")
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/DocDamage/URPG-RPG-Game-Designer")
 

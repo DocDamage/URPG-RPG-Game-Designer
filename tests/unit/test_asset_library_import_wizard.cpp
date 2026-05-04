@@ -285,6 +285,8 @@ TEST_CASE("AssetLibraryPanel requests add-source through an import source picker
     const auto root = uniqueTempRoot("urpg_asset_library_panel_picker");
     const auto source = root / "downloads" / "fantasy_pack.zip";
     const auto libraryRoot = root / ".urpg" / "asset-library";
+    std::filesystem::create_directories(source.parent_path());
+    writeBinaryFile(source, "zip");
 
     urpg::editor::AssetLibraryPanel panel;
     panel.setImportSourcePicker([&](const urpg::editor::AssetLibraryPanel::ImportSourcePickerRequest& request) {
@@ -321,6 +323,22 @@ TEST_CASE("AssetLibraryPanel requests add-source through an import source picker
     });
     REQUIRE(cancelled["success"] == false);
     REQUIRE(cancelled["code"] == "import_source_picker_cancelled");
+
+    const auto missingSource = root / "downloads" / "missing_pack.zip";
+    panel.setImportSourcePicker([&](const urpg::editor::AssetLibraryPanel::ImportSourcePickerRequest&) {
+        return std::optional<std::filesystem::path>{missingSource};
+    });
+    const auto invalid = panel.requestImportSourceFromPicker({
+        urpg::editor::AssetLibraryPanel::ImportSourcePickerMode::FileOrArchive,
+        libraryRoot,
+        "import_picker_invalid",
+        "",
+        {},
+    });
+    REQUIRE(invalid["success"] == false);
+    REQUIRE(invalid["code"] == "import_source_picker_invalid_path");
+    REQUIRE(invalid["invalid_reason"] == "source_path_not_found");
+    REQUIRE(invalid["source_path"] == missingSource.generic_string());
 }
 
 TEST_CASE("AssetLibraryPanel exposes native import picker availability",
@@ -334,6 +352,7 @@ TEST_CASE("AssetLibraryPanel exposes native import picker availability",
     REQUIRE(availability.available == false);
     REQUIRE(availability.code == "native_import_source_picker_unsupported");
 #endif
+    REQUIRE(availability.path_entry_available == true);
 }
 
 TEST_CASE("AssetLibraryModel requests add-source import command handoff",

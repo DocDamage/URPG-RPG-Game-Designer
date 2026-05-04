@@ -97,3 +97,4 @@ Categories to mine from `awesome-cc0` and `Game-Assets-And-Resources`:
 | 2026-04-27 | Deferred tracked WAV payloads from release scope; UI/audio release surfaces now use fallback policy entries until an approved bundled audio asset exists. |
 | 2026-05-01 | Added character appearance import governance for portrait, field, and battle parts while keeping raw/source assets quarantine-only and final-quality character art as content backlog. |
 | 2026-05-02 | Phase 9 promoted `BND-003` repo-generated release starter skin assets and tightened the release asset gate for selected bundle categories, checksums, attribution records, package destinations, and release eligibility. |
+| 2026-05-04 | Added explicit `releaseAssets.visualClaimScope` enforcement so prototype actor, starter UI skin, and VFX proof assets can only satisfy release coverage as bounded starter visuals, not final art direction. |

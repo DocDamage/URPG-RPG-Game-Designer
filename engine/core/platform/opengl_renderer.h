@@ -4,6 +4,7 @@
 #include "engine/core/platform/gl_texture.h"
 #include "engine/core/platform/renderer_backend.h"
 #include "engine/core/render/render_layer.h"
+#include "engine/core/runtime_asset_mode.h"
 #include <map>
 #include <memory>
 #include <string>
@@ -47,6 +48,8 @@ class OpenGLRenderer : public RendererBackend {
      */
     bool loadTexture(const std::string& id, const std::string& filePath);
     bool registerTextureHandle(const std::string& id, const std::shared_ptr<Texture>& texture);
+    void setRuntimeAssetMode(RuntimeAssetMode mode) { m_runtimeAssetMode = mode; }
+    RuntimeAssetMode runtimeAssetMode() const { return m_runtimeAssetMode; }
 
   private:
     void setupDefaultShaders();
@@ -60,6 +63,7 @@ class OpenGLRenderer : public RendererBackend {
     void drawTextCommand(const TextCommand& command);
     void drawRectCommand(const RectCommand& command);
     std::shared_ptr<GLTexture> resolveTextureHandle(const std::string& id);
+    void emitUnresolvedTextureDiagnostic(const char* code, const std::string& role, const std::string& id) const;
 
     // Internal state
     IPlatformSurface* m_surface = nullptr;
@@ -73,6 +77,7 @@ class OpenGLRenderer : public RendererBackend {
     int m_viewportHeight = 480;
     bool m_immediatePipelineReady = false;
     bool m_texturedPipelineReady = false;
+    RuntimeAssetMode m_runtimeAssetMode = RuntimeAssetMode::Development;
 
     std::map<std::string, std::shared_ptr<GLTexture>> m_textures;
 };
