@@ -141,7 +141,7 @@ This plan converts the latest senior release-engineering audit into ordered reme
   3. In release mode, promote missing player, tile, and battle visuals to blocking diagnostics or explicit missing-asset overlays.
   4. Update snapshot expectations.
 - Acceptance criteria: Release runtime cannot silently hide missing core visuals with hashed quads.
-- Verification command or manual test: `ctest --preset dev-all -R "MapScene|AssetLibrary|renderer-backed|preflight" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "MapScene|AssetLibrary|renderer|preflight" --output-on-failure`
 
 ## Phase 3 - Error Handling, Validation, Loading States, Empty States
 
