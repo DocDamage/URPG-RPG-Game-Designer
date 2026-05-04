@@ -56,10 +56,14 @@ struct AssetLibraryModelSnapshot {
     nlohmann::json import_session_rows = nlohmann::json::array();
     nlohmann::json import_review_rows = nlohmann::json::array();
     nlohmann::json import_wizard = nlohmann::json::object();
+    nlohmann::json virtual_catalog = nlohmann::json::object();
     nlohmann::json last_action = nlohmann::json::object();
     nlohmann::json action_history = nlohmann::json::array();
     std::map<std::string, size_t> category_counts;
+    std::map<std::string, size_t> game_use_category_counts;
+    std::map<std::string, size_t> game_use_tag_counts;
     std::map<std::string, size_t> kind_counts;
+    std::map<std::string, size_t> source_bundle_counts;
     std::string status_message = "No asset library reports are loaded.";
     std::string error_message;
     std::string remediation = "Run tools/assets/asset_hygiene.py --write-reports to generate asset library reports.";
@@ -90,16 +94,16 @@ class AssetLibraryModel {
     void ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                        const nlohmann::json& promotion_catalog, std::string_view duplicate_csv);
     void ingestPromotionManifest(const urpg::assets::AssetPromotionManifest& manifest);
-    nlohmann::json requestImportSource(const std::filesystem::path& source,
-                                       const std::filesystem::path& library_root,
-                                       std::string session_id,
-                                       std::string license_note = {},
+    nlohmann::json requestImportSource(const std::filesystem::path& source, const std::filesystem::path& library_root,
+                                       std::string session_id, std::string license_note = {},
                                        std::vector<std::string> external_extractor_command = {});
     void ingestImportSession(urpg::assets::AssetImportSession session);
     void clearImportSessions();
     bool loadImportSessionManifest(const std::filesystem::path& manifest_path, std::string* error_message = nullptr);
-    bool loadImportSessionsFromLibraryRoot(const std::filesystem::path& library_root, std::string* error_message = nullptr);
-    bool loadPromotedAssetsFromLibraryRoot(const std::filesystem::path& library_root, std::string* error_message = nullptr);
+    bool loadImportSessionsFromLibraryRoot(const std::filesystem::path& library_root,
+                                           std::string* error_message = nullptr);
+    bool loadPromotedAssetsFromLibraryRoot(const std::filesystem::path& library_root,
+                                           std::string* error_message = nullptr);
     urpg::assets::AssetLibraryActionResult promoteImportRecord(std::string session_id, std::string asset_id,
                                                                std::string license_id, std::string promoted_root,
                                                                bool include_in_runtime = true);
@@ -110,20 +114,21 @@ class AssetLibraryModel {
     nlohmann::json promoteImportRecords(std::string session_id, std::vector<std::string> asset_ids,
                                         std::string license_id, std::string promoted_root,
                                         bool include_in_runtime = true);
-    urpg::assets::AssetLibraryActionResult promoteImportRecordToGlobalLibrary(std::string session_id,
-                                                                              std::string asset_id,
-                                                                              std::string license_id,
-                                                                              const std::filesystem::path& promoted_root);
+    urpg::assets::AssetLibraryActionResult
+    promoteImportRecordToGlobalLibrary(std::string session_id, std::string asset_id, std::string license_id,
+                                       const std::filesystem::path& promoted_root);
     nlohmann::json promoteImportRecordsToGlobalLibrary(std::string session_id, std::vector<std::string> asset_ids,
                                                        std::string license_id,
                                                        const std::filesystem::path& promoted_root);
     bool loadReportsFromDirectory(const std::filesystem::path& reports_root, std::string* error_message = nullptr);
+    bool loadAssetBundleManifestsFromDirectory(const std::filesystem::path& bundle_root,
+                                               std::string* error_message = nullptr);
     void addReferencedAsset(std::string path);
     void addUsageReference(std::string path, std::string owner_id);
     urpg::assets::AssetLibraryActionResult promoteAsset(std::string path);
     urpg::assets::AssetLibraryActionResult archiveAsset(std::string path, std::string reason = {});
     urpg::assets::AssetLibraryActionResult attachPromotedAssetToProject(std::string path,
-                                                                         const std::filesystem::path& project_root);
+                                                                        const std::filesystem::path& project_root);
     nlohmann::json attachPromotedAssetsToProject(std::vector<std::string> paths,
                                                  const std::filesystem::path& project_root);
     bool loadProjectAssetAttachments(const std::filesystem::path& project_root, std::string* error_message = nullptr);

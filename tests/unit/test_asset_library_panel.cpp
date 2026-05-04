@@ -32,7 +32,6 @@ TEST_CASE("AssetLibraryPanel renders cleanup preview summary", "[assets][asset_l
     REQUIRE(panel.lastRenderSnapshot().status_message.empty());
 }
 
-
 TEST_CASE("AssetLibraryPanel load error snapshot includes remediation", "[assets][asset_library][editor][error]") {
     const auto root = uniqueTempRoot("urpg_asset_library_missing_reports");
     std::filesystem::remove_all(root);
@@ -52,7 +51,6 @@ TEST_CASE("AssetLibraryPanel load error snapshot includes remediation", "[assets
 
     std::filesystem::remove_all(root);
 }
-
 
 TEST_CASE("AssetLibraryModel loads canonical report directory shape", "[assets][asset_library][editor]") {
     const auto root = uniqueTempRoot("urpg_asset_library_model_reports");
@@ -81,7 +79,6 @@ TEST_CASE("AssetLibraryModel loads canonical report directory shape", "[assets][
     REQUIRE(model.snapshot().asset_count == 2);
     REQUIRE(model.snapshot().duplicate_group_count == 1);
 }
-
 
 TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][asset_library][editor][asset_intake]") {
     const auto root = uniqueTempRoot("urpg_asset_library_model_promotion_reports");
@@ -216,7 +213,8 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     REQUIRE(model.snapshot().filtered_asset_count == 2);
     REQUIRE(model.snapshot().filter_controls["quick_filters"]["sequence_packs"]["enabled"] == true);
     REQUIRE(model.snapshot().filter_controls["quick_filters"]["sequence_packs"]["count"] == 1);
-    REQUIRE(model.snapshot().filter_controls["quick_filters"]["sequence_packs"]["media_kind"] == "image_sequence_collection");
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["sequence_packs"]["media_kind"] ==
+            "image_sequence_collection");
     REQUIRE(model.snapshot().filter_controls["quick_filters"]["attachable"]["enabled"] == false);
     REQUIRE(model.snapshot().filter_controls["quick_filters"]["project_attached"]["enabled"] == false);
     REQUIRE(model.snapshot().asset_preview_rows.size() == 2);
@@ -230,8 +228,7 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     REQUIRE(asset.has_value());
     REQUIRE(asset->preview_kind == "image");
     REQUIRE(asset->normalized_path == "asset://src-007/characters/idle-123.png");
-    const auto sequence =
-        model.library().findAsset("imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon");
+    const auto sequence = model.library().findAsset("imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon");
     REQUIRE(sequence.has_value());
     REQUIRE(sequence->media_kind == "image_sequence_collection");
     REQUIRE(sequence->normalized_path == "asset://src-008/characters/isometric/idle-sequence");
@@ -268,38 +265,38 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     std::filesystem::remove_all(root);
 }
 
-
-TEST_CASE("AssetLibraryModel exposes filters and used-by reference counts", "[assets][asset_library][editor][browser]") {
+TEST_CASE("AssetLibraryModel exposes filters and used-by reference counts",
+          "[assets][asset_library][editor][browser]") {
     urpg::editor::AssetLibraryModel model;
-    model.ingestReports(nlohmann::json{{"file_count", 2}, {"duplicate_groups", 0}, {"oversize_count", 0}},
-                        nlohmann::json{{"sources", nlohmann::json::array()}},
-                        nlohmann::json{
-                            {"source_id", "SRC-007"},
-                            {"source_root", "imports/raw/urpg_stuff"},
-                            {"assets",
-                             {
-                                 {
-                                     {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
-                                     {"normalized_path", "asset://src-007/characters/hero.png"},
-                                     {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
-                                     {"preview_kind", "image"},
-                                     {"media_kind", "image"},
-                                     {"category", "characters"},
-                                     {"tags", {"hero", "kind:image"}},
-                                     {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
-                                 },
-                                 {
-                                     {"source_path", "imports/raw/urpg_stuff/audio/click.ogg"},
-                                     {"normalized_path", "asset://src-007/audio/click.ogg"},
-                                     {"preview_path", "imports/raw/urpg_stuff/audio/click.ogg"},
-                                     {"preview_kind", "audio"},
-                                     {"media_kind", "audio"},
-                                     {"category", "audio/ui"},
-                                     {"tags", {"ui", "kind:audio"}},
-                                     {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
-                                 },
-                             }}},
-                        "");
+    model.ingestReports(
+        nlohmann::json{{"file_count", 2}, {"duplicate_groups", 0}, {"oversize_count", 0}},
+        nlohmann::json{{"sources", nlohmann::json::array()}},
+        nlohmann::json{{"source_id", "SRC-007"},
+                       {"source_root", "imports/raw/urpg_stuff"},
+                       {"assets",
+                        {
+                            {
+                                {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                {"normalized_path", "asset://src-007/characters/hero.png"},
+                                {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                {"preview_kind", "image"},
+                                {"media_kind", "image"},
+                                {"category", "characters"},
+                                {"tags", {"hero", "kind:image"}},
+                                {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                            },
+                            {
+                                {"source_path", "imports/raw/urpg_stuff/audio/click.ogg"},
+                                {"normalized_path", "asset://src-007/audio/click.ogg"},
+                                {"preview_path", "imports/raw/urpg_stuff/audio/click.ogg"},
+                                {"preview_kind", "audio"},
+                                {"media_kind", "audio"},
+                                {"category", "audio/ui"},
+                                {"tags", {"ui", "kind:audio"}},
+                                {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                            },
+                        }}},
+        "");
     model.addUsageReference("imports/raw/urpg_stuff/characters/hero.png", "actor.hero");
 
     urpg::assets::AssetLibraryFilter filter;
@@ -315,28 +312,118 @@ TEST_CASE("AssetLibraryModel exposes filters and used-by reference counts", "[as
     REQUIRE(model.snapshot().filtered_asset_count == 1);
 }
 
+TEST_CASE("AssetLibraryModel builds virtual game-use catalog from governed bundle manifests",
+          "[assets][asset_library][editor][browser][virtual_catalog]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_virtual_catalog");
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root);
+    {
+        std::ofstream out(root / "BND-101.json");
+        out << R"({
+          "bundle_id": "BND-101",
+          "bundle_name": "test_release_bundle",
+          "source_id": "SRC-010",
+          "bundle_state": "promoted",
+          "release_required": false,
+          "release_surfaces": ["map", "ui"],
+          "assets": [
+            {
+              "original_relative_path": "imports/raw/source/fantasy-hero.png",
+              "promoted_relative_path": "test_bundle/characters/fantasy-hero.png",
+              "category": "prototype_sprite",
+              "status": "promoted",
+              "release_required": false,
+              "release_surfaces": ["map"],
+              "license_cleared": true,
+              "release_eligible": true,
+              "distribution": "deferred",
+              "checksum_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "attribution_record": "imports/reports/asset_intake/attribution/BND-101.json",
+              "package_destination": "share/urpg/imports/normalized/test_bundle/characters/fantasy-hero.png"
+            },
+            {
+              "original_relative_path": "imports/raw/source/isometric-stone-tile.png",
+              "promoted_relative_path": "test_bundle/tilesets/isometric-stone-tile.png",
+              "category": "tileset",
+              "status": "promoted",
+              "release_required": false,
+              "release_surfaces": ["map"],
+              "license_cleared": true,
+              "release_eligible": true,
+              "distribution": "bundled",
+              "checksum_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "attribution_record": "imports/reports/asset_intake/attribution/BND-101.json",
+              "package_destination": "share/urpg/imports/normalized/test_bundle/tilesets/isometric-stone-tile.png"
+            },
+            {
+              "original_relative_path": "imports/raw/source/menu-panel.png",
+              "promoted_relative_path": "test_bundle/ui/menu-panel.png",
+              "category": "ui_frames_chrome",
+              "status": "promoted",
+              "release_required": false,
+              "release_surfaces": ["ui"],
+              "license_cleared": true,
+              "release_eligible": true,
+              "distribution": "bundled",
+              "checksum_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "attribution_record": "imports/reports/asset_intake/attribution/BND-101.json",
+              "package_destination": "share/urpg/imports/normalized/test_bundle/ui/menu-panel.png"
+            }
+          ]
+        })";
+    }
 
-TEST_CASE("AssetLibraryPanel exposes promote and archive action state", "[assets][asset_library][editor][browser][actions]") {
+    urpg::editor::AssetLibraryModel model;
+    std::string error;
+    REQUIRE(model.loadAssetBundleManifestsFromDirectory(root, &error));
+    REQUIRE(error.empty());
+    REQUIRE(model.snapshot().asset_count == 3);
+    REQUIRE(model.snapshot().source_bundle_counts.at("BND-101") == 3);
+    REQUIRE(model.snapshot().game_use_category_counts.at("characters/sprites") == 1);
+    REQUIRE(model.snapshot().game_use_category_counts.at("environment/tiles/isometric") == 1);
+    REQUIRE(model.snapshot().game_use_category_counts.at("ui/widgets") == 1);
+    REQUIRE(model.snapshot().game_use_tag_counts.at("release:eligible") == 3);
+    REQUIRE(model.snapshot().game_use_tag_counts.at("asset_type:tileset") == 1);
+    REQUIRE(model.snapshot().virtual_catalog["preserves_physical_layout"] == true);
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["release_eligible"]["count"] == 3);
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["tilesets"]["count"] == 1);
+    REQUIRE(model.snapshot().asset_action_rows[0].contains("game_use_category"));
+    REQUIRE(model.snapshot().asset_action_rows[0].contains("source_bundle_id"));
+
+    REQUIRE(model.applyQuickFilter("tilesets"));
+    REQUIRE(model.snapshot().filtered_asset_count == 1);
+    REQUIRE(model.snapshot().asset_action_rows[0]["game_use_category"] == "environment/tiles/isometric");
+    REQUIRE(model.snapshot().filter_controls["active_filter"]["required_game_use_tag"] == "asset_type:tileset");
+
+    REQUIRE(model.applyQuickFilter("release_eligible"));
+    REQUIRE(model.snapshot().filtered_asset_count == 3);
+    REQUIRE(model.snapshot().filter_controls["active_filter"]["release_eligible_only"] == true);
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryPanel exposes promote and archive action state",
+          "[assets][asset_library][editor][browser][actions]") {
     urpg::editor::AssetLibraryPanel panel;
-    panel.model().ingestReports(nlohmann::json{{"file_count", 1}, {"duplicate_groups", 0}, {"oversize_count", 0}},
-                                nlohmann::json{{"sources", nlohmann::json::array()}},
-                                nlohmann::json{
-                                    {"source_id", "SRC-007"},
-                                    {"source_root", "imports/raw/urpg_stuff"},
-                                    {"assets",
-                                     {
-                                         {
-                                             {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
-                                             {"normalized_path", "asset://src-007/characters/hero.png"},
-                                             {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
-                                             {"preview_kind", "image"},
-                                             {"media_kind", "image"},
-                                             {"category", "characters"},
-                                             {"tags", {"hero", "kind:image"}},
-                                             {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
-                                         },
-                                     }}},
-                                "");
+    panel.model().ingestReports(
+        nlohmann::json{{"file_count", 1}, {"duplicate_groups", 0}, {"oversize_count", 0}},
+        nlohmann::json{{"sources", nlohmann::json::array()}},
+        nlohmann::json{{"source_id", "SRC-007"},
+                       {"source_root", "imports/raw/urpg_stuff"},
+                       {"assets",
+                        {
+                            {
+                                {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                {"normalized_path", "asset://src-007/characters/hero.png"},
+                                {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                {"preview_kind", "image"},
+                                {"media_kind", "image"},
+                                {"category", "characters"},
+                                {"tags", {"hero", "kind:image"}},
+                                {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                            },
+                        }}},
+        "");
 
     const auto promoted = panel.model().promoteAsset("imports/raw/urpg_stuff/characters/hero.png");
     REQUIRE(promoted.success);
@@ -360,9 +447,9 @@ TEST_CASE("AssetLibraryPanel exposes promote and archive action state", "[assets
     REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["promote_button"]["enabled"] == false);
     REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["promote_button"]["disabled_reason"] == "asset_archived");
     REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["archive_button"]["enabled"] == false);
-    REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["archive_button"]["disabled_reason"] == "asset_already_archived");
+    REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["archive_button"]["disabled_reason"] ==
+            "asset_already_archived");
 }
-
 
 TEST_CASE("AssetLibraryPanel exposes governed promotion manifest action rows",
           "[assets][asset_library][editor][promotion]") {
@@ -420,31 +507,27 @@ TEST_CASE("AssetLibraryPanel exposes governed promotion manifest action rows",
 
     REQUIRE(panel.lastRenderSnapshot().asset_action_rows.size() == 4);
     const auto rows = panel.lastRenderSnapshot().asset_action_rows;
-    const auto promoted = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["path"] == "imports/raw/example/hero.png";
-    });
+    const auto promoted = std::find_if(rows.begin(), rows.end(),
+                                       [](const auto& row) { return row["path"] == "imports/raw/example/hero.png"; });
     REQUIRE(promoted != rows.end());
     REQUIRE((*promoted)["recommended_action"] == "attach_to_project");
     REQUIRE((*promoted)["attach_button"]["enabled"] == true);
     REQUIRE((*promoted)["promotion_status"] == "runtime_ready");
     REQUIRE((*promoted)["include_in_runtime"] == true);
 
-    const auto unlicensed = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["path"] == "imports/raw/example/unlicensed.png";
-    });
+    const auto unlicensed = std::find_if(
+        rows.begin(), rows.end(), [](const auto& row) { return row["path"] == "imports/raw/example/unlicensed.png"; });
     REQUIRE(unlicensed != rows.end());
     REQUIRE((*unlicensed)["recommended_action"] == "add_license_evidence");
     REQUIRE((*unlicensed)["include_in_runtime"] == false);
 
-    const auto missing = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["path"] == "imports/raw/example/missing.png";
-    });
+    const auto missing = std::find_if(rows.begin(), rows.end(),
+                                      [](const auto& row) { return row["path"] == "imports/raw/example/missing.png"; });
     REQUIRE(missing != rows.end());
     REQUIRE((*missing)["recommended_action"] == "fix_missing_file");
 
-    const auto archived = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["path"] == "imports/raw/example/hero-copy.png";
-    });
+    const auto archived = std::find_if(
+        rows.begin(), rows.end(), [](const auto& row) { return row["path"] == "imports/raw/example/hero-copy.png"; });
     REQUIRE(archived != rows.end());
     REQUIRE((*archived)["recommended_action"] == "archived");
     REQUIRE((*archived)["include_in_runtime"] == false);

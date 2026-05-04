@@ -313,7 +313,10 @@ nlohmann::json filterControls(const urpg::assets::AssetLibraryFilter& filter,
          {
              {"media_kind", filter.media_kind},
              {"category", filter.category},
+             {"game_use_category", filter.game_use_category},
              {"required_tag", filter.required_tag},
+             {"required_game_use_tag", filter.required_game_use_tag},
+             {"source_bundle_id", filter.source_bundle_id},
              {"required_status", filter.required_status.has_value()
                                      ? nlohmann::json(urpg::assets::toString(*filter.required_status))
                                      : nlohmann::json(nullptr)},
@@ -322,7 +325,16 @@ nlohmann::json filterControls(const urpg::assets::AssetLibraryFilter& filter,
              {"previewable_only", filter.previewable_only},
              {"project_attached_only", filter.project_attached_only},
              {"attachable_only", filter.attachable_only},
+             {"release_eligible_only", filter.release_eligible_only},
              {"result_count", filteredCount},
+         }},
+        {"facets",
+         {
+             {"game_use_categories", snapshot.game_use_category_counts},
+             {"game_use_tags", snapshot.game_use_tag_counts},
+             {"source_bundles", snapshot.source_bundle_counts},
+             {"source_categories", snapshot.category_counts},
+             {"media_kinds", snapshot.kind_counts},
          }},
         {"quick_filters",
          {
@@ -343,6 +355,49 @@ nlohmann::json filterControls(const urpg::assets::AssetLibraryFilter& filter,
                   {"enabled", snapshot.runtime_ready_count > 0},
                   {"action", "filter_runtime_ready_assets"},
                   {"count", snapshot.runtime_ready_count},
+              }},
+             {"release_eligible",
+              {
+                  {"visible", true},
+                  {"enabled", snapshot.game_use_tag_counts.contains("release:eligible")},
+                  {"action", "filter_release_eligible_assets"},
+                  {"count", snapshot.game_use_tag_counts.contains("release:eligible")
+                                ? snapshot.game_use_tag_counts.at("release:eligible")
+                                : 0},
+              }},
+             {"characters",
+              {
+                  {"visible", true},
+                  {"enabled", snapshot.game_use_category_counts.contains("characters/sprites")},
+                  {"action", "filter_character_assets"},
+                  {"game_use_category", "characters/sprites"},
+                  {"count", snapshot.game_use_category_counts.contains("characters/sprites")
+                                ? snapshot.game_use_category_counts.at("characters/sprites")
+                                : 0},
+              }},
+             {"tilesets",
+              {
+                  {"visible", true},
+                  {"enabled", snapshot.game_use_category_counts.contains("environment/tiles/top_down") ||
+                                  snapshot.game_use_category_counts.contains("environment/tiles/isometric")},
+                  {"action", "filter_tileset_assets"},
+                  {"required_game_use_tag", "asset_type:tileset"},
+                  {"count", (snapshot.game_use_category_counts.contains("environment/tiles/top_down")
+                                 ? snapshot.game_use_category_counts.at("environment/tiles/top_down")
+                                 : 0) +
+                                (snapshot.game_use_category_counts.contains("environment/tiles/isometric")
+                                     ? snapshot.game_use_category_counts.at("environment/tiles/isometric")
+                                     : 0)},
+              }},
+             {"ui_assets",
+              {
+                  {"visible", true},
+                  {"enabled", snapshot.game_use_category_counts.contains("ui/widgets")},
+                  {"action", "filter_ui_assets"},
+                  {"game_use_category", "ui/widgets"},
+                  {"count", snapshot.game_use_category_counts.contains("ui/widgets")
+                                ? snapshot.game_use_category_counts.at("ui/widgets")
+                                : 0},
               }},
              {"previewable",
               {
@@ -662,6 +717,21 @@ nlohmann::json buildProjectAssetPickerRows(const urpg::assets::AssetLibrarySnaps
     std::sort(rows.begin(), rows.end(),
               [](const auto& lhs, const auto& rhs) { return lhs.value("asset_id", "") < rhs.value("asset_id", ""); });
     return rows;
+}
+
+nlohmann::json buildVirtualCatalogSnapshot(const urpg::assets::AssetLibrarySnapshot& snapshot) {
+    return {
+        {"schema", "urpg.asset_virtual_catalog.v1"},
+        {"description", "Production-facing virtual browse facets derived from governed asset metadata."},
+        {"preserves_physical_layout", true},
+        {"source_manifest_layout", "imports/manifests/asset_bundles"},
+        {"normalized_payload_layout", "imports/normalized"},
+        {"game_use_categories", snapshot.game_use_category_counts},
+        {"game_use_tags", snapshot.game_use_tag_counts},
+        {"source_bundles", snapshot.source_bundle_counts},
+        {"source_categories", snapshot.category_counts},
+        {"media_kinds", snapshot.kind_counts},
+    };
 }
 
 } // namespace
@@ -1272,6 +1342,51 @@ bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& re
     return true;
 }
 
+bool AssetLibraryModel::loadAssetBundleManifestsFromDirectory(const std::filesystem::path& bundle_root,
+                                                              std::string* error_message) {
+    if (!std::filesystem::is_directory(bundle_root)) {
+        if (error_message != nullptr) {
+            *error_message = "asset bundle manifest directory is missing";
+        }
+        refreshSnapshot();
+        snapshot_.status_message = snapshot_.reports_loaded ? "" : "Asset bundle manifests are missing.";
+        snapshot_.error_message = "Missing asset bundle manifest directory: " + bundle_root.string();
+        return false;
+    }
+
+    try {
+        size_t loaded = 0;
+        for (const auto& entry : std::filesystem::directory_iterator(bundle_root)) {
+            if (!entry.is_regular_file() || entry.path().extension() != ".json" ||
+                entry.path().filename().string() == "asset_bundle.schema.json") {
+                continue;
+            }
+            std::ifstream manifest_stream(entry.path());
+            library_.ingestAssetBundleManifest(nlohmann::json::parse(manifest_stream));
+            ++loaded;
+        }
+        rebuildCleanupPreview();
+        if (loaded == 0) {
+            if (error_message != nullptr) {
+                *error_message = "asset bundle manifests are missing";
+            }
+            return false;
+        }
+        if (error_message != nullptr) {
+            error_message->clear();
+        }
+        return true;
+    } catch (const std::exception& ex) {
+        if (error_message != nullptr) {
+            *error_message = ex.what();
+        }
+        snapshot_.status = "error";
+        snapshot_.status_message = "Asset bundle manifests could not be loaded.";
+        snapshot_.error_message = ex.what();
+        return false;
+    }
+}
+
 void AssetLibraryModel::addReferencedAsset(std::string path) {
     library_.addReferencedAsset(std::move(path));
     rebuildCleanupPreview();
@@ -1478,6 +1593,30 @@ bool AssetLibraryModel::applyQuickFilter(std::string_view filter_id) {
         recordResult(true, "quick_filter_applied", "Runtime-ready asset filter applied.");
         return true;
     }
+    if (filter_id == "release_eligible") {
+        filter.release_eligible_only = true;
+        setFilter(filter);
+        recordResult(true, "quick_filter_applied", "Release-eligible asset filter applied.");
+        return true;
+    }
+    if (filter_id == "characters") {
+        filter.game_use_category = "characters/sprites";
+        setFilter(filter);
+        recordResult(true, "quick_filter_applied", "Character asset filter applied.");
+        return true;
+    }
+    if (filter_id == "tilesets") {
+        filter.required_game_use_tag = "asset_type:tileset";
+        setFilter(filter);
+        recordResult(true, "quick_filter_applied", "Tileset asset filter applied.");
+        return true;
+    }
+    if (filter_id == "ui_assets") {
+        filter.game_use_category = "ui/widgets";
+        setFilter(filter);
+        recordResult(true, "quick_filter_applied", "UI asset filter applied.");
+        return true;
+    }
     if (filter_id == "previewable") {
         filter.previewable_only = true;
         setFilter(filter);
@@ -1593,12 +1732,16 @@ void AssetLibraryModel::refreshSnapshot() {
         }
     }
     snapshot_.import_wizard = buildImportWizardSnapshot(snapshot_, pending_import_request_);
+    snapshot_.virtual_catalog = buildVirtualCatalogSnapshot(asset_snapshot);
     snapshot_.action_history = action_history_;
     if (!action_history_.empty()) {
         snapshot_.last_action = action_history_.back();
     }
     snapshot_.category_counts = asset_snapshot.category_counts;
+    snapshot_.game_use_category_counts = asset_snapshot.game_use_category_counts;
+    snapshot_.game_use_tag_counts = asset_snapshot.game_use_tag_counts;
     snapshot_.kind_counts = asset_snapshot.kind_counts;
+    snapshot_.source_bundle_counts = asset_snapshot.source_bundle_counts;
     snapshot_.reports_loaded = asset_snapshot.assets.size() > 0 || asset_snapshot.duplicate_groups.size() > 0 ||
                                asset_snapshot.catalog_asset_count > 0 || asset_snapshot.catalog_shard_count > 0 ||
                                cleanup_plan_.allowed_count > 0 || cleanup_plan_.refused_count > 0 ||
