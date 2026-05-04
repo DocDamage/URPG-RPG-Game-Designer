@@ -16,7 +16,7 @@
       "license_cleared": true,
       "release_eligible": true,
       "distribution": "bundled",
-      "checksum_sha256": "801e9a9a9ea1c908c0d8012a514eab340a5889e1a9d323af775cdbadb3326a80",
+      "checksum_sha256": "65029037be0e0725f28a55b231da9d8c215f0250f0cbf119dafa87395f01217e",
       "attribution_record": "imports/reports/asset_intake/attribution/BND-003_repo_generated_release_skin.json",
       "package_destination": "share/urpg/imports/normalized/release_skin/urpg_ui_frame.svg",
       "notes": "Repo-generated UI frame/chrome proof asset for the bounded release starter skin."
@@ -31,7 +31,7 @@
       "license_cleared": true,
       "release_eligible": true,
       "distribution": "bundled",
-      "checksum_sha256": "d848ede0343a9b8522feb555d9551bc3235997b1f3f66dc8cc2c6e927b66624f",
+      "checksum_sha256": "91e128c335bf6fae10f7cc517325041dfb49c53413eb908308a8e7746a67ea4a",
       "attribution_record": "imports/reports/asset_intake/attribution/BND-003_repo_generated_release_skin.json",
       "package_destination": "share/urpg/imports/normalized/release_skin/urpg_battle_vfx_flash.svg",
       "notes": "Repo-generated single-frame VFX proof asset for battle package coverage."
