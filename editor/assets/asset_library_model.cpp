@@ -109,12 +109,8 @@ nlohmann::json externalExtractorConfigurationSnapshot() {
         };
     }
     return {
-        {"configured", true},
-        {"source", "environment"},
-        {"environment_variable", kExternalExtractorEnv},
-        {"supports_rar_7z", true},
-        {"command", parsed.arguments},
-        {"diagnostics", nlohmann::json::array()},
+        {"configured", true},      {"source", "environment"},     {"environment_variable", kExternalExtractorEnv},
+        {"supports_rar_7z", true}, {"command", parsed.arguments}, {"diagnostics", nlohmann::json::array()},
     };
 }
 
@@ -191,8 +187,7 @@ std::string joinExternalExtractorCommand(const std::vector<std::string>& command
 }
 
 nlohmann::json AssetLibraryModel::requestImportSource(const std::filesystem::path& source,
-                                                      const std::filesystem::path& library_root,
-                                                      std::string session_id,
+                                                      const std::filesystem::path& library_root, std::string session_id,
                                                       std::string license_note,
                                                       std::vector<std::string> external_extractor_command) {
     external_extractor_command = configuredExternalExtractorCommand(std::move(external_extractor_command));
@@ -254,9 +249,8 @@ nlohmann::json AssetLibraryModel::requestImportSource(const std::filesystem::pat
 void AssetLibraryModel::ingestImportSession(urpg::assets::AssetImportSession session) {
     pending_import_request_ = nlohmann::json::object();
     session.summary = urpg::assets::summarizeAssetImportSession(session);
-    auto found = std::find_if(import_sessions_.begin(), import_sessions_.end(), [&](const auto& existing) {
-        return existing.sessionId == session.sessionId;
-    });
+    auto found = std::find_if(import_sessions_.begin(), import_sessions_.end(),
+                              [&](const auto& existing) { return existing.sessionId == session.sessionId; });
     if (found == import_sessions_.end()) {
         import_sessions_.push_back(std::move(session));
     } else {
@@ -319,7 +313,10 @@ nlohmann::json filterControls(const urpg::assets::AssetLibraryFilter& filter,
          {
              {"media_kind", filter.media_kind},
              {"category", filter.category},
+             {"game_use_category", filter.game_use_category},
              {"required_tag", filter.required_tag},
+             {"required_game_use_tag", filter.required_game_use_tag},
+             {"source_bundle_id", filter.source_bundle_id},
              {"required_status", filter.required_status.has_value()
                                      ? nlohmann::json(urpg::assets::toString(*filter.required_status))
                                      : nlohmann::json(nullptr)},
@@ -328,7 +325,16 @@ nlohmann::json filterControls(const urpg::assets::AssetLibraryFilter& filter,
              {"previewable_only", filter.previewable_only},
              {"project_attached_only", filter.project_attached_only},
              {"attachable_only", filter.attachable_only},
+             {"release_eligible_only", filter.release_eligible_only},
              {"result_count", filteredCount},
+         }},
+        {"facets",
+         {
+             {"game_use_categories", snapshot.game_use_category_counts},
+             {"game_use_tags", snapshot.game_use_tag_counts},
+             {"source_bundles", snapshot.source_bundle_counts},
+             {"source_categories", snapshot.category_counts},
+             {"media_kinds", snapshot.kind_counts},
          }},
         {"quick_filters",
          {
@@ -349,6 +355,49 @@ nlohmann::json filterControls(const urpg::assets::AssetLibraryFilter& filter,
                   {"enabled", snapshot.runtime_ready_count > 0},
                   {"action", "filter_runtime_ready_assets"},
                   {"count", snapshot.runtime_ready_count},
+              }},
+             {"release_eligible",
+              {
+                  {"visible", true},
+                  {"enabled", snapshot.game_use_tag_counts.contains("release:eligible")},
+                  {"action", "filter_release_eligible_assets"},
+                  {"count", snapshot.game_use_tag_counts.contains("release:eligible")
+                                ? snapshot.game_use_tag_counts.at("release:eligible")
+                                : 0},
+              }},
+             {"characters",
+              {
+                  {"visible", true},
+                  {"enabled", snapshot.game_use_category_counts.contains("characters/sprites")},
+                  {"action", "filter_character_assets"},
+                  {"game_use_category", "characters/sprites"},
+                  {"count", snapshot.game_use_category_counts.contains("characters/sprites")
+                                ? snapshot.game_use_category_counts.at("characters/sprites")
+                                : 0},
+              }},
+             {"tilesets",
+              {
+                  {"visible", true},
+                  {"enabled", snapshot.game_use_category_counts.contains("environment/tiles/top_down") ||
+                                  snapshot.game_use_category_counts.contains("environment/tiles/isometric")},
+                  {"action", "filter_tileset_assets"},
+                  {"required_game_use_tag", "asset_type:tileset"},
+                  {"count", (snapshot.game_use_category_counts.contains("environment/tiles/top_down")
+                                 ? snapshot.game_use_category_counts.at("environment/tiles/top_down")
+                                 : 0) +
+                                (snapshot.game_use_category_counts.contains("environment/tiles/isometric")
+                                     ? snapshot.game_use_category_counts.at("environment/tiles/isometric")
+                                     : 0)},
+              }},
+             {"ui_assets",
+              {
+                  {"visible", true},
+                  {"enabled", snapshot.game_use_category_counts.contains("ui/widgets")},
+                  {"action", "filter_ui_assets"},
+                  {"game_use_category", "ui/widgets"},
+                  {"count", snapshot.game_use_category_counts.contains("ui/widgets")
+                                ? snapshot.game_use_category_counts.at("ui/widgets")
+                                : 0},
               }},
              {"previewable",
               {
@@ -413,8 +462,12 @@ nlohmann::json buildImportWizardSnapshot(const AssetLibraryModelSnapshot& snapsh
         status = "source_requested";
     }
 
-    const auto reviewState = currentStep == "review" ? "active" : (hasReviewRows || hasPromotedAssets || hasAttachedAssets ? "complete" : "pending");
-    const auto promoteState = currentStep == "review" && hasPromotableRows ? "available" : (hasPromotedAssets || hasAttachedAssets ? "complete" : "pending");
+    const auto reviewState = currentStep == "review"
+                                 ? "active"
+                                 : (hasReviewRows || hasPromotedAssets || hasAttachedAssets ? "complete" : "pending");
+    const auto promoteState = currentStep == "review" && hasPromotableRows
+                                  ? "available"
+                                  : (hasPromotedAssets || hasAttachedAssets ? "complete" : "pending");
     const auto attachState = currentStep == "attach" ? "active" : (hasAttachedAssets ? "complete" : "pending");
     const auto packageState = currentStep == "package" ? "active" : "pending";
 
@@ -443,28 +496,32 @@ nlohmann::json buildImportWizardSnapshot(const AssetLibraryModelSnapshot& snapsh
                   {"enabled", hasPromotableRows},
                   {"action", "asset_library_promote_selected"},
                   {"eligible_count", snapshot.import_ready_count},
-                  {"disabled_reason", hasPromotableRows ? nlohmann::json(nullptr) : nlohmann::json("no_promotable_import_records")},
+                  {"disabled_reason",
+                   hasPromotableRows ? nlohmann::json(nullptr) : nlohmann::json("no_promotable_import_records")},
               }},
              {"convert_selected",
               {
                   {"enabled", hasConvertibleRows},
                   {"action", "asset_library_convert_selected"},
                   {"eligible_count", snapshot.import_needs_conversion_count},
-                  {"disabled_reason", hasConvertibleRows ? nlohmann::json(nullptr) : nlohmann::json("no_convertible_import_records")},
+                  {"disabled_reason",
+                   hasConvertibleRows ? nlohmann::json(nullptr) : nlohmann::json("no_convertible_import_records")},
               }},
              {"attach_selected",
               {
                   {"enabled", hasPromotedAssets},
                   {"action", "asset_library_attach_selected"},
                   {"eligible_count", snapshot.project_attachable_count},
-                  {"disabled_reason", hasPromotedAssets ? nlohmann::json(nullptr) : nlohmann::json("no_promoted_project_ready_assets")},
+                  {"disabled_reason",
+                   hasPromotedAssets ? nlohmann::json(nullptr) : nlohmann::json("no_promoted_project_ready_assets")},
               }},
              {"package_validate",
               {
                   {"enabled", hasAttachedAssets},
                   {"action", "asset_library_package_validate"},
                   {"eligible_count", snapshot.project_attached_count},
-                  {"disabled_reason", hasAttachedAssets ? nlohmann::json(nullptr) : nlohmann::json("no_attached_project_assets")},
+                  {"disabled_reason",
+                   hasAttachedAssets ? nlohmann::json(nullptr) : nlohmann::json("no_attached_project_assets")},
               }},
          }},
         {"counts",
@@ -527,6 +584,7 @@ std::string quoteShellArg(const std::string& value) {
 }
 #endif
 
+#ifdef _WIN32
 std::wstring quoteWindowsArg(const std::string& value) {
     if (value.empty()) {
         return L"\"\"";
@@ -573,6 +631,7 @@ std::wstring joinWindowsCommandLine(const std::vector<std::string>& arguments) {
     }
     return commandLine;
 }
+#endif
 
 std::string projectAttachmentManifestPath(const urpg::assets::AssetRecord& asset) {
     constexpr std::string_view prefix = "project_asset_attachment:";
@@ -638,8 +697,7 @@ nlohmann::json buildProjectAssetPickerRows(const urpg::assets::AssetLibrarySnaps
         if (!manifestStream) {
             continue;
         }
-        const auto manifest =
-            urpg::assets::deserializeAssetPromotionManifest(nlohmann::json::parse(manifestStream));
+        const auto manifest = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json::parse(manifestStream));
         const auto pickerKind = pickerKindForAsset(asset, manifest);
         rows.push_back({
             {"asset_id", asset.asset_id},
@@ -656,10 +714,24 @@ nlohmann::json buildProjectAssetPickerRows(const urpg::assets::AssetLibrarySnaps
             {"picker_targets", pickerTargetsForKind(pickerKind)},
         });
     }
-    std::sort(rows.begin(), rows.end(), [](const auto& lhs, const auto& rhs) {
-        return lhs.value("asset_id", "") < rhs.value("asset_id", "");
-    });
+    std::sort(rows.begin(), rows.end(),
+              [](const auto& lhs, const auto& rhs) { return lhs.value("asset_id", "") < rhs.value("asset_id", ""); });
     return rows;
+}
+
+nlohmann::json buildVirtualCatalogSnapshot(const urpg::assets::AssetLibrarySnapshot& snapshot) {
+    return {
+        {"schema", "urpg.asset_virtual_catalog.v1"},
+        {"description", "Production-facing virtual browse facets derived from governed asset metadata."},
+        {"preserves_physical_layout", true},
+        {"source_manifest_layout", "imports/manifests/asset_bundles"},
+        {"normalized_payload_layout", "imports/normalized"},
+        {"game_use_categories", snapshot.game_use_category_counts},
+        {"game_use_tags", snapshot.game_use_tag_counts},
+        {"source_bundles", snapshot.source_bundle_counts},
+        {"source_categories", snapshot.category_counts},
+        {"media_kinds", snapshot.kind_counts},
+    };
 }
 
 } // namespace
@@ -676,16 +748,9 @@ AssetLibraryModel::ConversionCommandResult AssetLibraryModel::runConversionComma
     STARTUPINFOW startup{};
     startup.cb = sizeof(startup);
     PROCESS_INFORMATION process{};
-    const BOOL launched = CreateProcessW(nullptr,
-                                         commandLine.data(),
-                                         nullptr,
-                                         nullptr,
-                                         FALSE,
-                                         CREATE_NO_WINDOW,
-                                         nullptr,
-                                         workingDirectory.empty() ? nullptr : workingDirectory.c_str(),
-                                         &startup,
-                                         &process);
+    const BOOL launched =
+        CreateProcessW(nullptr, commandLine.data(), nullptr, nullptr, FALSE, CREATE_NO_WINDOW, nullptr,
+                       workingDirectory.empty() ? nullptr : workingDirectory.c_str(), &startup, &process);
     if (!launched) {
         return {1, "", "conversion command could not be started: " + std::to_string(GetLastError())};
     }
@@ -805,17 +870,14 @@ bool AssetLibraryModel::loadPromotedAssetsFromLibraryRoot(const std::filesystem:
     }
 }
 
-urpg::assets::AssetLibraryActionResult AssetLibraryModel::promoteImportRecord(std::string session_id,
-                                                                              std::string asset_id,
-                                                                              std::string license_id,
-                                                                              std::string promoted_root,
-                                                                              bool include_in_runtime) {
-    auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(), [&](const auto& candidate) {
-        return candidate.sessionId == session_id;
-    });
+urpg::assets::AssetLibraryActionResult
+AssetLibraryModel::promoteImportRecord(std::string session_id, std::string asset_id, std::string license_id,
+                                       std::string promoted_root, bool include_in_runtime) {
+    auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(),
+                                [&](const auto& candidate) { return candidate.sessionId == session_id; });
     if (session == import_sessions_.end()) {
-        urpg::assets::AssetLibraryActionResult result{
-            "promote_import_record", asset_id, false, "import_session_not_found", "Import session was not found."};
+        urpg::assets::AssetLibraryActionResult result{"promote_import_record", asset_id, false,
+                                                      "import_session_not_found", "Import session was not found."};
         action_history_.push_back(result.toJson());
         refreshSnapshot();
         snapshot_.last_action = result.toJson();
@@ -823,12 +885,11 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::promoteImportRecord(st
         return result;
     }
 
-    auto record = std::find_if(session->records.begin(), session->records.end(), [&](const auto& candidate) {
-        return candidate.assetId == asset_id;
-    });
+    auto record = std::find_if(session->records.begin(), session->records.end(),
+                               [&](const auto& candidate) { return candidate.assetId == asset_id; });
     if (record == session->records.end()) {
-        urpg::assets::AssetLibraryActionResult result{
-            "promote_import_record", asset_id, false, "import_record_not_found", "Import record was not found."};
+        urpg::assets::AssetLibraryActionResult result{"promote_import_record", asset_id, false,
+                                                      "import_record_not_found", "Import record was not found."};
         action_history_.push_back(result.toJson());
         refreshSnapshot();
         snapshot_.last_action = result.toJson();
@@ -836,20 +897,17 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::promoteImportRecord(st
         return result;
     }
 
-    auto manifest = urpg::assets::planAssetPromotionManifest(
-        *session, *record, std::move(license_id), std::move(promoted_root), include_in_runtime);
+    auto manifest = urpg::assets::planAssetPromotionManifest(*session, *record, std::move(license_id),
+                                                             std::move(promoted_root), include_in_runtime);
     library_.ingestPromotionManifest(manifest);
     rebuildCleanupPreview();
 
-    const bool success = manifest.status == urpg::assets::AssetPromotionStatus::RuntimeReady &&
-                         manifest.diagnostics.empty();
-    urpg::assets::AssetLibraryActionResult result{
-        "promote_import_record",
-        asset_id,
-        success,
-        success ? "import_record_promoted" : "import_record_blocked",
-        success ? "Import record was promoted into the global asset library."
-                : "Import record requires review before promotion."};
+    const bool success =
+        manifest.status == urpg::assets::AssetPromotionStatus::RuntimeReady && manifest.diagnostics.empty();
+    urpg::assets::AssetLibraryActionResult result{"promote_import_record", asset_id, success,
+                                                  success ? "import_record_promoted" : "import_record_blocked",
+                                                  success ? "Import record was promoted into the global asset library."
+                                                          : "Import record requires review before promotion."};
     action_history_.push_back(result.toJson());
     refreshSnapshot();
     snapshot_.last_action = result.toJson();
@@ -859,9 +917,8 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::promoteImportRecord(st
 
 nlohmann::json AssetLibraryModel::runImportRecordConversion(std::string session_id, std::string asset_id,
                                                             ConversionCommandExecutor executor) {
-    auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(), [&](const auto& candidate) {
-        return candidate.sessionId == session_id;
-    });
+    auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(),
+                                [&](const auto& candidate) { return candidate.sessionId == session_id; });
     if (session == import_sessions_.end()) {
         nlohmann::json action = {
             {"action", "run_import_record_conversion"},
@@ -878,9 +935,8 @@ nlohmann::json AssetLibraryModel::runImportRecordConversion(std::string session_
         return action;
     }
 
-    auto record = std::find_if(session->records.begin(), session->records.end(), [&](const auto& candidate) {
-        return candidate.assetId == asset_id;
-    });
+    auto record = std::find_if(session->records.begin(), session->records.end(),
+                               [&](const auto& candidate) { return candidate.assetId == asset_id; });
     if (record == session->records.end()) {
         nlohmann::json action = {
             {"action", "run_import_record_conversion"},
@@ -927,7 +983,7 @@ nlohmann::json AssetLibraryModel::runImportRecordConversion(std::string session_
             {"success", false},
             {"code", result.exit_code == 0 ? "conversion_output_missing" : "conversion_command_failed"},
             {"message", result.exit_code == 0 ? "Conversion command did not produce the expected output."
-                                               : "Conversion command failed."},
+                                              : "Conversion command failed."},
             {"session_id", session_id},
             {"asset_id", asset_id},
             {"exit_code", result.exit_code},
@@ -1016,9 +1072,8 @@ nlohmann::json AssetLibraryModel::promoteImportRecords(std::string session_id, s
     size_t blockedCount = 0;
     size_t missingCount = 0;
 
-    auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(), [&](const auto& candidate) {
-        return candidate.sessionId == session_id;
-    });
+    auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(),
+                                [&](const auto& candidate) { return candidate.sessionId == session_id; });
     if (session == import_sessions_.end()) {
         for (const auto& asset_id : asset_ids) {
             rows.push_back({
@@ -1032,9 +1087,8 @@ nlohmann::json AssetLibraryModel::promoteImportRecords(std::string session_id, s
         }
     } else {
         for (const auto& asset_id : asset_ids) {
-            auto record = std::find_if(session->records.begin(), session->records.end(), [&](const auto& candidate) {
-                return candidate.assetId == asset_id;
-            });
+            auto record = std::find_if(session->records.begin(), session->records.end(),
+                                       [&](const auto& candidate) { return candidate.assetId == asset_id; });
             if (record == session->records.end()) {
                 rows.push_back({
                     {"asset_id", asset_id},
@@ -1047,11 +1101,11 @@ nlohmann::json AssetLibraryModel::promoteImportRecords(std::string session_id, s
                 continue;
             }
 
-            auto manifest = urpg::assets::planAssetPromotionManifest(
-                *session, *record, license_id, promoted_root, include_in_runtime);
+            auto manifest = urpg::assets::planAssetPromotionManifest(*session, *record, license_id, promoted_root,
+                                                                     include_in_runtime);
             library_.ingestPromotionManifest(manifest);
-            const bool success = manifest.status == urpg::assets::AssetPromotionStatus::RuntimeReady &&
-                                 manifest.diagnostics.empty();
+            const bool success =
+                manifest.status == urpg::assets::AssetPromotionStatus::RuntimeReady && manifest.diagnostics.empty();
             if (success) {
                 ++promotedCount;
             } else {
@@ -1094,12 +1148,11 @@ nlohmann::json AssetLibraryModel::promoteImportRecords(std::string session_id, s
 
 urpg::assets::AssetLibraryActionResult AssetLibraryModel::promoteImportRecordToGlobalLibrary(
     std::string session_id, std::string asset_id, std::string license_id, const std::filesystem::path& promoted_root) {
-    auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(), [&](const auto& candidate) {
-        return candidate.sessionId == session_id;
-    });
+    auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(),
+                                [&](const auto& candidate) { return candidate.sessionId == session_id; });
     if (session == import_sessions_.end()) {
-        urpg::assets::AssetLibraryActionResult result{
-            "promote_import_record_global", asset_id, false, "import_session_not_found", "Import session was not found."};
+        urpg::assets::AssetLibraryActionResult result{"promote_import_record_global", asset_id, false,
+                                                      "import_session_not_found", "Import session was not found."};
         action_history_.push_back(result.toJson());
         refreshSnapshot();
         snapshot_.last_action = result.toJson();
@@ -1107,12 +1160,11 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::promoteImportRecordToG
         return result;
     }
 
-    auto record = std::find_if(session->records.begin(), session->records.end(), [&](const auto& candidate) {
-        return candidate.assetId == asset_id;
-    });
+    auto record = std::find_if(session->records.begin(), session->records.end(),
+                               [&](const auto& candidate) { return candidate.assetId == asset_id; });
     if (record == session->records.end()) {
-        urpg::assets::AssetLibraryActionResult result{
-            "promote_import_record_global", asset_id, false, "import_record_not_found", "Import record was not found."};
+        urpg::assets::AssetLibraryActionResult result{"promote_import_record_global", asset_id, false,
+                                                      "import_record_not_found", "Import record was not found."};
         action_history_.push_back(result.toJson());
         refreshSnapshot();
         snapshot_.last_action = result.toJson();
@@ -1123,8 +1175,8 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::promoteImportRecordToG
     urpg::assets::GlobalAssetPromotionService service;
     const auto promotion = service.promoteImportRecord(*session, *record, std::move(license_id), promoted_root);
     library_.ingestPromotionManifest(promotion.manifest);
-    urpg::assets::AssetLibraryActionResult result{
-        "promote_import_record_global", asset_id, promotion.success, promotion.code, promotion.message};
+    urpg::assets::AssetLibraryActionResult result{"promote_import_record_global", asset_id, promotion.success,
+                                                  promotion.code, promotion.message};
     action_history_.push_back(result.toJson());
     rebuildCleanupPreview();
     snapshot_.last_action = result.toJson();
@@ -1141,9 +1193,8 @@ nlohmann::json AssetLibraryModel::promoteImportRecordsToGlobalLibrary(std::strin
     size_t blockedCount = 0;
     size_t missingCount = 0;
 
-    auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(), [&](const auto& candidate) {
-        return candidate.sessionId == session_id;
-    });
+    auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(),
+                                [&](const auto& candidate) { return candidate.sessionId == session_id; });
     if (session == import_sessions_.end()) {
         for (const auto& asset_id : asset_ids) {
             rows.push_back({
@@ -1158,9 +1209,8 @@ nlohmann::json AssetLibraryModel::promoteImportRecordsToGlobalLibrary(std::strin
     } else {
         urpg::assets::GlobalAssetPromotionService service;
         for (const auto& asset_id : asset_ids) {
-            auto record = std::find_if(session->records.begin(), session->records.end(), [&](const auto& candidate) {
-                return candidate.assetId == asset_id;
-            });
+            auto record = std::find_if(session->records.begin(), session->records.end(),
+                                       [&](const auto& candidate) { return candidate.assetId == asset_id; });
             if (record == session->records.end()) {
                 rows.push_back({
                     {"asset_id", asset_id},
@@ -1200,8 +1250,9 @@ nlohmann::json AssetLibraryModel::promoteImportRecordsToGlobalLibrary(std::strin
         {"action", "promote_import_records_global"},
         {"success", success},
         {"code", success ? "global_import_records_promoted" : "global_import_records_partial"},
-        {"message", success ? "All selected import records were copied into the promoted global asset library."
-                            : "Some selected import records could not be copied into the promoted global asset library."},
+        {"message", success
+                        ? "All selected import records were copied into the promoted global asset library."
+                        : "Some selected import records could not be copied into the promoted global asset library."},
         {"session_id", session_id},
         {"selected_count", asset_ids.size()},
         {"promoted_count", promotedCount},
@@ -1291,6 +1342,51 @@ bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& re
     return true;
 }
 
+bool AssetLibraryModel::loadAssetBundleManifestsFromDirectory(const std::filesystem::path& bundle_root,
+                                                              std::string* error_message) {
+    if (!std::filesystem::is_directory(bundle_root)) {
+        if (error_message != nullptr) {
+            *error_message = "asset bundle manifest directory is missing";
+        }
+        refreshSnapshot();
+        snapshot_.status_message = snapshot_.reports_loaded ? "" : "Asset bundle manifests are missing.";
+        snapshot_.error_message = "Missing asset bundle manifest directory: " + bundle_root.string();
+        return false;
+    }
+
+    try {
+        size_t loaded = 0;
+        for (const auto& entry : std::filesystem::directory_iterator(bundle_root)) {
+            if (!entry.is_regular_file() || entry.path().extension() != ".json" ||
+                entry.path().filename().string() == "asset_bundle.schema.json") {
+                continue;
+            }
+            std::ifstream manifest_stream(entry.path());
+            library_.ingestAssetBundleManifest(nlohmann::json::parse(manifest_stream));
+            ++loaded;
+        }
+        rebuildCleanupPreview();
+        if (loaded == 0) {
+            if (error_message != nullptr) {
+                *error_message = "asset bundle manifests are missing";
+            }
+            return false;
+        }
+        if (error_message != nullptr) {
+            error_message->clear();
+        }
+        return true;
+    } catch (const std::exception& ex) {
+        if (error_message != nullptr) {
+            *error_message = ex.what();
+        }
+        snapshot_.status = "error";
+        snapshot_.status_message = "Asset bundle manifests could not be loaded.";
+        snapshot_.error_message = ex.what();
+        return false;
+    }
+}
+
 void AssetLibraryModel::addReferencedAsset(std::string path) {
     library_.addReferencedAsset(std::move(path));
     rebuildCleanupPreview();
@@ -1319,13 +1415,13 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::archiveAsset(std::stri
     return result;
 }
 
-urpg::assets::AssetLibraryActionResult AssetLibraryModel::attachPromotedAssetToProject(
-    std::string path, const std::filesystem::path& project_root) {
+urpg::assets::AssetLibraryActionResult
+AssetLibraryModel::attachPromotedAssetToProject(std::string path, const std::filesystem::path& project_root) {
     std::replace(path.begin(), path.end(), '\\', '/');
     const auto found = library_.findAsset(path);
     if (!found.has_value()) {
-        urpg::assets::AssetLibraryActionResult result{
-            "attach_project_asset", path, false, "asset_not_found", "Asset was not found in the library."};
+        urpg::assets::AssetLibraryActionResult result{"attach_project_asset", path, false, "asset_not_found",
+                                                      "Asset was not found in the library."};
         action_history_.push_back(result.toJson());
         refreshSnapshot();
         snapshot_.last_action = result.toJson();
@@ -1335,8 +1431,8 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::attachPromotedAssetToP
 
     urpg::assets::ProjectAssetAttachmentService service;
     const auto attachResult = service.attachPromotedAsset(manifestFromAssetRecord(*found), project_root);
-    urpg::assets::AssetLibraryActionResult result{
-        "attach_project_asset", path, attachResult.success, attachResult.code, attachResult.message};
+    urpg::assets::AssetLibraryActionResult result{"attach_project_asset", path, attachResult.success, attachResult.code,
+                                                  attachResult.message};
     if (attachResult.success) {
         library_.addUsageReference(path, "project_asset_attachment:" + attachResult.manifestPath.generic_string());
     }
@@ -1497,6 +1593,30 @@ bool AssetLibraryModel::applyQuickFilter(std::string_view filter_id) {
         recordResult(true, "quick_filter_applied", "Runtime-ready asset filter applied.");
         return true;
     }
+    if (filter_id == "release_eligible") {
+        filter.release_eligible_only = true;
+        setFilter(filter);
+        recordResult(true, "quick_filter_applied", "Release-eligible asset filter applied.");
+        return true;
+    }
+    if (filter_id == "characters") {
+        filter.game_use_category = "characters/sprites";
+        setFilter(filter);
+        recordResult(true, "quick_filter_applied", "Character asset filter applied.");
+        return true;
+    }
+    if (filter_id == "tilesets") {
+        filter.required_game_use_tag = "asset_type:tileset";
+        setFilter(filter);
+        recordResult(true, "quick_filter_applied", "Tileset asset filter applied.");
+        return true;
+    }
+    if (filter_id == "ui_assets") {
+        filter.game_use_category = "ui/widgets";
+        setFilter(filter);
+        recordResult(true, "quick_filter_applied", "UI asset filter applied.");
+        return true;
+    }
     if (filter_id == "previewable") {
         filter.previewable_only = true;
         setFilter(filter);
@@ -1571,11 +1691,8 @@ void AssetLibraryModel::refreshSnapshot() {
     }
     auto filteredAssets = library_.filterAssets(filter_);
     snapshot_.filtered_asset_count = filteredAssets.size();
-    snapshot_.filter_controls = filterControls(filter_,
-                                               asset_snapshot,
-                                               snapshot_.filtered_asset_count,
-                                               snapshot_.project_attached_count,
-                                               snapshot_.project_attachable_count);
+    snapshot_.filter_controls = filterControls(filter_, asset_snapshot, snapshot_.filtered_asset_count,
+                                               snapshot_.project_attached_count, snapshot_.project_attachable_count);
     snapshot_.cleanup_allowed_count = cleanup_plan_.allowed_count;
     snapshot_.cleanup_refused_count = cleanup_plan_.refused_count;
     snapshot_.export_eligible = asset_snapshot.export_eligible;
@@ -1615,12 +1732,16 @@ void AssetLibraryModel::refreshSnapshot() {
         }
     }
     snapshot_.import_wizard = buildImportWizardSnapshot(snapshot_, pending_import_request_);
+    snapshot_.virtual_catalog = buildVirtualCatalogSnapshot(asset_snapshot);
     snapshot_.action_history = action_history_;
     if (!action_history_.empty()) {
         snapshot_.last_action = action_history_.back();
     }
     snapshot_.category_counts = asset_snapshot.category_counts;
+    snapshot_.game_use_category_counts = asset_snapshot.game_use_category_counts;
+    snapshot_.game_use_tag_counts = asset_snapshot.game_use_tag_counts;
     snapshot_.kind_counts = asset_snapshot.kind_counts;
+    snapshot_.source_bundle_counts = asset_snapshot.source_bundle_counts;
     snapshot_.reports_loaded = asset_snapshot.assets.size() > 0 || asset_snapshot.duplicate_groups.size() > 0 ||
                                asset_snapshot.catalog_asset_count > 0 || asset_snapshot.catalog_shard_count > 0 ||
                                cleanup_plan_.allowed_count > 0 || cleanup_plan_.refused_count > 0 ||

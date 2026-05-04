@@ -1,0 +1,25 @@
+{
+  "schema": "urpg.current_ingestable_promotion.v1",
+  "generated_at": "2026-05-03T16:53:18+00:00",
+  "src010": {
+    "selected_asset_count": 4697,
+    "rejected_asset_count": 15532,
+    "rejection_summary": {
+      "extension_not_app_usable": 2059,
+      "already_promoted": 12444,
+      "duplicate_payload": 612,
+      "no_cc0_folder_or_archive_license": 350,
+      "invalid_font_header": 60,
+      "invalid_image_header": 7
+    },
+    "bundle": "imports/manifests/asset_bundles/BND-007.json"
+  },
+  "itch_loose": {
+    "selected_asset_count": 394,
+    "rejected_asset_count": 3,
+    "rejection_summary": {
+      "not_runtime_png_payload": 3
+    },
+    "bundle": "imports/manifests/asset_bundles/BND-008.json"
+  }
+}

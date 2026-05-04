@@ -1,14 +1,14 @@
 {
   "schema": "urpg.src010.curated_promotion_plan.v1",
   "source_id": "SRC-010",
-  "generated_at": "2026-05-02T19:28:16Z",
+  "generated_at": "2026-05-03T15:44:11+00:00",
   "decision": {
-    "owner_decision": "bounded_cc0_starter_promoted",
+    "owner_decision": "cc0_public_domain_app_usable_promoted",
     "promotion_owner": "URPG asset intake governance",
     "release_claim_allowed": true,
-    "export_eligible_count": 14,
+    "export_eligible_count": 12444,
     "raw_payload_policy": "raw source and extracted payloads remain ignored quarantine",
-    "promotion_gate": "BND-004 created for 14 selected CC0/public-domain starter assets; additional SRC-010 promotion still requires normalized curated copies, per-pack attribution records, checksum capture, bundle manifest, and asset governance gate verification."
+    "promotion_gate": "BND-004 and BND-006 created for reviewed CC0/public-domain app-usable payloads; BND-006 default export bundling is deferred until project selection; additional SRC-010 promotion still requires normalized curated copies, attribution records, checksum capture, bundle manifest, and asset governance gate verification."
   },
   "source_summary": {
     "pack_count": 407,
@@ -1068,7 +1068,7 @@
           "source_path": "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/LICENCE.txt",
           "license_status": "commercial_use_stated_review_required",
           "sha256": "f2351c0078190bfafeb5acfe131abd49a3bd69cc26ee5c8c2c90282409bfaf4e",
-          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) ✔️ You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. ❌ You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
+          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) \u2714\ufe0f You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. \u274c You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
         },
         {
           "source_path": "imports/raw/more_assets_to_ingest/dungeon-pack-free-version-1dac9c624af1/README.txt",
@@ -1116,7 +1116,7 @@
           "source_path": "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/LICENCE.txt",
           "license_status": "commercial_use_stated_review_required",
           "sha256": "f2351c0078190bfafeb5acfe131abd49a3bd69cc26ee5c8c2c90282409bfaf4e",
-          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) ✔️ You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. ❌ You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
+          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) \u2714\ufe0f You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. \u274c You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
         },
         {
           "source_path": "imports/raw/more_assets_to_ingest/farming-pack-free-version-0d25b506f7b5/README.txt",
@@ -1163,7 +1163,7 @@
           "source_path": "imports/raw/more_assets_to_ingest/exterior-pack-free-version-89fca2d76b14/LICENCE.txt",
           "license_status": "commercial_use_stated_review_required",
           "sha256": "f2351c0078190bfafeb5acfe131abd49a3bd69cc26ee5c8c2c90282409bfaf4e",
-          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) ✔️ You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. ❌ You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
+          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) \u2714\ufe0f You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. \u274c You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
         }
       ]
     },
@@ -1204,7 +1204,7 @@
           "source_path": "imports/raw/more_assets_to_ingest/overworld-pack-free-version-e2e019f48719/LICENCE.txt",
           "license_status": "commercial_use_stated_review_required",
           "sha256": "f2351c0078190bfafeb5acfe131abd49a3bd69cc26ee5c8c2c90282409bfaf4e",
-          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) ✔️ You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. ❌ You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
+          "excerpt": "Are you using those assets ? Well, thank you ! Please mind the section below. ! You need to : - Credit the authors mention our social account (Twitter) : Gif (@gif_not_jif) Noiracide (@Noiracide) Romi (@DessRomaric) \u2714\ufe0f You can : - Use the assets for non-commercial AND commercial project. - Adapt and/or modify the assets to match your project. \u274c You can NOT : - Distribute or sell those assets directly (even modified). - Claim the asset yours. - Use the assets for a NFT/metaverse/IA project. Depen"
         }
       ]
     }
@@ -1220,8 +1220,8 @@
     ]
   },
   "next_bundle_plan": {
-    "suggested_bundle_id": "BND-004",
-    "suggested_bundle_status": "created_bnd_004_bounded_cc0_starter_pack",
+    "suggested_bundle_id": "BND-006",
+    "suggested_bundle_status": "created_bnd_006_bulk_cc0_public_domain_app_usable_pack",
     "suggested_scope": [
       "UI baseline: lucifer-rpg-ui and lucifer-equipment after evidence review",
       "Isometric/top-down baseline: isometric stone soup, floors, roads, objects",
@@ -1229,15 +1229,17 @@
       "Non-RPG baseline: word/chess/letter-tile packs and CC0 fonts"
     ],
     "required_outputs_before_status_ready": [
-      "imports/normalized/src010_<bundle-scope>/ curated files only",
-      "imports/manifests/asset_bundles/BND-004.json with exact file checksums",
-      "imports/reports/asset_intake/attribution/SRC-010_<pack-or-bundle>.json",
-      "docs/asset_intake registry update linking the bundle and attribution records",
+      "imports/normalized/src010_cc0_release_bulk/ copied app-usable files only; default export bundling deferred until project selection",
+      "imports/manifests/asset_bundles/BND-006.json with exact file checksums",
+      "imports/reports/asset_intake/attribution/BND-006_src010_cc0_release_bulk.json",
+      "imports/reports/asset_intake/src010_release_bulk_scan_report.json with selected and held reasons",
       "governance gate pass"
     ],
-    "promoted_bundle_manifest": "imports/manifests/asset_bundles/BND-004.json",
-    "promoted_attribution_record": "imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json",
-    "promoted_normalized_root": "imports/normalized/src010_cc0_starter_pack",
-    "promoted_asset_count": 14
+    "promoted_bundle_manifest": "imports/manifests/asset_bundles/BND-006.json",
+    "promoted_attribution_record": "imports/reports/asset_intake/attribution/BND-006_src010_cc0_release_bulk.json",
+    "promoted_normalized_root": "imports/normalized/src010_cc0_release_bulk",
+    "promoted_asset_count": 12430,
+    "prior_promoted_bundle_manifest": "imports/manifests/asset_bundles/BND-004.json",
+    "prior_promoted_asset_count": 14
   }
 }

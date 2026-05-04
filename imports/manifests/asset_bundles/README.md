@@ -20,5 +20,10 @@ TD Sprint 04 added the first promoted allowlist records:
 - `BND-002.json` - `SRC-003` UI SFX proof lane; retained as a governed local/deferred audio record while WAV payloads are ignored and excluded from release-required packaging
 - `BND-003.json` - `SRC-009` repo-generated Phase 9 release starter skin lane; release-required for UI frame/chrome, VFX proof, and cohesive skin metadata
 - `BND-004.json` - `SRC-010` bounded CC0 starter promotion; release-eligible but not release-required, with the broader raw drop still quarantined
+- `BND-006.json` - `SRC-010` bulk CC0/public-domain app-usable promotion; release-eligible but not release-required or default-bundled, with duplicate, source/tool/archive, invalid, and non-reviewed-license payloads still quarantined
+- `BND-007.json` - `SRC-010` newly license-covered app-usable promotion; release-eligible but not release-required or default-bundled
+- `BND-008.json` - `SRC-013` itch loose CC0 PNG promotion; release-eligible but not release-required or default-bundled
 
-Current UI and audio release surfaces are satisfied by explicit fallback entries in `releaseAssets` until a non-LFS bundled audio asset is approved.
+Current UI and audio release surfaces are satisfied by explicit fallback entries in `releaseAssets` until a non-LFS
+bundled audio asset is approved. The release-required asset gate enforces this policy: the audio surface must be covered
+by either an explicit muted/silent `system_fallback` `audio_policy` row or a bundled release-required audio asset.

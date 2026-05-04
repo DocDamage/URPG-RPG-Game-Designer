@@ -1,0 +1,1431 @@
+{
+  "schema": "urpg.src010_release_bulk_scan.v1",
+  "generated_at": "2026-05-03T15:44:11+00:00",
+  "source_id": "SRC-010",
+  "policy": "Promote every unique app-usable SRC-010 payload from CC0/public-domain reviewed packs; hold all other raw assets in quarantine.",
+  "cc0_public_domain_pack_count": 127,
+  "selected_asset_count": 12430,
+  "selected_total_bytes": 2886505934,
+  "rejected_asset_count": 7799,
+  "rejection_summary": {
+    "pack_not_cc0_public_domain_reviewed": 5867,
+    "extension_not_app_usable": 1458,
+    "duplicate_payload": 395,
+    "already_promoted_elsewhere": 14,
+    "invalid_font_header": 60,
+    "invalid_image_header": 5
+  },
+  "selected_by_category": {
+    "props": 6328,
+    "tilesets": 3663,
+    "vfx": 33,
+    "backgrounds": 179,
+    "ui": 799,
+    "characters": 748,
+    "audio": 8,
+    "fonts": 212,
+    "characters/portraits": 460
+  },
+  "rejected_samples": [
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/cat-pixel-mega-pack-materials-116d3cf56e03/CatMaterialsDEMO/CatMaterialsDEMO.zip",
+      "pack": "cat-pixel-mega-pack-materials-116d3cf56e03",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Panels/Panels.rar",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "archives",
+      "ext": "rar",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Attack animation/Attack animation - without flame.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Climb animation/Climb animation.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Death animation/Death animation.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Extra attack animation/Extra attack animation.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/High Jump animation/High jump animation.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Hurt animation/Hurt animation.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Idle animation/Idle animation.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Jump animation/Jump animation.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Push animation/Push animation.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Run and attack animation/Run and attack animation.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Run animation/Run animation.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Walk and attack animation/Walk and attack.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/pointy-hat-mage-a69279af08c0/Foozle_2DC0004_Pointy_Hat_Mage/Walk animation/Walk animation.zip",
+      "pack": "pointy-hat-mage-a69279af08c0",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/super-retro-world-interior-pack-week42-d44d3f002d48/unity/tile_palette.unitypackage",
+      "pack": "super-retro-world-interior-pack-week42-d44d3f002d48",
+      "category": "archives",
+      "ext": "unitypackage",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/trap-and-weapon-c0c5bfe3897b/Trap and Weapon/Rocket Bullet.zip",
+      "pack": "trap-and-weapon-c0c5bfe3897b",
+      "category": "archives",
+      "ext": "zip",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/bgm/Fraast's Theme.ogg",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "category": "audio/music",
+      "ext": "ogg",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/bgm/Junkyard Battle Music.ogg",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "category": "audio/music",
+      "ext": "ogg",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/bgm/Junkyard Doowop.ogg",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "category": "audio/music",
+      "ext": "ogg",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/bgm/Streets of Gearvale.ogg",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "category": "audio/music",
+      "ext": "ogg",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0 full song.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_bass.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_clap.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_crash.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_kick.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_lead.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_pad 02.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_pad.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_shaker.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_snare.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_synth01.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_synth02.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 01/v1.0_toms.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0 Full song.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0_bass.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0_clap.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0_crash.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0_kick.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0_lead .wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0_pad01.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0_percussion.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0_rythm.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0_shaker.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0_synth 02.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/eerie-space-music-206c176580d9/Foozle_M0001_Eerie_Space_Music/track 02/2 v1.0_synth.wav",
+      "pack": "eerie-space-music-206c176580d9",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #1 (30s).flac",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "flac",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #1 (30s).mp3",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "mp3",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #1 (30s).wav",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #1.flac",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "flac",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #1.mp3",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "mp3",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #1.wav",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #2 (30s).flac",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "flac",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #2 (30s).mp3",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "mp3",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #2 (30s).wav",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #2.flac",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "flac",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #2.mp3",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "mp3",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Theme #2.wav",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Under Pressure Theme 2.flac",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "flac",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Under Pressure Theme 2.mp3",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "mp3",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Under Pressure Theme 2.wav",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Under Pressure Theme.flac",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "flac",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Under Pressure Theme.mp3",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "mp3",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/explorer-chiptune-music-32153aac688e/Foozle_M0002_Explorer_Chiptunes/foozlecc - Under Pressure Theme.wav",
+      "pack": "explorer-chiptune-music-32153aac688e",
+      "category": "audio",
+      "ext": "wav",
+      "reason": "extension_not_app_usable"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 11.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 2.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 20.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 21.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 22.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 23.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 24.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 25.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 26.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 27.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 28.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 29.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 3.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 30.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 31.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 32.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 33.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 34.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 35.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 36.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 37.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 38.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 39.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 4.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 40.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 5.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 6.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 7.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 8.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/lucifer-rpg-ui-c4cddb70ad02/Foozle_UI_0002_Lucifer_RPG_UI_Pixel_Art/Main Menu/Png/Main Menu animated background 9.png",
+      "pack": "lucifer-rpg-ui-c4cddb70ad02",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "duplicate_payload"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/plains-parallax-separate-layers-9b3f398cfdb4/Plains parallax separate layers/clouds.png",
+      "pack": "plains-parallax-separate-layers-9b3f398cfdb4",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/plains-parallax-separate-layers-9b3f398cfdb4/Plains parallax separate layers/forest.png",
+      "pack": "plains-parallax-separate-layers-9b3f398cfdb4",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/plains-parallax-separate-layers-9b3f398cfdb4/Plains parallax separate layers/grass.png",
+      "pack": "plains-parallax-separate-layers-9b3f398cfdb4",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/plains-parallax-separate-layers-9b3f398cfdb4/Plains parallax separate layers/hill.png",
+      "pack": "plains-parallax-separate-layers-9b3f398cfdb4",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/plains-parallax-separate-layers-9b3f398cfdb4/Plains parallax separate layers/plains.png",
+      "pack": "plains-parallax-separate-layers-9b3f398cfdb4",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/plains-parallax-separate-layers-9b3f398cfdb4/Plains parallax separate layers/sky.png",
+      "pack": "plains-parallax-separate-layers-9b3f398cfdb4",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/void-environment-pack-33464a36feb1/Foozle_2DS0015_Void_EnvironmentPack/Backgrounds/PNGs/Condesed/Starry background  - Layer 03 - Stars.png",
+      "pack": "void-environment-pack-33464a36feb1",
+      "category": "backgrounds",
+      "ext": "png",
+      "reason": "already_promoted_elsewhere"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/dark-rpg-gui-kit-pixel-art-asset-pack-c4fe646cab4e/dfgui_portraitframe.png",
+      "pack": "dark-rpg-gui-kit-pixel-art-asset-pack-c4fe646cab4e",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/dark-rpg-gui-kit-pixel-art-asset-pack-c4fe646cab4e/dfgui_portraitframe2.png",
+      "pack": "dark-rpg-gui-kit-pixel-art-asset-pack-c4fe646cab4e",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/dark-rpg-gui-kit-pixel-art-asset-pack-c4fe646cab4e/screenshots/02_portrait_frames.png",
+      "pack": "dark-rpg-gui-kit-pixel-art-asset-pack-c4fe646cab4e",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/high-fantasy-heroes-ba708b186ecc/High Fantasy Heroes/faces/Beatrice.png",
+      "pack": "high-fantasy-heroes-ba708b186ecc",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/high-fantasy-heroes-ba708b186ecc/High Fantasy Heroes/faces/Enemies.png",
+      "pack": "high-fantasy-heroes-ba708b186ecc",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/high-fantasy-heroes-ba708b186ecc/High Fantasy Heroes/faces/Lyra.png",
+      "pack": "high-fantasy-heroes-ba708b186ecc",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/high-fantasy-heroes-ba708b186ecc/High Fantasy Heroes/faces/Valkyrie.png",
+      "pack": "high-fantasy-heroes-ba708b186ecc",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/faces/Fraast.png",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/faces/Junkyard_Enemies.png",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/faces/Paz.png",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/junkyard-heroes-0cc3b1a72f2f/Junkyard Heroes/faces/Yumi.png",
+      "pack": "junkyard-heroes-0cc3b1a72f2f",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/ui-user-interface-mega-pack-3ace34ac0532/UIBundleFree/freecasinoui.png",
+      "pack": "ui-user-interface-mega-pack-3ace34ac0532",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/ui-user-interface-mega-pack-3ace34ac0532/UIBundleFree/FreeDemo.png",
+      "pack": "ui-user-interface-mega-pack-3ace34ac0532",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/ui-user-interface-mega-pack-3ace34ac0532/UIBundleFree/freefantasy.png",
+      "pack": "ui-user-interface-mega-pack-3ace34ac0532",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/ui-user-interface-mega-pack-3ace34ac0532/UIBundleFree/FreeHorrorUi.png",
+      "pack": "ui-user-interface-mega-pack-3ace34ac0532",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/ui-user-interface-mega-pack-3ace34ac0532/UIBundleFree/FreeUI.png",
+      "pack": "ui-user-interface-mega-pack-3ace34ac0532",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/ui-user-interface-mega-pack-3ace34ac0532/UIBundleFree/MediavelFree.png",
+      "pack": "ui-user-interface-mega-pack-3ace34ac0532",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/ui-user-interface-mega-pack-3ace34ac0532/UIBundleFree/PastelUIFree.png",
+      "pack": "ui-user-interface-mega-pack-3ace34ac0532",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/ui-user-interface-mega-pack-3ace34ac0532/UIBundleFree/UiCozyFree.png",
+      "pack": "ui-user-interface-mega-pack-3ace34ac0532",
+      "category": "characters/portraits",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet01.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet02.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet03.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet04.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet05.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet06.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet07.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet08.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet09.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet10.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet11.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet12.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet13.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet14.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/chrhead_sheet15.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads01_row1_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads01_row2_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads01_row3_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads01_row4_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads01_row5_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads01_row6_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads01_row7_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads02_row1_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads02_row2_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads02_row3_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads02_row4_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads02_row5_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads02_row6_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads02_row7_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads03_row1_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads03_row2_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads03_row3_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads03_row4_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads03_row5_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads03_row6_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads03_row7_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads04_row1_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads04_row2_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads04_row3_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads04_row4_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads04_row5_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads04_row6_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads04_row7_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads05_row1_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads05_row2_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads05_row3_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads05_row4_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads05_row5_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads05_row6_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads05_row7_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads06_row1_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads06_row2_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads06_row3_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads06_row4_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads07_row1_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads07_row2_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads07_row3_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads07_row4_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads07_row5_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads07_row6_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads07_row7_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads08_row1_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads08_row2_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads08_row3_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads08_row4_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads08_row5_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads09_row1_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads09_row2_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads09_row3_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads09_row4_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads09_row5_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads09_row6_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads09_row7_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads10_row1_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads10_row2_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads10_row3_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads10_row4_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads10_row5_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads10_row6_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    },
+    {
+      "source_path": "imports/raw/more_assets_to_ingest/100-character-head-sprites-pixel-art-asset-pack-890709438d67/fronts/heads10_row7_front.png",
+      "pack": "100-character-head-sprites-pixel-art-asset-pack-890709438d67",
+      "category": "characters",
+      "ext": "png",
+      "reason": "pack_not_cc0_public_domain_reviewed"
+    }
+  ]
+}

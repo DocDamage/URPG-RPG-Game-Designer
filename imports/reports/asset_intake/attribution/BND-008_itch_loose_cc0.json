@@ -1,0 +1,22 @@
+{
+  "asset_id": "imports/normalized/itch_loose_cc0",
+  "source_id": "SRC-013",
+  "source_repo": "Local itch loose asset drop",
+  "source_url": "local://itch/loose",
+  "original_relative_path": "itch/loose",
+  "author": "Local itch loose asset authors; see license.txt",
+  "license": "CC0-1.0 / Public Domain evidence reviewed from itch/loose/license.txt",
+  "commercial_use_allowed": true,
+  "redistribution_allowed": true,
+  "promotion_status": "promoted",
+  "bundle_id": "BND-008",
+  "promoted_asset_count": 394,
+  "license_evidence": [
+    "itch/loose/license.txt",
+    "imports/reports/asset_intake/itch_loose_license_scan.json"
+  ],
+  "notes": [
+    "Promotion includes valid PNG payloads from itch/loose.",
+    "Assets are release eligible but not default-bundled; project selection is required for packaging."
+  ]
+}

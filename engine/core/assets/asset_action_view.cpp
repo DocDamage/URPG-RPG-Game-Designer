@@ -60,9 +60,8 @@ std::string archiveBlockReason(const AssetRecord& asset) {
 }
 
 bool isProjectAttached(const AssetRecord& asset) {
-    return std::any_of(asset.used_by.begin(), asset.used_by.end(), [](const auto& owner) {
-        return owner.rfind("project_asset_attachment:", 0) == 0;
-    });
+    return std::any_of(asset.used_by.begin(), asset.used_by.end(),
+                       [](const auto& owner) { return owner.rfind("project_asset_attachment:", 0) == 0; });
 }
 
 std::string attachBlockReason(const AssetRecord& asset) {
@@ -148,8 +147,8 @@ nlohmann::json sequenceMetadata(const AssetRecord& asset) {
         {"visible", isSequence},
         {"frame_count", asset.frame_count},
         {"sequence_count", asset.sequence_count},
-        {"representative_sequences", asset.representative_sequences.is_array() ? asset.representative_sequences
-                                                                               : nlohmann::json::array()},
+        {"representative_sequences",
+         asset.representative_sequences.is_array() ? asset.representative_sequences : nlohmann::json::array()},
     };
 }
 
@@ -175,9 +174,14 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
             {"preview_height", asset.preview_height},
             {"media_kind", asset.media_kind},
             {"category", asset.category},
+            {"game_use_category", asset.game_use_category},
             {"pack", asset.pack},
+            {"source_bundle_id", asset.source_bundle_id},
+            {"package_destination", asset.package_destination},
+            {"distribution", asset.distribution},
             {"duplicate_of", asset.duplicate_of},
             {"tags", asset.tags},
+            {"game_use_tags", asset.game_use_tags},
             {"used_by", asset.used_by},
             {"sequence", sequenceMetadata(asset)},
             {"statuses", statusList(asset)},
@@ -186,6 +190,7 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
             {"license_id", asset.license_id},
             {"include_in_runtime", asset.include_in_runtime},
             {"required_for_release", asset.required_for_release},
+            {"release_eligible", asset.release_eligible || asset.provenance.export_eligible},
             {"promotion_diagnostics", asset.promotion_diagnostics},
             {"project_attached", isProjectAttached(asset)},
             {"recommended_action", recommendedAction(asset, canPromote, canArchive, canAttach)},
@@ -212,9 +217,8 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
              }},
         });
     }
-    std::sort(rows.begin(), rows.end(), [](const auto& lhs, const auto& rhs) {
-        return lhs.value("path", "") < rhs.value("path", "");
-    });
+    std::sort(rows.begin(), rows.end(),
+              [](const auto& lhs, const auto& rhs) { return lhs.value("path", "") < rhs.value("path", ""); });
     return rows;
 }
 
@@ -235,7 +239,10 @@ nlohmann::json buildAssetPreviewRows(const AssetLibrarySnapshot& snapshot) {
             {"preview_kind", asset.preview_kind},
             {"media_kind", asset.media_kind},
             {"category", asset.category},
+            {"game_use_category", asset.game_use_category},
             {"pack", asset.pack},
+            {"source_bundle_id", asset.source_bundle_id},
+            {"game_use_tags", asset.game_use_tags},
             {"status", previewStatus(asset)},
             {"previewable", hasPreviewPayload(asset)},
             {"thumbnail",
@@ -256,9 +263,8 @@ nlohmann::json buildAssetPreviewRows(const AssetLibrarySnapshot& snapshot) {
             {"sequence", sequenceMetadata(asset)},
         });
     }
-    std::sort(rows.begin(), rows.end(), [](const auto& lhs, const auto& rhs) {
-        return lhs.value("path", "") < rhs.value("path", "");
-    });
+    std::sort(rows.begin(), rows.end(),
+              [](const auto& lhs, const auto& rhs) { return lhs.value("path", "") < rhs.value("path", ""); });
     return rows;
 }
 

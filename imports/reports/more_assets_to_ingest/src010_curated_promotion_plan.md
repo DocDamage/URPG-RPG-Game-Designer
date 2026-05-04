@@ -1,24 +1,28 @@
 # SRC-010 Curated Promotion Plan
 
-Status Date: 2026-05-02
+Status Date: 2026-05-03
 
-This plan now has one governed promotion result: `BND-004` promotes 14 selected CC0/public-domain starter assets. The rest of SRC-010 remains quarantine-only.
+This plan now has two governed promotion results: `BND-004` promotes 14 selected CC0/public-domain starter assets, and `BND-006` promotes the bulk app-usable CC0/public-domain subset for release-eligible app/library selection. `BND-006` default export bundling is deferred until project selection so export smoke lanes do not package the entire bulk catalog by default. Assets without reviewed CC0/public-domain evidence, duplicate payloads, invalid payloads, source/tool/archive files, and non-OGG audio originals remain quarantine-only.
 
 ## Owner Decision
 
-- `owner_decision`: bounded_cc0_starter_promoted
+- `owner_decision`: cc0_public_domain_app_usable_promoted
 - `promotion_owner`: URPG asset intake governance
 - `release_claim_allowed`: True
-- `export_eligible_count`: 14
+- `export_eligible_count`: 12444
 - `raw_payload_policy`: raw source and extracted payloads remain ignored quarantine
-- `promotion_gate`: BND-004 created for 14 selected CC0/public-domain starter assets; additional SRC-010 promotion still requires normalized curated copies, per-pack attribution records, checksum capture, bundle manifest, and asset governance gate verification.
+- `promotion_gate`: BND-004 and BND-006 created for reviewed CC0/public-domain app-usable payloads; additional SRC-010 promotion still requires normalized curated copies, attribution records, checksum capture, bundle manifest, and asset governance gate verification.
 
 ## Promotion Result
 
 - `bundle_manifest`: `imports/manifests/asset_bundles/BND-004.json`
+- `bulk_bundle_manifest`: `imports/manifests/asset_bundles/BND-006.json`
 - `attribution_record`: `imports/reports/asset_intake/attribution/BND-004_src010_cc0_starter_pack.json`
+- `bulk_attribution_record`: `imports/reports/asset_intake/attribution/BND-006_src010_cc0_release_bulk.json`
 - `normalized_root`: `imports/normalized/src010_cc0_starter_pack`
-- `asset_count`: 14
+- `bulk_normalized_root`: `imports/normalized/src010_cc0_release_bulk`
+- `asset_count`: 12444
+- `bulk_scan_report`: `imports/reports/asset_intake/src010_release_bulk_scan_report.json`
 
 ## Recommended Promote-After-Review Cohort
 

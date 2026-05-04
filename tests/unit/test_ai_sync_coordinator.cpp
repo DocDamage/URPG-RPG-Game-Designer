@@ -80,6 +80,17 @@ TEST_CASE("LocalInMemoryCloudService initializes the local-only provider path", 
     REQUIRE(result.message.find("process-local memory") != std::string::npos);
 }
 
+TEST_CASE("LocalInMemoryCloudService is hidden from release cloud-sync surfaces", "[ai][cloud][release]") {
+    urpg::social::LocalInMemoryCloudService cloud;
+
+    const auto visibility = cloud.releaseVisibility();
+
+    REQUIRE_FALSE(visibility.release_visible);
+    REQUIRE_FALSE(visibility.remote_transport);
+    REQUIRE(visibility.reason.find("process-local") != std::string::npos);
+    REQUIRE(visibility.reason.find("remote cloud sync") != std::string::npos);
+}
+
 TEST_CASE("AISyncCoordinator syncs and restores history through local in-memory storage", "[ai][cloud]") {
     auto cloud = std::make_shared<urpg::social::LocalInMemoryCloudService>();
     const auto init = cloud->initialize(urpg::social::CloudProvider::LocalSimulated, "");
@@ -249,8 +260,7 @@ TEST_CASE("AISyncCoordinator reports missing and malformed knowledge update feed
     }
 
     SECTION("project mismatch") {
-        cloud->putText("ai_knowledge_updates_project_alpha.json",
-                       R"({"projectId":"other_project","updates":[]})");
+        cloud->putText("ai_knowledge_updates_project_alpha.json", R"({"projectId":"other_project","updates":[]})");
         urpg::ai::AISyncCoordinator coordinator(cloud);
 
         const auto result = coordinator.checkForRemoteKnowledgeUpdatesDetailed("project_alpha");
@@ -261,8 +271,7 @@ TEST_CASE("AISyncCoordinator reports missing and malformed knowledge update feed
     }
 
     SECTION("invalid update entry") {
-        cloud->putText("ai_knowledge_updates_project_alpha.json",
-                       R"({"projectId":"project_alpha","updates":[42]})");
+        cloud->putText("ai_knowledge_updates_project_alpha.json", R"({"projectId":"project_alpha","updates":[42]})");
         urpg::ai::AISyncCoordinator coordinator(cloud);
 
         const auto result = coordinator.checkForRemoteKnowledgeUpdatesDetailed("project_alpha");

@@ -40,13 +40,18 @@ struct AssetRecord {
     std::vector<float> waveform_peaks;
     std::string media_kind;
     std::string category;
+    std::string game_use_category;
     std::string pack;
+    std::string source_bundle_id;
+    std::string package_destination;
+    std::string distribution;
     std::string duplicate_of;
     uint64_t size_bytes = 0;
     size_t frame_count = 0;
     size_t sequence_count = 0;
     std::string sha256;
     std::vector<std::string> tags;
+    std::vector<std::string> game_use_tags;
     nlohmann::json representative_sequences = nlohmann::json::array();
     std::vector<std::string> used_by;
     std::set<AssetStatus> statuses;
@@ -56,19 +61,24 @@ struct AssetRecord {
     std::string license_id;
     bool include_in_runtime = false;
     bool required_for_release = false;
+    bool release_eligible = false;
     std::vector<std::string> promotion_diagnostics;
 };
 
 struct AssetLibraryFilter {
     std::string media_kind;
     std::string category;
+    std::string game_use_category;
     std::string required_tag;
+    std::string required_game_use_tag;
+    std::string source_bundle_id;
     std::optional<AssetStatus> required_status;
     bool referenced_only = false;
     bool runtime_ready_only = false;
     bool previewable_only = false;
     bool project_attached_only = false;
     bool attachable_only = false;
+    bool release_eligible_only = false;
 };
 
 struct AssetDuplicateEntry {
@@ -116,17 +126,21 @@ struct AssetLibrarySnapshot {
     bool export_eligible = false;
     std::string promotion_status;
     std::map<std::string, size_t> category_counts;
+    std::map<std::string, size_t> game_use_category_counts;
+    std::map<std::string, size_t> game_use_tag_counts;
     std::map<std::string, size_t> kind_counts;
+    std::map<std::string, size_t> source_bundle_counts;
     std::vector<AssetRecord> assets;
     std::vector<AssetDuplicateGroup> duplicate_groups;
 };
 
 class AssetLibrary {
-public:
+  public:
     void clear();
     void ingestHygieneSummary(const nlohmann::json& summary);
     void ingestIntakeReport(const nlohmann::json& report);
     void ingestPromotionCatalog(const nlohmann::json& catalog);
+    void ingestAssetBundleManifest(const nlohmann::json& manifest);
     void ingestPromotionManifest(const AssetPromotionManifest& manifest);
     void ingestDuplicateCsv(std::string_view csv_text);
     void addReferencedAsset(std::string path);
@@ -142,7 +156,7 @@ public:
     std::optional<AssetRecord> findAsset(std::string_view path) const;
     std::vector<AssetRecord> filterAssets(const AssetLibraryFilter& filter) const;
 
-private:
+  private:
     AssetRecord& ensureAsset(std::string path);
     void refreshDerivedCounts();
     void sortSnapshot();

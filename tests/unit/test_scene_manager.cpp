@@ -1,5 +1,6 @@
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
+#include "engine/core/message/chatbot_component.h"
 #include "engine/core/render/render_layer.h"
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/scene/map_loader.h"
@@ -77,6 +78,20 @@ struct TileSnapshot {
     float x = 0.0f;
     float y = 0.0f;
     int32_t zOrder = 0;
+};
+
+class CapturingChatService : public urpg::ai::IChatService {
+  public:
+    void requestResponse(const std::vector<urpg::ai::ChatMessage>& history, ChatCallback callback) override {
+        ++request_count;
+        if (!history.empty()) {
+            last_user_message = history.back().content;
+        }
+        callback("reply to " + last_user_message, "");
+    }
+
+    int request_count = 0;
+    std::string last_user_message;
 };
 
 template<typename StoredCommand> TileSnapshot snapshotTileCommand(const StoredCommand& command) {
@@ -293,6 +308,51 @@ TEST_CASE("MapScene: audio service binding is explicit and observable", "[scene]
     map.setAudioCore(audio);
 
     REQUIRE(map.audioCore() == audio);
+}
+
+TEST_CASE("MapScene: AI animation commands move the player render path", "[scene][map][animation][ai]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    MapScene map("001", 2, 2);
+    map.processAiAnimationCommands("[TARGET: player] [{\"time\": 0.0, \"x\": 0.0, \"y\": 0.0, \"z\": 0.0},"
+                                   "{\"time\": 1.0, \"x\": 48.0, \"y\": 24.0, \"z\": 0.0}]");
+
+    REQUIRE(map.hasActivePlayerAiAnimation());
+    REQUIRE(map.playerAiAnimationOffset().x.ToFloat() == 0.0f);
+
+    map.onUpdate(0.5f);
+
+    REQUIRE(map.playerAiAnimationOffset().x.ToFloat() == 24.0f);
+    REQUIRE(map.playerAiAnimationOffset().y.ToFloat() == 12.0f);
+
+    bool sawAnimatedPlayer = false;
+    for (const auto& command : renderFrameCommands(layer)) {
+        if (renderCommandType(command) != urpg::RenderCmdType::Sprite) {
+            continue;
+        }
+        const auto* sprite = renderCommandAs<urpg::SpriteRenderData>(command);
+        sawAnimatedPlayer = sawAnimatedPlayer || (sprite != nullptr && sprite->textureId == "missing_player_sprite" &&
+                                                  command.x == 24.0f && command.y == 12.0f);
+    }
+    REQUIRE(sawAnimatedPlayer);
+}
+
+TEST_CASE("MapScene: AI animation commands report unsupported targets", "[scene][map][animation][ai]") {
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+    MapScene map("001", 2, 2);
+
+    map.processAiAnimationCommands("[TARGET: npc_001] [{\"time\": 0.0, \"x\": 0.0, \"y\": 0.0, \"z\": 0.0},"
+                                   "{\"time\": 1.0, \"x\": 48.0, \"y\": 0.0, \"z\": 0.0}]");
+
+    REQUIRE_FALSE(map.hasActivePlayerAiAnimation());
+    REQUIRE(map.aiAnimationDiagnostics().size() == 1);
+    REQUIRE(map.aiAnimationDiagnostics()[0] == "unsupported_animation_target:npc_001");
+
+    const auto diagnostics = urpg::diagnostics::RuntimeDiagnostics::snapshot();
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.subsystem == "scene.map" && diagnostic.code == "map.ai_animation_target_unsupported";
+    }));
 }
 
 TEST_CASE("MapScene: authored ability assets can be granted and activated on the player runtime",
@@ -592,6 +652,31 @@ TEST_CASE("MapScene emits diagnostics before rendering asset placeholders", "[sc
             }) == 2);
 }
 
+TEST_CASE("MapScene release mode escalates missing core render assets", "[scene][map][render][assets][release]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+
+    MapScene map("ReleaseMissingAssetMap", 1, 1);
+    map.setRuntimeAssetMode(urpg::RuntimeAssetMode::Release);
+    map.onUpdate(0.0f);
+
+    REQUIRE(map.assetDiagnostics().size() == 2);
+    REQUIRE(std::find(map.assetDiagnostics().begin(), map.assetDiagnostics().end(),
+                      "player_sprite_id_missing_release_blocking") != map.assetDiagnostics().end());
+    REQUIRE(std::find(map.assetDiagnostics().begin(), map.assetDiagnostics().end(),
+                      "tileset_id_missing_release_blocking") != map.assetDiagnostics().end());
+
+    const auto diagnostics = urpg::diagnostics::RuntimeDiagnostics::snapshot();
+    REQUIRE(std::count_if(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+                return diagnostic.subsystem == "scene.map" &&
+                       diagnostic.severity == urpg::diagnostics::DiagnosticSeverity::Error &&
+                       (diagnostic.code == "map.player_sprite_missing" || diagnostic.code == "map.tileset_missing");
+            }) == 2);
+
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+}
+
 TEST_CASE("Runtime map asset references load from project manifest", "[scene][map][assets]") {
     const TempRuntimeSettingsRoot temp;
     std::filesystem::create_directories(temp.root() / "content" / "actors");
@@ -682,6 +767,79 @@ TEST_CASE("MapScene: message runner submits render commands during dialogue", "[
     REQUIRE(hasRectCmd);
 }
 
+TEST_CASE("InputCore stores text input, editing text, and backspace for one input frame",
+          "[scene][map][input][chatbot]") {
+    urpg::input::InputCore input;
+
+    input.appendTextInput("he");
+    input.appendTextInput("llo");
+    input.setTextEditing("hell");
+    input.recordBackspace();
+
+    REQUIRE(input.textInput() == "hello");
+    REQUIRE(input.textEditing() == "hell");
+    REQUIRE(input.backspaceCount() == 1);
+
+    input.endFrame();
+
+    REQUIRE(input.textInput().empty());
+    REQUIRE(input.textEditing().empty());
+    REQUIRE(input.backspaceCount() == 0);
+}
+
+TEST_CASE("MapScene: runtime chat submits typed text to ChatbotComponent", "[scene][map][input][chatbot]") {
+    MapScene map("001", 10, 10);
+    auto service = std::make_shared<CapturingChatService>();
+    map.startChatbot("Guide", service);
+    map.openChatInput();
+
+    urpg::input::InputCore input;
+    input.appendTextInput("hello guide");
+    map.handleInput(input);
+    REQUIRE(map.currentChatInputBuffer() == "hello guide");
+
+    input.endFrame();
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(input);
+
+    REQUIRE(service->request_count == 1);
+    REQUIRE(service->last_user_message == "hello guide");
+    REQUIRE(map.currentChatInputBuffer().empty());
+    REQUIRE(map.isChatInputOpen());
+}
+
+TEST_CASE("MapScene: runtime chat handles backspace cancel and empty submit", "[scene][map][input][chatbot]") {
+    MapScene map("001", 10, 10);
+    auto service = std::make_shared<CapturingChatService>();
+    map.startChatbot("Guide", service);
+    map.openChatInput();
+
+    urpg::input::InputCore input;
+    input.appendTextInput("ab\xC3\xA9");
+    map.handleInput(input);
+    input.endFrame();
+
+    input.recordBackspace();
+    map.handleInput(input);
+    REQUIRE(map.currentChatInputBuffer() == "ab");
+
+    input.endFrame();
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.openChatInput();
+    map.handleInput(input);
+    REQUIRE(service->request_count == 0);
+    REQUIRE(map.isChatInputOpen());
+
+    input.endFrame();
+    input.updateActionState(urpg::input::InputAction::Cancel, urpg::input::ActionState::Pressed);
+    input.appendTextInput("discarded");
+    map.handleInput(input);
+
+    REQUIRE_FALSE(map.isChatInputOpen());
+    REQUIRE(map.currentChatInputBuffer().empty());
+    REQUIRE(service->request_count == 0);
+}
+
 class MockScene : public GameScene {
   public:
     MockScene(SceneType type, const std::string& name) : m_type(type), m_name(name) {}
@@ -762,8 +920,7 @@ TEST_CASE("SceneManager: Basic Lifecycle & Stack", "[scene][core]") {
     }
 }
 
-TEST_CASE("SceneManager pause and resume preserve stack and clear stale input edges",
-          "[scene][core][input][pause]") {
+TEST_CASE("SceneManager pause and resume preserve stack and clear stale input edges", "[scene][core][input][pause]") {
     SceneManager manager;
     auto title = std::make_shared<MockScene>(SceneType::TITLE, "TitleScreen");
     auto map = std::make_shared<MockScene>(SceneType::MAP, "Overworld");
@@ -796,8 +953,7 @@ TEST_CASE("SceneManager pause and resume preserve stack and clear stale input ed
     REQUIRE(manager.stackSize() == 2);
 }
 
-TEST_CASE("MenuScene routes runtime confirm and cancel input through the native menu graph",
-          "[scene][menu][input]") {
+TEST_CASE("MenuScene routes runtime confirm and cancel input through the native menu graph", "[scene][menu][input]") {
     MenuScene runtimeMenu("RuntimeMenu");
     auto graphScene = std::make_shared<urpg::ui::MenuScene>("root");
 

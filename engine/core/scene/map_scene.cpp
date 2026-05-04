@@ -4,6 +4,7 @@
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/render/asset_loader.h"
+#include "engine/core/save/runtime_save_startup.h"
 #include "engine/core/save/save_runtime.h"
 #include "engine/core/save/save_serialization_hub.h"
 #include <algorithm>
@@ -115,6 +116,95 @@ const nlohmann::json* findMapAssets(const nlohmann::json& project, const std::st
     return nullptr;
 }
 
+urpg::Vector3 interpolateAnimationTrack(const std::vector<urpg::AnimationKeyframe>& track, urpg::Fixed32 time) {
+    if (track.empty()) {
+        return urpg::Vector3::Zero();
+    }
+    if (time <= track.front().time) {
+        return track.front().value;
+    }
+    if (time >= track.back().time) {
+        return track.back().value;
+    }
+
+    for (size_t i = 0; i + 1 < track.size(); ++i) {
+        const auto& from = track[i];
+        const auto& to = track[i + 1];
+        if (time < from.time || time > to.time) {
+            continue;
+        }
+
+        const auto range = to.time - from.time;
+        if (range.raw == 0) {
+            return to.value;
+        }
+
+        const float t = (time - from.time).ToFloat() / range.ToFloat();
+        urpg::Vector3 value;
+        value.x =
+            urpg::Fixed32::FromFloat(from.value.x.ToFloat() + (to.value.x.ToFloat() - from.value.x.ToFloat()) * t);
+        value.y =
+            urpg::Fixed32::FromFloat(from.value.y.ToFloat() + (to.value.y.ToFloat() - from.value.y.ToFloat()) * t);
+        value.z =
+            urpg::Fixed32::FromFloat(from.value.z.ToFloat() + (to.value.z.ToFloat() - from.value.z.ToFloat()) * t);
+        return value;
+    }
+
+    return track.back().value;
+}
+
+std::string trimWhitespace(std::string value);
+
+std::string extractAiAnimationTarget(const std::string& aiResponse) {
+    const size_t marker = aiResponse.find("[TARGET:");
+    if (marker == std::string::npos) {
+        return "player";
+    }
+    const size_t close = aiResponse.find(']', marker);
+    if (close == std::string::npos) {
+        return "unknown";
+    }
+    return trimWhitespace(
+        aiResponse.substr(marker + std::string("[TARGET:").size(), close - marker - std::string("[TARGET:").size()));
+}
+
+bool isSupportedPlayerAnimationTarget(std::string target) {
+    std::transform(target.begin(), target.end(), target.begin(),
+                   [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+    return target == "player" || target == "hero";
+}
+
+std::string trimWhitespace(std::string value) {
+    const auto notSpace = [](unsigned char ch) { return !std::isspace(ch); };
+    value.erase(value.begin(), std::find_if(value.begin(), value.end(), notSpace));
+    value.erase(std::find_if(value.rbegin(), value.rend(), notSpace).base(), value.end());
+    return value;
+}
+
+void eraseLastUtf8Codepoint(std::string& text) {
+    if (text.empty()) {
+        return;
+    }
+
+    size_t eraseFrom = text.size() - 1;
+    while (eraseFrom > 0 && (static_cast<unsigned char>(text[eraseFrom]) & 0xC0U) == 0x80U) {
+        --eraseFrom;
+    }
+    text.erase(eraseFrom);
+}
+
+urpg::RuntimeSaveLoadRequest makeMapSceneSaveRequest(const std::filesystem::path& projectRoot, int slotId) {
+    const auto saveRoot = urpg::defaultRuntimeSaveRoot(projectRoot);
+    const auto slotName = "slot_" + std::to_string(slotId);
+
+    urpg::RuntimeSaveLoadRequest request;
+    request.primary_save_path = saveRoot / (slotName + ".json");
+    request.autosave_path = saveRoot / "autosave.json";
+    request.metadata_path = saveRoot / (slotName + "_meta.json");
+    request.variables_path = saveRoot / (slotName + "_vars.json");
+    return request;
+}
+
 } // namespace
 
 MapScene::MapScene(const std::string& mapId, int width, int height)
@@ -184,6 +274,22 @@ void MapScene::onUpdate(float deltaTime) {
         m_playerAnimator->update(deltaTime);
     }
 
+    if (m_playerAiAnimation.has_value()) {
+        auto& anim = *m_playerAiAnimation;
+        if (anim.isPlaying) {
+            anim.currentTime = anim.currentTime + urpg::Fixed32::FromFloat(deltaTime);
+            if (anim.currentTime >= anim.duration) {
+                if (anim.isLooping && anim.duration.raw > 0) {
+                    anim.currentTime = urpg::Fixed32::FromRaw(anim.currentTime.raw % anim.duration.raw);
+                } else {
+                    anim.currentTime = anim.duration;
+                    anim.isPlaying = false;
+                }
+            }
+            m_playerAiAnimationOffset = interpolateAnimationTrack(anim.positionTrack, anim.currentTime);
+        }
+    }
+
     m_playerAbilitySystem.update(deltaTime);
 
     // 3. Submit tile and player render commands
@@ -201,6 +307,8 @@ void MapScene::onUpdate(float deltaTime) {
         playerX = lastX + (playerX - lastX) * m_playerMovement.moveProgress;
         playerY = lastY + (playerY - lastY) * m_playerMovement.moveProgress;
     }
+    playerX += m_playerAiAnimationOffset.x.ToFloat();
+    playerY += m_playerAiAnimationOffset.y.ToFloat();
 
     urpg::SpriteCommand playerCmd;
     playerCmd.textureId =
@@ -244,6 +352,13 @@ void MapScene::submitCachedTileCommands(urpg::RenderLayer& layer) const {
 void MapScene::handleInput(const urpg::input::InputCore& input) {
     // 0. Chat Input Handling (High Priority)
     if (m_isChatInputOpen) {
+        for (size_t i = 0; i < input.backspaceCount() && !m_currentInputBuffer.empty(); ++i) {
+            eraseLastUtf8Codepoint(m_currentInputBuffer);
+        }
+        if (!input.textInput().empty()) {
+            m_currentInputBuffer += input.textInput();
+        }
+
         if (input.isActionJustPressed(urpg::input::InputAction::Cancel)) {
             m_isChatInputOpen = false;
             m_currentInputBuffer.clear();
@@ -272,10 +387,6 @@ void MapScene::handleInput(const urpg::input::InputCore& input) {
                 m_currentInputBuffer.clear();
                 // Stay in chat mode until Cancel is pressed, allowing a back-and-forth
             }
-        } else {
-            // Mocking text entry since InputAction doesn't have character scan yet
-            // In a real environment, we'd poll the engine's text event queue.
-            // For now, let's keep it abstract.
         }
         return;
     }
@@ -364,6 +475,8 @@ void MapScene::draw(SpriteBatcher& batcher) {
             drawX = lastX + (drawX - lastX) * m_playerMovement.moveProgress;
             drawY = lastY + (drawY - lastY) * m_playerMovement.moveProgress;
         }
+        drawX += m_playerAiAnimationOffset.x.ToFloat();
+        drawY += m_playerAiAnimationOffset.y.ToFloat();
 
         m_playerAnimator->draw(batcher, drawX, drawY, kTileSize, kTileSize, 1.0f);
     }
@@ -399,6 +512,16 @@ void MapScene::setAssetReferences(MapAssetReferences references) {
     m_renderLayerDirty = true;
 }
 
+void MapScene::setRuntimeAssetMode(urpg::RuntimeAssetMode mode) {
+    if (m_runtimeAssetMode == mode) {
+        return;
+    }
+
+    m_runtimeAssetMode = mode;
+    m_assetDiagnostics.clear();
+    m_assetReferencesValidated = false;
+}
+
 void MapScene::validateRenderAssetReferences() {
     if (m_assetReferencesValidated) {
         return;
@@ -410,8 +533,13 @@ void MapScene::validateRenderAssetReferences() {
         if (reference.id.empty()) {
             const std::string message = std::string("Map '") + m_mapId + "' has no " + role +
                                         " asset id; rendering will use a diagnostic fallback visual.";
-            m_assetDiagnostics.push_back(missingIdDiagnostic);
-            urpg::diagnostics::RuntimeDiagnostics::warning("scene.map", code, message);
+            if (m_runtimeAssetMode == urpg::RuntimeAssetMode::Release) {
+                m_assetDiagnostics.push_back(std::string(missingIdDiagnostic) + "_release_blocking");
+                urpg::diagnostics::RuntimeDiagnostics::error("scene.map", code, message);
+            } else {
+                m_assetDiagnostics.push_back(missingIdDiagnostic);
+                urpg::diagnostics::RuntimeDiagnostics::warning("scene.map", code, message);
+            }
             return;
         }
 
@@ -424,8 +552,13 @@ void MapScene::validateRenderAssetReferences() {
             const std::string message = std::string("Map '") + m_mapId + "' references missing " + role +
                                         " asset path: " + reference.path.generic_string() +
                                         "; rendering will use logical id '" + reference.id + "'.";
-            m_assetDiagnostics.push_back(std::string(role) + "_path_missing");
-            urpg::diagnostics::RuntimeDiagnostics::warning("scene.map", code, message);
+            if (m_runtimeAssetMode == urpg::RuntimeAssetMode::Release) {
+                m_assetDiagnostics.push_back(std::string(role) + "_path_missing_release_blocking");
+                urpg::diagnostics::RuntimeDiagnostics::error("scene.map", code, message);
+            } else {
+                m_assetDiagnostics.push_back(std::string(role) + "_path_missing");
+                urpg::diagnostics::RuntimeDiagnostics::warning("scene.map", code, message);
+            }
         }
     };
 
@@ -475,41 +608,96 @@ void MapScene::processAiAnimationCommands(const std::string& aiResponse) {
     if (keyframes.empty())
         return;
 
-    // Apply the keyframes to the player's animation component
-    // In a full ECS implementation, we would look up the target entity
-    if (m_playerAnimator) {
-        // Mocking the injection into a component-based system
-        [[maybe_unused]] urpg::AnimationComponent anim;
-        anim.positionTrack = keyframes;
-        anim.duration = keyframes.back().time;
-        anim.isPlaying = true;
-        anim.isLooping = false;
-
-        // m_playerAnimator->applySequence(anim);
+    const auto target = extractAiAnimationTarget(aiResponse);
+    if (!isSupportedPlayerAnimationTarget(target)) {
+        m_aiAnimationDiagnostics.push_back("unsupported_animation_target:" + target);
+        urpg::diagnostics::RuntimeDiagnostics::warning("scene.map", "map.ai_animation_target_unsupported",
+                                                       "AI animation command target '" + target +
+                                                           "' is not supported by the MapScene runtime.");
+        return;
     }
+
+    urpg::AnimationComponent anim;
+    anim.positionTrack = std::move(keyframes);
+    anim.duration = anim.positionTrack.back().time;
+    anim.currentTime = urpg::Fixed32::FromInt(0);
+    anim.isPlaying = true;
+    anim.isLooping = false;
+    m_playerAiAnimationOffset = interpolateAnimationTrack(anim.positionTrack, anim.currentTime);
+    m_playerAiAnimation = std::move(anim);
 }
 
 bool MapScene::saveGame(int slotId) {
+    return saveGameDetailed(slotId).ok;
+}
+
+MapSceneSaveLoadResult MapScene::saveGameDetailed(int slotId) {
     auto& hub = urpg::GlobalStateHub::getInstance();
     std::string snapshot = urpg::save::SaveSerializationHub::snapshotGlobalState(hub);
 
-    urpg::RuntimeSaveLoadRequest request;
-    request.primary_save_path = "saves/slot_" + std::to_string(slotId) + ".usr";
+    const auto request = makeMapSceneSaveRequest(m_projectRoot, slotId);
+    MapSceneSaveLoadResult result;
+    result.operation = MapSceneSaveLoadOperation::Save;
+    result.slot_id = slotId;
+    result.primary_path = request.primary_save_path;
+    result.ok = urpg::RuntimeSaveLoader::Save(request, snapshot);
+    if (!result.ok) {
+        result.failure_reason = "runtime_save_write_failed";
+        result.diagnostics.push_back("save_write_failed");
+        urpg::diagnostics::RuntimeDiagnostics::error("scene.map", "map.save_failed",
+                                                     "Failed to save map scene slot " + std::to_string(slotId) +
+                                                         " to '" + request.primary_save_path.generic_string() + "'.");
+    }
 
-    return urpg::RuntimeSaveLoader::Save(request, snapshot);
+    m_lastSaveLoadResult = result;
+    return result;
 }
 
 bool MapScene::loadGame(int slotId) {
-    urpg::RuntimeSaveLoadRequest request;
-    request.primary_save_path = "saves/slot_" + std::to_string(slotId) + ".usr";
+    return loadGameDetailed(slotId).ok;
+}
 
-    auto result = urpg::RuntimeSaveLoader::Load(request);
-    if (result.ok) {
+MapSceneSaveLoadResult MapScene::loadGameDetailed(int slotId) {
+    const auto request = makeMapSceneSaveRequest(m_projectRoot, slotId);
+
+    auto loadResult = urpg::RuntimeSaveLoader::Load(request);
+    MapSceneSaveLoadResult result;
+    result.operation = MapSceneSaveLoadOperation::Load;
+    result.slot_id = slotId;
+    result.primary_path = request.primary_save_path;
+    result.ok = loadResult.ok;
+    result.recovery_tier = loadResult.recovery_tier;
+    result.loaded_from_recovery = loadResult.loaded_from_recovery;
+    result.boot_safe_mode = loadResult.boot_safe_mode;
+    result.failure_reason = loadResult.error;
+    result.diagnostics = loadResult.diagnostics;
+
+    if (loadResult.ok) {
         auto& hub = urpg::GlobalStateHub::getInstance();
-        urpg::save::SaveSerializationHub::restoreGlobalState(hub, result.payload);
-        return true;
+        urpg::save::SaveSerializationHub::restoreGlobalState(hub, loadResult.payload);
+        if (loadResult.loaded_from_recovery) {
+            urpg::diagnostics::RuntimeDiagnostics::warning(
+                "scene.map", "map.load_recovered",
+                "Loaded map scene slot " + std::to_string(slotId) + " from recovery after primary save '" +
+                    request.primary_save_path.generic_string() + "' was unavailable or invalid.");
+        }
+    } else {
+        if (result.failure_reason.empty()) {
+            result.failure_reason = "runtime_save_load_failed";
+        }
+        result.diagnostics.push_back(result.failure_reason);
+        urpg::diagnostics::RuntimeDiagnostics::error("scene.map", "map.load_failed",
+                                                     "Failed to load map scene slot " + std::to_string(slotId) +
+                                                         " from '" + request.primary_save_path.generic_string() +
+                                                         "': " + result.failure_reason);
     }
-    return false;
+
+    m_lastSaveLoadResult = result;
+    return result;
+}
+
+void MapScene::setProjectRoot(std::filesystem::path project_root) {
+    m_projectRoot = std::move(project_root);
 }
 
 void MapScene::grantPlayerAbility(const urpg::ability::AuthoredAbilityAsset& asset) {

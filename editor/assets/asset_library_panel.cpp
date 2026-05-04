@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <system_error>
 #include <utility>
 
 #ifdef _WIN32
@@ -58,17 +59,15 @@ AssetLibraryPanel::ImportWizardRenderSnapshot buildImportWizardRenderSnapshot(co
         }
     }
 
-    const auto package = std::find_if(snapshot.actions.begin(), snapshot.actions.end(), [](const auto& action) {
-        return action.id == "package_validate";
-    });
+    const auto package = std::find_if(snapshot.actions.begin(), snapshot.actions.end(),
+                                      [](const auto& action) { return action.id == "package_validate"; });
     snapshot.package_validation_ready = package != snapshot.actions.end() && package->enabled;
     return snapshot;
 }
 
 #ifdef _WIN32
 
-template <typename FunctionPointer>
-FunctionPointer loadWindowsProcedure(HMODULE module, const char* name) {
+template<typename FunctionPointer> FunctionPointer loadWindowsProcedure(HMODULE module, const char* name) {
     FARPROC procedure = GetProcAddress(module, name);
     FunctionPointer function = nullptr;
     static_assert(sizeof(function) == sizeof(procedure));
@@ -76,7 +75,8 @@ FunctionPointer loadWindowsProcedure(HMODULE module, const char* name) {
     return function;
 }
 
-std::optional<std::filesystem::path> chooseWindowsImportSource(const AssetLibraryPanel::ImportSourcePickerRequest& request) {
+std::optional<std::filesystem::path>
+chooseWindowsImportSource(const AssetLibraryPanel::ImportSourcePickerRequest& request) {
     using CoInitializeExFn = HRESULT(WINAPI*)(LPVOID, DWORD);
     using CoUninitializeFn = void(WINAPI*)();
     using CoCreateInstanceFn = HRESULT(WINAPI*)(REFCLSID, LPUNKNOWN, DWORD, REFIID, LPVOID*);
@@ -104,14 +104,8 @@ std::optional<std::filesystem::path> chooseWindowsImportSource(const AssetLibrar
         return std::nullopt;
     }
 
-    const CLSID clsidFileOpenDialog = {0xdc1c5a9c,
-                                       0xe88a,
-                                       0x4dde,
-                                       {0xa5, 0xa1, 0x60, 0xf8, 0x2a, 0x20, 0xae, 0xf7}};
-    const IID iidFileOpenDialog = {0xd57c7288,
-                                   0xd4ad,
-                                   0x4768,
-                                   {0xbe, 0x02, 0x9d, 0x96, 0x95, 0x32, 0xd9, 0x60}};
+    const CLSID clsidFileOpenDialog = {0xdc1c5a9c, 0xe88a, 0x4dde, {0xa5, 0xa1, 0x60, 0xf8, 0x2a, 0x20, 0xae, 0xf7}};
+    const IID iidFileOpenDialog = {0xd57c7288, 0xd4ad, 0x4768, {0xbe, 0x02, 0x9d, 0x96, 0x95, 0x32, 0xd9, 0x60}};
 
     IFileOpenDialog* dialog = nullptr;
     if (FAILED(coCreateInstance(clsidFileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, iidFileOpenDialog,
@@ -161,7 +155,8 @@ std::optional<std::filesystem::path> chooseWindowsImportSource(const AssetLibrar
 
 #endif
 
-std::optional<std::filesystem::path> chooseNativeImportSource(const AssetLibraryPanel::ImportSourcePickerRequest& request) {
+std::optional<std::filesystem::path>
+chooseNativeImportSource(const AssetLibraryPanel::ImportSourcePickerRequest& request) {
 #ifdef _WIN32
     return chooseWindowsImportSource(request);
 #else
@@ -170,14 +165,35 @@ std::optional<std::filesystem::path> chooseNativeImportSource(const AssetLibrary
 #endif
 }
 
+std::string validateSelectedImportSource(const std::filesystem::path& source,
+                                         AssetLibraryPanel::ImportSourcePickerMode mode) {
+    if (source.empty()) {
+        return "empty_source_path";
+    }
+
+    std::error_code ec;
+    const bool exists = std::filesystem::exists(source, ec);
+    if (ec || !exists) {
+        return "source_path_not_found";
+    }
+
+    if (mode == AssetLibraryPanel::ImportSourcePickerMode::Folder) {
+        return std::filesystem::is_directory(source, ec) && !ec ? "" : "source_path_not_folder";
+    }
+
+    return (std::filesystem::is_regular_file(source, ec) || std::filesystem::is_directory(source, ec)) && !ec
+               ? ""
+               : "source_path_not_importable";
+}
+
 } // namespace
 
 AssetLibraryPanel::ImportSourcePickerAvailability AssetLibraryPanel::nativeImportSourcePickerAvailability() {
 #ifdef _WIN32
-    return {true, "native_import_source_picker_available", "Native Windows import source picker is available."};
+    return {true, true, "native_import_source_picker_available", "Native Windows import source picker is available."};
 #else
-    return {false, "native_import_source_picker_unsupported",
-            "Native import source picker is not implemented on this platform."};
+    return {false, true, "native_import_source_picker_unsupported",
+            "Native import source picker is not implemented on this platform; use path entry import instead."};
 #endif
 }
 
@@ -194,8 +210,7 @@ void AssetLibraryPanel::render() {
 }
 
 nlohmann::json AssetLibraryPanel::requestImportSource(const std::filesystem::path& source,
-                                                      const std::filesystem::path& library_root,
-                                                      std::string session_id,
+                                                      const std::filesystem::path& library_root, std::string session_id,
                                                       std::string license_note,
                                                       std::vector<std::string> external_extractor_command) {
     auto result = model_.requestImportSource(source, library_root, std::move(session_id), std::move(license_note),
@@ -205,21 +220,25 @@ nlohmann::json AssetLibraryPanel::requestImportSource(const std::filesystem::pat
 }
 
 nlohmann::json AssetLibraryPanel::requestImportSourceFromPicker(ImportSourcePickerRequest request) {
+    const bool usingNativePicker = !import_source_picker_;
     const auto selectedSource =
         import_source_picker_ ? import_source_picker_(request) : chooseNativeImportSource(request);
     if (!selectedSource.has_value() || selectedSource->empty()) {
         const auto availability = nativeImportSourcePickerAvailability();
+        const bool unsupported = usingNativePicker && !availability.available;
         nlohmann::json result = {
             {"action", "request_import_source"},
             {"success", false},
-            {"code", "import_source_picker_cancelled"},
-            {"message", "No import source was selected."},
+            {"code", unsupported ? "import_source_picker_unsupported" : "import_source_picker_cancelled"},
+            {"message", unsupported ? "Native import source picker is unavailable; enter a source path manually."
+                                    : "No import source was selected."},
             {"source_path", ""},
             {"library_root", request.library_root.generic_string()},
             {"session_id", request.session_id},
             {"picker_availability",
              {
                  {"available", availability.available},
+                 {"path_entry_available", availability.path_entry_available},
                  {"code", availability.code},
                  {"message", availability.message},
              }},
@@ -227,6 +246,31 @@ nlohmann::json AssetLibraryPanel::requestImportSourceFromPicker(ImportSourcePick
         refreshRenderSnapshotsFromModel();
         return result;
     }
+
+    const auto invalidReason = validateSelectedImportSource(*selectedSource, request.mode);
+    if (!invalidReason.empty()) {
+        const auto availability = nativeImportSourcePickerAvailability();
+        nlohmann::json result = {
+            {"action", "request_import_source"},
+            {"success", false},
+            {"code", "import_source_picker_invalid_path"},
+            {"message", "Selected import source path is not usable."},
+            {"source_path", selectedSource->generic_string()},
+            {"library_root", request.library_root.generic_string()},
+            {"session_id", request.session_id},
+            {"invalid_reason", invalidReason},
+            {"picker_availability",
+             {
+                 {"available", availability.available},
+                 {"path_entry_available", availability.path_entry_available},
+                 {"code", availability.code},
+                 {"message", availability.message},
+             }},
+        };
+        refreshRenderSnapshotsFromModel();
+        return result;
+    }
+
     return requestImportSource(*selectedSource, request.library_root, std::move(request.session_id),
                                std::move(request.license_note), std::move(request.external_extractor_command));
 }
@@ -241,8 +285,7 @@ nlohmann::json AssetLibraryPanel::convertSelectedImportRecords(std::string sessi
 
 nlohmann::json AssetLibraryPanel::promoteSelectedImportRecords(std::string session_id,
                                                                std::vector<std::string> asset_ids,
-                                                               std::string license_id,
-                                                               std::string promoted_root,
+                                                               std::string license_id, std::string promoted_root,
                                                                bool include_in_runtime) {
     auto result = model_.promoteImportRecords(std::move(session_id), std::move(asset_ids), std::move(license_id),
                                               std::move(promoted_root), include_in_runtime);

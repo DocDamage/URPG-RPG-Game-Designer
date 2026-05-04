@@ -13,17 +13,27 @@ Value DataManager::getActorsAsValue() const {
     for (const auto& actor : actors_) {
         Object obj;
         obj["id"] = Value::Int(actor.id);
-        Value name; name.v = actor.name; obj["name"] = std::move(name);
-        Value nickname; nickname.v = actor.nickname; obj["nickname"] = std::move(nickname);
+        Value name;
+        name.v = actor.name;
+        obj["name"] = std::move(name);
+        Value nickname;
+        nickname.v = actor.nickname;
+        obj["nickname"] = std::move(nickname);
         obj["classId"] = Value::Int(actor.classId);
         obj["initialLevel"] = Value::Int(actor.initialLevel);
         obj["maxLevel"] = Value::Int(actor.maxLevel);
         obj["level"] = Value::Int(actor.level);
-        Value faceName; faceName.v = actor.faceName; obj["faceName"] = std::move(faceName);
+        Value faceName;
+        faceName.v = actor.faceName;
+        obj["faceName"] = std::move(faceName);
         obj["faceIndex"] = Value::Int(actor.faceIndex);
-        Value characterName; characterName.v = actor.characterName; obj["characterName"] = std::move(characterName);
+        Value characterName;
+        characterName.v = actor.characterName;
+        obj["characterName"] = std::move(characterName);
         obj["characterIndex"] = Value::Int(actor.characterIndex);
-        Value battlerName; battlerName.v = actor.battlerName; obj["battlerName"] = std::move(battlerName);
+        Value battlerName;
+        battlerName.v = actor.battlerName;
+        obj["battlerName"] = std::move(battlerName);
         obj["battlerIndex"] = Value::Int(actor.battlerIndex);
         obj["exp"] = Value::Int(actor.exp);
         Array skillsArr;
@@ -41,8 +51,12 @@ Value DataManager::getSkillsAsValue() const {
     for (const auto& skill : skills_) {
         Object obj;
         obj["id"] = Value::Int(skill.id);
-        Value name; name.v = skill.name; obj["name"] = std::move(name);
-        Value desc; desc.v = skill.description; obj["description"] = std::move(desc);
+        Value name;
+        name.v = skill.name;
+        obj["name"] = std::move(name);
+        Value desc;
+        desc.v = skill.description;
+        obj["description"] = std::move(desc);
         obj["typeId"] = Value::Int(skill.typeId);
         obj["scope"] = Value::Int(skill.scope);
         obj["mpCost"] = Value::Int(skill.mpCost);
@@ -61,9 +75,13 @@ Value DataManager::getItemsAsValue() const {
     for (const auto& item : items_) {
         Object obj;
         obj["id"] = Value::Int(item.id);
-        Value name; name.v = item.name; obj["name"] = std::move(name);
+        Value name;
+        name.v = item.name;
+        obj["name"] = std::move(name);
         obj["iconIndex"] = Value::Int(item.iconIndex);
-        Value desc; desc.v = item.description; obj["description"] = std::move(desc);
+        Value desc;
+        desc.v = item.description;
+        obj["description"] = std::move(desc);
         obj["typeId"] = Value::Int(item.typeId);
         obj["occasion"] = Value::Int(item.occasion);
         obj["consumable"] = Value::Int(item.consumable);
@@ -80,9 +98,13 @@ Value DataManager::getWeaponsAsValue() const {
     for (const auto& weapon : weapons_) {
         Object obj;
         obj["id"] = Value::Int(weapon.id);
-        Value name; name.v = weapon.name; obj["name"] = std::move(name);
+        Value name;
+        name.v = weapon.name;
+        obj["name"] = std::move(name);
         obj["iconIndex"] = Value::Int(weapon.iconIndex);
-        Value desc; desc.v = weapon.description; obj["description"] = std::move(desc);
+        Value desc;
+        desc.v = weapon.description;
+        obj["description"] = std::move(desc);
         obj["typeId"] = Value::Int(weapon.typeId);
         obj["occasion"] = Value::Int(weapon.occasion);
         obj["consumable"] = Value::Int(weapon.consumable);
@@ -99,9 +121,13 @@ Value DataManager::getArmorsAsValue() const {
     for (const auto& armor : armors_) {
         Object obj;
         obj["id"] = Value::Int(armor.id);
-        Value name; name.v = armor.name; obj["name"] = std::move(name);
+        Value name;
+        name.v = armor.name;
+        obj["name"] = std::move(name);
         obj["iconIndex"] = Value::Int(armor.iconIndex);
-        Value desc; desc.v = armor.description; obj["description"] = std::move(desc);
+        Value desc;
+        desc.v = armor.description;
+        obj["description"] = std::move(desc);
         obj["typeId"] = Value::Int(armor.typeId);
         obj["occasion"] = Value::Int(armor.occasion);
         obj["consumable"] = Value::Int(armor.consumable);
@@ -188,7 +214,9 @@ Value DataManager::getClassesAsValue() const {
     for (const auto& cls : classes_) {
         Object obj;
         obj["id"] = Value::Int(cls.id);
-        Value name; name.v = cls.name; obj["name"] = std::move(name);
+        Value name;
+        name.v = cls.name;
+        obj["name"] = std::move(name);
         arr.push_back(Value::Obj(std::move(obj)));
     }
     return Value::Arr(std::move(arr));
@@ -223,9 +251,7 @@ Value DataManager::getGlobalStateAsValue() const {
 
     Array switches;
     for (bool value : globalState_.switches) {
-        Value switchValue;
-        switchValue.v = value;
-        switches.push_back(std::move(switchValue));
+        switches.push_back(Value::Bool(value));
     }
     obj["switches"] = Value::Arr(std::move(switches));
 
@@ -237,9 +263,7 @@ Value DataManager::getGlobalStateAsValue() const {
 
     Object selfSwitches;
     for (const auto& [key, value] : globalState_.selfSwitches) {
-        Value switchValue;
-        switchValue.v = value;
-        selfSwitches[key] = std::move(switchValue);
+        selfSwitches[key] = Value::Bool(value);
     }
     obj["selfSwitches"] = Value::Obj(std::move(selfSwitches));
 

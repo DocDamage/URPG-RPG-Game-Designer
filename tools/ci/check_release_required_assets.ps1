@@ -14,6 +14,8 @@ $errors = New-Object System.Collections.Generic.List[string]
 $connectedAssets = New-Object System.Collections.Generic.List[object]
 $classifiedAssets = New-Object System.Collections.Generic.List[object]
 $releaseBundleCategoriesSeen = New-Object System.Collections.Generic.HashSet[string]
+$releaseAudioPolicySeen = $false
+$releaseBundledAudioSeen = $false
 
 function Add-Error {
   param([string]$Message)
@@ -128,6 +130,26 @@ if ($null -eq $manifest.releaseAssets) {
   if ($releaseAssets.assetBundleManifestRoot -ne "imports/manifests/asset_bundles") {
     Add-Error "releaseAssets.assetBundleManifestRoot must be imports/manifests/asset_bundles."
   }
+  $visualClaimScope = $releaseAssets.visualClaimScope
+  if ($null -eq $visualClaimScope) {
+    Add-Error "releaseAssets.visualClaimScope must declare the bounded visual release scope."
+  } else {
+    if ($visualClaimScope.tier -ne "bounded_release_starter") {
+      Add-Error "releaseAssets.visualClaimScope.tier must be bounded_release_starter for prototype/starter visual claims."
+    }
+    if ($visualClaimScope.allowsPrototypeVisuals -ne $true) {
+      Add-Error "releaseAssets.visualClaimScope.allowsPrototypeVisuals must be true while prototype_sprite assets are release-required."
+    }
+    if ($visualClaimScope.allowsStarterSkin -ne $true) {
+      Add-Error "releaseAssets.visualClaimScope.allowsStarterSkin must be true while starter UI/VFX skin assets are release-required."
+    }
+    if ($visualClaimScope.finalArtDirectionRequired -ne $false) {
+      Add-Error "releaseAssets.visualClaimScope.finalArtDirectionRequired must be false until final art/audio identity assets are promoted."
+    }
+    if ($visualClaimScope.notes -notmatch "bounded" -or $visualClaimScope.notes -notmatch "starter|proof" -or $visualClaimScope.notes -notmatch "not final") {
+      Add-Error "releaseAssets.visualClaimScope.notes must state the bounded starter/proof scope and that it is not final art direction."
+    }
+  }
 
   foreach ($surface in $requiredSurfaces) {
     if ($releaseAssets.requiredSurfaces -notcontains $surface) {
@@ -143,6 +165,22 @@ if ($null -eq $manifest.releaseAssets) {
     if ($asset.required -ne $true) {
       Add-ClassifiedAsset -Id $asset.id -Bundle $asset.bundleId -Path $asset.path -Classification "deferred" -Reason "Project release asset entry is not marked required."
       continue
+    }
+    if ($asset.category -eq "prototype_sprite") {
+      if ($null -eq $visualClaimScope -or $visualClaimScope.allowsPrototypeVisuals -ne $true) {
+        Add-Error "Required prototype visual asset '$($asset.id)' needs visualClaimScope.allowsPrototypeVisuals=true."
+      }
+      if ($asset.notes -notmatch "prototype|placeholder|proof|starter") {
+        Add-Error "Required prototype visual asset '$($asset.id)' must identify prototype/placeholder/proof/starter scope in notes."
+      }
+    }
+    if ($asset.category -match "ui_frames_chrome|cohesive_ui_skin|vfx_sheet") {
+      if ($null -eq $visualClaimScope -or $visualClaimScope.allowsStarterSkin -ne $true) {
+        Add-Error "Required starter visual asset '$($asset.id)' needs visualClaimScope.allowsStarterSkin=true."
+      }
+      if ($asset.notes -notmatch "starter|proof|generated") {
+        Add-Error "Required starter visual asset '$($asset.id)' must identify starter/proof/generated scope in notes."
+      }
     }
     Add-ConnectedAsset -Id $asset.id -Surface $asset.surface -Source $asset.source -Path $asset.path -Classification "connected" -Notes $asset.notes
     if ($asset.licenseCleared -ne $true) {
@@ -175,6 +213,23 @@ if ($null -eq $manifest.releaseAssets) {
     } elseif ($asset.source -eq "system_fallback") {
       if ($asset.distribution -ne "system_fallback") {
         Add-Error "System fallback asset '$($asset.id)' must use system_fallback distribution."
+      }
+      if ($asset.surface -eq "audio") {
+        if ($asset.category -ne "audio_policy") {
+          Add-Error "Audio system fallback '$($asset.id)' must use category audio_policy."
+        }
+        if ($asset.id -notmatch "muted|silent") {
+          Add-Error "Audio system fallback '$($asset.id)' must explicitly identify muted or silent release scope."
+        }
+        if ($asset.notes -notmatch "muted|silent|without bundled|non-LFS") {
+          Add-Error "Audio system fallback '$($asset.id)' must explain the intentional muted/silent release scope."
+        }
+        $script:releaseAudioPolicySeen = $true
+      }
+      if ($asset.surface -eq "ui" -and $asset.category -eq "ui_feedback_policy") {
+        if ($asset.notes -notmatch "silent|without bundled|SFX") {
+          Add-Error "UI feedback policy '$($asset.id)' must explain the intentional silent/no-SFX release scope."
+        }
       }
     } else {
       Add-Error "Required release asset '$($asset.id)' has unsupported source '$($asset.source)'."
@@ -211,6 +266,25 @@ if (-not (Test-Path -LiteralPath $bundleRoot -PathType Container)) {
     foreach ($asset in $releaseAssets) {
       if (-not [string]::IsNullOrWhiteSpace($asset.category)) {
         $script:releaseBundleCategoriesSeen.Add($asset.category) | Out-Null
+      }
+      if ($asset.category -eq "prototype_sprite") {
+        if ($null -eq $visualClaimScope -or $visualClaimScope.allowsPrototypeVisuals -ne $true) {
+          Add-Error "Release-required prototype bundle asset needs visualClaimScope.allowsPrototypeVisuals=true: $($bundleFile.Name)"
+        }
+        if ($asset.notes -notmatch "prototype|placeholder|proof|starter") {
+          Add-Error "Release-required prototype bundle asset must identify prototype/placeholder/proof/starter scope: $($bundleFile.Name) / $($asset.promoted_relative_path)"
+        }
+      }
+      if ($asset.category -match "ui_frames_chrome|cohesive_ui_skin|vfx_sheet") {
+        if ($null -eq $visualClaimScope -or $visualClaimScope.allowsStarterSkin -ne $true) {
+          Add-Error "Release-required starter visual bundle asset needs visualClaimScope.allowsStarterSkin=true: $($bundleFile.Name)"
+        }
+        if ($asset.notes -notmatch "starter|proof|generated") {
+          Add-Error "Release-required starter visual bundle asset must identify starter/proof/generated scope: $($bundleFile.Name) / $($asset.promoted_relative_path)"
+        }
+      }
+      if ($asset.category -match "audio|sfx|bgm|music" -or @($asset.release_surfaces) -contains "audio") {
+        $script:releaseBundledAudioSeen = $true
       }
       Add-ConnectedAsset -Id $asset.original_relative_path -Surface ($asset.release_surfaces -join ",") -Source "asset_bundle" -Path ("imports/normalized/" + $asset.promoted_relative_path) -Classification "connected" -Notes $asset.notes
       if ($bundle.bundle_state -ne "promoted" -or $asset.status -ne "promoted") {
@@ -271,6 +345,10 @@ foreach ($category in $requiredBundleCategories) {
   if (-not $releaseBundleCategoriesSeen.Contains($category)) {
     Add-Error "No release-required promoted bundle asset covers selected Phase 9 category '$category'."
   }
+}
+
+if (-not $releaseAudioPolicySeen -and -not $releaseBundledAudioSeen) {
+  Add-Error "Audio release surface must be covered by an explicit muted/silent system fallback policy or a bundled release-required audio asset."
 }
 
 if ($errors.Count -gt 0) {

@@ -95,6 +95,7 @@ bool SDLSurface::initialize(const WindowConfig& config) {
     }
 
     m_isInitialized = true;
+    SDL_StartTextInput();
     diagnostics::RuntimeDiagnostics::info("platform.sdl", "sdl.surface_initialized",
                                           "Surface initialized: " + std::to_string(config.width) + "x" +
                                               std::to_string(config.height));
@@ -124,11 +125,23 @@ bool SDLSurface::pollEvents() {
 
         // Input events (Keyboard/Controller)
         if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_BACKSPACE) {
+                EngineShell::getInstance().getInput().recordBackspace();
+                continue;
+            }
             auto action = mapSdlKey(event.key.keysym.sym);
             if (action != input::InputAction::None) {
                 auto state = (event.type == SDL_KEYDOWN) ? input::ActionState::Pressed : input::ActionState::Released;
                 EngineShell::getInstance().getInput().updateActionState(action, state);
             }
+        }
+
+        if (event.type == SDL_TEXTINPUT) {
+            EngineShell::getInstance().getInput().appendTextInput(event.text.text);
+        }
+
+        if (event.type == SDL_TEXTEDITING) {
+            EngineShell::getInstance().getInput().setTextEditing(event.edit.text);
         }
     }
 
@@ -151,6 +164,7 @@ void SDLSurface::shutdown() {
         m_window = nullptr;
     }
     if (m_isInitialized) {
+        SDL_StopTextInput();
         SDL_Quit();
         m_isInitialized = false;
     }

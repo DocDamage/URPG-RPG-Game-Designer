@@ -1,13 +1,13 @@
 #include "engine/core/engine_shell.h"
+#include "engine/core/message/message_core.h"
+#include "engine/core/platform/gl_texture.h"
+#include "engine/core/platform/opengl_renderer.h"
 #include "engine/core/render/render_layer.h"
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/menu_scene.h"
 #include "engine/core/scene/options_scene.h"
 #include "engine/core/scene/runtime_title_scene.h"
-#include "engine/core/message/message_core.h"
-#include "engine/core/platform/gl_texture.h"
-#include "engine/core/platform/opengl_renderer.h"
 #include "engine/core/sprite_batcher.h"
 #include "engine/core/testing/visual_regression_harness.h"
 #include "engine/core/ui/chat_window.h"
@@ -16,6 +16,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <memory>
@@ -26,7 +27,6 @@
 using namespace urpg;
 using namespace urpg::testing;
 
-#ifndef URPG_HEADLESS
 namespace {
 
 std::filesystem::path getGoldenRoot() {
@@ -41,6 +41,103 @@ bool shouldRegenerateRendererBackedGoldens() {
 
     return std::string_view(value) == "1";
 }
+
+std::vector<FrameRenderCommand> makePhaseOnePermutationCommands(const std::string& scene, const std::string& state,
+                                                                bool includeDiagnostic) {
+    std::vector<FrameRenderCommand> commands;
+
+    FrameRenderCommand clear;
+    clear.type = RenderCmdType::Clear;
+    commands.push_back(clear);
+
+    RectCommand backdrop;
+    backdrop.x = 0.0f;
+    backdrop.y = 0.0f;
+    backdrop.w = 320.0f;
+    backdrop.h = 180.0f;
+    backdrop.r = scene == "BattleScene" ? 0.10f : 0.06f;
+    backdrop.g = scene == "MapScene" ? 0.16f : 0.08f;
+    backdrop.b = scene == "LevelBuilder" ? 0.18f : 0.12f;
+    backdrop.a = 1.0f;
+    commands.push_back(toFrameRenderCommand(backdrop));
+
+    RectCommand stateBand;
+    stateBand.x = 12.0f;
+    stateBand.y = 24.0f;
+    stateBand.w = 296.0f;
+    stateBand.h = 42.0f;
+    stateBand.r = includeDiagnostic ? 0.58f : 0.18f;
+    stateBand.g = includeDiagnostic ? 0.12f : 0.34f;
+    stateBand.b = includeDiagnostic ? 0.10f : 0.52f;
+    stateBand.a = 1.0f;
+    stateBand.zOrder = 1;
+    commands.push_back(toFrameRenderCommand(stateBand));
+
+    TextCommand title;
+    title.x = 20.0f;
+    title.y = 32.0f;
+    title.text = scene + ":" + state;
+    title.fontSize = 16;
+    title.r = 255;
+    title.g = includeDiagnostic ? 220 : 244;
+    title.b = includeDiagnostic ? 170 : 255;
+    title.a = 255;
+    title.zOrder = 2;
+    commands.push_back(toFrameRenderCommand(title));
+
+    RectCommand preview;
+    preview.x = scene == "BattleScene" ? 208.0f : 28.0f;
+    preview.y = 92.0f;
+    preview.w = scene == "LevelBuilder" ? 180.0f : 96.0f;
+    preview.h = 44.0f;
+    preview.r = state.find("high_contrast") != std::string::npos ? 0.92f : 0.28f;
+    preview.g = state.find("enemy") != std::string::npos ? 0.18f : 0.62f;
+    preview.b = state.find("dialogue") != std::string::npos ? 0.78f : 0.30f;
+    preview.a = 1.0f;
+    preview.zOrder = 3;
+    commands.push_back(toFrameRenderCommand(preview));
+
+    return commands;
+}
+
+struct PhaseOnePermutationCase {
+    std::string scene;
+    std::string state;
+    bool diagnostic = false;
+};
+
+std::vector<PhaseOnePermutationCase> phaseOnePermutationCases() {
+    return {
+        {"MapScene", "idle", false},
+        {"MapScene", "dialogue_active", false},
+        {"MapScene", "menu_transition", false},
+        {"MapScene", "missing_asset_diagnostic", true},
+        {"BattleScene", "actor_cue", false},
+        {"BattleScene", "enemy_cue", false},
+        {"BattleScene", "reward_transition", false},
+        {"BattleScene", "failure_diagnostic", true},
+        {"RuntimeTitleScene", "no_saves", false},
+        {"RuntimeTitleScene", "saves_available", false},
+        {"RuntimeTitleScene", "settings_opened", false},
+        {"RuntimeOptionsScene", "default", false},
+        {"RuntimeOptionsScene", "high_contrast", false},
+        {"RuntimeOptionsScene", "remapped_input", false},
+        {"LevelBuilder", "empty_document", false},
+        {"LevelBuilder", "valid_document", false},
+        {"LevelBuilder", "invalid_document_diagnostics", true},
+    };
+}
+
+std::string phaseOneSnapshotId(const PhaseOnePermutationCase& testCase) {
+    std::string id = testCase.scene + "_" + testCase.state;
+    std::replace(id.begin(), id.end(), ' ', '_');
+    return id;
+}
+
+} // namespace
+
+#ifndef URPG_HEADLESS
+namespace {
 
 SceneSnapshot cropSnapshot(const SceneSnapshot& source, int x, int y, int width, int height) {
     SceneSnapshot cropped;
@@ -91,8 +188,7 @@ float rendererBackedGoldenThreshold() {
     return threshold;
 }
 
-SnapshotComparisonResult compareRendererBackedGolden(VisualRegressionHarness& harness,
-                                                     const std::string& snapshotId,
+SnapshotComparisonResult compareRendererBackedGolden(VisualRegressionHarness& harness, const std::string& snapshotId,
                                                      const SceneSnapshot& current) {
     auto golden = harness.loadGolden("RendererBackedCapture", snapshotId);
     if (!golden.has_value()) {
@@ -104,10 +200,8 @@ SnapshotComparisonResult compareRendererBackedGolden(VisualRegressionHarness& ha
     goldenScene.height = golden->height;
     goldenScene.pixels = golden->pixels;
 
-    return SnapshotValidator::compare(
-        withOpaqueAlpha(std::move(goldenScene)),
-        withOpaqueAlpha(current),
-        rendererBackedGoldenThreshold());
+    return SnapshotValidator::compare(withOpaqueAlpha(std::move(goldenScene)), withOpaqueAlpha(current),
+                                      rendererBackedGoldenThreshold());
 }
 
 SceneSnapshot captureMapSceneDialogueOverlayCrop(bool startDialogue) {
@@ -230,21 +324,21 @@ std::vector<uint8_t> makeBattleActorPixels() {
     constexpr int frameHeight = 48;
     std::vector<uint8_t> pixels(static_cast<size_t>(textureWidth) * textureHeight * 4, 0);
 
-    const auto fillFrame =
-        [&](int frameColumn, int frameRow, uint8_t r, uint8_t g, uint8_t b, uint8_t accentR, uint8_t accentG, uint8_t accentB) {
-            const int startX = frameColumn * frameWidth;
-            const int startY = frameRow * frameHeight;
-            for (int y = 0; y < frameHeight; ++y) {
-                for (int x = 0; x < frameWidth; ++x) {
-                    const bool accent = x > 10 && x < 38 && y > 8 && y < 40;
-                    const size_t index = (static_cast<size_t>(startY + y) * textureWidth + (startX + x)) * 4;
-                    pixels[index + 0] = accent ? accentR : r;
-                    pixels[index + 1] = accent ? accentG : g;
-                    pixels[index + 2] = accent ? accentB : b;
-                    pixels[index + 3] = 255;
-                }
+    const auto fillFrame = [&](int frameColumn, int frameRow, uint8_t r, uint8_t g, uint8_t b, uint8_t accentR,
+                               uint8_t accentG, uint8_t accentB) {
+        const int startX = frameColumn * frameWidth;
+        const int startY = frameRow * frameHeight;
+        for (int y = 0; y < frameHeight; ++y) {
+            for (int x = 0; x < frameWidth; ++x) {
+                const bool accent = x > 10 && x < 38 && y > 8 && y < 40;
+                const size_t index = (static_cast<size_t>(startY + y) * textureWidth + (startX + x)) * 4;
+                pixels[index + 0] = accent ? accentR : r;
+                pixels[index + 1] = accent ? accentG : g;
+                pixels[index + 2] = accent ? accentB : b;
+                pixels[index + 3] = 255;
             }
-        };
+        }
+    };
 
     for (int row = 0; row < 4; ++row) {
         for (int col = 0; col < 3; ++col) {
@@ -331,9 +425,7 @@ SceneSnapshot captureBattleSceneSnapshot(bool includeEnemyAndCues) {
 
             renderer.renderBatches(batcher.getBatches());
         },
-        800,
-        600,
-        &errorMessage);
+        800, 600, &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
     layer.flush();
@@ -369,9 +461,7 @@ SceneSnapshot captureSpriteFrameCommandSnapshot(bool registerTextureHandle) {
 
             renderer.processFrameCommands({urpg::toFrameRenderCommand(spriteCmd)});
         },
-        96,
-        96,
-        &errorMessage);
+        96, 96, &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
     return *snapshot;
@@ -403,9 +493,7 @@ SceneSnapshot captureTileFrameCommandSnapshot(bool registerTextureHandle) {
 
             renderer.processFrameCommands({urpg::toFrameRenderCommand(tileCmd)});
         },
-        48,
-        48,
-        &errorMessage);
+        48, 48, &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
     return *snapshot;
@@ -464,9 +552,7 @@ SceneSnapshot captureEngineShellMapSceneSnapshot(bool startDialogue) {
 
             urpg::scene::SceneManager::getInstance().pushScene(map);
         },
-        640,
-        400,
-        &errorMessage);
+        640, 400, &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
     return *snapshot;
@@ -481,9 +567,7 @@ SceneSnapshot captureEngineShellMenuSceneSnapshot() {
             auto menu = std::make_shared<urpg::scene::MenuScene>("EngineShellMenuSnapshot");
             urpg::scene::SceneManager::getInstance().pushScene(menu);
         },
-        320,
-        240,
-        &errorMessage);
+        320, 240, &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
     return *snapshot;
@@ -511,8 +595,7 @@ SceneSnapshot captureEngineShellBattleSceneSnapshot() {
             battle->addActor("1", "Hero", 96, 28, {120.0f, 280.0f}, actorTexture);
             battle->addEnemy("1", "Slime", 44, 0, {540.0f, 170.0f}, enemyTexture);
 
-            auto& participants =
-                const_cast<std::vector<urpg::scene::BattleParticipant>&>(battle->getParticipants());
+            auto& participants = const_cast<std::vector<urpg::scene::BattleParticipant>&>(battle->getParticipants());
             if (!participants.empty()) {
                 auto& actor = participants.front();
                 actor.hp = 68;
@@ -526,9 +609,7 @@ SceneSnapshot captureEngineShellBattleSceneSnapshot() {
 
             urpg::scene::SceneManager::getInstance().pushScene(battle);
         },
-        800,
-        600,
-        &errorMessage);
+        800, 600, &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
     return *snapshot;
@@ -548,12 +629,10 @@ SceneSnapshot captureEngineShellRuntimeTitleSceneSnapshot(bool includeDiagnostic
             });
             if (includeDiagnostics) {
                 urpg::RuntimeStartupReport report;
-                report.subsystems.push_back({"LocaleCatalog",
-                                             urpg::RuntimeStartupSubsystemStatus::Warning,
+                report.subsystems.push_back({"LocaleCatalog", urpg::RuntimeStartupSubsystemStatus::Warning,
                                              "localization.catalog_missing",
                                              "No locale catalog was found under project content."});
-                report.subsystems.push_back({"RuntimeBundleLoader",
-                                             urpg::RuntimeStartupSubsystemStatus::Error,
+                report.subsystems.push_back({"RuntimeBundleLoader", urpg::RuntimeStartupSubsystemStatus::Error,
                                              "runtime_bundle.validation_failed",
                                              "Runtime asset bundle validation failed."});
                 title->setStartupReport(report);
@@ -563,9 +642,7 @@ SceneSnapshot captureEngineShellRuntimeTitleSceneSnapshot(bool includeDiagnostic
 
             urpg::scene::SceneManager::getInstance().pushScene(title);
         },
-        640,
-        360,
-        &errorMessage);
+        640, 360, &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
     return *snapshot;
@@ -585,9 +662,7 @@ SceneSnapshot captureEngineShellRuntimeOptionsSceneSnapshot(bool highContrast) {
             auto options = urpg::scene::makeRuntimeOptionsScene(settings, {});
             urpg::scene::SceneManager::getInstance().pushScene(options);
         },
-        640,
-        360,
-        &errorMessage);
+        640, 360, &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
     return *snapshot;
@@ -615,9 +690,7 @@ SceneSnapshot captureTexturedMapSceneBatchSnapshot() {
 
             renderer.renderBatches(batcher.getBatches());
         },
-        96,
-        96,
-        &errorMessage);
+        96, 96, &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
     return *snapshot;
@@ -652,9 +725,7 @@ SceneSnapshot captureChatWindowSnapshot() {
             renderer.renderBatches(batcher.getBatches());
             renderer.processFrameCommands(layer.getFrameCommands());
         },
-        800,
-        480,
-        &errorMessage);
+        800, 480, &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
     layer.flush();
@@ -738,99 +809,6 @@ std::vector<FrameRenderCommand> makeFullFrameRectCommands() {
     commands.push_back(toFrameRenderCommand(rect));
 
     return commands;
-}
-
-std::vector<FrameRenderCommand> makePhaseOnePermutationCommands(const std::string& scene,
-                                                                const std::string& state,
-                                                                bool includeDiagnostic) {
-    std::vector<FrameRenderCommand> commands;
-
-    FrameRenderCommand clear;
-    clear.type = RenderCmdType::Clear;
-    commands.push_back(clear);
-
-    RectCommand backdrop;
-    backdrop.x = 0.0f;
-    backdrop.y = 0.0f;
-    backdrop.w = 320.0f;
-    backdrop.h = 180.0f;
-    backdrop.r = scene == "BattleScene" ? 0.10f : 0.06f;
-    backdrop.g = scene == "MapScene" ? 0.16f : 0.08f;
-    backdrop.b = scene == "LevelBuilder" ? 0.18f : 0.12f;
-    backdrop.a = 1.0f;
-    commands.push_back(toFrameRenderCommand(backdrop));
-
-    RectCommand stateBand;
-    stateBand.x = 12.0f;
-    stateBand.y = 24.0f;
-    stateBand.w = 296.0f;
-    stateBand.h = 42.0f;
-    stateBand.r = includeDiagnostic ? 0.58f : 0.18f;
-    stateBand.g = includeDiagnostic ? 0.12f : 0.34f;
-    stateBand.b = includeDiagnostic ? 0.10f : 0.52f;
-    stateBand.a = 1.0f;
-    stateBand.zOrder = 1;
-    commands.push_back(toFrameRenderCommand(stateBand));
-
-    TextCommand title;
-    title.x = 20.0f;
-    title.y = 32.0f;
-    title.text = scene + ":" + state;
-    title.fontSize = 16;
-    title.r = 255;
-    title.g = includeDiagnostic ? 220 : 244;
-    title.b = includeDiagnostic ? 170 : 255;
-    title.a = 255;
-    title.zOrder = 2;
-    commands.push_back(toFrameRenderCommand(title));
-
-    RectCommand preview;
-    preview.x = scene == "BattleScene" ? 208.0f : 28.0f;
-    preview.y = 92.0f;
-    preview.w = scene == "LevelBuilder" ? 180.0f : 96.0f;
-    preview.h = 44.0f;
-    preview.r = state.find("high_contrast") != std::string::npos ? 0.92f : 0.28f;
-    preview.g = state.find("enemy") != std::string::npos ? 0.18f : 0.62f;
-    preview.b = state.find("dialogue") != std::string::npos ? 0.78f : 0.30f;
-    preview.a = 1.0f;
-    preview.zOrder = 3;
-    commands.push_back(toFrameRenderCommand(preview));
-
-    return commands;
-}
-
-struct PhaseOnePermutationCase {
-    std::string scene;
-    std::string state;
-    bool diagnostic = false;
-};
-
-std::vector<PhaseOnePermutationCase> phaseOnePermutationCases() {
-    return {
-        {"MapScene", "idle", false},
-        {"MapScene", "dialogue_active", false},
-        {"MapScene", "menu_transition", false},
-        {"MapScene", "missing_asset_diagnostic", true},
-        {"BattleScene", "actor_cue", false},
-        {"BattleScene", "enemy_cue", false},
-        {"BattleScene", "reward_transition", false},
-        {"BattleScene", "failure_diagnostic", true},
-        {"RuntimeTitleScene", "no_saves", false},
-        {"RuntimeTitleScene", "saves_available", false},
-        {"RuntimeTitleScene", "settings_opened", false},
-        {"RuntimeOptionsScene", "default", false},
-        {"RuntimeOptionsScene", "high_contrast", false},
-        {"RuntimeOptionsScene", "remapped_input", false},
-        {"LevelBuilder", "empty_document", false},
-        {"LevelBuilder", "valid_document", false},
-        {"LevelBuilder", "invalid_document_diagnostics", true},
-    };
-}
-
-std::string phaseOneSnapshotId(const PhaseOnePermutationCase& testCase) {
-    std::string id = testCase.scene + "_" + testCase.state;
-    std::replace(id.begin(), id.end(), ' ', '_');
-    return id;
 }
 
 std::vector<FrameRenderCommand> makeInsetRectCommands() {
@@ -1005,8 +983,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers MapScene world placeh
     REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
     const auto changed = SnapshotValidator::compare(
-        cropSnapshot(world, 0, 0, dialogueOverlay.width, dialogueOverlay.height),
-        dialogueOverlay);
+        cropSnapshot(world, 0, 0, dialogueOverlay.width, dialogueOverlay.height), dialogueOverlay);
     REQUIRE_FALSE(changed.matches);
     REQUIRE(changed.errorPercentage > 0.0f);
 }
@@ -1055,8 +1032,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers ChatWindow mixed batc
     REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
     const auto changed = SnapshotValidator::compare(
-        cropSnapshot(chatWindow, 0, 0, windowStatus.width, windowStatus.height),
-        windowStatus);
+        cropSnapshot(chatWindow, 0, 0, windowStatus.width, windowStatus.height), windowStatus);
     REQUIRE_FALSE(changed.matches);
     REQUIRE(changed.errorPercentage > 0.0f);
 }
@@ -1164,14 +1140,13 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers EngineShell title dia
 
     REQUIRE(titleDiagnostics.width == 640);
     REQUIRE(titleDiagnostics.height == 360);
-    REQUIRE(titleDiagnostics.pixels.size() ==
-            static_cast<size_t>(titleDiagnostics.width) * titleDiagnostics.height);
+    REQUIRE(titleDiagnostics.pixels.size() == static_cast<size_t>(titleDiagnostics.width) * titleDiagnostics.height);
 
     VisualRegressionHarness harness;
     harness.setGoldenRoot(getGoldenRoot().string());
     if (shouldRegenerateRendererBackedGoldens()) {
-        REQUIRE(harness.saveGolden(
-            "RendererBackedCapture", "engine_shell_title_diagnostics_runtime_path", titleDiagnostics));
+        REQUIRE(harness.saveGolden("RendererBackedCapture", "engine_shell_title_diagnostics_runtime_path",
+                                   titleDiagnostics));
     }
 
     const auto identical =
@@ -1197,8 +1172,8 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers EngineShell options h
     VisualRegressionHarness harness;
     harness.setGoldenRoot(getGoldenRoot().string());
     if (shouldRegenerateRendererBackedGoldens()) {
-        REQUIRE(harness.saveGolden(
-            "RendererBackedCapture", "engine_shell_options_high_contrast_runtime_path", optionsHighContrast));
+        REQUIRE(harness.saveGolden("RendererBackedCapture", "engine_shell_options_high_contrast_runtime_path",
+                                   optionsHighContrast));
     }
 
     const auto identical =
@@ -1220,8 +1195,8 @@ TEST_CASE("Snapshot: phase-one shell-owned scene permutations have governed refe
     for (const auto& testCase : phaseOnePermutationCases()) {
         const auto commands = makePhaseOnePermutationCommands(testCase.scene, testCase.state, testCase.diagnostic);
         std::string errorMessage;
-        const auto capture = harness.captureFrameResult(
-            CaptureBackend::SoftwareReference, commands, 320, 180, &errorMessage);
+        const auto capture =
+            harness.captureFrameResult(CaptureBackend::SoftwareReference, commands, 320, 180, &errorMessage);
         INFO(testCase.scene << " " << testCase.state << ": " << errorMessage);
         REQUIRE(capture.has_value());
         REQUIRE(capture->backendId == "software_reference");
@@ -1235,8 +1210,7 @@ TEST_CASE("Snapshot: phase-one shell-owned scene permutations have governed refe
             REQUIRE(harness.saveGolden("PhaseOneScenePermutations", snapshotId, capture->snapshot));
         }
 
-        const auto result =
-            harness.compareAgainstGolden("PhaseOneScenePermutations", snapshotId, capture->snapshot);
+        const auto result = harness.compareAgainstGolden("PhaseOneScenePermutations", snapshotId, capture->snapshot);
         REQUIRE(result.matches);
         REQUIRE(result.errorPercentage == 0.0f);
     }
@@ -1263,8 +1237,7 @@ TEST_CASE("Snapshot: phase-one command families match across headless and refere
 
 // ─── S29: Visual Regression Golden Coverage ──────────────────────────────────
 
-TEST_CASE("Snapshot: MenuScene golden render produces deterministic full-frame output",
-          "[snapshot][regression][s29]") {
+TEST_CASE("Snapshot: MenuScene golden render produces deterministic full-frame output", "[snapshot][regression][s29]") {
 #ifdef URPG_HEADLESS
     SUCCEED("Headless build: skipping renderer-backed MenuScene golden");
 #else
@@ -1284,9 +1257,7 @@ TEST_CASE("Snapshot: MenuScene golden render produces deterministic full-frame o
             batcher.end();
             renderer.renderBatches(batcher.getBatches());
         },
-        320,
-        240,
-        &errorMessage);
+        320, 240, &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
     REQUIRE(snapshot->width == 320);
@@ -1318,8 +1289,7 @@ TEST_CASE("Snapshot: EngineShell MenuScene golden render produces deterministic 
         REQUIRE(harness.saveGolden("S1SceneGoldens", "engine_shell_menu_scene_full_frame", snapshot));
     }
 
-    const auto result =
-        harness.compareAgainstGolden("S1SceneGoldens", "engine_shell_menu_scene_full_frame", snapshot);
+    const auto result = harness.compareAgainstGolden("S1SceneGoldens", "engine_shell_menu_scene_full_frame", snapshot);
     REQUIRE(result.matches);
     REQUIRE(result.errorPercentage == 0.0f);
 #endif
@@ -1396,8 +1366,7 @@ TEST_CASE("Snapshot: BattleScene golden matches expected full-frame output (regr
 #endif
 }
 
-TEST_CASE("Snapshot: scene transition sequence produces deterministic golden pair",
-          "[snapshot][regression][s29]") {
+TEST_CASE("Snapshot: scene transition sequence produces deterministic golden pair", "[snapshot][regression][s29]") {
     // This test exercises the transition boundary: before-transition and after-transition
     // frames must be deterministic and independently stable.
 #ifdef URPG_HEADLESS
@@ -1426,15 +1395,14 @@ TEST_CASE("Snapshot: scene transition sequence produces deterministic golden pai
         REQUIRE(harness.saveGolden("S29TransitionGoldens", "post_battle_entry", after));
     }
 
-    const auto preResult  = harness.compareAgainstGolden("S29TransitionGoldens", "pre_battle_map", before);
+    const auto preResult = harness.compareAgainstGolden("S29TransitionGoldens", "pre_battle_map", before);
     const auto postResult = harness.compareAgainstGolden("S29TransitionGoldens", "post_battle_entry", after);
     REQUIRE(preResult.matches);
     REQUIRE(postResult.matches);
 #endif
 }
 
-TEST_CASE("Snapshot: diff heatmap golden is actionable and stable",
-          "[snapshot][regression][s29]") {
+TEST_CASE("Snapshot: diff heatmap golden is actionable and stable", "[snapshot][regression][s29]") {
     // Ensures the heatmap diff artifact produced for CI reviewers is deterministic.
 #ifdef URPG_HEADLESS
     SUCCEED("Headless build: skipping renderer-backed diff heatmap golden");

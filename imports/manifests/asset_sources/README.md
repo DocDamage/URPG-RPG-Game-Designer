@@ -3,4 +3,6 @@
 Governance directory for URPG asset and external repository intake.
 See docs/PROGRAM_COMPLETION_STATUS.md (P3-02, P3-03) for program context.
 
+Current local source IDs include `SRC-013` for the `itch/loose` CC0 PNG drop promoted through `BND-008`.
+
 This directory is intentionally created empty; content will be added through the governed intake pipeline.

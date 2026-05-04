@@ -1,6 +1,6 @@
 # URPG Native Packaging
 
-Status Date: 2026-04-30
+Status Date: 2026-05-04
 
 This document defines the canonical native app package path for URPG. It packages the URPG runtime/editor applications. It does not replace the game export packager documented in `docs/release/RELEASE_PACKAGING.md`.
 
@@ -15,6 +15,14 @@ cpack --config build/dev-ninja-release/CPackConfig.cmake -G ZIP -B build/package
 ```
 
 The package version comes from the root CMake project version and must match the executable `--version` output.
+
+Package identity metadata is owned in `cmake/packaging.cmake`:
+
+| Field | Current value |
+| --- | --- |
+| Vendor | `URPG Project` |
+| Homepage | `https://github.com/DocDamage/URPG-RPG-Game-Designer` |
+| Contact | `URPG Project support via GitHub Issues: https://github.com/DocDamage/URPG-RPG-Game-Designer/issues` |
 
 ## Components
 
@@ -40,13 +48,15 @@ Use the package smoke wrapper after configuring the release build tree:
 
 The smoke check runs CPack, verifies component archives exist, and checks that the required executable, runtime-data, icon, desktop-entry, and legal-document paths are present in the produced archives. It also rejects DevBootstrap marker paths/content so local export-smoke launchers cannot slip into native app packages.
 
-Status on 2026-04-30: passed against `build/dev-ninja-release` and produced `Runtime`, `RuntimeData`, and `Docs` component ZIP archives with version `0.1.0`.
+Status on 2026-05-04: package metadata has final vendor, homepage, and GitHub Issues support contact values. Package
+smoke must be rerun after the next release configure/build to regenerate archive metadata.
 
 ## Release Limits
 
-External distribution is blocked until:
+External distribution remains subject to:
 
-- `EULA.md` is replaced or approved for public release,
-- `THIRD_PARTY_NOTICES.md` is legally reviewed,
-- public privacy/contact language is approved,
-- platform signing/notarization requirements in `docs/release/RELEASE_PACKAGING.md` are satisfied.
+- release-owner waiver or qualified legal/privacy/distribution approval remains recorded,
+- `THIRD_PARTY_NOTICES.md` remains aligned with shipped package contents,
+- public privacy/contact language remains current,
+- platform signing/notarization requirements in `docs/release/RELEASE_PACKAGING.md` are satisfied for final release
+  artifacts.

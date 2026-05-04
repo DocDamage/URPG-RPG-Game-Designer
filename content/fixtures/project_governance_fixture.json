@@ -37,6 +37,13 @@
     "manifestVersion": "1.0.0",
     "assetBundleManifestRoot": "imports/manifests/asset_bundles",
     "requiredSurfaces": ["title", "map", "battle", "ui", "audio", "icons", "fonts"],
+    "visualClaimScope": {
+      "tier": "bounded_release_starter",
+      "allowsPrototypeVisuals": true,
+      "allowsStarterSkin": true,
+      "finalArtDirectionRequired": false,
+      "notes": "Current release visual claim is bounded starter/proof coverage, not final AAA art direction. Prototype actor, starter UI frame/chrome, starter skin metadata, and single-frame VFX proof assets are allowed only under this explicit scope."
+    },
     "assets": [
       {
         "id": "release.prototype_actor.title",
@@ -128,7 +135,7 @@
         "source": "system_fallback",
         "licenseCleared": true,
         "distribution": "system_fallback",
-        "notes": "Audio release surface is satisfied by explicit muted fallback until a non-LFS release audio asset is approved."
+        "notes": "Audio release surface is intentionally silent/muted without bundled audio until a non-LFS release audio asset is approved."
       },
       {
         "id": "release.icon.editor",

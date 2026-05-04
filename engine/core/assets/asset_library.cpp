@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <filesystem>
 #include <map>
 #include <sstream>
 
@@ -124,10 +125,135 @@ bool isSequenceAsset(const AssetRecord& asset) {
 
 std::string lowerPath(std::string value) {
     std::replace(value.begin(), value.end(), '\\', '/');
-    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
-        return static_cast<char>(std::tolower(ch));
-    });
+    std::transform(value.begin(), value.end(), value.begin(),
+                   [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
     return value;
+}
+
+void addUnique(std::vector<std::string>& values, std::string value) {
+    if (!value.empty() && std::find(values.begin(), values.end(), value) == values.end()) {
+        values.push_back(std::move(value));
+    }
+}
+
+std::string extensionMediaKind(const std::string& path) {
+    const auto extension = lowerPath(std::filesystem::path(path).extension().generic_string());
+    if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".gif" ||
+        extension == ".svg") {
+        return "image";
+    }
+    if (extension == ".ogg" || extension == ".wav" || extension == ".mp3") {
+        return "audio";
+    }
+    if (extension == ".ttf" || extension == ".otf" || extension == ".woff" || extension == ".woff2") {
+        return "font";
+    }
+    return {};
+}
+
+std::string classifyGameUseCategory(const AssetRecord& record) {
+    const auto text = lowerPath(record.category + "/" + record.normalized_path + "/" + record.source_path + "/" +
+                                record.path + "/" + record.pack);
+    if (text.find("font") != std::string::npos) {
+        return "ui/fonts";
+    }
+    if (text.find("ui") != std::string::npos || text.find("button") != std::string::npos ||
+        text.find("panel") != std::string::npos || text.find("frame") != std::string::npos ||
+        text.find("chrome") != std::string::npos || text.find("hud") != std::string::npos) {
+        return "ui/widgets";
+    }
+    if (record.media_kind == "audio" || text.find("audio") != std::string::npos) {
+        if (text.find("music") != std::string::npos || text.find("bgm") != std::string::npos ||
+            text.find("ambient") != std::string::npos || text.find("ambience") != std::string::npos) {
+            return "audio/music";
+        }
+        return "audio/sfx";
+    }
+    if (text.find("vfx") != std::string::npos || text.find("effect") != std::string::npos ||
+        text.find("animation") != std::string::npos || text.find("anim-") != std::string::npos) {
+        return "vfx";
+    }
+    if (text.find("portrait") != std::string::npos || text.find("face") != std::string::npos) {
+        return "characters/portraits";
+    }
+    if (text.find("character") != std::string::npos || text.find("sprite") != std::string::npos ||
+        text.find("actor") != std::string::npos || text.find("enemy") != std::string::npos ||
+        text.find("monster") != std::string::npos || text.find("npc") != std::string::npos) {
+        return "characters/sprites";
+    }
+    if (text.find("tileset") != std::string::npos || text.find("tile") != std::string::npos ||
+        text.find("terrain") != std::string::npos || text.find("floor") != std::string::npos) {
+        return text.find("iso") != std::string::npos ? "environment/tiles/isometric" : "environment/tiles/top_down";
+    }
+    if (text.find("background") != std::string::npos || text.find("backdrop") != std::string::npos ||
+        text.find("parallax") != std::string::npos) {
+        return "environment/backgrounds";
+    }
+    if (text.find("prop") != std::string::npos || text.find("vehicle") != std::string::npos ||
+        text.find("car") != std::string::npos || text.find("tree") != std::string::npos ||
+        text.find("rock") != std::string::npos || text.find("furniture") != std::string::npos) {
+        return "props";
+    }
+    return "misc";
+}
+
+void applyVirtualCatalogTags(AssetRecord& record) {
+    record.game_use_category = classifyGameUseCategory(record);
+    record.game_use_tags.clear();
+    addUnique(record.game_use_tags, "game_use:" + record.game_use_category);
+    if (!record.category.empty()) {
+        addUnique(record.game_use_tags, "source_category:" + record.category);
+    }
+    if (record.game_use_category.rfind("environment/tiles/", 0) == 0) {
+        addUnique(record.game_use_tags, "asset_type:tileset");
+    } else if (record.game_use_category.rfind("characters/", 0) == 0) {
+        addUnique(record.game_use_tags, "asset_type:character");
+    } else if (record.game_use_category.rfind("ui/", 0) == 0) {
+        addUnique(record.game_use_tags, "asset_type:ui");
+    } else if (record.game_use_category == "props") {
+        addUnique(record.game_use_tags, "asset_type:prop");
+    } else if (record.game_use_category == "vfx") {
+        addUnique(record.game_use_tags, "asset_type:vfx");
+    }
+    if (!record.media_kind.empty()) {
+        addUnique(record.game_use_tags, "media:" + record.media_kind);
+    }
+    if (!record.source_bundle_id.empty()) {
+        addUnique(record.game_use_tags, "bundle:" + record.source_bundle_id);
+    }
+    if (!record.distribution.empty()) {
+        addUnique(record.game_use_tags, "distribution:" + record.distribution);
+    }
+    if (record.release_eligible || record.provenance.export_eligible) {
+        addUnique(record.game_use_tags, "release:eligible");
+    }
+    if (record.required_for_release) {
+        addUnique(record.game_use_tags, "release:required");
+    }
+
+    const auto text = lowerPath(record.normalized_path + "/" + record.source_path + "/" + record.path + "/" +
+                                record.pack + "/" + record.category);
+    if (text.find("iso") != std::string::npos) {
+        addUnique(record.game_use_tags, "perspective:isometric");
+    } else if (text.find("side") != std::string::npos || text.find("platform") != std::string::npos) {
+        addUnique(record.game_use_tags, "perspective:side_view");
+    } else if (record.game_use_category.find("tiles") != std::string::npos ||
+               record.game_use_category.find("characters") != std::string::npos) {
+        addUnique(record.game_use_tags, "perspective:top_down");
+    }
+    if (text.find("pixel") != std::string::npos || text.find(".png") != std::string::npos ||
+        text.find(".gif") != std::string::npos) {
+        addUnique(record.game_use_tags, "style:pixel");
+    }
+    if (text.find(".svg") != std::string::npos) {
+        addUnique(record.game_use_tags, "style:vector");
+    }
+    for (const auto& marker : {"fantasy", "dungeon", "town", "forest", "snow", "desert", "ocean", "interior", "modern",
+                               "vehicle", "sci-fi", "space", "chess", "farm"}) {
+        if (text.find(marker) != std::string::npos) {
+            addUnique(record.game_use_tags, std::string("theme:") + marker);
+        }
+    }
 }
 
 std::vector<std::string> parseCsvLine(std::string_view line) {
@@ -165,12 +291,9 @@ bool hasStatus(const AssetRecord& record, AssetStatus status) {
 }
 
 bool isRuntimeReady(const AssetRecord& record) {
-    return !record.normalized_path.empty() &&
-           !hasStatus(record, AssetStatus::MissingFile) &&
-           !hasStatus(record, AssetStatus::UnsupportedFormat) &&
-           !hasStatus(record, AssetStatus::MissingLicense) &&
-           !hasStatus(record, AssetStatus::Duplicate) &&
-           !hasStatus(record, AssetStatus::Archived);
+    return !record.normalized_path.empty() && !hasStatus(record, AssetStatus::MissingFile) &&
+           !hasStatus(record, AssetStatus::UnsupportedFormat) && !hasStatus(record, AssetStatus::MissingLicense) &&
+           !hasStatus(record, AssetStatus::Duplicate) && !hasStatus(record, AssetStatus::Archived);
 }
 
 bool isPreviewable(const AssetRecord& record) {
@@ -179,17 +302,13 @@ bool isPreviewable(const AssetRecord& record) {
 }
 
 bool isProjectAttached(const AssetRecord& record) {
-    return std::any_of(record.used_by.begin(), record.used_by.end(), [](const auto& owner) {
-        return owner.rfind("project_asset_attachment:", 0) == 0;
-    });
+    return std::any_of(record.used_by.begin(), record.used_by.end(),
+                       [](const auto& owner) { return owner.rfind("project_asset_attachment:", 0) == 0; });
 }
 
 bool isProjectAttachable(const AssetRecord& record) {
-    return hasStatus(record, AssetStatus::Promoted) &&
-           record.promotion_status == "runtime_ready" &&
-           record.include_in_runtime &&
-           !record.promoted_path.empty() &&
-           record.promotion_diagnostics.empty() &&
+    return hasStatus(record, AssetStatus::Promoted) && record.promotion_status == "runtime_ready" &&
+           record.include_in_runtime && !record.promoted_path.empty() && record.promotion_diagnostics.empty() &&
            !isProjectAttached(record);
 }
 
@@ -344,6 +463,7 @@ void AssetLibrary::ingestIntakeReport(const nlohmann::json& report) {
                 record.statuses.insert(AssetStatus::MissingLicense);
                 ++snapshot_.missing_license_count;
             }
+            applyVirtualCatalogTags(record);
         }
     }
     refreshDerivedCounts();
@@ -361,8 +481,8 @@ void AssetLibrary::ingestPromotionCatalog(const nlohmann::json& catalog) {
     if (summary != catalog.end() && summary->is_object()) {
         snapshot_.catalog_asset_count +=
             readCount(*summary, "asset_count").value_or(readCount(*summary, "asset_record_count").value_or(0));
-        snapshot_.canonical_asset_count +=
-            readCount(*summary, "canonical_asset_count").value_or(readCount(*summary, "asset_record_count").value_or(0));
+        snapshot_.canonical_asset_count += readCount(*summary, "canonical_asset_count")
+                                               .value_or(readCount(*summary, "asset_record_count").value_or(0));
         snapshot_.duplicate_group_count +=
             readCount(*summary, "duplicate_group_count")
                 .value_or(readCount(*summary, "potential_duplicate_group_count").value_or(0));
@@ -423,6 +543,8 @@ void AssetLibrary::ingestPromotionCatalog(const nlohmann::json& catalog) {
         record.provenance.license = readString(asset, "license").value_or("");
         record.provenance.normalized_path = normalized_path;
         record.provenance.export_eligible = asset.value("export_eligible", catalog_export_eligible);
+        record.release_eligible = record.provenance.export_eligible;
+        applyVirtualCatalogTags(record);
 
         if (record.provenance.license.empty()) {
             record.statuses.insert(AssetStatus::MissingLicense);
@@ -436,6 +558,82 @@ void AssetLibrary::ingestPromotionCatalog(const nlohmann::json& catalog) {
         }
         if (source_path.rfind(source_root, 0) != 0 && !source_root.empty()) {
             record.statuses.insert(AssetStatus::Risky);
+        }
+    }
+
+    refreshDerivedCounts();
+    sortSnapshot();
+}
+
+void AssetLibrary::ingestAssetBundleManifest(const nlohmann::json& manifest) {
+    if (!manifest.is_object()) {
+        return;
+    }
+    const auto bundleId = readString(manifest, "bundle_id").value_or("");
+    const auto bundleName = readString(manifest, "bundle_name").value_or(bundleId);
+    const auto sourceId = readString(manifest, "source_id").value_or("");
+    const bool bundleReleaseRequired = manifest.value("release_required", false);
+    const auto assets = manifest.find("assets");
+    if (bundleId.empty() || assets == manifest.end() || !assets->is_array()) {
+        return;
+    }
+
+    snapshot_.promotion_status = readString(manifest, "bundle_state").value_or(snapshot_.promotion_status);
+    for (const auto& asset : *assets) {
+        if (!asset.is_object()) {
+            continue;
+        }
+        const auto promotedRelativePath = readString(asset, "promoted_relative_path").value_or("");
+        const auto originalRelativePath = readString(asset, "original_relative_path").value_or("");
+        if (promotedRelativePath.empty() && originalRelativePath.empty()) {
+            continue;
+        }
+
+        const std::string normalizedPath =
+            promotedRelativePath.empty() ? "" : "imports/normalized/" + promotedRelativePath;
+        auto& record = ensureAsset(normalizedPath.empty() ? originalRelativePath : normalizedPath);
+        record.source_path = originalRelativePath;
+        record.normalized_path = normalizedPath;
+        record.preview_path = normalizedPath;
+        record.preview_kind = extensionMediaKind(normalizedPath) == "audio" ? "audio" : "image";
+        record.media_kind = extensionMediaKind(normalizedPath);
+        record.category = readString(asset, "category").value_or("");
+        record.pack = bundleName;
+        record.source_bundle_id = bundleId;
+        record.package_destination = readString(asset, "package_destination").value_or("");
+        record.distribution = readString(asset, "distribution").value_or("");
+        record.sha256 = readString(asset, "checksum_sha256").value_or("");
+        record.license_id = asset.value("license_cleared", false) ? "reviewed_bundle_license" : "";
+        record.required_for_release = asset.value("release_required", bundleReleaseRequired);
+        record.release_eligible = asset.value("release_eligible", false);
+        record.include_in_runtime = record.release_eligible && record.distribution == "bundled";
+        record.promotion_status = readString(asset, "status").value_or("");
+        record.promoted_path = normalizedPath;
+        record.tags = readStringArray(asset, "release_surfaces");
+        for (auto& tag : record.tags) {
+            tag = "surface:" + tag;
+        }
+        record.provenance.original_source = sourceId.empty() ? bundleId : sourceId;
+        record.provenance.normalized_path = normalizedPath;
+        record.provenance.license = record.license_id;
+        record.provenance.export_eligible = record.release_eligible;
+
+        if (record.promotion_status == "promoted") {
+            record.statuses.insert(AssetStatus::Promoted);
+            record.statuses.erase(AssetStatus::Risky);
+        }
+        if (record.license_id.empty()) {
+            record.statuses.insert(AssetStatus::MissingLicense);
+        }
+        if (record.media_kind.empty()) {
+            record.statuses.insert(AssetStatus::UnsupportedFormat);
+        }
+        applyVirtualCatalogTags(record);
+        if (!record.category.empty()) {
+            ++snapshot_.category_counts[record.category];
+        }
+        if (!record.media_kind.empty()) {
+            ++snapshot_.kind_counts[record.media_kind];
         }
     }
 
@@ -464,6 +662,7 @@ void AssetLibrary::ingestPromotionManifest(const AssetPromotionManifest& manifes
     record.promotion_status = toString(manifest.status);
     record.include_in_runtime = manifest.package.includeInRuntime;
     record.required_for_release = manifest.package.requiredForRelease;
+    record.release_eligible = manifest.package.includeInRuntime && diagnostics.empty();
     record.preview_kind = manifest.preview.kind;
     record.preview_path = manifest.preview.thumbnailPath;
     record.preview_width = manifest.preview.width;
@@ -472,6 +671,7 @@ void AssetLibrary::ingestPromotionManifest(const AssetPromotionManifest& manifes
     record.provenance.license = manifest.licenseId;
     record.provenance.export_eligible = manifest.package.includeInRuntime && diagnostics.empty();
     record.promotion_diagnostics = diagnostics;
+    applyVirtualCatalogTags(record);
 
     if (manifest.status == AssetPromotionStatus::RuntimeReady && diagnostics.empty()) {
         record.statuses.insert(AssetStatus::Promoted);
@@ -560,14 +760,12 @@ void AssetLibrary::ingestDuplicateCsv(std::string_view csv_text) {
 
     snapshot_.duplicate_groups.clear();
     for (auto& [_, group] : groups) {
-        std::sort(group.entries.begin(), group.entries.end(), [](const auto& lhs, const auto& rhs) {
-            return lhs.path < rhs.path;
-        });
+        std::sort(group.entries.begin(), group.entries.end(),
+                  [](const auto& lhs, const auto& rhs) { return lhs.path < rhs.path; });
         snapshot_.duplicate_groups.push_back(std::move(group));
     }
-    std::sort(snapshot_.duplicate_groups.begin(), snapshot_.duplicate_groups.end(), [](const auto& lhs, const auto& rhs) {
-        return lhs.sha256 < rhs.sha256;
-    });
+    std::sort(snapshot_.duplicate_groups.begin(), snapshot_.duplicate_groups.end(),
+              [](const auto& lhs, const auto& rhs) { return lhs.sha256 < rhs.sha256; });
     snapshot_.duplicate_group_count = snapshot_.duplicate_groups.size();
     refreshDerivedCounts();
     sortSnapshot();
@@ -582,7 +780,8 @@ void AssetLibrary::addReferencedAsset(std::string path) {
 void AssetLibrary::addUsageReference(std::string path, std::string owner_id) {
     std::replace(path.begin(), path.end(), '\\', '/');
     auto& record = ensureAsset(path);
-    if (!owner_id.empty() && std::find(record.used_by.begin(), record.used_by.end(), owner_id) == record.used_by.end()) {
+    if (!owner_id.empty() &&
+        std::find(record.used_by.begin(), record.used_by.end(), owner_id) == record.used_by.end()) {
         record.used_by.push_back(std::move(owner_id));
         std::sort(record.used_by.begin(), record.used_by.end());
     }
@@ -606,6 +805,8 @@ AssetLibraryActionResult AssetLibrary::promoteAsset(std::string path) {
     record.statuses.insert(AssetStatus::Promoted);
     record.statuses.erase(AssetStatus::Risky);
     record.provenance.export_eligible = true;
+    record.release_eligible = true;
+    applyVirtualCatalogTags(record);
     refreshDerivedCounts();
     sortSnapshot();
     return {"promote", path, true, "asset_promoted", "Asset is promoted for runtime/export library use."};
@@ -621,6 +822,8 @@ AssetLibraryActionResult AssetLibrary::archiveAsset(std::string path, std::strin
     record.statuses.insert(AssetStatus::Archived);
     record.statuses.erase(AssetStatus::Promoted);
     record.provenance.export_eligible = false;
+    record.release_eligible = false;
+    applyVirtualCatalogTags(record);
     refreshDerivedCounts();
     sortSnapshot();
     if (reason.empty()) {
@@ -677,8 +880,19 @@ std::vector<AssetRecord> AssetLibrary::filterAssets(const AssetLibraryFilter& fi
         if (!filter.category.empty() && asset.category != filter.category) {
             continue;
         }
+        if (!filter.game_use_category.empty() && asset.game_use_category != filter.game_use_category) {
+            continue;
+        }
         if (!filter.required_tag.empty() &&
             std::find(asset.tags.begin(), asset.tags.end(), filter.required_tag) == asset.tags.end()) {
+            continue;
+        }
+        if (!filter.required_game_use_tag.empty() &&
+            std::find(asset.game_use_tags.begin(), asset.game_use_tags.end(), filter.required_game_use_tag) ==
+                asset.game_use_tags.end()) {
+            continue;
+        }
+        if (!filter.source_bundle_id.empty() && asset.source_bundle_id != filter.source_bundle_id) {
             continue;
         }
         if (filter.required_status.has_value() && !asset.statuses.contains(*filter.required_status)) {
@@ -699,6 +913,9 @@ std::vector<AssetRecord> AssetLibrary::filterAssets(const AssetLibraryFilter& fi
         if (filter.attachable_only && !isProjectAttachable(asset)) {
             continue;
         }
+        if (filter.release_eligible_only && !(asset.release_eligible || asset.provenance.export_eligible)) {
+            continue;
+        }
         result.push_back(asset);
     }
     return result;
@@ -713,6 +930,9 @@ void AssetLibrary::refreshDerivedCounts() {
     snapshot_.sequence_clip_count = 0;
     snapshot_.promoted_count = 0;
     snapshot_.archived_count = 0;
+    snapshot_.game_use_category_counts.clear();
+    snapshot_.game_use_tag_counts.clear();
+    snapshot_.source_bundle_counts.clear();
     for (const auto& asset : snapshot_.assets) {
         if (isRuntimeReady(asset)) {
             ++snapshot_.runtime_ready_count;
@@ -730,6 +950,15 @@ void AssetLibrary::refreshDerivedCounts() {
         }
         if (asset.statuses.contains(AssetStatus::Archived)) {
             ++snapshot_.archived_count;
+        }
+        if (!asset.game_use_category.empty()) {
+            ++snapshot_.game_use_category_counts[asset.game_use_category];
+        }
+        for (const auto& tag : asset.game_use_tags) {
+            ++snapshot_.game_use_tag_counts[tag];
+        }
+        if (!asset.source_bundle_id.empty()) {
+            ++snapshot_.source_bundle_counts[asset.source_bundle_id];
         }
     }
 }

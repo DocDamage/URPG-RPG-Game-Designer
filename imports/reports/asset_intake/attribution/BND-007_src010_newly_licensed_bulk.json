@@ -1,0 +1,22 @@
+{
+  "asset_id": "imports/normalized/src010_newly_licensed_bulk",
+  "source_id": "SRC-010",
+  "source_repo": "Local more assets to ingest drop",
+  "source_url": "local://more assets to ingest and imports/raw/more_assets_to_ingest",
+  "original_relative_path": "imports/raw/more_assets_to_ingest/<newly CC0-covered pack roots>",
+  "author": "SRC-010 local pack authors; see source folder and archive license scan evidence",
+  "license": "CC0-1.0 / Public Domain evidence reviewed from source folder and archive license files",
+  "commercial_use_allowed": true,
+  "redistribution_allowed": true,
+  "promotion_status": "promoted",
+  "bundle_id": "BND-007",
+  "promoted_asset_count": 4697,
+  "license_evidence": [
+    "imports/reports/asset_intake/src010_archive_license_scan_with_folder_licenses.json",
+    "imports/reports/asset_intake/src010_source_folder_license_scan.json"
+  ],
+  "notes": [
+    "Promotion includes only unique app-usable payload files not already promoted in BND-004 or BND-006.",
+    "Assets are release eligible but not default-bundled; project selection is required for packaging."
+  ]
+}

@@ -132,20 +132,45 @@ def infer_category(path_rel: str, kind: str) -> str:
     if kind == "map":
         return "tilesets"
     if kind in {"document", "source"}:
-        if any(term in name for term in ["license", "readme", "credits", "attribution"]):
+        if any(
+            term in name for term in ["license", "readme", "credits", "attribution"]
+        ):
             return "documentation"
         return "tooling/source" if kind == "source" else "documentation"
-    if any(term in lower for term in ["tileset", "tile", "terrain", "dungeon", "outside_", "inside_"]):
+    if any(
+        term in lower
+        for term in ["tileset", "tile", "terrain", "dungeon", "outside_", "inside_"]
+    ):
         return "tilesets"
-    if any(term in lower for term in ["character", "sprite", "hero", "npc", "enemy", "battler", "actor"]):
+    if any(
+        term in lower
+        for term in ["character", "sprite", "hero", "npc", "enemy", "battler", "actor"]
+    ):
         return "characters"
     if any(term in lower for term in ["portrait", "face", "bust"]):
         return "characters/portraits"
-    if any(term in lower for term in ["ui", "interface", "icon", "icons", "button", "panel", "window"]):
+    if any(
+        term in lower
+        for term in ["ui", "interface", "icon", "icons", "button", "panel", "window"]
+    ):
         return "ui"
-    if any(term in lower for term in ["vfx", "fx", "effect", "animation", "slash", "impact", "fire", "lightning"]):
+    if any(
+        term in lower
+        for term in [
+            "vfx",
+            "fx",
+            "effect",
+            "animation",
+            "slash",
+            "impact",
+            "fire",
+            "lightning",
+        ]
+    ):
         return "vfx"
-    if any(term in lower for term in ["background", "parallax", "forest", "sky", "cave"]):
+    if any(
+        term in lower for term in ["background", "parallax", "forest", "sky", "cave"]
+    ):
         return "backgrounds"
     return "props"
 
@@ -161,7 +186,9 @@ def pack_name(path: Path, source_root: Path) -> str:
     return source_root.name
 
 
-def tags_for(source_id: str, category: str, kind: str, ext: str, pack: str, filename: str) -> list[str]:
+def tags_for(
+    source_id: str, category: str, kind: str, ext: str, pack: str, filename: str
+) -> list[str]:
     tags = {
         f"category:{category}",
         f"ext:{ext or 'none'}",
@@ -227,7 +254,11 @@ def build_catalog(args: argparse.Namespace) -> dict:
             f"asset://{args.source_id.lower()}/{category.replace('/', '-')}/"
             f"{slug(path.stem)}-{short_hash}{('.' + ext) if ext else ''}"
         )
-        preview_kind = kind if kind in {"audio", "image", "font", "model", "archive"} else "document"
+        preview_kind = (
+            kind
+            if kind in {"audio", "image", "font", "model", "archive"}
+            else "document"
+        )
         preview_path = path_rel if kind in {"audio", "image"} else ""
         record = {
             "id": f"{args.source_id.lower()}:{short_hash}:{len(by_hash[digest])}",

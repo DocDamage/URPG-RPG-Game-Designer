@@ -14,7 +14,7 @@ The primary hub for AI interaction. It handles the `IChatService` communication 
 - **Capabilities**:
   - **Streaming Support**: Processes partial AI responses in real-time for immediate UI feedback.
   - **Tool Calling**: Executes native C++ functions (e.g., `GIVE_ITEM`, `SET_SWITCH`) requested by the AI.
-  - **History Lifecycle**: Managed via `AISyncCoordinator`; the in-tree path is backed by `LocalInMemoryCloudService` and only exercises process-local memory synchronization unless a real `ICloudService` backend is provided out of tree.
+  - **History Lifecycle**: Managed via `AISyncCoordinator`; the in-tree path is backed by `LocalInMemoryCloudService` and only exercises process-local memory synchronization unless a real `ICloudService` backend is provided out of tree. Release UI must check `ICloudService::releaseVisibility()` and keep cloud/cross-device sync hidden unless the provider reports reviewed remote transport.
 
 ### 2. IChatService & Connectivity
 The in-tree runtime is interface-first:
@@ -150,7 +150,7 @@ AI histories are saved using `SaveSerializationHub::CompressionLevel::Optimal`, 
 
 1. **Structured Prompts**: Always use the `generatePrompt` methods in the Bridges to ensure the LLM receives the data in the optimized format.
 2. **Hidden Commands**: You can instruct the AI to include orchestration commands (like Audio or Animation) hidden in its response; the engine will parse them out before displaying the text to the player.
-3. **Cloud Sync**: Treat `AISyncCoordinator` as cloud-sync plumbing only. In the current tree it routes through `LocalInMemoryCloudService`, which preserves data only in process-local memory for tests and harness scenarios and is not an operational cross-device sync path.
+3. **Cloud Sync**: Treat `AISyncCoordinator` as cloud-sync plumbing only. In the current tree it routes through `LocalInMemoryCloudService`, which preserves data only in process-local memory for tests and harness scenarios and is not an operational cross-device sync path. Production-visible cloud sync requires an out-of-tree provider whose `releaseVisibility()` returns `release_visible=true` and `remote_transport=true`.
 
 ## Debugging
 

@@ -1,13 +1,13 @@
 # AAA Release-Readiness Report - URPG Engine
 
-**Report date:** 2026-04-27
+**Report date:** 2026-05-04
 **Repository audited:** `C:\dev\URPG Maker`
-**Active branch:** `development`
-**Verification base commit:** `7439132f4fa2638730498781f617d78af7b16514`
+**Active branch:** `codex/asset-release-ingestion`
+**Verification base commit:** local working tree on top of `b7b26645a28e7258fe0b50be9fbd279015d13ec0`
 **Purpose:** Authoritative release-readiness audit for the current runtime, editor, packaging, release governance, and asset-hydration gates.
 **Verdict:** **RELEASE-CANDIDATE READY; FINAL RELEASE TAG PENDING**
 
-**Current documentation note (2026-04-28):** this report remains the latest recorded release-candidate audit. The `development` branch has advanced beyond the verification base commit to include AI editor review/revert surfaces and template-readiness expansion work, including pushed commit `cfdae41e9`. Before any public release decision or tag, rerun the release-candidate gate and remote manual workflow on the then-current commit.
+**Current documentation note (2026-05-04):** The production release execution-plan remediation has local release-candidate evidence on `codex/asset-release-ingestion`. Runtime chat text entry, project-root-aware save/load, AI animation application, release-mode missing-asset diagnostics, release legal/contact metadata, hidden cloud-sync policy, silent audio scope, and bounded starter-visual scope are implemented and covered by local gates. Before any public release decision or tag, merge the reviewed branch, rerun the release-candidate gate on the exact commit to tag, and run or review the remote GitHub workflow for that commit.
 
 URPG is no longer blocked by the original app-entry, editor-navigation, install/package, metadata, release-required asset hydration, legal owner acceptance/waiver, or local validation issues recorded in the first 2026-04-26 audit. Those items now have direct implementation and gate evidence or explicit release-owner waiver. The project is still not final-release-tagged because the release owner has not created an annotated prerelease or release tag.
 
@@ -27,6 +27,68 @@ The current app-level source of truth is [docs/APP_RELEASE_READINESS_MATRIX.md](
 | Release-required asset hydration | `VERIFIED` | `resources/icons/*.png` were demoted from LFS to normal Git blobs; fresh clone from GitHub passed the RC asset check | No longer a release-package blocker. Repository-wide vendor/source LFS hydration remains blocked by GitHub budget/access and is not required by current package/install rules. |
 | Legal/privacy/distribution review | `VERIFIED` | Required docs exist and install/package; release owner recorded `WAIVED_BY_RELEASE_OWNER` in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; P5-02 evidence reflects bundled `BND-001`, deferred `BND-002`, opt-in local analytics behavior, and release-owner certification that shipped paid/licensed assets are usable in distributed games | Does not block public release. This is an owner waiver, not qualified legal counsel approval. |
 | Release tag | `PENDING` | `git tag -l` returned no tags during P6-002 | Rerun the final release-candidate gate on the exact commit to tag, then create the annotated prerelease or release tag at release-owner discretion. |
+
+## P6-03 Local Verification Results
+
+The following commands were run in `C:\dev\URPG Maker` on 2026-05-04 during P6-03:
+
+```powershell
+ctest --preset dev-snapshot --output-on-failure
+.\tools\ci\check_release_required_assets.ps1
+.\tools\docs\check-agent-knowledge.ps1 -BuildDirectory build/dev-ninja-debug
+.\tools\ci\run_local_gates.ps1
+.\tools\ci\run_presentation_gate.ps1
+.\tools\ci\run_release_candidate_gate.ps1
+.\build\dev-ninja-debug\urpg_project_audit.exe --json
+```
+
+Results:
+
+- `ctest --preset dev-snapshot --output-on-failure`: passed.
+- `.\tools\ci\check_release_required_assets.ps1`: passed and rewrote `imports/reports/asset_intake/release_required_asset_report.json`.
+- `.\tools\docs\check-agent-knowledge.ps1 -BuildDirectory build/dev-ninja-debug`: passed.
+- `.\tools\ci\run_local_gates.ps1`: passed end to end after correcting the new save/load recovery regression.
+- `.\tools\ci\run_presentation_gate.ps1`: passed; presentation unit lane, spatial editor lane, release validation, and visual regression were green.
+- `.\tools\ci\run_release_candidate_gate.ps1`: passed without LFS waiver after adding release PR-test build targets and correcting the documented CTest regex. The gate fresh-cloned to `C:\Users\Doc\AppData\Local\Temp\urpg-rc-lfs-20260504-124558`, ran Git LFS fsck, validated release-required assets, configured and built `dev-ninja-release`, ran PR-level tests, presentation validation, install smoke, and package smoke.
+- `.\build\dev-ninja-debug\urpg_project_audit.exe --json`: passed with `releaseBlockerCount: 0`, `exportBlockerCount: 0`, and summary `Selected template jrpg is READY. 0 release blockers and 0 export blockers were found.`
+
+P6-03 package artifacts:
+
+- `build/release-candidate-package/URPG-0.1.0-Windows-AMD64-Docs.zip`
+- `build/release-candidate-package/URPG-0.1.0-Windows-AMD64-Runtime.zip`
+- `build/release-candidate-package/URPG-0.1.0-Windows-AMD64-RuntimeData.zip`
+
+P6-03 release-scope notes:
+
+- Public legal/privacy distribution remains release-owner-waived, not qualified-counsel-approved.
+- Current audio release scope is intentionally silent/muted unless a future bundled release-required audio asset is promoted.
+- Current release visuals are bounded starter/proof assets, not final AAA art direction, and `releaseAssets.visualClaimScope` is now enforced by the release asset gate.
+- Cloud/cross-device sync remains hidden from production release surfaces unless an out-of-tree reviewed provider reports visible remote support through `ICloudService::releaseVisibility()`.
+
+## Phase 12 Local Verification Results
+
+The following commands were run in `C:\dev\URPG Maker` on branch `codex/asset-release-ingestion` after promoting governed content bundles `BND-006`, `BND-007`, and `BND-008`:
+
+```powershell
+pre-commit run --all-files
+.\tools\ci\run_local_gates.ps1
+.\tools\ci\run_presentation_gate.ps1
+.\tools\ci\run_release_candidate_gate.ps1
+```
+
+Results:
+
+- `pre-commit run --all-files`: passed after hook formatting was applied.
+- `.\tools\ci\run_local_gates.ps1`: passed end to end after correcting a case-sensitive documented CTest regex, aligning the 3D dungeon registry assertion with the current nested route contract, and extending `urpg_export_unit_lane` timeout to 900 seconds for the larger governed asset-manifest scan.
+- `.\tools\ci\run_presentation_gate.ps1`: passed; presentation unit lane, spatial editor lane, presentation release validation, and visual regression gate were green.
+- `.\tools\ci\run_release_candidate_gate.ps1`: passed without `-SkipLfsHydration`; the gate fresh-cloned to `C:\Users\Doc\AppData\Local\Temp\urpg-rc-lfs-20260503-145111`, ran Git LFS fsck, validated release-required assets, configured and built `dev-ninja-release`, ran install smoke, and produced CPack component ZIPs for `Runtime`, `RuntimeData`, and `Docs`.
+
+Phase 12 asset evidence:
+
+- `BND-006` promotes 12,430 unique app-usable SRC-010 CC0/public-domain payloads with attribution records, SHA-256 checksums, package destinations, and `release_eligible: true`.
+- `BND-007` promotes 4,697 additional app-usable SRC-010 payloads unlocked by source-folder/archive license evidence with attribution records, SHA-256 checksums, package destinations, and `release_eligible: true`.
+- `BND-008` promotes 394 valid `itch/loose` CC0 PNG payloads under `SRC-013` with attribution records, SHA-256 checksums, package destinations, and `release_eligible: true`.
+- All three curated bulk bundles use `distribution: deferred` and `release_required: false`, so assets are available to the app/library and project selection without bloating default release packages.
 
 ## P6-002 Verification Results
 

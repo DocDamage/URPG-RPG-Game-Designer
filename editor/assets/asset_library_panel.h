@@ -12,7 +12,7 @@
 namespace urpg::editor {
 
 class AssetLibraryPanel {
-public:
+  public:
     enum class ImportSourcePickerMode {
         FileOrArchive,
         Folder,
@@ -30,6 +30,7 @@ public:
 
     struct ImportSourcePickerAvailability {
         bool available = false;
+        bool path_entry_available = true;
         std::string code;
         std::string message;
     };
@@ -69,19 +70,14 @@ public:
     static ImportSourcePickerAvailability nativeImportSourcePickerAvailability();
     void setImportSourcePicker(ImportSourcePicker picker);
     void render();
-    nlohmann::json requestImportSource(const std::filesystem::path& source,
-                                       const std::filesystem::path& library_root,
-                                       std::string session_id,
-                                       std::string license_note = {},
+    nlohmann::json requestImportSource(const std::filesystem::path& source, const std::filesystem::path& library_root,
+                                       std::string session_id, std::string license_note = {},
                                        std::vector<std::string> external_extractor_command = {});
     nlohmann::json requestImportSourceFromPicker(ImportSourcePickerRequest request);
-    nlohmann::json convertSelectedImportRecords(std::string session_id,
-                                                std::vector<std::string> asset_ids,
+    nlohmann::json convertSelectedImportRecords(std::string session_id, std::vector<std::string> asset_ids,
                                                 AssetLibraryModel::ConversionCommandExecutor executor = {});
-    nlohmann::json promoteSelectedImportRecords(std::string session_id,
-                                                std::vector<std::string> asset_ids,
-                                                std::string license_id,
-                                                std::string promoted_root,
+    nlohmann::json promoteSelectedImportRecords(std::string session_id, std::vector<std::string> asset_ids,
+                                                std::string license_id, std::string promoted_root,
                                                 bool include_in_runtime = true);
     nlohmann::json attachSelectedPromotedAssetsToProject(std::vector<std::string> paths,
                                                          const std::filesystem::path& project_root);
@@ -92,7 +88,7 @@ public:
     void setVisible(bool visible) { visible_ = visible; }
     bool isVisible() const { return visible_; }
 
-private:
+  private:
     void refreshRenderSnapshotsFromModel();
 
     AssetLibraryModel model_;

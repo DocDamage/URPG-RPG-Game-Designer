@@ -1,4 +1,5 @@
 #include "engine/core/assets/texture_registry.h"
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #ifndef URPG_HEADLESS
 #include "engine/core/platform/opengl_renderer.h"
 #endif
@@ -6,6 +7,7 @@
 #include "engine/core/render/asset_loader.h"
 #include "engine/core/render/render_layer.h"
 #include "engine/core/scene/map_scene.h"
+#include <algorithm>
 #include <catch2/catch_test_macros.hpp>
 #include <iostream>
 #include <sstream>
@@ -286,6 +288,36 @@ TEST_CASE("OpenGLRenderer legacy command intake stays silent before GL initializ
     std::cout.rdbuf(originalBuffer);
 
     REQUIRE(captured.str().empty());
+}
+
+TEST_CASE("OpenGLRenderer release mode reports unresolved textures instead of drawing hashed placeholders",
+          "[render][core][opengl][release]") {
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+
+    OpenGLRenderer renderer;
+    renderer.setRuntimeAssetMode(RuntimeAssetMode::Release);
+    renderer.onResize(160, 120);
+
+    SpriteCommand sprite;
+    sprite.textureId = "release_missing_sprite";
+    sprite.width = 48;
+    sprite.height = 48;
+
+    TileCommand tile;
+    tile.tilesetId = "release_missing_tileset";
+    tile.tileIndex = 7;
+
+    REQUIRE_NOTHROW(renderer.processFrameCommands({toFrameRenderCommand(sprite), toFrameRenderCommand(tile)}));
+
+    const auto diagnostics = urpg::diagnostics::RuntimeDiagnostics::snapshot();
+    REQUIRE(std::count_if(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+                return diagnostic.subsystem == "platform.opengl" &&
+                       diagnostic.severity == urpg::diagnostics::DiagnosticSeverity::Error &&
+                       (diagnostic.code == "opengl.sprite_texture_unresolved_release" ||
+                        diagnostic.code == "opengl.tileset_texture_unresolved_release");
+            }) == 2);
+
+    urpg::diagnostics::RuntimeDiagnostics::clear();
 }
 #endif
 
