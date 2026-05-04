@@ -56,6 +56,22 @@ std::filesystem::path ExportSmokeRuntimePath() {
 #endif
 }
 
+ExportTarget NativeReleasePreviewTarget() {
+#ifdef _WIN32
+    return ExportTarget::Windows_x64;
+#else
+    return ExportTarget::Linux_x64;
+#endif
+}
+
+std::string NativeReleasePreviewTargetLabel() {
+    return NativeReleasePreviewTarget() == ExportTarget::Windows_x64 ? "Windows_x64" : "Linux_x64";
+}
+
+std::string NativeReleasePreviewExecutableName() {
+    return NativeReleasePreviewTarget() == ExportTarget::Windows_x64 ? "game.exe" : "game";
+}
+
 } // namespace
 
 TEST_CASE("ExportDiagnosticsPanel produces empty snapshot when no config set", "[export][editor][panel]") {
@@ -70,7 +86,8 @@ TEST_CASE("ExportDiagnosticsPanel produces empty snapshot when no config set", "
     REQUIRE(snapshot["readyToExport"] == false);
 }
 
-TEST_CASE("ExportDiagnosticsPanel snapshot reflects preflight readiness on a fresh directory", "[export][editor][panel]") {
+TEST_CASE("ExportDiagnosticsPanel snapshot reflects preflight readiness on a fresh directory",
+          "[export][editor][panel]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_diagnostics_errors";
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(base);
@@ -96,7 +113,8 @@ TEST_CASE("ExportDiagnosticsPanel snapshot reflects preflight readiness on a fre
     std::filesystem::remove_all(base);
 }
 
-TEST_CASE("ExportDiagnosticsPanel snapshot shows ready-to-export true when preflight passes", "[export][editor][panel]") {
+TEST_CASE("ExportDiagnosticsPanel snapshot shows ready-to-export true when preflight passes",
+          "[export][editor][panel]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_diagnostics_ready";
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(base);
@@ -145,7 +163,8 @@ TEST_CASE("ExportDiagnosticsPanel mirrors packager preflight for web exports", "
     std::filesystem::remove_all(base);
 }
 
-TEST_CASE("ExportDiagnosticsPanel surfaces emittedArtifacts when post-export tree is present", "[export][editor][panel]") {
+TEST_CASE("ExportDiagnosticsPanel surfaces emittedArtifacts when post-export tree is present",
+          "[export][editor][panel]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_diagnostics_emitted";
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(base);
@@ -167,8 +186,10 @@ TEST_CASE("ExportDiagnosticsPanel surfaces emittedArtifacts when post-export tre
     bool foundExe = false;
     bool foundPck = false;
     for (const auto& item : snapshot["emittedArtifacts"]) {
-        if (item == "game.exe") foundExe = true;
-        if (item == "data.pck") foundPck = true;
+        if (item == "game.exe")
+            foundExe = true;
+        if (item == "data.pck")
+            foundPck = true;
     }
     REQUIRE(foundExe);
     REQUIRE(foundPck);
@@ -176,7 +197,8 @@ TEST_CASE("ExportDiagnosticsPanel surfaces emittedArtifacts when post-export tre
     std::filesystem::remove_all(base);
 }
 
-TEST_CASE("ExportDiagnosticsPanel post-export validation fails when emitted tree is incomplete", "[export][editor][panel]") {
+TEST_CASE("ExportDiagnosticsPanel post-export validation fails when emitted tree is incomplete",
+          "[export][editor][panel]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_diagnostics_incomplete";
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(base);
@@ -226,15 +248,16 @@ TEST_CASE("ExportDiagnosticsPanel can report failed preflight alongside a valid 
     std::filesystem::remove_all(base);
 }
 
-TEST_CASE("ExportPreviewPanel produces exact release shipping manifest",
-          "[export][editor][preview][wysiwyg]") {
+TEST_CASE("ExportPreviewPanel produces exact release shipping manifest", "[export][editor][preview][wysiwyg]") {
     const auto runtime = ExportSmokeRuntimePath();
     REQUIRE_FALSE(runtime.empty());
     REQUIRE(std::filesystem::exists(runtime));
 
     auto document = urpg::exporting::ExportPreviewDocument::fromJson(
         LoadExportPanelJson(ExportPanelRepoRoot() / "content" / "fixtures" / "export_preview_fixture.json"));
+    document.target = NativeReleasePreviewTarget();
     document.runtime_binary_path = runtime.string();
+    document.expected_artifacts = {"data.pck", NativeReleasePreviewExecutableName()};
 
     const auto workspace = std::filesystem::temp_directory_path() / "urpg_export_preview_exact_ship";
     std::filesystem::remove_all(workspace);
@@ -246,7 +269,7 @@ TEST_CASE("ExportPreviewPanel produces exact release shipping manifest",
     REQUIRE(panel.hasRenderedFrame());
     REQUIRE_FALSE(panel.snapshot().disabled);
     REQUIRE(panel.snapshot().preview_id == "windows_release_preview");
-    REQUIRE(panel.snapshot().target == "Windows_x64");
+    REQUIRE(panel.snapshot().target == NativeReleasePreviewTargetLabel());
     REQUIRE(panel.snapshot().mode == "release");
     REQUIRE(panel.snapshot().preflight_passed);
     REQUIRE(panel.snapshot().export_success);
@@ -275,13 +298,13 @@ TEST_CASE("ExportPreviewPanel produces exact release shipping manifest",
     REQUIRE(panel.snapshot().shipping_manifest["smoke_test_evidence"]["staged_runtime_present"] == true);
 
     bool foundPck = false;
-    bool foundExe = false;
+    bool foundRuntime = false;
     for (const auto& artifact : panel.result().emitted_artifacts) {
         foundPck = foundPck || artifact == "data.pck";
-        foundExe = foundExe || artifact == "game.exe";
+        foundRuntime = foundRuntime || artifact == NativeReleasePreviewExecutableName();
     }
     REQUIRE(foundPck);
-    REQUIRE(foundExe);
+    REQUIRE(foundRuntime);
 
     std::filesystem::remove_all(workspace);
 }
@@ -303,9 +326,9 @@ TEST_CASE("ExportPreviewPanel edits ship settings and blocks missing expected ar
     panel.loadDocument(document, workspace);
     panel.setRuntimeBinaryPath(runtime.string());
     panel.setMode(urpg::tools::ExportMode::Release);
-    panel.setTarget(urpg::tools::ExportTarget::Windows_x64);
+    panel.setTarget(NativeReleasePreviewTarget());
     panel.setOutputDir((workspace / "edited_output").string());
-    panel.setExpectedArtifacts({"data.pck", "game.exe", "missing.bin"});
+    panel.setExpectedArtifacts({"data.pck", NativeReleasePreviewExecutableName(), "missing.bin"});
     panel.render();
 
     REQUIRE(panel.snapshot().preflight_passed);
@@ -357,8 +380,7 @@ TEST_CASE("Export preview saved project data round-trips and flags bootstrap out
     std::filesystem::remove_all(workspace);
 }
 
-TEST_CASE("Export preview diagnostics block false exact-ship claims",
-          "[export][editor][preview][wysiwyg]") {
+TEST_CASE("Export preview diagnostics block false exact-ship claims", "[export][editor][preview][wysiwyg]") {
     urpg::exporting::ExportPreviewDocument document;
     document.id = "broken_release_preview";
     document.mode = urpg::tools::ExportMode::Release;
