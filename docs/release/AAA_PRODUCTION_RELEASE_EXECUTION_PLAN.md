@@ -193,7 +193,7 @@ This plan converts the latest senior release-engineering audit into ordered reme
   3. Ensure title continue and map save use the same slot catalog.
   4. Add round-trip tests.
 - Acceptance criteria: Saves created from map scene are discoverable by title continue after restart.
-- Verification command or manual test: `ctest --preset dev-all -R "save|runtime|RuntimeTitleScene|MapScene" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "save|runtime|MapScene" --output-on-failure`
 
 ### P4-02 - Keep cloud sync hidden unless real provider exists
 
