@@ -32,6 +32,7 @@ class SDLSurface : public IPlatformSurface {
     bool initialize(const WindowConfig& config) override;
     bool pollEvents() override;
     void present() override;
+    void show() override;
     void shutdown() override;
     void* getNativeHandle() const override { return m_window; }
 

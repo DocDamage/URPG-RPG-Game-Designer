@@ -710,7 +710,8 @@ int main(int argc, char** argv) {
         config.height = settingsLoad.settings.window.height;
         config.fullscreen = settingsLoad.settings.window.fullscreen;
         config.resizable = settingsLoad.settings.window.resizable;
-        config.hidden = options.hidden_window;
+        config.hidden = options.hidden_window || !options.headless;
+        const bool deferVisibleWindowShow = !options.headless && !options.hidden_window;
 
         if (options.probe_platform) {
 #ifdef URPG_HEADLESS
@@ -819,6 +820,10 @@ int main(int argc, char** argv) {
             engineShell.shutdown();
             clearSceneStack();
             return smokeResult;
+        }
+
+        if (deferVisibleWindowShow) {
+            engineShell.getPlatform()->show();
         }
 
         int frame = 0;

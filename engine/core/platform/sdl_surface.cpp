@@ -218,6 +218,12 @@ void SDLSurface::present() {
     }
 }
 
+void SDLSurface::show() {
+    if (m_isInitialized && m_window) {
+        SDL_ShowWindow(m_window);
+    }
+}
+
 void SDLSurface::shutdown() {
     if (m_glContext) {
         SDL_GL_DeleteContext(m_glContext);

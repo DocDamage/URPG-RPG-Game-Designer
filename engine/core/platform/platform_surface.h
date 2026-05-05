@@ -43,6 +43,11 @@ public:
     virtual void present() = 0;
 
     /**
+     * @brief Shows the native window after deferred startup. Headless surfaces ignore this.
+     */
+    virtual void show() {}
+
+    /**
      * @brief Shuts down the windowing system.
      */
     virtual void shutdown() = 0;
