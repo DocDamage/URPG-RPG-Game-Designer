@@ -53,10 +53,16 @@ bool SDLSurface::initialize(const WindowConfig& config) {
         return true;
     }
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         diagnostics::RuntimeDiagnostics::error("platform.sdl", "sdl.initialize_failed",
                                                std::string("Failed to initialize SDL: ") + SDL_GetError());
         return false;
+    }
+    if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) != 0) {
+        diagnostics::RuntimeDiagnostics::warning(
+            "platform.sdl", "sdl.controller_unavailable",
+            std::string("SDL game controller subsystem unavailable; continuing without controller input: ") +
+                SDL_GetError());
     }
 
     // Set OpenGL Attributes (TIER_BASIC: 3.3 Core)

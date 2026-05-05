@@ -11,6 +11,7 @@
 #include "engine/core/analytics/analytics_privacy_controller.h"
 #include "engine/core/analytics/analytics_uploader.h"
 #include "engine/core/app_cli.h"
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/diagnostics/startup_diagnostics.h"
 #include "engine/core/editor/editor_panel_registry.h"
 #include "engine/core/editor/editor_shell.h"
@@ -450,6 +451,29 @@ void printStartupFailure(const urpg::diagnostics::StartupDiagnosticRecord& recor
     }
 }
 
+const char* runtimeDiagnosticSeverity(urpg::diagnostics::DiagnosticSeverity severity) {
+    switch (severity) {
+    case urpg::diagnostics::DiagnosticSeverity::Info:
+        return "info";
+    case urpg::diagnostics::DiagnosticSeverity::Warning:
+        return "warning";
+    case urpg::diagnostics::DiagnosticSeverity::Error:
+        return "error";
+    case urpg::diagnostics::DiagnosticSeverity::Fatal:
+        return "fatal";
+    }
+    return "unknown";
+}
+
+void printRuntimeDiagnostics() {
+    const auto diagnostics = urpg::diagnostics::RuntimeDiagnostics::snapshot();
+    for (const auto& diagnostic : diagnostics) {
+        std::cerr << "URPG editor runtime diagnostic " << runtimeDiagnosticSeverity(diagnostic.severity)
+                  << " [" << diagnostic.subsystem << "/" << diagnostic.code << "]: "
+                  << diagnostic.message << "\n";
+    }
+}
+
 urpg::analytics::ConsentState analyticsConsentFromSettings(const std::string& state) {
     if (state == "granted") {
         return urpg::analytics::ConsentState::Granted;
@@ -644,6 +668,8 @@ int main(int argc, char** argv) {
 
         if (!surface->initialize(config)) {
             std::cerr << "URPG editor failed to initialize platform surface.\n";
+            printRuntimeDiagnostics();
+            std::cerr << "Try 'urpg_editor --safe-mode' to start with the non-OpenGL diagnostic backend.\n";
             return 1;
         }
 

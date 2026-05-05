@@ -35,6 +35,7 @@ struct EditorCliOptions {
     bool list_panels = false;
     bool render_all_panels = false;
     bool smoke = false;
+    bool safe_mode = false;
     std::optional<std::string> open_panel_id;
     std::filesystem::path project_root = std::filesystem::current_path();
     std::filesystem::path smoke_output;

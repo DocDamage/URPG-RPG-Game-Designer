@@ -67,6 +67,7 @@ TEST_CASE("Editor CLI parses help and version without requiring engine startup",
     REQUIRE(help.ok());
     REQUIRE(help.action == urpg::cli::CliAction::Help);
     REQUIRE(urpg::cli::editorHelpText().find("--open-panel <id>") != std::string::npos);
+    REQUIRE(urpg::cli::editorHelpText().find("--safe-mode") != std::string::npos);
 
     const auto version = urpg::cli::parseEditorCli(args({"--version"}), false);
     REQUIRE(version.ok());
@@ -132,4 +133,16 @@ TEST_CASE("Editor CLI preserves valid option parsing and smoke defaults", "[cli]
     REQUIRE_FALSE(smoke.options.height_provided);
     REQUIRE_FALSE(smoke.options.smoke_output.empty());
     REQUIRE_FALSE(smoke.options.smoke_snapshot_root.empty());
+
+    const auto safeMode = urpg::cli::parseEditorCli(args({"--safe-mode"}), false);
+    REQUIRE(safeMode.ok());
+    REQUIRE(safeMode.options.safe_mode);
+    REQUIRE(safeMode.options.headless);
+    REQUIRE(safeMode.options.frames == 1);
+
+    const auto safeModeFrames = urpg::cli::parseEditorCli(args({"--safe-mode", "--frames", "3"}), false);
+    REQUIRE(safeModeFrames.ok());
+    REQUIRE(safeModeFrames.options.safe_mode);
+    REQUIRE(safeModeFrames.options.headless);
+    REQUIRE(safeModeFrames.options.frames == 3);
 }

@@ -158,6 +158,9 @@ EditorCliParseResult parseEditorCli(std::vector<std::string_view> args, bool def
         } else if (arg == "--smoke") {
             result.options.smoke = true;
             result.options.headless = true;
+        } else if (arg == "--safe-mode") {
+            result.options.safe_mode = true;
+            result.options.headless = true;
         } else if (arg == "--open-panel") {
             if (i + 1 >= args.size() || needsValue(args[i + 1])) {
                 result.error = missingValueError(arg);
@@ -199,6 +202,9 @@ EditorCliParseResult parseEditorCli(std::vector<std::string_view> args, bool def
             result.options.smoke_snapshot_root = std::filesystem::temp_directory_path() / "urpg_editor_smoke_snapshots";
         }
     }
+    if (result.options.safe_mode && result.options.frames < 0) {
+        result.options.frames = 1;
+    }
 
     return result;
 }
@@ -211,7 +217,7 @@ std::string runtimeHelpText() {
 std::string editorHelpText() {
     return "Usage: urpg_editor [--headless] [--frames <count>] [--width <pixels>] [--height <pixels>] "
            "[--project-root <path>] [--list-panels] [--render-all-panels] [--open-panel <id>] "
-           "[--smoke] [--smoke-output <path>] [--smoke-snapshot-root <path>] [--version] [--help]\n";
+           "[--smoke] [--smoke-output <path>] [--smoke-snapshot-root <path>] [--safe-mode] [--version] [--help]\n";
 }
 
 } // namespace urpg::cli
