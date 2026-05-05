@@ -9,8 +9,6 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <set>
-
 TEST_CASE("Capture returns explicit unsupported status in headless mode", "[capture][ffs15]") {
     urpg::capture::CaptureSession session({true, "captures"});
 
@@ -68,7 +66,7 @@ TEST_CASE("Theme validator catches missing font and missing sound", "[theme][ffs
     theme.screens = {"title", "menu", "battle"};
     registry.addTheme(theme);
 
-    urpg::ui::ThemeValidator validator({{"default.ttf"}, {"ok.ogg"}, {}});
+    urpg::ui::ThemeValidator validator({{"default.ttf"}, {"ok.ogg"}});
     const auto diagnostics = validator.validate(registry.theme("theme.dark"));
 
     REQUIRE(diagnostics.size() == 2);
@@ -78,37 +76,14 @@ TEST_CASE("Theme validator catches missing font and missing sound", "[theme][ffs
 
 TEST_CASE("UI skin preview renders all core screens into a snapshot", "[theme][ffs15]") {
     urpg::ui::ThemeRegistry registry;
-    registry.addTheme(urpg::ui::ThemeRegistry::modernUiTheme());
+    registry.addTheme({"theme.default", "default.ttf", "cursor.default", "ok.ogg", {"title", "menu", "battle"}});
 
-    const auto snapshot = registry.previewScreens("theme.modern_ui", {"title", "menu", "battle"});
+    const auto snapshot = registry.previewScreens("theme.default", {"title", "menu", "battle"});
 
-    REQUIRE(snapshot.themeId == "theme.modern_ui");
+    REQUIRE(snapshot.themeId == "theme.default");
     REQUIRE(snapshot.screens == std::vector<std::string>{"battle", "menu", "title"});
-    REQUIRE(snapshot.stableHash == "theme.modern_ui:battle|menu|title");
+    REQUIRE(snapshot.stableHash == "theme.default:battle|menu|title");
     REQUIRE(urpg::editor::ui::ThemeBuilderPanel::snapshotLabel(snapshot) == "theme:preview-ready");
-}
-
-TEST_CASE("Theme registry exposes ModernUI as the built-in app skin", "[theme][ui][asset_library]") {
-    const auto theme = urpg::ui::ThemeRegistry::modernUiTheme();
-    std::set<std::string> images{
-        theme.assets.windowFrame,
-        theme.assets.buttonNormal,
-        theme.assets.buttonHover,
-        theme.assets.buttonPressed,
-        theme.assets.buttonDisabled,
-    };
-    images.insert(theme.assets.spriteSheets.begin(), theme.assets.spriteSheets.end());
-    images.insert(theme.assets.animatedSprites.begin(), theme.assets.animatedSprites.end());
-
-    urpg::ui::ThemeValidator validator({{"default.ttf"}, {"ok.ogg"}, images});
-    const auto diagnostics = validator.validate(theme);
-
-    REQUIRE(theme.id == "theme.modern_ui");
-    REQUIRE(theme.assets.windowFrame == "content/ui/modern/modern_ui_style_1_48x48.png");
-    REQUIRE(theme.assets.windowBorderPixels == 48);
-    REQUIRE(theme.assets.spriteSheets.size() == 9);
-    REQUIRE(theme.assets.animatedSprites.size() == 18);
-    REQUIRE(diagnostics.empty());
 }
 
 TEST_CASE("ThemeBuilderPanel exposes attached project UI theme selector assets", "[ui][theme][editor][asset_library]") {

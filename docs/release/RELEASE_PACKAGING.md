@@ -216,13 +216,13 @@ Current release visuals are also bounded starter/proof assets, not final AAA art
 Phase 9 also requires selected promoted bundle categories to carry release eligibility, SHA-256 checksum, attribution record, and package-destination metadata. The current selected release bundle categories are:
 
 - `prototype_sprite` through `BND-001`
-- `ui_frames_chrome` through `BND-009`
+- `ui_frames_chrome` through `BND-003`
 - `vfx_sheet` through `BND-003`
-- `cohesive_ui_skin` through `BND-009`
+- `cohesive_ui_skin` through `BND-003`
 
 Environmental SFX, BGM, final portrait art, final music identity, and polished VFX identity are mandatory content backlog until cleared bundles are promoted for those categories. They are not bundled by the current package gate without attribution evidence, checksums, package destinations, and promoted payloads.
 
-The app UI skin now uses `SRC-014` / `BND-009` ModernUI assets under `content/ui/modern/` and `imports/normalized/src014_modern_ui/`; the older repo-generated `BND-003` UI frame/skin rows remain deferred fallback records while its battle VFX proof stays release-required. The broader `SRC-014` intake is available through the local extracted catalog and deferred `BND-010` ModernUI portrait-generator bundle, but those assets are not default export payloads until selected by a project.
+The release UI skin uses the repo-generated `BND-003` starter frame/chrome and cohesive skin metadata. `SRC-014` / `BND-009` ModernUI assets under `imports/normalized/src014_modern_ui/` are cataloged as deferred unsliced source sheets; they are not default runtime/editor UI payloads until atlas slice, nine-patch, and control-state metadata exists. The broader `SRC-014` intake is available through the local extracted catalog and deferred `BND-010` ModernUI portrait-generator bundle, but those assets are not default export payloads until selected by a project.
 
 Phase 12 local curated bulk promotions add three release-eligible, non-release-required deferred bundles:
 

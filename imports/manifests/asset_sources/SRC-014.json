@@ -15,7 +15,7 @@
     "source_assets"
   ],
   "intended_use": [
-    "ModernUI app-wide UI skin and input/button/icon sheets",
+    "ModernUI unsliced UI source sheets and input/button/icon sheets for future slicing work",
     "ModernUI portrait-generator parts and source art for creator/editor portrait workflows",
     "Editor asset browser discovery for extracted CuteSCKR and Human RPG Portrait Pack assets",
     "Curated future promotion after project selection while raw archive payloads stay quarantined"
@@ -26,7 +26,7 @@
   "notes": [
     "Captured from C:\\dev\\URPG Maker\\ingest stuff 5-4-26.",
     "The drop contains CuteSCKR, Human RPG Portrait Pack - 5 Fantasy Classes, and ModernUI folders with CC0 license.txt evidence.",
-    "BND-009 promotes a bounded ModernUI runtime subset for the app-wide UI skin.",
+    "BND-009 catalogs deferred ModernUI unsliced source sheets/animations; they are not runtime-ready until atlas slice, nine-patch, and control-state metadata exists.",
     "BND-010 promotes the loose ModernUI portrait-generator PNG and Aseprite assets as release-eligible deferred library content.",
     "The CuteSCKR and Human RPG Portrait Pack ZIP/RAR payloads are extracted under ignored raw quarantine and catalog-normalized for local editor/library use."
   ]

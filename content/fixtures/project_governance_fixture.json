@@ -42,7 +42,7 @@
       "allowsPrototypeVisuals": true,
       "allowsStarterSkin": true,
       "finalArtDirectionRequired": false,
-      "notes": "Current release visual claim is bounded starter/proof coverage, not final AAA art direction. Prototype actor, ModernUI starter frame/chrome, ModernUI starter skin, and single-frame VFX proof assets are allowed only under this explicit scope."
+      "notes": "Current release visual claim is bounded starter/proof coverage, not final AAA art direction. Prototype actor, starter UI frame/chrome, starter skin metadata, and single-frame VFX proof assets are allowed only under this explicit scope."
     },
     "assets": [
       {
@@ -97,11 +97,11 @@
         "category": "ui_frames_chrome",
         "required": true,
         "source": "asset_bundle",
-        "bundleId": "BND-009",
-        "path": "imports/normalized/src014_modern_ui/ui/modern_ui_style_1_48x48.png",
+        "bundleId": "BND-003",
+        "path": "imports/normalized/release_skin/urpg_ui_frame.svg",
         "licenseCleared": true,
         "distribution": "bundled",
-        "notes": "ModernUI starter frame/chrome sheet required by the app-wide UI skin."
+        "notes": "Repo-generated release starter UI frame/chrome asset."
       },
       {
         "id": "release.ui.cohesive_skin",
@@ -109,11 +109,11 @@
         "category": "cohesive_ui_skin",
         "required": true,
         "source": "asset_bundle",
-        "bundleId": "BND-009",
-        "path": "imports/normalized/src014_modern_ui/ui/modern_ui_style_2_48x48.png",
+        "bundleId": "BND-003",
+        "path": "imports/normalized/release_skin/urpg_cohesive_ui_skin.json",
         "licenseCleared": true,
         "distribution": "bundled",
-        "notes": "ModernUI starter skin companion sheet binding the governed app UI assets."
+        "notes": "Repo-generated release starter skin metadata binding the governed UI/VFX assets."
       },
       {
         "id": "release.battle.vfx_flash",

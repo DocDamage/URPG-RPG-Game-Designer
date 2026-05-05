@@ -260,7 +260,7 @@ Before any additional `SRC-011` or `SRC-012` bundle can be marked ready:
 
 ## SRC-014 ModernUI And Archive Intake
 
-`SRC-014` catalogs the local `ingest stuff 5-4-26/` drop for editor/library browsing. `BND-009` promotes the ModernUI runtime subset: static style/gamepad sheets at 16x16, 32x32, and 48x48 plus the trash-button animation GIFs. The promoted files are copied to both `imports/normalized/src014_modern_ui/` for governed bundle packaging and `content/ui/modern/` for the app-wide UI theme.
+`SRC-014` catalogs the local `ingest stuff 5-4-26/` drop for editor/library browsing. `BND-009` catalogs the ModernUI static style/gamepad sheets at 16x16, 32x32, and 48x48 plus the trash-button animation GIFs under `imports/normalized/src014_modern_ui/`. These assets are unsliced source sheets, not runtime-ready app UI: they remain `distribution: "deferred"` until atlas slice, nine-patch, and control-state metadata exists.
 
 The remaining loose ModernUI portrait-generator files are promoted through `BND-010`: 953 PNG/Aseprite portrait part and source-art assets under `imports/normalized/src014_modernui_portrait_generator/`. The bundle is release-eligible but uses `distribution: "deferred"` so default exports stay bounded until a project explicitly selects the portrait assets.
 

@@ -19,7 +19,7 @@
     "poseActor": "actor.hero"
   },
   "theme": {
-    "themeId": "theme.modern_ui",
-    "stablePreviewHash": "theme.modern_ui:battle|menu|title"
+    "themeId": "theme.default",
+    "stablePreviewHash": "theme.default:battle|menu|title"
   }
 }

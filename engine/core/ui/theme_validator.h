@@ -16,7 +16,6 @@ struct ThemeDiagnostic {
 struct ThemeAssetCatalog {
     std::set<std::string> fonts;
     std::set<std::string> sounds;
-    std::set<std::string> images;
 };
 
 class ThemeValidator {

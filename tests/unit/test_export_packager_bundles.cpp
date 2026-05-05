@@ -80,35 +80,32 @@ TEST_CASE("ExportPackager stages bounded repo-owned content roots into data.pck"
     const auto readinessEntry = findEntry("content/readiness/readiness_status.json");
     const auto readinessSchemaEntry = findEntry("content/schemas/readiness_status.schema.json");
     const auto starterDungeonEntry = findEntry("content/level_libraries/starter_dungeon.json");
-    const auto modernUiEntry = findEntry("content/ui/modern/modern_ui_style_1_48x48.png");
+    const auto uiReadmeEntry = findEntry("content/ui/README.md");
     const auto discoveryManifestEntry = findEntry(kAssetDiscoveryManifestPath);
 
     const auto readinessBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, readinessEntry);
     const auto readinessSchemaBytes =
         DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, readinessSchemaEntry);
     const auto starterDungeonBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, starterDungeonEntry);
-    const auto modernUiBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, modernUiEntry);
+    const auto uiReadmeBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, uiReadmeEntry);
     const auto discoveryManifestBytes =
         DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, discoveryManifestEntry);
 
     const std::string readinessText(readinessBytes.begin(), readinessBytes.end());
     const std::string readinessSchemaText(readinessSchemaBytes.begin(), readinessSchemaBytes.end());
     const std::string starterDungeonText(starterDungeonBytes.begin(), starterDungeonBytes.end());
+    const std::string uiReadmeText(uiReadmeBytes.begin(), uiReadmeBytes.end());
     const std::string discoveryManifestText(discoveryManifestBytes.begin(), discoveryManifestBytes.end());
 
     REQUIRE(readinessEntry["kind"] == "readiness");
     REQUIRE(readinessSchemaEntry["kind"] == "schema");
     REQUIRE(starterDungeonEntry["kind"] == "level_library");
-    REQUIRE(modernUiEntry["kind"] == "ui_theme_asset");
+    REQUIRE(uiReadmeEntry["kind"] == "ui_theme_asset");
     REQUIRE(discoveryManifestEntry["kind"] == "asset_discovery_manifest");
     REQUIRE(readinessText.find("\"schemaVersion\": \"1.0.0\"") != std::string::npos);
     REQUIRE(readinessSchemaText.find("\"title\"") != std::string::npos);
     REQUIRE(starterDungeonText.find("\"libraryName\": \"Starter Dungeon Kit\"") != std::string::npos);
-    REQUIRE(modernUiBytes.size() > 8);
-    REQUIRE(modernUiBytes[0] == 0x89);
-    REQUIRE(modernUiBytes[1] == 'P');
-    REQUIRE(modernUiBytes[2] == 'N');
-    REQUIRE(modernUiBytes[3] == 'G');
+    REQUIRE(uiReadmeText.find("reserved for runtime-ready UI themes") != std::string::npos);
     REQUIRE(discoveryManifestText.find("\"format\": \"URPG_PROJECT_ASSET_DISCOVERY_V1\"") != std::string::npos);
 
     std::filesystem::remove_all(base);
