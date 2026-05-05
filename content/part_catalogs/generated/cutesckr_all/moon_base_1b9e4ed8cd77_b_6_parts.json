@@ -1,0 +1,4040 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6",
+  "displayName": "moon-base-1b9e4ed8cd77 b 6",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.000",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "0,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.001",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "48,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.002",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "96,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.003",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "144,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.004",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "192,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.005",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "240,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.006",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "288,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.007",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "336,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.008",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "384,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.009",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "432,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.010",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "480,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.011",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "528,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.012",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "576,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.013",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "624,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.014",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "672,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.015",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "720,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.016",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "0,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.017",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.018",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "96,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.019",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "144,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.020",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "192,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.021",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "240,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.022",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "288,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.023",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "336,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.024",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "384,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.025",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "432,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.026",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "480,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.027",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "528,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.028",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "576,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.029",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "624,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.030",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 030",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.030",
+      "tileId": 700030,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "672,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.031",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 031",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.031",
+      "tileId": 700031,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "720,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.032",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 032",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.032",
+      "tileId": 700032,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "0,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.033",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 033",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.033",
+      "tileId": 700033,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "48,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.034",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 034",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.034",
+      "tileId": 700034,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "96,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.035",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 035",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.035",
+      "tileId": 700035,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "144,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.036",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 036",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.036",
+      "tileId": 700036,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "192,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.037",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 037",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.037",
+      "tileId": 700037,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "240,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.038",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 038",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.038",
+      "tileId": 700038,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "288,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.039",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 039",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.039",
+      "tileId": 700039,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "336,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.040",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 040",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.040",
+      "tileId": 700040,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "384,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.041",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 041",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.041",
+      "tileId": 700041,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "432,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.042",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 042",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.042",
+      "tileId": 700042,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "480,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.043",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 043",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.043",
+      "tileId": 700043,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "528,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.044",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 044",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.044",
+      "tileId": 700044,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "576,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.045",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 045",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.045",
+      "tileId": 700045,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "624,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.046",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 046",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.046",
+      "tileId": 700046,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "672,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.047",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 047",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.047",
+      "tileId": 700047,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "720,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.048",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 048",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.048",
+      "tileId": 700048,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "0,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.049",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 049",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.049",
+      "tileId": 700049,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "48,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.050",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 050",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.050",
+      "tileId": 700050,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "96,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.051",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 051",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.051",
+      "tileId": 700051,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "144,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.052",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 052",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.052",
+      "tileId": 700052,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "192,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.053",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 053",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.053",
+      "tileId": 700053,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "240,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.054",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 054",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.054",
+      "tileId": 700054,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "288,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.055",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 055",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.055",
+      "tileId": 700055,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "336,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.056",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 056",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.056",
+      "tileId": 700056,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "384,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.057",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 057",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.057",
+      "tileId": 700057,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "432,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.058",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 058",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.058",
+      "tileId": 700058,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "480,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.059",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 059",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.059",
+      "tileId": 700059,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "528,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.060",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 060",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.060",
+      "tileId": 700060,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "576,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.061",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 061",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.061",
+      "tileId": 700061,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "624,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.062",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 062",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.062",
+      "tileId": 700062,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "672,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.063",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 063",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.063",
+      "tileId": 700063,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "720,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.064",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 064",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.064",
+      "tileId": 700064,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "0,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.065",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 065",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.065",
+      "tileId": 700065,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "48,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.066",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 066",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.066",
+      "tileId": 700066,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "96,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.067",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 067",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.067",
+      "tileId": 700067,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "144,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.068",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 068",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.068",
+      "tileId": 700068,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "192,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.069",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 069",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.069",
+      "tileId": 700069,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "240,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.070",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 070",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.070",
+      "tileId": 700070,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "288,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.071",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 071",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.071",
+      "tileId": 700071,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "336,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.072",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 072",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.072",
+      "tileId": 700072,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "384,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.073",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 073",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.073",
+      "tileId": 700073,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "432,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.074",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 074",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.074",
+      "tileId": 700074,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "480,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.075",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 075",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.075",
+      "tileId": 700075,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "528,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.076",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 076",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.076",
+      "tileId": 700076,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "576,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.077",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 077",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.077",
+      "tileId": 700077,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "624,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.078",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 078",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.078",
+      "tileId": 700078,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "672,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.079",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 079",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.079",
+      "tileId": 700079,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "720,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.080",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 080",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.080",
+      "tileId": 700080,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_080.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "0,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.081",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 081",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.081",
+      "tileId": 700081,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_081.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "48,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.082",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 082",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.082",
+      "tileId": 700082,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_082.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "96,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.083",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 083",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.083",
+      "tileId": 700083,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_083.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "144,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.084",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 084",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.084",
+      "tileId": 700084,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_084.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "192,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.085",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 085",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.085",
+      "tileId": 700085,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_085.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "240,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.086",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 086",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.086",
+      "tileId": 700086,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_086.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "288,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.087",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 087",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.087",
+      "tileId": 700087,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_087.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "336,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.088",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 088",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.088",
+      "tileId": 700088,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_088.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "384,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.089",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 089",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.089",
+      "tileId": 700089,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_089.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "432,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.090",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 090",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.090",
+      "tileId": 700090,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_090.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "480,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.091",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 091",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.091",
+      "tileId": 700091,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_091.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "528,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.092",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 092",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.092",
+      "tileId": 700092,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_092.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "576,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.093",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 093",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.093",
+      "tileId": 700093,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_093.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "624,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.094",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 094",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.094",
+      "tileId": 700094,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_094.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "672,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.095",
+      "displayName": "moon-base-1b9e4ed8cd77 b 6 095",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.moon_base_1b9e4ed8cd77.b_6.095",
+      "tileId": 700095,
+      "previewPath": "content/assets/gameplay/cutesckr_all/moon_base_1b9e4ed8cd77/b_6/tile_095.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "moon_base_1b9e4ed8cd77",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "moon-base-1b9e4ed8cd77",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/moon-base-1b9e4ed8cd77/B-6.png",
+        "atlasRect": "720,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

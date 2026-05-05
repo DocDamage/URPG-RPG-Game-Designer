@@ -1,0 +1,1688 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4",
+  "displayName": "prison-0a5982277dc8 prison mv a4",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.000",
+      "displayName": "prison-0a5982277dc8 prison mv a4 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "0,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.001",
+      "displayName": "prison-0a5982277dc8 prison mv a4 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "48,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.002",
+      "displayName": "prison-0a5982277dc8 prison mv a4 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "96,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.003",
+      "displayName": "prison-0a5982277dc8 prison mv a4 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "144,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.004",
+      "displayName": "prison-0a5982277dc8 prison mv a4 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "192,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.005",
+      "displayName": "prison-0a5982277dc8 prison mv a4 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "240,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.006",
+      "displayName": "prison-0a5982277dc8 prison mv a4 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "288,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.007",
+      "displayName": "prison-0a5982277dc8 prison mv a4 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "336,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.008",
+      "displayName": "prison-0a5982277dc8 prison mv a4 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "0,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.009",
+      "displayName": "prison-0a5982277dc8 prison mv a4 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.010",
+      "displayName": "prison-0a5982277dc8 prison mv a4 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "96,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.011",
+      "displayName": "prison-0a5982277dc8 prison mv a4 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "144,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.012",
+      "displayName": "prison-0a5982277dc8 prison mv a4 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "192,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.013",
+      "displayName": "prison-0a5982277dc8 prison mv a4 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "240,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.014",
+      "displayName": "prison-0a5982277dc8 prison mv a4 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "288,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.015",
+      "displayName": "prison-0a5982277dc8 prison mv a4 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "336,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.016",
+      "displayName": "prison-0a5982277dc8 prison mv a4 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "0,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.017",
+      "displayName": "prison-0a5982277dc8 prison mv a4 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "48,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.018",
+      "displayName": "prison-0a5982277dc8 prison mv a4 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "96,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.019",
+      "displayName": "prison-0a5982277dc8 prison mv a4 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "144,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.020",
+      "displayName": "prison-0a5982277dc8 prison mv a4 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "192,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.021",
+      "displayName": "prison-0a5982277dc8 prison mv a4 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "240,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.022",
+      "displayName": "prison-0a5982277dc8 prison mv a4 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "288,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.023",
+      "displayName": "prison-0a5982277dc8 prison mv a4 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "336,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.024",
+      "displayName": "prison-0a5982277dc8 prison mv a4 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "0,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.025",
+      "displayName": "prison-0a5982277dc8 prison mv a4 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "48,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.026",
+      "displayName": "prison-0a5982277dc8 prison mv a4 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "96,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.027",
+      "displayName": "prison-0a5982277dc8 prison mv a4 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "144,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.028",
+      "displayName": "prison-0a5982277dc8 prison mv a4 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "192,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.029",
+      "displayName": "prison-0a5982277dc8 prison mv a4 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "240,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.030",
+      "displayName": "prison-0a5982277dc8 prison mv a4 030",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.030",
+      "tileId": 700030,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "288,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.031",
+      "displayName": "prison-0a5982277dc8 prison mv a4 031",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.031",
+      "tileId": 700031,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "336,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.032",
+      "displayName": "prison-0a5982277dc8 prison mv a4 032",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.032",
+      "tileId": 700032,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "0,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.033",
+      "displayName": "prison-0a5982277dc8 prison mv a4 033",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.033",
+      "tileId": 700033,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "48,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.034",
+      "displayName": "prison-0a5982277dc8 prison mv a4 034",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.034",
+      "tileId": 700034,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "96,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.035",
+      "displayName": "prison-0a5982277dc8 prison mv a4 035",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.035",
+      "tileId": 700035,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "144,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.036",
+      "displayName": "prison-0a5982277dc8 prison mv a4 036",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.036",
+      "tileId": 700036,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "192,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.037",
+      "displayName": "prison-0a5982277dc8 prison mv a4 037",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.037",
+      "tileId": 700037,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "240,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.038",
+      "displayName": "prison-0a5982277dc8 prison mv a4 038",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.038",
+      "tileId": 700038,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "288,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.039",
+      "displayName": "prison-0a5982277dc8 prison mv a4 039",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.prison_0a5982277dc8.prison_mv_a4.039",
+      "tileId": 700039,
+      "previewPath": "content/assets/gameplay/cutesckr_all/prison_0a5982277dc8/prison_mv_a4/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prison_0a5982277dc8",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "prison-0a5982277dc8",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/prison-0a5982277dc8/prison_MV_A4.png",
+        "atlasRect": "336,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

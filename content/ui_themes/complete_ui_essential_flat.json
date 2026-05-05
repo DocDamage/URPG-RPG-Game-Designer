@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 2,
+  "themeId": "complete_ui_essential_flat",
+  "displayName": "Complete UI Essential Flat",
+  "level": "game_ui_ready",
+  "surfaces": [
+    "game_ui_theme"
+  ],
+  "source": {
+    "rawPath": "imports/raw/ui_themes/complete_ui_essential_flat",
+    "assetPath": "content/assets/ui_themes/complete_ui_essential_flat",
+    "license": "CC0-1.0"
+  },
+  "allowIncompleteRuntimeSelection": false,
+  "bypassPolicy": {
+    "developerSetting": true,
+    "settingsCheckbox": true,
+    "perThemeUseAnywayWarning": true
+  },
+  "components": {
+    "buttons": {
+      "states": [
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Button01a_1.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Button01a_2.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Button01a_3.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Button01a_4.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Button02a_1.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Button02a_2.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Button02a_3.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Button02a_4.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ButtonArrow01a.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ButtonCheck01a.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ButtonCross01a.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ButtonMinus01a.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ButtonPlay01a.png",
+        "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ButtonPlus01a.png"
+      ]
+    },
+    "inputs": [
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_InputField01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_InputField02a.png"
+    ],
+    "selects": [
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconDropdown01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Select01a_1.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Select01a_2.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Select01a_3.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Select01a_4.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Select02a_1.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Select02a_2.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Select02a_3.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Select02a_4.png"
+    ],
+    "toggles": [
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ToggleLeftOff01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ToggleLeftOn01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ToggleOff01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ToggleOff02a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ToggleOff03a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ToggleOn01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ToggleOn02a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ToggleOn03a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ToggleRightOff01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_ToggleRightOn01a.png"
+    ],
+    "frames": [
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Banner01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Banner02a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Banner03a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Banner04a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Frame01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Frame02a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Frame03a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameMarker01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameMarker02a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameMarker03a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameSlot01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameSlot01b.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameSlot01c.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameSlot02a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameSlot02b.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameSlot02c.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameSlot03a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameSlot03b.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_FrameSlot03c.png"
+    ],
+    "bars": [
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar02a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar03a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar04a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar05a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar06a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar07a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar08a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar09a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar10a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar11a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar12a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Bar13a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_BarFill01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_BarFill01b.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_BarFill01c.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_BarFill01d.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_BarFill01e.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_BarFill01f.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_BarFill01g.png"
+    ],
+    "icons": [
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconArrow01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconArrow01b.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconArrow01c.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconCheck01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconCheck01b.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconCheck01c.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconCross01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconCross01b.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconCross01c.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconLine01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconPlay01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconPlay01b.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconPlay01c.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconPlay01d.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconPoint01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconPoint01b.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconPoint01c.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_IconStripe01a.png"
+    ],
+    "handles": [
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Handle01a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Handle02a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Handle03a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Handle04a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Handle05a.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Sprites/UI_Flat_Handle06a.png"
+    ],
+    "slots": [],
+    "spritesheets": [
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Spritesheets/Spritesheet_UI_Flat.png",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Spritesheets/Spritesheet_UI_Flat_Animated.png"
+    ],
+    "sourceFiles": [
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Aseprite/UI_Flat.aseprite",
+      "content/assets/ui_themes/complete_ui_essential_flat/01_Flat_Theme/Aseprite/UI_FlatAnimated.aseprite"
+    ]
+  },
+  "semanticIconAliases": {},
+  "fontPairing": {},
+  "nineSlice": {},
+  "scalePolicy": {},
+  "colorTokens": {},
+  "themeCompleteness": {
+    "gameUiReady": {
+      "status": "pass",
+      "missing": []
+    },
+    "editorThemeReady": {
+      "status": "fail",
+      "missing": [
+        "color_tokens",
+        "font_pairing",
+        "icon_semantic_aliases",
+        "list_tree_row_states",
+        "menu_item_states",
+        "nine_slice_metadata",
+        "scale_policy",
+        "scrollbar_track_thumb",
+        "tab_states"
+      ]
+    }
+  }
+}

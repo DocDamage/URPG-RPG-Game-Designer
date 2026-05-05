@@ -3,6 +3,20 @@
   "catalogId": "base_jrpg_parts",
   "displayName": "Base JRPG Grid Parts",
   "description": "Starter top-down JRPG parts for grid-part authoring.",
+  "includes": [
+    "generated/src012_grunge_tileset_parts.json",
+    "generated/src012_caverns_tiles_parts.json",
+    "generated/cutesckr_medieval_fantasy_dungeon_1_parts.json",
+    "generated/cutesckr_medieval_fantasy_town_1_parts.json",
+    "generated/cutesckr_farm_1_parts.json",
+    "generated/cutesckr_forest_wilderness_1_parts.json",
+    "generated/cutesckr_medieval_castle_1_parts.json",
+    "generated/cutesckr_cyberpunk_city_1_parts.json",
+    "generated/cutesckr_medieval_fantasy_town_props_2_parts.json",
+    "generated/cutesckr_medieval_fantasy_dungeon_walls_2_parts.json",
+    "generated/cutesckr_medieval_castle_walls_2_parts.json",
+    "generated/cutesckr_cyberpunk_city_props_2_parts.json"
+  ],
   "parts": [
     {
       "partId": "cutscene.zone.basic",

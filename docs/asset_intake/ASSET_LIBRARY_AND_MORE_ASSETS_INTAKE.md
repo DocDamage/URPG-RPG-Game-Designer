@@ -1,6 +1,6 @@
 # Asset Library And More Assets Intake
 
-Status Date: 2026-05-02
+Status Date: 2026-05-05
 
 This document records the current asset-library vertical slice and the local `more assets/` intake that was unpacked, cleaned, indexed, and kept as non-release raw quarantine.
 
@@ -217,6 +217,7 @@ Intake results:
 - `SRC-011` mirrors `AssetsForMyGame` into ignored raw quarantine, extracts 58 ZIP/RAR archives with zero failures and 13,313 extracted files present, and catalog-normalizes 12,985 supported local-use records.
 - `SRC-012` mirrors the GoDoGenUI asset folder into ignored raw quarantine, intentionally skips duplicate ProgramData/All Users mirrors, and catalog-normalizes 29,516 supported local-use records from 46,285 mirrored files.
 - `BND-005` promotes 6 selected `SRC-012` CC0/public-domain tiles/VFX assets into `imports/normalized/src012_cc0_tiles_vfx/` with checksums and attribution metadata. The rest of `SRC-011` and `SRC-012` remains quarantine-only.
+- The 2026-05-04/05 game-maker generation pass now provides a fast default Level Builder catalog, an opt-in complete generated catalog, and UI theme completeness manifests. The implementation work to make those catalogs usable through a cohesive browser, previews, templates, main menu, onboarding, and lazy loading is tracked in `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md`.
 
 The raw source and extracted intake paths are intentionally ignored local quarantine, not repository payload:
 
@@ -276,6 +277,28 @@ The extracted archive catalog records 1,397 supported image assets with zero uns
 - `imports/reports/asset_intake/ingest_20260504_extracted_promotion_summary.json`
 
 Those extracted records remain local-use-only catalog entries until a future curated bundle selects specific CuteSCKR/Human assets for normalized promotion.
+
+## Game-Maker Catalog And UI Theme Ingestion
+
+The current editor startup path must stay bounded. `content/part_catalogs/base_jrpg_parts.json` is the default starter catalog, while `content/part_catalogs/game_maker_all_parts.json` includes the complete generated game-maker library for explicit full-library runs.
+
+Generated game-maker outputs currently include:
+
+- promoted legacy grid-part thumbnails/catalogs from `BND-006`, `BND-007`, and `BND-008`
+- CuteSCKR full-grid slices under `content/assets/gameplay/cutesckr_all/`
+- Human RPG portrait entries under `content/assets/gameplay/human_rpg_portraits/`
+- ModernUI portrait-generator game-maker entries under `content/assets/gameplay/modernui_portrait_generator/`
+- aggregate generated catalogs under `content/part_catalogs/generated/`
+
+UI theme metadata is tracked separately from app/editor UI skinning:
+
+- `content/ui_themes/complete_ui_essential_flat.json` mirrors `F:\Complete_UI_Essential_Pack_Free`, records 102 runtime assets, and passes `gameUiReady`.
+- `content/ui_themes/wenrexa_hologram.json` mirrors `F:\1. Free Hologram Interface Wenrexa`, records 48 runtime assets, and remains `candidate` because the generated report is missing bar/progress assets.
+- Reports live under `imports/reports/ui_theme_validation/`.
+- Raw mirrors live under `imports/raw/ui_themes/`.
+- Runtime UI theme art lives under `content/assets/ui_themes/`.
+
+Neither UI pack is editor-theme-ready. Editor theme use remains blocked until hand-authored metadata covers semantic icon aliases, font pairing, nine-slice rules, scale policy, color tokens, and missing editor-control states.
 
 ## Hygiene Results
 

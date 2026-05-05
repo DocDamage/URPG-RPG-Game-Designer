@@ -1,0 +1,4040 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.island_330afb0a8bb9.4",
+  "displayName": "island-330afb0a8bb9 4",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.000",
+      "displayName": "island-330afb0a8bb9 4 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "0,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.001",
+      "displayName": "island-330afb0a8bb9 4 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "48,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.002",
+      "displayName": "island-330afb0a8bb9 4 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "96,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.003",
+      "displayName": "island-330afb0a8bb9 4 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "240,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.004",
+      "displayName": "island-330afb0a8bb9 4 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "288,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.005",
+      "displayName": "island-330afb0a8bb9 4 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "336,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.006",
+      "displayName": "island-330afb0a8bb9 4 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "0,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.007",
+      "displayName": "island-330afb0a8bb9 4 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.008",
+      "displayName": "island-330afb0a8bb9 4 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "96,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.009",
+      "displayName": "island-330afb0a8bb9 4 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "144,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.010",
+      "displayName": "island-330afb0a8bb9 4 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "192,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.011",
+      "displayName": "island-330afb0a8bb9 4 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "240,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.012",
+      "displayName": "island-330afb0a8bb9 4 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "288,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.013",
+      "displayName": "island-330afb0a8bb9 4 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "336,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.014",
+      "displayName": "island-330afb0a8bb9 4 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "0,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.015",
+      "displayName": "island-330afb0a8bb9 4 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "48,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.016",
+      "displayName": "island-330afb0a8bb9 4 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "96,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.017",
+      "displayName": "island-330afb0a8bb9 4 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "144,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.018",
+      "displayName": "island-330afb0a8bb9 4 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "192,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.019",
+      "displayName": "island-330afb0a8bb9 4 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "240,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.020",
+      "displayName": "island-330afb0a8bb9 4 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "288,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.021",
+      "displayName": "island-330afb0a8bb9 4 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "336,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.022",
+      "displayName": "island-330afb0a8bb9 4 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "0,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.023",
+      "displayName": "island-330afb0a8bb9 4 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "48,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.024",
+      "displayName": "island-330afb0a8bb9 4 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "96,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.025",
+      "displayName": "island-330afb0a8bb9 4 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "144,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.026",
+      "displayName": "island-330afb0a8bb9 4 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "192,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.027",
+      "displayName": "island-330afb0a8bb9 4 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "240,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.028",
+      "displayName": "island-330afb0a8bb9 4 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "336,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.029",
+      "displayName": "island-330afb0a8bb9 4 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "0,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.030",
+      "displayName": "island-330afb0a8bb9 4 030",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.030",
+      "tileId": 700030,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "48,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.031",
+      "displayName": "island-330afb0a8bb9 4 031",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.031",
+      "tileId": 700031,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "96,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.032",
+      "displayName": "island-330afb0a8bb9 4 032",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.032",
+      "tileId": 700032,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "144,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.033",
+      "displayName": "island-330afb0a8bb9 4 033",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.033",
+      "tileId": 700033,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "192,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.034",
+      "displayName": "island-330afb0a8bb9 4 034",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.034",
+      "tileId": 700034,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "240,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.035",
+      "displayName": "island-330afb0a8bb9 4 035",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.035",
+      "tileId": 700035,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "288,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.036",
+      "displayName": "island-330afb0a8bb9 4 036",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.036",
+      "tileId": 700036,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "336,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.037",
+      "displayName": "island-330afb0a8bb9 4 037",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.037",
+      "tileId": 700037,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "384,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.038",
+      "displayName": "island-330afb0a8bb9 4 038",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.038",
+      "tileId": 700038,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "432,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.039",
+      "displayName": "island-330afb0a8bb9 4 039",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.039",
+      "tileId": 700039,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "528,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.040",
+      "displayName": "island-330afb0a8bb9 4 040",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.040",
+      "tileId": 700040,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "576,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.041",
+      "displayName": "island-330afb0a8bb9 4 041",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.041",
+      "tileId": 700041,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "624,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.042",
+      "displayName": "island-330afb0a8bb9 4 042",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.042",
+      "tileId": 700042,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "672,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.043",
+      "displayName": "island-330afb0a8bb9 4 043",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.043",
+      "tileId": 700043,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "720,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.044",
+      "displayName": "island-330afb0a8bb9 4 044",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.044",
+      "tileId": 700044,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "0,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.045",
+      "displayName": "island-330afb0a8bb9 4 045",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.045",
+      "tileId": 700045,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "48,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.046",
+      "displayName": "island-330afb0a8bb9 4 046",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.046",
+      "tileId": 700046,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "96,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.047",
+      "displayName": "island-330afb0a8bb9 4 047",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.047",
+      "tileId": 700047,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "144,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.048",
+      "displayName": "island-330afb0a8bb9 4 048",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.048",
+      "tileId": 700048,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "192,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.049",
+      "displayName": "island-330afb0a8bb9 4 049",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.049",
+      "tileId": 700049,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "240,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.050",
+      "displayName": "island-330afb0a8bb9 4 050",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.050",
+      "tileId": 700050,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "288,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.051",
+      "displayName": "island-330afb0a8bb9 4 051",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.051",
+      "tileId": 700051,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "336,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.052",
+      "displayName": "island-330afb0a8bb9 4 052",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.052",
+      "tileId": 700052,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "384,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.053",
+      "displayName": "island-330afb0a8bb9 4 053",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.053",
+      "tileId": 700053,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "432,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.054",
+      "displayName": "island-330afb0a8bb9 4 054",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.054",
+      "tileId": 700054,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "528,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.055",
+      "displayName": "island-330afb0a8bb9 4 055",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.055",
+      "tileId": 700055,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "576,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.056",
+      "displayName": "island-330afb0a8bb9 4 056",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.056",
+      "tileId": 700056,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "624,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.057",
+      "displayName": "island-330afb0a8bb9 4 057",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.057",
+      "tileId": 700057,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "672,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.058",
+      "displayName": "island-330afb0a8bb9 4 058",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.058",
+      "tileId": 700058,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "720,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.059",
+      "displayName": "island-330afb0a8bb9 4 059",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.059",
+      "tileId": 700059,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "0,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.060",
+      "displayName": "island-330afb0a8bb9 4 060",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.060",
+      "tileId": 700060,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "48,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.061",
+      "displayName": "island-330afb0a8bb9 4 061",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.061",
+      "tileId": 700061,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "96,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.062",
+      "displayName": "island-330afb0a8bb9 4 062",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.062",
+      "tileId": 700062,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "144,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.063",
+      "displayName": "island-330afb0a8bb9 4 063",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.063",
+      "tileId": 700063,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "192,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.064",
+      "displayName": "island-330afb0a8bb9 4 064",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.064",
+      "tileId": 700064,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "240,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.065",
+      "displayName": "island-330afb0a8bb9 4 065",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.065",
+      "tileId": 700065,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "288,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.066",
+      "displayName": "island-330afb0a8bb9 4 066",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.066",
+      "tileId": 700066,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "336,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.067",
+      "displayName": "island-330afb0a8bb9 4 067",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.067",
+      "tileId": 700067,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "384,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.068",
+      "displayName": "island-330afb0a8bb9 4 068",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.068",
+      "tileId": 700068,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "432,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.069",
+      "displayName": "island-330afb0a8bb9 4 069",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.069",
+      "tileId": 700069,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "528,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.070",
+      "displayName": "island-330afb0a8bb9 4 070",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.070",
+      "tileId": 700070,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "576,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.071",
+      "displayName": "island-330afb0a8bb9 4 071",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.071",
+      "tileId": 700071,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "624,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.072",
+      "displayName": "island-330afb0a8bb9 4 072",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.072",
+      "tileId": 700072,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "672,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.073",
+      "displayName": "island-330afb0a8bb9 4 073",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.073",
+      "tileId": 700073,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "720,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.074",
+      "displayName": "island-330afb0a8bb9 4 074",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.074",
+      "tileId": 700074,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "0,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.075",
+      "displayName": "island-330afb0a8bb9 4 075",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.075",
+      "tileId": 700075,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "48,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.076",
+      "displayName": "island-330afb0a8bb9 4 076",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.076",
+      "tileId": 700076,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "96,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.077",
+      "displayName": "island-330afb0a8bb9 4 077",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.077",
+      "tileId": 700077,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "144,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.078",
+      "displayName": "island-330afb0a8bb9 4 078",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.078",
+      "tileId": 700078,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "192,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.079",
+      "displayName": "island-330afb0a8bb9 4 079",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.079",
+      "tileId": 700079,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "240,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.080",
+      "displayName": "island-330afb0a8bb9 4 080",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.080",
+      "tileId": 700080,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_080.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "288,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.081",
+      "displayName": "island-330afb0a8bb9 4 081",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.081",
+      "tileId": 700081,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_081.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "336,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.082",
+      "displayName": "island-330afb0a8bb9 4 082",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.082",
+      "tileId": 700082,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_082.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "384,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.083",
+      "displayName": "island-330afb0a8bb9 4 083",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.083",
+      "tileId": 700083,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_083.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "432,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.084",
+      "displayName": "island-330afb0a8bb9 4 084",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.084",
+      "tileId": 700084,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_084.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "528,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.085",
+      "displayName": "island-330afb0a8bb9 4 085",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.085",
+      "tileId": 700085,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_085.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "576,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.086",
+      "displayName": "island-330afb0a8bb9 4 086",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.086",
+      "tileId": 700086,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_086.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "624,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.087",
+      "displayName": "island-330afb0a8bb9 4 087",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.087",
+      "tileId": 700087,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_087.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "672,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.088",
+      "displayName": "island-330afb0a8bb9 4 088",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.088",
+      "tileId": 700088,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_088.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "720,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.089",
+      "displayName": "island-330afb0a8bb9 4 089",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.089",
+      "tileId": 700089,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_089.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "0,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.090",
+      "displayName": "island-330afb0a8bb9 4 090",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.090",
+      "tileId": 700090,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_090.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "48,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.091",
+      "displayName": "island-330afb0a8bb9 4 091",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.091",
+      "tileId": 700091,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_091.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "288,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.092",
+      "displayName": "island-330afb0a8bb9 4 092",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.092",
+      "tileId": 700092,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_092.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "336,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.093",
+      "displayName": "island-330afb0a8bb9 4 093",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.093",
+      "tileId": 700093,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_093.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "384,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.094",
+      "displayName": "island-330afb0a8bb9 4 094",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.094",
+      "tileId": 700094,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_094.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "432,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.island_330afb0a8bb9.4.095",
+      "displayName": "island-330afb0a8bb9 4 095",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.island_330afb0a8bb9.4.095",
+      "tileId": 700095,
+      "previewPath": "content/assets/gameplay/cutesckr_all/island_330afb0a8bb9/4/tile_095.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "island_330afb0a8bb9",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "island-330afb0a8bb9",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/island-330afb0a8bb9/4.png",
+        "atlasRect": "480,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

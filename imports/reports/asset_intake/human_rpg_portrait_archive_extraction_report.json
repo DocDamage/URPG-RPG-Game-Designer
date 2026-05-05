@@ -1,0 +1,58 @@
+{
+  "schema": "urpg/local_asset_archive_extraction_report/v1",
+  "generated_at": "2026-05-05T18:22:47+00:00",
+  "source_id": "SRC-014",
+  "source_root": "ingest stuff 5-4-26/Human RPG Portrait Pack \u2013 5 Fantasy Classes",
+  "extract_root": "imports/raw/human_rpg_portraits",
+  "extractor": "C:\\Program Files\\7-Zip\\7z.exe",
+  "summary": {
+    "archive_count": 3,
+    "extracted_archive_count": 3,
+    "already_extracted_count": 0,
+    "failed_archive_count": 0,
+    "total_archive_bytes": 107704604,
+    "total_extracted_files": 648,
+    "total_extracted_bytes": 107621228
+  },
+  "archives": [
+    {
+      "source_id": "SRC-014",
+      "source_archive": "ingest stuff 5-4-26/Human RPG Portrait Pack \u2013 5 Fantasy Classes/Human RPG Portrait Pack \u2013 5 Fantasy Classes 128x128.zip",
+      "archive_kind": "zip",
+      "size_bytes": 6920353,
+      "sha256": "09bf902663d3db074df9108293dfbce651286cf81cc7b8d2dfada66c5b5cf49c",
+      "extraction_root": "imports/raw/human_rpg_portraits/__archive_extracted/human-rpg-portrait-pack-5-fantasy-classes-128x128-09bf902663d3",
+      "extracted": true,
+      "skipped_reason": null,
+      "error": null,
+      "extracted_file_count": 216,
+      "extracted_size_bytes": 6872170
+    },
+    {
+      "source_id": "SRC-014",
+      "source_archive": "ingest stuff 5-4-26/Human RPG Portrait Pack \u2013 5 Fantasy Classes/Human RPG Portrait Pack \u2013 5 Fantasy Classes 256x256.zip",
+      "archive_kind": "zip",
+      "size_bytes": 27789816,
+      "sha256": "8df5d5afb816d4b09934b0d90520ae2664e5d133e3514ef00917da778c5f1f1b",
+      "extraction_root": "imports/raw/human_rpg_portraits/__archive_extracted/human-rpg-portrait-pack-5-fantasy-classes-256x256-8df5d5afb816",
+      "extracted": true,
+      "skipped_reason": null,
+      "error": null,
+      "extracted_file_count": 216,
+      "extracted_size_bytes": 27794585
+    },
+    {
+      "source_id": "SRC-014",
+      "source_archive": "ingest stuff 5-4-26/Human RPG Portrait Pack \u2013 5 Fantasy Classes/Human RPG Portrait Pack \u2013 5 Fantasy Classes.zip",
+      "archive_kind": "zip",
+      "size_bytes": 72994435,
+      "sha256": "647d1c14f7239e42fc52bffae4d9f2dd92a5c9ac511e9ff3ca8863b765d5e536",
+      "extraction_root": "imports/raw/human_rpg_portraits/__archive_extracted/human-rpg-portrait-pack-5-fantasy-classes-647d1c14f723",
+      "extracted": true,
+      "skipped_reason": null,
+      "error": null,
+      "extracted_file_count": 216,
+      "extracted_size_bytes": 72954473
+    }
+  ]
+}

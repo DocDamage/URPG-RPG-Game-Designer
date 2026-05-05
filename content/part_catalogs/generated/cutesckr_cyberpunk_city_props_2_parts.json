@@ -1,0 +1,3368 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr_cyberpunk_city_props_2_parts",
+  "displayName": "Cyberpunk Prop",
+  "description": "Generated Level Builder grid parts from promoted gameplay tileset slices.",
+  "parts": [
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.000",
+      "displayName": "Cyberpunk Prop 000",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.000",
+      "tileId": 3800,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "0,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.001",
+      "displayName": "Cyberpunk Prop 001",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.001",
+      "tileId": 3801,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "48,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.002",
+      "displayName": "Cyberpunk Prop 002",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.002",
+      "tileId": 3802,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "96,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.003",
+      "displayName": "Cyberpunk Prop 003",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.003",
+      "tileId": 3803,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "144,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.004",
+      "displayName": "Cyberpunk Prop 004",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.004",
+      "tileId": 3804,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "192,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.005",
+      "displayName": "Cyberpunk Prop 005",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.005",
+      "tileId": 3805,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "240,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.006",
+      "displayName": "Cyberpunk Prop 006",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.006",
+      "tileId": 3806,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "288,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.007",
+      "displayName": "Cyberpunk Prop 007",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.007",
+      "tileId": 3807,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "336,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.008",
+      "displayName": "Cyberpunk Prop 008",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.008",
+      "tileId": 3808,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "384,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.009",
+      "displayName": "Cyberpunk Prop 009",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.009",
+      "tileId": 3809,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "432,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.010",
+      "displayName": "Cyberpunk Prop 010",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.010",
+      "tileId": 3810,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "480,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.011",
+      "displayName": "Cyberpunk Prop 011",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.011",
+      "tileId": 3811,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "528,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.012",
+      "displayName": "Cyberpunk Prop 012",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.012",
+      "tileId": 3812,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "576,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.013",
+      "displayName": "Cyberpunk Prop 013",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.013",
+      "tileId": 3813,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "624,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.014",
+      "displayName": "Cyberpunk Prop 014",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.014",
+      "tileId": 3814,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "672,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.015",
+      "displayName": "Cyberpunk Prop 015",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.015",
+      "tileId": 3815,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "720,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.016",
+      "displayName": "Cyberpunk Prop 016",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.016",
+      "tileId": 3816,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "0,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.017",
+      "displayName": "Cyberpunk Prop 017",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.017",
+      "tileId": 3817,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "48,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.018",
+      "displayName": "Cyberpunk Prop 018",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.018",
+      "tileId": 3818,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "96,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.019",
+      "displayName": "Cyberpunk Prop 019",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.019",
+      "tileId": 3819,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "144,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.020",
+      "displayName": "Cyberpunk Prop 020",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.020",
+      "tileId": 3820,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "192,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.021",
+      "displayName": "Cyberpunk Prop 021",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.021",
+      "tileId": 3821,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "240,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.022",
+      "displayName": "Cyberpunk Prop 022",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.022",
+      "tileId": 3822,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "288,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.023",
+      "displayName": "Cyberpunk Prop 023",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.023",
+      "tileId": 3823,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "336,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.024",
+      "displayName": "Cyberpunk Prop 024",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.024",
+      "tileId": 3824,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "384,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.025",
+      "displayName": "Cyberpunk Prop 025",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.025",
+      "tileId": 3825,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "432,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.026",
+      "displayName": "Cyberpunk Prop 026",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.026",
+      "tileId": 3826,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "480,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.027",
+      "displayName": "Cyberpunk Prop 027",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.027",
+      "tileId": 3827,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "528,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.028",
+      "displayName": "Cyberpunk Prop 028",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.028",
+      "tileId": 3828,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "576,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.029",
+      "displayName": "Cyberpunk Prop 029",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.029",
+      "tileId": 3829,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "624,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.030",
+      "displayName": "Cyberpunk Prop 030",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.030",
+      "tileId": 3830,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "672,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.031",
+      "displayName": "Cyberpunk Prop 031",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.031",
+      "tileId": 3831,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "720,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.032",
+      "displayName": "Cyberpunk Prop 032",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.032",
+      "tileId": 3832,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "0,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.033",
+      "displayName": "Cyberpunk Prop 033",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.033",
+      "tileId": 3833,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "48,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.034",
+      "displayName": "Cyberpunk Prop 034",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.034",
+      "tileId": 3834,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "96,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.035",
+      "displayName": "Cyberpunk Prop 035",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.035",
+      "tileId": 3835,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "144,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.036",
+      "displayName": "Cyberpunk Prop 036",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.036",
+      "tileId": 3836,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "192,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.037",
+      "displayName": "Cyberpunk Prop 037",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.037",
+      "tileId": 3837,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "240,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.038",
+      "displayName": "Cyberpunk Prop 038",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.038",
+      "tileId": 3838,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "288,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.039",
+      "displayName": "Cyberpunk Prop 039",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.039",
+      "tileId": 3839,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "336,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.040",
+      "displayName": "Cyberpunk Prop 040",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.040",
+      "tileId": 3840,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "384,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.041",
+      "displayName": "Cyberpunk Prop 041",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.041",
+      "tileId": 3841,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "432,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.042",
+      "displayName": "Cyberpunk Prop 042",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.042",
+      "tileId": 3842,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "480,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.043",
+      "displayName": "Cyberpunk Prop 043",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.043",
+      "tileId": 3843,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "528,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.044",
+      "displayName": "Cyberpunk Prop 044",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.044",
+      "tileId": 3844,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "576,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.045",
+      "displayName": "Cyberpunk Prop 045",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.045",
+      "tileId": 3845,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "624,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.046",
+      "displayName": "Cyberpunk Prop 046",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.046",
+      "tileId": 3846,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "672,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.047",
+      "displayName": "Cyberpunk Prop 047",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.047",
+      "tileId": 3847,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "720,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.048",
+      "displayName": "Cyberpunk Prop 048",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.048",
+      "tileId": 3848,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "0,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.049",
+      "displayName": "Cyberpunk Prop 049",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.049",
+      "tileId": 3849,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "48,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.050",
+      "displayName": "Cyberpunk Prop 050",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.050",
+      "tileId": 3850,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "96,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.051",
+      "displayName": "Cyberpunk Prop 051",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.051",
+      "tileId": 3851,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "144,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.052",
+      "displayName": "Cyberpunk Prop 052",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.052",
+      "tileId": 3852,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "192,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.053",
+      "displayName": "Cyberpunk Prop 053",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.053",
+      "tileId": 3853,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "240,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.054",
+      "displayName": "Cyberpunk Prop 054",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.054",
+      "tileId": 3854,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "288,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.055",
+      "displayName": "Cyberpunk Prop 055",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.055",
+      "tileId": 3855,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "336,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.056",
+      "displayName": "Cyberpunk Prop 056",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.056",
+      "tileId": 3856,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "384,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.057",
+      "displayName": "Cyberpunk Prop 057",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.057",
+      "tileId": 3857,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "432,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.058",
+      "displayName": "Cyberpunk Prop 058",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.058",
+      "tileId": 3858,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "480,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.059",
+      "displayName": "Cyberpunk Prop 059",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.059",
+      "tileId": 3859,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "528,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.060",
+      "displayName": "Cyberpunk Prop 060",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.060",
+      "tileId": 3860,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "576,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.061",
+      "displayName": "Cyberpunk Prop 061",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.061",
+      "tileId": 3861,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "624,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.062",
+      "displayName": "Cyberpunk Prop 062",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.062",
+      "tileId": 3862,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "672,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.063",
+      "displayName": "Cyberpunk Prop 063",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.063",
+      "tileId": 3863,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "720,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.064",
+      "displayName": "Cyberpunk Prop 064",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.064",
+      "tileId": 3864,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "0,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.065",
+      "displayName": "Cyberpunk Prop 065",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.065",
+      "tileId": 3865,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "48,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.066",
+      "displayName": "Cyberpunk Prop 066",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.066",
+      "tileId": 3866,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "96,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.067",
+      "displayName": "Cyberpunk Prop 067",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.067",
+      "tileId": 3867,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "144,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.068",
+      "displayName": "Cyberpunk Prop 068",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.068",
+      "tileId": 3868,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "192,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.069",
+      "displayName": "Cyberpunk Prop 069",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.069",
+      "tileId": 3869,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "240,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.070",
+      "displayName": "Cyberpunk Prop 070",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.070",
+      "tileId": 3870,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "288,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.071",
+      "displayName": "Cyberpunk Prop 071",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.071",
+      "tileId": 3871,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "336,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.072",
+      "displayName": "Cyberpunk Prop 072",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.072",
+      "tileId": 3872,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "384,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.073",
+      "displayName": "Cyberpunk Prop 073",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.073",
+      "tileId": 3873,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "432,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.074",
+      "displayName": "Cyberpunk Prop 074",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.074",
+      "tileId": 3874,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "480,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.075",
+      "displayName": "Cyberpunk Prop 075",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.075",
+      "tileId": 3875,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "528,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.076",
+      "displayName": "Cyberpunk Prop 076",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.076",
+      "tileId": 3876,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "576,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.077",
+      "displayName": "Cyberpunk Prop 077",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.077",
+      "tileId": 3877,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "624,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.078",
+      "displayName": "Cyberpunk Prop 078",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.078",
+      "tileId": 3878,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "672,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.cyberpunk02.079",
+      "displayName": "Cyberpunk Prop 079",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.cyberpunk_city.props.2.079",
+      "tileId": 3879,
+      "previewPath": "content/assets/gameplay/cutesckr/cyberpunk_city_props_2/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "cyberpunk",
+        "gameplay",
+        "generated",
+        "object",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/cyberpunk_city/2.png",
+        "atlasRect": "720,192,48,48"
+      }
+    }
+  ]
+}

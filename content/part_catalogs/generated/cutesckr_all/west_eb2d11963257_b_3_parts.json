@@ -1,0 +1,4040 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.west_eb2d11963257.b_3",
+  "displayName": "west-eb2d11963257 b 3",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.000",
+      "displayName": "west-eb2d11963257 b 3 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "0,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.001",
+      "displayName": "west-eb2d11963257 b 3 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "48,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.002",
+      "displayName": "west-eb2d11963257 b 3 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "96,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.003",
+      "displayName": "west-eb2d11963257 b 3 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "144,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.004",
+      "displayName": "west-eb2d11963257 b 3 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "192,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.005",
+      "displayName": "west-eb2d11963257 b 3 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "240,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.006",
+      "displayName": "west-eb2d11963257 b 3 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "288,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.007",
+      "displayName": "west-eb2d11963257 b 3 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "336,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.008",
+      "displayName": "west-eb2d11963257 b 3 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "384,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.009",
+      "displayName": "west-eb2d11963257 b 3 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "432,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.010",
+      "displayName": "west-eb2d11963257 b 3 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "480,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.011",
+      "displayName": "west-eb2d11963257 b 3 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "528,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.012",
+      "displayName": "west-eb2d11963257 b 3 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "576,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.013",
+      "displayName": "west-eb2d11963257 b 3 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "624,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.014",
+      "displayName": "west-eb2d11963257 b 3 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "672,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.015",
+      "displayName": "west-eb2d11963257 b 3 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "720,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.016",
+      "displayName": "west-eb2d11963257 b 3 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "0,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.017",
+      "displayName": "west-eb2d11963257 b 3 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.018",
+      "displayName": "west-eb2d11963257 b 3 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "96,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.019",
+      "displayName": "west-eb2d11963257 b 3 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "144,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.020",
+      "displayName": "west-eb2d11963257 b 3 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "192,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.021",
+      "displayName": "west-eb2d11963257 b 3 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "240,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.022",
+      "displayName": "west-eb2d11963257 b 3 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "288,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.023",
+      "displayName": "west-eb2d11963257 b 3 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "336,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.024",
+      "displayName": "west-eb2d11963257 b 3 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "384,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.025",
+      "displayName": "west-eb2d11963257 b 3 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "432,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.026",
+      "displayName": "west-eb2d11963257 b 3 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "480,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.027",
+      "displayName": "west-eb2d11963257 b 3 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "528,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.028",
+      "displayName": "west-eb2d11963257 b 3 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "576,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.029",
+      "displayName": "west-eb2d11963257 b 3 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "624,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.030",
+      "displayName": "west-eb2d11963257 b 3 030",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.030",
+      "tileId": 700030,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "672,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.031",
+      "displayName": "west-eb2d11963257 b 3 031",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.031",
+      "tileId": 700031,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "720,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.032",
+      "displayName": "west-eb2d11963257 b 3 032",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.032",
+      "tileId": 700032,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "0,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.033",
+      "displayName": "west-eb2d11963257 b 3 033",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.033",
+      "tileId": 700033,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "48,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.034",
+      "displayName": "west-eb2d11963257 b 3 034",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.034",
+      "tileId": 700034,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "96,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.035",
+      "displayName": "west-eb2d11963257 b 3 035",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.035",
+      "tileId": 700035,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "144,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.036",
+      "displayName": "west-eb2d11963257 b 3 036",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.036",
+      "tileId": 700036,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "192,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.037",
+      "displayName": "west-eb2d11963257 b 3 037",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.037",
+      "tileId": 700037,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "240,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.038",
+      "displayName": "west-eb2d11963257 b 3 038",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.038",
+      "tileId": 700038,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "288,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.039",
+      "displayName": "west-eb2d11963257 b 3 039",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.039",
+      "tileId": 700039,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "336,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.040",
+      "displayName": "west-eb2d11963257 b 3 040",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.040",
+      "tileId": 700040,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "384,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.041",
+      "displayName": "west-eb2d11963257 b 3 041",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.041",
+      "tileId": 700041,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "432,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.042",
+      "displayName": "west-eb2d11963257 b 3 042",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.042",
+      "tileId": 700042,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "480,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.043",
+      "displayName": "west-eb2d11963257 b 3 043",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.043",
+      "tileId": 700043,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "528,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.044",
+      "displayName": "west-eb2d11963257 b 3 044",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.044",
+      "tileId": 700044,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "576,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.045",
+      "displayName": "west-eb2d11963257 b 3 045",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.045",
+      "tileId": 700045,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "624,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.046",
+      "displayName": "west-eb2d11963257 b 3 046",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.046",
+      "tileId": 700046,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "672,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.047",
+      "displayName": "west-eb2d11963257 b 3 047",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.047",
+      "tileId": 700047,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "720,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.048",
+      "displayName": "west-eb2d11963257 b 3 048",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.048",
+      "tileId": 700048,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "0,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.049",
+      "displayName": "west-eb2d11963257 b 3 049",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.049",
+      "tileId": 700049,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "48,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.050",
+      "displayName": "west-eb2d11963257 b 3 050",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.050",
+      "tileId": 700050,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "96,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.051",
+      "displayName": "west-eb2d11963257 b 3 051",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.051",
+      "tileId": 700051,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "144,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.052",
+      "displayName": "west-eb2d11963257 b 3 052",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.052",
+      "tileId": 700052,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "240,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.053",
+      "displayName": "west-eb2d11963257 b 3 053",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.053",
+      "tileId": 700053,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "288,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.054",
+      "displayName": "west-eb2d11963257 b 3 054",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.054",
+      "tileId": 700054,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "336,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.055",
+      "displayName": "west-eb2d11963257 b 3 055",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.055",
+      "tileId": 700055,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "384,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.056",
+      "displayName": "west-eb2d11963257 b 3 056",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.056",
+      "tileId": 700056,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "432,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.057",
+      "displayName": "west-eb2d11963257 b 3 057",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.057",
+      "tileId": 700057,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "480,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.058",
+      "displayName": "west-eb2d11963257 b 3 058",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.058",
+      "tileId": 700058,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "528,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.059",
+      "displayName": "west-eb2d11963257 b 3 059",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.059",
+      "tileId": 700059,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "576,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.060",
+      "displayName": "west-eb2d11963257 b 3 060",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.060",
+      "tileId": 700060,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "672,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.061",
+      "displayName": "west-eb2d11963257 b 3 061",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.061",
+      "tileId": 700061,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "720,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.062",
+      "displayName": "west-eb2d11963257 b 3 062",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.062",
+      "tileId": 700062,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "0,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.063",
+      "displayName": "west-eb2d11963257 b 3 063",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.063",
+      "tileId": 700063,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "48,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.064",
+      "displayName": "west-eb2d11963257 b 3 064",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.064",
+      "tileId": 700064,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "96,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.065",
+      "displayName": "west-eb2d11963257 b 3 065",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.065",
+      "tileId": 700065,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "144,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.066",
+      "displayName": "west-eb2d11963257 b 3 066",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.066",
+      "tileId": 700066,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "240,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.067",
+      "displayName": "west-eb2d11963257 b 3 067",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.067",
+      "tileId": 700067,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "288,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.068",
+      "displayName": "west-eb2d11963257 b 3 068",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.068",
+      "tileId": 700068,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "336,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.069",
+      "displayName": "west-eb2d11963257 b 3 069",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.069",
+      "tileId": 700069,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "384,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.070",
+      "displayName": "west-eb2d11963257 b 3 070",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.070",
+      "tileId": 700070,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "432,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.071",
+      "displayName": "west-eb2d11963257 b 3 071",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.071",
+      "tileId": 700071,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "480,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.072",
+      "displayName": "west-eb2d11963257 b 3 072",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.072",
+      "tileId": 700072,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "528,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.073",
+      "displayName": "west-eb2d11963257 b 3 073",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.073",
+      "tileId": 700073,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "576,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.074",
+      "displayName": "west-eb2d11963257 b 3 074",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.074",
+      "tileId": 700074,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "672,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.075",
+      "displayName": "west-eb2d11963257 b 3 075",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.075",
+      "tileId": 700075,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "720,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.076",
+      "displayName": "west-eb2d11963257 b 3 076",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.076",
+      "tileId": 700076,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "0,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.077",
+      "displayName": "west-eb2d11963257 b 3 077",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.077",
+      "tileId": 700077,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "48,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.078",
+      "displayName": "west-eb2d11963257 b 3 078",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.078",
+      "tileId": 700078,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "96,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.079",
+      "displayName": "west-eb2d11963257 b 3 079",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.079",
+      "tileId": 700079,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "144,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.080",
+      "displayName": "west-eb2d11963257 b 3 080",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.080",
+      "tileId": 700080,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_080.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "240,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.081",
+      "displayName": "west-eb2d11963257 b 3 081",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.081",
+      "tileId": 700081,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_081.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "288,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.082",
+      "displayName": "west-eb2d11963257 b 3 082",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.082",
+      "tileId": 700082,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_082.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "336,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.083",
+      "displayName": "west-eb2d11963257 b 3 083",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.083",
+      "tileId": 700083,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_083.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "384,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.084",
+      "displayName": "west-eb2d11963257 b 3 084",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.084",
+      "tileId": 700084,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_084.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "432,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.085",
+      "displayName": "west-eb2d11963257 b 3 085",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.085",
+      "tileId": 700085,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_085.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "480,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.086",
+      "displayName": "west-eb2d11963257 b 3 086",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.086",
+      "tileId": 700086,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_086.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "528,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.087",
+      "displayName": "west-eb2d11963257 b 3 087",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.087",
+      "tileId": 700087,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_087.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "576,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.088",
+      "displayName": "west-eb2d11963257 b 3 088",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.088",
+      "tileId": 700088,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_088.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "672,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.089",
+      "displayName": "west-eb2d11963257 b 3 089",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.089",
+      "tileId": 700089,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_089.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "720,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.090",
+      "displayName": "west-eb2d11963257 b 3 090",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.090",
+      "tileId": 700090,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_090.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "0,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.091",
+      "displayName": "west-eb2d11963257 b 3 091",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.091",
+      "tileId": 700091,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_091.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "48,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.092",
+      "displayName": "west-eb2d11963257 b 3 092",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.092",
+      "tileId": 700092,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_092.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "96,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.093",
+      "displayName": "west-eb2d11963257 b 3 093",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.093",
+      "tileId": 700093,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_093.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "144,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.094",
+      "displayName": "west-eb2d11963257 b 3 094",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.094",
+      "tileId": 700094,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_094.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "240,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.west_eb2d11963257.b_3.095",
+      "displayName": "west-eb2d11963257 b 3 095",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.west_eb2d11963257.b_3.095",
+      "tileId": 700095,
+      "previewPath": "content/assets/gameplay/cutesckr_all/west_eb2d11963257/b_3/tile_095.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "west_eb2d11963257"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "west-eb2d11963257",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/west-eb2d11963257/B-3.png",
+        "atlasRect": "336,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

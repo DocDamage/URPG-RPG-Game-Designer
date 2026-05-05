@@ -1,0 +1,28 @@
+{
+  "source_id": "SRC-015",
+  "repo_name": "Local CuteSCKR tileset drop",
+  "source_url": "local://ingest stuff 5-4-26/CuteSCKR",
+  "capture_state": "partial_extract",
+  "snapshot_commit": null,
+  "snapshot_date": "2026-05-05",
+  "source_type": "direct_asset_pack",
+  "category_tags": [
+    "tilesets",
+    "rpg_maker",
+    "map",
+    "environment"
+  ],
+  "intended_use": [
+    "Level Builder gameplay tile palette",
+    "Mario Maker-style map authoring vertical slice",
+    "Future extraction and slicing of the remaining local CuteSCKR RAR archives"
+  ],
+  "handling_path": "bounded_editor_ready_slice_after_local_extract",
+  "legal_disposition": "cc0_or_public_domain_per_source_license",
+  "promotion_status": "partially_promoted",
+  "notes": [
+    "The source drop includes a top-level license.txt granting CC0/public-domain style commercial, modification, redistribution, and no-attribution use.",
+    "BND-011 promotes representative terrain sheets plus additional prop/wall classified sheets from medieval dungeon, medieval town, farm, forest wilderness, medieval castle, and cyberpunk city packs into editor-ready gameplay slices.",
+    "Remaining CuteSCKR RAR archives are still raw local source material until extracted, inspected, sliced, and recorded in a bundle manifest."
+  ]
+}

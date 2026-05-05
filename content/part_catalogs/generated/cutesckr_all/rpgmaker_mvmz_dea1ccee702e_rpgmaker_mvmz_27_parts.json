@@ -1,0 +1,4040 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27",
+  "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.000",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "0,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.001",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "48,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.002",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "96,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.003",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "144,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.004",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "192,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.005",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "240,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.006",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "288,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.007",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "336,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.008",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "384,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.009",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "432,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.010",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "480,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.011",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "528,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.012",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "576,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.013",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "624,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.014",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "672,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.015",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "720,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.016",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "0,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.017",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.018",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "96,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.019",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "144,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.020",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "192,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.021",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "240,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.022",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "288,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.023",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "336,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.024",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "384,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.025",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "432,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.026",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "480,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.027",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "528,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.028",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "576,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.029",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "624,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.030",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 030",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.030",
+      "tileId": 700030,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "672,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.031",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 031",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.031",
+      "tileId": 700031,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "720,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.032",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 032",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.032",
+      "tileId": 700032,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "0,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.033",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 033",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.033",
+      "tileId": 700033,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "48,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.034",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 034",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.034",
+      "tileId": 700034,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "96,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.035",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 035",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.035",
+      "tileId": 700035,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "144,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.036",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 036",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.036",
+      "tileId": 700036,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "192,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.037",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 037",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.037",
+      "tileId": 700037,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "240,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.038",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 038",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.038",
+      "tileId": 700038,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "288,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.039",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 039",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.039",
+      "tileId": 700039,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "336,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.040",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 040",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.040",
+      "tileId": 700040,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "384,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.041",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 041",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.041",
+      "tileId": 700041,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "432,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.042",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 042",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.042",
+      "tileId": 700042,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "480,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.043",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 043",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.043",
+      "tileId": 700043,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "528,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.044",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 044",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.044",
+      "tileId": 700044,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "576,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.045",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 045",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.045",
+      "tileId": 700045,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "624,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.046",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 046",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.046",
+      "tileId": 700046,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "672,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.047",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 047",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.047",
+      "tileId": 700047,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "720,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.048",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 048",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.048",
+      "tileId": 700048,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "0,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.049",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 049",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.049",
+      "tileId": 700049,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "48,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.050",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 050",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.050",
+      "tileId": 700050,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "96,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.051",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 051",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.051",
+      "tileId": 700051,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "144,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.052",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 052",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.052",
+      "tileId": 700052,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "192,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.053",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 053",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.053",
+      "tileId": 700053,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "240,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.054",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 054",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.054",
+      "tileId": 700054,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "288,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.055",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 055",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.055",
+      "tileId": 700055,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "336,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.056",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 056",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.056",
+      "tileId": 700056,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "384,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.057",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 057",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.057",
+      "tileId": 700057,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "432,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.058",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 058",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.058",
+      "tileId": 700058,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "480,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.059",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 059",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.059",
+      "tileId": 700059,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "528,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.060",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 060",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.060",
+      "tileId": 700060,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "576,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.061",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 061",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.061",
+      "tileId": 700061,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "624,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.062",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 062",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.062",
+      "tileId": 700062,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "672,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.063",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 063",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.063",
+      "tileId": 700063,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "720,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.064",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 064",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.064",
+      "tileId": 700064,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "0,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.065",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 065",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.065",
+      "tileId": 700065,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "48,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.066",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 066",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.066",
+      "tileId": 700066,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "96,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.067",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 067",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.067",
+      "tileId": 700067,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "144,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.068",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 068",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.068",
+      "tileId": 700068,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "192,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.069",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 069",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.069",
+      "tileId": 700069,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "240,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.070",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 070",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.070",
+      "tileId": 700070,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "288,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.071",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 071",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.071",
+      "tileId": 700071,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "336,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.072",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 072",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.072",
+      "tileId": 700072,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "384,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.073",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 073",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.073",
+      "tileId": 700073,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "432,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.074",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 074",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.074",
+      "tileId": 700074,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "480,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.075",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 075",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.075",
+      "tileId": 700075,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "528,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.076",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 076",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.076",
+      "tileId": 700076,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "576,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.077",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 077",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.077",
+      "tileId": 700077,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "624,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.078",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 078",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.078",
+      "tileId": 700078,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "672,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.079",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 079",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.079",
+      "tileId": 700079,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "720,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.080",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 080",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.080",
+      "tileId": 700080,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_080.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "0,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.081",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 081",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.081",
+      "tileId": 700081,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_081.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "48,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.082",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 082",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.082",
+      "tileId": 700082,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_082.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "96,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.083",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 083",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.083",
+      "tileId": 700083,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_083.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "144,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.084",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 084",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.084",
+      "tileId": 700084,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_084.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "192,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.085",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 085",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.085",
+      "tileId": 700085,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_085.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "240,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.086",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 086",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.086",
+      "tileId": 700086,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_086.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "288,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.087",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 087",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.087",
+      "tileId": 700087,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_087.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "336,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.088",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 088",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.088",
+      "tileId": 700088,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_088.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "384,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.089",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 089",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.089",
+      "tileId": 700089,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_089.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "432,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.090",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 090",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.090",
+      "tileId": 700090,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_090.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "480,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.091",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 091",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.091",
+      "tileId": 700091,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_091.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "528,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.092",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 092",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.092",
+      "tileId": 700092,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_092.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "576,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.093",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 093",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.093",
+      "tileId": 700093,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_093.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "624,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.094",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 094",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.094",
+      "tileId": 700094,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_094.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "672,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.095",
+      "displayName": "rpgmaker-mvmz-dea1ccee702e rpgmaker mvmz 27 095",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.rpgmaker_mvmz_dea1ccee702e.rpgmaker_mvmz_27.095",
+      "tileId": 700095,
+      "previewPath": "content/assets/gameplay/cutesckr_all/rpgmaker_mvmz_dea1ccee702e/rpgmaker_mvmz_27/tile_095.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "rpgmaker_mvmz_dea1ccee702e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "rpgmaker-mvmz-dea1ccee702e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/rpgmaker-mvmz-dea1ccee702e/RPGmaker MVMZ/27.png",
+        "atlasRect": "720,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

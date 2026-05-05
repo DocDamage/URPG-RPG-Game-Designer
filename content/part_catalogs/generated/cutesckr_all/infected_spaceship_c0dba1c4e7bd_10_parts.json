@@ -1,0 +1,4040 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10",
+  "displayName": "infected-spaceship-c0dba1c4e7bd 10",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.000",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "0,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.001",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "48,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.002",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "96,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.003",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "144,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.004",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "240,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.005",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "288,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.006",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "336,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.007",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "384,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.008",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "432,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.009",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "480,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.010",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "528,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.011",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "576,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.012",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "624,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.013",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "672,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.014",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "720,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.015",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "0,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.016",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.017",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "96,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.018",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "144,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.019",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "240,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.020",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "288,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.021",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "336,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.022",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "384,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.023",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "432,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.024",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "480,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.025",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "528,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.026",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "576,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.027",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "624,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.028",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "672,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.029",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "720,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.030",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 030",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.030",
+      "tileId": 700030,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "0,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.031",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 031",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.031",
+      "tileId": 700031,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "48,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.032",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 032",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.032",
+      "tileId": 700032,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "96,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.033",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 033",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.033",
+      "tileId": 700033,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "144,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.034",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 034",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.034",
+      "tileId": 700034,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "240,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.035",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 035",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.035",
+      "tileId": 700035,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "288,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.036",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 036",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.036",
+      "tileId": 700036,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "336,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.037",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 037",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.037",
+      "tileId": 700037,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "384,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.038",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 038",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.038",
+      "tileId": 700038,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "432,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.039",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 039",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.039",
+      "tileId": 700039,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "480,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.040",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 040",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.040",
+      "tileId": 700040,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "528,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.041",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 041",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.041",
+      "tileId": 700041,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "576,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.042",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 042",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.042",
+      "tileId": 700042,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "624,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.043",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 043",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.043",
+      "tileId": 700043,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "672,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.044",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 044",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.044",
+      "tileId": 700044,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "720,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.045",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 045",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.045",
+      "tileId": 700045,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "0,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.046",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 046",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.046",
+      "tileId": 700046,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "48,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.047",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 047",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.047",
+      "tileId": 700047,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "96,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.048",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 048",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.048",
+      "tileId": 700048,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "144,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.049",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 049",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.049",
+      "tileId": 700049,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "240,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.050",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 050",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.050",
+      "tileId": 700050,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "288,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.051",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 051",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.051",
+      "tileId": 700051,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "336,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.052",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 052",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.052",
+      "tileId": 700052,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "384,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.053",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 053",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.053",
+      "tileId": 700053,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "432,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.054",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 054",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.054",
+      "tileId": 700054,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "480,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.055",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 055",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.055",
+      "tileId": 700055,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "528,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.056",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 056",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.056",
+      "tileId": 700056,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "576,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.057",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 057",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.057",
+      "tileId": 700057,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "624,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.058",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 058",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.058",
+      "tileId": 700058,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "672,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.059",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 059",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.059",
+      "tileId": 700059,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "720,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.060",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 060",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.060",
+      "tileId": 700060,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "0,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.061",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 061",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.061",
+      "tileId": 700061,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "48,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.062",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 062",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.062",
+      "tileId": 700062,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "96,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.063",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 063",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.063",
+      "tileId": 700063,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "144,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.064",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 064",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.064",
+      "tileId": 700064,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "240,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.065",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 065",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.065",
+      "tileId": 700065,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "288,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.066",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 066",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.066",
+      "tileId": 700066,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "336,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.067",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 067",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.067",
+      "tileId": 700067,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "384,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.068",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 068",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.068",
+      "tileId": 700068,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "432,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.069",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 069",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.069",
+      "tileId": 700069,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "480,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.070",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 070",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.070",
+      "tileId": 700070,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "528,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.071",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 071",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.071",
+      "tileId": 700071,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "576,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.072",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 072",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.072",
+      "tileId": 700072,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "624,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.073",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 073",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.073",
+      "tileId": 700073,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "720,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.074",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 074",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.074",
+      "tileId": 700074,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "0,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.075",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 075",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.075",
+      "tileId": 700075,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "48,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.076",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 076",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.076",
+      "tileId": 700076,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "96,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.077",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 077",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.077",
+      "tileId": 700077,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "144,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.078",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 078",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.078",
+      "tileId": 700078,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "240,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.079",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 079",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.079",
+      "tileId": 700079,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "288,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.080",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 080",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.080",
+      "tileId": 700080,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_080.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "336,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.081",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 081",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.081",
+      "tileId": 700081,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_081.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "384,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.082",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 082",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.082",
+      "tileId": 700082,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_082.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "432,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.083",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 083",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.083",
+      "tileId": 700083,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_083.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "480,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.084",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 084",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.084",
+      "tileId": 700084,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_084.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "576,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.085",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 085",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.085",
+      "tileId": 700085,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_085.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "624,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.086",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 086",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.086",
+      "tileId": 700086,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_086.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "672,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.087",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 087",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.087",
+      "tileId": 700087,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_087.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "720,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.088",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 088",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.088",
+      "tileId": 700088,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_088.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "0,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.089",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 089",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.089",
+      "tileId": 700089,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_089.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "48,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.090",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 090",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.090",
+      "tileId": 700090,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_090.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "96,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.091",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 091",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.091",
+      "tileId": 700091,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_091.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "144,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.092",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 092",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.092",
+      "tileId": 700092,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_092.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "240,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.093",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 093",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.093",
+      "tileId": 700093,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_093.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "288,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.094",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 094",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.094",
+      "tileId": 700094,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_094.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "336,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.095",
+      "displayName": "infected-spaceship-c0dba1c4e7bd 10 095",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.infected_spaceship_c0dba1c4e7bd.10.095",
+      "tileId": 700095,
+      "previewPath": "content/assets/gameplay/cutesckr_all/infected_spaceship_c0dba1c4e7bd/10/tile_095.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "infected_spaceship_c0dba1c4e7bd",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "infected-spaceship-c0dba1c4e7bd",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/infected-spaceship-c0dba1c4e7bd/10.png",
+        "atlasRect": "384,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

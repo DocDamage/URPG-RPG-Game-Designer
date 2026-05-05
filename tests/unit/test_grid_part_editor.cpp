@@ -74,6 +74,113 @@ TEST_CASE("Grid part palette exposes deterministic selectable catalog entries", 
     REQUIRE(palette.lastRenderSnapshot().entries[0].selected);
 }
 
+TEST_CASE("Grid part palette exposes real asset preview metadata", "[grid_part][editor][assets]") {
+    GridPartCatalog catalog;
+    auto tile = makeDefinition("asset.tile.grunge.000", GridPartCategory::Tile, GridPartLayer::Terrain);
+    tile.asset_id = "src012.grunge_tileset.000";
+    tile.preview_path = "content/assets/gameplay/src012/grunge_tileset/tile_000.png";
+    tile.source_image_path = "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png";
+    tile.atlas_rect = {0, 0, 16, 16};
+    REQUIRE(catalog.addDefinition(tile));
+
+    GridPartPalettePanel palette;
+    palette.SetCatalog(&catalog);
+
+    const auto& entry = palette.lastRenderSnapshot().entries.front();
+    REQUIRE(entry.part_id == "asset.tile.grunge.000");
+    REQUIRE(entry.preview_path == "content/assets/gameplay/src012/grunge_tileset/tile_000.png");
+    REQUIRE(entry.source_image_path == "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png");
+    REQUIRE(entry.atlas_x == 0);
+    REQUIRE(entry.atlas_y == 0);
+    REQUIRE(entry.atlas_width == 16);
+    REQUIRE(entry.atlas_height == 16);
+}
+
+TEST_CASE("Grid part palette exposes category counts for large asset catalogs", "[grid_part][editor][assets]") {
+    GridPartCatalog catalog;
+    REQUIRE(catalog.addDefinition(makeDefinition("asset.tile.grass", GridPartCategory::Tile, GridPartLayer::Terrain)));
+    REQUIRE(catalog.addDefinition(makeDefinition("asset.wall.stone", GridPartCategory::Wall, GridPartLayer::Collision)));
+    REQUIRE(catalog.addDefinition(makeDefinition("asset.prop.crate", GridPartCategory::Prop, GridPartLayer::Object)));
+    REQUIRE(catalog.addDefinition(makeDefinition("asset.prop.barrel", GridPartCategory::Prop, GridPartLayer::Object)));
+
+    GridPartPalettePanel palette;
+    palette.SetCatalog(&catalog);
+
+    auto snapshot = palette.lastRenderSnapshot();
+    REQUIRE(snapshot.part_count == 4);
+    REQUIRE(snapshot.category_counts.at("tile") == 1);
+    REQUIRE(snapshot.category_counts.at("wall") == 1);
+    REQUIRE(snapshot.category_counts.at("prop") == 2);
+
+    palette.SetCategoryFilter(GridPartCategory::Prop);
+    snapshot = palette.lastRenderSnapshot();
+    REQUIRE(snapshot.active_category == "prop");
+    REQUIRE(snapshot.part_count == 2);
+    REQUIRE(std::all_of(snapshot.entries.begin(), snapshot.entries.end(),
+                        [](const auto& entry) { return entry.category == "prop"; }));
+
+    palette.SetSearchQuery("barrel");
+    snapshot = palette.lastRenderSnapshot();
+    REQUIRE(snapshot.part_count == 1);
+    REQUIRE(snapshot.entries.front().part_id == "asset.prop.barrel");
+}
+
+TEST_CASE("Grid part palette filters large catalogs by source bundle", "[grid_part][editor][assets]") {
+    GridPartCatalog catalog;
+    auto legacyTile = makeDefinition("promoted.bnd_006.tile.00000", GridPartCategory::Tile, GridPartLayer::Terrain);
+    legacyTile.default_properties["sourceBundleId"] = "BND-006";
+    REQUIRE(catalog.addDefinition(legacyTile));
+    auto legacyProp = makeDefinition("promoted.bnd_007.prop.00000", GridPartCategory::Prop, GridPartLayer::Object);
+    legacyProp.default_properties["sourceBundleId"] = "BND-007";
+    REQUIRE(catalog.addDefinition(legacyProp));
+    auto cutesckrTile = makeDefinition("cutesckr.farm.tile.000", GridPartCategory::Tile, GridPartLayer::Terrain);
+    cutesckrTile.source_image_path = "imports/raw/cutesckr/farm/tilesets/1.png";
+    REQUIRE(catalog.addDefinition(cutesckrTile));
+
+    GridPartPalettePanel palette;
+    palette.SetCatalog(&catalog);
+
+    auto snapshot = palette.lastRenderSnapshot();
+    REQUIRE(snapshot.source_counts.at("BND-006") == 1);
+    REQUIRE(snapshot.source_counts.at("BND-007") == 1);
+    REQUIRE(snapshot.source_counts.at("cutesckr") == 1);
+    REQUIRE(snapshot.entries[0].source_pack == "cutesckr");
+
+    palette.SetSourceFilter("BND-007");
+    snapshot = palette.lastRenderSnapshot();
+    REQUIRE(snapshot.active_source == "BND-007");
+    REQUIRE(snapshot.part_count == 1);
+    REQUIRE(snapshot.entries.front().part_id == "promoted.bnd_007.prop.00000");
+
+    palette.SetCategoryFilter(GridPartCategory::Tile);
+    snapshot = palette.lastRenderSnapshot();
+    REQUIRE(snapshot.part_count == 0);
+}
+
+TEST_CASE("Grid part palette caps unfiltered entry snapshots for very large catalogs", "[grid_part][editor][assets]") {
+    GridPartCatalog catalog;
+    for (int index = 0; index < 2200; ++index) {
+        auto definition = makeDefinition("asset.prop.bulk." + std::to_string(index), GridPartCategory::Prop,
+                                         GridPartLayer::Object);
+        definition.default_properties["sourceBundleId"] = index < 1100 ? "BND-A" : "BND-B";
+        REQUIRE(catalog.addDefinition(definition));
+    }
+
+    GridPartPalettePanel palette;
+    palette.SetCatalog(&catalog);
+
+    auto snapshot = palette.lastRenderSnapshot();
+    REQUIRE(snapshot.part_count == 2200);
+    REQUIRE(snapshot.entry_limit_reached);
+    REQUIRE(snapshot.entries.size() == 2000);
+
+    palette.SetSourceFilter("BND-B");
+    snapshot = palette.lastRenderSnapshot();
+    REQUIRE_FALSE(snapshot.entry_limit_reached);
+    REQUIRE(snapshot.part_count == 1100);
+    REQUIRE(snapshot.entries.size() == 1100);
+}
+
 TEST_CASE("Grid part placement previews places and undoes selected parts", "[grid_part][editor]") {
     GridPartCatalog catalog;
     REQUIRE(catalog.addDefinition(makeDefinition("prop.crate", GridPartCategory::Prop)));

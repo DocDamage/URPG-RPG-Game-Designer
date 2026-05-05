@@ -1,0 +1,2568 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "src012_caverns_tiles_parts",
+  "displayName": "Cavern Tile",
+  "description": "Generated Level Builder grid parts from promoted gameplay tileset slices.",
+  "parts": [
+    {
+      "partId": "asset.tile.caverns.000",
+      "displayName": "Cavern Tile 000",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.000",
+      "tileId": 1100,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_000.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 32,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "32,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.001",
+      "displayName": "Cavern Tile 001",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.001",
+      "tileId": 1101,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_001.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "48,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.002",
+      "displayName": "Cavern Tile 002",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.002",
+      "tileId": 1102,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_002.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 64,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "64,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.003",
+      "displayName": "Cavern Tile 003",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.003",
+      "tileId": 1103,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_003.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 80,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "80,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.004",
+      "displayName": "Cavern Tile 004",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.004",
+      "tileId": 1104,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_004.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "96,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.005",
+      "displayName": "Cavern Tile 005",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.005",
+      "tileId": 1105,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_005.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 112,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "112,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.006",
+      "displayName": "Cavern Tile 006",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.006",
+      "tileId": 1106,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_006.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 128,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "128,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.007",
+      "displayName": "Cavern Tile 007",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.007",
+      "tileId": 1107,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_007.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "144,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.008",
+      "displayName": "Cavern Tile 008",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.008",
+      "tileId": 1108,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_008.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 160,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "160,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.009",
+      "displayName": "Cavern Tile 009",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.009",
+      "tileId": 1109,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_009.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 176,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "176,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.010",
+      "displayName": "Cavern Tile 010",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.010",
+      "tileId": 1110,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_010.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "192,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.011",
+      "displayName": "Cavern Tile 011",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.011",
+      "tileId": 1111,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_011.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 208,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "208,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.012",
+      "displayName": "Cavern Tile 012",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.012",
+      "tileId": 1112,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_012.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 224,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "224,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.013",
+      "displayName": "Cavern Tile 013",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.013",
+      "tileId": 1113,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_013.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "240,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.014",
+      "displayName": "Cavern Tile 014",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.014",
+      "tileId": 1114,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_014.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 256,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "256,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.015",
+      "displayName": "Cavern Tile 015",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.015",
+      "tileId": 1115,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_015.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 272,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "272,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.016",
+      "displayName": "Cavern Tile 016",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.016",
+      "tileId": 1116,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_016.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "288,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.017",
+      "displayName": "Cavern Tile 017",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.017",
+      "tileId": 1117,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_017.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 304,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "304,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.018",
+      "displayName": "Cavern Tile 018",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.018",
+      "tileId": 1118,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_018.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 320,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "320,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.019",
+      "displayName": "Cavern Tile 019",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.019",
+      "tileId": 1119,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_019.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "336,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.020",
+      "displayName": "Cavern Tile 020",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.020",
+      "tileId": 1120,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_020.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 352,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "352,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.021",
+      "displayName": "Cavern Tile 021",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.021",
+      "tileId": 1121,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_021.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 368,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "368,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.022",
+      "displayName": "Cavern Tile 022",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.022",
+      "tileId": 1122,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_022.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "384,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.023",
+      "displayName": "Cavern Tile 023",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.023",
+      "tileId": 1123,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_023.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 400,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "400,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.024",
+      "displayName": "Cavern Tile 024",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.024",
+      "tileId": 1124,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_024.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 112,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "112,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.025",
+      "displayName": "Cavern Tile 025",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.025",
+      "tileId": 1125,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_025.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 128,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "128,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.026",
+      "displayName": "Cavern Tile 026",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.026",
+      "tileId": 1126,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_026.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "144,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.027",
+      "displayName": "Cavern Tile 027",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.027",
+      "tileId": 1127,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_027.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 160,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "160,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.028",
+      "displayName": "Cavern Tile 028",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.028",
+      "tileId": 1128,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_028.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 176,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "176,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.029",
+      "displayName": "Cavern Tile 029",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.029",
+      "tileId": 1129,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_029.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "192,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.030",
+      "displayName": "Cavern Tile 030",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.030",
+      "tileId": 1130,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_030.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 208,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "208,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.031",
+      "displayName": "Cavern Tile 031",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.031",
+      "tileId": 1131,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_031.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 224,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "224,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.032",
+      "displayName": "Cavern Tile 032",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.032",
+      "tileId": 1132,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_032.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "240,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.033",
+      "displayName": "Cavern Tile 033",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.033",
+      "tileId": 1133,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_033.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 256,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "256,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.034",
+      "displayName": "Cavern Tile 034",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.034",
+      "tileId": 1134,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_034.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 272,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "272,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.035",
+      "displayName": "Cavern Tile 035",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.035",
+      "tileId": 1135,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_035.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "288,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.036",
+      "displayName": "Cavern Tile 036",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.036",
+      "tileId": 1136,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_036.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 304,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "304,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.037",
+      "displayName": "Cavern Tile 037",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.037",
+      "tileId": 1137,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_037.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 320,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "320,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.038",
+      "displayName": "Cavern Tile 038",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.038",
+      "tileId": 1138,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_038.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "336,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.039",
+      "displayName": "Cavern Tile 039",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.039",
+      "tileId": 1139,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_039.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 352,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "352,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.040",
+      "displayName": "Cavern Tile 040",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.040",
+      "tileId": 1140,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_040.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 368,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "368,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.041",
+      "displayName": "Cavern Tile 041",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.041",
+      "tileId": 1141,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_041.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 112,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "112,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.042",
+      "displayName": "Cavern Tile 042",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.042",
+      "tileId": 1142,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_042.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 128,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "128,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.043",
+      "displayName": "Cavern Tile 043",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.043",
+      "tileId": 1143,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_043.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "144,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.044",
+      "displayName": "Cavern Tile 044",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.044",
+      "tileId": 1144,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_044.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 160,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "160,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.045",
+      "displayName": "Cavern Tile 045",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.045",
+      "tileId": 1145,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_045.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 176,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "176,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.046",
+      "displayName": "Cavern Tile 046",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.046",
+      "tileId": 1146,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_046.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "192,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.047",
+      "displayName": "Cavern Tile 047",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.047",
+      "tileId": 1147,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_047.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 208,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "208,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.048",
+      "displayName": "Cavern Tile 048",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.048",
+      "tileId": 1148,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_048.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 224,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "224,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.049",
+      "displayName": "Cavern Tile 049",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.049",
+      "tileId": 1149,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_049.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "240,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.050",
+      "displayName": "Cavern Tile 050",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.050",
+      "tileId": 1150,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_050.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 256,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "256,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.051",
+      "displayName": "Cavern Tile 051",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.051",
+      "tileId": 1151,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_051.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 272,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "272,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.052",
+      "displayName": "Cavern Tile 052",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.052",
+      "tileId": 1152,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_052.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "288,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.053",
+      "displayName": "Cavern Tile 053",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.053",
+      "tileId": 1153,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_053.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 304,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "304,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.054",
+      "displayName": "Cavern Tile 054",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.054",
+      "tileId": 1154,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_054.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 320,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "320,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.055",
+      "displayName": "Cavern Tile 055",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.055",
+      "tileId": 1155,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_055.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "336,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.056",
+      "displayName": "Cavern Tile 056",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.056",
+      "tileId": 1156,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_056.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 352,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "352,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.057",
+      "displayName": "Cavern Tile 057",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.057",
+      "tileId": 1157,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_057.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 368,
+        "y": 32,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "368,32,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.058",
+      "displayName": "Cavern Tile 058",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.058",
+      "tileId": 1158,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_058.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 112,
+        "y": 48,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "112,48,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.059",
+      "displayName": "Cavern Tile 059",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.059",
+      "tileId": 1159,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_059.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 128,
+        "y": 48,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "128,48,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.060",
+      "displayName": "Cavern Tile 060",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.060",
+      "tileId": 1160,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_060.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "144,48,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.061",
+      "displayName": "Cavern Tile 061",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.061",
+      "tileId": 1161,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_061.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 160,
+        "y": 48,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "160,48,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.062",
+      "displayName": "Cavern Tile 062",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.062",
+      "tileId": 1162,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_062.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 176,
+        "y": 48,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "176,48,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.caverns.063",
+      "displayName": "Cavern Tile 063",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.caverns_tiles.063",
+      "tileId": 1163,
+      "previewPath": "content/assets/gameplay/src012/caverns_tiles/tile_063.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "atlasRect": "192,48,16,16"
+      }
+    }
+  ]
+}

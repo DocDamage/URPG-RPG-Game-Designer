@@ -6,7 +6,7 @@ The project is built for creators who want RPG Maker-style production speed with
 
 ## Current Status
 
-Status date: 2026-05-04
+Status date: 2026-05-05
 
 The current `codex/release-surface-p0` branch has completed the release-surface audit remediation plan through Phase 6 Task P6-002. The full local gate now passes end to end:
 
@@ -15,6 +15,8 @@ The current `codex/release-surface-p0` branch has completed the release-surface 
 ```
 
 This means the current branch has verified editor release navigation, Level Builder exposure, release authoring persistence, input and pause behavior, release-required asset checks, install/package smoke, PR tests, nightly tests, weekly compat tests, and documentation/readiness guard scripts.
+
+The current asset-ingestion branch also adds a larger game-maker asset foundation: default startup remains on the bounded `content/part_catalogs/base_jrpg_parts.json`, while the complete generated library is opt-in through `content/part_catalogs/game_maker_all_parts.json`. The next implementation plan for template-scoped loading, left-side asset browsing, previews, drag/paint authoring, main menu, and onboarding is tracked in `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md`.
 
 Public release is release-owner-waived for legal/privacy review, not qualified-counsel-approved. `EULA.md`,
 `PRIVACY_POLICY.md`, and `docs/release/LEGAL_REVIEW_SIGNOFF.md` now state the same distribution scope. Final public
@@ -39,6 +41,8 @@ Within the bounded internal/private release-candidate scope:
 - Ability draft save/load/apply, ability project-content save, pattern editing, Level Builder save/load/export/playtest/package, analytics consent/local JSONL export, and app settings persistence are covered by deterministic tests.
 - Release-required assets are validated by `tools/ci/check_release_required_assets.ps1`; raw/vendor intake paths are not eligible release payloads.
 - Current release visuals are bounded starter/proof assets, not final AAA art direction. The release asset gate requires this scope to be declared before prototype actor, starter UI skin/chrome, or VFX proof rows can satisfy release coverage.
+- Generated game-maker asset catalogs now include promoted legacy parts, CuteSCKR sheets, portrait/image-folder catalogs, and deferred ModernUI portrait-generator parts. These are browse/authoring inputs; templates must load bounded subsets by default and leave the full library opt-in.
+- In-game UI theme metadata now distinguishes `game_ui_theme` from `editor_theme`. `Complete_UI_Essential_Pack_Free` is recorded as game-UI-ready, while `Wenrexa Hologram` remains a candidate because its completeness report is missing bar/progress assets.
 - Cloud sync is not a production-visible release feature in the shipped tree. `LocalInMemoryCloudService` is process-local
   test/dev storage only, and release UI must keep cloud/cross-device sync hidden unless an out-of-tree provider reports a
   reviewed remote transport through `ICloudService::releaseVisibility()`.
@@ -230,6 +234,7 @@ Version metadata:
 - [Asset Intake Registry](./docs/asset_intake/ASSET_SOURCE_REGISTRY.md)
 - [Asset Promotion Guide](./docs/asset_intake/ASSET_PROMOTION_GUIDE.md)
 - [Template Specs](./docs/templates/)
+- [Game Maker Asset Browser And Onboarding Plan](./docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md)
 
 ## Development Rules
 

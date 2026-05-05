@@ -24,6 +24,8 @@ This file is a pointer map, not the debt database.
 - Keep any future compat and migration limitations diagnostic-rich and documented; current public compat manager registries are closed for the claimed bridge scope.
 - Keep editor release navigation aligned with `docs/release/EDITOR_CONTROL_INVENTORY.md`.
 - Keep release-required asset checks, install smoke, package smoke, and native version metadata aligned with `README.md`, `docs/APP_RELEASE_READINESS_MATRIX.md`, and `docs/release/RELEASE_PACKAGING.md`.
+- Treat the current large game-maker asset library as opt-in until `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md` lands. Default startup must remain on bounded starter catalogs, and templates must lazy-load/unload full-library scopes.
+- Treat UI theme packs as game UI themes unless their completeness reports prove editor-theme readiness. `Complete_UI_Essential_Pack_Free` is game-UI-ready; `Wenrexa Hologram` remains candidate-only until its missing bar/progress assets or equivalent mapping are supplied.
 - Treat release authoring persistence as a guarded surface: ability draft IO must
   keep path-specific `last_io` diagnostics, failed loads must preserve the last
   valid draft, and Level Builder load/export safeguards must keep rejecting

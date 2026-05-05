@@ -346,6 +346,7 @@ set(URPG_CORE_SOURCES
     engine/core/map/tactical_grid_preview.cpp
     engine/core/map/grid_part_document.cpp
     engine/core/map/grid_part_catalog.cpp
+    engine/core/map/grid_part_catalog_loader.cpp
     engine/core/map/grid_part_commands.cpp
     engine/core/map/grid_part_validator.cpp
     engine/core/map/grid_part_runtime_compiler.cpp
@@ -1736,6 +1737,22 @@ if(Python3_FOUND)
     urpg_add_python_tool_test(
         urpg_global_asset_import_tool_test
         tools/assets/tests/test_global_asset_import.py
+    )
+    urpg_add_python_tool_test(
+        urpg_generate_promoted_grid_parts_tool_test
+        tools/assets/tests/test_generate_promoted_grid_parts.py
+    )
+    urpg_add_python_tool_test(
+        urpg_generate_cutesckr_grid_parts_tool_test
+        tools/assets/tests/test_generate_cutesckr_grid_parts.py
+    )
+    urpg_add_python_tool_test(
+        urpg_generate_image_folder_grid_parts_tool_test
+        tools/assets/tests/test_generate_image_folder_grid_parts.py
+    )
+    urpg_add_python_tool_test(
+        urpg_generate_ui_theme_manifest_tool_test
+        tools/assets/tests/test_generate_ui_theme_manifest.py
     )
 else()
     message(STATUS

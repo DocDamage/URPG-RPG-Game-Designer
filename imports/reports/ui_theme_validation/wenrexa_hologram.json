@@ -1,0 +1,417 @@
+{
+  "schema": "urpg/ui_theme_validation_report/v1",
+  "themeId": "wenrexa_hologram",
+  "assetCount": 48,
+  "checks": {
+    "gameUiReady": {
+      "status": "fail",
+      "missing": [
+        "bars"
+      ]
+    },
+    "editorThemeReady": {
+      "status": "fail",
+      "missing": [
+        "color_tokens",
+        "font_pairing",
+        "icon_semantic_aliases",
+        "input_field_states",
+        "list_tree_row_states",
+        "menu_item_states",
+        "nine_slice_metadata",
+        "scale_policy",
+        "scrollbar_track_thumb",
+        "select_dropdown_states",
+        "splitter_resize_handle",
+        "tab_states",
+        "toggle_checkbox_radio"
+      ]
+    }
+  },
+  "assets": [
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Button 1/Button Active.png",
+      "kind": "image",
+      "width": 114,
+      "height": 38,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Button 1/Button Disable.png",
+      "kind": "image",
+      "width": 114,
+      "height": 38,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Button 1/Button Hover.png",
+      "kind": "image",
+      "width": 114,
+      "height": 38,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Button 1/Button Normal.png",
+      "kind": "image",
+      "width": 114,
+      "height": 38,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Card X1/Card X1.png",
+      "kind": "image",
+      "width": 405,
+      "height": 847,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Card X1/Card X2.png",
+      "kind": "image",
+      "width": 396,
+      "height": 847,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Card X1/Panel Empty Green.png",
+      "kind": "image",
+      "width": 113,
+      "height": 65,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Card X1/Panel Empty.png",
+      "kind": "image",
+      "width": 113,
+      "height": 65,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Card X1/Panel Red.png",
+      "kind": "image",
+      "width": 113,
+      "height": 65,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Card X2/Card X2.png",
+      "kind": "image",
+      "width": 405,
+      "height": 378,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Card X2/Card X3.png",
+      "kind": "image",
+      "width": 397,
+      "height": 378,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Card X3/Card X5.png",
+      "kind": "image",
+      "width": 695,
+      "height": 377,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Card X3/Card X6.png",
+      "kind": "image",
+      "width": 695,
+      "height": 399,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/01.png",
+      "kind": "image",
+      "width": 24,
+      "height": 24,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/02.png",
+      "kind": "image",
+      "width": 24,
+      "height": 9,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/03.png",
+      "kind": "image",
+      "width": 23,
+      "height": 23,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/04.png",
+      "kind": "image",
+      "width": 28,
+      "height": 26,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/05.png",
+      "kind": "image",
+      "width": 5,
+      "height": 31,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/06.png",
+      "kind": "image",
+      "width": 20,
+      "height": 31,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/07.png",
+      "kind": "image",
+      "width": 31,
+      "height": 31,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/08.png",
+      "kind": "image",
+      "width": 21,
+      "height": 31,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/09.png",
+      "kind": "image",
+      "width": 20,
+      "height": 27,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/10.png",
+      "kind": "image",
+      "width": 20,
+      "height": 27,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/11.png",
+      "kind": "image",
+      "width": 19,
+      "height": 27,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/12.png",
+      "kind": "image",
+      "width": 27,
+      "height": 27,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/13.png",
+      "kind": "image",
+      "width": 23,
+      "height": 22,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/14.png",
+      "kind": "image",
+      "width": 23,
+      "height": 22,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/15.png",
+      "kind": "image",
+      "width": 20,
+      "height": 34,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/16.png",
+      "kind": "image",
+      "width": 32,
+      "height": 32,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/17.png",
+      "kind": "image",
+      "width": 32,
+      "height": 32,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/18.png",
+      "kind": "image",
+      "width": 30,
+      "height": 33,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/19.png",
+      "kind": "image",
+      "width": 15,
+      "height": 29,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/20.png",
+      "kind": "image",
+      "width": 24,
+      "height": 15,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/21.png",
+      "kind": "image",
+      "width": 25,
+      "height": 21,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/22.png",
+      "kind": "image",
+      "width": 31,
+      "height": 28,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/23.png",
+      "kind": "image",
+      "width": 27,
+      "height": 29,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/24.png",
+      "kind": "image",
+      "width": 32,
+      "height": 31,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/25.png",
+      "kind": "image",
+      "width": 32,
+      "height": 22,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/26.png",
+      "kind": "image",
+      "width": 30,
+      "height": 25,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/27.png",
+      "kind": "image",
+      "width": 23,
+      "height": 26,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/28.png",
+      "kind": "image",
+      "width": 27,
+      "height": 20,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/29.png",
+      "kind": "image",
+      "width": 27,
+      "height": 20,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/30.png",
+      "kind": "image",
+      "width": 31,
+      "height": 23,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/31.png",
+      "kind": "image",
+      "width": 32,
+      "height": 20,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/32.png",
+      "kind": "image",
+      "width": 28,
+      "height": 31,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/33.png",
+      "kind": "image",
+      "width": 33,
+      "height": 20,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/34.png",
+      "kind": "image",
+      "width": 35,
+      "height": 24,
+      "mode": "RGBA",
+      "transparent": true
+    },
+    {
+      "path": "content/assets/ui_themes/wenrexa_hologram/Icons/35.png",
+      "kind": "image",
+      "width": 31,
+      "height": 26,
+      "mode": "RGBA",
+      "transparent": true
+    }
+  ]
+}

@@ -12,6 +12,7 @@ This directory is the agent-facing map for URPG. It points to canonical files ra
 | Current release gaps and debt | `docs/agent/KNOWN_DEBT.md` |
 | Current release execution tasks | `docs/release/AAA_RELEASE_EXECUTION_PLAN.md` |
 | Current release-surface audit tasks | `docs/superpowers/plans/2026-04-30-release-surface-audit-execution-plan.md` |
+| Current game-maker asset browser/onboarding tasks | `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md` |
 | Current verified app-release status | `README.md`, `docs/APP_RELEASE_READINESS_MATRIX.md` |
 
 ## Canonical Status
@@ -34,6 +35,7 @@ This directory is the agent-facing map for URPG. It points to canonical files ra
 - Native Level Builder and grid-part authoring: `editor/spatial/level_builder_workspace.*`, `engine/core/map/grid_part_*`, `content/schemas/grid_part_*.schema.json`
 - Export and packaging: `docs/release/RELEASE_PACKAGING.md`
 - Asset intake and promotion: `docs/asset_intake/`
+- Game-maker asset browser and onboarding: `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md`
 - Template governance: `docs/templates/`, `docs/governance/`
 
 ## Agent Hygiene

@@ -49,6 +49,13 @@ struct GridPartFootprint {
     bool blocks_navigation = false;
 };
 
+struct GridPartAtlasRect {
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t width = 0;
+    int32_t height = 0;
+};
+
 struct GridPartDefinition {
     std::string part_id;
     std::string display_name;
@@ -64,6 +71,9 @@ struct GridPartDefinition {
 
     std::string asset_id;
     std::string prefab_path;
+    std::string preview_path;
+    std::string source_image_path;
+    GridPartAtlasRect atlas_rect;
     int32_t tile_id = 0;
 
     std::vector<std::string> tags;

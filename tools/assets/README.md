@@ -193,6 +193,96 @@ The generic cataloger also caps shards at 5,000 records and removes stale shard 
 
 It promotes only six selected `SRC-012` CC0/public-domain tiles/VFX PNGs. All other `SRC-011` and `SRC-012` records remain local-use-only until curated attribution review.
 
+## Promoted grid-part generation
+Generate editor-ready Level Builder thumbnails and catalogs from already promoted bundle manifests.
+
+```powershell
+python .\tools\assets\generate_promoted_grid_parts.py `
+  --repo-root . `
+  --bundle imports\manifests\asset_bundles\BND-006.json `
+  --bundle imports\manifests\asset_bundles\BND-007.json `
+  --bundle imports\manifests\asset_bundles\BND-008.json `
+  --output-root content\assets\gameplay\promoted_legacy `
+  --catalog-root content\part_catalogs\generated\promoted_legacy `
+  --report-output imports\reports\asset_intake\promoted_legacy_grid_part_generation_report.json
+```
+
+The generator uses only manifest records that are image assets, license-cleared, and release-eligible. It writes small thumbnails for editor browsing and leaves the original promoted payloads under `imports/normalized`.
+
+## CuteSCKR full grid-part generation
+Extract all CuteSCKR archives from the 2026-05-04 drop into raw quarantine:
+
+```powershell
+python .\tools\assets\extract_local_asset_archives.py `
+  --repo-root . `
+  --source-id SRC-015 `
+  --source-root "ingest stuff 5-4-26\CuteSCKR" `
+  --extract-root imports\raw\cutesckr_all `
+  --report imports\reports\asset_intake\cutesckr_full_archive_extraction_report.json
+```
+
+Generate Level Builder slices and aggregate includes:
+
+```powershell
+python .\tools\assets\generate_cutesckr_grid_parts.py `
+  --repo-root . `
+  --source-root imports\raw\cutesckr_all\__archive_extracted `
+  --output-root content\assets\gameplay\cutesckr_all `
+  --catalog-root content\part_catalogs\generated\cutesckr_all `
+  --aggregate-catalog content\part_catalogs\generated\cutesckr_all_parts.json `
+  --tile-size 48 `
+  --max-tiles-per-sheet 96 `
+  --report-output imports\reports\asset_intake\cutesckr_full_grid_part_generation_report.json
+```
+
+The generator writes source-bundle metadata from each extracted archive root so the Level Builder source filter can narrow the 90-pack import.
+
+## Individual image game-maker catalogs
+Generate game-maker catalog entries from folders of standalone images such as portraits.
+
+```powershell
+python .\tools\assets\generate_image_folder_grid_parts.py `
+  --repo-root . `
+  --source-root imports\raw\human_rpg_portraits\__archive_extracted `
+  --output-root content\assets\gameplay\human_rpg_portraits `
+  --catalog-output content\part_catalogs\generated\human_rpg_portraits_parts.json `
+  --catalog-id human_rpg_portraits `
+  --display-name "Human RPG Portraits" `
+  --part-prefix human_portrait `
+  --category Npc `
+  --source-bundle-id human_rpg_portraits `
+  --max-thumbnail-size 96 `
+  --report-output imports\reports\asset_intake\human_rpg_portrait_grid_part_generation_report.json
+```
+
+ModernUI app-control skinning is out of scope for this path. The promoted ModernUI portrait-generator PNGs can still be exposed for game-maker use with `generate_promoted_grid_parts.py` and `BND-010`.
+
+The default editor catalog remains the smaller `content/part_catalogs/base_jrpg_parts.json` for startup performance. Use `content/part_catalogs/game_maker_all_parts.json` when a run needs the complete generated game-maker library.
+
+## UI theme manifest generation
+Mirror candidate UI theme folders, copy runtime UI art, and generate completeness metadata plus validation reports.
+
+```powershell
+python .\tools\assets\generate_ui_theme_manifest.py `
+  --repo-root . `
+  --source-root "F:\Complete_UI_Essential_Pack_Free" `
+  --theme-id complete_ui_essential_flat `
+  --display-name "Complete UI Essential Flat" `
+  --raw-output imports\raw\ui_themes\complete_ui_essential_flat `
+  --asset-output content\assets\ui_themes\complete_ui_essential_flat `
+  --manifest-output content\ui_themes\complete_ui_essential_flat.json `
+  --report-output imports\reports\ui_theme_validation\complete_ui_essential_flat.json `
+  --surface game_ui_theme
+```
+
+Generated manifests conform to `content/schemas/ui_theme.schema.json` version 2 and distinguish `game_ui_theme` from `editor_theme`. As of 2026-05-05:
+
+- `complete_ui_essential_flat` ingests 102 assets and passes `gameUiReady`.
+- `wenrexa_hologram` ingests 48 assets and remains `candidate` because it is missing bar/progress assets.
+- Neither pack is editor-theme-ready; editor theme use still requires hand-authored color tokens, font pairing, semantic icon aliases, nine-slice metadata, scale policy, and missing editor-control states.
+
+The implementation plan for connecting these manifests to template-scoped browsing, previews, and onboarding is `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md`.
+
 ## Local generator/tool candidate catalog
 Catalog generator and tool source folders from a local drop for engineering review without executing them.
 

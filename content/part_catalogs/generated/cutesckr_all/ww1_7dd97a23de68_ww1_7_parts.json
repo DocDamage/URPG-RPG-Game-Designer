@@ -1,0 +1,4040 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.ww1_7dd97a23de68.ww1_7",
+  "displayName": "ww1-7dd97a23de68 ww1 7",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.000",
+      "displayName": "ww1-7dd97a23de68 ww1 7 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "96,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.001",
+      "displayName": "ww1-7dd97a23de68 ww1 7 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "144,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.002",
+      "displayName": "ww1-7dd97a23de68 ww1 7 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "336,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.003",
+      "displayName": "ww1-7dd97a23de68 ww1 7 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "384,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.004",
+      "displayName": "ww1-7dd97a23de68 ww1 7 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "576,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.005",
+      "displayName": "ww1-7dd97a23de68 ww1 7 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "624,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.006",
+      "displayName": "ww1-7dd97a23de68 ww1 7 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 816,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "816,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.007",
+      "displayName": "ww1-7dd97a23de68 ww1 7 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 864,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "864,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.008",
+      "displayName": "ww1-7dd97a23de68 ww1 7 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 912,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "912,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.009",
+      "displayName": "ww1-7dd97a23de68 ww1 7 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1008,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1008,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.010",
+      "displayName": "ww1-7dd97a23de68 ww1 7 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1056,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1056,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.011",
+      "displayName": "ww1-7dd97a23de68 ww1 7 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1104,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1104,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.012",
+      "displayName": "ww1-7dd97a23de68 ww1 7 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1152,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1152,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.013",
+      "displayName": "ww1-7dd97a23de68 ww1 7 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1200,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1200,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.014",
+      "displayName": "ww1-7dd97a23de68 ww1 7 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1248,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1248,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.015",
+      "displayName": "ww1-7dd97a23de68 ww1 7 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1296,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1296,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.016",
+      "displayName": "ww1-7dd97a23de68 ww1 7 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1344,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1344,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.017",
+      "displayName": "ww1-7dd97a23de68 ww1 7 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1392,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1392,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.018",
+      "displayName": "ww1-7dd97a23de68 ww1 7 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1440,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1440,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.019",
+      "displayName": "ww1-7dd97a23de68 ww1 7 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1488,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1488,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.020",
+      "displayName": "ww1-7dd97a23de68 ww1 7 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1536,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1536,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.021",
+      "displayName": "ww1-7dd97a23de68 ww1 7 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1584,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1584,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.022",
+      "displayName": "ww1-7dd97a23de68 ww1 7 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1632,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1632,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.023",
+      "displayName": "ww1-7dd97a23de68 ww1 7 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1680,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1680,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.024",
+      "displayName": "ww1-7dd97a23de68 ww1 7 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1728,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1728,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.025",
+      "displayName": "ww1-7dd97a23de68 ww1 7 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1776,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1776,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.026",
+      "displayName": "ww1-7dd97a23de68 ww1 7 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1824,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1824,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.027",
+      "displayName": "ww1-7dd97a23de68 ww1 7 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1872,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1872,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.028",
+      "displayName": "ww1-7dd97a23de68 ww1 7 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1920,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1920,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.029",
+      "displayName": "ww1-7dd97a23de68 ww1 7 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1968,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1968,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.030",
+      "displayName": "ww1-7dd97a23de68 ww1 7 030",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.030",
+      "tileId": 700030,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.031",
+      "displayName": "ww1-7dd97a23de68 ww1 7 031",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.031",
+      "tileId": 700031,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "96,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.032",
+      "displayName": "ww1-7dd97a23de68 ww1 7 032",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.032",
+      "tileId": 700032,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "144,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.033",
+      "displayName": "ww1-7dd97a23de68 ww1 7 033",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.033",
+      "tileId": 700033,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "192,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.034",
+      "displayName": "ww1-7dd97a23de68 ww1 7 034",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.034",
+      "tileId": 700034,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "336,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.035",
+      "displayName": "ww1-7dd97a23de68 ww1 7 035",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.035",
+      "tileId": 700035,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "384,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.036",
+      "displayName": "ww1-7dd97a23de68 ww1 7 036",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.036",
+      "tileId": 700036,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "528,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.037",
+      "displayName": "ww1-7dd97a23de68 ww1 7 037",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.037",
+      "tileId": 700037,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "576,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.038",
+      "displayName": "ww1-7dd97a23de68 ww1 7 038",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.038",
+      "tileId": 700038,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "624,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.039",
+      "displayName": "ww1-7dd97a23de68 ww1 7 039",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.039",
+      "tileId": 700039,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "672,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.040",
+      "displayName": "ww1-7dd97a23de68 ww1 7 040",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.040",
+      "tileId": 700040,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "720,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.041",
+      "displayName": "ww1-7dd97a23de68 ww1 7 041",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.041",
+      "tileId": 700041,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 768,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "768,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.042",
+      "displayName": "ww1-7dd97a23de68 ww1 7 042",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.042",
+      "tileId": 700042,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 816,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "816,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.043",
+      "displayName": "ww1-7dd97a23de68 ww1 7 043",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.043",
+      "tileId": 700043,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 864,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "864,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.044",
+      "displayName": "ww1-7dd97a23de68 ww1 7 044",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.044",
+      "tileId": 700044,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 912,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "912,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.045",
+      "displayName": "ww1-7dd97a23de68 ww1 7 045",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.045",
+      "tileId": 700045,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 960,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "960,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.046",
+      "displayName": "ww1-7dd97a23de68 ww1 7 046",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.046",
+      "tileId": 700046,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1008,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1008,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.047",
+      "displayName": "ww1-7dd97a23de68 ww1 7 047",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.047",
+      "tileId": 700047,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1056,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1056,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.048",
+      "displayName": "ww1-7dd97a23de68 ww1 7 048",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.048",
+      "tileId": 700048,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1104,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1104,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.049",
+      "displayName": "ww1-7dd97a23de68 ww1 7 049",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.049",
+      "tileId": 700049,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1152,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1152,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.050",
+      "displayName": "ww1-7dd97a23de68 ww1 7 050",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.050",
+      "tileId": 700050,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1200,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1200,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.051",
+      "displayName": "ww1-7dd97a23de68 ww1 7 051",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.051",
+      "tileId": 700051,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1248,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1248,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.052",
+      "displayName": "ww1-7dd97a23de68 ww1 7 052",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.052",
+      "tileId": 700052,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1296,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1296,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.053",
+      "displayName": "ww1-7dd97a23de68 ww1 7 053",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.053",
+      "tileId": 700053,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1344,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1344,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.054",
+      "displayName": "ww1-7dd97a23de68 ww1 7 054",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.054",
+      "tileId": 700054,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1392,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1392,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.055",
+      "displayName": "ww1-7dd97a23de68 ww1 7 055",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.055",
+      "tileId": 700055,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1440,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1440,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.056",
+      "displayName": "ww1-7dd97a23de68 ww1 7 056",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.056",
+      "tileId": 700056,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1488,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1488,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.057",
+      "displayName": "ww1-7dd97a23de68 ww1 7 057",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.057",
+      "tileId": 700057,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1536,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1536,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.058",
+      "displayName": "ww1-7dd97a23de68 ww1 7 058",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.058",
+      "tileId": 700058,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1584,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1584,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.059",
+      "displayName": "ww1-7dd97a23de68 ww1 7 059",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.059",
+      "tileId": 700059,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1632,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1632,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.060",
+      "displayName": "ww1-7dd97a23de68 ww1 7 060",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.060",
+      "tileId": 700060,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1680,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1680,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.061",
+      "displayName": "ww1-7dd97a23de68 ww1 7 061",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.061",
+      "tileId": 700061,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1728,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1728,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.062",
+      "displayName": "ww1-7dd97a23de68 ww1 7 062",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.062",
+      "tileId": 700062,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1776,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1776,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.063",
+      "displayName": "ww1-7dd97a23de68 ww1 7 063",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.063",
+      "tileId": 700063,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1824,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1824,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.064",
+      "displayName": "ww1-7dd97a23de68 ww1 7 064",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.064",
+      "tileId": 700064,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1872,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1872,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.065",
+      "displayName": "ww1-7dd97a23de68 ww1 7 065",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.065",
+      "tileId": 700065,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1920,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1920,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.066",
+      "displayName": "ww1-7dd97a23de68 ww1 7 066",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.066",
+      "tileId": 700066,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1968,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1968,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.067",
+      "displayName": "ww1-7dd97a23de68 ww1 7 067",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.067",
+      "tileId": 700067,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "0,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.068",
+      "displayName": "ww1-7dd97a23de68 ww1 7 068",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.068",
+      "tileId": 700068,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "48,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.069",
+      "displayName": "ww1-7dd97a23de68 ww1 7 069",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.069",
+      "tileId": 700069,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "96,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.070",
+      "displayName": "ww1-7dd97a23de68 ww1 7 070",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.070",
+      "tileId": 700070,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "144,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.071",
+      "displayName": "ww1-7dd97a23de68 ww1 7 071",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.071",
+      "tileId": 700071,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "192,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.072",
+      "displayName": "ww1-7dd97a23de68 ww1 7 072",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.072",
+      "tileId": 700072,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "240,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.073",
+      "displayName": "ww1-7dd97a23de68 ww1 7 073",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.073",
+      "tileId": 700073,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "288,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.074",
+      "displayName": "ww1-7dd97a23de68 ww1 7 074",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.074",
+      "tileId": 700074,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "336,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.075",
+      "displayName": "ww1-7dd97a23de68 ww1 7 075",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.075",
+      "tileId": 700075,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "384,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.076",
+      "displayName": "ww1-7dd97a23de68 ww1 7 076",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.076",
+      "tileId": 700076,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "432,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.077",
+      "displayName": "ww1-7dd97a23de68 ww1 7 077",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.077",
+      "tileId": 700077,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "480,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.078",
+      "displayName": "ww1-7dd97a23de68 ww1 7 078",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.078",
+      "tileId": 700078,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "528,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.079",
+      "displayName": "ww1-7dd97a23de68 ww1 7 079",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.079",
+      "tileId": 700079,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "576,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.080",
+      "displayName": "ww1-7dd97a23de68 ww1 7 080",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.080",
+      "tileId": 700080,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_080.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "624,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.081",
+      "displayName": "ww1-7dd97a23de68 ww1 7 081",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.081",
+      "tileId": 700081,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_081.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "672,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.082",
+      "displayName": "ww1-7dd97a23de68 ww1 7 082",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.082",
+      "tileId": 700082,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_082.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "720,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.083",
+      "displayName": "ww1-7dd97a23de68 ww1 7 083",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.083",
+      "tileId": 700083,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_083.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 768,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "768,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.084",
+      "displayName": "ww1-7dd97a23de68 ww1 7 084",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.084",
+      "tileId": 700084,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_084.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 816,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "816,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.085",
+      "displayName": "ww1-7dd97a23de68 ww1 7 085",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.085",
+      "tileId": 700085,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_085.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 864,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "864,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.086",
+      "displayName": "ww1-7dd97a23de68 ww1 7 086",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.086",
+      "tileId": 700086,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_086.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 912,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "912,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.087",
+      "displayName": "ww1-7dd97a23de68 ww1 7 087",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.087",
+      "tileId": 700087,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_087.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 960,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "960,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.088",
+      "displayName": "ww1-7dd97a23de68 ww1 7 088",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.088",
+      "tileId": 700088,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_088.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1008,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1008,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.089",
+      "displayName": "ww1-7dd97a23de68 ww1 7 089",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.089",
+      "tileId": 700089,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_089.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1056,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1056,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.090",
+      "displayName": "ww1-7dd97a23de68 ww1 7 090",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.090",
+      "tileId": 700090,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_090.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1104,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1104,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.091",
+      "displayName": "ww1-7dd97a23de68 ww1 7 091",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.091",
+      "tileId": 700091,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_091.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1152,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1152,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.092",
+      "displayName": "ww1-7dd97a23de68 ww1 7 092",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.092",
+      "tileId": 700092,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_092.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1200,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1200,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.093",
+      "displayName": "ww1-7dd97a23de68 ww1 7 093",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.093",
+      "tileId": 700093,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_093.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1248,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1248,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.094",
+      "displayName": "ww1-7dd97a23de68 ww1 7 094",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.094",
+      "tileId": 700094,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_094.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1296,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1296,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.095",
+      "displayName": "ww1-7dd97a23de68 ww1 7 095",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.ww1_7dd97a23de68.ww1_7.095",
+      "tileId": 700095,
+      "previewPath": "content/assets/gameplay/cutesckr_all/ww1_7dd97a23de68/ww1_7/tile_095.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+      "atlasRect": {
+        "x": 1344,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "ww1_7dd97a23de68"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "ww1-7dd97a23de68",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/ww1-7dd97a23de68/ww1/7.png",
+        "atlasRect": "1344,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

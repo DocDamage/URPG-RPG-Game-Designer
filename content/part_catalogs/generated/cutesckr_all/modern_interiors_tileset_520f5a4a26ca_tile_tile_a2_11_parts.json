@@ -1,0 +1,1268 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11",
+  "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.000",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "0,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.001",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "48,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.002",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "192,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.003",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "240,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.004",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "0,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.005",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.006",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "192,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.007",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "240,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.008",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "0,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.009",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "48,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.010",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "192,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.011",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "240,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.012",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "96,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.013",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "144,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.014",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "192,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.015",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "240,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.016",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "96,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.017",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "144,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.018",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "192,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.019",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "240,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.020",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "96,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.021",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "144,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.022",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "192,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.023",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "240,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.024",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "192,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.025",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "240,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.026",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "192,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.027",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "240,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.028",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "192,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.029",
+      "displayName": "modern-interiors-tileset-520f5a4a26ca tile tile a2 11 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.modern_interiors_tileset_520f5a4a26ca.tile_tile_a2_11.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/modern_interiors_tileset_520f5a4a26ca/tile_tile_a2_11/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "modern_interiors_tileset_520f5a4a26ca",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "modern-interiors-tileset-520f5a4a26ca",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/modern-interiors-tileset-520f5a4a26ca/tile/Tile-A2-11.png",
+        "atlasRect": "240,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

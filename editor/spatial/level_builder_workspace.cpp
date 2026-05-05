@@ -1,12 +1,19 @@
 #include "editor/spatial/level_builder_workspace.h"
 
+#include "engine/core/render/asset_loader.h"
 #include "engine/core/map/grid_part_runtime_compiler.h"
 #include "engine/core/map/grid_part_serializer.h"
 #include "engine/core/map/grid_part_validator.h"
 
 #include <algorithm>
 #include <cctype>
+#include <cstdint>
+#include <memory>
+#include <optional>
+#include <string>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 #ifdef URPG_IMGUI_ENABLED
 #include <imgui.h>
@@ -168,6 +175,71 @@ char paletteGlyph(const GridPartPalettePanel::EntrySnapshot& entry) {
     return '?';
 }
 
+std::shared_ptr<urpg::Texture> palettePreviewTexture(const std::string& path) {
+    if (path.empty() || ImGui::GetIO().BackendRendererName == nullptr) {
+        return nullptr;
+    }
+
+    static std::unordered_map<std::string, std::shared_ptr<urpg::Texture>> textures;
+    const auto found = textures.find(path);
+    if (found != textures.end()) {
+        return found->second;
+    }
+
+    auto texture = urpg::AssetLoader::loadTexture(path);
+    textures.emplace(path, texture);
+    return texture;
+}
+
+bool renderPalettePreviewButton(const GridPartPalettePanel::EntrySnapshot& entry) {
+    if (const auto texture = palettePreviewTexture(entry.preview_path); texture != nullptr && texture->getId() != 0) {
+        const auto id = static_cast<ImTextureID>(texture->getId());
+        return ImGui::ImageButton(("##preview_" + entry.part_id).c_str(), id, ImVec2(42.0f, 30.0f));
+    }
+
+    const auto color = palettePreviewColor(entry.category, entry.selected);
+    ImGui::PushStyleColor(ImGuiCol_Button, color);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hoverColor(color));
+    const std::string previewLabel = std::string(1, paletteGlyph(entry)) + "##preview_" + entry.part_id;
+    const bool clicked = ImGui::Button(previewLabel.c_str(), ImVec2(42.0f, 30.0f));
+    ImGui::PopStyleColor(2);
+    return clicked;
+}
+
+const std::string* previewPathForPart(const urpg::map::PlacedPartInstance& part) {
+    const auto found = part.properties.find("previewPath");
+    if (found == part.properties.end() || found->second.empty()) {
+        return nullptr;
+    }
+    return &found->second;
+}
+
+bool renderGridCellButton(const urpg::map::PlacedPartInstance* topPart, bool isSelected, const std::string& label,
+                          float cell) {
+    if (topPart != nullptr) {
+        if (const auto* previewPath = previewPathForPart(*topPart); previewPath != nullptr) {
+            if (const auto texture = palettePreviewTexture(*previewPath); texture != nullptr && texture->getId() != 0) {
+                const auto tint = isSelected ? ImVec4(0.78f, 0.88f, 1.0f, 1.0f) : ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+                return ImGui::ImageButton(label.c_str(), static_cast<ImTextureID>(texture->getId()),
+                                          ImVec2(cell - 4.0f, cell - 4.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f),
+                                          ImVec4(0.08f, 0.09f, 0.10f, 1.0f), tint);
+            }
+        }
+    }
+
+    if (topPart != nullptr) {
+        const auto color = categoryColor(topPart->category, isSelected);
+        ImGui::PushStyleColor(ImGuiCol_Button, color);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hoverColor(color));
+    } else {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.12f, 0.14f, 0.15f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.18f, 0.23f, 0.27f, 1.0f));
+    }
+    const bool clicked = ImGui::Button(label.c_str(), ImVec2(cell, cell));
+    ImGui::PopStyleColor(2);
+    return clicked;
+}
+
 void renderReadinessFlag(const char* label, bool value) {
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(0);
@@ -180,15 +252,113 @@ void renderReadinessFlag(const char* label, bool value) {
     }
 }
 
+size_t categoryCount(const GridPartPalettePanel::RenderSnapshot& snapshot, const std::string& category) {
+    const auto found = snapshot.category_counts.find(category);
+    return found == snapshot.category_counts.end() ? 0 : found->second;
+}
+
+bool paletteCategoryButton(LevelBuilderWorkspace& workspace, const GridPartPalettePanel::RenderSnapshot& snapshot,
+                           const char* label, const char* categoryName,
+                           std::optional<urpg::map::GridPartCategory> category) {
+    const bool active = snapshot.active_category == categoryName;
+    if (active) {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.24f, 0.42f, 0.70f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.31f, 0.52f, 0.84f, 1.0f));
+    }
+    const bool clicked = ImGui::Button(label);
+    if (active) {
+        ImGui::PopStyleColor(2);
+    }
+    if (clicked) {
+        workspace.palettePanel().SetCategoryFilter(category);
+        return true;
+    }
+    return false;
+}
+
+std::vector<std::pair<std::string, size_t>> sortedSourceCounts(const GridPartPalettePanel::RenderSnapshot& snapshot) {
+    std::vector<std::pair<std::string, size_t>> sources(snapshot.source_counts.begin(), snapshot.source_counts.end());
+    std::sort(sources.begin(), sources.end(), [](const auto& left, const auto& right) {
+        if (left.second != right.second) {
+            return left.second > right.second;
+        }
+        return left.first < right.first;
+    });
+    return sources;
+}
+
+void renderSourceFilter(LevelBuilderWorkspace& workspace, const GridPartPalettePanel::RenderSnapshot& snapshot) {
+    const auto sources = sortedSourceCounts(snapshot);
+    const std::string current = snapshot.active_source == "all" ? "All sources" : snapshot.active_source;
+    ImGui::SetNextItemWidth(-1.0f);
+    if (!ImGui::BeginCombo("##PaletteSource", current.c_str())) {
+        return;
+    }
+
+    const bool allSelected = snapshot.active_source == "all";
+    if (ImGui::Selectable("All sources", allSelected)) {
+        workspace.palettePanel().SetSourceFilter("all");
+    }
+    if (allSelected) {
+        ImGui::SetItemDefaultFocus();
+    }
+    for (const auto& [source, count] : sources) {
+        const std::string label = source + " (" + std::to_string(count) + ")";
+        const bool selected = snapshot.active_source == source;
+        if (ImGui::Selectable(label.c_str(), selected)) {
+            workspace.palettePanel().SetSourceFilter(source);
+        }
+        if (selected) {
+            ImGui::SetItemDefaultFocus();
+        }
+    }
+    ImGui::EndCombo();
+}
+
 void renderPaletteSnapshot(LevelBuilderWorkspace& workspace, const GridPartPalettePanel::RenderSnapshot& snapshot) {
     ImGui::TextUnformatted("Parts");
     ImGui::SameLine();
     ImGui::TextDisabled("%zu", snapshot.part_count);
+    if (snapshot.entry_limit_reached) {
+        ImGui::SameLine();
+        ImGui::TextDisabled("showing first %zu", snapshot.entries.size());
+    }
     if (snapshot.selected_part_id.empty()) {
         ImGui::TextDisabled("Choose a part, then paint on the grid.");
     } else {
         ImGui::Text("Painting: %s", snapshot.selected_part_id.c_str());
     }
+    ImGui::Separator();
+
+    static char searchBuffer[128] = {};
+    if (snapshot.search_query.empty() && searchBuffer[0] != '\0') {
+        searchBuffer[0] = '\0';
+    }
+    ImGui::SetNextItemWidth(-1.0f);
+    if (ImGui::InputTextWithHint("##PaletteSearch", "Search parts", searchBuffer, sizeof(searchBuffer))) {
+        workspace.palettePanel().SetSearchQuery(searchBuffer);
+    }
+    renderSourceFilter(workspace, snapshot);
+
+    paletteCategoryButton(workspace, snapshot, "All", "all", std::nullopt);
+    ImGui::SameLine();
+    paletteCategoryButton(workspace, snapshot, ("Tiles " + std::to_string(categoryCount(snapshot, "tile"))).c_str(),
+                          "tile", urpg::map::GridPartCategory::Tile);
+    ImGui::SameLine();
+    paletteCategoryButton(workspace, snapshot, ("Walls " + std::to_string(categoryCount(snapshot, "wall"))).c_str(),
+                          "wall", urpg::map::GridPartCategory::Wall);
+    ImGui::SameLine();
+    paletteCategoryButton(workspace, snapshot, ("Props " + std::to_string(categoryCount(snapshot, "prop"))).c_str(),
+                          "prop", urpg::map::GridPartCategory::Prop);
+
+    paletteCategoryButton(workspace, snapshot, "NPC", "npc", urpg::map::GridPartCategory::Npc);
+    ImGui::SameLine();
+    paletteCategoryButton(workspace, snapshot, "Enemy", "enemy", urpg::map::GridPartCategory::Enemy);
+    ImGui::SameLine();
+    paletteCategoryButton(workspace, snapshot, "Door", "door", urpg::map::GridPartCategory::Door);
+    ImGui::SameLine();
+    paletteCategoryButton(workspace, snapshot, "Hazard", "hazard", urpg::map::GridPartCategory::Hazard);
+
     ImGui::Separator();
 
     if (!ImGui::BeginTable("LevelBuilderPalette", 3,
@@ -200,36 +370,39 @@ void renderPaletteSnapshot(LevelBuilderWorkspace& workspace, const GridPartPalet
     ImGui::TableSetupColumn("Name");
     ImGui::TableSetupColumn("Category");
     ImGui::TableHeadersRow();
-    for (const auto& entry : snapshot.entries) {
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-        const auto color = palettePreviewColor(entry.category, entry.selected);
-        ImGui::PushStyleColor(ImGuiCol_Button, color);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hoverColor(color));
-        const std::string previewLabel = std::string(1, paletteGlyph(entry)) + "##preview_" + entry.part_id;
-        if (ImGui::Button(previewLabel.c_str(), ImVec2(42.0f, 30.0f))) {
-            workspace.SelectGridPart(entry.part_id);
+    ImGuiListClipper clipper;
+    clipper.Begin(static_cast<int>(snapshot.entries.size()));
+    while (clipper.Step()) {
+        for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
+            const auto& entry = snapshot.entries[static_cast<size_t>(row)];
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            if (renderPalettePreviewButton(entry)) {
+                workspace.SelectGridPart(entry.part_id);
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("asset=%s\npreview=%s\nsource=%s\nrect=%d,%d %dx%d\ntile=%d",
+                                  entry.asset_id.empty() ? "-" : entry.asset_id.c_str(),
+                                  entry.preview_path.empty() ? "-" : entry.preview_path.c_str(),
+                                  entry.source_image_path.empty() ? "-" : entry.source_image_path.c_str(),
+                                  entry.atlas_x, entry.atlas_y, entry.atlas_width, entry.atlas_height, entry.tile_id);
+            }
+            ImGui::TableSetColumnIndex(1);
+            if (entry.selected) {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.58f, 0.75f, 1.0f, 1.0f));
+            }
+            if (ImGui::Selectable(entry.display_name.c_str(), entry.selected, ImGuiSelectableFlags_SpanAllColumns)) {
+                workspace.SelectGridPart(entry.part_id);
+            }
+            if (entry.selected) {
+                ImGui::PopStyleColor();
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("%s", entry.part_id.c_str());
+            }
+            ImGui::TableSetColumnIndex(2);
+            ImGui::TextUnformatted(entry.category.c_str());
         }
-        ImGui::PopStyleColor(2);
-        if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("asset=%s\nprefab=%s\ntile=%d", entry.asset_id.empty() ? "-" : entry.asset_id.c_str(),
-                              entry.prefab_path.empty() ? "-" : entry.prefab_path.c_str(), entry.tile_id);
-        }
-        ImGui::TableSetColumnIndex(1);
-        if (entry.selected) {
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.58f, 0.75f, 1.0f, 1.0f));
-        }
-        if (ImGui::Selectable(entry.display_name.c_str(), entry.selected, ImGuiSelectableFlags_SpanAllColumns)) {
-            workspace.SelectGridPart(entry.part_id);
-        }
-        if (entry.selected) {
-            ImGui::PopStyleColor();
-        }
-        if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("%s", entry.part_id.c_str());
-        }
-        ImGui::TableSetColumnIndex(2);
-        ImGui::TextUnformatted(entry.category.c_str());
     }
     ImGui::EndTable();
 }
@@ -302,18 +475,9 @@ void renderMakerGrid(LevelBuilderWorkspace& workspace, urpg::map::GridPartDocume
             }
             label += "##cell_" + std::to_string(x) + "_" + std::to_string(y);
 
-            if (topPart != nullptr) {
-                const auto color = categoryColor(topPart->category, isSelected);
-                ImGui::PushStyleColor(ImGuiCol_Button, color);
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hoverColor(color));
-            } else {
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.12f, 0.14f, 0.15f, 1.0f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.18f, 0.23f, 0.27f, 1.0f));
-            }
-
             bool mutated = false;
             bool erased = false;
-            if (ImGui::Button(label.c_str(), ImVec2(cell, cell))) {
+            if (renderGridCellButton(topPart, isSelected, label, cell)) {
                 const auto selectedPart = workspace.palettePanel().selectedPartId();
                 if (!selectedPart.empty() && parts.empty()) {
                     const bool placed = workspace.placementPanel().PlaceSelectedPartAtGrid(x, y);
@@ -349,7 +513,6 @@ void renderMakerGrid(LevelBuilderWorkspace& workspace, urpg::map::GridPartDocume
                                       topPart->part_id.c_str());
                 }
             }
-            ImGui::PopStyleColor(2);
 
             if (x + 1 < document->width()) {
                 ImGui::SameLine();

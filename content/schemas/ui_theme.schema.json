@@ -1,77 +1,116 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "UiTheme",
-  "description": "Schema for FFS-15 UI theme assets consumed by the theme registry and editor preview panel.",
+  "description": "UI theme metadata for game UI themes and candidate editor themes.",
   "type": "object",
-  "required": ["version", "themeId", "windowFrame", "font", "cursor", "buttonStates", "menuSound", "previewScreens"],
+  "required": [
+    "schemaVersion",
+    "themeId",
+    "displayName",
+    "level",
+    "surfaces",
+    "source",
+    "allowIncompleteRuntimeSelection",
+    "bypassPolicy",
+    "components",
+    "themeCompleteness"
+  ],
   "properties": {
-    "version": {
+    "schemaVersion": { "type": "integer", "const": 2 },
+    "themeId": { "type": "string", "minLength": 1 },
+    "displayName": { "type": "string", "minLength": 1 },
+    "level": {
       "type": "string",
-      "const": "1.0.0"
+      "enum": ["candidate", "partial", "game_ui_ready", "editor_accent_ready", "editor_theme_ready"]
     },
-    "themeId": {
-      "type": "string",
-      "minLength": 1
-    },
-    "windowFrame": {
-      "type": "object",
-      "required": ["asset", "borderPixels"],
-      "properties": {
-        "asset": {
-          "type": "string",
-          "minLength": 1
-        },
-        "borderPixels": {
-          "type": "integer",
-          "minimum": 0
-        }
-      },
-      "additionalProperties": false
-    },
-    "font": {
-      "type": "string",
-      "minLength": 1
-    },
-    "cursor": {
-      "type": "string",
-      "minLength": 1
-    },
-    "buttonStates": {
-      "type": "object",
-      "required": ["normal", "hover", "pressed", "disabled"],
-      "properties": {
-        "normal": {
-          "type": "string",
-          "minLength": 1
-        },
-        "hover": {
-          "type": "string",
-          "minLength": 1
-        },
-        "pressed": {
-          "type": "string",
-          "minLength": 1
-        },
-        "disabled": {
-          "type": "string",
-          "minLength": 1
-        }
-      },
-      "additionalProperties": false
-    },
-    "menuSound": {
-      "type": "string",
-      "minLength": 1
-    },
-    "previewScreens": {
+    "surfaces": {
       "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "string",
-        "enum": ["title", "menu", "battle"]
-      },
+      "items": { "type": "string", "enum": ["game_ui_theme", "editor_theme"] },
       "uniqueItems": true
+    },
+    "source": {
+      "type": "object",
+      "required": ["rawPath", "assetPath", "license"],
+      "properties": {
+        "rawPath": { "type": "string", "minLength": 1 },
+        "assetPath": { "type": "string", "minLength": 1 },
+        "license": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "allowIncompleteRuntimeSelection": { "type": "boolean" },
+    "bypassPolicy": {
+      "type": "object",
+      "required": ["developerSetting", "settingsCheckbox", "perThemeUseAnywayWarning"],
+      "properties": {
+        "developerSetting": { "type": "boolean" },
+        "settingsCheckbox": { "type": "boolean" },
+        "perThemeUseAnywayWarning": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "components": {
+      "type": "object",
+      "required": [
+        "buttons",
+        "inputs",
+        "selects",
+        "toggles",
+        "frames",
+        "bars",
+        "icons",
+        "handles",
+        "slots",
+        "spritesheets",
+        "sourceFiles"
+      ],
+      "properties": {
+        "buttons": {
+          "type": "object",
+          "required": ["states"],
+          "properties": {
+            "states": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        "inputs": { "type": "array", "items": { "type": "string" } },
+        "selects": { "type": "array", "items": { "type": "string" } },
+        "toggles": { "type": "array", "items": { "type": "string" } },
+        "frames": { "type": "array", "items": { "type": "string" } },
+        "bars": { "type": "array", "items": { "type": "string" } },
+        "icons": { "type": "array", "items": { "type": "string" } },
+        "handles": { "type": "array", "items": { "type": "string" } },
+        "slots": { "type": "array", "items": { "type": "string" } },
+        "spritesheets": { "type": "array", "items": { "type": "string" } },
+        "sourceFiles": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "semanticIconAliases": { "type": "object" },
+    "fontPairing": { "type": "object" },
+    "nineSlice": { "type": "object" },
+    "scalePolicy": { "type": "object" },
+    "colorTokens": { "type": "object" },
+    "themeCompleteness": {
+      "type": "object",
+      "required": ["gameUiReady", "editorThemeReady"],
+      "properties": {
+        "gameUiReady": { "$ref": "#/definitions/check" },
+        "editorThemeReady": { "$ref": "#/definitions/check" }
+      },
+      "additionalProperties": false
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "definitions": {
+    "check": {
+      "type": "object",
+      "required": ["status", "missing"],
+      "properties": {
+        "status": { "type": "string", "enum": ["pass", "fail"] },
+        "missing": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    }
+  }
 }

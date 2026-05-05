@@ -1,0 +1,4040 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5",
+  "displayName": "wasted-supermarket-61bb77ce506e 5",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.000",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "0,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.001",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "48,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.002",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "144,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.003",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "192,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.004",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "240,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.005",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "288,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.006",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "336,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.007",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "384,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.008",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "432,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.009",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "480,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.010",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "528,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.011",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "576,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.012",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "624,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.013",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "672,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.014",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "720,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.015",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "0,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.016",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.017",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "96,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.018",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "144,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.019",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "192,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.020",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "240,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.021",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "288,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.022",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "336,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.023",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "384,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.024",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "432,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.025",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "480,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.026",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "528,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.027",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "576,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.028",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "624,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.029",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "672,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.030",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 030",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.030",
+      "tileId": 700030,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "720,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.031",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 031",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.031",
+      "tileId": 700031,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "0,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.032",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 032",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.032",
+      "tileId": 700032,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "48,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.033",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 033",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.033",
+      "tileId": 700033,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "96,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.034",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 034",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.034",
+      "tileId": 700034,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "144,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.035",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 035",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.035",
+      "tileId": 700035,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "192,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.036",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 036",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.036",
+      "tileId": 700036,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "240,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.037",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 037",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.037",
+      "tileId": 700037,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "288,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.038",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 038",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.038",
+      "tileId": 700038,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "336,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.039",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 039",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.039",
+      "tileId": 700039,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "384,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.040",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 040",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.040",
+      "tileId": 700040,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "432,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.041",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 041",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.041",
+      "tileId": 700041,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "480,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.042",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 042",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.042",
+      "tileId": 700042,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "528,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.043",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 043",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.043",
+      "tileId": 700043,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "576,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.044",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 044",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.044",
+      "tileId": 700044,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "624,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.045",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 045",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.045",
+      "tileId": 700045,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "672,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.046",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 046",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.046",
+      "tileId": 700046,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "720,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.047",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 047",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.047",
+      "tileId": 700047,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "0,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.048",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 048",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.048",
+      "tileId": 700048,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "48,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.049",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 049",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.049",
+      "tileId": 700049,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "96,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.050",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 050",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.050",
+      "tileId": 700050,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "144,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.051",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 051",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.051",
+      "tileId": 700051,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "192,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.052",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 052",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.052",
+      "tileId": 700052,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "240,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.053",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 053",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.053",
+      "tileId": 700053,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "288,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.054",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 054",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.054",
+      "tileId": 700054,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "336,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.055",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 055",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.055",
+      "tileId": 700055,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "384,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.056",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 056",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.056",
+      "tileId": 700056,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "432,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.057",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 057",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.057",
+      "tileId": 700057,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "480,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.058",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 058",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.058",
+      "tileId": 700058,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "528,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.059",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 059",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.059",
+      "tileId": 700059,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "576,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.060",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 060",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.060",
+      "tileId": 700060,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "624,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.061",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 061",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.061",
+      "tileId": 700061,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "720,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.062",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 062",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.062",
+      "tileId": 700062,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "0,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.063",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 063",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.063",
+      "tileId": 700063,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "48,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.064",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 064",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.064",
+      "tileId": 700064,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "96,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.065",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 065",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.065",
+      "tileId": 700065,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "144,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.066",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 066",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.066",
+      "tileId": 700066,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "192,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.067",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 067",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.067",
+      "tileId": 700067,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "240,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.068",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 068",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.068",
+      "tileId": 700068,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "288,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.069",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 069",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.069",
+      "tileId": 700069,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "336,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.070",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 070",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.070",
+      "tileId": 700070,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "384,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.071",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 071",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.071",
+      "tileId": 700071,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "432,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.072",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 072",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.072",
+      "tileId": 700072,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "480,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.073",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 073",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.073",
+      "tileId": 700073,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "528,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.074",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 074",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.074",
+      "tileId": 700074,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "576,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.075",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 075",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.075",
+      "tileId": 700075,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "624,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.076",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 076",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.076",
+      "tileId": 700076,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "720,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.077",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 077",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.077",
+      "tileId": 700077,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "0,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.078",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 078",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.078",
+      "tileId": 700078,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "48,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.079",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 079",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.079",
+      "tileId": 700079,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "96,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.080",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 080",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.080",
+      "tileId": 700080,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_080.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "144,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.081",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 081",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.081",
+      "tileId": 700081,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_081.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "192,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.082",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 082",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.082",
+      "tileId": 700082,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_082.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "240,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.083",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 083",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.083",
+      "tileId": 700083,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_083.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "288,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.084",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 084",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.084",
+      "tileId": 700084,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_084.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "336,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.085",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 085",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.085",
+      "tileId": 700085,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_085.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "384,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.086",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 086",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.086",
+      "tileId": 700086,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_086.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "432,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.087",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 087",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.087",
+      "tileId": 700087,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_087.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "480,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.088",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 088",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.088",
+      "tileId": 700088,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_088.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "528,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.089",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 089",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.089",
+      "tileId": 700089,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_089.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "576,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.090",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 090",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.090",
+      "tileId": 700090,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_090.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "624,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.091",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 091",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.091",
+      "tileId": 700091,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_091.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "672,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.092",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 092",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.092",
+      "tileId": 700092,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_092.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "720,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.093",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 093",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.093",
+      "tileId": 700093,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_093.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "0,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.094",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 094",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.094",
+      "tileId": 700094,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_094.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "48,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.095",
+      "displayName": "wasted-supermarket-61bb77ce506e 5 095",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.wasted_supermarket_61bb77ce506e.5.095",
+      "tileId": 700095,
+      "previewPath": "content/assets/gameplay/cutesckr_all/wasted_supermarket_61bb77ce506e/5/tile_095.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "wasted_supermarket_61bb77ce506e"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "wasted-supermarket-61bb77ce506e",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/wasted-supermarket-61bb77ce506e/5.png",
+        "atlasRect": "96,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "game_maker_all_parts",
+  "displayName": "Game Maker Full Asset Catalog",
+  "description": "Full generated game-maker asset catalog. This is intentionally separate from the default startup catalog because it is very large.",
+  "includes": [
+    "base_jrpg_parts.json",
+    "generated/promoted_legacy/bnd_006_parts.json",
+    "generated/promoted_legacy/bnd_007_parts.json",
+    "generated/promoted_legacy/bnd_008_parts.json",
+    "generated/cutesckr_all_parts.json",
+    "generated/human_rpg_portraits_parts.json",
+    "generated/modernui_portrait_generator/bnd_010_parts.json"
+  ],
+  "parts": []
+}

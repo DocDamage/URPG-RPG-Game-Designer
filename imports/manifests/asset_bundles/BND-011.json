@@ -1,0 +1,308 @@
+{
+  "bundle_id": "BND-011",
+  "bundle_name": "cutesckr_medieval_editor_tiles",
+  "source_id": "SRC-015",
+  "bundle_state": "promoted",
+  "release_required": false,
+  "release_surfaces": [
+    "map",
+    "editor"
+  ],
+  "assets": [
+    {
+      "original_relative_path": "ingest stuff 5-4-26/CuteSCKR/Medieval Fantasy Dungeon & Prison Pixel Art Tileset Pack/Dungeon.rar",
+      "promoted_relative_path": "imports/raw/cutesckr/medieval_fantasy_dungeon/1.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map",
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "99856d1760ae4c9e1a125dd7265632fa2e448601af40bba224f7167b938ebd61",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/imports/raw/cutesckr/medieval_fantasy_dungeon/1.png",
+      "notes": "CuteSCKR medieval dungeon sheet extracted locally and sliced into Level Builder preview parts."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/CuteSCKR/Medieval Fantasy Town Pixel Art Tileset Pack/town.rar",
+      "promoted_relative_path": "imports/raw/cutesckr/medieval_fantasy_town/1.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map",
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "075a53be91222bf1d5a9ede1d575cf95da6bb4b6f8d01d45d3d496005fc839c3",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/imports/raw/cutesckr/medieval_fantasy_town/1.png",
+      "notes": "CuteSCKR medieval town sheet extracted locally and sliced into Level Builder preview parts."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/CuteSCKR/license.txt",
+      "promoted_relative_path": "imports/raw/cutesckr/license.txt",
+      "category": "license_or_readme",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "da5ca129716c7ee53d88425bc6e0ac4b616bd2ddda72c4a136c66ad66c11b156",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/imports/raw/cutesckr/license.txt",
+      "notes": "Source license copied alongside the extracted CuteSCKR subset."
+    },
+    {
+      "original_relative_path": "imports/raw/cutesckr/medieval_fantasy_dungeon/1.png",
+      "promoted_relative_path": "content/part_catalogs/generated/cutesckr_medieval_fantasy_dungeon_1_parts.json",
+      "category": "generated_grid_part_catalog",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "31aab0c29d5338c013ebb2a46f9e9e94823b74de47d8e066f91e8f33dc754ea4",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/content/part_catalogs/generated/cutesckr_medieval_fantasy_dungeon_1_parts.json",
+      "notes": "Generated Level Builder catalog entries for 96 dungeon preview tiles."
+    },
+    {
+      "original_relative_path": "imports/raw/cutesckr/medieval_fantasy_town/1.png",
+      "promoted_relative_path": "content/part_catalogs/generated/cutesckr_medieval_fantasy_town_1_parts.json",
+      "category": "generated_grid_part_catalog",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "43885b02216f009885a5187f3fb6ae9302a637e2f5418f67e18fd6cade6d8881",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/content/part_catalogs/generated/cutesckr_medieval_fantasy_town_1_parts.json",
+      "notes": "Generated Level Builder catalog entries for 96 town preview tiles."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/CuteSCKR/Farm Tileset - Pixel Art/farm.rar",
+      "promoted_relative_path": "imports/raw/cutesckr/farm/farm/1.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map",
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "df333ba9f08d137f17715e4b60ac35f9824d3bd0e20677fbf459de8ee791800a",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/imports/raw/cutesckr/farm/farm/1.png",
+      "notes": "CuteSCKR farm sheet extracted locally and sliced into Level Builder preview parts."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/CuteSCKR/Forest Wilderness Pixel Art Tileset Pack/forest.rar",
+      "promoted_relative_path": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map",
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "aa60b7497595fd11d66b11101d3bdb01117d61df1c145e4b9f712d1e905d2b27",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/imports/raw/cutesckr/forest_wilderness/1.png",
+      "notes": "CuteSCKR forest wilderness sheet extracted locally and sliced into Level Builder preview parts."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/CuteSCKR/Medieval Castle Fantasy - Pixel Art Tileset/castle.rar",
+      "promoted_relative_path": "imports/raw/cutesckr/medieval_castle/1.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map",
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "470463728bd0b60962b35fd1ebef692c8f4ef90c705e15151d2ac741f0fe5835",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/imports/raw/cutesckr/medieval_castle/1.png",
+      "notes": "CuteSCKR medieval castle sheet extracted locally and sliced into Level Builder preview parts."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/CuteSCKR/Cyberpunk City Tileset/cyber punk.rar",
+      "promoted_relative_path": "imports/raw/cutesckr/cyberpunk_city/1.png",
+      "category": "tileset",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "map",
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "a25f21682e4d9d6c3b76451edfa8db8727e787c0eddd72d71143ae2a4e75936a",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/imports/raw/cutesckr/cyberpunk_city/1.png",
+      "notes": "CuteSCKR cyberpunk city sheet extracted locally and sliced into Level Builder preview parts."
+    },
+    {
+      "original_relative_path": "imports/raw/cutesckr/farm/farm/1.png",
+      "promoted_relative_path": "content/part_catalogs/generated/cutesckr_farm_1_parts.json",
+      "category": "generated_grid_part_catalog",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "79096f8f71e237a993dc252a304baa1784fc92219fdc37e3ab73526a6390bbe2",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/content/part_catalogs/generated/cutesckr_farm_1_parts.json",
+      "notes": "Generated Level Builder catalog entries for 78 farm preview tiles."
+    },
+    {
+      "original_relative_path": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "promoted_relative_path": "content/part_catalogs/generated/cutesckr_forest_wilderness_1_parts.json",
+      "category": "generated_grid_part_catalog",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "b8088d04e7a4eaa94356b0ddbb4cf92ed39ed35fda55bbfc4b31171fe70ba9f8",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/content/part_catalogs/generated/cutesckr_forest_wilderness_1_parts.json",
+      "notes": "Generated Level Builder catalog entries for 96 forest preview tiles."
+    },
+    {
+      "original_relative_path": "imports/raw/cutesckr/medieval_castle/1.png",
+      "promoted_relative_path": "content/part_catalogs/generated/cutesckr_medieval_castle_1_parts.json",
+      "category": "generated_grid_part_catalog",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "f773fa9bfb6231fc5f27895111ad1e9fe644fac515e682c1f623871d1527694b",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/content/part_catalogs/generated/cutesckr_medieval_castle_1_parts.json",
+      "notes": "Generated Level Builder catalog entries for 96 castle preview tiles."
+    },
+    {
+      "original_relative_path": "imports/raw/cutesckr/cyberpunk_city/1.png",
+      "promoted_relative_path": "content/part_catalogs/generated/cutesckr_cyberpunk_city_1_parts.json",
+      "category": "generated_grid_part_catalog",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "39649e5ed26dc37ebe13c852888c33334739771dfb9f4148a3c2d8e679720666",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/content/part_catalogs/generated/cutesckr_cyberpunk_city_1_parts.json",
+      "notes": "Generated Level Builder catalog entries for 96 cyberpunk preview tiles."
+    },
+    {
+      "original_relative_path": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "promoted_relative_path": "content/part_catalogs/generated/cutesckr_medieval_fantasy_town_props_2_parts.json",
+      "category": "generated_grid_part_catalog",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "2126f6eb03f740ef1433876af6ce88b632ef7d5a257bdf6a009da424827aaf64",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/content/part_catalogs/generated/cutesckr_medieval_fantasy_town_props_2_parts.json",
+      "notes": "Generated Level Builder Prop catalog entries for 80 town object previews."
+    },
+    {
+      "original_relative_path": "imports/raw/cutesckr/medieval_fantasy_dungeon/2.png",
+      "promoted_relative_path": "content/part_catalogs/generated/cutesckr_medieval_fantasy_dungeon_walls_2_parts.json",
+      "category": "generated_grid_part_catalog",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "706113439825b3a761baf5c4e406819a097452e884fd9aa0c09d02f85b975e3c",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/content/part_catalogs/generated/cutesckr_medieval_fantasy_dungeon_walls_2_parts.json",
+      "notes": "Generated Level Builder Wall catalog entries for 80 dungeon structure previews."
+    },
+    {
+      "original_relative_path": "imports/raw/cutesckr/medieval_castle/2.png",
+      "promoted_relative_path": "content/part_catalogs/generated/cutesckr_medieval_castle_walls_2_parts.json",
+      "category": "generated_grid_part_catalog",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "8662e0c8c708a2befd756004ca6c111efa947e7a37c8b3953208582ef838da5e",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/content/part_catalogs/generated/cutesckr_medieval_castle_walls_2_parts.json",
+      "notes": "Generated Level Builder Wall catalog entries for 80 castle structure previews."
+    },
+    {
+      "original_relative_path": "imports/raw/cutesckr/cyberpunk_city/2.png",
+      "promoted_relative_path": "content/part_catalogs/generated/cutesckr_cyberpunk_city_props_2_parts.json",
+      "category": "generated_grid_part_catalog",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "editor"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "919fb6eee9b8c15b9fc7a481b0476718944c2869f2822bd9ef1f196ccd35d782",
+      "attribution_record": "imports/raw/cutesckr/license.txt",
+      "package_destination": "share/urpg/content/part_catalogs/generated/cutesckr_cyberpunk_city_props_2_parts.json",
+      "notes": "Generated Level Builder Prop catalog entries for 80 cyberpunk object previews."
+    }
+  ]
+}

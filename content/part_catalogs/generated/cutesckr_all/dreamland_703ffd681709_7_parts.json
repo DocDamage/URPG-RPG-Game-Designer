@@ -1,0 +1,4040 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.dreamland_703ffd681709.7",
+  "displayName": "dreamland-703ffd681709 7",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.000",
+      "displayName": "dreamland-703ffd681709 7 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "0,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.001",
+      "displayName": "dreamland-703ffd681709 7 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "48,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.002",
+      "displayName": "dreamland-703ffd681709 7 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "96,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.003",
+      "displayName": "dreamland-703ffd681709 7 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "144,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.004",
+      "displayName": "dreamland-703ffd681709 7 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "192,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.005",
+      "displayName": "dreamland-703ffd681709 7 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "240,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.006",
+      "displayName": "dreamland-703ffd681709 7 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "288,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.007",
+      "displayName": "dreamland-703ffd681709 7 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "336,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.008",
+      "displayName": "dreamland-703ffd681709 7 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "384,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.009",
+      "displayName": "dreamland-703ffd681709 7 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "432,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.010",
+      "displayName": "dreamland-703ffd681709 7 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "480,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.011",
+      "displayName": "dreamland-703ffd681709 7 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "528,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.012",
+      "displayName": "dreamland-703ffd681709 7 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "576,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.013",
+      "displayName": "dreamland-703ffd681709 7 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "624,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.014",
+      "displayName": "dreamland-703ffd681709 7 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "672,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.015",
+      "displayName": "dreamland-703ffd681709 7 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "0,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.016",
+      "displayName": "dreamland-703ffd681709 7 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.017",
+      "displayName": "dreamland-703ffd681709 7 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "96,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.018",
+      "displayName": "dreamland-703ffd681709 7 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "144,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.019",
+      "displayName": "dreamland-703ffd681709 7 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "192,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.020",
+      "displayName": "dreamland-703ffd681709 7 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "240,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.021",
+      "displayName": "dreamland-703ffd681709 7 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "288,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.022",
+      "displayName": "dreamland-703ffd681709 7 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "336,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.023",
+      "displayName": "dreamland-703ffd681709 7 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "384,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.024",
+      "displayName": "dreamland-703ffd681709 7 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "432,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.025",
+      "displayName": "dreamland-703ffd681709 7 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "480,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.026",
+      "displayName": "dreamland-703ffd681709 7 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "528,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.027",
+      "displayName": "dreamland-703ffd681709 7 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "576,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.028",
+      "displayName": "dreamland-703ffd681709 7 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "624,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.029",
+      "displayName": "dreamland-703ffd681709 7 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "672,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.030",
+      "displayName": "dreamland-703ffd681709 7 030",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.030",
+      "tileId": 700030,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "720,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.031",
+      "displayName": "dreamland-703ffd681709 7 031",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.031",
+      "tileId": 700031,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "0,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.032",
+      "displayName": "dreamland-703ffd681709 7 032",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.032",
+      "tileId": 700032,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "48,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.033",
+      "displayName": "dreamland-703ffd681709 7 033",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.033",
+      "tileId": 700033,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "96,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.034",
+      "displayName": "dreamland-703ffd681709 7 034",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.034",
+      "tileId": 700034,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "144,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.035",
+      "displayName": "dreamland-703ffd681709 7 035",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.035",
+      "tileId": 700035,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "192,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.036",
+      "displayName": "dreamland-703ffd681709 7 036",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.036",
+      "tileId": 700036,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "240,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.037",
+      "displayName": "dreamland-703ffd681709 7 037",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.037",
+      "tileId": 700037,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "288,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.038",
+      "displayName": "dreamland-703ffd681709 7 038",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.038",
+      "tileId": 700038,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "336,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.039",
+      "displayName": "dreamland-703ffd681709 7 039",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.039",
+      "tileId": 700039,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "384,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.040",
+      "displayName": "dreamland-703ffd681709 7 040",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.040",
+      "tileId": 700040,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "432,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.041",
+      "displayName": "dreamland-703ffd681709 7 041",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.041",
+      "tileId": 700041,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "480,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.042",
+      "displayName": "dreamland-703ffd681709 7 042",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.042",
+      "tileId": 700042,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "528,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.043",
+      "displayName": "dreamland-703ffd681709 7 043",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.043",
+      "tileId": 700043,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "576,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.044",
+      "displayName": "dreamland-703ffd681709 7 044",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.044",
+      "tileId": 700044,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "624,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.045",
+      "displayName": "dreamland-703ffd681709 7 045",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.045",
+      "tileId": 700045,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "672,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.046",
+      "displayName": "dreamland-703ffd681709 7 046",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.046",
+      "tileId": 700046,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "720,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.047",
+      "displayName": "dreamland-703ffd681709 7 047",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.047",
+      "tileId": 700047,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "0,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.048",
+      "displayName": "dreamland-703ffd681709 7 048",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.048",
+      "tileId": 700048,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "48,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.049",
+      "displayName": "dreamland-703ffd681709 7 049",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.049",
+      "tileId": 700049,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "96,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.050",
+      "displayName": "dreamland-703ffd681709 7 050",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.050",
+      "tileId": 700050,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "144,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.051",
+      "displayName": "dreamland-703ffd681709 7 051",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.051",
+      "tileId": 700051,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "192,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.052",
+      "displayName": "dreamland-703ffd681709 7 052",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.052",
+      "tileId": 700052,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "240,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.053",
+      "displayName": "dreamland-703ffd681709 7 053",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.053",
+      "tileId": 700053,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "288,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.054",
+      "displayName": "dreamland-703ffd681709 7 054",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.054",
+      "tileId": 700054,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "336,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.055",
+      "displayName": "dreamland-703ffd681709 7 055",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.055",
+      "tileId": 700055,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "384,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.056",
+      "displayName": "dreamland-703ffd681709 7 056",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.056",
+      "tileId": 700056,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "432,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.057",
+      "displayName": "dreamland-703ffd681709 7 057",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.057",
+      "tileId": 700057,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "480,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.058",
+      "displayName": "dreamland-703ffd681709 7 058",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.058",
+      "tileId": 700058,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "528,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.059",
+      "displayName": "dreamland-703ffd681709 7 059",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.059",
+      "tileId": 700059,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "576,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.060",
+      "displayName": "dreamland-703ffd681709 7 060",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.060",
+      "tileId": 700060,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "624,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.061",
+      "displayName": "dreamland-703ffd681709 7 061",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.061",
+      "tileId": 700061,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "672,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.062",
+      "displayName": "dreamland-703ffd681709 7 062",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.062",
+      "tileId": 700062,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "720,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.063",
+      "displayName": "dreamland-703ffd681709 7 063",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.063",
+      "tileId": 700063,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "0,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.064",
+      "displayName": "dreamland-703ffd681709 7 064",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.064",
+      "tileId": 700064,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "48,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.065",
+      "displayName": "dreamland-703ffd681709 7 065",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.065",
+      "tileId": 700065,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "96,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.066",
+      "displayName": "dreamland-703ffd681709 7 066",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.066",
+      "tileId": 700066,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "144,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.067",
+      "displayName": "dreamland-703ffd681709 7 067",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.067",
+      "tileId": 700067,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "192,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.068",
+      "displayName": "dreamland-703ffd681709 7 068",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.068",
+      "tileId": 700068,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "240,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.069",
+      "displayName": "dreamland-703ffd681709 7 069",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.069",
+      "tileId": 700069,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "288,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.070",
+      "displayName": "dreamland-703ffd681709 7 070",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.070",
+      "tileId": 700070,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "336,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.071",
+      "displayName": "dreamland-703ffd681709 7 071",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.071",
+      "tileId": 700071,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "384,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.072",
+      "displayName": "dreamland-703ffd681709 7 072",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.072",
+      "tileId": 700072,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "432,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.073",
+      "displayName": "dreamland-703ffd681709 7 073",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.073",
+      "tileId": 700073,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "480,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.074",
+      "displayName": "dreamland-703ffd681709 7 074",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.074",
+      "tileId": 700074,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "528,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.075",
+      "displayName": "dreamland-703ffd681709 7 075",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.075",
+      "tileId": 700075,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "576,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.076",
+      "displayName": "dreamland-703ffd681709 7 076",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.076",
+      "tileId": 700076,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "624,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.077",
+      "displayName": "dreamland-703ffd681709 7 077",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.077",
+      "tileId": 700077,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "672,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.078",
+      "displayName": "dreamland-703ffd681709 7 078",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.078",
+      "tileId": 700078,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "0,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.079",
+      "displayName": "dreamland-703ffd681709 7 079",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.079",
+      "tileId": 700079,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "48,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.080",
+      "displayName": "dreamland-703ffd681709 7 080",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.080",
+      "tileId": 700080,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_080.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "96,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.081",
+      "displayName": "dreamland-703ffd681709 7 081",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.081",
+      "tileId": 700081,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_081.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "144,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.082",
+      "displayName": "dreamland-703ffd681709 7 082",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.082",
+      "tileId": 700082,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_082.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "192,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.083",
+      "displayName": "dreamland-703ffd681709 7 083",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.083",
+      "tileId": 700083,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_083.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "240,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.084",
+      "displayName": "dreamland-703ffd681709 7 084",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.084",
+      "tileId": 700084,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_084.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "288,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.085",
+      "displayName": "dreamland-703ffd681709 7 085",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.085",
+      "tileId": 700085,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_085.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "336,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.086",
+      "displayName": "dreamland-703ffd681709 7 086",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.086",
+      "tileId": 700086,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_086.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "384,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.087",
+      "displayName": "dreamland-703ffd681709 7 087",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.087",
+      "tileId": 700087,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_087.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "432,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.088",
+      "displayName": "dreamland-703ffd681709 7 088",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.088",
+      "tileId": 700088,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_088.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "480,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.089",
+      "displayName": "dreamland-703ffd681709 7 089",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.089",
+      "tileId": 700089,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_089.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "528,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.090",
+      "displayName": "dreamland-703ffd681709 7 090",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.090",
+      "tileId": 700090,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_090.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "576,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.091",
+      "displayName": "dreamland-703ffd681709 7 091",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.091",
+      "tileId": 700091,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_091.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "624,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.092",
+      "displayName": "dreamland-703ffd681709 7 092",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.092",
+      "tileId": 700092,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_092.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "672,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.093",
+      "displayName": "dreamland-703ffd681709 7 093",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.093",
+      "tileId": 700093,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_093.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "720,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.094",
+      "displayName": "dreamland-703ffd681709 7 094",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.094",
+      "tileId": 700094,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_094.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "0,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.dreamland_703ffd681709.7.095",
+      "displayName": "dreamland-703ffd681709 7 095",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.dreamland_703ffd681709.7.095",
+      "tileId": 700095,
+      "previewPath": "content/assets/gameplay/cutesckr_all/dreamland_703ffd681709/7/tile_095.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "dreamland_703ffd681709",
+        "gameplay",
+        "generated",
+        "prop"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "dreamland-703ffd681709",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/dreamland-703ffd681709/7.png",
+        "atlasRect": "48,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

@@ -1,0 +1,1928 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "src012_grunge_tileset_parts",
+  "displayName": "Grunge Tile",
+  "description": "Generated Level Builder grid parts from promoted gameplay tileset slices.",
+  "parts": [
+    {
+      "partId": "asset.tile.grunge.000",
+      "displayName": "Grunge Tile 000",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.000",
+      "tileId": 1000,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_000.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "0,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.001",
+      "displayName": "Grunge Tile 001",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.001",
+      "tileId": 1001,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_001.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 16,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "16,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.002",
+      "displayName": "Grunge Tile 002",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.002",
+      "tileId": 1002,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_002.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 32,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "32,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.003",
+      "displayName": "Grunge Tile 003",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.003",
+      "tileId": 1003,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_003.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "48,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.004",
+      "displayName": "Grunge Tile 004",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.004",
+      "tileId": 1004,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_004.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 64,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "64,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.005",
+      "displayName": "Grunge Tile 005",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.005",
+      "tileId": 1005,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_005.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 80,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "80,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.006",
+      "displayName": "Grunge Tile 006",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.006",
+      "tileId": 1006,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_006.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "96,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.007",
+      "displayName": "Grunge Tile 007",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.007",
+      "tileId": 1007,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_007.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 112,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "112,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.008",
+      "displayName": "Grunge Tile 008",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.008",
+      "tileId": 1008,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_008.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 128,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "128,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.009",
+      "displayName": "Grunge Tile 009",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.009",
+      "tileId": 1009,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_009.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "144,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.010",
+      "displayName": "Grunge Tile 010",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.010",
+      "tileId": 1010,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_010.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 160,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "160,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.011",
+      "displayName": "Grunge Tile 011",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.011",
+      "tileId": 1011,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_011.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 176,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "176,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.012",
+      "displayName": "Grunge Tile 012",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.012",
+      "tileId": 1012,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_012.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "192,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.013",
+      "displayName": "Grunge Tile 013",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.013",
+      "tileId": 1013,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_013.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 208,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "208,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.014",
+      "displayName": "Grunge Tile 014",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.014",
+      "tileId": 1014,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_014.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 224,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "224,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.015",
+      "displayName": "Grunge Tile 015",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.015",
+      "tileId": 1015,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_015.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "240,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.016",
+      "displayName": "Grunge Tile 016",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.016",
+      "tileId": 1016,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_016.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 256,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "256,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.017",
+      "displayName": "Grunge Tile 017",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.017",
+      "tileId": 1017,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_017.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 272,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "272,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.018",
+      "displayName": "Grunge Tile 018",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.018",
+      "tileId": 1018,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_018.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "288,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.019",
+      "displayName": "Grunge Tile 019",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.019",
+      "tileId": 1019,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_019.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 304,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "304,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.020",
+      "displayName": "Grunge Tile 020",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.020",
+      "tileId": 1020,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_020.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 320,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "320,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.021",
+      "displayName": "Grunge Tile 021",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.021",
+      "tileId": 1021,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_021.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "336,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.022",
+      "displayName": "Grunge Tile 022",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.022",
+      "tileId": 1022,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_022.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 352,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "352,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.023",
+      "displayName": "Grunge Tile 023",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.023",
+      "tileId": 1023,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_023.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 368,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "368,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.024",
+      "displayName": "Grunge Tile 024",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.024",
+      "tileId": 1024,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_024.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "384,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.025",
+      "displayName": "Grunge Tile 025",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.025",
+      "tileId": 1025,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_025.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 400,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "400,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.026",
+      "displayName": "Grunge Tile 026",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.026",
+      "tileId": 1026,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_026.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 416,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "416,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.027",
+      "displayName": "Grunge Tile 027",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.027",
+      "tileId": 1027,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_027.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "432,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.028",
+      "displayName": "Grunge Tile 028",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.028",
+      "tileId": 1028,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_028.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 448,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "448,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.029",
+      "displayName": "Grunge Tile 029",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.029",
+      "tileId": 1029,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_029.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 464,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "464,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.030",
+      "displayName": "Grunge Tile 030",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.030",
+      "tileId": 1030,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_030.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "480,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.031",
+      "displayName": "Grunge Tile 031",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.031",
+      "tileId": 1031,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_031.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 496,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "496,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.032",
+      "displayName": "Grunge Tile 032",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.032",
+      "tileId": 1032,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_032.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 512,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "512,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.033",
+      "displayName": "Grunge Tile 033",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.033",
+      "tileId": 1033,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_033.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "528,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.034",
+      "displayName": "Grunge Tile 034",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.034",
+      "tileId": 1034,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_034.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 544,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "544,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.035",
+      "displayName": "Grunge Tile 035",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.035",
+      "tileId": 1035,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_035.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 560,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "560,0,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.036",
+      "displayName": "Grunge Tile 036",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.036",
+      "tileId": 1036,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_036.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "0,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.037",
+      "displayName": "Grunge Tile 037",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.037",
+      "tileId": 1037,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_037.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 16,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "16,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.038",
+      "displayName": "Grunge Tile 038",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.038",
+      "tileId": 1038,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_038.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 32,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "32,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.039",
+      "displayName": "Grunge Tile 039",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.039",
+      "tileId": 1039,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_039.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "48,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.040",
+      "displayName": "Grunge Tile 040",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.040",
+      "tileId": 1040,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_040.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 64,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "64,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.041",
+      "displayName": "Grunge Tile 041",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.041",
+      "tileId": 1041,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_041.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 80,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "80,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.042",
+      "displayName": "Grunge Tile 042",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.042",
+      "tileId": 1042,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_042.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "96,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.043",
+      "displayName": "Grunge Tile 043",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.043",
+      "tileId": 1043,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_043.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 112,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "112,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.044",
+      "displayName": "Grunge Tile 044",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.044",
+      "tileId": 1044,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_044.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 128,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "128,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.045",
+      "displayName": "Grunge Tile 045",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.045",
+      "tileId": 1045,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_045.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "144,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.046",
+      "displayName": "Grunge Tile 046",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.046",
+      "tileId": 1046,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_046.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 160,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "160,16,16,16"
+      }
+    },
+    {
+      "partId": "asset.tile.grunge.047",
+      "displayName": "Grunge Tile 047",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "src012.grunge_tileset.047",
+      "tileId": 1047,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_047.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {
+        "x": 176,
+        "y": 16,
+        "width": 16,
+        "height": 16
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "atlasRect": "176,16,16,16"
+      }
+    }
+  ]
+}

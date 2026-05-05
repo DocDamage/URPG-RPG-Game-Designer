@@ -1,0 +1,10 @@
+{
+  "generated_catalogs": 3,
+  "generated_parts": 17297,
+  "skipped_assets": 0,
+  "catalog_paths": [
+    "content/part_catalogs/generated/promoted_legacy/bnd_006_parts.json",
+    "content/part_catalogs/generated/promoted_legacy/bnd_007_parts.json",
+    "content/part_catalogs/generated/promoted_legacy/bnd_008_parts.json"
+  ]
+}

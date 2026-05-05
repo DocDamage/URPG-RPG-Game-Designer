@@ -189,6 +189,12 @@ EditorCliParseResult parseEditorCli(std::vector<std::string_view> args, bool def
                 return result;
             }
             result.options.project_root = std::filesystem::path(std::string(args[++i]));
+        } else if (arg == "--grid-part-catalog") {
+            if (i + 1 >= args.size() || needsValue(args[i + 1])) {
+                result.error = missingValueError(arg);
+                return result;
+            }
+            result.options.grid_part_catalog = std::filesystem::path(std::string(args[++i]));
         } else if (arg == "--smoke-output") {
             if (i + 1 >= args.size() || needsValue(args[i + 1])) {
                 result.error = missingValueError(arg);
@@ -236,6 +242,7 @@ std::string runtimeHelpText() {
 std::string editorHelpText() {
     return "Usage: urpg_editor [--headless] [--frames <count>] [--width <pixels>] [--height <pixels>] "
            "[--project-root <path>] [--list-panels] [--render-all-panels] [--open-panel <id>] "
+           "[--grid-part-catalog <path>] "
            "[--smoke] [--smoke-output <path>] [--smoke-snapshot-root <path>] [--safe-mode] "
            "[--probe-platform] [--probe-opengl] [--probe-render] [--probe-editor-frame] "
            "[--hidden-window] [--reset-startup-guard] [--version] [--help]\n";

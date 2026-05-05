@@ -1,0 +1,4040 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9",
+  "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.000",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "0,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.001",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "48,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.002",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "96,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.003",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "144,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.004",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "192,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.005",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "240,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.006",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "288,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.007",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "336,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.008",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "384,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.009",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "432,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.010",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "480,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.011",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "528,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.012",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "576,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.013",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "624,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.014",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "672,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.015",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "720,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.016",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "0,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.017",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.018",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "96,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.019",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "144,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.020",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "192,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.021",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "240,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.022",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "288,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.023",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "336,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.024",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "384,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.025",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "432,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.026",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "480,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.027",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "528,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.028",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "576,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.029",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "624,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.030",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 030",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.030",
+      "tileId": 700030,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "672,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.031",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 031",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.031",
+      "tileId": 700031,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "720,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.032",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 032",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.032",
+      "tileId": 700032,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "0,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.033",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 033",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.033",
+      "tileId": 700033,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "48,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.034",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 034",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.034",
+      "tileId": 700034,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "96,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.035",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 035",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.035",
+      "tileId": 700035,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "144,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.036",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 036",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.036",
+      "tileId": 700036,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "192,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.037",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 037",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.037",
+      "tileId": 700037,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "240,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.038",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 038",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.038",
+      "tileId": 700038,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "288,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.039",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 039",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.039",
+      "tileId": 700039,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "336,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.040",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 040",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.040",
+      "tileId": 700040,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "384,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.041",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 041",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.041",
+      "tileId": 700041,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "432,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.042",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 042",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.042",
+      "tileId": 700042,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "480,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.043",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 043",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.043",
+      "tileId": 700043,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "528,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.044",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 044",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.044",
+      "tileId": 700044,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "576,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.045",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 045",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.045",
+      "tileId": 700045,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "624,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.046",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 046",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.046",
+      "tileId": 700046,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "672,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.047",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 047",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.047",
+      "tileId": 700047,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "720,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.048",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 048",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.048",
+      "tileId": 700048,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "0,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.049",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 049",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.049",
+      "tileId": 700049,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "48,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.050",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 050",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.050",
+      "tileId": 700050,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "96,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.051",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 051",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.051",
+      "tileId": 700051,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "144,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.052",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 052",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.052",
+      "tileId": 700052,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "192,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.053",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 053",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.053",
+      "tileId": 700053,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "240,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.054",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 054",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.054",
+      "tileId": 700054,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "288,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.055",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 055",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.055",
+      "tileId": 700055,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "336,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.056",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 056",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.056",
+      "tileId": 700056,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "384,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.057",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 057",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.057",
+      "tileId": 700057,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "432,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.058",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 058",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.058",
+      "tileId": 700058,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "480,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.059",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 059",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.059",
+      "tileId": 700059,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "528,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.060",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 060",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.060",
+      "tileId": 700060,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "576,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.061",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 061",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.061",
+      "tileId": 700061,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "624,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.062",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 062",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.062",
+      "tileId": 700062,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "672,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.063",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 063",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.063",
+      "tileId": 700063,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "720,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.064",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 064",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.064",
+      "tileId": 700064,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "0,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.065",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 065",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.065",
+      "tileId": 700065,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "48,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.066",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 066",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.066",
+      "tileId": 700066,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "96,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.067",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 067",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.067",
+      "tileId": 700067,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "144,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.068",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 068",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.068",
+      "tileId": 700068,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "192,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.069",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 069",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.069",
+      "tileId": 700069,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "240,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.070",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 070",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.070",
+      "tileId": 700070,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "288,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.071",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 071",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.071",
+      "tileId": 700071,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "336,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.072",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 072",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.072",
+      "tileId": 700072,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "384,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.073",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 073",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.073",
+      "tileId": 700073,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "432,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.074",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 074",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.074",
+      "tileId": 700074,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "480,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.075",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 075",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.075",
+      "tileId": 700075,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "528,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.076",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 076",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.076",
+      "tileId": 700076,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "576,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.077",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 077",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.077",
+      "tileId": 700077,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "624,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.078",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 078",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.078",
+      "tileId": 700078,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "672,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.079",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 079",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.079",
+      "tileId": 700079,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "720,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.080",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 080",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.080",
+      "tileId": 700080,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_080.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "0,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.081",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 081",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.081",
+      "tileId": 700081,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_081.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "48,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.082",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 082",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.082",
+      "tileId": 700082,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_082.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "96,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.083",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 083",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.083",
+      "tileId": 700083,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_083.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "144,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.084",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 084",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.084",
+      "tileId": 700084,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_084.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "192,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.085",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 085",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.085",
+      "tileId": 700085,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_085.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "240,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.086",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 086",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.086",
+      "tileId": 700086,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_086.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "288,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.087",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 087",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.087",
+      "tileId": 700087,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_087.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "336,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.088",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 088",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.088",
+      "tileId": 700088,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_088.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "384,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.089",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 089",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.089",
+      "tileId": 700089,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_089.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "432,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.090",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 090",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.090",
+      "tileId": 700090,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_090.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "480,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.091",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 091",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.091",
+      "tileId": 700091,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_091.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "528,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.092",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 092",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.092",
+      "tileId": 700092,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_092.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "576,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.093",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 093",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.093",
+      "tileId": 700093,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_093.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "624,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.094",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 094",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.094",
+      "tileId": 700094,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_094.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "672,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.095",
+      "displayName": "shelter-rpgmaker-mv-mz-5c73e3c690f0 9 095",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Prop",
+      "defaultLayer": "Decor",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": true,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.shelter_rpgmaker_mv_mz_5c73e3c690f0.9.095",
+      "tileId": 700095,
+      "previewPath": "content/assets/gameplay/cutesckr_all/shelter_rpgmaker_mv_mz_5c73e3c690f0/9/tile_095.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "gameplay",
+        "generated",
+        "prop",
+        "shelter_rpgmaker_mv_mz_5c73e3c690f0"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "shelter-rpgmaker-mv-mz-5c73e3c690f0",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/shelter-rpgmaker-mv-mz-5c73e3c690f0/9.png",
+        "atlasRect": "720,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

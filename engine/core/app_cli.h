@@ -44,6 +44,7 @@ struct EditorCliOptions {
     bool reset_startup_guard = false;
     std::optional<std::string> open_panel_id;
     std::filesystem::path project_root = std::filesystem::current_path();
+    std::filesystem::path grid_part_catalog = std::filesystem::path("content") / "part_catalogs" / "base_jrpg_parts.json";
     std::filesystem::path smoke_output;
     std::filesystem::path smoke_snapshot_root;
 };

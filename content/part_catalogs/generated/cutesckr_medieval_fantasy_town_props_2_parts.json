@@ -1,0 +1,3368 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr_medieval_fantasy_town_props_2_parts",
+  "displayName": "Town Prop",
+  "description": "Generated Level Builder grid parts from promoted gameplay tileset slices.",
+  "parts": [
+    {
+      "partId": "asset.prop.cutesckr.town02.000",
+      "displayName": "Town Prop 000",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.000",
+      "tileId": 3200,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "0,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.001",
+      "displayName": "Town Prop 001",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.001",
+      "tileId": 3201,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "48,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.002",
+      "displayName": "Town Prop 002",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.002",
+      "tileId": 3202,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "96,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.003",
+      "displayName": "Town Prop 003",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.003",
+      "tileId": 3203,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "144,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.004",
+      "displayName": "Town Prop 004",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.004",
+      "tileId": 3204,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "192,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.005",
+      "displayName": "Town Prop 005",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.005",
+      "tileId": 3205,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "240,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.006",
+      "displayName": "Town Prop 006",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.006",
+      "tileId": 3206,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "288,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.007",
+      "displayName": "Town Prop 007",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.007",
+      "tileId": 3207,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "336,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.008",
+      "displayName": "Town Prop 008",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.008",
+      "tileId": 3208,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "384,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.009",
+      "displayName": "Town Prop 009",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.009",
+      "tileId": 3209,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "432,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.010",
+      "displayName": "Town Prop 010",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.010",
+      "tileId": 3210,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "480,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.011",
+      "displayName": "Town Prop 011",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.011",
+      "tileId": 3211,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "528,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.012",
+      "displayName": "Town Prop 012",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.012",
+      "tileId": 3212,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "576,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.013",
+      "displayName": "Town Prop 013",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.013",
+      "tileId": 3213,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "624,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.014",
+      "displayName": "Town Prop 014",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.014",
+      "tileId": 3214,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "672,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.015",
+      "displayName": "Town Prop 015",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.015",
+      "tileId": 3215,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "720,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.016",
+      "displayName": "Town Prop 016",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.016",
+      "tileId": 3216,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "0,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.017",
+      "displayName": "Town Prop 017",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.017",
+      "tileId": 3217,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "48,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.018",
+      "displayName": "Town Prop 018",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.018",
+      "tileId": 3218,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "96,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.019",
+      "displayName": "Town Prop 019",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.019",
+      "tileId": 3219,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "144,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.020",
+      "displayName": "Town Prop 020",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.020",
+      "tileId": 3220,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "192,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.021",
+      "displayName": "Town Prop 021",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.021",
+      "tileId": 3221,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "240,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.022",
+      "displayName": "Town Prop 022",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.022",
+      "tileId": 3222,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "288,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.023",
+      "displayName": "Town Prop 023",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.023",
+      "tileId": 3223,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "336,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.024",
+      "displayName": "Town Prop 024",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.024",
+      "tileId": 3224,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "384,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.025",
+      "displayName": "Town Prop 025",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.025",
+      "tileId": 3225,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "432,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.026",
+      "displayName": "Town Prop 026",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.026",
+      "tileId": 3226,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "480,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.027",
+      "displayName": "Town Prop 027",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.027",
+      "tileId": 3227,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "528,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.028",
+      "displayName": "Town Prop 028",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.028",
+      "tileId": 3228,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "576,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.029",
+      "displayName": "Town Prop 029",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.029",
+      "tileId": 3229,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "624,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.030",
+      "displayName": "Town Prop 030",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.030",
+      "tileId": 3230,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "672,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.031",
+      "displayName": "Town Prop 031",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.031",
+      "tileId": 3231,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "720,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.032",
+      "displayName": "Town Prop 032",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.032",
+      "tileId": 3232,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "0,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.033",
+      "displayName": "Town Prop 033",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.033",
+      "tileId": 3233,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "48,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.034",
+      "displayName": "Town Prop 034",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.034",
+      "tileId": 3234,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "96,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.035",
+      "displayName": "Town Prop 035",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.035",
+      "tileId": 3235,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "144,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.036",
+      "displayName": "Town Prop 036",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.036",
+      "tileId": 3236,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "192,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.037",
+      "displayName": "Town Prop 037",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.037",
+      "tileId": 3237,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "240,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.038",
+      "displayName": "Town Prop 038",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.038",
+      "tileId": 3238,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "288,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.039",
+      "displayName": "Town Prop 039",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.039",
+      "tileId": 3239,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "336,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.040",
+      "displayName": "Town Prop 040",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.040",
+      "tileId": 3240,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "384,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.041",
+      "displayName": "Town Prop 041",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.041",
+      "tileId": 3241,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "432,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.042",
+      "displayName": "Town Prop 042",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.042",
+      "tileId": 3242,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "480,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.043",
+      "displayName": "Town Prop 043",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.043",
+      "tileId": 3243,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "528,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.044",
+      "displayName": "Town Prop 044",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.044",
+      "tileId": 3244,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "576,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.045",
+      "displayName": "Town Prop 045",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.045",
+      "tileId": 3245,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "624,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.046",
+      "displayName": "Town Prop 046",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.046",
+      "tileId": 3246,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "672,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.047",
+      "displayName": "Town Prop 047",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.047",
+      "tileId": 3247,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "720,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.048",
+      "displayName": "Town Prop 048",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.048",
+      "tileId": 3248,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "0,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.049",
+      "displayName": "Town Prop 049",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.049",
+      "tileId": 3249,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "48,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.050",
+      "displayName": "Town Prop 050",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.050",
+      "tileId": 3250,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "96,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.051",
+      "displayName": "Town Prop 051",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.051",
+      "tileId": 3251,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "144,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.052",
+      "displayName": "Town Prop 052",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.052",
+      "tileId": 3252,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "192,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.053",
+      "displayName": "Town Prop 053",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.053",
+      "tileId": 3253,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "240,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.054",
+      "displayName": "Town Prop 054",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.054",
+      "tileId": 3254,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "288,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.055",
+      "displayName": "Town Prop 055",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.055",
+      "tileId": 3255,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "336,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.056",
+      "displayName": "Town Prop 056",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.056",
+      "tileId": 3256,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "384,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.057",
+      "displayName": "Town Prop 057",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.057",
+      "tileId": 3257,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "432,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.058",
+      "displayName": "Town Prop 058",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.058",
+      "tileId": 3258,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "480,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.059",
+      "displayName": "Town Prop 059",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.059",
+      "tileId": 3259,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "528,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.060",
+      "displayName": "Town Prop 060",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.060",
+      "tileId": 3260,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "576,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.061",
+      "displayName": "Town Prop 061",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.061",
+      "tileId": 3261,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "624,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.062",
+      "displayName": "Town Prop 062",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.062",
+      "tileId": 3262,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "672,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.063",
+      "displayName": "Town Prop 063",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.063",
+      "tileId": 3263,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "720,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.064",
+      "displayName": "Town Prop 064",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.064",
+      "tileId": 3264,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "0,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.065",
+      "displayName": "Town Prop 065",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.065",
+      "tileId": 3265,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "48,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.066",
+      "displayName": "Town Prop 066",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.066",
+      "tileId": 3266,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "96,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.067",
+      "displayName": "Town Prop 067",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.067",
+      "tileId": 3267,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "144,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.068",
+      "displayName": "Town Prop 068",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.068",
+      "tileId": 3268,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "192,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.069",
+      "displayName": "Town Prop 069",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.069",
+      "tileId": 3269,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "240,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.070",
+      "displayName": "Town Prop 070",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.070",
+      "tileId": 3270,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "288,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.071",
+      "displayName": "Town Prop 071",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.071",
+      "tileId": 3271,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "336,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.072",
+      "displayName": "Town Prop 072",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.072",
+      "tileId": 3272,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "384,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.073",
+      "displayName": "Town Prop 073",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.073",
+      "tileId": 3273,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "432,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.074",
+      "displayName": "Town Prop 074",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.074",
+      "tileId": 3274,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "480,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.075",
+      "displayName": "Town Prop 075",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.075",
+      "tileId": 3275,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "528,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.076",
+      "displayName": "Town Prop 076",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.076",
+      "tileId": 3276,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "576,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.077",
+      "displayName": "Town Prop 077",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.077",
+      "tileId": 3277,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "624,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.078",
+      "displayName": "Town Prop 078",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.078",
+      "tileId": 3278,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "672,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.prop.cutesckr.town02.079",
+      "displayName": "Town Prop 079",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Prop",
+      "defaultLayer": "Object",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_fantasy_town.props.2.079",
+      "tileId": 3279,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_props_2/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cc0",
+        "gameplay",
+        "generated",
+        "object",
+        "prop",
+        "town"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_fantasy_town/2.png",
+        "atlasRect": "720,192,48,48"
+      }
+    }
+  ]
+}

@@ -251,6 +251,18 @@ urpg::map::PlacedPartInstance GridPartPlacementPanel::makeInstance(const urpg::m
     if (!definition.prefab_path.empty()) {
         instance.properties["prefabPath"] = definition.prefab_path;
     }
+    if (!definition.preview_path.empty()) {
+        instance.properties["previewPath"] = definition.preview_path;
+    }
+    if (!definition.source_image_path.empty()) {
+        instance.properties["sourceImagePath"] = definition.source_image_path;
+    }
+    if (definition.atlas_rect.width > 0 && definition.atlas_rect.height > 0) {
+        instance.properties["atlasRect"] = std::to_string(definition.atlas_rect.x) + "," +
+                                           std::to_string(definition.atlas_rect.y) + "," +
+                                           std::to_string(definition.atlas_rect.width) + "," +
+                                           std::to_string(definition.atlas_rect.height);
+    }
     return instance;
 }
 

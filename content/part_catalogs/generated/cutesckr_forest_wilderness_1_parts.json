@@ -1,0 +1,3848 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr_forest_wilderness_1_parts",
+  "displayName": "Forest Tile",
+  "description": "Generated Level Builder grid parts from promoted gameplay tileset slices.",
+  "parts": [
+    {
+      "partId": "asset.tile.cutesckr.forest01.000",
+      "displayName": "Forest Tile 000",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.000",
+      "tileId": 2600,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "0,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.001",
+      "displayName": "Forest Tile 001",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.001",
+      "tileId": 2601,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "48,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.002",
+      "displayName": "Forest Tile 002",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.002",
+      "tileId": 2602,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "96,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.003",
+      "displayName": "Forest Tile 003",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.003",
+      "tileId": 2603,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "192,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.004",
+      "displayName": "Forest Tile 004",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.004",
+      "tileId": 2604,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "240,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.005",
+      "displayName": "Forest Tile 005",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.005",
+      "tileId": 2605,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "288,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.006",
+      "displayName": "Forest Tile 006",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.006",
+      "tileId": 2606,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "336,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.007",
+      "displayName": "Forest Tile 007",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.007",
+      "tileId": 2607,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "432,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.008",
+      "displayName": "Forest Tile 008",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.008",
+      "tileId": 2608,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "480,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.009",
+      "displayName": "Forest Tile 009",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.009",
+      "tileId": 2609,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "528,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.010",
+      "displayName": "Forest Tile 010",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.010",
+      "tileId": 2610,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "576,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.011",
+      "displayName": "Forest Tile 011",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.011",
+      "tileId": 2611,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "672,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.012",
+      "displayName": "Forest Tile 012",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.012",
+      "tileId": 2612,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "720,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.013",
+      "displayName": "Forest Tile 013",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.013",
+      "tileId": 2613,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "0,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.014",
+      "displayName": "Forest Tile 014",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.014",
+      "tileId": 2614,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "48,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.015",
+      "displayName": "Forest Tile 015",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.015",
+      "tileId": 2615,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "96,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.016",
+      "displayName": "Forest Tile 016",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.016",
+      "tileId": 2616,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "144,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.017",
+      "displayName": "Forest Tile 017",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.017",
+      "tileId": 2617,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "192,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.018",
+      "displayName": "Forest Tile 018",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.018",
+      "tileId": 2618,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "240,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.019",
+      "displayName": "Forest Tile 019",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.019",
+      "tileId": 2619,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "288,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.020",
+      "displayName": "Forest Tile 020",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.020",
+      "tileId": 2620,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "336,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.021",
+      "displayName": "Forest Tile 021",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.021",
+      "tileId": 2621,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "384,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.022",
+      "displayName": "Forest Tile 022",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.022",
+      "tileId": 2622,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "432,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.023",
+      "displayName": "Forest Tile 023",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.023",
+      "tileId": 2623,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "480,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.024",
+      "displayName": "Forest Tile 024",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.024",
+      "tileId": 2624,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "528,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.025",
+      "displayName": "Forest Tile 025",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.025",
+      "tileId": 2625,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "576,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.026",
+      "displayName": "Forest Tile 026",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.026",
+      "tileId": 2626,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "624,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.027",
+      "displayName": "Forest Tile 027",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.027",
+      "tileId": 2627,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "672,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.028",
+      "displayName": "Forest Tile 028",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.028",
+      "tileId": 2628,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "720,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.029",
+      "displayName": "Forest Tile 029",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.029",
+      "tileId": 2629,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "0,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.030",
+      "displayName": "Forest Tile 030",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.030",
+      "tileId": 2630,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "48,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.031",
+      "displayName": "Forest Tile 031",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.031",
+      "tileId": 2631,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "96,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.032",
+      "displayName": "Forest Tile 032",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.032",
+      "tileId": 2632,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "144,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.033",
+      "displayName": "Forest Tile 033",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.033",
+      "tileId": 2633,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "192,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.034",
+      "displayName": "Forest Tile 034",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.034",
+      "tileId": 2634,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "240,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.035",
+      "displayName": "Forest Tile 035",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.035",
+      "tileId": 2635,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "288,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.036",
+      "displayName": "Forest Tile 036",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.036",
+      "tileId": 2636,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "336,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.037",
+      "displayName": "Forest Tile 037",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.037",
+      "tileId": 2637,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "384,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.038",
+      "displayName": "Forest Tile 038",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.038",
+      "tileId": 2638,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "432,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.039",
+      "displayName": "Forest Tile 039",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.039",
+      "tileId": 2639,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "480,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.040",
+      "displayName": "Forest Tile 040",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.040",
+      "tileId": 2640,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "528,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.041",
+      "displayName": "Forest Tile 041",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.041",
+      "tileId": 2641,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "576,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.042",
+      "displayName": "Forest Tile 042",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.042",
+      "tileId": 2642,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "624,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.043",
+      "displayName": "Forest Tile 043",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.043",
+      "tileId": 2643,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "672,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.044",
+      "displayName": "Forest Tile 044",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.044",
+      "tileId": 2644,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "720,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.045",
+      "displayName": "Forest Tile 045",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.045",
+      "tileId": 2645,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "0,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.046",
+      "displayName": "Forest Tile 046",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.046",
+      "tileId": 2646,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "48,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.047",
+      "displayName": "Forest Tile 047",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.047",
+      "tileId": 2647,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "96,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.048",
+      "displayName": "Forest Tile 048",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.048",
+      "tileId": 2648,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "144,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.049",
+      "displayName": "Forest Tile 049",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.049",
+      "tileId": 2649,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "192,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.050",
+      "displayName": "Forest Tile 050",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.050",
+      "tileId": 2650,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "240,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.051",
+      "displayName": "Forest Tile 051",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.051",
+      "tileId": 2651,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "288,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.052",
+      "displayName": "Forest Tile 052",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.052",
+      "tileId": 2652,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "336,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.053",
+      "displayName": "Forest Tile 053",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.053",
+      "tileId": 2653,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "384,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.054",
+      "displayName": "Forest Tile 054",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.054",
+      "tileId": 2654,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "432,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.055",
+      "displayName": "Forest Tile 055",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.055",
+      "tileId": 2655,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "480,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.056",
+      "displayName": "Forest Tile 056",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.056",
+      "tileId": 2656,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "528,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.057",
+      "displayName": "Forest Tile 057",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.057",
+      "tileId": 2657,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "576,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.058",
+      "displayName": "Forest Tile 058",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.058",
+      "tileId": 2658,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "624,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.059",
+      "displayName": "Forest Tile 059",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.059",
+      "tileId": 2659,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "672,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.060",
+      "displayName": "Forest Tile 060",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.060",
+      "tileId": 2660,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "720,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.061",
+      "displayName": "Forest Tile 061",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.061",
+      "tileId": 2661,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "0,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.062",
+      "displayName": "Forest Tile 062",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.062",
+      "tileId": 2662,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "48,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.063",
+      "displayName": "Forest Tile 063",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.063",
+      "tileId": 2663,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "96,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.064",
+      "displayName": "Forest Tile 064",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.064",
+      "tileId": 2664,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "144,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.065",
+      "displayName": "Forest Tile 065",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.065",
+      "tileId": 2665,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "192,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.066",
+      "displayName": "Forest Tile 066",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.066",
+      "tileId": 2666,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "240,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.067",
+      "displayName": "Forest Tile 067",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.067",
+      "tileId": 2667,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "288,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.068",
+      "displayName": "Forest Tile 068",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.068",
+      "tileId": 2668,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "336,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.069",
+      "displayName": "Forest Tile 069",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.069",
+      "tileId": 2669,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "384,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.070",
+      "displayName": "Forest Tile 070",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.070",
+      "tileId": 2670,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "432,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.071",
+      "displayName": "Forest Tile 071",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.071",
+      "tileId": 2671,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "480,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.072",
+      "displayName": "Forest Tile 072",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.072",
+      "tileId": 2672,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "528,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.073",
+      "displayName": "Forest Tile 073",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.073",
+      "tileId": 2673,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "576,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.074",
+      "displayName": "Forest Tile 074",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.074",
+      "tileId": 2674,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "624,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.075",
+      "displayName": "Forest Tile 075",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.075",
+      "tileId": 2675,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "672,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.076",
+      "displayName": "Forest Tile 076",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.076",
+      "tileId": 2676,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "720,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.077",
+      "displayName": "Forest Tile 077",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.077",
+      "tileId": 2677,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "0,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.078",
+      "displayName": "Forest Tile 078",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.078",
+      "tileId": 2678,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "48,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.079",
+      "displayName": "Forest Tile 079",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.079",
+      "tileId": 2679,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "96,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.080",
+      "displayName": "Forest Tile 080",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.080",
+      "tileId": 2680,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_080.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "144,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.081",
+      "displayName": "Forest Tile 081",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.081",
+      "tileId": 2681,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_081.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "192,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.082",
+      "displayName": "Forest Tile 082",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.082",
+      "tileId": 2682,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_082.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "240,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.083",
+      "displayName": "Forest Tile 083",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.083",
+      "tileId": 2683,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_083.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "288,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.084",
+      "displayName": "Forest Tile 084",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.084",
+      "tileId": 2684,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_084.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "336,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.085",
+      "displayName": "Forest Tile 085",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.085",
+      "tileId": 2685,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_085.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "384,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.086",
+      "displayName": "Forest Tile 086",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.086",
+      "tileId": 2686,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_086.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "432,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.087",
+      "displayName": "Forest Tile 087",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.087",
+      "tileId": 2687,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_087.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "480,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.088",
+      "displayName": "Forest Tile 088",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.088",
+      "tileId": 2688,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_088.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "528,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.089",
+      "displayName": "Forest Tile 089",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.089",
+      "tileId": 2689,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_089.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "576,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.090",
+      "displayName": "Forest Tile 090",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.090",
+      "tileId": 2690,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_090.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "624,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.091",
+      "displayName": "Forest Tile 091",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.091",
+      "tileId": 2691,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_091.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "672,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.092",
+      "displayName": "Forest Tile 092",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.092",
+      "tileId": 2692,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_092.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "720,240,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.093",
+      "displayName": "Forest Tile 093",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.093",
+      "tileId": 2693,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_093.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "0,288,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.094",
+      "displayName": "Forest Tile 094",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.094",
+      "tileId": 2694,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_094.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "48,288,48,48"
+      }
+    },
+    {
+      "partId": "asset.tile.cutesckr.forest01.095",
+      "displayName": "Forest Tile 095",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.forest_wilderness.1.095",
+      "tileId": 2695,
+      "previewPath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_095.png",
+      "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "generated",
+        "gameplay",
+        "tileset",
+        "cc0"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/forest_wilderness/1.png",
+        "atlasRect": "96,288,48,48"
+      }
+    }
+  ]
+}

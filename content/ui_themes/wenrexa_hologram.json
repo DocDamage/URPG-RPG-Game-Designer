@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 2,
+  "themeId": "wenrexa_hologram",
+  "displayName": "Wenrexa Hologram",
+  "level": "candidate",
+  "surfaces": [
+    "game_ui_theme"
+  ],
+  "source": {
+    "rawPath": "imports/raw/ui_themes/wenrexa_hologram",
+    "assetPath": "content/assets/ui_themes/wenrexa_hologram",
+    "license": "CC0-1.0"
+  },
+  "allowIncompleteRuntimeSelection": false,
+  "bypassPolicy": {
+    "developerSetting": true,
+    "settingsCheckbox": true,
+    "perThemeUseAnywayWarning": true
+  },
+  "components": {
+    "buttons": {
+      "states": [
+        "content/assets/ui_themes/wenrexa_hologram/Button 1/Button Active.png",
+        "content/assets/ui_themes/wenrexa_hologram/Button 1/Button Disable.png",
+        "content/assets/ui_themes/wenrexa_hologram/Button 1/Button Hover.png",
+        "content/assets/ui_themes/wenrexa_hologram/Button 1/Button Normal.png"
+      ]
+    },
+    "inputs": [],
+    "selects": [],
+    "toggles": [],
+    "frames": [
+      "content/assets/ui_themes/wenrexa_hologram/Card X1/Card X1.png",
+      "content/assets/ui_themes/wenrexa_hologram/Card X1/Card X2.png",
+      "content/assets/ui_themes/wenrexa_hologram/Card X1/Panel Empty Green.png",
+      "content/assets/ui_themes/wenrexa_hologram/Card X1/Panel Empty.png",
+      "content/assets/ui_themes/wenrexa_hologram/Card X1/Panel Red.png",
+      "content/assets/ui_themes/wenrexa_hologram/Card X2/Card X2.png",
+      "content/assets/ui_themes/wenrexa_hologram/Card X2/Card X3.png",
+      "content/assets/ui_themes/wenrexa_hologram/Card X3/Card X5.png",
+      "content/assets/ui_themes/wenrexa_hologram/Card X3/Card X6.png"
+    ],
+    "bars": [],
+    "icons": [
+      "content/assets/ui_themes/wenrexa_hologram/Icons/01.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/02.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/03.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/04.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/05.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/06.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/07.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/08.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/09.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/10.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/11.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/12.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/13.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/14.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/15.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/16.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/17.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/18.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/19.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/20.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/21.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/22.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/23.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/24.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/25.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/26.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/27.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/28.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/29.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/30.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/31.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/32.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/33.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/34.png",
+      "content/assets/ui_themes/wenrexa_hologram/Icons/35.png"
+    ],
+    "handles": [],
+    "slots": [],
+    "spritesheets": [],
+    "sourceFiles": []
+  },
+  "semanticIconAliases": {},
+  "fontPairing": {},
+  "nineSlice": {},
+  "scalePolicy": {},
+  "colorTokens": {},
+  "themeCompleteness": {
+    "gameUiReady": {
+      "status": "fail",
+      "missing": [
+        "bars"
+      ]
+    },
+    "editorThemeReady": {
+      "status": "fail",
+      "missing": [
+        "color_tokens",
+        "font_pairing",
+        "icon_semantic_aliases",
+        "input_field_states",
+        "list_tree_row_states",
+        "menu_item_states",
+        "nine_slice_metadata",
+        "scale_policy",
+        "scrollbar_track_thumb",
+        "select_dropdown_states",
+        "splitter_resize_handle",
+        "tab_states",
+        "toggle_checkbox_radio"
+      ]
+    }
+  }
+}

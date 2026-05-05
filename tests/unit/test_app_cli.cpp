@@ -108,6 +108,8 @@ TEST_CASE("Editor CLI preserves valid option parsing and smoke defaults", "[cli]
                                                        "--render-all-panels",
                                                        "--open-panel",
                                                        "assets",
+                                                       "--grid-part-catalog",
+                                                       "content/part_catalogs/game_maker_all_parts.json",
                                                    }),
                                                    false);
 
@@ -124,6 +126,7 @@ TEST_CASE("Editor CLI preserves valid option parsing and smoke defaults", "[cli]
     REQUIRE(parsed.options.render_all_panels);
     REQUIRE(parsed.options.open_panel_id.has_value());
     REQUIRE(*parsed.options.open_panel_id == "assets");
+    REQUIRE(parsed.options.grid_part_catalog == "content/part_catalogs/game_maker_all_parts.json");
 
     const auto smoke = urpg::cli::parseEditorCli(args({"--smoke"}), false);
     REQUIRE(smoke.ok());

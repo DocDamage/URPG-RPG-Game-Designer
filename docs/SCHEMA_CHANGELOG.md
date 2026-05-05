@@ -67,6 +67,11 @@ Each governed schema entry should include:
 
 ### `grid_part_catalog` (`grid_part_catalog.schema.json`)
 
+- Version: `1.1.0`
+- Date: `2026-05-05`
+- Summary: adds generated catalog include support plus asset metadata fields for preview paths, source image paths, atlas rectangles, and source-bundle filtering used by the larger game-maker library.
+- Migration Impact: additive; existing authored catalog entries remain valid, while generated catalogs can opt into richer metadata and include aggregation.
+
 - Version: `1.0.0`
 - Date: `2026-04-29`
 - Summary: initial schema for grid-part catalog definitions used by maker-style map authoring palettes
@@ -297,6 +302,11 @@ Each governed schema entry should include:
 - Migration Impact: none; additive FFS-17 governance fixture contract
 
 ### `ui_theme` (`ui_theme.schema.json`)
+
+- Version: `2.0.0`
+- Date: `2026-05-05`
+- Summary: replaces the compact presentation-polish theme shape with a broader UI theme manifest for game UI themes and candidate editor themes, including source paths, surfaces, bypass policy, component buckets, completeness checks, semantic icon aliases, font pairing, nine-slice metadata, scale policy, and color tokens.
+- Migration Impact: breaking for consumers that parse the old `windowFrame`/`buttonStates` fixture shape directly; existing C++ theme registry tests still use the legacy in-memory contract, while generated content manifests now target schema version 2.
 
 - Version: `1.0.0`
 - Date: `2026-04-25`

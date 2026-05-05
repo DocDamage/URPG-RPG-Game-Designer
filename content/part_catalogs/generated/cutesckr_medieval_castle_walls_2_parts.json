@@ -1,0 +1,3288 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr_medieval_castle_walls_2_parts",
+  "displayName": "Castle Wall",
+  "description": "Generated Level Builder grid parts from promoted gameplay tileset slices.",
+  "parts": [
+    {
+      "partId": "asset.wall.cutesckr.castle02.000",
+      "displayName": "Castle Wall 000",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.000",
+      "tileId": 3600,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "0,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.001",
+      "displayName": "Castle Wall 001",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.001",
+      "tileId": 3601,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "48,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.002",
+      "displayName": "Castle Wall 002",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.002",
+      "tileId": 3602,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "96,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.003",
+      "displayName": "Castle Wall 003",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.003",
+      "tileId": 3603,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "144,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.004",
+      "displayName": "Castle Wall 004",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.004",
+      "tileId": 3604,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "192,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.005",
+      "displayName": "Castle Wall 005",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.005",
+      "tileId": 3605,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "240,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.006",
+      "displayName": "Castle Wall 006",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.006",
+      "tileId": 3606,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "288,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.007",
+      "displayName": "Castle Wall 007",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.007",
+      "tileId": 3607,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "336,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.008",
+      "displayName": "Castle Wall 008",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.008",
+      "tileId": 3608,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "384,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.009",
+      "displayName": "Castle Wall 009",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.009",
+      "tileId": 3609,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "432,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.010",
+      "displayName": "Castle Wall 010",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.010",
+      "tileId": 3610,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "480,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.011",
+      "displayName": "Castle Wall 011",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.011",
+      "tileId": 3611,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "528,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.012",
+      "displayName": "Castle Wall 012",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.012",
+      "tileId": 3612,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "576,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.013",
+      "displayName": "Castle Wall 013",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.013",
+      "tileId": 3613,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "624,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.014",
+      "displayName": "Castle Wall 014",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.014",
+      "tileId": 3614,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "672,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.015",
+      "displayName": "Castle Wall 015",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.015",
+      "tileId": 3615,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "720,0,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.016",
+      "displayName": "Castle Wall 016",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.016",
+      "tileId": 3616,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "0,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.017",
+      "displayName": "Castle Wall 017",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.017",
+      "tileId": 3617,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "48,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.018",
+      "displayName": "Castle Wall 018",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.018",
+      "tileId": 3618,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "96,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.019",
+      "displayName": "Castle Wall 019",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.019",
+      "tileId": 3619,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "144,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.020",
+      "displayName": "Castle Wall 020",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.020",
+      "tileId": 3620,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "192,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.021",
+      "displayName": "Castle Wall 021",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.021",
+      "tileId": 3621,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "240,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.022",
+      "displayName": "Castle Wall 022",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.022",
+      "tileId": 3622,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "288,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.023",
+      "displayName": "Castle Wall 023",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.023",
+      "tileId": 3623,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "336,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.024",
+      "displayName": "Castle Wall 024",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.024",
+      "tileId": 3624,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "384,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.025",
+      "displayName": "Castle Wall 025",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.025",
+      "tileId": 3625,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "432,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.026",
+      "displayName": "Castle Wall 026",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.026",
+      "tileId": 3626,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "480,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.027",
+      "displayName": "Castle Wall 027",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.027",
+      "tileId": 3627,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "528,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.028",
+      "displayName": "Castle Wall 028",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.028",
+      "tileId": 3628,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "576,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.029",
+      "displayName": "Castle Wall 029",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.029",
+      "tileId": 3629,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "624,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.030",
+      "displayName": "Castle Wall 030",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.030",
+      "tileId": 3630,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "672,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.031",
+      "displayName": "Castle Wall 031",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.031",
+      "tileId": 3631,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "720,48,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.032",
+      "displayName": "Castle Wall 032",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.032",
+      "tileId": 3632,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "0,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.033",
+      "displayName": "Castle Wall 033",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.033",
+      "tileId": 3633,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "48,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.034",
+      "displayName": "Castle Wall 034",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.034",
+      "tileId": 3634,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "96,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.035",
+      "displayName": "Castle Wall 035",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.035",
+      "tileId": 3635,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "144,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.036",
+      "displayName": "Castle Wall 036",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.036",
+      "tileId": 3636,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "192,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.037",
+      "displayName": "Castle Wall 037",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.037",
+      "tileId": 3637,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "240,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.038",
+      "displayName": "Castle Wall 038",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.038",
+      "tileId": 3638,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "288,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.039",
+      "displayName": "Castle Wall 039",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.039",
+      "tileId": 3639,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "336,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.040",
+      "displayName": "Castle Wall 040",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.040",
+      "tileId": 3640,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "384,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.041",
+      "displayName": "Castle Wall 041",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.041",
+      "tileId": 3641,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "432,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.042",
+      "displayName": "Castle Wall 042",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.042",
+      "tileId": 3642,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "480,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.043",
+      "displayName": "Castle Wall 043",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.043",
+      "tileId": 3643,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "528,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.044",
+      "displayName": "Castle Wall 044",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.044",
+      "tileId": 3644,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "576,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.045",
+      "displayName": "Castle Wall 045",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.045",
+      "tileId": 3645,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "624,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.046",
+      "displayName": "Castle Wall 046",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.046",
+      "tileId": 3646,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "672,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.047",
+      "displayName": "Castle Wall 047",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.047",
+      "tileId": 3647,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "720,96,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.048",
+      "displayName": "Castle Wall 048",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.048",
+      "tileId": 3648,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "0,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.049",
+      "displayName": "Castle Wall 049",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.049",
+      "tileId": 3649,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "48,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.050",
+      "displayName": "Castle Wall 050",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.050",
+      "tileId": 3650,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "96,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.051",
+      "displayName": "Castle Wall 051",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.051",
+      "tileId": 3651,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "144,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.052",
+      "displayName": "Castle Wall 052",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.052",
+      "tileId": 3652,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "192,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.053",
+      "displayName": "Castle Wall 053",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.053",
+      "tileId": 3653,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "240,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.054",
+      "displayName": "Castle Wall 054",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.054",
+      "tileId": 3654,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "288,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.055",
+      "displayName": "Castle Wall 055",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.055",
+      "tileId": 3655,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "336,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.056",
+      "displayName": "Castle Wall 056",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.056",
+      "tileId": 3656,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "384,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.057",
+      "displayName": "Castle Wall 057",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.057",
+      "tileId": 3657,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "432,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.058",
+      "displayName": "Castle Wall 058",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.058",
+      "tileId": 3658,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "480,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.059",
+      "displayName": "Castle Wall 059",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.059",
+      "tileId": 3659,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "528,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.060",
+      "displayName": "Castle Wall 060",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.060",
+      "tileId": 3660,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "576,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.061",
+      "displayName": "Castle Wall 061",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.061",
+      "tileId": 3661,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "624,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.062",
+      "displayName": "Castle Wall 062",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.062",
+      "tileId": 3662,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "672,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.063",
+      "displayName": "Castle Wall 063",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.063",
+      "tileId": 3663,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "720,144,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.064",
+      "displayName": "Castle Wall 064",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.064",
+      "tileId": 3664,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "0,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.065",
+      "displayName": "Castle Wall 065",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.065",
+      "tileId": 3665,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "48,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.066",
+      "displayName": "Castle Wall 066",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.066",
+      "tileId": 3666,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "96,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.067",
+      "displayName": "Castle Wall 067",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.067",
+      "tileId": 3667,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "144,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.068",
+      "displayName": "Castle Wall 068",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.068",
+      "tileId": 3668,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "192,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.069",
+      "displayName": "Castle Wall 069",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.069",
+      "tileId": 3669,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 240,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "240,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.070",
+      "displayName": "Castle Wall 070",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.070",
+      "tileId": 3670,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 288,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "288,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.071",
+      "displayName": "Castle Wall 071",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.071",
+      "tileId": 3671,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 336,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "336,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.072",
+      "displayName": "Castle Wall 072",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.072",
+      "tileId": 3672,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "384,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.073",
+      "displayName": "Castle Wall 073",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.073",
+      "tileId": 3673,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "432,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.074",
+      "displayName": "Castle Wall 074",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.074",
+      "tileId": 3674,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "480,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.075",
+      "displayName": "Castle Wall 075",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.075",
+      "tileId": 3675,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "528,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.076",
+      "displayName": "Castle Wall 076",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.076",
+      "tileId": 3676,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "624,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.077",
+      "displayName": "Castle Wall 077",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.077",
+      "tileId": 3677,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 672,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "672,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.078",
+      "displayName": "Castle Wall 078",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.078",
+      "tileId": 3678,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_078.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 720,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "720,192,48,48"
+      }
+    },
+    {
+      "partId": "asset.wall.cutesckr.castle02.079",
+      "displayName": "Castle Wall 079",
+      "description": "Generated gameplay tile slice from a promoted tileset.",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": true
+      },
+      "assetId": "cutesckr.medieval_castle.walls.2.079",
+      "tileId": 3679,
+      "previewPath": "content/assets/gameplay/cutesckr/medieval_castle_walls_2/tile_079.png",
+      "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "castle",
+        "cc0",
+        "gameplay",
+        "generated",
+        "wall"
+      ],
+      "defaultProperties": {
+        "sourceLicense": "CC0",
+        "sourceImagePath": "imports/raw/cutesckr/medieval_castle/2.png",
+        "atlasRect": "0,240,48,48"
+      }
+    }
+  ]
+}

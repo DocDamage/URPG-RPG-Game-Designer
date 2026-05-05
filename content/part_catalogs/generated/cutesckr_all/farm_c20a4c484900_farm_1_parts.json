@@ -1,0 +1,3284 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "cutesckr.all.farm_c20a4c484900.farm_1",
+  "displayName": "farm-c20a4c484900 farm 1",
+  "description": "Generated Level Builder grid parts from the full CuteSCKR import.",
+  "parts": [
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.000",
+      "displayName": "farm-c20a4c484900 farm 1 000",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.000",
+      "tileId": 700000,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_000.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "96,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.001",
+      "displayName": "farm-c20a4c484900 farm 1 001",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.001",
+      "tileId": 700001,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_001.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "144,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.002",
+      "displayName": "farm-c20a4c484900 farm 1 002",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.002",
+      "tileId": 700002,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_002.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "480,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.003",
+      "displayName": "farm-c20a4c484900 farm 1 003",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.003",
+      "tileId": 700003,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_003.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "528,0,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.004",
+      "displayName": "farm-c20a4c484900 farm 1 004",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.004",
+      "tileId": 700004,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_004.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "0,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.005",
+      "displayName": "farm-c20a4c484900 farm 1 005",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.005",
+      "tileId": 700005,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_005.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "48,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.006",
+      "displayName": "farm-c20a4c484900 farm 1 006",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.006",
+      "tileId": 700006,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_006.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "96,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.007",
+      "displayName": "farm-c20a4c484900 farm 1 007",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.007",
+      "tileId": 700007,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_007.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "144,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.008",
+      "displayName": "farm-c20a4c484900 farm 1 008",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.008",
+      "tileId": 700008,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_008.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "192,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.009",
+      "displayName": "farm-c20a4c484900 farm 1 009",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.009",
+      "tileId": 700009,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_009.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "384,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.010",
+      "displayName": "farm-c20a4c484900 farm 1 010",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.010",
+      "tileId": 700010,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_010.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "432,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.011",
+      "displayName": "farm-c20a4c484900 farm 1 011",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.011",
+      "tileId": 700011,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_011.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "480,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.012",
+      "displayName": "farm-c20a4c484900 farm 1 012",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.012",
+      "tileId": 700012,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_012.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "528,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.013",
+      "displayName": "farm-c20a4c484900 farm 1 013",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.013",
+      "tileId": 700013,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_013.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 48,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "576,48,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.014",
+      "displayName": "farm-c20a4c484900 farm 1 014",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.014",
+      "tileId": 700014,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_014.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "480,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.015",
+      "displayName": "farm-c20a4c484900 farm 1 015",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.015",
+      "tileId": 700015,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_015.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "528,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.016",
+      "displayName": "farm-c20a4c484900 farm 1 016",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.016",
+      "tileId": 700016,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_016.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "576,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.017",
+      "displayName": "farm-c20a4c484900 farm 1 017",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.017",
+      "tileId": 700017,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_017.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 96,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "624,96,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.018",
+      "displayName": "farm-c20a4c484900 farm 1 018",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.018",
+      "tileId": 700018,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_018.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "0,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.019",
+      "displayName": "farm-c20a4c484900 farm 1 019",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.019",
+      "tileId": 700019,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_019.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "48,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.020",
+      "displayName": "farm-c20a4c484900 farm 1 020",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.020",
+      "tileId": 700020,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_020.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "96,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.021",
+      "displayName": "farm-c20a4c484900 farm 1 021",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.021",
+      "tileId": 700021,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_021.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "192,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.022",
+      "displayName": "farm-c20a4c484900 farm 1 022",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.022",
+      "tileId": 700022,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_022.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "384,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.023",
+      "displayName": "farm-c20a4c484900 farm 1 023",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.023",
+      "tileId": 700023,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_023.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "432,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.024",
+      "displayName": "farm-c20a4c484900 farm 1 024",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.024",
+      "tileId": 700024,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_024.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "480,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.025",
+      "displayName": "farm-c20a4c484900 farm 1 025",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.025",
+      "tileId": 700025,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_025.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "528,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.026",
+      "displayName": "farm-c20a4c484900 farm 1 026",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.026",
+      "tileId": 700026,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_026.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 144,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "576,144,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.027",
+      "displayName": "farm-c20a4c484900 farm 1 027",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.027",
+      "tileId": 700027,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_027.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "48,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.028",
+      "displayName": "farm-c20a4c484900 farm 1 028",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.028",
+      "tileId": 700028,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_028.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "96,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.029",
+      "displayName": "farm-c20a4c484900 farm 1 029",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.029",
+      "tileId": 700029,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_029.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "144,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.030",
+      "displayName": "farm-c20a4c484900 farm 1 030",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.030",
+      "tileId": 700030,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_030.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "192,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.031",
+      "displayName": "farm-c20a4c484900 farm 1 031",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.031",
+      "tileId": 700031,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_031.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "432,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.032",
+      "displayName": "farm-c20a4c484900 farm 1 032",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.032",
+      "tileId": 700032,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_032.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "480,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.033",
+      "displayName": "farm-c20a4c484900 farm 1 033",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.033",
+      "tileId": 700033,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_033.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "528,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.034",
+      "displayName": "farm-c20a4c484900 farm 1 034",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.034",
+      "tileId": 700034,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_034.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "576,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.035",
+      "displayName": "farm-c20a4c484900 farm 1 035",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.035",
+      "tileId": 700035,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_035.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 624,
+        "y": 192,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "624,192,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.036",
+      "displayName": "farm-c20a4c484900 farm 1 036",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.036",
+      "tileId": 700036,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_036.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "0,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.037",
+      "displayName": "farm-c20a4c484900 farm 1 037",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.037",
+      "tileId": 700037,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_037.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "48,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.038",
+      "displayName": "farm-c20a4c484900 farm 1 038",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.038",
+      "tileId": 700038,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_038.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "96,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.039",
+      "displayName": "farm-c20a4c484900 farm 1 039",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.039",
+      "tileId": 700039,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_039.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "144,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.040",
+      "displayName": "farm-c20a4c484900 farm 1 040",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.040",
+      "tileId": 700040,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_040.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "192,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.041",
+      "displayName": "farm-c20a4c484900 farm 1 041",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.041",
+      "tileId": 700041,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_041.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "384,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.042",
+      "displayName": "farm-c20a4c484900 farm 1 042",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.042",
+      "tileId": 700042,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_042.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "432,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.043",
+      "displayName": "farm-c20a4c484900 farm 1 043",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.043",
+      "tileId": 700043,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_043.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "480,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.044",
+      "displayName": "farm-c20a4c484900 farm 1 044",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.044",
+      "tileId": 700044,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_044.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "528,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.045",
+      "displayName": "farm-c20a4c484900 farm 1 045",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.045",
+      "tileId": 700045,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_045.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 240,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "576,240,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.046",
+      "displayName": "farm-c20a4c484900 farm 1 046",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.046",
+      "tileId": 700046,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_046.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "48,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.047",
+      "displayName": "farm-c20a4c484900 farm 1 047",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.047",
+      "tileId": 700047,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_047.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "96,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.048",
+      "displayName": "farm-c20a4c484900 farm 1 048",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.048",
+      "tileId": 700048,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_048.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "144,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.049",
+      "displayName": "farm-c20a4c484900 farm 1 049",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.049",
+      "tileId": 700049,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_049.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "192,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.050",
+      "displayName": "farm-c20a4c484900 farm 1 050",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.050",
+      "tileId": 700050,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_050.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 288,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "480,288,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.051",
+      "displayName": "farm-c20a4c484900 farm 1 051",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.051",
+      "tileId": 700051,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_051.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "0,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.052",
+      "displayName": "farm-c20a4c484900 farm 1 052",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.052",
+      "tileId": 700052,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_052.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "48,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.053",
+      "displayName": "farm-c20a4c484900 farm 1 053",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.053",
+      "tileId": 700053,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_053.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "96,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.054",
+      "displayName": "farm-c20a4c484900 farm 1 054",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.054",
+      "tileId": 700054,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_054.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "144,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.055",
+      "displayName": "farm-c20a4c484900 farm 1 055",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.055",
+      "tileId": 700055,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_055.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 192,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "192,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.056",
+      "displayName": "farm-c20a4c484900 farm 1 056",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.056",
+      "tileId": 700056,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_056.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "384,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.057",
+      "displayName": "farm-c20a4c484900 farm 1 057",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.057",
+      "tileId": 700057,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_057.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "432,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.058",
+      "displayName": "farm-c20a4c484900 farm 1 058",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.058",
+      "tileId": 700058,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_058.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "480,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.059",
+      "displayName": "farm-c20a4c484900 farm 1 059",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.059",
+      "tileId": 700059,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_059.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "528,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.060",
+      "displayName": "farm-c20a4c484900 farm 1 060",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.060",
+      "tileId": 700060,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_060.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 336,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "576,336,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.061",
+      "displayName": "farm-c20a4c484900 farm 1 061",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.061",
+      "tileId": 700061,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_061.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "96,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.062",
+      "displayName": "farm-c20a4c484900 farm 1 062",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.062",
+      "tileId": 700062,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_062.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "144,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.063",
+      "displayName": "farm-c20a4c484900 farm 1 063",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.063",
+      "tileId": 700063,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_063.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "384,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.064",
+      "displayName": "farm-c20a4c484900 farm 1 064",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.064",
+      "tileId": 700064,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_064.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "432,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.065",
+      "displayName": "farm-c20a4c484900 farm 1 065",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.065",
+      "tileId": 700065,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_065.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "480,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.066",
+      "displayName": "farm-c20a4c484900 farm 1 066",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.066",
+      "tileId": 700066,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_066.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "528,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.067",
+      "displayName": "farm-c20a4c484900 farm 1 067",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.067",
+      "tileId": 700067,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_067.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 384,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "576,384,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.068",
+      "displayName": "farm-c20a4c484900 farm 1 068",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.068",
+      "tileId": 700068,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_068.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 0,
+        "y": 432,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "0,432,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.069",
+      "displayName": "farm-c20a4c484900 farm 1 069",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.069",
+      "tileId": 700069,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_069.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 48,
+        "y": 432,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "48,432,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.070",
+      "displayName": "farm-c20a4c484900 farm 1 070",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.070",
+      "tileId": 700070,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_070.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 432,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "96,432,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.071",
+      "displayName": "farm-c20a4c484900 farm 1 071",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.071",
+      "tileId": 700071,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_071.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 144,
+        "y": 432,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "144,432,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.072",
+      "displayName": "farm-c20a4c484900 farm 1 072",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.072",
+      "tileId": 700072,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_072.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 384,
+        "y": 432,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "384,432,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.073",
+      "displayName": "farm-c20a4c484900 farm 1 073",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.073",
+      "tileId": 700073,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_073.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 432,
+        "y": 432,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "432,432,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.074",
+      "displayName": "farm-c20a4c484900 farm 1 074",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.074",
+      "tileId": 700074,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_074.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 480,
+        "y": 432,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "480,432,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.075",
+      "displayName": "farm-c20a4c484900 farm 1 075",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.075",
+      "tileId": 700075,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_075.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 528,
+        "y": 432,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "528,432,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.076",
+      "displayName": "farm-c20a4c484900 farm 1 076",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.076",
+      "tileId": 700076,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_076.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 576,
+        "y": 432,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "576,432,48,48",
+        "sourceLicense": "CC0"
+      }
+    },
+    {
+      "partId": "cutesckr.all.farm_c20a4c484900.farm_1.077",
+      "displayName": "farm-c20a4c484900 farm 1 077",
+      "description": "Generated gameplay slice from the full CuteSCKR tileset import.",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": [
+        "TopDownJRPG",
+        "TownHub",
+        "DungeonRoomBuilder"
+      ],
+      "footprint": {
+        "width": 1,
+        "height": 1,
+        "allowOverlap": false,
+        "blocksNavigation": false
+      },
+      "assetId": "cutesckr.all.farm_c20a4c484900.farm_1.077",
+      "tileId": 700077,
+      "previewPath": "content/assets/gameplay/cutesckr_all/farm_c20a4c484900/farm_1/tile_077.png",
+      "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+      "atlasRect": {
+        "x": 96,
+        "y": 480,
+        "width": 48,
+        "height": 48
+      },
+      "tags": [
+        "cutesckr",
+        "farm_c20a4c484900",
+        "gameplay",
+        "generated",
+        "tile"
+      ],
+      "defaultProperties": {
+        "sourceBundleId": "farm-c20a4c484900",
+        "sourceImagePath": "imports/raw/cutesckr_all/__archive_extracted/farm-c20a4c484900/farm/1.png",
+        "atlasRect": "96,480,48,48",
+        "sourceLicense": "CC0"
+      }
+    }
+  ]
+}

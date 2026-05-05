@@ -1,10 +1,14 @@
 #include "engine/core/map/grid_part_catalog.h"
+#include "engine/core/map/grid_part_catalog_loader.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
+#include <chrono>
 #include <fstream>
+#include <filesystem>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -28,6 +32,18 @@ nlohmann::json loadJson(const std::string& relativePath) {
     std::ifstream stream(std::string(URPG_SOURCE_DIR) + "/" + relativePath);
     REQUIRE(stream.good());
     return nlohmann::json::parse(stream);
+}
+
+std::filesystem::path uniqueTempDirectoryPath(std::string_view stem) {
+    const auto ticks = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    return std::filesystem::temp_directory_path() / (std::string(stem) + "_" + std::to_string(ticks));
+}
+
+void writeTextFile(const std::filesystem::path& path, std::string_view contents) {
+    std::filesystem::create_directories(path.parent_path());
+    std::ofstream out(path, std::ios::binary);
+    REQUIRE(out.is_open());
+    out << contents;
 }
 
 } // namespace
@@ -119,4 +135,95 @@ TEST_CASE("Grid part catalog schema and base JRPG content are parseable", "[grid
     }
     REQUIRE(runtimeCatalog.find("enemy.slime") != nullptr);
     REQUIRE(runtimeCatalog.find("treasure.chest.basic") != nullptr);
+}
+
+TEST_CASE("Grid part catalog loader preserves gameplay asset slice metadata", "[grid_part][catalog][assets]") {
+    const auto tempRoot = uniqueTempDirectoryPath("urpg_grid_part_asset_slice");
+    const auto catalogPath = tempRoot / "content" / "part_catalogs" / "asset_slice_parts.json";
+    writeTextFile(catalogPath, R"({
+  "schemaVersion": 1,
+  "catalogId": "asset_slice_parts",
+  "displayName": "Asset Slice Parts",
+  "parts": [
+    {
+      "partId": "asset.tile.grunge.000",
+      "displayName": "Grunge Tile 000",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "supportedRulesets": ["TopDownJRPG"],
+      "footprint": {"width": 1, "height": 1},
+      "assetId": "src012.grunge_tileset.000",
+      "tileId": 1000,
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_000.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {"x": 0, "y": 0, "width": 16, "height": 16}
+    }
+  ]
+})");
+
+    GridPartCatalog catalog;
+    std::string error;
+    REQUIRE(LoadGridPartCatalogFromFile(catalogPath, catalog, &error));
+    REQUIRE(error.empty());
+
+    const auto* definition = catalog.find("asset.tile.grunge.000");
+    REQUIRE(definition != nullptr);
+    REQUIRE(definition->asset_id == "src012.grunge_tileset.000");
+    REQUIRE(definition->preview_path == "content/assets/gameplay/src012/grunge_tileset/tile_000.png");
+    REQUIRE(definition->source_image_path == "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png");
+    REQUIRE(definition->atlas_rect.x == 0);
+    REQUIRE(definition->atlas_rect.y == 0);
+    REQUIRE(definition->atlas_rect.width == 16);
+    REQUIRE(definition->atlas_rect.height == 16);
+
+    std::filesystem::remove_all(tempRoot);
+}
+
+TEST_CASE("Grid part catalog loader merges included generated asset catalogs", "[grid_part][catalog][assets]") {
+    const auto tempRoot = uniqueTempDirectoryPath("urpg_grid_part_catalog_include");
+    writeTextFile(tempRoot / "content" / "part_catalogs" / "base.json", R"({
+  "schemaVersion": 1,
+  "catalogId": "base",
+  "displayName": "Base",
+  "includes": ["generated/tiles.json"],
+  "parts": [
+    {
+      "partId": "spawn.player",
+      "displayName": "Player Spawn",
+      "category": "Trigger",
+      "defaultLayer": "Object",
+      "collisionPolicy": "TriggerOnly",
+      "footprint": {"width": 1, "height": 1}
+    }
+  ]
+})");
+    writeTextFile(tempRoot / "content" / "part_catalogs" / "generated" / "tiles.json", R"({
+  "schemaVersion": 1,
+  "catalogId": "generated_tiles",
+  "displayName": "Generated Tiles",
+  "parts": [
+    {
+      "partId": "asset.tile.grunge.001",
+      "displayName": "Grunge Tile 001",
+      "category": "Tile",
+      "defaultLayer": "Terrain",
+      "collisionPolicy": "None",
+      "footprint": {"width": 1, "height": 1},
+      "previewPath": "content/assets/gameplay/src012/grunge_tileset/tile_001.png",
+      "sourceImagePath": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+      "atlasRect": {"x": 16, "y": 0, "width": 16, "height": 16}
+    }
+  ]
+})");
+
+    GridPartCatalog catalog;
+    std::string error;
+    REQUIRE(LoadGridPartCatalogFromFile(tempRoot / "content" / "part_catalogs" / "base.json", catalog, &error));
+    REQUIRE(error.empty());
+    REQUIRE(catalog.find("spawn.player") != nullptr);
+    REQUIRE(catalog.find("asset.tile.grunge.001") != nullptr);
+    REQUIRE(catalog.size() == 2);
+
+    std::filesystem::remove_all(tempRoot);
 }
