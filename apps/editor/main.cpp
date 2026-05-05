@@ -620,29 +620,106 @@ std::string analyticsConsentToSettings(urpg::analytics::ConsentState state) {
 
 #ifdef URPG_IMGUI_ENABLED
 #ifndef URPG_HEADLESS
-void renderEditorShellChrome(urpg::editor::EditorShell& editorShell, bool activePanelRendered) {
-    ImGui::SetNextWindowPos(ImVec2(24.0f, 24.0f), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(360.0f, 420.0f), ImGuiCond_FirstUseEver);
+const char* editorPanelVisualState(std::string_view id) {
+    if (id == "ability" || id == "patterns" || id == "analytics") {
+        return "visual";
+    }
+    if (id == "diagnostics") {
+        return "partial";
+    }
+    return "snapshot";
+}
 
-    if (!ImGui::Begin("URPG Editor")) {
+const char* editorPanelVisualStateDetail(std::string_view id) {
+    if (id == "ability") {
+        return "Draws the ability inspector window.";
+    }
+    if (id == "patterns") {
+        return "Draws the pattern field editor window.";
+    }
+    if (id == "analytics") {
+        return "Draws the analytics controls window.";
+    }
+    if (id == "diagnostics") {
+        return "Some diagnostics tabs draw UI; the default compatibility tab is still snapshot-backed.";
+    }
+    if (id == "assets") {
+        return "Asset library data exists, but the native visual browser/import UI still needs implementation.";
+    }
+    if (id == "mod") {
+        return "Mod manager data exists, but the native visual manager window still needs implementation.";
+    }
+    if (id == "level_builder") {
+        return "Level builder state exists, but most native spatial subpanels are still snapshot-backed.";
+    }
+    return "Panel is registered but has no native visual status classification.";
+}
+
+ImVec4 editorPanelVisualStateColor(std::string_view state) {
+    if (state == "visual") {
+        return ImVec4(0.35f, 0.85f, 0.55f, 1.0f);
+    }
+    if (state == "partial") {
+        return ImVec4(0.95f, 0.78f, 0.36f, 1.0f);
+    }
+    return ImVec4(0.95f, 0.45f, 0.42f, 1.0f);
+}
+
+void renderEditorShellChrome(urpg::editor::EditorShell& editorShell, bool activePanelRendered) {
+    const auto& io = ImGui::GetIO();
+    const float menuHeight = 24.0f;
+    const float statusHeight = 112.0f;
+    const float navWidth = 300.0f;
+    const float inspectorWidth = 420.0f;
+    const ImVec2 display = io.DisplaySize;
+
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            ImGui::MenuItem("New Project", nullptr, false, false);
+            ImGui::MenuItem("Open Project", nullptr, false, false);
+            ImGui::MenuItem("Save", nullptr, false, false);
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Edit")) {
+            ImGui::MenuItem("Undo", nullptr, false, false);
+            ImGui::MenuItem("Redo", nullptr, false, false);
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("View")) {
+            for (const auto& panel : editorShell.panels()) {
+                const bool isActive = panel.id == editorShell.activePanelId();
+                if (ImGui::MenuItem(panel.title.c_str(), nullptr, isActive, panel.enabled)) {
+                    editorShell.openPanel(panel.id);
+                }
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
+    const ImGuiWindowFlags chromeFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+                                         ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
+
+    ImGui::SetNextWindowPos(ImVec2(0.0f, menuHeight), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(navWidth, std::max(120.0f, display.y - menuHeight - statusHeight)),
+                             ImGuiCond_Always);
+    if (!ImGui::Begin("URPG Editor", nullptr, chromeFlags)) {
         ImGui::End();
         return;
     }
 
     const auto activePanelId = editorShell.activePanelId();
-    ImGui::Text("Active panel: %s", activePanelId.empty() ? "none" : activePanelId.c_str());
-    ImGui::Text("Panel draw callback: %s", activePanelRendered ? "rendered" : "not rendered");
+    ImGui::TextUnformatted("Release Panels");
     ImGui::Separator();
-
-    ImGui::TextUnformatted("Panels");
     const auto panels = editorShell.panels();
     for (const auto& panel : panels) {
         const bool isActive = panel.id == activePanelId;
+        const auto* state = editorPanelVisualState(panel.id);
         if (isActive) {
             ImGui::BeginDisabled();
         }
 
-        const std::string buttonLabel = panel.title + "##" + panel.id;
+        const std::string buttonLabel = panel.title + " (" + state + ")##" + panel.id;
         if (ImGui::Button(buttonLabel.c_str(), ImVec2(-1.0f, 0.0f))) {
             editorShell.openPanel(panel.id);
         }
@@ -657,6 +734,45 @@ void renderEditorShellChrome(urpg::editor::EditorShell& editorShell, bool active
         }
     }
 
+    ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(std::max(navWidth, display.x - inspectorWidth), menuHeight), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(inspectorWidth, std::max(120.0f, display.y - menuHeight - statusHeight)),
+                             ImGuiCond_Always);
+    if (ImGui::Begin("Inspector", nullptr, chromeFlags)) {
+        const auto* state = editorPanelVisualState(activePanelId);
+        ImGui::TextUnformatted("Panel Status");
+        ImGui::Separator();
+        ImGui::Text("Active: %s", activePanelId.empty() ? "none" : activePanelId.c_str());
+        ImGui::Text("Callback: %s", activePanelRendered ? "rendered" : "not rendered");
+        ImGui::Text("Surface: ");
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, editorPanelVisualStateColor(state));
+        ImGui::TextUnformatted(state);
+        ImGui::PopStyleColor();
+        ImGui::Separator();
+        ImGui::TextWrapped("%s", editorPanelVisualStateDetail(activePanelId));
+        ImGui::Separator();
+        ImGui::TextWrapped(
+            "ModernUI source sheets are ingested as reference assets. They still have to be cut into addressable "
+            "runtime sprites before they can skin the whole app.");
+        ImGui::Separator();
+        ImGui::TextWrapped("Next visual work: implement native windows for Assets, Mod Manager, Diagnostics overview, "
+                           "and Level Builder subpanels.");
+    }
+    ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(0.0f, std::max(menuHeight, display.y - statusHeight)), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(display.x, statusHeight), ImGuiCond_Always);
+    if (ImGui::Begin("Status", nullptr, chromeFlags)) {
+        ImGui::Text("Project: %s", editorShell.projectRoot().generic_string().c_str());
+        ImGui::Text("Scene view: native OpenGL preview");
+        ImGui::SameLine(360.0f);
+        ImGui::Text("Registered release panels: %zu", panels.size());
+        ImGui::SameLine(620.0f);
+        ImGui::Text("Active panel callback: %s", activePanelRendered ? "ok" : "missing");
+        ImGui::TextDisabled("Visual gaps are panel implementation work, not missing ModernUI image files.");
+    }
     ImGui::End();
 }
 #endif
