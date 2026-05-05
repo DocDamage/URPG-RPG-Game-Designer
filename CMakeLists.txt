@@ -1104,6 +1104,7 @@ set(_urpg_release_doc_candidates
     LICENSE
     CHANGELOG.md
     PRIVACY_POLICY.md
+    SECURITY.md
     THIRD_PARTY_NOTICES.md
     EULA.md
     CREDITS.md
