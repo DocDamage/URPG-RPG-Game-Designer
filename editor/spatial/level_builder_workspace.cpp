@@ -109,6 +109,65 @@ ImVec4 hoverColor(ImVec4 color) {
                   std::min(color.z + 0.08f, 1.0f), color.w);
 }
 
+ImVec4 palettePreviewColor(const std::string& category, bool selected) {
+    if (category == "tile") {
+        return categoryColor(urpg::map::GridPartCategory::Tile, selected);
+    }
+    if (category == "wall") {
+        return categoryColor(urpg::map::GridPartCategory::Wall, selected);
+    }
+    if (category == "door") {
+        return categoryColor(urpg::map::GridPartCategory::Door, selected);
+    }
+    if (category == "enemy") {
+        return categoryColor(urpg::map::GridPartCategory::Enemy, selected);
+    }
+    if (category == "npc") {
+        return categoryColor(urpg::map::GridPartCategory::Npc, selected);
+    }
+    if (category == "hazard") {
+        return categoryColor(urpg::map::GridPartCategory::Hazard, selected);
+    }
+    if (category == "treasure_chest" || category == "quest_item") {
+        return categoryColor(urpg::map::GridPartCategory::TreasureChest, selected);
+    }
+    if (category == "save_point") {
+        return categoryColor(urpg::map::GridPartCategory::SavePoint, selected);
+    }
+    return categoryColor(urpg::map::GridPartCategory::Prop, selected);
+}
+
+char paletteGlyph(const GridPartPalettePanel::EntrySnapshot& entry) {
+    if (entry.category == "tile") {
+        return '.';
+    }
+    if (entry.category == "wall") {
+        return '#';
+    }
+    if (entry.category == "door") {
+        return 'D';
+    }
+    if (entry.category == "enemy") {
+        return 'E';
+    }
+    if (entry.category == "npc") {
+        return 'N';
+    }
+    if (entry.category == "hazard") {
+        return '!';
+    }
+    if (entry.category == "treasure_chest") {
+        return '$';
+    }
+    if (entry.category == "save_point") {
+        return 'S';
+    }
+    if (!entry.part_id.empty()) {
+        return static_cast<char>(std::toupper(static_cast<unsigned char>(entry.part_id.front())));
+    }
+    return '?';
+}
+
 void renderReadinessFlag(const char* label, bool value) {
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(0);
@@ -132,17 +191,31 @@ void renderPaletteSnapshot(LevelBuilderWorkspace& workspace, const GridPartPalet
     }
     ImGui::Separator();
 
-    if (!ImGui::BeginTable("LevelBuilderPalette", 2,
+    if (!ImGui::BeginTable("LevelBuilderPalette", 3,
                            ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY,
                            ImVec2(0.0f, 0.0f))) {
         return;
     }
+    ImGui::TableSetupColumn("Preview", ImGuiTableColumnFlags_WidthFixed, 54.0f);
     ImGui::TableSetupColumn("Name");
     ImGui::TableSetupColumn("Category");
     ImGui::TableHeadersRow();
     for (const auto& entry : snapshot.entries) {
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
+        const auto color = palettePreviewColor(entry.category, entry.selected);
+        ImGui::PushStyleColor(ImGuiCol_Button, color);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hoverColor(color));
+        const std::string previewLabel = std::string(1, paletteGlyph(entry)) + "##preview_" + entry.part_id;
+        if (ImGui::Button(previewLabel.c_str(), ImVec2(42.0f, 30.0f))) {
+            workspace.SelectGridPart(entry.part_id);
+        }
+        ImGui::PopStyleColor(2);
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("asset=%s\nprefab=%s\ntile=%d", entry.asset_id.empty() ? "-" : entry.asset_id.c_str(),
+                              entry.prefab_path.empty() ? "-" : entry.prefab_path.c_str(), entry.tile_id);
+        }
+        ImGui::TableSetColumnIndex(1);
         if (entry.selected) {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.58f, 0.75f, 1.0f, 1.0f));
         }
@@ -155,7 +228,7 @@ void renderPaletteSnapshot(LevelBuilderWorkspace& workspace, const GridPartPalet
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("%s", entry.part_id.c_str());
         }
-        ImGui::TableSetColumnIndex(1);
+        ImGui::TableSetColumnIndex(2);
         ImGui::TextUnformatted(entry.category.c_str());
     }
     ImGui::EndTable();
@@ -238,25 +311,42 @@ void renderMakerGrid(LevelBuilderWorkspace& workspace, urpg::map::GridPartDocume
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.18f, 0.23f, 0.27f, 1.0f));
             }
 
+            bool mutated = false;
+            bool erased = false;
             if (ImGui::Button(label.c_str(), ImVec2(cell, cell))) {
                 const auto selectedPart = workspace.palettePanel().selectedPartId();
                 if (!selectedPart.empty() && parts.empty()) {
                     const bool placed = workspace.placementPanel().PlaceSelectedPartAtGrid(x, y);
                     if (placed && !document->parts().empty()) {
                         (void)workspace.inspectorPanel().SelectInstance(document->parts().back().instance_id);
+                        mutated = true;
                     }
                 } else if (topPart != nullptr) {
                     (void)workspace.inspectorPanel().SelectInstance(topPart->instance_id);
                 }
             }
-            if (ImGui::IsItemClicked(ImGuiMouseButton_Right) && topPart != nullptr) {
-                (void)workspace.inspectorPanel().SelectInstance(topPart->instance_id);
+            const bool hovered = ImGui::IsItemHovered();
+            if (!mutated && hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+                const auto selectedPart = workspace.palettePanel().selectedPartId();
+                if (!selectedPart.empty() && topPart == nullptr) {
+                    const bool placed = workspace.placementPanel().PlaceSelectedPartAtGrid(x, y);
+                    if (placed && !document->parts().empty()) {
+                        (void)workspace.inspectorPanel().SelectInstance(document->parts().back().instance_id);
+                    }
+                }
             }
-            if (ImGui::IsItemHovered()) {
-                if (topPart == nullptr) {
-                    ImGui::SetTooltip("(%d,%d) empty\nClick: place selected part", x, y);
+            if (topPart != nullptr && hovered &&
+                (ImGui::IsMouseClicked(ImGuiMouseButton_Right) || ImGui::IsMouseDown(ImGuiMouseButton_Right))) {
+                erased = workspace.placementPanel().RemoveTopPartAtGrid(x, y);
+            }
+            if (hovered) {
+                if (erased) {
+                    ImGui::SetTooltip("(%d,%d) erased", x, y);
+                } else if (topPart == nullptr) {
+                    ImGui::SetTooltip("(%d,%d) empty\nClick or drag: paint selected part", x, y);
                 } else {
-                    ImGui::SetTooltip("(%d,%d) %s\nClick: select\nRight-click: select", x, y, topPart->part_id.c_str());
+                    ImGui::SetTooltip("(%d,%d) %s\nClick: inspect\nRight-click or right-drag: erase", x, y,
+                                      topPart->part_id.c_str());
                 }
             }
             ImGui::PopStyleColor(2);
@@ -269,9 +359,10 @@ void renderMakerGrid(LevelBuilderWorkspace& workspace, urpg::map::GridPartDocume
     ImGui::PopStyleVar();
 
     if (snapshot.palette.selected_part_id.empty()) {
-        ImGui::TextDisabled("Pick a part from the palette, then click empty grid cells to place it.");
+        ImGui::TextDisabled("Pick a part from the palette. Click or drag empty cells to paint. Right-click to erase.");
     } else {
-        ImGui::Text("Painting %s. Click empty cells to place; click occupied cells to inspect.", snapshot.palette.selected_part_id.c_str());
+        ImGui::Text("Painting %s. Click-drag to paint empty cells; right-drag to erase.",
+                    snapshot.palette.selected_part_id.c_str());
     }
 }
 

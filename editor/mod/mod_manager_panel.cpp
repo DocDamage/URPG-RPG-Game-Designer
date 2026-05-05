@@ -307,7 +307,9 @@ void ModManagerPanel::render() {
     if (!registry_) {
         last_render_snapshot_ = snapshot;
 #ifdef URPG_IMGUI_ENABLED
-        renderModManagerWindow(last_render_snapshot_);
+        if (ImGui::GetCurrentContext() != nullptr) {
+            renderModManagerWindow(last_render_snapshot_);
+        }
 #endif
         return;
     }
@@ -382,7 +384,9 @@ void ModManagerPanel::render() {
 
     last_render_snapshot_ = snapshot;
 #ifdef URPG_IMGUI_ENABLED
-    renderModManagerWindow(last_render_snapshot_);
+    if (ImGui::GetCurrentContext() != nullptr) {
+        renderModManagerWindow(last_render_snapshot_);
+    }
 #endif
 }
 

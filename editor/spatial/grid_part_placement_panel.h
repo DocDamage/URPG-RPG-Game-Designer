@@ -49,6 +49,7 @@ class GridPartPlacementPanel : public EditorPanel {
     bool HoverSelectedPartFromScreen(float screen_x, float screen_y);
     bool PlaceSelectedPartAtGrid(int32_t grid_x, int32_t grid_y);
     bool PlaceSelectedPartFromScreen(float screen_x, float screen_y);
+    bool RemoveTopPartAtGrid(int32_t grid_x, int32_t grid_y);
     bool FillSelectedPartRectangle(int32_t min_x, int32_t min_y, int32_t max_x, int32_t max_y);
     bool Undo();
     bool Redo();

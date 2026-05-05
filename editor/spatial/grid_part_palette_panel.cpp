@@ -77,6 +77,9 @@ void GridPartPalettePanel::captureRenderSnapshot() {
             definition.part_id,
             definition.display_name,
             categoryName(definition.category),
+            definition.asset_id,
+            definition.prefab_path,
+            definition.tile_id,
             definition.part_id == selected_part_id_,
         });
     }

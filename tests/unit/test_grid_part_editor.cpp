@@ -110,6 +110,27 @@ TEST_CASE("Grid part placement previews places and undoes selected parts", "[gri
     REQUIRE(document.findPart("map001:prop.crate:5:4") != nullptr);
 }
 
+TEST_CASE("Grid part placement removes top part through command history", "[grid_part][editor]") {
+    GridPartCatalog catalog;
+    REQUIRE(catalog.addDefinition(makeDefinition("prop.crate", GridPartCategory::Prop)));
+    GridPartDocument document("map001", 8, 6);
+    auto overlay = makeOverlay();
+
+    GridPartPlacementPanel placement;
+    placement.SetTargets(&document, &catalog, &overlay);
+    REQUIRE(placement.SetSelectedPartId("prop.crate"));
+    REQUIRE(placement.PlaceSelectedPartAtGrid(2, 3));
+    REQUIRE(document.findPart("map001:prop.crate:2:3") != nullptr);
+
+    REQUIRE(placement.RemoveTopPartAtGrid(2, 3));
+    REQUIRE(document.findPart("map001:prop.crate:2:3") == nullptr);
+    REQUIRE(document.parts().empty());
+    REQUIRE(placement.lastRenderSnapshot().can_undo);
+
+    REQUIRE(placement.Undo());
+    REQUIRE(document.findPart("map001:prop.crate:2:3") != nullptr);
+}
+
 TEST_CASE("Grid part inspector edits selected part properties through command history", "[grid_part][editor]") {
     GridPartCatalog catalog;
     REQUIRE(catalog.addDefinition(makeDefinition("prop.crate", GridPartCategory::Prop)));

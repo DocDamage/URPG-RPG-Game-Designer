@@ -113,6 +113,24 @@ bool GridPartPlacementPanel::PlaceSelectedPartFromScreen(float screen_x, float s
     return PlaceSelectedPartAtGrid(grid_x, grid_y);
 }
 
+bool GridPartPlacementPanel::RemoveTopPartAtGrid(int32_t grid_x, int32_t grid_y) {
+    if (document_ == nullptr || !document_->inBounds(grid_x, grid_y)) {
+        captureRenderSnapshot();
+        return false;
+    }
+
+    const auto parts = document_->partsAt(grid_x, grid_y);
+    if (parts.empty()) {
+        captureRenderSnapshot();
+        return false;
+    }
+
+    const bool removed = history_.execute(
+        *document_, std::make_unique<urpg::map::RemovePartCommand>(parts.back()->instance_id));
+    captureRenderSnapshot();
+    return removed;
+}
+
 bool GridPartPlacementPanel::FillSelectedPartRectangle(int32_t min_x, int32_t min_y, int32_t max_x, int32_t max_y) {
     if (document_ == nullptr || catalog_ == nullptr || selected_part_id_.empty()) {
         return false;

@@ -15,6 +15,9 @@ class GridPartPalettePanel : public EditorPanel {
         std::string part_id;
         std::string display_name;
         std::string category;
+        std::string asset_id;
+        std::string prefab_path;
+        int32_t tile_id = 0;
         bool selected = false;
     };
 
