@@ -475,7 +475,7 @@ void printRuntimeDiagnostics() {
 }
 
 #ifndef URPG_HEADLESS
-int runPlatformProbe(const urpg::WindowConfig& config, bool probeOpenGl) {
+int runPlatformProbe(const urpg::WindowConfig& config, bool probeOpenGl, bool probeRender) {
     const auto result = urpg::SDLSurface::probe(config, probeOpenGl);
     std::cout << "URPG editor platform probe\n";
     std::cout << "SDL video: " << (result.videoInitialized ? "ok" : "failed") << "\n";
@@ -498,7 +498,40 @@ int runPlatformProbe(const urpg::WindowConfig& config, bool probeOpenGl) {
     } else {
         std::cout << "OpenGL context: not probed; pass --probe-opengl to create a hidden GL context.\n";
     }
-    return result.videoInitialized && (!probeOpenGl || (result.windowCreated && result.glContextCreated)) ? 0 : 1;
+    if (!result.videoInitialized || (probeOpenGl && (!result.windowCreated || !result.glContextCreated))) {
+        return 1;
+    }
+
+    if (probeRender) {
+        urpg::WindowConfig hiddenConfig = config;
+        hiddenConfig.hidden = true;
+        hiddenConfig.resizable = false;
+        hiddenConfig.title = "URPG Editor Render Probe";
+
+        urpg::SDLSurface surface;
+        if (!surface.initialize(hiddenConfig)) {
+            std::cout << "Renderer hidden surface: failed\n";
+            printRuntimeDiagnostics();
+            return 1;
+        }
+
+        urpg::OpenGLRenderer renderer;
+        const bool rendererInitialized = renderer.initialize(&surface);
+        std::cout << "OpenGL renderer: " << (rendererInitialized ? "ok" : "failed") << "\n";
+        if (!rendererInitialized) {
+            printRuntimeDiagnostics();
+            renderer.shutdown();
+            surface.shutdown();
+            return 1;
+        }
+        renderer.beginFrame();
+        renderer.endFrame();
+        renderer.shutdown();
+        surface.shutdown();
+        std::cout << "Hidden render frame: ok\n";
+    }
+
+    return 0;
 }
 #endif
 
@@ -683,7 +716,7 @@ int main(int argc, char** argv) {
             std::cerr << "URPG editor was built headless; platform probing is unavailable.\n";
             return 2;
 #else
-            return runPlatformProbe(config, options.probe_opengl);
+            return runPlatformProbe(config, options.probe_opengl, options.probe_render);
 #endif
         }
 

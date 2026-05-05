@@ -156,4 +156,11 @@ TEST_CASE("Editor CLI preserves valid option parsing and smoke defaults", "[cli]
     REQUIRE(openglProbe.ok());
     REQUIRE(openglProbe.options.probe_platform);
     REQUIRE(openglProbe.options.probe_opengl);
+    REQUIRE_FALSE(openglProbe.options.probe_render);
+
+    const auto renderProbe = urpg::cli::parseEditorCli(args({"--probe-render"}), false);
+    REQUIRE(renderProbe.ok());
+    REQUIRE(renderProbe.options.probe_platform);
+    REQUIRE(renderProbe.options.probe_opengl);
+    REQUIRE(renderProbe.options.probe_render);
 }

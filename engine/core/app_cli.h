@@ -38,6 +38,7 @@ struct EditorCliOptions {
     bool safe_mode = false;
     bool probe_platform = false;
     bool probe_opengl = false;
+    bool probe_render = false;
     std::optional<std::string> open_panel_id;
     std::filesystem::path project_root = std::filesystem::current_path();
     std::filesystem::path smoke_output;
