@@ -15,6 +15,7 @@ struct WindowConfig {
     uint32_t height = 720;
     bool fullscreen = false;
     bool resizable = true;
+    bool hidden = false;
 };
 
 /**

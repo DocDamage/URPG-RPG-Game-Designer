@@ -474,6 +474,34 @@ void printRuntimeDiagnostics() {
     }
 }
 
+#ifndef URPG_HEADLESS
+int runPlatformProbe(const urpg::WindowConfig& config, bool probeOpenGl) {
+    const auto result = urpg::SDLSurface::probe(config, probeOpenGl);
+    std::cout << "URPG editor platform probe\n";
+    std::cout << "SDL video: " << (result.videoInitialized ? "ok" : "failed") << "\n";
+    if (!result.videoError.empty()) {
+        std::cout << "SDL video error: " << result.videoError << "\n";
+    }
+    std::cout << "SDL game controller: " << (result.controllerInitialized ? "ok" : "unavailable") << "\n";
+    if (!result.controllerError.empty()) {
+        std::cout << "SDL game controller warning: " << result.controllerError << "\n";
+    }
+    if (probeOpenGl) {
+        std::cout << "Hidden OpenGL window: " << (result.windowCreated ? "ok" : "failed") << "\n";
+        if (!result.windowError.empty()) {
+            std::cout << "Hidden OpenGL window error: " << result.windowError << "\n";
+        }
+        std::cout << "OpenGL context: " << (result.glContextCreated ? "ok" : "failed") << "\n";
+        if (!result.glContextError.empty()) {
+            std::cout << "OpenGL context error: " << result.glContextError << "\n";
+        }
+    } else {
+        std::cout << "OpenGL context: not probed; pass --probe-opengl to create a hidden GL context.\n";
+    }
+    return result.videoInitialized && (!probeOpenGl || (result.windowCreated && result.glContextCreated)) ? 0 : 1;
+}
+#endif
+
 urpg::analytics::ConsentState analyticsConsentFromSettings(const std::string& state) {
     if (state == "granted") {
         return urpg::analytics::ConsentState::Granted;
@@ -649,6 +677,15 @@ int main(int argc, char** argv) {
         config.height = settingsLoad.settings.window.height;
         config.fullscreen = settingsLoad.settings.window.fullscreen;
         config.resizable = settingsLoad.settings.window.resizable;
+
+        if (options.probe_platform) {
+#ifdef URPG_HEADLESS
+            std::cerr << "URPG editor was built headless; platform probing is unavailable.\n";
+            return 2;
+#else
+            return runPlatformProbe(config, options.probe_opengl);
+#endif
+        }
 
         std::unique_ptr<urpg::IPlatformSurface> surface;
         std::unique_ptr<urpg::RendererBackend> renderer;

@@ -161,6 +161,11 @@ EditorCliParseResult parseEditorCli(std::vector<std::string_view> args, bool def
         } else if (arg == "--safe-mode") {
             result.options.safe_mode = true;
             result.options.headless = true;
+        } else if (arg == "--probe-platform") {
+            result.options.probe_platform = true;
+        } else if (arg == "--probe-opengl") {
+            result.options.probe_platform = true;
+            result.options.probe_opengl = true;
         } else if (arg == "--open-panel") {
             if (i + 1 >= args.size() || needsValue(args[i + 1])) {
                 result.error = missingValueError(arg);
@@ -217,7 +222,8 @@ std::string runtimeHelpText() {
 std::string editorHelpText() {
     return "Usage: urpg_editor [--headless] [--frames <count>] [--width <pixels>] [--height <pixels>] "
            "[--project-root <path>] [--list-panels] [--render-all-panels] [--open-panel <id>] "
-           "[--smoke] [--smoke-output <path>] [--smoke-snapshot-root <path>] [--safe-mode] [--version] [--help]\n";
+           "[--smoke] [--smoke-output <path>] [--smoke-snapshot-root <path>] [--safe-mode] "
+           "[--probe-platform] [--probe-opengl] [--version] [--help]\n";
 }
 
 } // namespace urpg::cli

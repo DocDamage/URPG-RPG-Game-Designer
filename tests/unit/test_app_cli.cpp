@@ -68,6 +68,7 @@ TEST_CASE("Editor CLI parses help and version without requiring engine startup",
     REQUIRE(help.action == urpg::cli::CliAction::Help);
     REQUIRE(urpg::cli::editorHelpText().find("--open-panel <id>") != std::string::npos);
     REQUIRE(urpg::cli::editorHelpText().find("--safe-mode") != std::string::npos);
+    REQUIRE(urpg::cli::editorHelpText().find("--probe-platform") != std::string::npos);
 
     const auto version = urpg::cli::parseEditorCli(args({"--version"}), false);
     REQUIRE(version.ok());
@@ -145,4 +146,14 @@ TEST_CASE("Editor CLI preserves valid option parsing and smoke defaults", "[cli]
     REQUIRE(safeModeFrames.options.safe_mode);
     REQUIRE(safeModeFrames.options.headless);
     REQUIRE(safeModeFrames.options.frames == 3);
+
+    const auto platformProbe = urpg::cli::parseEditorCli(args({"--probe-platform"}), false);
+    REQUIRE(platformProbe.ok());
+    REQUIRE(platformProbe.options.probe_platform);
+    REQUIRE_FALSE(platformProbe.options.probe_opengl);
+
+    const auto openglProbe = urpg::cli::parseEditorCli(args({"--probe-opengl"}), false);
+    REQUIRE(openglProbe.ok());
+    REQUIRE(openglProbe.options.probe_platform);
+    REQUIRE(openglProbe.options.probe_opengl);
 }

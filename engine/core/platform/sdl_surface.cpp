@@ -48,6 +48,58 @@ SDLSurface::SDLSurface(const std::string& title, int width, int height) {
     initialize(config);
 }
 
+SdlSurfaceProbeResult SDLSurface::probe(const WindowConfig& config, bool createOpenGlWindow) {
+    SdlSurfaceProbeResult result;
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        result.videoError = SDL_GetError();
+        return result;
+    }
+    result.videoInitialized = true;
+
+    if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) != 0) {
+        result.controllerError = SDL_GetError();
+    } else {
+        result.controllerInitialized = true;
+    }
+
+    SDL_Window* window = nullptr;
+    void* glContext = nullptr;
+    if (createOpenGlWindow) {
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+        window = SDL_CreateWindow(config.title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                  static_cast<int>(config.width), static_cast<int>(config.height),
+                                  SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_ALLOW_HIGHDPI);
+        if (!window) {
+            result.windowError = SDL_GetError();
+        } else {
+            result.windowCreated = true;
+            glContext = SDL_GL_CreateContext(window);
+            if (!glContext) {
+                result.glContextError = SDL_GetError();
+            } else {
+                result.glContextCreated = SDL_GL_MakeCurrent(window, glContext) == 0;
+                if (!result.glContextCreated) {
+                    result.glContextError = SDL_GetError();
+                }
+            }
+        }
+    }
+
+    if (glContext) {
+        SDL_GL_DeleteContext(glContext);
+    }
+    if (window) {
+        SDL_DestroyWindow(window);
+    }
+    SDL_Quit();
+    return result;
+}
+
 bool SDLSurface::initialize(const WindowConfig& config) {
     if (m_isInitialized) {
         return true;
@@ -72,9 +124,15 @@ bool SDLSurface::initialize(const WindowConfig& config) {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
+    auto windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
+    if (config.resizable) {
+        windowFlags |= SDL_WINDOW_RESIZABLE;
+    }
+    if (config.hidden) {
+        windowFlags |= SDL_WINDOW_HIDDEN;
+    }
     m_window = SDL_CreateWindow(config.title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                static_cast<int>(config.width), static_cast<int>(config.height),
-                                SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+                                static_cast<int>(config.width), static_cast<int>(config.height), windowFlags);
 
     if (!m_window) {
         diagnostics::RuntimeDiagnostics::error("platform.sdl", "sdl.window_create_failed",

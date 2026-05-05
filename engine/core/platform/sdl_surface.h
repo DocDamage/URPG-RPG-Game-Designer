@@ -8,6 +8,17 @@ struct SDL_Window;
 
 namespace urpg {
 
+struct SdlSurfaceProbeResult {
+    bool videoInitialized = false;
+    bool controllerInitialized = false;
+    bool windowCreated = false;
+    bool glContextCreated = false;
+    std::string videoError;
+    std::string controllerError;
+    std::string windowError;
+    std::string glContextError;
+};
+
 /**
  * @brief SDL2-based implementation of the platform surface.
  * Handles window creation, event polling, and OpenGL context binding.
@@ -26,6 +37,7 @@ class SDLSurface : public IPlatformSurface {
 
     // SDL-specific accessors
     SDL_Window* getNativeWindow() const { return m_window; }
+    static SdlSurfaceProbeResult probe(const WindowConfig& config, bool createOpenGlWindow);
 
   private:
     SDL_Window* m_window = nullptr;
