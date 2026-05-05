@@ -877,6 +877,15 @@ elseif(TARGET SDL2-static)
     set(URPG_SDL_TARGET SDL2-static)
 endif()
 
+if(NOT URPG_SKIP_OPENGL)
+    target_sources(imgui PRIVATE
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+    )
+    target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR}/backends)
+    target_link_libraries(imgui PUBLIC ${URPG_SDL_TARGET})
+endif()
+
 foreach(_urpg_sdl_vendor_target IN ITEMS SDL2 SDL2-static)
     if(TARGET ${_urpg_sdl_vendor_target})
         get_target_property(_urpg_sdl_vendor_imported ${_urpg_sdl_vendor_target} IMPORTED)

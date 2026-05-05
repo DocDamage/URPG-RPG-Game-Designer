@@ -6,6 +6,9 @@
 // Forward declaring SDL types to avoid pulling in SDL.h in the header
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#ifdef URPG_IMGUI_ENABLED
+#include <imgui_impl_sdl2.h>
+#endif
 
 namespace urpg {
 
@@ -176,6 +179,9 @@ bool SDLSurface::pollEvents() {
 
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+#ifdef URPG_IMGUI_ENABLED
+        ImGui_ImplSDL2_ProcessEvent(&event);
+#endif
         if (event.type == SDL_QUIT) {
             return false;
         }

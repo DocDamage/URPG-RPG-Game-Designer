@@ -37,6 +37,10 @@
 #endif
 
 #ifdef URPG_IMGUI_ENABLED
+#ifndef URPG_HEADLESS
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_sdl2.h>
+#endif
 #include <imgui.h>
 #endif
 
@@ -474,6 +478,20 @@ void printRuntimeDiagnostics() {
     }
 }
 
+void shutdownImGuiBackends(bool headless) {
+#ifdef URPG_IMGUI_ENABLED
+#ifndef URPG_HEADLESS
+    if (!headless) {
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplSDL2_Shutdown();
+    }
+#endif
+    ImGui::DestroyContext();
+#else
+    (void)headless;
+#endif
+}
+
 std::filesystem::path visibleStartupGuardPath(const urpg::settings::AppSettingsPaths& settingsPaths) {
     return settingsPaths.root / "editor_visible_startup.guard";
 }
@@ -601,9 +619,15 @@ std::string analyticsConsentToSettings(urpg::analytics::ConsentState state) {
 }
 
 bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell, bool renderAllPanels,
-                    double deltaSeconds = 1.0 / 60.0) {
+                    bool useNativeImGuiBackend, double deltaSeconds = 1.0 / 60.0) {
     engineShell.tick();
 #ifdef URPG_IMGUI_ENABLED
+#ifndef URPG_HEADLESS
+    if (useNativeImGuiBackend) {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+    }
+#endif
     ImGui::NewFrame();
 #endif
     bool rendered = false;
@@ -617,6 +641,11 @@ bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& e
     }
 #ifdef URPG_IMGUI_ENABLED
     ImGui::Render();
+#ifndef URPG_HEADLESS
+    if (useNativeImGuiBackend) {
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+#endif
 #endif
     return rendered;
 }
@@ -664,7 +693,7 @@ int runSmokeWorkflow(urpg::EngineShell& engineShell, urpg::editor::EditorShell& 
             continue;
         }
         report["opened_panels"].push_back(panelId);
-        if (!runEditorFrame(engineShell, editorShell, false)) {
+        if (!runEditorFrame(engineShell, editorShell, false, !options.headless)) {
             report["errors"].push_back(std::string("render_panel_failed:") + panelId);
             continue;
         }
@@ -842,6 +871,13 @@ int main(int argc, char** argv) {
         const std::string imguiIniFilename = settingsLoad.settings.imgui_ini_path.string();
         ImGui::GetIO().IniFilename = imguiIniFilename.c_str();
         ImGui::GetIO().LogFilename = nullptr;
+#ifndef URPG_HEADLESS
+        if (!options.headless) {
+            ImGui_ImplSDL2_InitForOpenGL(static_cast<SDL_Window*>(engineShell.getPlatform()->getNativeHandle()),
+                                         nullptr);
+            ImGui_ImplOpenGL3_Init("#version 330 core");
+        }
+#endif
         unsigned char* fontPixels = nullptr;
         int fontWidth = 0;
         int fontHeight = 0;
@@ -857,7 +893,7 @@ int main(int argc, char** argv) {
         if (!registerEditorPanels(editorShell, panelRuntime)) {
             std::cerr << "URPG editor failed to register required panels.\n";
 #ifdef URPG_IMGUI_ENABLED
-            ImGui::DestroyContext();
+            shutdownImGuiBackends(options.headless);
 #endif
             editorShell.shutdown();
             engineShell.shutdown();
@@ -868,7 +904,7 @@ int main(int argc, char** argv) {
         if (options.open_panel_id.has_value() && !editorShell.openPanel(*options.open_panel_id)) {
             std::cerr << "URPG editor has no reachable panel with id '" << *options.open_panel_id << "'.\n";
 #ifdef URPG_IMGUI_ENABLED
-            ImGui::DestroyContext();
+            shutdownImGuiBackends(options.headless);
 #endif
             editorShell.shutdown();
             engineShell.shutdown();
@@ -884,7 +920,7 @@ int main(int argc, char** argv) {
             const int smokeResult = runSmokeWorkflow(engineShell, editorShell, options);
             editorShell.shutdown();
 #ifdef URPG_IMGUI_ENABLED
-            ImGui::DestroyContext();
+            shutdownImGuiBackends(options.headless);
 #endif
             engineShell.shutdown();
             clearSceneStack();
@@ -903,7 +939,7 @@ int main(int argc, char** argv) {
 
         int frame = 0;
         while (engineShell.isRunning() && editorShell.isRunning() && (options.frames < 0 || frame < options.frames)) {
-            (void)runEditorFrame(engineShell, editorShell, options.render_all_panels);
+            (void)runEditorFrame(engineShell, editorShell, options.render_all_panels, !options.headless);
             ++frame;
             if (visibleStartupGuardArmed && frame == 1) {
                 std::string guardError;
@@ -919,7 +955,7 @@ int main(int argc, char** argv) {
 
         editorShell.shutdown();
 #ifdef URPG_IMGUI_ENABLED
-        ImGui::DestroyContext();
+        shutdownImGuiBackends(options.headless);
 #endif
         engineShell.shutdown();
         clearSceneStack();
