@@ -618,6 +618,50 @@ std::string analyticsConsentToSettings(urpg::analytics::ConsentState state) {
     return "unknown";
 }
 
+#ifdef URPG_IMGUI_ENABLED
+#ifndef URPG_HEADLESS
+void renderEditorShellChrome(urpg::editor::EditorShell& editorShell, bool activePanelRendered) {
+    ImGui::SetNextWindowPos(ImVec2(24.0f, 24.0f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(360.0f, 420.0f), ImGuiCond_FirstUseEver);
+
+    if (!ImGui::Begin("URPG Editor")) {
+        ImGui::End();
+        return;
+    }
+
+    const auto activePanelId = editorShell.activePanelId();
+    ImGui::Text("Active panel: %s", activePanelId.empty() ? "none" : activePanelId.c_str());
+    ImGui::Text("Panel draw callback: %s", activePanelRendered ? "rendered" : "not rendered");
+    ImGui::Separator();
+
+    ImGui::TextUnformatted("Panels");
+    const auto panels = editorShell.panels();
+    for (const auto& panel : panels) {
+        const bool isActive = panel.id == activePanelId;
+        if (isActive) {
+            ImGui::BeginDisabled();
+        }
+
+        const std::string buttonLabel = panel.title + "##" + panel.id;
+        if (ImGui::Button(buttonLabel.c_str(), ImVec2(-1.0f, 0.0f))) {
+            editorShell.openPanel(panel.id);
+        }
+
+        if (isActive) {
+            ImGui::EndDisabled();
+        }
+
+        if (!panel.enabled) {
+            ImGui::SameLine();
+            ImGui::TextDisabled("disabled");
+        }
+    }
+
+    ImGui::End();
+}
+#endif
+#endif
+
 bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell, bool renderAllPanels,
                     bool useNativeImGuiBackend, double deltaSeconds = 1.0 / 60.0) {
     engineShell.tick(!useNativeImGuiBackend);
@@ -637,6 +681,11 @@ bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& e
         } else {
             rendered = editorShell.renderActivePanel();
         }
+#ifndef URPG_HEADLESS
+        if (useNativeImGuiBackend) {
+            renderEditorShellChrome(editorShell, rendered);
+        }
+#endif
         rendered = editorShell.endFrame() && rendered;
     }
 #ifdef URPG_IMGUI_ENABLED
