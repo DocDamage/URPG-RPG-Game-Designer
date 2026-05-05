@@ -710,6 +710,7 @@ int main(int argc, char** argv) {
         config.height = settingsLoad.settings.window.height;
         config.fullscreen = settingsLoad.settings.window.fullscreen;
         config.resizable = settingsLoad.settings.window.resizable;
+        config.hidden = options.hidden_window;
 
         if (options.probe_platform) {
 #ifdef URPG_HEADLESS

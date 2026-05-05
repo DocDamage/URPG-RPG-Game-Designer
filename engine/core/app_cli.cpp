@@ -170,6 +170,11 @@ EditorCliParseResult parseEditorCli(std::vector<std::string_view> args, bool def
             result.options.probe_platform = true;
             result.options.probe_opengl = true;
             result.options.probe_render = true;
+        } else if (arg == "--hidden-window") {
+            result.options.hidden_window = true;
+        } else if (arg == "--probe-editor-frame") {
+            result.options.hidden_window = true;
+            result.options.probe_editor_frame = true;
         } else if (arg == "--open-panel") {
             if (i + 1 >= args.size() || needsValue(args[i + 1])) {
                 result.error = missingValueError(arg);
@@ -214,6 +219,9 @@ EditorCliParseResult parseEditorCli(std::vector<std::string_view> args, bool def
     if (result.options.safe_mode && result.options.frames < 0) {
         result.options.frames = 1;
     }
+    if (result.options.probe_editor_frame && result.options.frames < 0) {
+        result.options.frames = 1;
+    }
 
     return result;
 }
@@ -227,7 +235,8 @@ std::string editorHelpText() {
     return "Usage: urpg_editor [--headless] [--frames <count>] [--width <pixels>] [--height <pixels>] "
            "[--project-root <path>] [--list-panels] [--render-all-panels] [--open-panel <id>] "
            "[--smoke] [--smoke-output <path>] [--smoke-snapshot-root <path>] [--safe-mode] "
-           "[--probe-platform] [--probe-opengl] [--probe-render] [--version] [--help]\n";
+           "[--probe-platform] [--probe-opengl] [--probe-render] [--probe-editor-frame] "
+           "[--hidden-window] [--version] [--help]\n";
 }
 
 } // namespace urpg::cli

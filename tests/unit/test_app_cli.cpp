@@ -163,4 +163,15 @@ TEST_CASE("Editor CLI preserves valid option parsing and smoke defaults", "[cli]
     REQUIRE(renderProbe.options.probe_platform);
     REQUIRE(renderProbe.options.probe_opengl);
     REQUIRE(renderProbe.options.probe_render);
+
+    const auto editorFrameProbe = urpg::cli::parseEditorCli(args({"--probe-editor-frame"}), false);
+    REQUIRE(editorFrameProbe.ok());
+    REQUIRE(editorFrameProbe.options.probe_editor_frame);
+    REQUIRE(editorFrameProbe.options.hidden_window);
+    REQUIRE(editorFrameProbe.options.frames == 1);
+
+    const auto hiddenWindow = urpg::cli::parseEditorCli(args({"--hidden-window", "--frames", "2"}), false);
+    REQUIRE(hiddenWindow.ok());
+    REQUIRE(hiddenWindow.options.hidden_window);
+    REQUIRE(hiddenWindow.options.frames == 2);
 }
