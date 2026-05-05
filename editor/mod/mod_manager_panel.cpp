@@ -6,7 +6,125 @@
 #include <fstream>
 #include <stdexcept>
 
+#ifdef URPG_IMGUI_ENABLED
+#include <imgui.h>
+#endif
+
 namespace {
+
+#ifdef URPG_IMGUI_ENABLED
+std::string modJsonCellString(const nlohmann::json& row, const char* key) {
+    if (!row.is_object() || !row.contains(key) || row[key].is_null()) {
+        return "-";
+    }
+    if (row[key].is_string()) {
+        return row[key].get<std::string>();
+    }
+    if (row[key].is_boolean()) {
+        return row[key].get<bool>() ? "yes" : "no";
+    }
+    if (row[key].is_number_integer()) {
+        return std::to_string(row[key].get<long long>());
+    }
+    if (row[key].is_number_unsigned()) {
+        return std::to_string(row[key].get<unsigned long long>());
+    }
+    return row[key].dump();
+}
+
+void renderJsonTable(const char* tableId, const nlohmann::json& rows, std::initializer_list<const char*> columns,
+                     float height = 160.0f) {
+    if (!rows.is_array() || rows.empty()) {
+        ImGui::TextDisabled("No rows.");
+        return;
+    }
+    if (!ImGui::BeginTable(tableId, static_cast<int>(columns.size()),
+                           ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable |
+                               ImGuiTableFlags_ScrollY,
+                           ImVec2(0.0f, height))) {
+        return;
+    }
+    for (const auto* column : columns) {
+        ImGui::TableSetupColumn(column);
+    }
+    ImGui::TableHeadersRow();
+    for (const auto& row : rows) {
+        ImGui::TableNextRow();
+        int index = 0;
+        for (const auto* column : columns) {
+            ImGui::TableSetColumnIndex(index++);
+            const auto cell = modJsonCellString(row, column);
+            ImGui::TextUnformatted(cell.c_str());
+        }
+    }
+    ImGui::EndTable();
+}
+
+void renderModManagerWindow(const nlohmann::json& snapshot) {
+    if (!ImGui::Begin("Mod Manager")) {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Status: %s", snapshot.value("status", "unknown").c_str());
+    ImGui::SameLine(220.0f);
+    ImGui::Text("Registered: %zu", snapshot.value("registered_count", size_t{0}));
+    ImGui::SameLine(390.0f);
+    ImGui::Text("Active: %zu", snapshot.value("active_count", size_t{0}));
+
+    const auto error = snapshot.value("error_message", std::string{});
+    if (!error.empty()) {
+        ImGui::TextColored(ImVec4(1.0f, 0.45f, 0.4f, 1.0f), "%s", error.c_str());
+    }
+    if (snapshot.contains("status_messages") && snapshot["status_messages"].is_array()) {
+        for (const auto& message : snapshot["status_messages"]) {
+            if (message.is_string()) {
+                ImGui::BulletText("%s", message.get<std::string>().c_str());
+            }
+        }
+    }
+
+    if (ImGui::BeginTabBar("ModManagerTabs")) {
+        if (ImGui::BeginTabItem("Mods")) {
+            renderJsonTable("ModRows", snapshot.value("mods", nlohmann::json::array()),
+                            {"id", "name", "version", "active", "entry_point"});
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Load Order")) {
+            if (snapshot.contains("resolved_load_order") && snapshot["resolved_load_order"].is_array()) {
+                for (const auto& id : snapshot["resolved_load_order"]) {
+                    ImGui::BulletText("%s", id.is_string() ? id.get<std::string>().c_str() : id.dump().c_str());
+                }
+            }
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Store")) {
+            const auto& store = snapshot.value("store", nlohmann::json::object());
+            ImGui::Text("Catalog bound: %s", store.value("bound", false) ? "yes" : "no");
+            ImGui::Text("Entries: %zu", store.value("entry_count", size_t{0}));
+            renderJsonTable("StoreRows", store.value("entries", nlohmann::json::array()),
+                            {"id", "display_name", "version", "publisher", "verified"});
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Hot Reload")) {
+            const auto& hotLoad = snapshot.value("hot_load", nlohmann::json::object());
+            ImGui::Text("Hot loader bound: %s", hotLoad.value("bound", false) ? "yes" : "no");
+            ImGui::Text("Events: %zu", hotLoad.value("event_count", size_t{0}));
+            renderJsonTable("HotLoadRows", hotLoad.value("events", nlohmann::json::array()),
+                            {"mod_id", "type", "path", "message"});
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Validation")) {
+            renderJsonTable("ModIssues", snapshot.value("validation_issues", nlohmann::json::array()),
+                            {"mod_id", "severity", "category", "message"});
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
+    ImGui::End();
+}
+#endif
 
 std::string issueCategoryToString(urpg::mod::ModIssueCategory category) {
     using urpg::mod::ModIssueCategory;
@@ -188,6 +306,9 @@ void ModManagerPanel::render() {
 
     if (!registry_) {
         last_render_snapshot_ = snapshot;
+#ifdef URPG_IMGUI_ENABLED
+        renderModManagerWindow(last_render_snapshot_);
+#endif
         return;
     }
 
@@ -260,6 +381,9 @@ void ModManagerPanel::render() {
     }
 
     last_render_snapshot_ = snapshot;
+#ifdef URPG_IMGUI_ENABLED
+    renderModManagerWindow(last_render_snapshot_);
+#endif
 }
 
 bool ModManagerPanel::importManifest(const std::filesystem::path& manifest_path,

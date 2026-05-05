@@ -3,9 +3,91 @@
 #include <nlohmann/json.hpp>
 #include <iostream>
 
+#ifdef URPG_IMGUI_ENABLED
+#include <imgui.h>
+#endif
+
 namespace urpg::editor {
 
 namespace {
+
+#ifdef URPG_IMGUI_ENABLED
+const char* diagnosticsTabName(DiagnosticsTab tab) {
+    switch (tab) {
+    case DiagnosticsTab::Compat:
+        return "Compat";
+    case DiagnosticsTab::Save:
+        return "Save";
+    case DiagnosticsTab::EventAuthority:
+        return "Event Authority";
+    case DiagnosticsTab::MessageText:
+        return "Message Text";
+    case DiagnosticsTab::Battle:
+        return "Battle";
+    case DiagnosticsTab::Menu:
+        return "Menu";
+    case DiagnosticsTab::Audio:
+        return "Audio";
+    case DiagnosticsTab::MigrationWizard:
+        return "Migration";
+    case DiagnosticsTab::Abilities:
+        return "Abilities";
+    case DiagnosticsTab::ProjectAudit:
+        return "Project Audit";
+    case DiagnosticsTab::ProjectHealth:
+        return "Project Health";
+    }
+    return "Diagnostics";
+}
+
+void renderDiagnosticsOverview(DiagnosticsWorkspace& workspace) {
+    if (!ImGui::Begin("Diagnostics")) {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Active tab: %s", diagnosticsTabName(workspace.activeTab()));
+    ImGui::Separator();
+
+    if (ImGui::BeginTable("DiagnosticsTabs", 5,
+                          ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable)) {
+        ImGui::TableSetupColumn("Tab");
+        ImGui::TableSetupColumn("Active");
+        ImGui::TableSetupColumn("Items");
+        ImGui::TableSetupColumn("Issues");
+        ImGui::TableSetupColumn("Data");
+        ImGui::TableHeadersRow();
+
+        for (const auto& summary : workspace.allTabSummaries()) {
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            if (ImGui::Selectable(diagnosticsTabName(summary.tab), summary.active,
+                                  ImGuiSelectableFlags_SpanAllColumns)) {
+                workspace.setActiveTab(summary.tab);
+            }
+            ImGui::TableSetColumnIndex(1);
+            ImGui::TextUnformatted(summary.active ? "yes" : "no");
+            ImGui::TableSetColumnIndex(2);
+            ImGui::Text("%zu", summary.item_count);
+            ImGui::TableSetColumnIndex(3);
+            if (summary.issue_count > 0) {
+                ImGui::TextColored(ImVec4(1.0f, 0.45f, 0.4f, 1.0f), "%zu", summary.issue_count);
+            } else {
+                ImGui::Text("%zu", summary.issue_count);
+            }
+            ImGui::TableSetColumnIndex(4);
+            ImGui::TextUnformatted(summary.has_data ? "loaded" : "empty");
+        }
+
+        ImGui::EndTable();
+    }
+
+    ImGui::Separator();
+    ImGui::TextWrapped("Use this overview to route to the detailed diagnostic tabs. Snapshot-only diagnostics are now "
+                       "visible here until their full native detail views are implemented.");
+    ImGui::End();
+}
+#endif
 
 std::optional<std::pair<std::string, std::string>> ActiveMenuPreviewSelection(const urpg::ui::MenuSceneGraph* scene_graph) {
     if (!scene_graph) {
@@ -1087,6 +1169,10 @@ void DiagnosticsWorkspace::render() {
     if (!visible_) {
         return;
     }
+
+#ifdef URPG_IMGUI_ENABLED
+    renderDiagnosticsOverview(*this);
+#endif
 
     if (active_tab_ == DiagnosticsTab::Compat) {
         compat_panel_.render();

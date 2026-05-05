@@ -5,6 +5,10 @@
 #include <system_error>
 #include <utility>
 
+#ifdef URPG_IMGUI_ENABLED
+#include <imgui.h>
+#endif
+
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -17,6 +21,158 @@
 namespace urpg::editor {
 
 namespace {
+
+#ifdef URPG_IMGUI_ENABLED
+std::string jsonCellString(const nlohmann::json& row, const char* key) {
+    if (!row.is_object() || !row.contains(key) || row[key].is_null()) {
+        return "-";
+    }
+    if (row[key].is_string()) {
+        return row[key].get<std::string>();
+    }
+    if (row[key].is_boolean()) {
+        return row[key].get<bool>() ? "yes" : "no";
+    }
+    if (row[key].is_number_integer()) {
+        return std::to_string(row[key].get<long long>());
+    }
+    if (row[key].is_number_unsigned()) {
+        return std::to_string(row[key].get<unsigned long long>());
+    }
+    if (row[key].is_number_float()) {
+        return std::to_string(row[key].get<double>());
+    }
+    return row[key].dump();
+}
+
+void renderJsonRows(const char* tableId, const nlohmann::json& rows, std::initializer_list<const char*> columns,
+                    int maxRows = 12) {
+    if (!rows.is_array() || rows.empty()) {
+        ImGui::TextDisabled("No rows.");
+        return;
+    }
+
+    if (!ImGui::BeginTable(tableId, static_cast<int>(columns.size()),
+                           ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable |
+                               ImGuiTableFlags_ScrollY,
+                           ImVec2(0.0f, 180.0f))) {
+        return;
+    }
+
+    for (const auto* column : columns) {
+        ImGui::TableSetupColumn(column);
+    }
+    ImGui::TableHeadersRow();
+
+    int rendered = 0;
+    for (const auto& row : rows) {
+        if (rendered++ >= maxRows) {
+            break;
+        }
+        ImGui::TableNextRow();
+        int columnIndex = 0;
+        for (const auto* column : columns) {
+            ImGui::TableSetColumnIndex(columnIndex++);
+            const auto cell = jsonCellString(row, column);
+            ImGui::TextUnformatted(cell.c_str());
+        }
+    }
+
+    ImGui::EndTable();
+}
+
+void renderAssetLibraryWindow(const AssetLibraryModelSnapshot& snapshot,
+                              const AssetLibraryPanel::ImportWizardRenderSnapshot& wizard) {
+    if (!ImGui::Begin("Assets")) {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Status: %s", snapshot.status.c_str());
+    ImGui::SameLine(220.0f);
+    ImGui::Text("Export eligible: %s", snapshot.export_eligible ? "yes" : "no");
+    ImGui::TextWrapped("%s", snapshot.status_message.c_str());
+    if (!snapshot.error_message.empty()) {
+        ImGui::TextColored(ImVec4(1.0f, 0.45f, 0.4f, 1.0f), "%s", snapshot.error_message.c_str());
+    }
+    ImGui::Separator();
+
+    if (ImGui::BeginTable("AssetMetrics", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::Text("Assets");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::Text("%zu", snapshot.asset_count);
+        ImGui::TableSetColumnIndex(2);
+        ImGui::Text("Runtime ready");
+        ImGui::TableSetColumnIndex(3);
+        ImGui::Text("%zu", snapshot.runtime_ready_count);
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::Text("Issues");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::Text("%zu", snapshot.issue_count);
+        ImGui::TableSetColumnIndex(2);
+        ImGui::Text("Previewable");
+        ImGui::TableSetColumnIndex(3);
+        ImGui::Text("%zu", snapshot.previewable_count);
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::Text("Import sessions");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::Text("%zu", snapshot.import_session_count);
+        ImGui::TableSetColumnIndex(2);
+        ImGui::Text("Import ready");
+        ImGui::TableSetColumnIndex(3);
+        ImGui::Text("%zu", snapshot.import_ready_count);
+        ImGui::EndTable();
+    }
+
+    if (ImGui::BeginTabBar("AssetLibraryTabs")) {
+        if (ImGui::BeginTabItem("Wizard")) {
+            ImGui::Text("Step: %s", wizard.current_step.c_str());
+            ImGui::Text("Status: %s", wizard.status.c_str());
+            for (const auto& step : wizard.steps) {
+                ImGui::BulletText("%s: %s (%zu)", step.label.c_str(), step.state.c_str(), step.count);
+            }
+            ImGui::Separator();
+            for (const auto& action : wizard.actions) {
+                if (!action.enabled) {
+                    ImGui::BeginDisabled();
+                }
+                ImGui::Button(action.id.c_str());
+                if (!action.enabled) {
+                    ImGui::EndDisabled();
+                }
+                if (!action.disabled_reason.empty()) {
+                    ImGui::SameLine();
+                    ImGui::TextDisabled("%s", action.disabled_reason.c_str());
+                }
+            }
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Assets")) {
+            renderJsonRows("AssetActionRows", snapshot.asset_action_rows,
+                           {"path", "kind", "status", "runtime_ready", "issue_count"});
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Imports")) {
+            renderJsonRows("ImportReviewRows", snapshot.import_review_rows,
+                           {"asset_id", "status", "kind", "license", "reason"});
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Categories")) {
+            for (const auto& [category, count] : snapshot.category_counts) {
+                ImGui::BulletText("%s: %zu", category.c_str(), count);
+            }
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
+    ImGui::End();
+}
+#endif
 
 AssetLibraryPanel::ImportWizardRenderSnapshot buildImportWizardRenderSnapshot(const nlohmann::json& wizard) {
     AssetLibraryPanel::ImportWizardRenderSnapshot snapshot;
@@ -207,6 +363,9 @@ void AssetLibraryPanel::render() {
     }
     refreshRenderSnapshotsFromModel();
     has_rendered_frame_ = true;
+#ifdef URPG_IMGUI_ENABLED
+    renderAssetLibraryWindow(last_render_snapshot_, last_import_wizard_snapshot_);
+#endif
 }
 
 nlohmann::json AssetLibraryPanel::requestImportSource(const std::filesystem::path& source,

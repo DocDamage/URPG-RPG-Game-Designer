@@ -621,7 +621,8 @@ std::string analyticsConsentToSettings(urpg::analytics::ConsentState state) {
 #ifdef URPG_IMGUI_ENABLED
 #ifndef URPG_HEADLESS
 const char* editorPanelVisualState(std::string_view id) {
-    if (id == "ability" || id == "patterns" || id == "analytics") {
+    if (id == "assets" || id == "ability" || id == "patterns" || id == "mod" || id == "analytics" ||
+        id == "level_builder") {
         return "visual";
     }
     if (id == "diagnostics") {
@@ -641,16 +642,16 @@ const char* editorPanelVisualStateDetail(std::string_view id) {
         return "Draws the analytics controls window.";
     }
     if (id == "diagnostics") {
-        return "Some diagnostics tabs draw UI; the default compatibility tab is still snapshot-backed.";
+        return "Draws the diagnostics overview and routes to detailed diagnostic tabs.";
     }
     if (id == "assets") {
-        return "Asset library data exists, but the native visual browser/import UI still needs implementation.";
+        return "Draws the asset library dashboard, import wizard, asset rows, import rows, and categories.";
     }
     if (id == "mod") {
-        return "Mod manager data exists, but the native visual manager window still needs implementation.";
+        return "Draws mod status, registered mods, load order, store entries, hot reload, and validation.";
     }
     if (id == "level_builder") {
-        return "Level builder state exists, but most native spatial subpanels are still snapshot-backed.";
+        return "Draws level build, validate, playtest, and package readiness surfaces.";
     }
     return "Panel is registered but has no native visual status classification.";
 }
@@ -757,8 +758,8 @@ void renderEditorShellChrome(urpg::editor::EditorShell& editorShell, bool active
             "ModernUI source sheets are ingested as reference assets. They still have to be cut into addressable "
             "runtime sprites before they can skin the whole app.");
         ImGui::Separator();
-        ImGui::TextWrapped("Next visual work: implement native windows for Assets, Mod Manager, Diagnostics overview, "
-                           "and Level Builder subpanels.");
+        ImGui::TextWrapped("Next visual work: cut ModernUI source sheets into addressable sprites and replace the "
+                           "temporary ImGui skin with the production chrome.");
     }
     ImGui::End();
 
@@ -771,7 +772,7 @@ void renderEditorShellChrome(urpg::editor::EditorShell& editorShell, bool active
         ImGui::Text("Registered release panels: %zu", panels.size());
         ImGui::SameLine(620.0f);
         ImGui::Text("Active panel callback: %s", activePanelRendered ? "ok" : "missing");
-        ImGui::TextDisabled("Visual gaps are panel implementation work, not missing ModernUI image files.");
+        ImGui::TextDisabled("ModernUI still needs sprite cutting before it can become the production app skin.");
     }
     ImGui::End();
 }

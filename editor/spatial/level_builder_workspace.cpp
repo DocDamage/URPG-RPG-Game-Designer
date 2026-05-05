@@ -7,6 +7,10 @@
 #include <algorithm>
 #include <utility>
 
+#ifdef URPG_IMGUI_ENABLED
+#include <imgui.h>
+#endif
+
 namespace urpg::editor {
 
 namespace {
@@ -64,6 +68,173 @@ void appendDiagnosticSummaries(std::vector<LevelBuilderWorkspace::DiagnosticSumm
         target.push_back(std::move(summary));
     }
 }
+
+#ifdef URPG_IMGUI_ENABLED
+void renderReadinessFlag(const char* label, bool value) {
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(0);
+    ImGui::TextUnformatted(label);
+    ImGui::TableSetColumnIndex(1);
+    if (value) {
+        ImGui::TextColored(ImVec4(0.35f, 0.85f, 0.55f, 1.0f), "pass");
+    } else {
+        ImGui::TextDisabled("missing");
+    }
+}
+
+void renderPaletteSnapshot(const GridPartPalettePanel::RenderSnapshot& snapshot) {
+    ImGui::Text("Catalog: %s", snapshot.has_catalog ? "bound" : "missing");
+    ImGui::SameLine(180.0f);
+    ImGui::Text("Parts: %zu", snapshot.part_count);
+    ImGui::Text("Selected: %s", snapshot.selected_part_id.empty() ? "none" : snapshot.selected_part_id.c_str());
+
+    if (!ImGui::BeginTable("LevelBuilderPalette", 3,
+                           ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable |
+                               ImGuiTableFlags_ScrollY,
+                           ImVec2(0.0f, 170.0f))) {
+        return;
+    }
+    ImGui::TableSetupColumn("Part");
+    ImGui::TableSetupColumn("Name");
+    ImGui::TableSetupColumn("Category");
+    ImGui::TableHeadersRow();
+    int rowCount = 0;
+    for (const auto& entry : snapshot.entries) {
+        if (rowCount++ >= 24) {
+            break;
+        }
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::TextUnformatted(entry.part_id.c_str());
+        ImGui::TableSetColumnIndex(1);
+        ImGui::TextUnformatted(entry.display_name.c_str());
+        ImGui::TableSetColumnIndex(2);
+        ImGui::TextUnformatted(entry.category.c_str());
+    }
+    ImGui::EndTable();
+}
+
+void renderLevelBuilderWindow(LevelBuilderWorkspace& workspace, const LevelBuilderWorkspace::RenderSnapshot& snapshot) {
+    if (!ImGui::Begin("Level Builder")) {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Status: %s", snapshot.status.c_str());
+    ImGui::SameLine(180.0f);
+    ImGui::Text("Mode: %s", snapshot.active_mode.c_str());
+    ImGui::SameLine(340.0f);
+    ImGui::Text("Unsaved: %s", snapshot.has_unsaved_changes ? "yes" : "no");
+    ImGui::TextWrapped("%s", snapshot.message.c_str());
+
+    for (const auto& action : snapshot.actions) {
+        if (!action.enabled) {
+            ImGui::BeginDisabled();
+        }
+        const std::string label = action.label + "##" + action.id;
+        if (ImGui::Button(label.c_str())) {
+            workspace.ActivateToolbarAction(action.id);
+        }
+        if (!action.enabled) {
+            ImGui::EndDisabled();
+        }
+        ImGui::SameLine();
+    }
+    ImGui::NewLine();
+    ImGui::Separator();
+
+    if (ImGui::BeginTabBar("LevelBuilderTabs")) {
+        if (ImGui::BeginTabItem("Build")) {
+            renderPaletteSnapshot(snapshot.palette);
+            ImGui::Separator();
+            const auto& placement = snapshot.placement;
+            ImGui::Text("Placement target: document=%s catalog=%s overlay=%s", placement.has_document ? "yes" : "no",
+                        placement.has_catalog ? "yes" : "no", placement.has_spatial_overlay ? "yes" : "no");
+            ImGui::Text("Placed: %zu  Diagnostics: %zu", placement.placed_count, placement.diagnostic_count);
+            ImGui::Text("Hover: %s (%d,%d) %s", placement.hover_active ? "active" : "idle", placement.hover_x,
+                        placement.hover_y, placement.hover_reason.c_str());
+            ImGui::Separator();
+            const auto& inspector = snapshot.inspector;
+            ImGui::Text("Selection: %s", inspector.has_selection ? inspector.selected_instance_id.c_str() : "none");
+            ImGui::Text("Part: %s  Position: %d,%d  Size: %dx%d", inspector.selected_part_id.c_str(),
+                        inspector.grid_x, inspector.grid_y, inspector.width, inspector.height);
+            if (inspector.properties.empty()) {
+                ImGui::TextDisabled("No selected part properties.");
+            } else {
+                for (const auto& [key, value] : inspector.properties) {
+                    ImGui::BulletText("%s = %s", key.c_str(), value.c_str());
+                }
+            }
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Validate")) {
+            ImGui::Text("Document: %s", snapshot.validation.document_ok ? "ok" : "needs work");
+            ImGui::Text("Ruleset: %s", snapshot.validation.ruleset_ok ? "ok" : "needs work");
+            ImGui::Text("Objective: %s", snapshot.validation.objective_ok ? "ok" : "needs work");
+            ImGui::Text("Diagnostics: %zu blocking %zu", snapshot.validation.diagnostic_count,
+                        snapshot.validation.blocking_count);
+            if (ImGui::BeginTable("LevelDiagnostics", 5,
+                                  ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable |
+                                      ImGuiTableFlags_ScrollY,
+                                  ImVec2(0.0f, 220.0f))) {
+                ImGui::TableSetupColumn("Severity");
+                ImGui::TableSetupColumn("Code");
+                ImGui::TableSetupColumn("Message");
+                ImGui::TableSetupColumn("Part");
+                ImGui::TableSetupColumn("Target");
+                ImGui::TableHeadersRow();
+                for (const auto& diagnostic : snapshot.diagnostics) {
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::TextUnformatted(diagnostic.severity.c_str());
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::TextUnformatted(diagnostic.code.c_str());
+                    ImGui::TableSetColumnIndex(2);
+                    ImGui::TextWrapped("%s", diagnostic.message.c_str());
+                    ImGui::TableSetColumnIndex(3);
+                    ImGui::TextUnformatted(diagnostic.part_id.c_str());
+                    ImGui::TableSetColumnIndex(4);
+                    ImGui::TextUnformatted(diagnostic.target.c_str());
+                }
+                ImGui::EndTable();
+            }
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Playtest")) {
+            const auto& playtest = snapshot.playtest;
+            ImGui::Text("Can launch: %s", playtest.can_launch ? "yes" : "no");
+            ImGui::Text("Running: %s", playtest.running ? "yes" : "no");
+            ImGui::Text("Returned to editor: %s", playtest.returned_to_editor ? "yes" : "no");
+            ImGui::Separator();
+            ImGui::Text("Objective complete: %s", playtest.latest_result.completed_objective ? "yes" : "no");
+            ImGui::Text("Softlocked: %s", playtest.latest_result.softlocked ? "yes" : "no");
+            ImGui::Text("Visited: %zu", playtest.latest_result.visited_instance_ids.size());
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Package")) {
+            ImGui::Text("Readiness: %s", snapshot.package.readiness.c_str());
+            ImGui::Text("Can export: %s", snapshot.package.can_export ? "yes" : "no");
+            ImGui::Text("Can publish: %s", snapshot.package.can_publish ? "yes" : "no");
+            ImGui::Text("Dependencies: %zu", snapshot.package.dependency_count);
+            if (ImGui::BeginTable("LevelReadiness", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+                renderReadinessFlag("Player spawn", snapshot.readiness_evidence.has_player_spawn);
+                renderReadinessFlag("Objective", snapshot.readiness_evidence.has_objective);
+                renderReadinessFlag("Reachability", snapshot.readiness_evidence.reachability_passed);
+                renderReadinessFlag("Export checks", snapshot.readiness_evidence.target_export_checks_passed);
+                renderReadinessFlag("Accessibility", snapshot.readiness_evidence.accessibility_checks_passed);
+                renderReadinessFlag("Performance", snapshot.readiness_evidence.performance_budget_passed);
+                renderReadinessFlag("Human review", !snapshot.readiness_evidence.human_review_required ||
+                                                        snapshot.readiness_evidence.human_review_passed);
+                ImGui::EndTable();
+            }
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
+    ImGui::End();
+}
+#endif
 
 } // namespace
 
@@ -123,6 +294,9 @@ void LevelBuilderWorkspace::Render(const urpg::FrameContext& context) {
     playtest_panel_.Render(context);
     supporting_spatial_workspace_.Render(context);
     captureRenderSnapshot();
+#ifdef URPG_IMGUI_ENABLED
+    renderLevelBuilderWindow(*this, last_render_snapshot_);
+#endif
 }
 
 void LevelBuilderWorkspace::SetTargets(urpg::map::GridPartDocument* document,
