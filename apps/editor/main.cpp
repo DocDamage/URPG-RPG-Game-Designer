@@ -474,6 +474,49 @@ void printRuntimeDiagnostics() {
     }
 }
 
+std::filesystem::path visibleStartupGuardPath(const urpg::settings::AppSettingsPaths& settingsPaths) {
+    return settingsPaths.root / "editor_visible_startup.guard";
+}
+
+bool writeVisibleStartupGuard(const std::filesystem::path& guardPath, std::string* error) {
+    try {
+        std::filesystem::create_directories(guardPath.parent_path());
+        std::ofstream out(guardPath, std::ios::binary);
+        if (!out) {
+            if (error != nullptr) {
+                *error = "Unable to open visible startup guard for write: " + guardPath.string();
+            }
+            return false;
+        }
+        out << "visible_startup_pending\n";
+        return true;
+    } catch (const std::exception& ex) {
+        if (error != nullptr) {
+            *error = ex.what();
+        }
+        return false;
+    }
+}
+
+bool removeVisibleStartupGuard(const std::filesystem::path& guardPath, std::string* error) {
+    try {
+        std::error_code ec;
+        std::filesystem::remove(guardPath, ec);
+        if (ec) {
+            if (error != nullptr) {
+                *error = ec.message();
+            }
+            return false;
+        }
+        return true;
+    } catch (const std::exception& ex) {
+        if (error != nullptr) {
+            *error = ex.what();
+        }
+        return false;
+    }
+}
+
 #ifndef URPG_HEADLESS
 int runPlatformProbe(const urpg::WindowConfig& config, bool probeOpenGl, bool probeRender) {
     const auto result = urpg::SDLSurface::probe(config, probeOpenGl);
@@ -683,8 +726,33 @@ int main(int argc, char** argv) {
             return 0;
         }
 
-        const urpg::cli::EditorCliOptions options = cli.options;
+        urpg::cli::EditorCliOptions options = cli.options;
         const auto settingsPaths = urpg::settings::appSettingsPaths(options.project_root);
+        const auto startupGuardPath = visibleStartupGuardPath(settingsPaths);
+        if (options.reset_startup_guard) {
+            std::string guardError;
+            if (!removeVisibleStartupGuard(startupGuardPath, &guardError)) {
+                std::cerr << "URPG editor failed to reset startup guard: " << guardError << "\n";
+                return 1;
+            }
+            std::cout << "URPG editor startup guard reset: " << startupGuardPath.string() << "\n";
+            return 0;
+        }
+
+        const bool staleVisibleStartupGuard =
+            !options.headless && !options.hidden_window && !options.probe_platform && !options.smoke &&
+            std::filesystem::exists(startupGuardPath);
+        if (staleVisibleStartupGuard) {
+            options.safe_mode = true;
+            options.headless = true;
+            if (options.frames < 0) {
+                options.frames = 1;
+            }
+            std::cerr << "URPG editor detected an uncleared visible startup guard at "
+                      << startupGuardPath.string()
+                      << "; starting in safe mode. Use --reset-startup-guard after the visible startup issue is fixed.\n";
+        }
+
         auto settingsLoad = urpg::settings::loadEditorSettings(settingsPaths.editor_settings, settingsPaths);
         for (const auto& warning : settingsLoad.report.warnings) {
             std::cerr << "URPG editor settings warning: " << warning << "\n";
@@ -712,6 +780,7 @@ int main(int argc, char** argv) {
         config.resizable = settingsLoad.settings.window.resizable;
         config.hidden = options.hidden_window || !options.headless;
         const bool deferVisibleWindowShow = !options.headless && !options.hidden_window;
+        bool visibleStartupGuardArmed = false;
 
         if (options.probe_platform) {
 #ifdef URPG_HEADLESS
@@ -823,6 +892,12 @@ int main(int argc, char** argv) {
         }
 
         if (deferVisibleWindowShow) {
+            std::string guardError;
+            if (writeVisibleStartupGuard(startupGuardPath, &guardError)) {
+                visibleStartupGuardArmed = true;
+            } else {
+                std::cerr << "URPG editor failed to write visible startup guard: " << guardError << "\n";
+            }
             engineShell.getPlatform()->show();
         }
 
@@ -830,6 +905,13 @@ int main(int argc, char** argv) {
         while (engineShell.isRunning() && editorShell.isRunning() && (options.frames < 0 || frame < options.frames)) {
             (void)runEditorFrame(engineShell, editorShell, options.render_all_panels);
             ++frame;
+            if (visibleStartupGuardArmed && frame == 1) {
+                std::string guardError;
+                if (!removeVisibleStartupGuard(startupGuardPath, &guardError)) {
+                    std::cerr << "URPG editor failed to clear visible startup guard: " << guardError << "\n";
+                }
+                visibleStartupGuardArmed = false;
+            }
             if (options.headless) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }

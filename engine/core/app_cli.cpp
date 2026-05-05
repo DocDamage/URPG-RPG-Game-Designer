@@ -175,6 +175,8 @@ EditorCliParseResult parseEditorCli(std::vector<std::string_view> args, bool def
         } else if (arg == "--probe-editor-frame") {
             result.options.hidden_window = true;
             result.options.probe_editor_frame = true;
+        } else if (arg == "--reset-startup-guard") {
+            result.options.reset_startup_guard = true;
         } else if (arg == "--open-panel") {
             if (i + 1 >= args.size() || needsValue(args[i + 1])) {
                 result.error = missingValueError(arg);
@@ -236,7 +238,7 @@ std::string editorHelpText() {
            "[--project-root <path>] [--list-panels] [--render-all-panels] [--open-panel <id>] "
            "[--smoke] [--smoke-output <path>] [--smoke-snapshot-root <path>] [--safe-mode] "
            "[--probe-platform] [--probe-opengl] [--probe-render] [--probe-editor-frame] "
-           "[--hidden-window] [--version] [--help]\n";
+           "[--hidden-window] [--reset-startup-guard] [--version] [--help]\n";
 }
 
 } // namespace urpg::cli

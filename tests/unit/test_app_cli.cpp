@@ -174,4 +174,8 @@ TEST_CASE("Editor CLI preserves valid option parsing and smoke defaults", "[cli]
     REQUIRE(hiddenWindow.ok());
     REQUIRE(hiddenWindow.options.hidden_window);
     REQUIRE(hiddenWindow.options.frames == 2);
+
+    const auto resetGuard = urpg::cli::parseEditorCli(args({"--reset-startup-guard"}), false);
+    REQUIRE(resetGuard.ok());
+    REQUIRE(resetGuard.options.reset_startup_guard);
 }
