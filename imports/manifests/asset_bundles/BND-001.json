@@ -16,7 +16,7 @@
       "license_cleared": true,
       "release_eligible": true,
       "distribution": "bundled",
-      "checksum_sha256": "063c253817372ef61782ebd9df73b9d3ced6c0e7557f622948c4264e59621a10",
+      "checksum_sha256": "385dadeac106f1ccfc9668aff018982f8a7031744ee9981cf35a93b56be293ed",
       "attribution_record": "imports/reports/asset_intake/attribution/SRC-002_gdquest_blue_actor.json",
       "package_destination": "share/urpg/imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
       "notes": "First governed visual proof asset for editor/runtime/export smoke coverage."
