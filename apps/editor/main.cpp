@@ -673,6 +673,7 @@ void renderEditorShellChrome(urpg::editor::EditorShell& editorShell, bool active
     const float navWidth = 300.0f;
     const float inspectorWidth = 420.0f;
     const ImVec2 display = io.DisplaySize;
+    const auto activePanelId = editorShell.activePanelId();
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
@@ -698,6 +699,10 @@ void renderEditorShellChrome(urpg::editor::EditorShell& editorShell, bool active
         ImGui::EndMainMenuBar();
     }
 
+    if (activePanelId == "level_builder") {
+        return;
+    }
+
     const ImGuiWindowFlags chromeFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
                                          ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
 
@@ -709,7 +714,6 @@ void renderEditorShellChrome(urpg::editor::EditorShell& editorShell, bool active
         return;
     }
 
-    const auto activePanelId = editorShell.activePanelId();
     ImGui::TextUnformatted("Release Panels");
     ImGui::Separator();
     const auto panels = editorShell.panels();
@@ -1079,6 +1083,9 @@ int main(int argc, char** argv) {
             engineShell.shutdown();
             clearSceneStack();
             return 2;
+        }
+        if (!options.open_panel_id.has_value()) {
+            (void)editorShell.openPanel("level_builder");
         }
 
         if (options.list_panels) {

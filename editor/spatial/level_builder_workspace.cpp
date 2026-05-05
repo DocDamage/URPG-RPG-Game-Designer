@@ -5,6 +5,7 @@
 #include "engine/core/map/grid_part_validator.h"
 
 #include <algorithm>
+#include <cctype>
 #include <utility>
 
 #ifdef URPG_IMGUI_ENABLED
@@ -82,40 +83,152 @@ void renderReadinessFlag(const char* label, bool value) {
     }
 }
 
-void renderPaletteSnapshot(const GridPartPalettePanel::RenderSnapshot& snapshot) {
+void renderPaletteSnapshot(LevelBuilderWorkspace& workspace, const GridPartPalettePanel::RenderSnapshot& snapshot) {
     ImGui::Text("Catalog: %s", snapshot.has_catalog ? "bound" : "missing");
     ImGui::SameLine(180.0f);
     ImGui::Text("Parts: %zu", snapshot.part_count);
     ImGui::Text("Selected: %s", snapshot.selected_part_id.empty() ? "none" : snapshot.selected_part_id.c_str());
 
-    if (!ImGui::BeginTable("LevelBuilderPalette", 3,
-                           ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable |
-                               ImGuiTableFlags_ScrollY,
-                           ImVec2(0.0f, 170.0f))) {
+    if (!ImGui::BeginTable("LevelBuilderPalette", 2,
+                           ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY,
+                           ImVec2(0.0f, 0.0f))) {
         return;
     }
-    ImGui::TableSetupColumn("Part");
     ImGui::TableSetupColumn("Name");
     ImGui::TableSetupColumn("Category");
     ImGui::TableHeadersRow();
-    int rowCount = 0;
     for (const auto& entry : snapshot.entries) {
-        if (rowCount++ >= 24) {
-            break;
-        }
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        ImGui::TextUnformatted(entry.part_id.c_str());
+        if (ImGui::Selectable(entry.display_name.c_str(), entry.selected, ImGuiSelectableFlags_SpanAllColumns)) {
+            workspace.SelectGridPart(entry.part_id);
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("%s", entry.part_id.c_str());
+        }
         ImGui::TableSetColumnIndex(1);
-        ImGui::TextUnformatted(entry.display_name.c_str());
-        ImGui::TableSetColumnIndex(2);
         ImGui::TextUnformatted(entry.category.c_str());
     }
     ImGui::EndTable();
 }
 
-void renderLevelBuilderWindow(LevelBuilderWorkspace& workspace, const LevelBuilderWorkspace::RenderSnapshot& snapshot) {
-    if (!ImGui::Begin("Level Builder")) {
+char gridCellGlyph(const urpg::map::PlacedPartInstance& part) {
+    if (part.category == urpg::map::GridPartCategory::Tile) {
+        return '.';
+    }
+    if (part.category == urpg::map::GridPartCategory::Wall) {
+        return '#';
+    }
+    if (part.category == urpg::map::GridPartCategory::Door) {
+        return 'D';
+    }
+    if (part.category == urpg::map::GridPartCategory::Enemy) {
+        return 'E';
+    }
+    if (part.category == urpg::map::GridPartCategory::Npc) {
+        return 'N';
+    }
+    if (part.category == urpg::map::GridPartCategory::TreasureChest) {
+        return '$';
+    }
+    if (part.category == urpg::map::GridPartCategory::SavePoint) {
+        return 'S';
+    }
+    if (part.category == urpg::map::GridPartCategory::Hazard) {
+        return '!';
+    }
+    if (!part.part_id.empty()) {
+        return static_cast<char>(std::toupper(static_cast<unsigned char>(part.part_id.front())));
+    }
+    return '?';
+}
+
+void renderMakerGrid(LevelBuilderWorkspace& workspace, urpg::map::GridPartDocument* document,
+                     const LevelBuilderWorkspace::RenderSnapshot& snapshot) {
+    if (document == nullptr) {
+        ImGui::TextDisabled("No level document is bound.");
+        return;
+    }
+
+    ImGui::Text("%s  %dx%d  parts=%zu", document->mapId().c_str(), document->width(), document->height(),
+                document->parts().size());
+    ImGui::SameLine();
+    if (ImGui::Button("Undo")) {
+        workspace.UndoLastEdit();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Redo")) {
+        workspace.RedoLastEdit();
+    }
+
+    const float cell = 34.0f;
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.0f, 1.0f));
+    for (int32_t y = 0; y < document->height(); ++y) {
+        for (int32_t x = 0; x < document->width(); ++x) {
+            const auto parts = document->partsAt(x, y);
+            std::string label;
+            if (parts.empty()) {
+                label = " ";
+            } else {
+                label = std::string(1, gridCellGlyph(*parts.back()));
+            }
+            label += "##cell_" + std::to_string(x) + "_" + std::to_string(y);
+
+            if (!parts.empty()) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.20f, 0.38f, 0.22f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.26f, 0.52f, 0.30f, 1.0f));
+            } else {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.13f, 0.15f, 0.16f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.20f, 0.26f, 0.30f, 1.0f));
+            }
+
+            if (ImGui::Button(label.c_str(), ImVec2(cell, cell))) {
+                const auto selectedPart = workspace.palettePanel().selectedPartId();
+                if (!selectedPart.empty()) {
+                    const bool placed = workspace.placementPanel().PlaceSelectedPartAtGrid(x, y);
+                    if (placed && !document->parts().empty()) {
+                        (void)workspace.inspectorPanel().SelectInstance(document->parts().back().instance_id);
+                    }
+                } else if (!parts.empty()) {
+                    (void)workspace.inspectorPanel().SelectInstance(parts.back()->instance_id);
+                }
+            }
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Right) && !parts.empty()) {
+                (void)workspace.inspectorPanel().SelectInstance(parts.back()->instance_id);
+            }
+            if (ImGui::IsItemHovered()) {
+                if (parts.empty()) {
+                    ImGui::SetTooltip("(%d,%d) empty", x, y);
+                } else {
+                    ImGui::SetTooltip("(%d,%d) %s\nLeft: place selected\nRight: select existing", x, y,
+                                      parts.back()->part_id.c_str());
+                }
+            }
+            ImGui::PopStyleColor(2);
+
+            if (x + 1 < document->width()) {
+                ImGui::SameLine();
+            }
+        }
+    }
+    ImGui::PopStyleVar();
+
+    if (snapshot.palette.selected_part_id.empty()) {
+        ImGui::TextDisabled("Pick a part from the palette, then click the grid to place it.");
+    } else {
+        ImGui::Text("Placing: %s", snapshot.palette.selected_part_id.c_str());
+    }
+}
+
+void renderLevelBuilderWindow(LevelBuilderWorkspace& workspace, urpg::map::GridPartDocument* document,
+                              const LevelBuilderWorkspace::RenderSnapshot& snapshot) {
+    const auto& io = ImGui::GetIO();
+    ImGui::SetNextWindowPos(ImVec2(8.0f, 32.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(std::max(900.0f, io.DisplaySize.x - 16.0f),
+                                    std::max(660.0f, io.DisplaySize.y - 48.0f)),
+                             ImGuiCond_Always);
+
+    if (!ImGui::Begin("Level Builder - Maker Workspace")) {
         ImGui::End();
         return;
     }
@@ -143,28 +256,56 @@ void renderLevelBuilderWindow(LevelBuilderWorkspace& workspace, const LevelBuild
     ImGui::NewLine();
     ImGui::Separator();
 
-    if (ImGui::BeginTabBar("LevelBuilderTabs")) {
-        if (ImGui::BeginTabItem("Build")) {
-            renderPaletteSnapshot(snapshot.palette);
-            ImGui::Separator();
+    if (ImGui::BeginTable("MakerWorkspace", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV)) {
+        ImGui::TableSetupColumn("Palette", ImGuiTableColumnFlags_WidthFixed, 260.0f);
+        ImGui::TableSetupColumn("Canvas", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("Inspector", ImGuiTableColumnFlags_WidthFixed, 300.0f);
+        ImGui::TableNextRow();
+
+        ImGui::TableSetColumnIndex(0);
+        ImGui::BeginChild("MakerPalette", ImVec2(0.0f, 0.0f), false);
+        renderPaletteSnapshot(workspace, snapshot.palette);
+        ImGui::EndChild();
+
+        ImGui::TableSetColumnIndex(1);
+        ImGui::BeginChild("MakerCanvas", ImVec2(0.0f, 0.0f), false);
+        renderMakerGrid(workspace, document, snapshot);
+        ImGui::EndChild();
+
+        ImGui::TableSetColumnIndex(2);
+        ImGui::BeginChild("MakerInspector", ImVec2(0.0f, 0.0f), false);
+        const auto& inspector = snapshot.inspector;
+        ImGui::TextUnformatted("Selection");
+        ImGui::Separator();
+        ImGui::TextWrapped("%s", inspector.has_selection ? inspector.selected_instance_id.c_str() : "No part selected.");
+        if (inspector.has_selection) {
+            ImGui::Text("Part: %s", inspector.selected_part_id.c_str());
+            ImGui::Text("Position: %d,%d", inspector.grid_x, inspector.grid_y);
+            ImGui::Text("Size: %dx%d", inspector.width, inspector.height);
+            if (ImGui::Button("Mark Spawn")) {
+                workspace.MarkSelectedInstanceAsPlayerSpawn();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Set Exit")) {
+                workspace.SetSelectedInstanceAsReachExitObjective();
+            }
+            if (inspector.properties.empty()) {
+                ImGui::TextDisabled("No custom properties.");
+            } else {
+                for (const auto& [key, value] : inspector.properties) {
+                    ImGui::BulletText("%s = %s", key.c_str(), value.c_str());
+                }
+            }
+        }
+        ImGui::Separator();
+        if (ImGui::BeginTabBar("MakerDetails")) {
+            if (ImGui::BeginTabItem("Build")) {
             const auto& placement = snapshot.placement;
             ImGui::Text("Placement target: document=%s catalog=%s overlay=%s", placement.has_document ? "yes" : "no",
                         placement.has_catalog ? "yes" : "no", placement.has_spatial_overlay ? "yes" : "no");
             ImGui::Text("Placed: %zu  Diagnostics: %zu", placement.placed_count, placement.diagnostic_count);
             ImGui::Text("Hover: %s (%d,%d) %s", placement.hover_active ? "active" : "idle", placement.hover_x,
                         placement.hover_y, placement.hover_reason.c_str());
-            ImGui::Separator();
-            const auto& inspector = snapshot.inspector;
-            ImGui::Text("Selection: %s", inspector.has_selection ? inspector.selected_instance_id.c_str() : "none");
-            ImGui::Text("Part: %s  Position: %d,%d  Size: %dx%d", inspector.selected_part_id.c_str(),
-                        inspector.grid_x, inspector.grid_y, inspector.width, inspector.height);
-            if (inspector.properties.empty()) {
-                ImGui::TextDisabled("No selected part properties.");
-            } else {
-                for (const auto& [key, value] : inspector.properties) {
-                    ImGui::BulletText("%s = %s", key.c_str(), value.c_str());
-                }
-            }
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Validate")) {
@@ -229,7 +370,10 @@ void renderLevelBuilderWindow(LevelBuilderWorkspace& workspace, const LevelBuild
             }
             ImGui::EndTabItem();
         }
-        ImGui::EndTabBar();
+            ImGui::EndTabBar();
+        }
+        ImGui::EndChild();
+        ImGui::EndTable();
     }
 
     ImGui::End();
@@ -295,7 +439,7 @@ void LevelBuilderWorkspace::Render(const urpg::FrameContext& context) {
     supporting_spatial_workspace_.Render(context);
     captureRenderSnapshot();
 #ifdef URPG_IMGUI_ENABLED
-    renderLevelBuilderWindow(*this, last_render_snapshot_);
+    renderLevelBuilderWindow(*this, document_, last_render_snapshot_);
 #endif
 }
 
