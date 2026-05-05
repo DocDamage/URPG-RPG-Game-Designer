@@ -3,7 +3,7 @@ param(
     [string]$ProjectRoot = ".",
     [switch]$Visible,
     [switch]$ResetStartupGuard,
-    [int]$VisibleFrames = 1
+    [int]$VisibleFrames = 0
 )
 
 $ErrorActionPreference = "Stop"
@@ -38,7 +38,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 if ($Visible) {
-    & $editorExe --project-root $resolvedProjectRoot --frames $VisibleFrames
+    if ($VisibleFrames -gt 0) {
+        & $editorExe --project-root $resolvedProjectRoot --frames $VisibleFrames
+    } else {
+        & $editorExe --project-root $resolvedProjectRoot
+    }
     exit $LASTEXITCODE
 }
 
