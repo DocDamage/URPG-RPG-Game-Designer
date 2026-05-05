@@ -522,7 +522,8 @@ void LevelBuilderWorkspace::Render(const urpg::FrameContext& context) {
     supporting_spatial_workspace_.Render(context);
     captureRenderSnapshot();
 #ifdef URPG_IMGUI_ENABLED
-    renderLevelBuilderWindow(*this, document_, last_render_snapshot_);
+    const auto stable_snapshot = last_render_snapshot_;
+    renderLevelBuilderWindow(*this, document_, stable_snapshot);
 #endif
 }
 
