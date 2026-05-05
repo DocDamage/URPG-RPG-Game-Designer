@@ -1,0 +1,506 @@
+{
+  "schema": "urpg/promoted_asset_catalog/v1",
+  "generated_at": "2026-05-05T05:40:04+00:00",
+  "source_id": "SRC-014",
+  "source_root": "imports/raw/src014_20260504_extracted",
+  "promotion_status": "cataloged_local_available",
+  "export_eligible": false,
+  "local_use_allowed": true,
+  "release_use_allowed": false,
+  "summary": {
+    "schema": "urpg/asset_promotion_summary/v1",
+    "generated_at": "2026-05-05T05:40:04+00:00",
+    "source_id": "SRC-014",
+    "source_root": "imports/raw/src014_20260504_extracted",
+    "promotion_status": "cataloged_local_available",
+    "export_eligible": false,
+    "asset_count": 1397,
+    "canonical_asset_count": 1351,
+    "duplicate_group_count": 46,
+    "duplicate_asset_count": 46,
+    "unsupported_count": 0,
+    "kind_counts": {
+      "image": 1397
+    },
+    "category_counts": {
+      "backgrounds": 20,
+      "characters": 11,
+      "characters/portraits": 648,
+      "props": 648,
+      "tilesets": 40,
+      "ui": 30
+    },
+    "extension_counts": {
+      "jpg": 2,
+      "png": 1395
+    },
+    "pack_count": 93,
+    "notes": [
+      "All supported SRC-014 records are catalog-normalized for local editor/library use.",
+      "Raw binaries remain in ignored quarantine under imports/raw/src014_20260504_extracted.",
+      "normalized_path values are stable virtual asset ids, not copied release payload paths.",
+      "local_use_allowed is true for creator/editor browsing; release_use_allowed and export_eligible remain false until curated bundle promotion."
+    ]
+  },
+  "shards": [
+    {
+      "category": "backgrounds",
+      "path": "imports/reports/asset_intake/ingest_20260504_extracted_promotion_catalog/backgrounds.json",
+      "asset_count": 20,
+      "category_asset_count": 20,
+      "part": null
+    },
+    {
+      "category": "characters",
+      "path": "imports/reports/asset_intake/ingest_20260504_extracted_promotion_catalog/characters.json",
+      "asset_count": 11,
+      "category_asset_count": 11,
+      "part": null
+    },
+    {
+      "category": "characters/portraits",
+      "path": "imports/reports/asset_intake/ingest_20260504_extracted_promotion_catalog/characters-portraits.json",
+      "asset_count": 648,
+      "category_asset_count": 648,
+      "part": null
+    },
+    {
+      "category": "props",
+      "path": "imports/reports/asset_intake/ingest_20260504_extracted_promotion_catalog/props.json",
+      "asset_count": 648,
+      "category_asset_count": 648,
+      "part": null
+    },
+    {
+      "category": "tilesets",
+      "path": "imports/reports/asset_intake/ingest_20260504_extracted_promotion_catalog/tilesets.json",
+      "asset_count": 40,
+      "category_asset_count": 40,
+      "part": null
+    },
+    {
+      "category": "ui",
+      "path": "imports/reports/asset_intake/ingest_20260504_extracted_promotion_catalog/ui.json",
+      "asset_count": 30,
+      "category_asset_count": 30,
+      "part": null
+    }
+  ],
+  "duplicate_groups": [
+    {
+      "sha256": "0375bc5e001e9b5d4f6bbed866dbac6270b6b5b6e4f951a3131b99b41a09628a",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/3.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/3.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/3.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "037c222751f3506bb54c9c39a08d194204f2a3397a1503512b592426655b61f3",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-20260316-updated-cd5e52bc3998/shelter/5.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-20260316-updated-cd5e52bc3998/shelter/5.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-3ea83665eb91/shelter/5.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "0f6216e2f715c2297abe4315d6c978a157074cae5a39c8125d69e448d0a601fb",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/5.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/5.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-7dd97a23de68/ww1/5.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "11193fd1b59292d8b8d9a43777cffaccd477693305cf63e53158bcbc283da9eb",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/3.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/3.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-dc98e2259f61/nuclear war/3.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "12b68edc478cb4b54b96202e2771f6bb76d33180d4a40004184c0012567b0e27",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-20260309-updated-bc57c25cc626/mars base/1-4.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-20260309-updated-bc57c25cc626/mars base/1-4.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-dfa37ea7aa08/\u706b\u661f\u57fa\u5730/1-4.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "1ff137e53fb44f16eb65015de199397da12259e584a74bc1d2aa2cf57d7ae00e",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/6.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/6.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-dc98e2259f61/nuclear war/6.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "239029f7076222b96569f0983cfefaf4b94afc9f672e45b810025bb37df7d7da",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/4.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/4.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-7dd97a23de68/ww1/4.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "28a01d9a699cb23e789381197bfa4292174de16fa97038780e6d326a893b9bc4",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-20260316-updated-cd5e52bc3998/shelter/7.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-20260316-updated-cd5e52bc3998/shelter/7.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-3ea83665eb91/shelter/7.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "2abc90fb07ace7f9b276240bcee8ab317600cc6e2162fc15bf75a315945914f5",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/5.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/5.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-a1e7a4aef1cc/5.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "31d87c5b6ba49392d13a587d50e5f1f4cb04f6028c508b1772a9e43827002efd",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/2.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/2.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-dc98e2259f61/nuclear war/2.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "31f27565d2b26e14f493b7671cb0c4adc68782c5f5eab81a98d73b6b2b402456",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/12.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/12.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/12.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "33c6208c6965730c9261c189600549543c93e37a2c8e574b1b44c828a2362eb6",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/2.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/2.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/2.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "40559b0b7132d06180a79b5aaabac7d55b05f7fae01f9ca38dd6be26cd3af294",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/8.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/8.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-a1e7a4aef1cc/8.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "4332ab072d04eea84d1f7177c345283568a49b213988c5b50e94e249d2f5c497",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/10.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/10.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/10.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "47433a77be63e906a85a9909cdeb393cb711fb32722e02cf98cc896b61c9c4a6",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/3.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/3.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-7dd97a23de68/ww1/3.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "4b56774a83f0cb849022332b692eb28f5279a8b37ce69e944eaab35a22daf59b",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-20260309-updated-bc57c25cc626/mars base/1-2.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-20260309-updated-bc57c25cc626/mars base/1-2.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-dfa37ea7aa08/\u706b\u661f\u57fa\u5730/1-2.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "4bdd81bd03c04f1399d89503fc400bb224ece02a605ce6659982444d953e7eb4",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/7.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/7.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/7.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "57c8569973ec786e548b405eb1bfb733a84cc846f587bfbb6a73ad810f4e8974",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/7.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/7.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-a1e7a4aef1cc/7.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "5fe39744bfe853782783f18897e6eaf6e26dc459005c89bf5a112396eec13cdc",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-20260316-updated-cd5e52bc3998/shelter/2.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-20260316-updated-cd5e52bc3998/shelter/2.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-3ea83665eb91/shelter/2.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "6502eb74256c1c8878e9c1ecbff8ba46dab2b1a52f6005166a2e6c23a39e5e29",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/9.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/9.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/9.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "6688884e6355cd0f68d26d0b263989fb14d4214157c8d5e3903e948db0a69412",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/5.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/5.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/5.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "696c9c11f13f280f05c5a91212140037bbf95e8d069630f873fce46d277e4829",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/11.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/11.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/11.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "75c78440a05d55f1e402d84606c2907ba8fa627a101cc296f7532a3f4a7ca463",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-20260309-updated-bc57c25cc626/mars base/1-5.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-20260309-updated-bc57c25cc626/mars base/1-5.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-dfa37ea7aa08/\u706b\u661f\u57fa\u5730/1-5.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "78788d2888eb3c4f1dd951b12765cc94823cefda1a94c6f7e24a77174d33235c",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/4.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/4.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-a1e7a4aef1cc/4.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "8895ba5d3342460933b97c267cd24fd706af9491ccdd0d5e14883caf036d85cd",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-20260309-updated-bc57c25cc626/mars base/1-1.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-20260309-updated-bc57c25cc626/mars base/1-1.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-dfa37ea7aa08/\u706b\u661f\u57fa\u5730/1-1.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "9759496ff9632c58292bb599043bf37097d0034eedba5b961a3b13eabb44e948",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/8.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/8.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-7dd97a23de68/ww1/8.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "977d250509990d4bd6de6560b3aff01d4ec298532cbc2d182e625c8925ab60ab",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/5.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/5.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-dc98e2259f61/nuclear war/5.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "9ac64ddc79c9b44ee102fb75e720595d4fee3a72b6613aa868b4bf6c5dfd46a6",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-20260309-updated-bc57c25cc626/mars base/1-3.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-20260309-updated-bc57c25cc626/mars base/1-3.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/mars-base-dfa37ea7aa08/\u706b\u661f\u57fa\u5730/1-3.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "a49054f8ad94c5a1b9be7d28234d12cf979c201b8dd68881302f57afe26c27cf",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/1.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/1.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-a1e7a4aef1cc/1.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "a73324612e046c3b21be404d3563cace5d18c10048f5b4a03a5ceb083ed663ff",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/1.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/1.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-7dd97a23de68/ww1/1.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "aa54c70ac1d1cf5aa67ac66143053a32ab8cdb5713747b842757506a1b00d3e3",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/6.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/6.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-a1e7a4aef1cc/6.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "ae89874ce8d185bfb66c3a186c94510ce08e4ad72687af2ad529de7841827771",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/2.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/2.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-a1e7a4aef1cc/2.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "b9d5a244d520e455fc79ec8e500a020670130a1bcf5c9cf84a9a47e8feb62dea",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/2.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/2.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-7dd97a23de68/ww1/2.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "ba3969bb05a1339fc139ef5ee4d9d72840c363173e9bc55d4f57d18d1787adde",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-20260316-updated-cd5e52bc3998/shelter/4.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-20260316-updated-cd5e52bc3998/shelter/4.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-3ea83665eb91/shelter/4.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "bc443bd6dece314c45355315e689218ce9d0058d59b34c47c4972ecb1cc47dad",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/7.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/7.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-dc98e2259f61/nuclear war/7.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "cd8bfc3ac07145a3c7cdaec72332060addad5b354bfbb2da87dff882bf1681e6",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/1.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/1.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-dc98e2259f61/nuclear war/1.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "cd9b83232ce853adf7b3e3ad6b70fa80bac3d870fb6c64c909c4c19dba5f8453",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/9.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/9.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-7dd97a23de68/ww1/9.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "cfb9ba8a17b3d1f95fede5d9e65e8d5652cb580eb3acbb6429cffe1396c63379",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/6.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/6.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/6.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "e3c9fb98c96cea0019a776150d89a2ba1d5ddb91c52608db25ace9342b76f966",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/4.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/4.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/4.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "e4080e3ea67779e0e76964dd821adb75bd8ff74ad7734e259c58ff9b8f882dcd",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/1.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/1.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/1.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "e9b866cc40c84abe4be33b6658103bbeddfce0cddad9b9b672b3387294976b91",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/6.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/6.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-7dd97a23de68/ww1/6.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "efbac8a16b6303713f5025bb528687fc886c5a49d33b850ae2117aead8e8f815",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/4.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-20260322-bff35a8f4a39/nuclear war/4.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/nuclear-war-dc98e2259f61/nuclear war/4.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "f5ee49dbc25fae01750f204e67ee025e464f370adaab2326beddd19018bd3468",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-20260316-updated-cd5e52bc3998/shelter/3.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-20260316-updated-cd5e52bc3998/shelter/3.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/shelter-3ea83665eb91/shelter/3.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "f87dd5da97b3346991ad6e3d76718f22259e138968860424df25461d9bd3c43e",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/3.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-20260330-05183d20d413/3.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/steampunk-a1e7a4aef1cc/3.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "fb80509029ee5363dbd68f464ea3c22321d3aa3a82894e15872ab83117c8a9fd",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/8.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-1-1-1539b9fd60c3/tileset-1/8.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/tileset-20260303-updated-d2b71aa72acd/tileset-1/8.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "fea23ddd3a1c8ba54546bdaef20575d62a4e611f094950ea330479e612fdacb9",
+      "canonical_path": "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/7.png",
+      "paths": [
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-20260312-updated-4c8310327321/ww1/7.png",
+        "imports/raw/src014_20260504_extracted/__archive_extracted/ww1-7dd97a23de68/ww1/7.png"
+      ],
+      "duplicate_count": 1
+    }
+  ],
+  "unsupported_files": []
+}

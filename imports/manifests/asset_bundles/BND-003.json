@@ -4,22 +4,22 @@
   "source_id": "SRC-009",
   "bundle_state": "promoted",
   "release_required": true,
-  "release_surfaces": ["ui", "battle"],
+  "release_surfaces": ["battle"],
   "assets": [
     {
       "original_relative_path": "repo_generated/release_skin/urpg_ui_frame.svg",
       "promoted_relative_path": "release_skin/urpg_ui_frame.svg",
       "category": "ui_frames_chrome",
       "status": "promoted",
-      "release_required": true,
+      "release_required": false,
       "release_surfaces": ["ui"],
       "license_cleared": true,
       "release_eligible": true,
-      "distribution": "bundled",
+      "distribution": "deferred",
       "checksum_sha256": "65029037be0e0725f28a55b231da9d8c215f0250f0cbf119dafa87395f01217e",
       "attribution_record": "imports/reports/asset_intake/attribution/BND-003_repo_generated_release_skin.json",
       "package_destination": "share/urpg/imports/normalized/release_skin/urpg_ui_frame.svg",
-      "notes": "Repo-generated UI frame/chrome proof asset for the bounded release starter skin."
+      "notes": "Repo-generated UI frame/chrome proof asset retained as a deferred fallback; ModernUI now provides the required app UI skin."
     },
     {
       "original_relative_path": "repo_generated/release_skin/urpg_battle_vfx_flash.svg",
@@ -41,15 +41,15 @@
       "promoted_relative_path": "release_skin/urpg_cohesive_ui_skin.json",
       "category": "cohesive_ui_skin",
       "status": "promoted",
-      "release_required": true,
+      "release_required": false,
       "release_surfaces": ["ui"],
       "license_cleared": true,
       "release_eligible": true,
-      "distribution": "bundled",
+      "distribution": "deferred",
       "checksum_sha256": "7abc4fecb57a42a2e60223fab8c3126f0b7ce83d123642a5a11379fdeaa63bba",
       "attribution_record": "imports/reports/asset_intake/attribution/BND-003_repo_generated_release_skin.json",
       "package_destination": "share/urpg/imports/normalized/release_skin/urpg_cohesive_ui_skin.json",
-      "notes": "Repo-generated cohesive UI skin metadata that binds the Phase 9 frame and VFX assets."
+      "notes": "Repo-generated cohesive UI skin metadata retained as a deferred fallback; ModernUI now provides the required app UI skin."
     }
   ]
 }

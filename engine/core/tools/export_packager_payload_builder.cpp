@@ -206,6 +206,7 @@ std::vector<BundlePayload> collectRepoOwnedPayloads() {
         {root / "content" / "readiness", "readiness"},
         {root / "content" / "schemas", "schema"},
         {root / "content" / "level_libraries", "level_library"},
+        {root / "content" / "ui", "ui_theme_asset"},
     };
 
     std::vector<BundlePayload> payloads;

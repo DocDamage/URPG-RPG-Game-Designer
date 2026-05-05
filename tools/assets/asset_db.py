@@ -28,6 +28,7 @@ DEFAULT_ROOTS = [
     "imports/root-drop/archives",
     "imports/raw/more_assets",
     "imports/raw/more_assets_to_ingest",
+    "imports/raw/src014_20260504_extracted",
     "imports/raw/assets_for_my_game",
     "imports/raw/godogenui_assets",
     "imports/raw/urpg_stuff",
@@ -138,6 +139,13 @@ def infer_pack_category(path_rel: str) -> tuple[str | None, str | None]:
         if i + 1 < len(parts):
             pack = parts[i + 1]
         category = "more-assets-to-ingest-raw"
+    if "imports" in parts and "raw" in parts and "src014_20260504_extracted" in parts:
+        i = parts.index("src014_20260504_extracted")
+        if i + 2 < len(parts) and parts[i + 1] == "__archive_extracted":
+            pack = parts[i + 2]
+        elif i + 1 < len(parts):
+            pack = parts[i + 1]
+        category = "src014-20260504-extracted"
     if "imports" in parts and "raw" in parts and "assets_for_my_game" in parts:
         i = parts.index("assets_for_my_game")
         if i + 1 < len(parts):

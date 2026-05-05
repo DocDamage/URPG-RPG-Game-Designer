@@ -1082,12 +1082,15 @@ install(
         content/readiness
         content/schemas
         content/templates
+        content/ui
     DESTINATION "${URPG_INSTALL_DATA_ROOT}/content"
     COMPONENT RuntimeData
     FILES_MATCHING
         PATTERN "*.json"
         PATTERN "*.jsonl"
         PATTERN "*.md"
+        PATTERN "*.png"
+        PATTERN "*.gif"
 )
 
 install(

@@ -40,6 +40,8 @@ imports/reports/
 !imports/reports/
 !imports/reports/asset_intake/
 !imports/reports/asset_intake/*.json
+!imports/reports/asset_intake/ingest_20260504_promotion_catalog/
+!imports/reports/asset_intake/ingest_20260504_promotion_catalog/*.json
 !imports/reports/asset_intake/attribution/
 !imports/reports/asset_intake/attribution/*.json
 !imports/reports/more_assets_to_ingest/
@@ -53,8 +55,10 @@ urpg stuff/
 imports/raw/itch_assets/archives/
 more assets/
 more assets to ingest/
+ingest stuff 5-4-26/
 imports/raw/more_assets/
 imports/raw/more_assets_to_ingest/
+imports/raw/src014_20260504_extracted/
 imports/raw/assets_for_my_game/
 imports/raw/godogenui_assets/
 imports/raw/itch_assets/loose/

@@ -1,0 +1,471 @@
+{
+  "bundle_id": "BND-009",
+  "bundle_name": "src014_modern_ui",
+  "source_id": "SRC-014",
+  "bundle_state": "promoted",
+  "release_required": true,
+  "release_surfaces": [
+    "ui"
+  ],
+  "assets": [
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/16x16/Animated/Modern_UI_Button_Trash_1.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_1.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "b80f201c7941e1fc34968a42af31ebb4dbaeeda5d076a7e5badd06a82d513be8",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_1.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/16x16/Animated/Modern_UI_Button_Trash_2.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_2.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "3e071f249dc548636ca27f4a9c66ed4054aac96d352c8b4162346d973e4667c5",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_2.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/16x16/Animated/Modern_UI_Button_Trash_3.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_3.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "e0bfe8442100ee39f793a181f94da50d1933e603640d184c783145cdcf19c37f",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_3.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/16x16/Animated/Modern_UI_Button_Trash_4.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_4.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "c3ce044ce0101ac4c18ad4bc95abb4d99009cb0e3d39c09b84d7afa7995cd5e5",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_4.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/16x16/Animated/Modern_UI_Button_Trash_5.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_5.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "5eef382d7dbc85333ffd2ee35b42365c3eae4333c1ef2a974cc9fdfeafc62786",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_5.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/16x16/Animated/Modern_UI_Button_Trash_6.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_6.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "a9220049409591d43f4779c89251658d16654f6ce730612d45cf72800cf02c6a",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_16x16_6.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/32x32/Animated_32x32/Modern_UI_Button_Trash_32x32_1.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_1.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "4738915adffff0d197db6dbb26924569f995acab4cd82fcdc55d7194250f9c6f",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_1.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/32x32/Animated_32x32/Modern_UI_Button_Trash_32x32_2.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_2.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "c7e5eb8fcd4f904218090bd23340ab14f8c5817649dc5106a4e970dd70762577",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_2.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/32x32/Animated_32x32/Modern_UI_Button_Trash_32x32_3.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_3.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "8107ae09cfd220d95053b78e6e54a50e0dd21767a133b6a8328a872c5d45c63c",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_3.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/32x32/Animated_32x32/Modern_UI_Button_Trash_32x32_4.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_4.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "3f443cdf609283d7fd3914af0edf79fa50ba4a82fcbfdb8c9bfc014e70768f44",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_4.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/32x32/Animated_32x32/Modern_UI_Button_Trash_32x32_5.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_5.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "da2ea0a3a6289ebd8b346e99a9d8aa0f5830cadc5f0da5d08153e63eae22c909",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_5.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/32x32/Animated_32x32/Modern_UI_Button_Trash_32x32_6.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_6.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "fbbac04aed617e508038ffd8456c27b433cbdba280ddd1ec3d964508d00d9fa7",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_32x32_6.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/48x48/Animated_48x48/Modern_UI_Button_Trash_48x48_1.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_1.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "5910133d5dc9fc73b6c86d81a81b104749230518ac1a80d0bf587dbf6377a73f",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_1.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/48x48/Animated_48x48/Modern_UI_Button_Trash_48x48_2.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_2.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "341928206966e5ae676effbdb1541995f98db257b9ed2994f121273fde7c1dd2",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_2.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/48x48/Animated_48x48/Modern_UI_Button_Trash_48x48_3.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_3.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "a08cfb5b74217c58d0384577c9d580e46b25a57490dd49ccf6dd758f377cd6a8",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_3.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/48x48/Animated_48x48/Modern_UI_Button_Trash_48x48_4.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_4.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "ad64a30ff5696d77656ae989f60053ad295d0d87d37aeb207174718c2490ca4c",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_4.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/48x48/Animated_48x48/Modern_UI_Button_Trash_48x48_5.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_5.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "ccffbe29c741a9df301a0db0adb3239e4ef38834c036c2c48bb2e4910500c35f",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_5.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/48x48/Animated_48x48/Modern_UI_Button_Trash_48x48_6.gif",
+      "promoted_relative_path": "src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_6.gif",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "98bfcfb56204d09e659e278a4559d056021829109ead0cd1054f08742e022eb5",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/animated/modern_ui_button_trash_48x48_6.gif",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/16x16/Modern_UI_Gamepad.png",
+      "promoted_relative_path": "src014_modern_ui/ui/modern_ui_gamepad_16x16.png",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "e3b87161053c281a89b50975f309c941684289a1c90ce1e3a3fe9d9925264325",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/modern_ui_gamepad_16x16.png",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/32x32/Modern_UI_Gamepad_32x32.png",
+      "promoted_relative_path": "src014_modern_ui/ui/modern_ui_gamepad_32x32.png",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "8915e310ec6e2a492269a3f261a52302b49a767c4e548f5c2897f74978004a6c",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/modern_ui_gamepad_32x32.png",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/48x48/Modern_UI_Gamepad_48x48.png",
+      "promoted_relative_path": "src014_modern_ui/ui/modern_ui_gamepad_48x48.png",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "8fd8483263182b17ad167606bcc2de30991b88cd443afcd0b2eadab4dbae9379",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/modern_ui_gamepad_48x48.png",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/16x16/Modern_UI_Style_1.png",
+      "promoted_relative_path": "src014_modern_ui/ui/modern_ui_style_1_16x16.png",
+      "category": "cohesive_ui_skin",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "d1d3e8d2d22d147e2318d6e668fff55e8b541f7c629dc18a5fbd83c626390755",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/modern_ui_style_1_16x16.png",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/32x32/Modern_UI_Style_1_32x32.png",
+      "promoted_relative_path": "src014_modern_ui/ui/modern_ui_style_1_32x32.png",
+      "category": "cohesive_ui_skin",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "377cc56789fc83a3508f165b93416f8c0876b12dd8f3d966273ab8e5235e187d",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/modern_ui_style_1_32x32.png",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/48x48/Modern_UI_Style_1_48x48.png",
+      "promoted_relative_path": "src014_modern_ui/ui/modern_ui_style_1_48x48.png",
+      "category": "ui_frames_chrome",
+      "status": "promoted",
+      "release_required": true,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "ffed783f7bdc769160d40c4d29db9ec5e1a0d49630724bb2e48b296332a17eac",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/modern_ui_style_1_48x48.png",
+      "notes": "ModernUI starter app UI frame/chrome sheet promoted as the required runtime/editor UI skin."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/16x16/Modern_UI_Style_2.png",
+      "promoted_relative_path": "src014_modern_ui/ui/modern_ui_style_2_16x16.png",
+      "category": "cohesive_ui_skin",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "6488e431441049fb9aa854c6d0b0b700fbf6f27285efab1e7472073dbe95b22e",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/modern_ui_style_2_16x16.png",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/32x32/Modern_UI_Style_2_32x32.png",
+      "promoted_relative_path": "src014_modern_ui/ui/modern_ui_style_2_32x32.png",
+      "category": "cohesive_ui_skin",
+      "status": "promoted",
+      "release_required": false,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "a82f0080b3c45b4fbebbcbab3318a6ad1d0ece0cbbf2bf05e86f8e9e6c9ad9c1",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/modern_ui_style_2_32x32.png",
+      "notes": "ModernUI starter app UI skin asset promoted for runtime/editor UI use; not individually release-required unless project governance selects it."
+    },
+    {
+      "original_relative_path": "ingest stuff 5-4-26/ModernUI/48x48/Modern_UI_Style_2_48x48.png",
+      "promoted_relative_path": "src014_modern_ui/ui/modern_ui_style_2_48x48.png",
+      "category": "cohesive_ui_skin",
+      "status": "promoted",
+      "release_required": true,
+      "release_surfaces": [
+        "ui"
+      ],
+      "license_cleared": true,
+      "release_eligible": true,
+      "distribution": "bundled",
+      "checksum_sha256": "53727a3f1bbdf15410306e14b9a5218b9918556f37a57122308e64f91af99edb",
+      "attribution_record": "imports/reports/asset_intake/attribution/BND-009_src014_modern_ui.json",
+      "package_destination": "share/urpg/imports/normalized/src014_modern_ui/ui/modern_ui_style_2_48x48.png",
+      "notes": "ModernUI starter app UI skin companion sheet promoted as the required cohesive UI skin."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "asset_id": "imports/normalized/src014_modern_ui/ui",
+  "source_id": "SRC-014",
+  "source_repo": "Local 2026-05-04 asset drop with ModernUI",
+  "source_url": "local://asset-drop/2026-05-04",
+  "original_relative_path": "ingest stuff 5-4-26/ModernUI",
+  "author": "ModernUI local asset author; no attribution required under CC0",
+  "license": "CC0-1.0 / Public Domain evidence reviewed from ModernUI/license.txt",
+  "commercial_use_allowed": true,
+  "redistribution_allowed": true,
+  "promotion_status": "promoted",
+  "bundle_id": "BND-009",
+  "promoted_asset_count": 27,
+  "license_evidence": [
+    "ingest stuff 5-4-26/ModernUI/license.txt",
+    "imports/manifests/asset_sources/SRC-014.json",
+    "content/ui/asset_licenses.json"
+  ],
+  "notes": [
+    "Promotion includes ModernUI static style/gamepad sheets at 16x16, 32x32, and 48x48 plus trash-button animation GIFs.",
+    "The broader SRC-014 drop is handled separately: BND-010 promotes the ModernUI portrait generator, and the extracted CuteSCKR/Human archive payloads are catalog-normalized for local library use."
+  ]
+}

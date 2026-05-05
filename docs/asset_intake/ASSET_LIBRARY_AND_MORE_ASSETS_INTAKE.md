@@ -225,9 +225,11 @@ The raw source and extracted intake paths are intentionally ignored local quaran
 - `imports/raw/more_assets/**`
 - `imports/raw/more_assets_to_ingest/**`
 - `imports/raw/urpg_stuff/**`
+- `imports/raw/src014_20260504_extracted/**`
 - `imports/raw/assets_for_my_game/**`
 - `imports/raw/godogenui_assets/**`
 - `imports/raw/itch_assets/loose/**`
+- `ingest stuff 5-4-26/**`
 
 Reports and curated promotion records remain eligible for normal Git tracking under `imports/reports/`, `imports/manifests/`, and `imports/normalized/`. Promote only selected, governed assets into those paths; do not re-add the full raw extraction trees or source archive drops.
 
@@ -255,6 +257,25 @@ Before any additional `SRC-011` or `SRC-012` bundle can be marked ready:
 - Create per-pack or per-bundle attribution records under `imports/reports/asset_intake/attribution/`.
 - Keep Patreon/supporter, no-redistribution, CraftPix web-license-only, ROM-derived, and unclear-license packs quarantined until their terms are explicitly reviewed.
 - Update the source registry and rerun the asset governance gate.
+
+## SRC-014 ModernUI And Archive Intake
+
+`SRC-014` catalogs the local `ingest stuff 5-4-26/` drop for editor/library browsing. `BND-009` promotes the ModernUI runtime subset: static style/gamepad sheets at 16x16, 32x32, and 48x48 plus the trash-button animation GIFs. The promoted files are copied to both `imports/normalized/src014_modern_ui/` for governed bundle packaging and `content/ui/modern/` for the app-wide UI theme.
+
+The remaining loose ModernUI portrait-generator files are promoted through `BND-010`: 953 PNG/Aseprite portrait part and source-art assets under `imports/normalized/src014_modernui_portrait_generator/`. The bundle is release-eligible but uses `distribution: "deferred"` so default exports stay bounded until a project explicitly selects the portrait assets.
+
+The CuteSCKR and Human RPG Portrait Pack archives are fully extracted into ignored raw quarantine:
+
+- `imports/reports/asset_intake/src014_archive_extraction_report.json`
+- `imports/raw/src014_20260504_extracted/__archive_extracted/`
+
+The extracted archive catalog records 1,397 supported image assets with zero unsupported files:
+
+- `imports/reports/asset_intake/ingest_20260504_extracted_promotion_catalog.json`
+- `imports/reports/asset_intake/ingest_20260504_extracted_promotion_catalog/*.json`
+- `imports/reports/asset_intake/ingest_20260504_extracted_promotion_summary.json`
+
+Those extracted records remain local-use-only catalog entries until a future curated bundle selects specific CuteSCKR/Human assets for normalized promotion.
 
 ## Hygiene Results
 

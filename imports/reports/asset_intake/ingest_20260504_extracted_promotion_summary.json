@@ -1,0 +1,35 @@
+{
+  "schema": "urpg/asset_promotion_summary/v1",
+  "generated_at": "2026-05-05T05:40:04+00:00",
+  "source_id": "SRC-014",
+  "source_root": "imports/raw/src014_20260504_extracted",
+  "promotion_status": "cataloged_local_available",
+  "export_eligible": false,
+  "asset_count": 1397,
+  "canonical_asset_count": 1351,
+  "duplicate_group_count": 46,
+  "duplicate_asset_count": 46,
+  "unsupported_count": 0,
+  "kind_counts": {
+    "image": 1397
+  },
+  "category_counts": {
+    "backgrounds": 20,
+    "characters": 11,
+    "characters/portraits": 648,
+    "props": 648,
+    "tilesets": 40,
+    "ui": 30
+  },
+  "extension_counts": {
+    "jpg": 2,
+    "png": 1395
+  },
+  "pack_count": 93,
+  "notes": [
+    "All supported SRC-014 records are catalog-normalized for local editor/library use.",
+    "Raw binaries remain in ignored quarantine under imports/raw/src014_20260504_extracted.",
+    "normalized_path values are stable virtual asset ids, not copied release payload paths.",
+    "local_use_allowed is true for creator/editor browsing; release_use_allowed and export_eligible remain false until curated bundle promotion."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "asset_id": "imports/normalized/src014_modernui_portrait_generator",
+  "source_id": "SRC-014",
+  "source_repo": "Local 2026-05-04 asset drop with ModernUI",
+  "source_url": "local://asset-drop/2026-05-04",
+  "original_relative_path": "ingest stuff 5-4-26/ModernUI",
+  "author": "ModernUI local asset author; no attribution required under CC0",
+  "license": "CC0-1.0 / Public Domain evidence reviewed from ModernUI/license.txt",
+  "commercial_use_allowed": true,
+  "redistribution_allowed": true,
+  "promotion_status": "promoted",
+  "bundle_id": "BND-010",
+  "promoted_asset_count": 953,
+  "license_evidence": [
+    "ingest stuff 5-4-26/ModernUI/license.txt",
+    "imports/manifests/asset_sources/SRC-014.json"
+  ],
+  "notes": [
+    "Promotion includes ModernUI portrait-generator PNG parts plus Aseprite source art.",
+    "Assets are release-eligible but distribution is deferred so default exports remain bounded."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "urpg/src014_modernui_portrait_generator_promotion_report/v1",
+  "generated_at": "2026-05-05T05:40:20+00:00",
+  "source_id": "SRC-014",
+  "bundle_id": "BND-010",
+  "selected_asset_count": 953,
+  "promoted_asset_count": 953,
+  "copied_file_count": 953,
+  "skipped_count": 0,
+  "skipped": [],
+  "normalized_root": "imports/normalized/src014_modernui_portrait_generator",
+  "bundle_manifest": "imports/manifests/asset_bundles/BND-010.json",
+  "attribution_record": "imports/reports/asset_intake/attribution/BND-010_src014_modernui_portrait_generator.json"
+}

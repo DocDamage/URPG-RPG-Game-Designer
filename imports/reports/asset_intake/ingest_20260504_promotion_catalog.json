@@ -1,0 +1,119 @@
+{
+  "schema": "urpg/promoted_asset_catalog/v1",
+  "generated_at": "2026-05-05T04:59:52+00:00",
+  "source_id": "SRC-014",
+  "source_root": "ingest stuff 5-4-26",
+  "promotion_status": "cataloged_local_available",
+  "export_eligible": false,
+  "local_use_allowed": true,
+  "release_use_allowed": false,
+  "summary": {
+    "schema": "urpg/asset_promotion_summary/v1",
+    "generated_at": "2026-05-05T04:59:52+00:00",
+    "source_id": "SRC-014",
+    "source_root": "ingest stuff 5-4-26",
+    "promotion_status": "cataloged_local_available",
+    "export_eligible": false,
+    "asset_count": 1076,
+    "canonical_asset_count": 1071,
+    "duplicate_group_count": 4,
+    "duplicate_asset_count": 5,
+    "unsupported_count": 0,
+    "kind_counts": {
+      "archive": 93,
+      "document": 3,
+      "image": 980
+    },
+    "category_counts": {
+      "archives": 93,
+      "characters/portraits": 953,
+      "documentation": 3,
+      "ui": 27
+    },
+    "extension_counts": {
+      "aseprite": 50,
+      "gif": 18,
+      "png": 912,
+      "rar": 90,
+      "txt": 3,
+      "zip": 3
+    },
+    "pack_count": 3,
+    "notes": [
+      "All supported SRC-014 records are catalog-normalized for local editor/library use.",
+      "Raw binaries remain in ignored quarantine under ingest stuff 5-4-26.",
+      "normalized_path values are stable virtual asset ids, not copied release payload paths.",
+      "local_use_allowed is true for creator/editor browsing; release_use_allowed and export_eligible remain false until curated bundle promotion."
+    ]
+  },
+  "shards": [
+    {
+      "category": "archives",
+      "path": "imports/reports/asset_intake/ingest_20260504_promotion_catalog/archives.json",
+      "asset_count": 93,
+      "category_asset_count": 93,
+      "part": null
+    },
+    {
+      "category": "characters/portraits",
+      "path": "imports/reports/asset_intake/ingest_20260504_promotion_catalog/characters-portraits.json",
+      "asset_count": 953,
+      "category_asset_count": 953,
+      "part": null
+    },
+    {
+      "category": "documentation",
+      "path": "imports/reports/asset_intake/ingest_20260504_promotion_catalog/documentation.json",
+      "asset_count": 3,
+      "category_asset_count": 3,
+      "part": null
+    },
+    {
+      "category": "ui",
+      "path": "imports/reports/asset_intake/ingest_20260504_promotion_catalog/ui.json",
+      "asset_count": 27,
+      "category_asset_count": 27,
+      "part": null
+    }
+  ],
+  "duplicate_groups": [
+    {
+      "sha256": "61613f769ea300bc30fc445fbbd21ad398cc0115a15bd2aebf8b5657ec17f9b1",
+      "canonical_path": "ingest stuff 5-4-26/ModernUI/48x48/Portrait_Generator_48x48/Accessories_48x48/PG_Accessory_06_Policeman_Hat_Small_48x48_4.png",
+      "paths": [
+        "ingest stuff 5-4-26/ModernUI/48x48/Portrait_Generator_48x48/Accessories_48x48/PG_Accessory_06_Policeman_Hat_Small_48x48_4.png",
+        "ingest stuff 5-4-26/ModernUI/48x48/Portrait_Generator_48x48/Accessories_48x48/PG_Accessory_06_Policeman_Hat_Small_48x48_6.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "7bb0ac22ff0bbca7657762d79a8443190492585a75800989e765667ced75459b",
+      "canonical_path": "ingest stuff 5-4-26/ModernUI/32x32/Portrait_Generator_32x32/Accessories_32x32/PG_Accessory_06_Policeman_Hat_Small_32x32_4.png",
+      "paths": [
+        "ingest stuff 5-4-26/ModernUI/32x32/Portrait_Generator_32x32/Accessories_32x32/PG_Accessory_06_Policeman_Hat_Small_32x32_4.png",
+        "ingest stuff 5-4-26/ModernUI/32x32/Portrait_Generator_32x32/Accessories_32x32/PG_Accessory_06_Policeman_Hat_Small_32x32_6.png"
+      ],
+      "duplicate_count": 1
+    },
+    {
+      "sha256": "da5ca129716c7ee53d88425bc6e0ac4b616bd2ddda72c4a136c66ad66c11b156",
+      "canonical_path": "ingest stuff 5-4-26/CuteSCKR/license.txt",
+      "paths": [
+        "ingest stuff 5-4-26/CuteSCKR/license.txt",
+        "ingest stuff 5-4-26/Human RPG Portrait Pack \u2013 5 Fantasy Classes/license.txt",
+        "ingest stuff 5-4-26/ModernUI/license.txt"
+      ],
+      "duplicate_count": 2
+    },
+    {
+      "sha256": "ff8f43e44c56af5f408d46113f7697e500c303b4d272dde5be2aad889d73c100",
+      "canonical_path": "ingest stuff 5-4-26/ModernUI/16x16/Portrait_Generator/Accessories/PG_Accessory_06_Policeman_Hat_Small_4.png",
+      "paths": [
+        "ingest stuff 5-4-26/ModernUI/16x16/Portrait_Generator/Accessories/PG_Accessory_06_Policeman_Hat_Small_4.png",
+        "ingest stuff 5-4-26/ModernUI/16x16/Portrait_Generator/Accessories/PG_Accessory_06_Policeman_Hat_Small_6.png"
+      ],
+      "duplicate_count": 1
+    }
+  ],
+  "unsupported_files": []
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "urpg/asset_promotion_summary/v1",
+  "generated_at": "2026-05-05T04:59:52+00:00",
+  "source_id": "SRC-014",
+  "source_root": "ingest stuff 5-4-26",
+  "promotion_status": "cataloged_local_available",
+  "export_eligible": false,
+  "asset_count": 1076,
+  "canonical_asset_count": 1071,
+  "duplicate_group_count": 4,
+  "duplicate_asset_count": 5,
+  "unsupported_count": 0,
+  "kind_counts": {
+    "archive": 93,
+    "document": 3,
+    "image": 980
+  },
+  "category_counts": {
+    "archives": 93,
+    "characters/portraits": 953,
+    "documentation": 3,
+    "ui": 27
+  },
+  "extension_counts": {
+    "aseprite": 50,
+    "gif": 18,
+    "png": 912,
+    "rar": 90,
+    "txt": 3,
+    "zip": 3
+  },
+  "pack_count": 3,
+  "notes": [
+    "All supported SRC-014 records are catalog-normalized for local editor/library use.",
+    "Raw binaries remain in ignored quarantine under ingest stuff 5-4-26.",
+    "normalized_path values are stable virtual asset ids, not copied release payload paths.",
+    "local_use_allowed is true for creator/editor browsing; release_use_allowed and export_eligible remain false until curated bundle promotion."
+  ]
+}
