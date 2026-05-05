@@ -620,7 +620,7 @@ std::string analyticsConsentToSettings(urpg::analytics::ConsentState state) {
 
 bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell, bool renderAllPanels,
                     bool useNativeImGuiBackend, double deltaSeconds = 1.0 / 60.0) {
-    engineShell.tick();
+    engineShell.tick(!useNativeImGuiBackend);
 #ifdef URPG_IMGUI_ENABLED
 #ifndef URPG_HEADLESS
     if (useNativeImGuiBackend) {
@@ -647,6 +647,9 @@ bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& e
     }
 #endif
 #endif
+    if (useNativeImGuiBackend && engineShell.isRunning() && engineShell.getRenderer() != nullptr) {
+        engineShell.getRenderer()->endFrame();
+    }
     return rendered;
 }
 

@@ -78,7 +78,7 @@ class EngineShell {
     /**
      * @brief Performs a single engine tick.
      */
-    void tick() {
+    void tick(bool presentFrame = true) {
         if (!m_isRunning)
             return;
 
@@ -120,7 +120,9 @@ class EngineShell {
             m_renderer->processFrameCommands(RenderLayer::getInstance().getFrameCommands());
             RenderLayer::getInstance().flush();
 
-            m_renderer->endFrame();
+            if (presentFrame) {
+                m_renderer->endFrame();
+            }
         }
     }
 
