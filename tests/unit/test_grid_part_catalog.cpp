@@ -227,3 +227,66 @@ TEST_CASE("Grid part catalog loader merges included generated asset catalogs", "
 
     std::filesystem::remove_all(tempRoot);
 }
+
+TEST_CASE("Grid part catalog scope switches between starter and full library without retaining inactive rows",
+          "[grid_part][catalog][scope]") {
+    const auto tempRoot = uniqueTempDirectoryPath("urpg_grid_part_catalog_scope");
+    writeTextFile(tempRoot / "content" / "part_catalogs" / "starter.json", R"({
+  "schemaVersion": 1,
+  "catalogId": "starter",
+  "displayName": "Starter",
+  "parts": [
+    {
+      "partId": "starter.spawn",
+      "displayName": "Starter Spawn",
+      "category": "Trigger",
+      "defaultLayer": "Object",
+      "collisionPolicy": "TriggerOnly",
+      "footprint": {"width": 1, "height": 1}
+    }
+  ]
+})");
+    writeTextFile(tempRoot / "content" / "part_catalogs" / "full.json", R"({
+  "schemaVersion": 1,
+  "catalogId": "full",
+  "displayName": "Full",
+  "parts": [
+    {
+      "partId": "full.castle.wall",
+      "displayName": "Full Castle Wall",
+      "category": "Wall",
+      "defaultLayer": "Collision",
+      "collisionPolicy": "Solid",
+      "footprint": {"width": 1, "height": 1}
+    }
+  ]
+})");
+
+    GridPartCatalogScope starterScope;
+    std::string error;
+    REQUIRE(LoadGridPartCatalogScopeFromProject(tempRoot, {"content/part_catalogs/starter.json"}, starterScope, &error));
+    REQUIRE(error.empty());
+    REQUIRE(starterScope.catalog.size() == 1);
+    REQUIRE(starterScope.catalog.find("starter.spawn") != nullptr);
+    REQUIRE(starterScope.catalog.find("full.castle.wall") == nullptr);
+    REQUIRE(starterScope.full_library_active == false);
+    REQUIRE(starterScope.active_catalog_paths == std::vector<std::filesystem::path>{"content/part_catalogs/starter.json"});
+
+    GridPartCatalogScope fullScope;
+    REQUIRE(LoadGridPartCatalogScopeFromProject(tempRoot, {"content/part_catalogs/full.json"}, fullScope, &error));
+    REQUIRE(error.empty());
+    REQUIRE(fullScope.catalog.size() == 1);
+    REQUIRE(fullScope.catalog.find("starter.spawn") == nullptr);
+    REQUIRE(fullScope.catalog.find("full.castle.wall") != nullptr);
+    REQUIRE(fullScope.full_library_active == true);
+
+    GridPartCatalogScope restoredStarterScope;
+    REQUIRE(LoadGridPartCatalogScopeFromProject(tempRoot, {"content/part_catalogs/starter.json"}, restoredStarterScope,
+                                                &error));
+    REQUIRE(error.empty());
+    REQUIRE(restoredStarterScope.catalog.find("starter.spawn") != nullptr);
+    REQUIRE(restoredStarterScope.catalog.find("full.castle.wall") == nullptr);
+    REQUIRE(restoredStarterScope.full_library_active == false);
+
+    std::filesystem::remove_all(tempRoot);
+}

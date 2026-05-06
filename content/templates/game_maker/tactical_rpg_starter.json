@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "templateId": "tactics_rpg",
+  "displayName": "Tactical RPG Starter",
+  "gameType": "strategy_tactics",
+  "questionProfile": "strategy_tactics_guided_setup",
+  "defaultWorldSize": {
+    "preset": "small",
+    "maps": 3,
+    "recommendedTileSize": 48
+  },
+  "recommendedMechanics": [
+    "tactical_battle_loop",
+    "scenario_authoring_loop",
+    "save_loop",
+    "deployment_zones"
+  ],
+  "defaultCatalogs": [
+    "content/part_catalogs/base_jrpg_parts.json",
+    "content/part_catalogs/generated/cutesckr_medieval_castle_1_parts.json"
+  ],
+  "optionalCatalogs": [
+    "content/part_catalogs/game_maker_all_parts.json",
+    "content/part_catalogs/generated/cutesckr_all_parts.json"
+  ],
+  "assetIndexPath": "content/asset_indexes/game_maker/tactical_rpg_starter.json",
+  "fullLibraryPolicy": "opt_in_lazy_load",
+  "browserLayout": "left_collapsible_folder_tree",
+  "indexBackend": "sqlite",
+  "uiThemes": {
+    "defaultGameUiTheme": "complete_ui_essential_flat",
+    "availableGameUiThemes": [
+      "complete_ui_essential_flat",
+      "wenrexa_hologram"
+    ]
+  },
+  "futureCommunityTemplateSlot": true
+}

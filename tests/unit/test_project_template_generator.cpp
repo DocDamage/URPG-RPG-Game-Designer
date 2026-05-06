@@ -4,6 +4,16 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
+#include <string>
+
+namespace {
+
+bool jsonArrayContains(const nlohmann::json& values, const std::string& expected) {
+    return values.is_array() &&
+           std::find(values.begin(), values.end(), expected) != values.end();
+}
+
+} // namespace
 
 TEST_CASE("project template generator emits valid starter projects", "[project][onboarding][ffs08]") {
     urpg::project::ProjectTemplateGenerator generator;
@@ -40,6 +50,29 @@ TEST_CASE("template runtime profiles implement advanced template-specific system
           "[project][template_profile]") {
     for (const auto& profile : urpg::project::allTemplateRuntimeProfiles()) {
         REQUIRE(urpg::project::validateTemplateRuntimeProfile(profile).empty());
+
+        const auto contract = urpg::project::templateRuntimeProfileToJson(profile);
+        REQUIRE(contract.contains("onboarding"));
+        REQUIRE(contract["onboarding"]["question_profile"].is_string());
+        REQUIRE_FALSE(contract["onboarding"]["question_profile"].get<std::string>().empty());
+        REQUIRE(contract["onboarding"]["default_world_size"]["preset"] == "small");
+        REQUIRE(contract["onboarding"]["recommended_mechanics"].is_array());
+        REQUIRE_FALSE(contract["onboarding"]["recommended_mechanics"].empty());
+
+        REQUIRE(contract.contains("asset_scope"));
+        REQUIRE(contract["asset_scope"]["default_catalogs"].is_array());
+        REQUIRE_FALSE(contract["asset_scope"]["default_catalogs"].empty());
+        REQUIRE_FALSE(jsonArrayContains(contract["asset_scope"]["default_catalogs"],
+                                        "content/part_catalogs/game_maker_all_parts.json"));
+        REQUIRE(jsonArrayContains(contract["asset_scope"]["optional_catalogs"],
+                                  "content/part_catalogs/game_maker_all_parts.json"));
+        REQUIRE(contract["asset_scope"]["full_library_policy"] == "opt_in_lazy_load");
+
+        REQUIRE(contract.contains("ui_themes"));
+        REQUIRE(contract["ui_themes"]["default_game_ui_theme"] == "complete_ui_essential_flat");
+        REQUIRE(jsonArrayContains(contract["ui_themes"]["available_game_ui_themes"],
+                                  "complete_ui_essential_flat"));
+        REQUIRE(contract["future_community_template_slot"] == true);
     }
 
     const auto tactics = urpg::project::findTemplateRuntimeProfile("tactics_rpg");

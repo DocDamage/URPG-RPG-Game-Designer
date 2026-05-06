@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "recordCount": 2,
+  "records": [
+    {
+      "stableId": "asset_3333333333333331",
+      "displayName": "Castle Floor Tile",
+      "sourcePath": "content/assets/gameplay/cutesckr/medieval_castle_1/tile_000.png",
+      "previewKind": "image",
+      "mediaKind": "image",
+      "category": "terrain",
+      "pack": "Medieval Castle",
+      "dimensions": {
+        "width": 48,
+        "height": 48
+      },
+      "unloadablePayload": {
+        "policy": "lazy",
+        "sourcePath": "content/assets/gameplay/cutesckr/medieval_castle_1/tile_000.png",
+        "sizeBytes": 0
+      }
+    },
+    {
+      "stableId": "asset_3333333333333332",
+      "displayName": "Castle Wall Tile",
+      "sourcePath": "content/assets/gameplay/cutesckr/medieval_castle_1/tile_001.png",
+      "previewKind": "image",
+      "mediaKind": "image",
+      "category": "walls",
+      "pack": "Medieval Castle",
+      "dimensions": {
+        "width": 48,
+        "height": 48
+      },
+      "unloadablePayload": {
+        "policy": "lazy",
+        "sourcePath": "content/assets/gameplay/cutesckr/medieval_castle_1/tile_001.png",
+        "sizeBytes": 0
+      }
+    }
+  ]
+}

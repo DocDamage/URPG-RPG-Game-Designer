@@ -13,6 +13,7 @@ This directory is the agent-facing map for URPG. It points to canonical files ra
 | Current release execution tasks | `docs/release/AAA_RELEASE_EXECUTION_PLAN.md` |
 | Current release-surface audit tasks | `docs/superpowers/plans/2026-04-30-release-surface-audit-execution-plan.md` |
 | Current game-maker asset browser/onboarding tasks | `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md` |
+| Current Maker Shell UI/UX migration | `docs/ui/URPG_MAKER_SHELL_UIUX_PLAN.md` |
 | Current verified app-release status | `README.md`, `docs/APP_RELEASE_READINESS_MATRIX.md` |
 
 ## Canonical Status
@@ -33,6 +34,7 @@ This directory is the agent-facing map for URPG. It points to canonical files ra
 - Architecture decisions: `docs/adr/`
 - Presentation runtime: `docs/presentation/`
 - Native Level Builder and grid-part authoring: `editor/spatial/level_builder_workspace.*`, `engine/core/map/grid_part_*`, `content/schemas/grid_part_*.schema.json`
+- Maker Shell UI/UX: `docs/ui/URPG_MAKER_SHELL_UIUX_PLAN.md`, `docs/ui/MAKER_UI_VISUAL_LANGUAGE.md`
 - Export and packaging: `docs/release/RELEASE_PACKAGING.md`
 - Asset intake and promotion: `docs/asset_intake/`
 - Game-maker asset browser and onboarding: `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md`

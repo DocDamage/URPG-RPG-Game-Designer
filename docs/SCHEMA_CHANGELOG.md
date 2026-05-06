@@ -16,6 +16,20 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `asset_library_index` (`asset_library_index.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-05-05`
+- Summary: initial schema for deterministic asset-browser index shards exported from the local SQLite asset catalog, including stable IDs, source paths, media/preview kinds, pack/category metadata, dimensions when known, and lazy unload payload hints.
+- Migration Impact: none; additive schema for Maker Shell asset browser and template-scoped discovery work.
+
+### `game_template_manifest` (`game_template_manifest.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-05-05`
+- Summary: initial schema for Maker Shell onboarding template manifests, including game type, question profile, small default world size, recommended mechanics, bounded default catalogs, optional full-library catalogs, asset index shard path, browser/index policy, game UI theme options, and a reserved community-template slot.
+- Migration Impact: none; additive schema for new-project onboarding and template-scoped asset loading.
+
 ### `audio_tool_manifest` (`audio_tool_manifest.schema.json`)
 
 - Version: `1.0.0`

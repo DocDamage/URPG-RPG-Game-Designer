@@ -57,6 +57,8 @@ struct AssetLibraryModelSnapshot {
     nlohmann::json import_review_rows = nlohmann::json::array();
     nlohmann::json import_wizard = nlohmann::json::object();
     nlohmann::json virtual_catalog = nlohmann::json::object();
+    nlohmann::json asset_browser_scope = nlohmann::json::object();
+    nlohmann::json asset_index_browser = nlohmann::json::object();
     nlohmann::json last_action = nlohmann::json::object();
     nlohmann::json action_history = nlohmann::json::array();
     std::map<std::string, size_t> category_counts;
@@ -134,6 +136,24 @@ class AssetLibraryModel {
     bool loadProjectAssetAttachments(const std::filesystem::path& project_root, std::string* error_message = nullptr);
     void setFilter(urpg::assets::AssetLibraryFilter filter);
     bool applyQuickFilter(std::string_view filter_id);
+    void setTemplateAssetScope(std::string template_id, std::vector<std::string> default_catalogs,
+                               std::vector<std::string> optional_catalogs);
+    bool activateFullLibraryScope();
+    bool restoreTemplateAssetScope();
+    void pinFavoriteAsset(std::string stable_id);
+    void unpinFavoriteAsset(std::string stable_id);
+    void recordRecentProject(std::string project_path);
+    void markMissingProjectHidden(std::string project_path);
+    void ingestAssetLibraryIndex(const nlohmann::json& index);
+    void setAssetBrowserQuery(std::string query);
+    void setAssetBrowserPackFilter(std::string pack);
+    void setAssetBrowserCategoryFilter(std::string category);
+    void setAssetBrowserSourceFilter(std::string source_prefix);
+    void selectAssetBrowserRecord(std::string stable_id);
+    void setAssetBrowserPage(size_t offset, size_t limit);
+    bool loadAssetLibraryIndexFromFile(const std::filesystem::path& index_path, std::string* error_message = nullptr);
+    bool loadGameTemplateManifestFromFile(const std::filesystem::path& manifest_path,
+                                          std::string* error_message = nullptr);
     void rebuildCleanupPreview();
     void clear();
 
@@ -153,6 +173,22 @@ class AssetLibraryModel {
     nlohmann::json action_history_ = nlohmann::json::array();
     nlohmann::json pending_import_request_ = nlohmann::json::object();
     std::vector<std::string> import_tool_command_ = {"python", "tools/assets/global_asset_import.py"};
+    std::string active_template_id_;
+    std::vector<std::string> template_default_catalogs_;
+    std::vector<std::string> template_optional_catalogs_;
+    std::vector<std::string> active_catalogs_;
+    bool full_library_active_ = false;
+    std::vector<std::string> favorite_asset_ids_;
+    std::vector<std::string> recent_projects_;
+    std::vector<std::string> hidden_missing_projects_;
+    std::vector<nlohmann::json> indexed_asset_records_;
+    std::string asset_browser_query_;
+    std::string asset_browser_pack_filter_;
+    std::string asset_browser_category_filter_;
+    std::string asset_browser_source_filter_;
+    std::string selected_asset_id_;
+    size_t asset_browser_offset_ = 0;
+    size_t asset_browser_limit_ = 50;
 };
 
 } // namespace urpg::editor

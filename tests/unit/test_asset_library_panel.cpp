@@ -402,6 +402,246 @@ TEST_CASE("AssetLibraryModel builds virtual game-use catalog from governed bundl
     std::filesystem::remove_all(root);
 }
 
+TEST_CASE("AssetLibraryModel tracks template scope, full library opt-in, favorites, and recent projects",
+          "[assets][asset_library][editor][browser][scope]") {
+    urpg::editor::AssetLibraryModel model;
+
+    model.setTemplateAssetScope("jrpg",
+                                {"content/part_catalogs/base_jrpg_parts.json",
+                                 "content/part_catalogs/generated/cutesckr_medieval_fantasy_town_1_parts.json"},
+                                {"content/part_catalogs/game_maker_all_parts.json"});
+
+    REQUIRE(model.snapshot().asset_browser_scope["active_template_id"] == "jrpg");
+    REQUIRE(model.snapshot().asset_browser_scope["scope"] == "template");
+    REQUIRE(model.snapshot().asset_browser_scope["browser_layout"] == "left_collapsible_folder_tree");
+    REQUIRE(model.snapshot().asset_browser_scope["index_backend"] == "sqlite");
+    REQUIRE(model.snapshot().asset_browser_scope["full_library_active"] == false);
+    REQUIRE(model.snapshot().asset_browser_scope["active_catalogs"].size() == 2);
+
+    model.pinFavoriteAsset("asset_tree_001");
+    model.pinFavoriteAsset("asset_tree_001");
+    model.pinFavoriteAsset("asset_house_002");
+    REQUIRE(model.snapshot().asset_browser_scope["favorite_asset_ids"].size() == 2);
+    REQUIRE(model.snapshot().asset_browser_scope["favorite_asset_ids"][0] == "asset_house_002");
+
+    for (int i = 0; i < 12; ++i) {
+        model.recordRecentProject("projects/project_" + std::to_string(i) + ".urpg");
+    }
+    REQUIRE(model.snapshot().asset_browser_scope["recent_projects"].size() == 10);
+    REQUIRE(model.snapshot().asset_browser_scope["recent_projects"][0] == "projects/project_11.urpg");
+    model.markMissingProjectHidden("projects/project_11.urpg");
+    REQUIRE(model.snapshot().asset_browser_scope["recent_projects"][0] == "projects/project_10.urpg");
+    REQUIRE(model.snapshot().asset_browser_scope["hidden_missing_projects"][0] == "projects/project_11.urpg");
+
+    REQUIRE(model.activateFullLibraryScope());
+    REQUIRE(model.snapshot().asset_browser_scope["scope"] == "full_library");
+    REQUIRE(model.snapshot().asset_browser_scope["full_library_active"] == true);
+    REQUIRE(model.snapshot().asset_browser_scope["active_catalogs"][0] ==
+            "content/part_catalogs/game_maker_all_parts.json");
+    REQUIRE(model.snapshot().asset_browser_scope["favorite_asset_ids"].size() == 2);
+
+    REQUIRE(model.restoreTemplateAssetScope());
+    REQUIRE(model.snapshot().asset_browser_scope["scope"] == "template");
+    REQUIRE(model.snapshot().asset_browser_scope["full_library_active"] == false);
+    REQUIRE(model.snapshot().asset_browser_scope["active_catalogs"].size() == 2);
+    REQUIRE(model.snapshot().asset_browser_scope["favorite_asset_ids"].size() == 2);
+}
+
+TEST_CASE("AssetLibraryModel exposes indexed browser rows, tree facets, search, paging, and selection",
+          "[assets][asset_library][editor][browser][index]") {
+    urpg::editor::AssetLibraryModel model;
+    model.ingestAssetLibraryIndex(nlohmann::json{
+        {"schemaVersion", 1},
+        {"records",
+         {
+             {
+                 {"stableId", "asset_grass"},
+                 {"displayName", "Grass Tile"},
+                 {"sourcePath", "imports/raw/forest/grass.png"},
+                 {"previewKind", "image"},
+                 {"mediaKind", "image"},
+                 {"category", "terrain"},
+                 {"pack", "Forest"},
+                 {"dimensions", {{"width", 48}, {"height", 48}}},
+             },
+             {
+                 {"stableId", "asset_wall"},
+                 {"displayName", "Castle Wall"},
+                 {"sourcePath", "imports/raw/castle/wall.png"},
+                 {"previewKind", "image"},
+                 {"mediaKind", "image"},
+                 {"category", "walls"},
+                 {"pack", "Castle"},
+                 {"dimensions", {{"width", 48}, {"height", 48}}},
+             },
+             {
+                 {"stableId", "asset_click"},
+                 {"displayName", "Menu Click"},
+                 {"sourcePath", "imports/raw/ui/click.ogg"},
+                 {"previewKind", "audio_metadata"},
+                 {"mediaKind", "audio"},
+                 {"category", "ui-audio"},
+                 {"pack", "UI"},
+             },
+         }},
+    });
+
+    REQUIRE(model.snapshot().asset_index_browser["total_count"] == 3);
+    REQUIRE(model.snapshot().asset_index_browser["visible_count"] == 3);
+    REQUIRE(model.snapshot().asset_index_browser["folder_tree"][0]["id"] == "imports");
+    REQUIRE(model.snapshot().asset_index_browser["category_tree"][0]["id"] == "terrain");
+    REQUIRE(model.snapshot().asset_index_browser["pack_tree"][0]["id"] == "Castle");
+    REQUIRE(model.snapshot().asset_index_browser["visible_rows"][0]["stableId"] == "asset_grass");
+
+    model.setAssetBrowserQuery("castle");
+    REQUIRE(model.snapshot().asset_index_browser["query"] == "castle");
+    REQUIRE(model.snapshot().asset_index_browser["visible_count"] == 1);
+    REQUIRE(model.snapshot().asset_index_browser["visible_rows"][0]["stableId"] == "asset_wall");
+
+    model.setAssetBrowserQuery("");
+    model.setAssetBrowserPackFilter("Forest");
+    REQUIRE(model.snapshot().asset_index_browser["filters"]["pack"] == "Forest");
+    REQUIRE(model.snapshot().asset_index_browser["visible_count"] == 1);
+    REQUIRE(model.snapshot().asset_index_browser["visible_rows"][0]["stableId"] == "asset_grass");
+
+    model.setAssetBrowserPackFilter("");
+    model.setAssetBrowserCategoryFilter("ui-audio");
+    REQUIRE(model.snapshot().asset_index_browser["filters"]["category"] == "ui-audio");
+    REQUIRE(model.snapshot().asset_index_browser["visible_count"] == 1);
+    REQUIRE(model.snapshot().asset_index_browser["visible_rows"][0]["stableId"] == "asset_click");
+
+    model.setAssetBrowserCategoryFilter("");
+    model.setAssetBrowserSourceFilter("imports/raw/castle");
+    REQUIRE(model.snapshot().asset_index_browser["filters"]["source"] == "imports/raw/castle");
+    REQUIRE(model.snapshot().asset_index_browser["visible_count"] == 1);
+    REQUIRE(model.snapshot().asset_index_browser["visible_rows"][0]["stableId"] == "asset_wall");
+
+    model.setAssetBrowserSourceFilter("");
+    model.selectAssetBrowserRecord("asset_wall");
+    REQUIRE(model.snapshot().asset_index_browser["selected_record"]["stableId"] == "asset_wall");
+    REQUIRE(model.snapshot().asset_index_browser["selected_record"]["dimensions"]["width"] == 48);
+
+    model.setAssetBrowserQuery("");
+    model.setAssetBrowserPage(1, 1);
+    REQUIRE(model.snapshot().asset_index_browser["page"]["offset"] == 1);
+    REQUIRE(model.snapshot().asset_index_browser["page"]["limit"] == 1);
+    REQUIRE(model.snapshot().asset_index_browser["visible_rows"].size() == 1);
+    REQUIRE(model.snapshot().asset_index_browser["visible_rows"][0]["stableId"] == "asset_wall");
+}
+
+TEST_CASE("AssetLibraryModel loads asset-library index shards from disk",
+          "[assets][asset_library][editor][browser][index]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_index_load");
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root / "content" / "asset_indexes");
+    const auto indexPath = root / "content" / "asset_indexes" / "jrpg_index.json";
+    {
+        std::ofstream out(indexPath);
+        out << R"({
+          "schemaVersion": 1,
+          "recordCount": 1,
+          "records": [
+            {
+              "stableId": "asset_town_door",
+              "displayName": "Town Door",
+              "sourcePath": "imports/raw/town/door.png",
+              "previewKind": "image",
+              "mediaKind": "image",
+              "category": "doors",
+              "pack": "Town",
+              "dimensions": {"width": 48, "height": 48},
+              "unloadablePayload": {
+                "policy": "lazy",
+                "sourcePath": "imports/raw/town/door.png",
+                "sizeBytes": 1234
+              }
+            }
+          ]
+        })";
+    }
+
+    urpg::editor::AssetLibraryModel model;
+    std::string error;
+    REQUIRE(model.loadAssetLibraryIndexFromFile(indexPath, &error));
+    REQUIRE(error.empty());
+    REQUIRE(model.snapshot().asset_index_browser["total_count"] == 1);
+    REQUIRE(model.snapshot().asset_index_browser["visible_rows"][0]["stableId"] == "asset_town_door");
+    REQUIRE(model.snapshot().last_action["action"] == "load_asset_library_index");
+    REQUIRE(model.snapshot().last_action["success"] == true);
+
+    REQUIRE_FALSE(model.loadAssetLibraryIndexFromFile(root / "missing.json", &error));
+    REQUIRE(error == "asset_library_index_open_failed");
+    REQUIRE(model.snapshot().last_action["success"] == false);
+    REQUIRE(model.snapshot().last_action["code"] == "asset_library_index_open_failed");
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel applies game template manifest scope and index shard",
+          "[assets][asset_library][editor][browser][template]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_template_binding");
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root / "content" / "templates" / "game_maker");
+    std::filesystem::create_directories(root / "content" / "asset_indexes" / "game_maker");
+    {
+        std::ofstream out(root / "content" / "asset_indexes" / "game_maker" / "jrpg_starter.json");
+        out << R"({
+          "schemaVersion": 1,
+          "recordCount": 1,
+          "records": [
+            {
+              "stableId": "asset_template_grass",
+              "displayName": "Template Grass",
+              "sourcePath": "content/assets/gameplay/template/grass.png",
+              "previewKind": "image",
+              "mediaKind": "image",
+              "category": "terrain",
+              "pack": "Template"
+            }
+          ]
+        })";
+    }
+    const auto manifestPath = root / "content" / "templates" / "game_maker" / "jrpg_starter.json";
+    {
+        std::ofstream out(manifestPath);
+        out << R"({
+          "schemaVersion": 1,
+          "templateId": "jrpg",
+          "displayName": "Classic JRPG Starter",
+          "gameType": "party_rpg",
+          "questionProfile": "party_rpg_guided_setup",
+          "defaultWorldSize": {"preset": "small", "maps": 3, "recommendedTileSize": 48},
+          "recommendedMechanics": ["battle_loop", "save_loop"],
+          "defaultCatalogs": ["content/part_catalogs/base_jrpg_parts.json"],
+          "optionalCatalogs": ["content/part_catalogs/game_maker_all_parts.json"],
+          "assetIndexPath": "content/asset_indexes/game_maker/jrpg_starter.json",
+          "fullLibraryPolicy": "opt_in_lazy_load",
+          "browserLayout": "left_collapsible_folder_tree",
+          "indexBackend": "sqlite",
+          "uiThemes": {
+            "defaultGameUiTheme": "complete_ui_essential_flat",
+            "availableGameUiThemes": ["complete_ui_essential_flat"]
+          },
+          "futureCommunityTemplateSlot": true
+        })";
+    }
+
+    urpg::editor::AssetLibraryModel model;
+    std::string error;
+    REQUIRE(model.loadGameTemplateManifestFromFile(manifestPath, &error));
+    REQUIRE(error.empty());
+    REQUIRE(model.snapshot().asset_browser_scope["active_template_id"] == "jrpg");
+    REQUIRE(model.snapshot().asset_browser_scope["active_catalogs"][0] == "content/part_catalogs/base_jrpg_parts.json");
+    REQUIRE(model.snapshot().asset_browser_scope["optional_catalogs"][0] ==
+            "content/part_catalogs/game_maker_all_parts.json");
+    REQUIRE(model.snapshot().asset_index_browser["total_count"] == 1);
+    REQUIRE(model.snapshot().asset_index_browser["visible_rows"][0]["stableId"] == "asset_template_grass");
+    REQUIRE(model.snapshot().last_action["action"] == "load_game_template_manifest");
+    REQUIRE(model.snapshot().last_action["success"] == true);
+
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("AssetLibraryPanel exposes promote and archive action state",
           "[assets][asset_library][editor][browser][actions]") {
     urpg::editor::AssetLibraryPanel panel;

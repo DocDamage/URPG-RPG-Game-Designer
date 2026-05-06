@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <set>
+#include <string>
 #include <unordered_map>
 #include <utility>
 
@@ -197,6 +198,12 @@ bool loadCatalogInto(const std::filesystem::path& catalog_path, GridPartCatalog&
     return added;
 }
 
+bool pathLooksLikeFullLibraryScope(const std::filesystem::path& path) {
+    const auto normalized = path.generic_string();
+    return normalized.find("game_maker_all_parts") != std::string::npos ||
+           normalized.find("cutesckr_all_parts") != std::string::npos || path.stem() == "full";
+}
+
 } // namespace
 
 bool LoadGridPartCatalogFromFile(const std::filesystem::path& catalog_path, GridPartCatalog& catalog,
@@ -218,6 +225,35 @@ bool LoadGridPartCatalogFromFile(const std::filesystem::path& catalog_path, Grid
 bool LoadGridPartCatalogFromProject(const std::filesystem::path& project_root, GridPartCatalog& catalog,
                                     const std::filesystem::path& relative_catalog_path, std::string* error_message) {
     return LoadGridPartCatalogFromFile(project_root / relative_catalog_path, catalog, error_message);
+}
+
+bool LoadGridPartCatalogScopeFromProject(const std::filesystem::path& project_root,
+                                         const std::vector<std::filesystem::path>& relative_catalog_paths,
+                                         GridPartCatalogScope& scope, std::string* error_message) {
+    if (error_message != nullptr) {
+        error_message->clear();
+    }
+    if (relative_catalog_paths.empty()) {
+        setError(error_message, "catalog_scope_empty");
+        return false;
+    }
+
+    GridPartCatalogScope loaded;
+    std::set<std::filesystem::path> active;
+    for (const auto& relative_path : relative_catalog_paths) {
+        if (relative_path.empty()) {
+            setError(error_message, "catalog_scope_path_empty");
+            return false;
+        }
+        if (!loadCatalogInto(project_root / relative_path, loaded.catalog, active, error_message)) {
+            return false;
+        }
+        loaded.active_catalog_paths.push_back(relative_path.generic_string());
+        loaded.full_library_active = loaded.full_library_active || pathLooksLikeFullLibraryScope(relative_path);
+    }
+
+    scope = std::move(loaded);
+    return true;
 }
 
 } // namespace urpg::map

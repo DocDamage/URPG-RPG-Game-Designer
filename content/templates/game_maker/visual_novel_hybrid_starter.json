@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "templateId": "visual_novel",
+  "displayName": "Visual Novel Hybrid Starter",
+  "gameType": "narrative_adventure",
+  "questionProfile": "narrative_adventure_guided_setup",
+  "defaultWorldSize": {
+    "preset": "small",
+    "maps": 3,
+    "recommendedTileSize": 48
+  },
+  "recommendedMechanics": [
+    "scene_script_loop",
+    "choice_branch_loop",
+    "save_loop",
+    "exploration_scene"
+  ],
+  "defaultCatalogs": [
+    "content/part_catalogs/base_jrpg_parts.json",
+    "content/part_catalogs/generated/human_rpg_portraits_parts.json"
+  ],
+  "optionalCatalogs": [
+    "content/part_catalogs/game_maker_all_parts.json",
+    "content/part_catalogs/generated/cutesckr_all_parts.json"
+  ],
+  "assetIndexPath": "content/asset_indexes/game_maker/visual_novel_hybrid_starter.json",
+  "fullLibraryPolicy": "opt_in_lazy_load",
+  "browserLayout": "left_collapsible_folder_tree",
+  "indexBackend": "sqlite",
+  "uiThemes": {
+    "defaultGameUiTheme": "complete_ui_essential_flat",
+    "availableGameUiThemes": [
+      "complete_ui_essential_flat",
+      "wenrexa_hologram"
+    ]
+  },
+  "futureCommunityTemplateSlot": true
+}

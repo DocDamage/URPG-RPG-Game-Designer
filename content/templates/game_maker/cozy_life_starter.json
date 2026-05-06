@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "templateId": "cozy_life_rpg",
+  "displayName": "Cozy Life Starter",
+  "gameType": "builder_management",
+  "questionProfile": "builder_management_guided_setup",
+  "defaultWorldSize": {
+    "preset": "small",
+    "maps": 3,
+    "recommendedTileSize": 48
+  },
+  "recommendedMechanics": [
+    "daily_schedule_loop",
+    "crafting_loop",
+    "relationship_loop",
+    "save_loop"
+  ],
+  "defaultCatalogs": [
+    "content/part_catalogs/base_jrpg_parts.json",
+    "content/part_catalogs/generated/cutesckr_farm_1_parts.json"
+  ],
+  "optionalCatalogs": [
+    "content/part_catalogs/game_maker_all_parts.json",
+    "content/part_catalogs/generated/cutesckr_all_parts.json"
+  ],
+  "assetIndexPath": "content/asset_indexes/game_maker/cozy_life_starter.json",
+  "fullLibraryPolicy": "opt_in_lazy_load",
+  "browserLayout": "left_collapsible_folder_tree",
+  "indexBackend": "sqlite",
+  "uiThemes": {
+    "defaultGameUiTheme": "complete_ui_essential_flat",
+    "availableGameUiThemes": [
+      "complete_ui_essential_flat",
+      "wenrexa_hologram"
+    ]
+  },
+  "futureCommunityTemplateSlot": true
+}

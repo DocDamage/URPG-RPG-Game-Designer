@@ -46,11 +46,11 @@
 - Modify: `tools/assets/asset_db.py`
 - Test: `tools/assets/tests/test_asset_db.py` or a new focused `tools/assets/tests/test_asset_library_index.py`
 
-- [ ] **Step 1: Write a failing schema/tool test**
+- [x] **Step 1: Write a failing schema/tool test**
 
 Create a fixture with PNG, Aseprite, JSON manifest, unknown file, and UI theme manifest records. Assert the generated index record includes stable ID, display name, source path, preview kind, media kind, category, pack, dimensions when known, and unloadable payload hint.
 
-- [ ] **Step 2: Run the focused Python test**
+- [x] **Step 2: Run the focused Python test**
 
 Run:
 
@@ -60,11 +60,11 @@ python .\tools\assets\tests\test_asset_library_index.py
 
 Expected: fail because the new index metadata contract does not exist yet.
 
-- [ ] **Step 3: Implement the index output**
+- [x] **Step 3: Implement the index output**
 
 Add an export command to `asset_db.py` or a small wrapper that emits a JSON index shard from SQLite query results. Keep the SQLite DB local under `.urpg/asset-index/`; only deterministic manifest/shard outputs should be tracked.
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 Run:
 
@@ -74,6 +74,8 @@ python .\tools\assets\asset_db.py stats
 ```
 
 Expected: focused test passes; stats still reads the current local DB.
+
+Status 2026-05-05: complete. `content/schemas/asset_library_index.schema.json` exists, `tools/assets/asset_db.py export-index` emits deterministic preview records, and `tools/assets/tests/test_asset_library_index.py` covers PNG, Aseprite, game UI theme manifest, and unknown-file metadata.
 
 ### Task 2: Template Manifest Foundation
 
@@ -88,15 +90,15 @@ Expected: focused test passes; stats still reads the current local DB.
 - Create: `content/templates/game_maker/platform_adventure_starter.json`
 - Test: new Catch2 or Python schema validation test
 
-- [ ] **Step 1: Write failing validation coverage**
+- [x] **Step 1: Write failing validation coverage**
 
 Add tests that validate each template manifest and verify each template references only a bounded default catalog subset, not `game_maker_all_parts.json`.
 
-- [ ] **Step 2: Create schema and starter manifests**
+- [x] **Step 2: Create schema and starter manifests**
 
 Each manifest must include `templateId`, `displayName`, `gameType`, `questionProfile`, `defaultWorldSize`, `recommendedMechanics`, `defaultCatalogs`, `optionalCatalogs`, `uiThemes`, and `futureCommunityTemplateSlot`.
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run:
 
@@ -106,12 +108,16 @@ ctest --test-dir build\dev-ninja-debug -R "template|schema" --output-on-failure
 
 Expected: new template manifest tests pass.
 
+Status 2026-05-05: complete. `content/schemas/game_template_manifest.schema.json` exists, and `content/templates/game_maker/` contains bounded starter manifests for JRPG, action RPG, tactical RPG, visual novel hybrid, cozy/life, monster collector, and platform/adventure onboarding lanes. `tools/assets/tests/test_game_template_manifest.py` verifies required onboarding fields, bounded default catalogs, optional full-library catalogs, SQLite index policy, default browser layout, and game UI theme metadata.
+
 ### Task 3: Lazy Catalog Loading
 
 **Files:**
 - Modify: `engine/core/map/grid_part_catalog_loader.h`
 - Modify: `engine/core/map/grid_part_catalog_loader.cpp`
 - Modify: `tests/unit/test_grid_part_catalog.cpp`
+
+Status 2026-05-05: backend scope-switch primitive started. `GridPartCatalogScope` and `LoadGridPartCatalogScopeFromProject` can load an active catalog scope, identify full-library scopes, and switch back to a starter scope without retaining inactive full-library rows. `AssetLibraryModel` now exposes an `asset_browser_scope` snapshot with template scope, full-library opt-in, active catalogs, favorites, recent projects, and hidden missing projects. Remaining work: wire real catalog loading into the asset browser panel, preserve selected placed asset IDs through browser interactions, and expose active-scope diagnostics in the visible UI.
 
 - [ ] **Step 1: Write failing tests for scoped load/unload**
 
@@ -141,6 +147,8 @@ Expected: existing grid-part tests and new scope tests pass.
 - [ ] **Step 1: Write failing model tests**
 
 Cover folder/category tree generation, search, source/pack filter, pinned favorites, last 10 recent projects, missing project prompt state, hidden missing project state, and selected layout mode.
+
+Status 2026-05-05: partially covered. `AssetLibraryModel` now has tests for selected layout mode, template/full-library scope state, pinned favorites, last-10 recent projects, hidden missing projects, asset-library-index ingestion from memory and disk, game-template manifest binding through `assetIndexPath`, folder/category/pack facet trees, text search, source/pack/category filter controls, selected asset details, and active row paging. Remaining work: connect the visible main menu/onboarding selection to these model calls and render the left browser.
 
 - [ ] **Step 2: Implement model snapshots**
 

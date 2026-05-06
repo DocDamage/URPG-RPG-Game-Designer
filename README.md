@@ -18,6 +18,8 @@ This means the current branch has verified editor release navigation, Level Buil
 
 The current asset-ingestion branch also adds a larger game-maker asset foundation: default startup remains on the bounded `content/part_catalogs/base_jrpg_parts.json`, while the complete generated library is opt-in through `content/part_catalogs/game_maker_all_parts.json`. The next implementation plan for template-scoped loading, left-side asset browsing, previews, drag/paint authoring, main menu, and onboarding is tracked in `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md`.
 
+The Maker Shell UI/UX migration is tracked in `docs/ui/URPG_MAKER_SHELL_UIUX_PLAN.md`. It keeps the current seven release top-level panels stable while moving toward a canvas-first shell with main menu, onboarding, template-scoped asset loading, part belt, asset browser, side rails, playtest rail, All Tools, and backend-neutral UI documents.
+
 Public release is release-owner-waived for legal/privacy review, not qualified-counsel-approved. `EULA.md`,
 `PRIVACY_POLICY.md`, and `docs/release/LEGAL_REVIEW_SIGNOFF.md` now state the same distribution scope. Final public
 distribution still requires a release tag and any platform-specific signing/notarization credentials required for final
@@ -235,6 +237,8 @@ Version metadata:
 - [Asset Promotion Guide](./docs/asset_intake/ASSET_PROMOTION_GUIDE.md)
 - [Template Specs](./docs/templates/)
 - [Game Maker Asset Browser And Onboarding Plan](./docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md)
+- [Maker Shell UI/UX Plan](./docs/ui/URPG_MAKER_SHELL_UIUX_PLAN.md)
+- [Maker Shell Visual Language](./docs/ui/MAKER_UI_VISUAL_LANGUAGE.md)
 
 ## Development Rules
 

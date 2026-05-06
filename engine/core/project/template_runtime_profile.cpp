@@ -137,6 +137,68 @@ nlohmann::json templateQualityContract(const TemplateRuntimeProfile& profile) {
     };
 }
 
+nlohmann::json templateOnboardingContract(const TemplateRuntimeProfile& profile) {
+    const auto genreFamily = genreFamilyForProfile(profile);
+    nlohmann::json mechanics = nlohmann::json::array();
+    for (const auto& loop : profile.loops) {
+        mechanics.push_back(loop);
+        if (mechanics.size() >= 4) {
+            break;
+        }
+    }
+    if (mechanics.empty()) {
+        mechanics = {"map_building_loop", "event_authoring_loop", "save_loop"};
+    }
+
+    return {
+        {"question_profile", genreFamily + "_guided_setup"},
+        {"question_depth", genreFamily == "party_rpg" ? "standard" : "mechanics_aware"},
+        {"default_world_size", {{"preset", "small"}, {"maps", 3}, {"recommended_tile_size", 48}}},
+        {"recommended_mechanics", mechanics},
+        {"can_skip_required_steps", true},
+        {"settings_toggle", "onboarding.enabled"},
+    };
+}
+
+nlohmann::json templateAssetScopeContract(const TemplateRuntimeProfile& profile) {
+    const auto genreFamily = genreFamilyForProfile(profile);
+    nlohmann::json defaultCatalogs = {"content/part_catalogs/base_jrpg_parts.json"};
+    if (genreFamily == "action_arcade") {
+        defaultCatalogs.push_back("content/part_catalogs/generated/cutesckr_forest_wilderness_1_parts.json");
+    } else if (genreFamily == "builder_management") {
+        defaultCatalogs.push_back("content/part_catalogs/generated/cutesckr_farm_1_parts.json");
+    } else if (genreFamily == "strategy_tactics") {
+        defaultCatalogs.push_back("content/part_catalogs/generated/cutesckr_medieval_castle_1_parts.json");
+    } else if (genreFamily == "procedural_survival") {
+        defaultCatalogs.push_back("content/part_catalogs/generated/cutesckr_medieval_fantasy_dungeon_1_parts.json");
+    } else if (genreFamily == "narrative_adventure") {
+        defaultCatalogs.push_back("content/part_catalogs/generated/human_rpg_portraits_parts.json");
+    } else {
+        defaultCatalogs.push_back("content/part_catalogs/generated/cutesckr_medieval_fantasy_town_1_parts.json");
+    }
+
+    return {
+        {"browser_layout", "left_collapsible_folder_tree"},
+        {"index_backend", "sqlite"},
+        {"default_catalogs", defaultCatalogs},
+        {"optional_catalogs",
+         {
+             "content/part_catalogs/game_maker_all_parts.json",
+             "content/part_catalogs/generated/cutesckr_all_parts.json",
+         }},
+        {"full_library_policy", "opt_in_lazy_load"},
+        {"preview_policy", "metadata_first_lazy_texture"},
+    };
+}
+
+nlohmann::json templateUiThemeContract() {
+    return {
+        {"default_game_ui_theme", "complete_ui_essential_flat"},
+        {"available_game_ui_themes", {"complete_ui_essential_flat", "wenrexa_hologram"}},
+        {"theme_role", "game_ui_only"},
+    };
+}
+
 TemplateRuntimeProfile makeTacticsProfile() {
     return {
         "tactics_rpg",
@@ -970,6 +1032,10 @@ nlohmann::json templateRuntimeProfileToJson(const TemplateRuntimeProfile& profil
         {"bars", profile.bars},
         {"systems", profile.systems},
         {"quality_contract", templateQualityContract(profile)},
+        {"onboarding", templateOnboardingContract(profile)},
+        {"asset_scope", templateAssetScopeContract(profile)},
+        {"ui_themes", templateUiThemeContract()},
+        {"future_community_template_slot", true},
     };
 }
 
@@ -986,6 +1052,25 @@ std::vector<std::string> validateTemplateRuntimeProfile(const TemplateRuntimePro
     }
     if (profile.loops.empty()) {
         issues.push_back("missing_template_loops");
+    }
+    const auto contract = templateRuntimeProfileToJson(profile);
+    if (contract["onboarding"].value("question_profile", "").empty()) {
+        issues.push_back("missing_onboarding_question_profile");
+    }
+    if (contract["onboarding"]["default_world_size"].value("preset", "") != "small") {
+        issues.push_back("invalid_onboarding_default_world_size");
+    }
+    if (!contract["asset_scope"].contains("default_catalogs") || contract["asset_scope"]["default_catalogs"].empty()) {
+        issues.push_back("missing_default_asset_catalogs");
+    }
+    if (std::find(contract["asset_scope"]["default_catalogs"].begin(),
+                  contract["asset_scope"]["default_catalogs"].end(),
+                  "content/part_catalogs/game_maker_all_parts.json") !=
+        contract["asset_scope"]["default_catalogs"].end()) {
+        issues.push_back("full_library_cannot_be_default_asset_scope");
+    }
+    if (contract["asset_scope"].value("full_library_policy", "") != "opt_in_lazy_load") {
+        issues.push_back("invalid_full_library_policy");
     }
     static const std::array<const char*, 5> kBars = {"accessibility", "audio", "input", "localization", "performance"};
     for (const auto* bar : kBars) {

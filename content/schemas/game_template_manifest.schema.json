@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/game_template_manifest.schema.json",
+  "title": "Game Template Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "templateId",
+    "displayName",
+    "gameType",
+    "questionProfile",
+    "defaultWorldSize",
+    "recommendedMechanics",
+    "defaultCatalogs",
+    "optionalCatalogs",
+    "assetIndexPath",
+    "fullLibraryPolicy",
+    "browserLayout",
+    "indexBackend",
+    "uiThemes",
+    "futureCommunityTemplateSlot"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "templateId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gameType": {
+      "type": "string",
+      "minLength": 1
+    },
+    "questionProfile": {
+      "type": "string",
+      "minLength": 1
+    },
+    "defaultWorldSize": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["preset", "maps", "recommendedTileSize"],
+      "properties": {
+        "preset": {
+          "type": "string",
+          "enum": ["small", "medium", "large"]
+        },
+        "maps": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "recommendedTileSize": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "recommendedMechanics": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "defaultCatalogs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "not": {
+          "const": "content/part_catalogs/game_maker_all_parts.json"
+        }
+      },
+      "uniqueItems": true
+    },
+    "optionalCatalogs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "assetIndexPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fullLibraryPolicy": {
+      "type": "string",
+      "const": "opt_in_lazy_load"
+    },
+    "browserLayout": {
+      "type": "string",
+      "const": "left_collapsible_folder_tree"
+    },
+    "indexBackend": {
+      "type": "string",
+      "const": "sqlite"
+    },
+    "uiThemes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["defaultGameUiTheme", "availableGameUiThemes"],
+      "properties": {
+        "defaultGameUiTheme": {
+          "type": "string",
+          "minLength": 1
+        },
+        "availableGameUiThemes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "futureCommunityTemplateSlot": {
+      "type": "boolean"
+    }
+  }
+}

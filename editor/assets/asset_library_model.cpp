@@ -734,6 +734,133 @@ nlohmann::json buildVirtualCatalogSnapshot(const urpg::assets::AssetLibrarySnaps
     };
 }
 
+void moveUniqueToFront(std::vector<std::string>& values, std::string value, size_t maxCount) {
+    values.erase(std::remove(values.begin(), values.end(), value), values.end());
+    values.insert(values.begin(), std::move(value));
+    if (values.size() > maxCount) {
+        values.resize(maxCount);
+    }
+}
+
+void eraseValue(std::vector<std::string>& values, const std::string& value) {
+    values.erase(std::remove(values.begin(), values.end(), value), values.end());
+}
+
+bool containsValue(const std::vector<std::string>& values, std::string_view value) {
+    return std::find(values.begin(), values.end(), value) != values.end();
+}
+
+bool isFullLibraryCatalog(std::string_view catalog) {
+    return catalog.find("game_maker_all_parts") != std::string_view::npos ||
+           catalog.find("cutesckr_all_parts") != std::string_view::npos;
+}
+
+std::string lowerCopy(std::string value) {
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
+        return static_cast<char>(std::tolower(ch));
+    });
+    return value;
+}
+
+bool indexedRecordMatchesQuery(const nlohmann::json& record, const std::string& query) {
+    if (query.empty()) {
+        return true;
+    }
+    const auto lowerQuery = lowerCopy(query);
+    for (const auto* key : {"stableId", "displayName", "sourcePath", "mediaKind", "category", "pack"}) {
+        const auto found = record.find(key);
+        if (found != record.end() && found->is_string() &&
+            lowerCopy(found->get<std::string>()).find(lowerQuery) != std::string::npos) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool indexedRecordMatchesFilters(const nlohmann::json& record, const std::string& pack, const std::string& category,
+                                 const std::string& sourcePrefix) {
+    if (!pack.empty() && record.value("pack", "") != pack) {
+        return false;
+    }
+    if (!category.empty() && record.value("category", "") != category) {
+        return false;
+    }
+    if (!sourcePrefix.empty()) {
+        const auto sourcePath = record.value("sourcePath", "");
+        if (sourcePath.rfind(sourcePrefix, 0) != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+nlohmann::json treeFromCounts(const std::map<std::string, size_t>& counts) {
+    nlohmann::json tree = nlohmann::json::array();
+    for (const auto& [id, count] : counts) {
+        tree.push_back({{"id", id}, {"count", count}});
+    }
+    return tree;
+}
+
+nlohmann::json buildAssetIndexBrowserSnapshot(const std::vector<nlohmann::json>& records, const std::string& query,
+                                              const std::string& packFilter, const std::string& categoryFilter,
+                                              const std::string& sourceFilter, const std::string& selectedAssetId,
+                                              size_t offset, size_t limit) {
+    std::map<std::string, size_t> folderCounts;
+    std::map<std::string, size_t> categoryCounts;
+    std::map<std::string, size_t> packCounts;
+    std::vector<nlohmann::json> filtered;
+    for (const auto& record : records) {
+        const auto sourcePath = record.value("sourcePath", "");
+        const auto slash = sourcePath.find('/');
+        const auto folder = slash == std::string::npos ? sourcePath : sourcePath.substr(0, slash);
+        if (!folder.empty()) {
+            ++folderCounts[folder];
+        }
+        const auto category = record.value("category", "");
+        if (!category.empty()) {
+            ++categoryCounts[category];
+        }
+        const auto pack = record.value("pack", "");
+        if (!pack.empty()) {
+            ++packCounts[pack];
+        }
+        if (indexedRecordMatchesQuery(record, query) &&
+            indexedRecordMatchesFilters(record, packFilter, categoryFilter, sourceFilter)) {
+            filtered.push_back(record);
+        }
+    }
+
+    nlohmann::json visibleRows = nlohmann::json::array();
+    const auto end = std::min(filtered.size(), offset + limit);
+    for (size_t i = std::min(offset, filtered.size()); i < end; ++i) {
+        visibleRows.push_back(filtered[i]);
+    }
+
+    nlohmann::json selected = nlohmann::json::object();
+    if (!selectedAssetId.empty()) {
+        const auto found = std::find_if(records.begin(), records.end(), [&](const auto& record) {
+            return record.value("stableId", "") == selectedAssetId;
+        });
+        if (found != records.end()) {
+            selected = *found;
+        }
+    }
+
+    return {
+        {"total_count", records.size()},
+        {"visible_count", filtered.size()},
+        {"query", query},
+        {"filters", {{"pack", packFilter}, {"category", categoryFilter}, {"source", sourceFilter}}},
+        {"page", {{"offset", offset}, {"limit", limit}}},
+        {"folder_tree", treeFromCounts(folderCounts)},
+        {"category_tree", treeFromCounts(categoryCounts)},
+        {"pack_tree", treeFromCounts(packCounts)},
+        {"visible_rows", visibleRows},
+        {"selected_record", selected},
+    };
+}
+
 } // namespace
 
 AssetLibraryModel::ConversionCommandResult AssetLibraryModel::runConversionCommand(const ConversionCommand& command) {
@@ -1639,6 +1766,296 @@ bool AssetLibraryModel::applyQuickFilter(std::string_view filter_id) {
     return false;
 }
 
+void AssetLibraryModel::setTemplateAssetScope(std::string template_id, std::vector<std::string> default_catalogs,
+                                              std::vector<std::string> optional_catalogs) {
+    active_template_id_ = std::move(template_id);
+    template_default_catalogs_ = std::move(default_catalogs);
+    template_optional_catalogs_ = std::move(optional_catalogs);
+    active_catalogs_ = template_default_catalogs_;
+    full_library_active_ = false;
+    refreshSnapshot();
+}
+
+bool AssetLibraryModel::activateFullLibraryScope() {
+    const auto found = std::find_if(template_optional_catalogs_.begin(), template_optional_catalogs_.end(),
+                                    [](const auto& path) { return isFullLibraryCatalog(path); });
+    if (found == template_optional_catalogs_.end()) {
+        refreshSnapshot();
+        snapshot_.last_action = {
+            {"action", "activate_full_library_scope"},
+            {"success", false},
+            {"code", "full_library_catalog_missing"},
+            {"message", "The active template does not expose an optional full-library catalog."},
+        };
+        action_history_.push_back(snapshot_.last_action);
+        snapshot_.action_history = action_history_;
+        return false;
+    }
+    active_catalogs_ = {*found};
+    full_library_active_ = true;
+    refreshSnapshot();
+    snapshot_.last_action = {
+        {"action", "activate_full_library_scope"},
+        {"success", true},
+        {"code", "full_library_scope_active"},
+        {"message", "Full asset library scope is active."},
+    };
+    action_history_.push_back(snapshot_.last_action);
+    snapshot_.action_history = action_history_;
+    return true;
+}
+
+bool AssetLibraryModel::restoreTemplateAssetScope() {
+    if (template_default_catalogs_.empty()) {
+        refreshSnapshot();
+        snapshot_.last_action = {
+            {"action", "restore_template_asset_scope"},
+            {"success", false},
+            {"code", "template_scope_missing"},
+            {"message", "No template asset scope is configured."},
+        };
+        action_history_.push_back(snapshot_.last_action);
+        snapshot_.action_history = action_history_;
+        return false;
+    }
+    active_catalogs_ = template_default_catalogs_;
+    full_library_active_ = false;
+    refreshSnapshot();
+    snapshot_.last_action = {
+        {"action", "restore_template_asset_scope"},
+        {"success", true},
+        {"code", "template_scope_active"},
+        {"message", "Template asset scope is active."},
+    };
+    action_history_.push_back(snapshot_.last_action);
+    snapshot_.action_history = action_history_;
+    return true;
+}
+
+void AssetLibraryModel::pinFavoriteAsset(std::string stable_id) {
+    moveUniqueToFront(favorite_asset_ids_, std::move(stable_id), 64);
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::unpinFavoriteAsset(std::string stable_id) {
+    eraseValue(favorite_asset_ids_, stable_id);
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::recordRecentProject(std::string project_path) {
+    if (!containsValue(hidden_missing_projects_, project_path)) {
+        moveUniqueToFront(recent_projects_, std::move(project_path), 10);
+    }
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::markMissingProjectHidden(std::string project_path) {
+    moveUniqueToFront(hidden_missing_projects_, project_path, 64);
+    eraseValue(recent_projects_, project_path);
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::ingestAssetLibraryIndex(const nlohmann::json& index) {
+    indexed_asset_records_.clear();
+    const auto records = index.find("records");
+    if (records != index.end() && records->is_array()) {
+        for (const auto& record : *records) {
+            if (record.is_object() && record.contains("stableId") && record.contains("sourcePath")) {
+                indexed_asset_records_.push_back(record);
+            }
+        }
+    }
+    asset_browser_offset_ = 0;
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::setAssetBrowserQuery(std::string query) {
+    asset_browser_query_ = std::move(query);
+    asset_browser_offset_ = 0;
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::setAssetBrowserPackFilter(std::string pack) {
+    asset_browser_pack_filter_ = std::move(pack);
+    asset_browser_offset_ = 0;
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::setAssetBrowserCategoryFilter(std::string category) {
+    asset_browser_category_filter_ = std::move(category);
+    asset_browser_offset_ = 0;
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::setAssetBrowserSourceFilter(std::string source_prefix) {
+    asset_browser_source_filter_ = std::move(source_prefix);
+    asset_browser_offset_ = 0;
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::selectAssetBrowserRecord(std::string stable_id) {
+    selected_asset_id_ = std::move(stable_id);
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::setAssetBrowserPage(size_t offset, size_t limit) {
+    asset_browser_offset_ = offset;
+    asset_browser_limit_ = std::max<size_t>(1, limit);
+    refreshSnapshot();
+}
+
+bool AssetLibraryModel::loadAssetLibraryIndexFromFile(const std::filesystem::path& index_path,
+                                                      std::string* error_message) {
+    std::ifstream stream(index_path, std::ios::binary);
+    if (!stream) {
+        if (error_message != nullptr) {
+            *error_message = "asset_library_index_open_failed";
+        }
+        refreshSnapshot();
+        snapshot_.last_action = {
+            {"action", "load_asset_library_index"},
+            {"success", false},
+            {"code", "asset_library_index_open_failed"},
+            {"message", "Asset library index file could not be opened."},
+            {"path", index_path.generic_string()},
+        };
+        action_history_.push_back(snapshot_.last_action);
+        snapshot_.action_history = action_history_;
+        return false;
+    }
+
+    try {
+        const auto payload = nlohmann::json::parse(stream);
+        ingestAssetLibraryIndex(payload);
+        if (error_message != nullptr) {
+            error_message->clear();
+        }
+        snapshot_.last_action = {
+            {"action", "load_asset_library_index"},
+            {"success", true},
+            {"code", "asset_library_index_loaded"},
+            {"message", "Asset library index file loaded."},
+            {"path", index_path.generic_string()},
+            {"record_count", indexed_asset_records_.size()},
+        };
+        action_history_.push_back(snapshot_.last_action);
+        snapshot_.action_history = action_history_;
+        return true;
+    } catch (const std::exception& ex) {
+        if (error_message != nullptr) {
+            *error_message = "asset_library_index_parse_failed";
+        }
+        refreshSnapshot();
+        snapshot_.last_action = {
+            {"action", "load_asset_library_index"},
+            {"success", false},
+            {"code", "asset_library_index_parse_failed"},
+            {"message", "Asset library index file could not be parsed."},
+            {"path", index_path.generic_string()},
+            {"diagnostic", ex.what()},
+        };
+        action_history_.push_back(snapshot_.last_action);
+        snapshot_.action_history = action_history_;
+        return false;
+    }
+}
+
+bool AssetLibraryModel::loadGameTemplateManifestFromFile(const std::filesystem::path& manifest_path,
+                                                         std::string* error_message) {
+    std::ifstream stream(manifest_path, std::ios::binary);
+    if (!stream) {
+        if (error_message != nullptr) {
+            *error_message = "game_template_manifest_open_failed";
+        }
+        refreshSnapshot();
+        snapshot_.last_action = {
+            {"action", "load_game_template_manifest"},
+            {"success", false},
+            {"code", "game_template_manifest_open_failed"},
+            {"message", "Game template manifest file could not be opened."},
+            {"path", manifest_path.generic_string()},
+        };
+        action_history_.push_back(snapshot_.last_action);
+        snapshot_.action_history = action_history_;
+        return false;
+    }
+
+    try {
+        const auto payload = nlohmann::json::parse(stream);
+        std::vector<std::string> defaultCatalogs;
+        std::vector<std::string> optionalCatalogs;
+        for (const auto& catalog : payload.value("defaultCatalogs", nlohmann::json::array())) {
+            if (catalog.is_string()) {
+                defaultCatalogs.push_back(catalog.get<std::string>());
+            }
+        }
+        for (const auto& catalog : payload.value("optionalCatalogs", nlohmann::json::array())) {
+            if (catalog.is_string()) {
+                optionalCatalogs.push_back(catalog.get<std::string>());
+            }
+        }
+        setTemplateAssetScope(payload.value("templateId", ""), std::move(defaultCatalogs), std::move(optionalCatalogs));
+
+        const auto indexPathValue = payload.value("assetIndexPath", "");
+        if (!indexPathValue.empty()) {
+            auto indexPath = std::filesystem::path(indexPathValue);
+            if (indexPath.is_relative()) {
+                indexPath = manifest_path.parent_path().parent_path().parent_path().parent_path() / indexPath;
+            }
+            std::string indexError;
+            if (!loadAssetLibraryIndexFromFile(indexPath, &indexError)) {
+                if (error_message != nullptr) {
+                    *error_message = indexError;
+                }
+                snapshot_.last_action = {
+                    {"action", "load_game_template_manifest"},
+                    {"success", false},
+                    {"code", "game_template_index_load_failed"},
+                    {"message", "Game template manifest loaded, but its asset index could not be loaded."},
+                    {"path", manifest_path.generic_string()},
+                    {"asset_index_path", indexPath.generic_string()},
+                    {"index_error", indexError},
+                };
+                action_history_.push_back(snapshot_.last_action);
+                snapshot_.action_history = action_history_;
+                return false;
+            }
+        }
+
+        if (error_message != nullptr) {
+            error_message->clear();
+        }
+        snapshot_.last_action = {
+            {"action", "load_game_template_manifest"},
+            {"success", true},
+            {"code", "game_template_manifest_loaded"},
+            {"message", "Game template manifest loaded."},
+            {"path", manifest_path.generic_string()},
+            {"template_id", active_template_id_},
+            {"asset_index_path", indexPathValue},
+        };
+        action_history_.push_back(snapshot_.last_action);
+        snapshot_.action_history = action_history_;
+        return true;
+    } catch (const std::exception& ex) {
+        if (error_message != nullptr) {
+            *error_message = "game_template_manifest_parse_failed";
+        }
+        refreshSnapshot();
+        snapshot_.last_action = {
+            {"action", "load_game_template_manifest"},
+            {"success", false},
+            {"code", "game_template_manifest_parse_failed"},
+            {"message", "Game template manifest file could not be parsed."},
+            {"path", manifest_path.generic_string()},
+            {"diagnostic", ex.what()},
+        };
+        action_history_.push_back(snapshot_.last_action);
+        snapshot_.action_history = action_history_;
+        return false;
+    }
+}
+
 void AssetLibraryModel::rebuildCleanupPreview() {
     cleanup_plan_ = cleanup_planner_.buildDuplicateCleanupPlan(library_);
     refreshSnapshot();
@@ -1650,6 +2067,22 @@ void AssetLibraryModel::clear() {
     import_sessions_.clear();
     pending_import_request_ = nlohmann::json::object();
     action_history_ = nlohmann::json::array();
+    active_template_id_.clear();
+    template_default_catalogs_.clear();
+    template_optional_catalogs_.clear();
+    active_catalogs_.clear();
+    full_library_active_ = false;
+    favorite_asset_ids_.clear();
+    recent_projects_.clear();
+    hidden_missing_projects_.clear();
+    indexed_asset_records_.clear();
+    asset_browser_query_.clear();
+    asset_browser_pack_filter_.clear();
+    asset_browser_category_filter_.clear();
+    asset_browser_source_filter_.clear();
+    selected_asset_id_.clear();
+    asset_browser_offset_ = 0;
+    asset_browser_limit_ = 50;
     snapshot_ = {};
     snapshot_.status = "empty";
     snapshot_.reports_loaded = false;
@@ -1733,6 +2166,23 @@ void AssetLibraryModel::refreshSnapshot() {
     }
     snapshot_.import_wizard = buildImportWizardSnapshot(snapshot_, pending_import_request_);
     snapshot_.virtual_catalog = buildVirtualCatalogSnapshot(asset_snapshot);
+    snapshot_.asset_browser_scope = {
+        {"active_template_id", active_template_id_},
+        {"scope", full_library_active_ ? "full_library" : (active_template_id_.empty() ? "global" : "template")},
+        {"browser_layout", "left_collapsible_folder_tree"},
+        {"index_backend", "sqlite"},
+        {"full_library_active", full_library_active_},
+        {"active_catalogs", active_catalogs_},
+        {"template_default_catalogs", template_default_catalogs_},
+        {"optional_catalogs", template_optional_catalogs_},
+        {"favorite_asset_ids", favorite_asset_ids_},
+        {"recent_projects", recent_projects_},
+        {"hidden_missing_projects", hidden_missing_projects_},
+        {"can_restore_template_scope", !template_default_catalogs_.empty()},
+    };
+    snapshot_.asset_index_browser = buildAssetIndexBrowserSnapshot(
+        indexed_asset_records_, asset_browser_query_, asset_browser_pack_filter_, asset_browser_category_filter_,
+        asset_browser_source_filter_, selected_asset_id_, asset_browser_offset_, asset_browser_limit_);
     snapshot_.action_history = action_history_;
     if (!action_history_.empty()) {
         snapshot_.last_action = action_history_.back();

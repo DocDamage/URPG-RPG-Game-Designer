@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/asset_library_index.schema.json",
+  "title": "Asset Library Index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "recordCount", "records"],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "generatedAt": {
+      "type": "string"
+    },
+    "recordCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/assetRecord"
+      }
+    }
+  },
+  "$defs": {
+    "assetRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stableId",
+        "displayName",
+        "sourcePath",
+        "previewKind",
+        "mediaKind",
+        "category",
+        "pack",
+        "unloadablePayload"
+      ],
+      "properties": {
+        "stableId": {
+          "type": "string",
+          "pattern": "^asset_[a-f0-9]{16}$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourcePath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "previewKind": {
+          "type": "string",
+          "enum": [
+            "image",
+            "aseprite_metadata",
+            "ui_theme_manifest",
+            "audio_metadata",
+            "video_metadata",
+            "archive_metadata",
+            "text_manifest",
+            "file_metadata"
+          ]
+        },
+        "mediaKind": {
+          "type": "string",
+          "enum": ["image", "audio", "video", "archive", "text-data", "ui_theme", "binary"]
+        },
+        "category": {
+          "type": "string"
+        },
+        "pack": {
+          "type": "string"
+        },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["width", "height"],
+          "properties": {
+            "width": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "durationMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unloadablePayload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["policy", "sourcePath", "sizeBytes"],
+          "properties": {
+            "policy": {
+              "type": "string",
+              "const": "lazy"
+            },
+            "sourcePath": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sizeBytes": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    }
+  }
+}

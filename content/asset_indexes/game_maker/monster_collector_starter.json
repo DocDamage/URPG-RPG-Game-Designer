@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "recordCount": 2,
+  "records": [
+    {
+      "stableId": "asset_6666666666666661",
+      "displayName": "Town Habitat Tile",
+      "sourcePath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_002.png",
+      "previewKind": "image",
+      "mediaKind": "image",
+      "category": "terrain",
+      "pack": "Medieval Fantasy Town",
+      "dimensions": {
+        "width": 48,
+        "height": 48
+      },
+      "unloadablePayload": {
+        "policy": "lazy",
+        "sourcePath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_002.png",
+        "sizeBytes": 0
+      }
+    },
+    {
+      "stableId": "asset_6666666666666662",
+      "displayName": "Town Encounter Tile",
+      "sourcePath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_003.png",
+      "previewKind": "image",
+      "mediaKind": "image",
+      "category": "encounters",
+      "pack": "Medieval Fantasy Town",
+      "dimensions": {
+        "width": 48,
+        "height": 48
+      },
+      "unloadablePayload": {
+        "policy": "lazy",
+        "sourcePath": "content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_003.png",
+        "sizeBytes": 0
+      }
+    }
+  ]
+}

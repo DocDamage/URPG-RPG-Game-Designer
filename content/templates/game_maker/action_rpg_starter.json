@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "templateId": "arpg",
+  "displayName": "Action RPG Starter",
+  "gameType": "action_arcade",
+  "questionProfile": "action_arcade_guided_setup",
+  "defaultWorldSize": {
+    "preset": "small",
+    "maps": 3,
+    "recommendedTileSize": 48
+  },
+  "recommendedMechanics": [
+    "action_combat_loop",
+    "growth_loop",
+    "save_loop",
+    "field_interaction"
+  ],
+  "defaultCatalogs": [
+    "content/part_catalogs/base_jrpg_parts.json",
+    "content/part_catalogs/generated/cutesckr_forest_wilderness_1_parts.json"
+  ],
+  "optionalCatalogs": [
+    "content/part_catalogs/game_maker_all_parts.json",
+    "content/part_catalogs/generated/cutesckr_all_parts.json"
+  ],
+  "assetIndexPath": "content/asset_indexes/game_maker/action_rpg_starter.json",
+  "fullLibraryPolicy": "opt_in_lazy_load",
+  "browserLayout": "left_collapsible_folder_tree",
+  "indexBackend": "sqlite",
+  "uiThemes": {
+    "defaultGameUiTheme": "complete_ui_essential_flat",
+    "availableGameUiThemes": [
+      "complete_ui_essential_flat",
+      "wenrexa_hologram"
+    ]
+  },
+  "futureCommunityTemplateSlot": true
+}

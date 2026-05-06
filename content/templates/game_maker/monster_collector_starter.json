@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "templateId": "monster_collector_rpg",
+  "displayName": "Monster Collector Starter",
+  "gameType": "collection_progression",
+  "questionProfile": "collection_progression_guided_setup",
+  "defaultWorldSize": {
+    "preset": "small",
+    "maps": 3,
+    "recommendedTileSize": 48
+  },
+  "recommendedMechanics": [
+    "capture_loop",
+    "party_growth_loop",
+    "battle_loop",
+    "save_loop"
+  ],
+  "defaultCatalogs": [
+    "content/part_catalogs/base_jrpg_parts.json",
+    "content/part_catalogs/generated/cutesckr_medieval_fantasy_town_1_parts.json"
+  ],
+  "optionalCatalogs": [
+    "content/part_catalogs/game_maker_all_parts.json",
+    "content/part_catalogs/generated/cutesckr_all_parts.json"
+  ],
+  "assetIndexPath": "content/asset_indexes/game_maker/monster_collector_starter.json",
+  "fullLibraryPolicy": "opt_in_lazy_load",
+  "browserLayout": "left_collapsible_folder_tree",
+  "indexBackend": "sqlite",
+  "uiThemes": {
+    "defaultGameUiTheme": "complete_ui_essential_flat",
+    "availableGameUiThemes": [
+      "complete_ui_essential_flat",
+      "wenrexa_hologram"
+    ]
+  },
+  "futureCommunityTemplateSlot": true
+}

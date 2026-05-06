@@ -83,6 +83,11 @@ def slugify(s: str) -> str:
     return s or "unknown"
 
 
+def display_name_from_stem(stem: str) -> str:
+    words = re.sub(r"[_\-]+", " ", stem).strip().split()
+    return " ".join(word[:1].upper() + word[1:] for word in words) or "Unknown"
+
+
 def infer_kind(ext: str) -> str:
     if ext in IMAGE_EXTS:
         return "image"
@@ -251,6 +256,37 @@ def read_image_size(path: Path, ext: str) -> tuple[int, int] | None:
     except Exception:
         return None
     return None
+
+
+def is_game_ui_theme_manifest(repo_root: Path, path_rel: str) -> bool:
+    try:
+        data = json.loads((repo_root / path_rel).read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return False
+    surfaces = data.get("surfaces", [])
+    return isinstance(data, dict) and bool(data.get("themeId")) and "game_ui_theme" in surfaces
+
+
+def preview_kind_for_record(repo_root: Path, row: sqlite3.Row) -> tuple[str, str, str]:
+    ext = str(row["ext"] or "")
+    media_kind = str(row["media_kind"])
+    category = str(row["category"] or "")
+    path_rel = str(row["path_rel"])
+    if ext in {"ase", "aseprite"}:
+        return "aseprite_metadata", media_kind, category
+    if ext == "json" and is_game_ui_theme_manifest(repo_root, path_rel):
+        return "ui_theme_manifest", "ui_theme", "game-ui-theme"
+    if media_kind == "image":
+        return "image", media_kind, category
+    if media_kind == "audio":
+        return "audio_metadata", media_kind, category
+    if media_kind == "video":
+        return "video_metadata", media_kind, category
+    if media_kind == "archive":
+        return "archive_metadata", media_kind, category
+    if media_kind == "text-data":
+        return "text_manifest", media_kind, category
+    return "file_metadata", media_kind, category
 
 
 def ffprobe_duration_ms(path: Path, ffprobe_bin: str | None) -> int | None:
@@ -652,6 +688,51 @@ class Catalog:
             ).fetchall(),
         }
 
+    def export_library_index(self, limit: int = 5000) -> dict[str, object]:
+        rows = self.conn.execute(
+            """
+            SELECT path_rel,filename,stem,ext,size_bytes,media_kind,pack,category,width,height,duration_ms
+            FROM assets
+            WHERE missing=0
+            ORDER BY path_rel ASC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+        records: list[dict[str, object]] = []
+        for row in rows:
+            path_rel = str(row["path_rel"])
+            preview_kind, media_kind, category = preview_kind_for_record(self.repo_root, row)
+            record: dict[str, object] = {
+                "stableId": f"asset_{hashlib.sha256(path_rel.encode('utf-8')).hexdigest()[:16]}",
+                "displayName": display_name_from_stem(str(row["stem"])),
+                "sourcePath": path_rel,
+                "previewKind": preview_kind,
+                "mediaKind": media_kind,
+                "category": category,
+                "pack": str(row["pack"] or ""),
+                "sizeBytes": int(row["size_bytes"]),
+                "unloadablePayload": {
+                    "policy": "lazy",
+                    "sourcePath": path_rel,
+                    "sizeBytes": int(row["size_bytes"]),
+                },
+            }
+            if row["width"] and row["height"]:
+                record["dimensions"] = {
+                    "width": int(row["width"]),
+                    "height": int(row["height"]),
+                }
+            if row["duration_ms"]:
+                record["durationMs"] = int(row["duration_ms"])
+            records.append(record)
+        return {
+            "schemaVersion": 1,
+            "generatedAt": now_utc(),
+            "recordCount": len(records),
+            "records": records,
+        }
+
 
 def resolve_roots(repo_root: Path, roots: list[str]) -> list[Path]:
     out: list[Path] = []
@@ -714,6 +795,17 @@ def cmd_stats(cat: Catalog, _args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_export_index(cat: Catalog, args: argparse.Namespace) -> int:
+    index = cat.export_library_index(limit=args.limit)
+    if args.output:
+        output = (cat.repo_root / args.output).resolve()
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(index, indent=2) + "\n", encoding="utf-8")
+    else:
+        print(json.dumps(index, indent=2))
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         description="Robust asset catalog (SQLite + FTS + duplicate tracking)"
@@ -742,6 +834,10 @@ def parser() -> argparse.ArgumentParser:
     d.add_argument("--limit", type=int, default=50)
     d.add_argument("--show-paths", action="store_true")
 
+    e = sub.add_parser("export-index", help="Export deterministic asset-library index JSON.")
+    e.add_argument("--limit", type=int, default=5000)
+    e.add_argument("--output", help="Repo-relative output path.")
+
     sub.add_parser("stats", help="Catalog stats.")
     return p
 
@@ -760,6 +856,8 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_find(cat, args)
         if args.cmd == "dupes":
             return cmd_dupes(cat, args)
+        if args.cmd == "export-index":
+            return cmd_export_index(cat, args)
         if args.cmd == "stats":
             return cmd_stats(cat, args)
         return 2

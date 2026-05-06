@@ -4,8 +4,15 @@
 
 #include <filesystem>
 #include <string>
+#include <vector>
 
 namespace urpg::map {
+
+struct GridPartCatalogScope {
+    GridPartCatalog catalog;
+    std::vector<std::filesystem::path> active_catalog_paths;
+    bool full_library_active = false;
+};
 
 bool LoadGridPartCatalogFromFile(const std::filesystem::path& catalog_path, GridPartCatalog& catalog,
                                  std::string* error_message = nullptr);
@@ -14,5 +21,9 @@ bool LoadGridPartCatalogFromProject(const std::filesystem::path& project_root, G
                                     const std::filesystem::path& relative_catalog_path =
                                         std::filesystem::path("content") / "part_catalogs" / "base_jrpg_parts.json",
                                     std::string* error_message = nullptr);
+
+bool LoadGridPartCatalogScopeFromProject(const std::filesystem::path& project_root,
+                                         const std::vector<std::filesystem::path>& relative_catalog_paths,
+                                         GridPartCatalogScope& scope, std::string* error_message = nullptr);
 
 } // namespace urpg::map
