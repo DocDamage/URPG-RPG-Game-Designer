@@ -19,7 +19,10 @@ public:
     void markProjectMissing(std::string path);
     void hideMissingProject(const std::string& path);
     bool chooseNewProject();
+    void chooseOpenProjectRequest();
     bool chooseOpenProject(std::string path);
+    bool locateMissingProject(const std::string& missing_path, std::string replacement_path);
+    void cancelMissingProjectLocate();
     void chooseSettings();
     void returnToMainMenu();
     void enterEditor(std::string project_path);
@@ -39,6 +42,7 @@ private:
     std::vector<std::string> pinned_projects_;
     std::vector<std::string> missing_projects_;
     std::vector<std::string> hidden_missing_projects_;
+    std::string pending_missing_project_;
     nlohmann::json pending_action_ = nlohmann::json::object();
 };
 

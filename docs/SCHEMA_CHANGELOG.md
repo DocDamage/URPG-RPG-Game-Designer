@@ -30,6 +30,13 @@ Each governed schema entry should include:
 - Summary: initial schema for Maker Shell onboarding template manifests, including game type, question profile, small default world size, recommended mechanics, bounded default catalogs, optional full-library catalogs, asset index shard path, browser/index policy, game UI theme options, and a reserved community-template slot.
 - Migration Impact: none; additive schema for new-project onboarding and template-scoped asset loading.
 
+### Editor settings onboarding/browser fields (`editor.json`)
+
+- Version: `1.0.1`
+- Date: `2026-05-06`
+- Summary: additive editor settings fields for onboarding enabled state, help-tip enabled state, and asset browser layout selection.
+- Migration Impact: none; missing fields default to onboarding/help tips enabled and `left_collapsible_folder_tree`.
+
 ### `audio_tool_manifest` (`audio_tool_manifest.schema.json`)
 
 - Version: `1.0.0`

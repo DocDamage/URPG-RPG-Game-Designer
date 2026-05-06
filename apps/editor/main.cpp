@@ -984,6 +984,7 @@ int main(int argc, char** argv) {
         panelRuntime.main_menu_model.setOnboardingEnabled(settingsLoad.settings.onboarding_enabled);
         panelRuntime.main_menu_model.setHelpTipsEnabled(settingsLoad.settings.help_tips_enabled);
         panelRuntime.main_menu_model.setAssetBrowserLayout(settingsLoad.settings.asset_browser_layout);
+        panelRuntime.new_project_wizard_model.setHelpTipsEnabled(settingsLoad.settings.help_tips_enabled);
         panelRuntime.asset_library_panel.model().setAssetBrowserLayout(settingsLoad.settings.asset_browser_layout);
 
         if (options.open_panel_id.has_value() && !editorShell.openPanel(*options.open_panel_id)) {

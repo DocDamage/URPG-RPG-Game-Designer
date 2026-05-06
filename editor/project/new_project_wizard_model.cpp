@@ -21,6 +21,10 @@ void NewProjectWizardModel::setProjectName(std::string project_name) {
     cancelled_ = false;
 }
 
+void NewProjectWizardModel::setHelpTipsEnabled(bool enabled) {
+    help_tips_enabled_ = enabled;
+}
+
 void NewProjectWizardModel::cancel() {
     cancelled_ = true;
 }
@@ -80,6 +84,61 @@ bool NewProjectWizardModel::selectGameMakerTemplate(const std::string& template_
     }
     return false;
 }
+
+namespace {
+
+nlohmann::json buildQuestionFlow(const nlohmann::json& manifest, bool help_tips_enabled) {
+    if (!manifest.is_object() || manifest.empty()) {
+        return {{"questions", nlohmann::json::array()}, {"question_count", 0}, {"help_tips_enabled", help_tips_enabled}};
+    }
+    const auto gameType = manifest.value("gameType", "");
+    auto questions = nlohmann::json::array();
+    questions.push_back({{"id", "project_identity"}, {"prompt", "Name the project."}, {"required", true}});
+    questions.push_back({{"id", "world_size"},
+                         {"prompt", "Choose the starting world size."},
+                         {"default", manifest.value("defaultWorldSize", nlohmann::json::object())},
+                         {"allows_override", true}});
+    if (gameType == "party_rpg" || gameType == "action_rpg" || gameType == "tactical_rpg" ||
+        gameType == "monster_collector" || gameType == "platform_adventure") {
+        questions.push_back({{"id", "mechanic_depth"},
+                             {"prompt", "Choose mechanic depth."},
+                             {"choices", {"light", "standard", "deep"}},
+                             {"recommended", "standard"},
+                             {"reason", "Matches the selected template mechanics."}});
+    }
+    if (gameType == "visual_novel_hybrid") {
+        questions.push_back({{"id", "story_branching"},
+                             {"prompt", "Choose story branching depth."},
+                             {"choices", {"linear", "choice_driven", "route_based"}},
+                             {"recommended", "choice_driven"}});
+    }
+    if (gameType == "cozy_life") {
+        questions.push_back({{"id", "daily_loop"},
+                             {"prompt", "Choose the daily loop focus."},
+                             {"choices", {"farming", "crafting", "relationships"}},
+                             {"recommended", "relationships"}});
+    }
+    questions.push_back({{"id", "asset_scope"},
+                         {"prompt", "Choose asset scope."},
+                         {"choices", {"template_default", "full_library_opt_in"}},
+                         {"recommended", "template_default"},
+                         {"reason", manifest.value("fullLibraryPolicy", "opt_in_lazy_load")}});
+    questions.push_back({{"id", "ui_theme"},
+                         {"prompt", "Choose game UI theme."},
+                         {"default", manifest.value("uiThemes", nlohmann::json::object())},
+                         {"allows_override", true}});
+    return {
+        {"template_id", manifest.value("templateId", "")},
+        {"game_type", gameType},
+        {"question_profile", manifest.value("questionProfile", "")},
+        {"recommended_mechanics", manifest.value("recommendedMechanics", nlohmann::json::array())},
+        {"help_tips_enabled", help_tips_enabled},
+        {"questions", questions},
+        {"question_count", questions.size()},
+    };
+}
+
+} // namespace
 
 std::optional<std::filesystem::path> NewProjectWizardModel::selectedGameMakerTemplateManifestPath() const {
     if (!selected_game_maker_template_.is_object() || !selected_game_maker_template_.contains("manifestPath")) {
@@ -150,9 +209,11 @@ nlohmann::json NewProjectWizardModel::snapshot() const {
         {"project_id", request_.project_id},
         {"project_name", request_.project_name},
         {"cancelled", cancelled_},
+        {"help_tips_enabled", help_tips_enabled_},
         {"last_audit", last_audit_.is_null() ? nlohmann::json::object() : last_audit_},
         {"game_maker_templates", game_maker_templates_},
         {"selected_game_maker_template", selected_game_maker_template_},
+        {"question_flow", buildQuestionFlow(selected_game_maker_template_, help_tips_enabled_)},
     };
 }
 

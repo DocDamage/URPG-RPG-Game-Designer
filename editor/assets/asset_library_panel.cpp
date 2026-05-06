@@ -313,6 +313,33 @@ AssetLibraryPanel::AssetBrowserRenderSnapshot buildAssetBrowserRenderSnapshot(co
     snapshot.visible_rows = browser.value("visible_rows", nlohmann::json::array());
     snapshot.selected_record = browser.value("selected_record", nlohmann::json::object());
     snapshot.preview_drawer_open = snapshot.selected_record.is_object() && !snapshot.selected_record.empty();
+    if (snapshot.preview_drawer_open) {
+        const auto previewKind = snapshot.selected_record.value("previewKind", "");
+        const auto mediaKind = snapshot.selected_record.value("mediaKind", "");
+        std::string mode = "unknown_placeholder";
+        if (previewKind == "image" || mediaKind == "image") {
+            mode = snapshot.selected_record.contains("atlasRect") || snapshot.selected_record.contains("frames")
+                       ? "spritesheet_preview"
+                       : "image_preview";
+        } else if (mediaKind == "ui_theme" || previewKind == "ui_theme") {
+            mode = "ui_theme_metadata";
+        } else if (mediaKind == "audio") {
+            mode = "audio_placeholder";
+        } else if (mediaKind == "font") {
+            mode = "font_metadata";
+        } else if (mediaKind == "manifest" || previewKind == "json") {
+            mode = "manifest_metadata";
+        }
+        snapshot.preview_summary = {
+            {"mode", mode},
+            {"previewKind", previewKind},
+            {"mediaKind", mediaKind},
+            {"displayName", snapshot.selected_record.value("displayName", "")},
+            {"sourcePath", snapshot.selected_record.value("sourcePath", "")},
+            {"dimensions", snapshot.selected_record.value("dimensions", nlohmann::json::object())},
+            {"atlasRect", snapshot.selected_record.value("atlasRect", nlohmann::json::object())},
+        };
+    }
     snapshot.left_drawer_visible = snapshot.available && snapshot.layout == "left_collapsible_folder_tree";
     return snapshot;
 }

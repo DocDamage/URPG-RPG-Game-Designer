@@ -34,11 +34,35 @@ TEST_CASE("MainMenuModel exposes startup routes and project actions", "[project]
     REQUIRE(snapshot["pending_action"]["action"] == "open_project");
     REQUIRE(snapshot["pending_action"]["projectPath"] == "C:/projects/first.urpg");
 
+    model.chooseOpenProjectRequest();
+    snapshot = model.snapshot();
+    REQUIRE(snapshot["route"] == "open_project");
+    REQUIRE(snapshot["pending_action"]["action"] == "open_project_request");
+
     model.enterEditor("C:/projects/from_template.urpg");
     snapshot = model.snapshot();
     REQUIRE(model.route() == "editor");
     REQUIRE(snapshot["pending_action"]["action"] == "enter_editor");
     REQUIRE(snapshot["recent_projects"][0]["path"] == "C:/projects/from_template.urpg");
+}
+
+TEST_CASE("MainMenuModel locates missing projects into recents", "[project][main_menu]") {
+    urpg::editor::MainMenuModel model;
+    model.addRecentProject("C:/projects/missing.urpg");
+    model.markProjectMissing("C:/projects/missing.urpg");
+
+    REQUIRE_FALSE(model.locateMissingProject("C:/projects/other.urpg", "C:/projects/recovered.urpg"));
+    auto snapshot = model.snapshot();
+    REQUIRE(snapshot["pending_action"]["success"] == false);
+    REQUIRE(snapshot["missing_projects"].size() == 1);
+
+    REQUIRE(model.locateMissingProject("C:/projects/missing.urpg", "D:/Recovered/missing.urpg"));
+    snapshot = model.snapshot();
+    REQUIRE(snapshot["route"] == "main_menu");
+    REQUIRE(snapshot["pending_action"]["success"] == true);
+    REQUIRE(snapshot["pending_action"]["replacementPath"] == "D:/Recovered/missing.urpg");
+    REQUIRE(snapshot["missing_projects"].empty());
+    REQUIRE(snapshot["recent_projects"][0]["path"] == "D:/Recovered/missing.urpg");
 }
 
 TEST_CASE("MainMenuModel limits recents and hides missing projects", "[project][main_menu]") {

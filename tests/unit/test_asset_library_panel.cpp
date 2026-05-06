@@ -762,6 +762,42 @@ TEST_CASE("AssetLibraryPanel dispatches selected browser asset to Level Builder 
     REQUIRE(dispatched["sourcePath"] == "content/assets/gameplay/bridge.png");
 }
 
+TEST_CASE("AssetLibraryPanel preview summary covers supported media kinds",
+          "[assets][asset_library][editor][browser][preview]") {
+    const std::vector<std::pair<nlohmann::json, std::string>> cases = {
+        {{{"stableId", "image"}, {"displayName", "Image"}, {"sourcePath", "image.png"}, {"previewKind", "image"},
+          {"mediaKind", "image"}, {"category", "terrain"}, {"pack", "Pack"}},
+         "image_preview"},
+        {{{"stableId", "sheet"}, {"displayName", "Sheet"}, {"sourcePath", "sheet.png"}, {"previewKind", "image"},
+          {"mediaKind", "image"}, {"category", "terrain"}, {"pack", "Pack"}, {"atlasRect", {{"x", 0}, {"y", 0}, {"width", 16}, {"height", 16}}}},
+         "spritesheet_preview"},
+        {{{"stableId", "theme"}, {"displayName", "Theme"}, {"sourcePath", "theme.json"}, {"previewKind", "ui_theme"},
+          {"mediaKind", "ui_theme"}, {"category", "ui"}, {"pack", "Theme"}},
+         "ui_theme_metadata"},
+        {{{"stableId", "audio"}, {"displayName", "Audio"}, {"sourcePath", "audio.ogg"}, {"previewKind", "placeholder"},
+          {"mediaKind", "audio"}, {"category", "audio"}, {"pack", "Audio"}},
+         "audio_placeholder"},
+        {{{"stableId", "font"}, {"displayName", "Font"}, {"sourcePath", "font.ttf"}, {"previewKind", "metadata"},
+          {"mediaKind", "font"}, {"category", "font"}, {"pack", "Font"}},
+         "font_metadata"},
+        {{{"stableId", "manifest"}, {"displayName", "Manifest"}, {"sourcePath", "manifest.json"}, {"previewKind", "json"},
+          {"mediaKind", "manifest"}, {"category", "manifest"}, {"pack", "Manifest"}},
+         "manifest_metadata"},
+        {{{"stableId", "unknown"}, {"displayName", "Unknown"}, {"sourcePath", "file.bin"}, {"previewKind", "unknown"},
+          {"mediaKind", "unknown"}, {"category", "unknown"}, {"pack", "Unknown"}},
+         "unknown_placeholder"},
+    };
+
+    for (const auto& [record, expectedMode] : cases) {
+        urpg::editor::AssetLibraryPanel panel;
+        panel.model().ingestAssetLibraryIndex(nlohmann::json{{"schemaVersion", 1}, {"records", {record}}});
+        panel.model().selectAssetBrowserRecord(record["stableId"]);
+        panel.render();
+        REQUIRE(panel.lastAssetBrowserSnapshot().preview_summary["mode"] == expectedMode);
+        REQUIRE(panel.lastAssetBrowserSnapshot().preview_summary["sourcePath"] == record["sourcePath"]);
+    }
+}
+
 TEST_CASE("AssetLibraryPanel reflects configured asset browser layout",
           "[assets][asset_library][editor][browser][settings]") {
     urpg::editor::AssetLibraryPanel panel;

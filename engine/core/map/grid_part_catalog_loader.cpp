@@ -251,6 +251,9 @@ bool LoadGridPartCatalogScopeFromProject(const std::filesystem::path& project_ro
         loaded.active_catalog_paths.push_back(relative_path.generic_string());
         loaded.full_library_active = loaded.full_library_active || pathLooksLikeFullLibraryScope(relative_path);
     }
+    loaded.scope_name = loaded.full_library_active ? "full_library" : "starter";
+    loaded.active_catalog_count = loaded.active_catalog_paths.size();
+    loaded.active_part_count = loaded.catalog.size();
 
     scope = std::move(loaded);
     return true;

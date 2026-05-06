@@ -150,6 +150,60 @@ TEST_CASE("NewProjectWizardModel creates selected template project on disk",
     std::filesystem::remove_all(root);
 }
 
+TEST_CASE("NewProjectWizardModel exposes adaptive question flows for game-maker lanes",
+          "[project][editor][panel][onboarding]") {
+    const auto root = uniqueTempRoot("urpg_new_project_question_flows");
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root);
+    const std::vector<std::pair<std::string, std::string>> lanes = {
+        {"jrpg", "party_rpg"},
+        {"action_rpg", "action_rpg"},
+        {"tactical_rpg", "tactical_rpg"},
+        {"visual_novel_hybrid", "visual_novel_hybrid"},
+        {"cozy_life", "cozy_life"},
+        {"monster_collector", "monster_collector"},
+        {"platform_adventure", "platform_adventure"},
+    };
+    for (const auto& [id, gameType] : lanes) {
+        std::ofstream out(root / (id + ".json"));
+        out << nlohmann::json{
+                   {"schemaVersion", 1},
+                   {"templateId", id},
+                   {"displayName", id},
+                   {"gameType", gameType},
+                   {"questionProfile", gameType + "_guided_setup"},
+                   {"defaultWorldSize", {{"preset", "small"}, {"maps", 3}, {"recommendedTileSize", 48}}},
+                   {"recommendedMechanics", {"core_loop", "save_loop"}},
+                   {"defaultCatalogs", {"content/part_catalogs/base_jrpg_parts.json"}},
+                   {"optionalCatalogs", {"content/part_catalogs/game_maker_all_parts.json"}},
+                   {"assetIndexPath", "content/asset_indexes/game_maker/" + id + ".json"},
+                   {"fullLibraryPolicy", "opt_in_lazy_load"},
+                   {"browserLayout", "left_collapsible_folder_tree"},
+                   {"indexBackend", "sqlite"},
+                   {"uiThemes", {{"defaultGameUiTheme", "complete_ui_essential_flat"},
+                                  {"availableGameUiThemes", {"complete_ui_essential_flat"}}}},
+                   {"futureCommunityTemplateSlot", true},
+               }.dump(2);
+    }
+
+    urpg::editor::NewProjectWizardModel model;
+    model.setHelpTipsEnabled(false);
+    REQUIRE(model.loadGameMakerTemplateManifests(root));
+    for (const auto& [id, gameType] : lanes) {
+        REQUIRE(model.selectGameMakerTemplate(id));
+        const auto flow = model.snapshot()["question_flow"];
+        REQUIRE(flow["template_id"] == id);
+        REQUIRE(flow["game_type"] == gameType);
+        REQUIRE(flow["help_tips_enabled"] == false);
+        REQUIRE(flow["question_count"].get<size_t>() >= 5);
+        REQUIRE(flow["questions"][0]["id"] == "project_identity");
+        REQUIRE(flow["questions"][flow["questions"].size() - 2]["id"] == "asset_scope");
+        REQUIRE(flow["questions"][flow["questions"].size() - 1]["id"] == "ui_theme");
+    }
+
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("NewProjectWizardPanel starts selected game-maker template through asset browser callback",
           "[project][editor][panel][onboarding]") {
     const auto root = uniqueTempRoot("urpg_new_project_template_start");

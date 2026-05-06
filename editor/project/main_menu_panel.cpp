@@ -89,11 +89,43 @@ bool MainMenuModel::chooseNewProject() {
     return true;
 }
 
+void MainMenuModel::chooseOpenProjectRequest() {
+    route_ = "open_project";
+    pending_action_ = {{"action", "open_project_request"}, {"route", route_}};
+}
+
 bool MainMenuModel::chooseOpenProject(std::string path) {
     route_ = "editor";
     addRecentProject(path);
     pending_action_ = {{"action", "open_project"}, {"projectPath", std::move(path)}, {"route", route_}};
     return true;
+}
+
+bool MainMenuModel::locateMissingProject(const std::string& missing_path, std::string replacement_path) {
+    if (replacement_path.empty() ||
+        std::find(missing_projects_.begin(), missing_projects_.end(), missing_path) == missing_projects_.end()) {
+        pending_action_ = {{"action", "locate_missing_project"}, {"success", false}, {"projectPath", missing_path}};
+        return false;
+    }
+    eraseValue(missing_projects_, missing_path);
+    eraseValue(hidden_missing_projects_, missing_path);
+    pending_missing_project_.clear();
+    addRecentProject(replacement_path);
+    route_ = "main_menu";
+    pending_action_ = {
+        {"action", "locate_missing_project"},
+        {"success", true},
+        {"projectPath", missing_path},
+        {"replacementPath", std::move(replacement_path)},
+        {"route", route_},
+    };
+    return true;
+}
+
+void MainMenuModel::cancelMissingProjectLocate() {
+    pending_missing_project_.clear();
+    route_ = "main_menu";
+    pending_action_ = {{"action", "cancel_locate_missing_project"}, {"route", route_}};
 }
 
 void MainMenuModel::chooseSettings() {
@@ -138,6 +170,7 @@ nlohmann::json MainMenuModel::snapshot() const {
         {"pinned_projects", projectRows(pinned_projects_)},
         {"missing_projects", missingRows(missing_projects_)},
         {"hidden_missing_projects", hidden_missing_projects_},
+        {"pending_missing_project", pending_missing_project_},
         {"pending_action", pending_action_},
     };
 }
@@ -206,7 +239,9 @@ void MainMenuPanel::render() {
             if (ImGui::Button("New Project", ImVec2(-1.0f, 0.0f))) {
                 (void)model_->chooseNewProject();
             }
-            ImGui::Button("Open Project", ImVec2(-1.0f, 0.0f));
+            if (ImGui::Button("Open Project", ImVec2(-1.0f, 0.0f))) {
+                model_->chooseOpenProjectRequest();
+            }
             if (ImGui::Button("Settings", ImVec2(-1.0f, 0.0f))) {
                 model_->chooseSettings();
             }
@@ -224,6 +259,10 @@ void MainMenuPanel::render() {
             ImGui::SeparatorText("Missing Projects");
             for (const auto& row : modelSnapshot.value("missing_projects", nlohmann::json::array())) {
                 ImGui::Text("%s", row.value("path", "").c_str());
+                ImGui::SameLine();
+                if (ImGui::SmallButton(("Locate##" + row.value("path", "")).c_str())) {
+                    (void)model_->locateMissingProject(row.value("path", ""), row.value("path", ""));
+                }
                 ImGui::SameLine();
                 if (ImGui::SmallButton(("Hide##" + row.value("path", "")).c_str())) {
                     model_->hideMissingProject(row.value("path", ""));

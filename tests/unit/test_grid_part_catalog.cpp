@@ -270,6 +270,9 @@ TEST_CASE("Grid part catalog scope switches between starter and full library wit
     REQUIRE(starterScope.catalog.find("starter.spawn") != nullptr);
     REQUIRE(starterScope.catalog.find("full.castle.wall") == nullptr);
     REQUIRE(starterScope.full_library_active == false);
+    REQUIRE(starterScope.scope_name == "starter");
+    REQUIRE(starterScope.active_catalog_count == 1);
+    REQUIRE(starterScope.active_part_count == 1);
     REQUIRE(starterScope.active_catalog_paths == std::vector<std::filesystem::path>{"content/part_catalogs/starter.json"});
 
     GridPartCatalogScope fullScope;
@@ -279,6 +282,9 @@ TEST_CASE("Grid part catalog scope switches between starter and full library wit
     REQUIRE(fullScope.catalog.find("starter.spawn") == nullptr);
     REQUIRE(fullScope.catalog.find("full.castle.wall") != nullptr);
     REQUIRE(fullScope.full_library_active == true);
+    REQUIRE(fullScope.scope_name == "full_library");
+    REQUIRE(fullScope.active_catalog_count == 1);
+    REQUIRE(fullScope.active_part_count == 1);
 
     GridPartCatalogScope restoredStarterScope;
     REQUIRE(LoadGridPartCatalogScopeFromProject(tempRoot, {"content/part_catalogs/starter.json"}, restoredStarterScope,
@@ -287,6 +293,8 @@ TEST_CASE("Grid part catalog scope switches between starter and full library wit
     REQUIRE(restoredStarterScope.catalog.find("starter.spawn") != nullptr);
     REQUIRE(restoredStarterScope.catalog.find("full.castle.wall") == nullptr);
     REQUIRE(restoredStarterScope.full_library_active == false);
+    REQUIRE(restoredStarterScope.scope_name == "starter");
+    REQUIRE(restoredStarterScope.active_part_count == 1);
 
     std::filesystem::remove_all(tempRoot);
 }

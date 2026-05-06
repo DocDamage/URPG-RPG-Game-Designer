@@ -11,6 +11,9 @@ namespace urpg::map {
 struct GridPartCatalogScope {
     GridPartCatalog catalog;
     std::vector<std::filesystem::path> active_catalog_paths;
+    std::string scope_name = "starter";
+    size_t active_catalog_count = 0;
+    size_t active_part_count = 0;
     bool full_library_active = false;
 };
 

@@ -78,6 +78,7 @@ class AssetLibraryPanel {
         nlohmann::json pack_tree = nlohmann::json::array();
         nlohmann::json visible_rows = nlohmann::json::array();
         nlohmann::json selected_record = nlohmann::json::object();
+        nlohmann::json preview_summary = nlohmann::json::object();
         bool preview_drawer_open = false;
         bool left_drawer_visible = false;
     };

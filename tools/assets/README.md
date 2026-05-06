@@ -281,7 +281,7 @@ Generated manifests conform to `content/schemas/ui_theme.schema.json` version 2 
 - `wenrexa_hologram` ingests 48 assets and remains `candidate` because it is missing bar/progress assets.
 - Neither pack is editor-theme-ready; editor theme use still requires hand-authored color tokens, font pairing, semantic icon aliases, nine-slice metadata, scale policy, and missing editor-control states.
 
-The implementation plan for connecting these manifests to template-scoped browsing, previews, and onboarding is `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md`.
+Template-scoped browsing, previews, and onboarding are now wired into the editor model/panel flow. The shipped path uses bounded starter indexes by default, keeps `content/part_catalogs/game_maker_all_parts.json` opt-in, and exposes preview metadata plus Level Builder handoff through the asset browser. Follow-up details are tracked in `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md` and `docs/superpowers/plans/2026-05-06-game-maker-onboarding-finish-plan.md`.
 
 ## Local generator/tool candidate catalog
 Catalog generator and tool source folders from a local drop for engineering review without executing them.
