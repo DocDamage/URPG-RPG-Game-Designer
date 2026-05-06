@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="resources/icons/urpg_editor.png" alt="URPG Maker editor icon" width="128">
+</p>
+
 # URPG Maker
 
 URPG Maker is a native-first RPG engine and editor for deterministic, data-driven RPGs. It combines a C++20 runtime, an ImGui editor, a release-wired Level Builder, OpenGL and headless validation paths, bounded RPG Maker MZ compatibility tooling, governed asset intake, native package validation, and review-gated AI-assisted editing.
@@ -6,22 +10,24 @@ The project is built for creators who want RPG Maker-style production speed with
 
 ## Current Status
 
-Status date: 2026-05-05
+Status date: 2026-05-06
 
-The current `codex/release-surface-p0` branch has completed the release-surface audit remediation plan through Phase 6 Task P6-002. The full local gate now passes end to end:
+Branding assets are present and release-packaged under `resources/icons/`: `urpg_editor.png` / `urpg_editor.ico` for the editor and `urpg_runtime.png` / `urpg_runtime.ico` for the runtime.
+
+As of this status date, the tree preserves the completed release-surface audit remediation through Phase 6 Task P6-002. The full local gate for that release surface is:
 
 ```powershell
 .\tools\ci\run_local_gates.ps1
 ```
 
-This means the current branch has verified editor release navigation, Level Builder exposure, release authoring persistence, input and pause behavior, release-required asset checks, install/package smoke, PR tests, nightly tests, weekly compat tests, and documentation/readiness guard scripts.
+That gate covers editor release navigation, Level Builder exposure, release authoring persistence, input and pause behavior, release-required asset checks, install/package smoke, PR tests, nightly tests, weekly compat tests, and documentation/readiness guard scripts.
 
-The current asset-ingestion branch also adds a larger game-maker asset foundation: default startup remains on the bounded `content/part_catalogs/base_jrpg_parts.json`, while the complete generated library is opt-in through `content/part_catalogs/game_maker_all_parts.json`. The editor now has a first-surface main menu, template-aware onboarding model, project creation from selected game-maker templates, a left-side asset browser drawer with preview metadata, visible handoff into Level Builder, and guarded full-library scope accounting. Remaining finish work is tracked in `docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md` and `docs/superpowers/plans/2026-05-06-game-maker-onboarding-finish-plan.md`.
+The game-maker asset browsing and onboarding foundation is implemented in the editor model/panel flow. Default startup remains bounded on `content/part_catalogs/base_jrpg_parts.json`; the complete generated game-maker library is opt-in through `content/part_catalogs/game_maker_all_parts.json`. The editor has a first-surface main menu, template-aware onboarding snapshots, project creation from selected game-maker templates, persisted onboarding/help-tip/browser-layout settings, a left-side asset browser drawer with preview metadata for common media kinds, visible handoff into Level Builder, drag/paint/erase command coverage, and guarded full-library scope accounting.
 
-The Maker Shell UI/UX migration is tracked in `docs/ui/URPG_MAKER_SHELL_UIUX_PLAN.md`. It keeps the current seven release top-level panels stable while moving toward a canvas-first shell with main menu, onboarding, template-scoped asset loading, part belt, asset browser, side rails, playtest rail, All Tools, and backend-neutral UI documents.
+The Maker Shell UI/UX migration is tracked in `docs/ui/URPG_MAKER_SHELL_UIUX_PLAN.md`. It keeps the seven release top-level panels stable while moving toward a canvas-first shell with main menu, onboarding, template-scoped asset loading, part belt, asset browser, side rails, playtest rail, All Tools, and backend-neutral UI documents.
 
 Public release is release-owner-waived for legal/privacy review, not qualified-counsel-approved. `EULA.md`,
-`PRIVACY_POLICY.md`, and `docs/release/LEGAL_REVIEW_SIGNOFF.md` now state the same distribution scope. Final public
+`PRIVACY_POLICY.md`, and `docs/release/LEGAL_REVIEW_SIGNOFF.md` state the same distribution scope. Final public
 distribution still requires a release tag and any platform-specific signing/notarization credentials required for final
 distribution.
 
@@ -32,9 +38,9 @@ distribution.
 - `developer_debug_overlay` and other debug/dev surfaces are `DevOnly`, excluded from release navigation, and tested as such.
 - Deferred editor panels remain compiled for direct tests, snapshots, or roadmap work, but are not advertised as release navigation.
 - The native `level_builder` panel is wired into the editor shell and uses the real grid-part Level Builder workspace.
-- The release inventory, app readiness matrix, and editor panel registry are now cross-checked by tests instead of maintained only by convention.
+- The release inventory, app readiness matrix, and editor panel registry are cross-checked by tests instead of maintained only by convention.
 
-## What Is Release-Ready In This Branch
+## What Is Verified In This Tree
 
 Within the bounded internal/private release-candidate scope:
 
@@ -42,9 +48,11 @@ Within the bounded internal/private release-candidate scope:
 - Editor release navigation starts headlessly, lists panels, and opens `level_builder`.
 - Ability draft save/load/apply, ability project-content save, pattern editing, Level Builder save/load/export/playtest/package, analytics consent/local JSONL export, and app settings persistence are covered by deterministic tests.
 - Release-required assets are validated by `tools/ci/check_release_required_assets.ps1`; raw/vendor intake paths are not eligible release payloads.
-- Current release visuals are bounded starter/proof assets, not final AAA art direction. The release asset gate requires this scope to be declared before prototype actor, starter UI skin/chrome, or VFX proof rows can satisfy release coverage.
-- Generated game-maker asset catalogs now include promoted legacy parts, CuteSCKR sheets, portrait/image-folder catalogs, and deferred ModernUI portrait-generator parts. These are browse/authoring inputs; templates must load bounded subsets by default and leave the full library opt-in.
-- In-game UI theme metadata now distinguishes `game_ui_theme` from `editor_theme`. `Complete_UI_Essential_Pack_Free` is recorded as game-UI-ready, while `Wenrexa Hologram` remains a candidate because its completeness report is missing bar/progress assets.
+- Release visuals are bounded starter/proof assets, not final AAA art direction. The release asset gate requires this scope to be declared before prototype actor, starter UI skin/chrome, or VFX proof rows can satisfy release coverage.
+- Generated game-maker asset catalogs include promoted legacy parts, CuteSCKR sheets, portrait/image-folder catalogs, and deferred ModernUI portrait-generator parts. These are browse/authoring inputs; templates must load bounded subsets by default and leave the full library opt-in.
+- The game-maker asset browser is model-backed and uses an indexed, paged drawer by default. Selected browser records can be handed to Level Builder for grid-part placement; full-library row snapshots are capped and scope diagnostics report active catalog and part counts.
+- New project onboarding can discover game-maker template manifests, expose adaptive question snapshots by game type, create project folders from selected templates, and persist the selected game-template manifest with onboarding audit output.
+- In-game UI theme metadata separates `game_ui_theme` from `editor_theme`. `Complete_UI_Essential_Pack_Free` is recorded as game-UI-ready, while `Wenrexa Hologram` remains a candidate because its completeness report is missing bar/progress assets.
 - Cloud sync is not a production-visible release feature in the shipped tree. `LocalInMemoryCloudService` is process-local
   test/dev storage only, and release UI must keep cloud/cross-device sync hidden unless an out-of-tree provider reports a
   reviewed remote transport through `ICloudService::releaseVisibility()`.
@@ -57,9 +65,22 @@ Within the bounded internal/private release-candidate scope:
 - Release-owner legal/privacy waiver is recorded in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; qualified public legal review has not been performed.
 - Public distribution approval and release tagging.
 - Platform signing/notarization credentials for final release artifacts.
-- Repository-wide source/vendor LFS budget/access if future release work depends on full vendor/source asset hydration. Current release-required app assets are normal Git blobs and are checked separately.
+- Repository-wide source/vendor LFS budget/access if future release work depends on full vendor/source asset hydration. Release-required app assets are normal Git blobs and are checked separately.
 
 ## Product Pillars
+
+### Branding Assets
+
+The repository carries first-party app branding as release-required resources:
+
+<p>
+  <img src="resources/icons/urpg_editor.png" alt="URPG Maker editor icon" width="96">
+  <img src="resources/icons/urpg_runtime.png" alt="URPG Maker runtime icon" width="96">
+</p>
+
+- Editor branding: `resources/icons/urpg_editor.png` and `resources/icons/urpg_editor.ico`.
+- Runtime branding: `resources/icons/urpg_runtime.png` and `resources/icons/urpg_runtime.ico`.
+- Packaging and install smoke checks treat app icons as release resources alongside binaries, runtime data, docs, legal files, desktop entries, and component archives.
 
 ### Native Level Builder
 
@@ -83,6 +104,34 @@ Key files:
 - `engine/core/map/grid_part_*`
 - `content/schemas/grid_part_*.schema.json`
 - `tests/unit/test_grid_part_editor.cpp`
+
+### Game-Maker Asset Browser And Onboarding
+
+The game-maker creation flow is model-backed and bounded by default:
+
+- The first visible editor surface is a main menu with Continue, New Project, Open Project request, Recent Projects, Pinned Projects, Missing Project locate/hide handling, and Settings.
+- New Project uses game-maker template manifests under `content/templates/game_maker/` and exposes adaptive question snapshots for JRPG, action RPG, tactical RPG, visual novel hybrid, cozy/life, monster collector, and platform/adventure lanes.
+- Project creation writes `project.json`, `reports/onboarding/project_template_audit.json`, and `content/game_template_manifest.json` into the created project folder.
+- Editor settings persist onboarding enabled state, help-tip enabled state, and asset browser layout.
+- The asset browser uses indexed records with folder/category/pack facets, search/filter state, selected preview metadata, and capped row snapshots.
+- Preview summaries distinguish image, spritesheet, game UI theme metadata, audio placeholder, font metadata, JSON manifest metadata, and unknown-file fallback.
+- Selected browser records can be handed to Level Builder, where their `stableId` is used as the grid-part catalog id for placement.
+- Full-library scope is opt-in; scope diagnostics expose active catalog count, active part count, row limit, and full-library state.
+
+Key files:
+
+- `editor/assets/asset_library_model.*`
+- `editor/assets/asset_library_panel.*`
+- `editor/project/main_menu_panel.*`
+- `editor/project/new_project_wizard_model.*`
+- `editor/project/new_project_wizard_panel.*`
+- `engine/core/map/grid_part_catalog_loader.*`
+- `content/schemas/asset_library_index.schema.json`
+- `content/schemas/game_template_manifest.schema.json`
+- `content/templates/game_maker/`
+- `tests/unit/test_asset_library_panel.cpp`
+- `tests/unit/test_main_menu_panel.cpp`
+- `tests/unit/test_new_project_wizard_panel.cpp`
 
 ### Native Runtime Core
 
@@ -237,6 +286,7 @@ Version metadata:
 - [Asset Promotion Guide](./docs/asset_intake/ASSET_PROMOTION_GUIDE.md)
 - [Template Specs](./docs/templates/)
 - [Game Maker Asset Browser And Onboarding Plan](./docs/superpowers/plans/2026-05-05-game-maker-asset-browser-onboarding-plan.md)
+- [Game Maker Onboarding Finish Plan](./docs/superpowers/plans/2026-05-06-game-maker-onboarding-finish-plan.md)
 - [Maker Shell UI/UX Plan](./docs/ui/URPG_MAKER_SHELL_UIUX_PLAN.md)
 - [Maker Shell Visual Language](./docs/ui/MAKER_UI_VISUAL_LANGUAGE.md)
 
