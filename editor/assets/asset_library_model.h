@@ -151,6 +151,7 @@ class AssetLibraryModel {
     void setAssetBrowserSourceFilter(std::string source_prefix);
     void selectAssetBrowserRecord(std::string stable_id);
     void setAssetBrowserPage(size_t offset, size_t limit);
+    void setAssetBrowserLayout(std::string layout);
     bool loadAssetLibraryIndexFromFile(const std::filesystem::path& index_path, std::string* error_message = nullptr);
     bool loadGameTemplateManifestFromFile(const std::filesystem::path& manifest_path,
                                           std::string* error_message = nullptr);
@@ -187,6 +188,7 @@ class AssetLibraryModel {
     std::string asset_browser_category_filter_;
     std::string asset_browser_source_filter_;
     std::string selected_asset_id_;
+    std::string asset_browser_layout_ = "left_collapsible_folder_tree";
     size_t asset_browser_offset_ = 0;
     size_t asset_browser_limit_ = 50;
 };

@@ -81,8 +81,54 @@ void renderJsonRows(const char* tableId, const nlohmann::json& rows, std::initia
     ImGui::EndTable();
 }
 
+void renderAssetBrowserDrawer(const nlohmann::json& browser) {
+    const auto visibleCount = browser.value("visible_count", size_t{0});
+    const auto totalCount = browser.value("total_count", size_t{0});
+    ImGui::Text("Rows: %zu / %zu", visibleCount, totalCount);
+    ImGui::Text("Query: %s", browser.value("query", "").c_str());
+    if (browser.contains("filters")) {
+        ImGui::Text("Pack: %s", browser["filters"].value("pack", "").c_str());
+        ImGui::Text("Category: %s", browser["filters"].value("category", "").c_str());
+        ImGui::Text("Source: %s", browser["filters"].value("source", "").c_str());
+    }
+
+    ImGui::SeparatorText("Folders");
+    renderJsonRows("AssetBrowserDrawerFolders", browser.value("folder_tree", nlohmann::json::array()), {"id", "count"},
+                   8);
+    ImGui::SeparatorText("Categories");
+    renderJsonRows("AssetBrowserDrawerCategories", browser.value("category_tree", nlohmann::json::array()),
+                   {"id", "count"}, 8);
+    ImGui::SeparatorText("Packs");
+    renderJsonRows("AssetBrowserDrawerPacks", browser.value("pack_tree", nlohmann::json::array()), {"id", "count"},
+                   8);
+}
+
+bool renderAssetBrowserRowsAndPreview(const nlohmann::json& browser) {
+    bool useSelectedInLevelBuilder = false;
+    ImGui::SeparatorText("Assets");
+    renderJsonRows("AssetBrowserDrawerRows", browser.value("visible_rows", nlohmann::json::array()),
+                   {"stableId", "displayName", "mediaKind", "category", "pack"}, 16);
+
+    const auto selected = browser.contains("selected_record") ? browser["selected_record"] : nlohmann::json::object();
+    if (selected.is_object() && !selected.empty()) {
+        ImGui::SeparatorText("Preview");
+        ImGui::Text("Name: %s", selected.value("displayName", "").c_str());
+        ImGui::Text("Path: %s", selected.value("sourcePath", "").c_str());
+        ImGui::Text("Kind: %s / %s", selected.value("previewKind", "").c_str(),
+                    selected.value("mediaKind", "").c_str());
+        if (selected.contains("dimensions") && selected["dimensions"].is_object()) {
+            ImGui::Text("Size: %d x %d",
+                        selected["dimensions"].value("width", 0),
+                        selected["dimensions"].value("height", 0));
+        }
+        useSelectedInLevelBuilder = ImGui::Button("Use in Level Builder", ImVec2(-1.0f, 0.0f));
+    }
+    return useSelectedInLevelBuilder;
+}
+
 void renderAssetLibraryWindow(const AssetLibraryModelSnapshot& snapshot,
-                              const AssetLibraryPanel::ImportWizardRenderSnapshot& wizard) {
+                              const AssetLibraryPanel::ImportWizardRenderSnapshot& wizard,
+                              bool* useSelectedInLevelBuilder) {
     if (!ImGui::Begin("Assets")) {
         ImGui::End();
         return;
@@ -128,47 +174,74 @@ void renderAssetLibraryWindow(const AssetLibraryModelSnapshot& snapshot,
         ImGui::EndTable();
     }
 
-    if (ImGui::BeginTabBar("AssetLibraryTabs")) {
-        if (ImGui::BeginTabItem("Wizard")) {
-            ImGui::Text("Step: %s", wizard.current_step.c_str());
-            ImGui::Text("Status: %s", wizard.status.c_str());
-            for (const auto& step : wizard.steps) {
-                ImGui::BulletText("%s: %s (%zu)", step.label.c_str(), step.state.c_str(), step.count);
+    const auto& browser = snapshot.asset_index_browser;
+    const bool browserAvailable = browser.is_object() &&
+                                  (browser.value("visible_count", size_t{0}) > 0 ||
+                                   browser.value("total_count", size_t{0}) > 0);
+    const bool showLeftDrawer = browserAvailable &&
+                                snapshot.asset_browser_scope.value("browser_layout", "") ==
+                                    "left_collapsible_folder_tree";
+    if (showLeftDrawer) {
+        const float drawerWidth = std::min(360.0f, std::max(260.0f, ImGui::GetContentRegionAvail().x * 0.32f));
+        if (ImGui::BeginChild("AssetBrowserLeftDrawer", ImVec2(drawerWidth, 0.0f), true)) {
+            ImGui::TextUnformatted("Browser");
+            renderAssetBrowserDrawer(browser);
+        }
+        ImGui::EndChild();
+        ImGui::SameLine();
+    }
+
+    if (ImGui::BeginChild("AssetLibraryMainContent", ImVec2(0.0f, 0.0f), false)) {
+        if (browserAvailable) {
+            if (renderAssetBrowserRowsAndPreview(browser) && useSelectedInLevelBuilder != nullptr) {
+                *useSelectedInLevelBuilder = true;
             }
             ImGui::Separator();
-            for (const auto& action : wizard.actions) {
-                if (!action.enabled) {
-                    ImGui::BeginDisabled();
+        }
+
+        if (ImGui::BeginTabBar("AssetLibraryTabs")) {
+            if (ImGui::BeginTabItem("Wizard")) {
+                ImGui::Text("Step: %s", wizard.current_step.c_str());
+                ImGui::Text("Status: %s", wizard.status.c_str());
+                for (const auto& step : wizard.steps) {
+                    ImGui::BulletText("%s: %s (%zu)", step.label.c_str(), step.state.c_str(), step.count);
                 }
-                ImGui::Button(action.id.c_str());
-                if (!action.enabled) {
-                    ImGui::EndDisabled();
+                ImGui::Separator();
+                for (const auto& action : wizard.actions) {
+                    if (!action.enabled) {
+                        ImGui::BeginDisabled();
+                    }
+                    ImGui::Button(action.id.c_str());
+                    if (!action.enabled) {
+                        ImGui::EndDisabled();
+                    }
+                    if (!action.disabled_reason.empty()) {
+                        ImGui::SameLine();
+                        ImGui::TextDisabled("%s", action.disabled_reason.c_str());
+                    }
                 }
-                if (!action.disabled_reason.empty()) {
-                    ImGui::SameLine();
-                    ImGui::TextDisabled("%s", action.disabled_reason.c_str());
-                }
+                ImGui::EndTabItem();
             }
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Assets")) {
-            renderJsonRows("AssetActionRows", snapshot.asset_action_rows,
-                           {"path", "kind", "status", "runtime_ready", "issue_count"});
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Imports")) {
-            renderJsonRows("ImportReviewRows", snapshot.import_review_rows,
-                           {"asset_id", "status", "kind", "license", "reason"});
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Categories")) {
-            for (const auto& [category, count] : snapshot.category_counts) {
-                ImGui::BulletText("%s: %zu", category.c_str(), count);
+            if (ImGui::BeginTabItem("Assets")) {
+                renderJsonRows("AssetActionRows", snapshot.asset_action_rows,
+                               {"path", "kind", "status", "runtime_ready", "issue_count"});
+                ImGui::EndTabItem();
             }
-            ImGui::EndTabItem();
+            if (ImGui::BeginTabItem("Imports")) {
+                renderJsonRows("ImportReviewRows", snapshot.import_review_rows,
+                               {"asset_id", "status", "kind", "license", "reason"});
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Categories")) {
+                for (const auto& [category, count] : snapshot.category_counts) {
+                    ImGui::BulletText("%s: %zu", category.c_str(), count);
+                }
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
         }
-        ImGui::EndTabBar();
     }
+    ImGui::EndChild();
 
     ImGui::End();
 }
@@ -218,6 +291,29 @@ AssetLibraryPanel::ImportWizardRenderSnapshot buildImportWizardRenderSnapshot(co
     const auto package = std::find_if(snapshot.actions.begin(), snapshot.actions.end(),
                                       [](const auto& action) { return action.id == "package_validate"; });
     snapshot.package_validation_ready = package != snapshot.actions.end() && package->enabled;
+    return snapshot;
+}
+
+AssetLibraryPanel::AssetBrowserRenderSnapshot buildAssetBrowserRenderSnapshot(const AssetLibraryModelSnapshot& model) {
+    AssetLibraryPanel::AssetBrowserRenderSnapshot snapshot;
+    const auto& browser = model.asset_index_browser;
+    if (!browser.is_object()) {
+        return snapshot;
+    }
+    snapshot.available = browser.value("total_count", 0u) > 0 || browser.value("visible_count", 0u) > 0;
+    snapshot.layout = model.asset_browser_scope.value("browser_layout", snapshot.layout);
+    snapshot.query = browser.value("query", "");
+    snapshot.total_count = browser.value("total_count", 0u);
+    snapshot.visible_count = browser.value("visible_count", 0u);
+    snapshot.filters = browser.value("filters", nlohmann::json::object());
+    snapshot.page = browser.value("page", nlohmann::json::object());
+    snapshot.folder_tree = browser.value("folder_tree", nlohmann::json::array());
+    snapshot.category_tree = browser.value("category_tree", nlohmann::json::array());
+    snapshot.pack_tree = browser.value("pack_tree", nlohmann::json::array());
+    snapshot.visible_rows = browser.value("visible_rows", nlohmann::json::array());
+    snapshot.selected_record = browser.value("selected_record", nlohmann::json::object());
+    snapshot.preview_drawer_open = snapshot.selected_record.is_object() && !snapshot.selected_record.empty();
+    snapshot.left_drawer_visible = snapshot.available && snapshot.layout == "left_collapsible_folder_tree";
     return snapshot;
 }
 
@@ -357,14 +453,24 @@ void AssetLibraryPanel::setImportSourcePicker(ImportSourcePicker picker) {
     import_source_picker_ = std::move(picker);
 }
 
+void AssetLibraryPanel::setAssetBrowserSelectionCallback(AssetBrowserSelectionCallback callback) {
+    asset_browser_selection_callback_ = std::move(callback);
+}
+
 void AssetLibraryPanel::render() {
+    refreshRenderSnapshotsFromModel();
     if (!visible_) {
         return;
     }
-    refreshRenderSnapshotsFromModel();
     has_rendered_frame_ = true;
 #ifdef URPG_IMGUI_ENABLED
-    renderAssetLibraryWindow(last_render_snapshot_, last_import_wizard_snapshot_);
+    if (ImGui::GetCurrentContext() != nullptr) {
+        bool useSelectedInLevelBuilder = false;
+        renderAssetLibraryWindow(last_render_snapshot_, last_import_wizard_snapshot_, &useSelectedInLevelBuilder);
+        if (useSelectedInLevelBuilder) {
+            (void)dispatchSelectedAssetToLevelBuilder();
+        }
+    }
 #endif
 }
 
@@ -459,6 +565,22 @@ nlohmann::json AssetLibraryPanel::attachSelectedPromotedAssetsToProject(std::vec
     return result;
 }
 
+bool AssetLibraryPanel::loadGameTemplateManifest(const std::filesystem::path& manifest_path,
+                                                 std::string* error_message) {
+    const bool loaded = model_.loadGameTemplateManifestFromFile(manifest_path, error_message);
+    refreshRenderSnapshotsFromModel();
+    return loaded;
+}
+
+bool AssetLibraryPanel::dispatchSelectedAssetToLevelBuilder() {
+    refreshRenderSnapshotsFromModel();
+    const auto& selected = last_asset_browser_snapshot_.selected_record;
+    if (!selected.is_object() || selected.empty() || !asset_browser_selection_callback_) {
+        return false;
+    }
+    return asset_browser_selection_callback_(selected);
+}
+
 nlohmann::json AssetLibraryPanel::validatePackage(const urpg::tools::ExportConfig& config) {
     refreshRenderSnapshotsFromModel();
     if (!last_import_wizard_snapshot_.package_validation_ready) {
@@ -485,6 +607,7 @@ nlohmann::json AssetLibraryPanel::validatePackage(const urpg::tools::ExportConfi
 void AssetLibraryPanel::refreshRenderSnapshotsFromModel() {
     last_render_snapshot_ = model_.snapshot();
     last_import_wizard_snapshot_ = buildImportWizardRenderSnapshot(last_render_snapshot_.import_wizard);
+    last_asset_browser_snapshot_ = buildAssetBrowserRenderSnapshot(last_render_snapshot_);
 }
 
 } // namespace urpg::editor

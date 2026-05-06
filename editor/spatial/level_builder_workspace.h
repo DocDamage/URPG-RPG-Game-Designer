@@ -11,6 +11,8 @@
 #include "engine/core/map/grid_part_package_governance.h"
 #include "engine/core/map/grid_part_ruleset.h"
 
+#include <nlohmann/json.hpp>
+
 #include <string>
 #include <vector>
 
@@ -188,9 +190,12 @@ class LevelBuilderWorkspace : public EditorPanel {
     void SetActiveMode(WorkflowMode mode);
     bool ActivateToolbarAction(const std::string& action_id);
     bool SelectGridPart(const std::string& part_id);
+    bool SelectAssetBrowserRecord(const nlohmann::json& asset_record);
     bool RouteCanvasHover(float screen_x, float screen_y);
     bool RouteCanvasPrimaryAction(float screen_x, float screen_y);
     bool RouteCanvasSecondaryAction(float screen_x, float screen_y);
+    bool PaintSelectedGridRectangle(int32_t min_x, int32_t min_y, int32_t max_x, int32_t max_y);
+    bool EraseTopPartAtGrid(int32_t grid_x, int32_t grid_y);
     EditHistoryResult UndoLastEdit();
     EditHistoryResult RedoLastEdit();
     FocusDiagnosticResult FocusDiagnostic(size_t diagnostic_index);

@@ -148,7 +148,7 @@ Expected: existing grid-part tests and new scope tests pass.
 
 Cover folder/category tree generation, search, source/pack filter, pinned favorites, last 10 recent projects, missing project prompt state, hidden missing project state, and selected layout mode.
 
-Status 2026-05-05: partially covered. `AssetLibraryModel` now has tests for selected layout mode, template/full-library scope state, pinned favorites, last-10 recent projects, hidden missing projects, asset-library-index ingestion from memory and disk, game-template manifest binding through `assetIndexPath`, folder/category/pack facet trees, text search, source/pack/category filter controls, selected asset details, and active row paging. Remaining work: connect the visible main menu/onboarding selection to these model calls and render the left browser.
+Status 2026-05-05: partially covered. `AssetLibraryModel` now has tests for selected layout mode, template/full-library scope state, pinned favorites, last-10 recent projects, hidden missing projects, asset-library-index ingestion from memory and disk, game-template manifest binding through `assetIndexPath`, folder/category/pack facet trees, text search, source/pack/category filter controls, selected asset details, and active row paging. `AssetLibraryPanel` now exposes an indexed browser render snapshot, can load a game-template manifest directly, and renders the indexed browser as a left-side drawer with rows and preview in the main content area. `NewProjectWizardModel` can discover game-maker template manifests, auto-select the first template, select a requested template, expose the selected manifest path/defaults for onboarding, and create a project folder containing `project.json`, onboarding audit output, and the selected game-template manifest. `NewProjectWizardPanel` can start the selected template through an asset-browser callback. `MainMenuModel`/`MainMenuPanel` now cover Continue/New/Open/Recent/Pinned/Missing state, and the visible editor startup path routes main menu -> onboarding/template picker -> created project -> asset browser.
 
 - [ ] **Step 2: Implement model snapshots**
 
@@ -226,6 +226,8 @@ Run:
 
 Expected: headless interactions pass and visible startup remains stable.
 
+Status 2026-05-06: bridge and visible handoff complete. `LevelBuilderWorkspace::SelectAssetBrowserRecord` accepts an indexed browser row and uses `stableId` as the grid-part catalog id, then routes selection through palette, placement, and supporting spatial panels. `AssetLibraryPanel` now exposes a visible "Use in Level Builder" action for the selected browser record and dispatches it through an app-level callback; `apps/editor/main.cpp` selects the record in `LevelBuilderWorkspace` and opens the Level Builder panel when the handoff succeeds. Level Builder now exposes command-path helpers for painting a selected grid rectangle and erasing the top part at a grid cell, with coverage for browser-row selection, single placement, drag-style rectangle fill, erase, and undo of both operations. Verified with `[assets][asset_library]`, `[grid_part][editor][level_builder][assets]`, `[grid_part][editor]`, `urpg_editor --project-root . --safe-mode --list-panels`, and `tools/launcher/start_editor_guarded.ps1 -Visible -VisibleFrames 120`.
+
 ### Task 7: Main Menu
 
 **Files:**
@@ -235,15 +237,15 @@ Expected: headless interactions pass and visible startup remains stable.
 - Modify: CMake registration
 - Test: new Catch2 tests for main menu model state
 
-- [ ] **Step 1: Write failing main-menu tests**
+- [x] **Step 1: Write failing main-menu tests**
 
 Cover Continue Last Project, New Project, Open Project, Recent Projects, Pinned Favorites, missing project locate prompt, hide missing project, settings, and bypass onboarding.
 
-- [ ] **Step 2: Implement deterministic main-menu model**
+- [x] **Step 2: Implement deterministic main-menu model**
 
 Keep the first visible app surface a real main menu, not a marketing page. It should route to onboarding for new projects and into the editor for existing projects.
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run:
 
@@ -253,6 +255,12 @@ Run:
 ```
 
 Expected: menu tests pass and editor startup is stable.
+
+Status 2026-05-05: partial app wiring complete. `editor/project/main_menu_panel.*` exists with deterministic model snapshots for Continue/New/Open/Recent/Pinned/Missing/hidden-missing state. `apps/editor/main.cpp` renders the main menu as the first visible interactive surface unless an explicit panel route or render-all mode is requested, and New Project now routes to the visible wizard branch. The wizard start callback loads the selected game-template manifest into `AssetLibraryPanel`, enters the editor route, and opens the Assets panel. Verified with `[project][main_menu]`, `[project][editor][panel][onboarding]`, `[assets][asset_library]`, `urpg_editor --project-root . --safe-mode --list-panels`, and `tools/launcher/start_editor_guarded.ps1 -Visible -VisibleFrames 120`. Remaining Task 7 gap: real OS file picker/open-project integration plus visible locate/settings actions.
+
+Status 2026-05-06: editor settings now persist `onboarding_enabled`, `help_tips_enabled`, and `asset_browser_layout`. Startup applies `onboarding_enabled` to the main-menu route decision and applies `asset_browser_layout` to `AssetLibraryModel`; shutdown writes the current browser layout back through `saveEditorSettings`. Verified with `[settings][persistence]`, `[assets][asset_library]`, `[project][editor][panel][onboarding]`, `urpg_editor --project-root . --safe-mode --list-panels`, and `tools/launcher/start_editor_guarded.ps1 -Visible -VisibleFrames 120`.
+
+Status 2026-05-06: `MainMenuModel` now exposes a visible Settings route with deterministic onboarding/help-tip toggles and browser layout selection. `MainMenuPanel` renders the Settings route, startup initializes it from `EditorSettings`, frame sync applies browser-layout changes to `AssetLibraryModel`, and shutdown persists the selected values. Verified with `[project][main_menu]`, `[settings][persistence]`, `[assets][asset_library]`, `urpg_editor --project-root . --safe-mode --list-panels`, and `tools/launcher/start_editor_guarded.ps1 -Visible -VisibleFrames 120`.
 
 ### Task 8: Adaptive Onboarding Wizard
 
@@ -305,6 +313,8 @@ Run:
 ```
 
 Expected: default startup stays bounded; explicit full catalog remains opt-in.
+
+Status 2026-05-06: row caps and active-scope accounting are now explicit in `AssetLibraryModel`. Browser page limits clamp to 200 rows, `asset_browser_scope` reports active/default/optional catalog counts plus active row limit, and performance coverage verifies a 250-record index still returns at most 200 visible rows while template/full-library scope switching keeps active catalog counts bounded. Verified with `[assets][asset_library]`, `[grid_part][editor]`, `urpg_editor --project-root . --safe-mode --list-panels`, and `tools/launcher/start_editor_guarded.ps1 -Visible -VisibleFrames 120`.
 
 ### Task 10: Documentation And Release Truth
 

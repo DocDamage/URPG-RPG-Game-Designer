@@ -27,6 +27,7 @@ class AssetLibraryPanel {
     };
 
     using ImportSourcePicker = std::function<std::optional<std::filesystem::path>(const ImportSourcePickerRequest&)>;
+    using AssetBrowserSelectionCallback = std::function<bool(const nlohmann::json& selected_record)>;
 
     struct ImportSourcePickerAvailability {
         bool available = false;
@@ -64,11 +65,29 @@ class AssetLibraryPanel {
         nlohmann::json pending_request = nullptr;
     };
 
+    struct AssetBrowserRenderSnapshot {
+        bool available = false;
+        std::string layout = "left_collapsible_folder_tree";
+        std::string query;
+        size_t total_count = 0;
+        size_t visible_count = 0;
+        nlohmann::json filters = nlohmann::json::object();
+        nlohmann::json page = nlohmann::json::object();
+        nlohmann::json folder_tree = nlohmann::json::array();
+        nlohmann::json category_tree = nlohmann::json::array();
+        nlohmann::json pack_tree = nlohmann::json::array();
+        nlohmann::json visible_rows = nlohmann::json::array();
+        nlohmann::json selected_record = nlohmann::json::object();
+        bool preview_drawer_open = false;
+        bool left_drawer_visible = false;
+    };
+
     AssetLibraryModel& model() { return model_; }
     const AssetLibraryModel& model() const { return model_; }
 
     static ImportSourcePickerAvailability nativeImportSourcePickerAvailability();
     void setImportSourcePicker(ImportSourcePicker picker);
+    void setAssetBrowserSelectionCallback(AssetBrowserSelectionCallback callback);
     void render();
     nlohmann::json requestImportSource(const std::filesystem::path& source, const std::filesystem::path& library_root,
                                        std::string session_id, std::string license_note = {},
@@ -81,9 +100,12 @@ class AssetLibraryPanel {
                                                 bool include_in_runtime = true);
     nlohmann::json attachSelectedPromotedAssetsToProject(std::vector<std::string> paths,
                                                          const std::filesystem::path& project_root);
+    bool loadGameTemplateManifest(const std::filesystem::path& manifest_path, std::string* error_message = nullptr);
+    bool dispatchSelectedAssetToLevelBuilder();
     nlohmann::json validatePackage(const urpg::tools::ExportConfig& config);
     const AssetLibraryModelSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }
     const ImportWizardRenderSnapshot& lastImportWizardSnapshot() const { return last_import_wizard_snapshot_; }
+    const AssetBrowserRenderSnapshot& lastAssetBrowserSnapshot() const { return last_asset_browser_snapshot_; }
     bool hasRenderedFrame() const { return has_rendered_frame_; }
     void setVisible(bool visible) { visible_ = visible; }
     bool isVisible() const { return visible_; }
@@ -93,8 +115,10 @@ class AssetLibraryPanel {
 
     AssetLibraryModel model_;
     ImportSourcePicker import_source_picker_{};
+    AssetBrowserSelectionCallback asset_browser_selection_callback_{};
     AssetLibraryModelSnapshot last_render_snapshot_{};
     ImportWizardRenderSnapshot last_import_wizard_snapshot_{};
+    AssetBrowserRenderSnapshot last_asset_browser_snapshot_{};
     bool has_rendered_frame_ = false;
     bool visible_ = true;
 };

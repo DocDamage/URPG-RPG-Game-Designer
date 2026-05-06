@@ -5,6 +5,8 @@
 #include "editor/assets/asset_library_panel.h"
 #include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/mod/mod_manager_panel.h"
+#include "editor/project/main_menu_panel.h"
+#include "editor/project/new_project_wizard_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/analytics/analytics_dispatcher.h"
@@ -82,6 +84,10 @@ void clearSceneStack() {
 
 struct EditorPanelRuntime {
     urpg::editor::DiagnosticsWorkspace diagnostics_workspace;
+    urpg::editor::MainMenuModel main_menu_model;
+    urpg::editor::MainMenuPanel main_menu_panel;
+    urpg::editor::NewProjectWizardModel new_project_wizard_model;
+    urpg::editor::NewProjectWizardPanel new_project_wizard_panel;
     urpg::editor::AssetLibraryPanel asset_library_panel;
     urpg::editor::AbilityInspectorPanel ability_inspector_panel;
     urpg::editor::PatternFieldModel pattern_field_model;
@@ -221,6 +227,36 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
     runtime.analytics_panel.bindUploader(&runtime.analytics_uploader);
     runtime.analytics_panel.bindPrivacyController(&runtime.analytics_privacy_controller);
     runtime.diagnostics_workspace.bindAbilityRuntime(runtime.ability_runtime);
+    runtime.main_menu_panel.bindModel(&runtime.main_menu_model);
+    runtime.main_menu_model.setLastProject(runtime.project_root.generic_string());
+    runtime.asset_library_panel.setAssetBrowserSelectionCallback([&runtime, &editor_shell](const nlohmann::json& row) {
+        const bool selected = runtime.level_builder_workspace.SelectAssetBrowserRecord(row);
+        if (selected) {
+            (void)editor_shell.openPanel("level_builder");
+        }
+        return selected;
+    });
+    runtime.new_project_wizard_panel.bindModel(&runtime.new_project_wizard_model);
+    std::string templateLoadError;
+    (void)runtime.new_project_wizard_model.loadGameMakerTemplateManifests(
+        runtime.project_root / "content" / "templates" / "game_maker", &templateLoadError);
+    runtime.new_project_wizard_panel.setTemplateStartCallback([&runtime, &editor_shell](
+                                                                  const std::filesystem::path& manifestPath,
+                                                                  std::string* error) {
+        const auto wizardSnapshot = runtime.new_project_wizard_model.snapshot();
+        const auto projectId = wizardSnapshot.value("project_id", "new_project");
+        const auto createdProjectRoot = runtime.project_root / ".urpg" / "projects" / projectId;
+        if (!runtime.new_project_wizard_model.createProjectOnDisk(createdProjectRoot, error)) {
+            return false;
+        }
+        if (!runtime.asset_library_panel.loadGameTemplateManifest(manifestPath, error)) {
+            return false;
+        }
+        runtime.project_root = createdProjectRoot;
+        runtime.main_menu_model.enterEditor(runtime.project_root.generic_string());
+        (void)editor_shell.openPanel("assets");
+        return true;
+    });
 
     using PanelRenderFactory = std::function<urpg::editor::EditorShell::RenderCallback(EditorPanelRuntime&)>;
     const std::unordered_map<std::string, PanelRenderFactory> renderFactories = {
@@ -646,7 +682,8 @@ void renderEditorShellChrome(urpg::editor::EditorShell& editorShell, bool active
 #endif
 
 bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell, bool renderAllPanels,
-                    bool useNativeImGuiBackend, double deltaSeconds = 1.0 / 60.0) {
+                    bool useNativeImGuiBackend, EditorPanelRuntime* startupRuntime = nullptr,
+                    double deltaSeconds = 1.0 / 60.0) {
     engineShell.tick(!useNativeImGuiBackend);
 #ifdef URPG_IMGUI_ENABLED
 #ifndef URPG_HEADLESS
@@ -659,7 +696,15 @@ bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& e
 #endif
     bool rendered = false;
     if (editorShell.beginFrame(deltaSeconds)) {
-        if (renderAllPanels) {
+        if (startupRuntime != nullptr && startupRuntime->main_menu_model.route() != "editor") {
+            if (startupRuntime->main_menu_model.route() == "onboarding" ||
+                startupRuntime->main_menu_model.route() == "template_picker") {
+                startupRuntime->new_project_wizard_panel.render();
+            } else {
+                startupRuntime->main_menu_panel.render();
+            }
+            rendered = true;
+        } else if (renderAllPanels) {
             rendered = editorShell.renderVisiblePanels() > 0;
         } else {
             rendered = editorShell.renderActivePanel();
@@ -936,6 +981,10 @@ int main(int argc, char** argv) {
             clearSceneStack();
             return 1;
         }
+        panelRuntime.main_menu_model.setOnboardingEnabled(settingsLoad.settings.onboarding_enabled);
+        panelRuntime.main_menu_model.setHelpTipsEnabled(settingsLoad.settings.help_tips_enabled);
+        panelRuntime.main_menu_model.setAssetBrowserLayout(settingsLoad.settings.asset_browser_layout);
+        panelRuntime.asset_library_panel.model().setAssetBrowserLayout(settingsLoad.settings.asset_browser_layout);
 
         if (options.open_panel_id.has_value() && !editorShell.openPanel(*options.open_panel_id)) {
             std::cerr << "URPG editor has no reachable panel with id '" << *options.open_panel_id << "'.\n";
@@ -978,7 +1027,15 @@ int main(int argc, char** argv) {
 
         int frame = 0;
         while (engineShell.isRunning() && editorShell.isRunning() && (options.frames < 0 || frame < options.frames)) {
-            (void)runEditorFrame(engineShell, editorShell, options.render_all_panels, !options.headless);
+            (void)runEditorFrame(engineShell,
+                                 editorShell,
+                                 options.render_all_panels,
+                                 !options.headless,
+                                 options.open_panel_id.has_value() || options.render_all_panels
+                                     ? nullptr
+                                     : &panelRuntime);
+            panelRuntime.asset_library_panel.model().setAssetBrowserLayout(
+                panelRuntime.main_menu_model.assetBrowserLayout());
             ++frame;
             if (visibleStartupGuardArmed && frame == 1) {
                 std::string guardError;
@@ -1006,6 +1063,9 @@ int main(int argc, char** argv) {
         settingsLoad.settings.analytics_consent_state =
             analyticsConsentToSettings(panelRuntime.analytics_privacy_controller.getConsentState());
         settingsLoad.settings.analytics_upload_enabled = panelRuntime.analytics_dispatcher.isOptIn();
+        settingsLoad.settings.onboarding_enabled = panelRuntime.main_menu_model.onboardingEnabled();
+        settingsLoad.settings.help_tips_enabled = panelRuntime.main_menu_model.helpTipsEnabled();
+        settingsLoad.settings.asset_browser_layout = panelRuntime.main_menu_model.assetBrowserLayout();
         std::string settingsError;
         if (!urpg::settings::saveEditorSettings(settingsPaths.editor_settings, settingsLoad.settings, &settingsError)) {
             std::cerr << "URPG editor failed to save settings: " << settingsError << "\n";

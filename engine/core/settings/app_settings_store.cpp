@@ -55,6 +55,13 @@ std::string normalizeConsentState(std::string state) {
     return "unknown";
 }
 
+std::string normalizeAssetBrowserLayout(std::string layout) {
+    if (layout == "left_collapsible_folder_tree" || layout == "compact_list") {
+        return layout;
+    }
+    return "left_collapsible_folder_tree";
+}
+
 WindowSettings readWindowSettings(const nlohmann::json& root, WindowSettings defaults) {
     if (!root.contains("window") || !root.at("window").is_object()) {
         return defaults;
@@ -221,6 +228,11 @@ EditorSettingsLoadResult loadEditorSettings(const std::filesystem::path& path, c
         result.settings.imgui_ini_path = readPath(payload, "imgui_ini_path", result.settings.imgui_ini_path);
         result.settings.workspace_path = readPath(payload, "workspace_path", result.settings.workspace_path);
         result.settings.restore_workspace = readBool(payload, "restore_workspace", result.settings.restore_workspace);
+        result.settings.onboarding_enabled =
+            readBool(payload, "onboarding_enabled", result.settings.onboarding_enabled);
+        result.settings.help_tips_enabled = readBool(payload, "help_tips_enabled", result.settings.help_tips_enabled);
+        result.settings.asset_browser_layout = normalizeAssetBrowserLayout(
+            readString(payload, "asset_browser_layout", result.settings.asset_browser_layout));
         if (payload.contains("analytics") && payload.at("analytics").is_object()) {
             const auto& analytics = payload.at("analytics");
             result.settings.analytics_consent_state =
@@ -256,6 +268,9 @@ bool saveEditorSettings(const std::filesystem::path& path, const EditorSettings&
         {"imgui_ini_path", settings.imgui_ini_path.generic_string()},
         {"workspace_path", settings.workspace_path.generic_string()},
         {"restore_workspace", settings.restore_workspace},
+        {"onboarding_enabled", settings.onboarding_enabled},
+        {"help_tips_enabled", settings.help_tips_enabled},
+        {"asset_browser_layout", normalizeAssetBrowserLayout(settings.asset_browser_layout)},
         {"analytics",
          {
              {"consent_state", normalizeConsentState(settings.analytics_consent_state)},

@@ -24,6 +24,8 @@ namespace urpg::editor {
 
 namespace {
 
+constexpr size_t kMaxAssetBrowserPageLimit = 200;
+
 constexpr const char* kExternalExtractorEnv = "URPG_ASSET_ARCHIVE_EXTRACTOR";
 
 struct ParsedExternalExtractorCommand {
@@ -1900,7 +1902,15 @@ void AssetLibraryModel::selectAssetBrowserRecord(std::string stable_id) {
 
 void AssetLibraryModel::setAssetBrowserPage(size_t offset, size_t limit) {
     asset_browser_offset_ = offset;
-    asset_browser_limit_ = std::max<size_t>(1, limit);
+    asset_browser_limit_ = std::clamp<size_t>(limit, 1, kMaxAssetBrowserPageLimit);
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::setAssetBrowserLayout(std::string layout) {
+    if (layout != "compact_list") {
+        layout = "left_collapsible_folder_tree";
+    }
+    asset_browser_layout_ = std::move(layout);
     refreshSnapshot();
 }
 
@@ -2169,9 +2179,13 @@ void AssetLibraryModel::refreshSnapshot() {
     snapshot_.asset_browser_scope = {
         {"active_template_id", active_template_id_},
         {"scope", full_library_active_ ? "full_library" : (active_template_id_.empty() ? "global" : "template")},
-        {"browser_layout", "left_collapsible_folder_tree"},
+        {"browser_layout", asset_browser_layout_},
         {"index_backend", "sqlite"},
         {"full_library_active", full_library_active_},
+        {"active_catalog_count", active_catalogs_.size()},
+        {"template_default_catalog_count", template_default_catalogs_.size()},
+        {"optional_catalog_count", template_optional_catalogs_.size()},
+        {"active_row_limit", asset_browser_limit_},
         {"active_catalogs", active_catalogs_},
         {"template_default_catalogs", template_default_catalogs_},
         {"optional_catalogs", template_optional_catalogs_},

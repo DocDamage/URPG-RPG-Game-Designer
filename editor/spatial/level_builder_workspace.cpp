@@ -1265,6 +1265,19 @@ bool LevelBuilderWorkspace::SelectGridPart(const std::string& part_id) {
     return palette_selected && placement_selected && supporting_selected;
 }
 
+bool LevelBuilderWorkspace::SelectAssetBrowserRecord(const nlohmann::json& asset_record) {
+    if (!asset_record.is_object()) {
+        captureRenderSnapshot();
+        return false;
+    }
+    const auto partId = asset_record.value("stableId", "");
+    if (partId.empty()) {
+        captureRenderSnapshot();
+        return false;
+    }
+    return SelectGridPart(partId);
+}
+
 bool LevelBuilderWorkspace::RouteCanvasHover(float screen_x, float screen_y) {
     if (active_mode_ == WorkflowMode::SupportingSpatial) {
         const bool handled = supporting_spatial_workspace_.RouteCanvasHover(screen_x, screen_y);
@@ -1314,6 +1327,29 @@ bool LevelBuilderWorkspace::RouteCanvasSecondaryAction(float screen_x, float scr
     const bool undone = placement_panel_.Undo();
     captureRenderSnapshot();
     return undone;
+}
+
+bool LevelBuilderWorkspace::PaintSelectedGridRectangle(int32_t min_x, int32_t min_y, int32_t max_x, int32_t max_y) {
+    if (active_mode_ != WorkflowMode::Build) {
+        captureRenderSnapshot();
+        return false;
+    }
+    const bool painted = placement_panel_.FillSelectedPartRectangle(min_x, min_y, max_x, max_y);
+    if (painted && document_ != nullptr && !document_->parts().empty()) {
+        (void)inspector_panel_.SelectInstance(document_->parts().back().instance_id);
+    }
+    captureRenderSnapshot();
+    return painted;
+}
+
+bool LevelBuilderWorkspace::EraseTopPartAtGrid(int32_t grid_x, int32_t grid_y) {
+    if (active_mode_ != WorkflowMode::Build) {
+        captureRenderSnapshot();
+        return false;
+    }
+    const bool erased = placement_panel_.RemoveTopPartAtGrid(grid_x, grid_y);
+    captureRenderSnapshot();
+    return erased;
 }
 
 void LevelBuilderWorkspace::captureRenderSnapshot() {

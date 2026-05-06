@@ -76,6 +76,9 @@ TEST_CASE("Editor settings persist ImGui and workspace paths", "[settings][persi
     settings.imgui_ini_path = paths.root / "custom_imgui.ini";
     settings.workspace_path = paths.root / "custom_workspace.json";
     settings.restore_workspace = false;
+    settings.onboarding_enabled = false;
+    settings.help_tips_enabled = false;
+    settings.asset_browser_layout = "compact_list";
     settings.analytics_consent_state = "granted";
     settings.analytics_upload_enabled = true;
 
@@ -88,6 +91,9 @@ TEST_CASE("Editor settings persist ImGui and workspace paths", "[settings][persi
     REQUIRE(loaded.settings.imgui_ini_path == paths.root / "custom_imgui.ini");
     REQUIRE(loaded.settings.workspace_path == paths.root / "custom_workspace.json");
     REQUIRE_FALSE(loaded.settings.restore_workspace);
+    REQUIRE_FALSE(loaded.settings.onboarding_enabled);
+    REQUIRE_FALSE(loaded.settings.help_tips_enabled);
+    REQUIRE(loaded.settings.asset_browser_layout == "compact_list");
     REQUIRE(loaded.settings.analytics_consent_state == "granted");
     REQUIRE(loaded.settings.analytics_upload_enabled);
 
@@ -114,6 +120,9 @@ TEST_CASE("Malformed settings recover to defaults without crashing", "[settings]
     REQUIRE(editor.settings.window.width == 1440);
     REQUIRE(editor.settings.window.height == 900);
     REQUIRE(editor.settings.imgui_ini_path == paths.editor_imgui_ini);
+    REQUIRE(editor.settings.onboarding_enabled);
+    REQUIRE(editor.settings.help_tips_enabled);
+    REQUIRE(editor.settings.asset_browser_layout == "left_collapsible_folder_tree");
     REQUIRE(editor.settings.analytics_consent_state == "unknown");
     REQUIRE_FALSE(editor.settings.analytics_upload_enabled);
 

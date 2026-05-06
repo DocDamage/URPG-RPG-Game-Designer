@@ -4,6 +4,10 @@
 
 #include <nlohmann/json.hpp>
 
+#include <filesystem>
+#include <optional>
+#include <string>
+
 namespace urpg::editor {
 
 class NewProjectWizardModel {
@@ -12,7 +16,12 @@ public:
     void setProjectId(std::string project_id);
     void setProjectName(std::string project_name);
     void cancel();
+    bool loadGameMakerTemplateManifests(const std::filesystem::path& manifest_directory,
+                                        std::string* error_message = nullptr);
+    bool selectGameMakerTemplate(const std::string& template_id);
+    std::optional<std::filesystem::path> selectedGameMakerTemplateManifestPath() const;
     urpg::project::ProjectTemplateResult createProject();
+    bool createProjectOnDisk(const std::filesystem::path& project_root, std::string* error_message = nullptr);
     nlohmann::json snapshot() const;
 
 private:
@@ -20,6 +29,8 @@ private:
     urpg::project::ProjectTemplateRequest request_{"jrpg", "new_project", "New Project"};
     bool cancelled_ = false;
     nlohmann::json last_audit_;
+    nlohmann::json game_maker_templates_ = nlohmann::json::array();
+    nlohmann::json selected_game_maker_template_ = nlohmann::json::object();
 };
 
 } // namespace urpg::editor

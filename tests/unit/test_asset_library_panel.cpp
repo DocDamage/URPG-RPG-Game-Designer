@@ -417,6 +417,9 @@ TEST_CASE("AssetLibraryModel tracks template scope, full library opt-in, favorit
     REQUIRE(model.snapshot().asset_browser_scope["index_backend"] == "sqlite");
     REQUIRE(model.snapshot().asset_browser_scope["full_library_active"] == false);
     REQUIRE(model.snapshot().asset_browser_scope["active_catalogs"].size() == 2);
+    REQUIRE(model.snapshot().asset_browser_scope["active_catalog_count"] == 2);
+    REQUIRE(model.snapshot().asset_browser_scope["template_default_catalog_count"] == 2);
+    REQUIRE(model.snapshot().asset_browser_scope["optional_catalog_count"] == 1);
 
     model.pinFavoriteAsset("asset_tree_001");
     model.pinFavoriteAsset("asset_tree_001");
@@ -436,6 +439,7 @@ TEST_CASE("AssetLibraryModel tracks template scope, full library opt-in, favorit
     REQUIRE(model.activateFullLibraryScope());
     REQUIRE(model.snapshot().asset_browser_scope["scope"] == "full_library");
     REQUIRE(model.snapshot().asset_browser_scope["full_library_active"] == true);
+    REQUIRE(model.snapshot().asset_browser_scope["active_catalog_count"] == 1);
     REQUIRE(model.snapshot().asset_browser_scope["active_catalogs"][0] ==
             "content/part_catalogs/game_maker_all_parts.json");
     REQUIRE(model.snapshot().asset_browser_scope["favorite_asset_ids"].size() == 2);
@@ -444,7 +448,45 @@ TEST_CASE("AssetLibraryModel tracks template scope, full library opt-in, favorit
     REQUIRE(model.snapshot().asset_browser_scope["scope"] == "template");
     REQUIRE(model.snapshot().asset_browser_scope["full_library_active"] == false);
     REQUIRE(model.snapshot().asset_browser_scope["active_catalogs"].size() == 2);
+    REQUIRE(model.snapshot().asset_browser_scope["active_catalog_count"] == 2);
     REQUIRE(model.snapshot().asset_browser_scope["favorite_asset_ids"].size() == 2);
+}
+
+TEST_CASE("AssetLibraryModel caps indexed browser rows and reports scope diagnostics",
+          "[assets][asset_library][editor][browser][performance]") {
+    urpg::editor::AssetLibraryModel model;
+    model.setTemplateAssetScope("jrpg",
+                                {"content/part_catalogs/base_jrpg_parts.json"},
+                                {"content/part_catalogs/game_maker_all_parts.json"});
+    auto records = nlohmann::json::array();
+    for (int i = 0; i < 250; ++i) {
+        records.push_back({
+            {"stableId", "asset_bulk_" + std::to_string(i)},
+            {"displayName", "Bulk " + std::to_string(i)},
+            {"sourcePath", "content/assets/gameplay/bulk_" + std::to_string(i) + ".png"},
+            {"previewKind", "image"},
+            {"mediaKind", "image"},
+            {"category", "terrain"},
+            {"pack", "Bulk"},
+        });
+    }
+    model.ingestAssetLibraryIndex(nlohmann::json{{"schemaVersion", 1}, {"records", records}});
+    model.setAssetBrowserPage(0, 1000);
+
+    REQUIRE(model.snapshot().asset_index_browser["total_count"] == 250);
+    REQUIRE(model.snapshot().asset_index_browser["visible_count"] == 250);
+    REQUIRE(model.snapshot().asset_index_browser["visible_rows"].size() == 200);
+    REQUIRE(model.snapshot().asset_index_browser["page"]["limit"] == 200);
+    REQUIRE(model.snapshot().asset_browser_scope["active_row_limit"] == 200);
+    REQUIRE(model.snapshot().asset_browser_scope["scope"] == "template");
+    REQUIRE(model.snapshot().asset_browser_scope["full_library_active"] == false);
+
+    REQUIRE(model.activateFullLibraryScope());
+    REQUIRE(model.snapshot().asset_browser_scope["scope"] == "full_library");
+    REQUIRE(model.snapshot().asset_browser_scope["active_catalog_count"] == 1);
+    REQUIRE(model.restoreTemplateAssetScope());
+    REQUIRE(model.snapshot().asset_browser_scope["scope"] == "template");
+    REQUIRE(model.snapshot().asset_browser_scope["active_catalog_count"] == 1);
 }
 
 TEST_CASE("AssetLibraryModel exposes indexed browser rows, tree facets, search, paging, and selection",
@@ -638,6 +680,170 @@ TEST_CASE("AssetLibraryModel applies game template manifest scope and index shar
     REQUIRE(model.snapshot().asset_index_browser["visible_rows"][0]["stableId"] == "asset_template_grass");
     REQUIRE(model.snapshot().last_action["action"] == "load_game_template_manifest");
     REQUIRE(model.snapshot().last_action["success"] == true);
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryPanel exposes indexed browser render snapshot and preview drawer",
+          "[assets][asset_library][editor][browser][render]") {
+    urpg::editor::AssetLibraryPanel panel;
+    panel.model().ingestAssetLibraryIndex(nlohmann::json{
+        {"schemaVersion", 1},
+        {"records",
+         {
+             {
+                 {"stableId", "asset_panel_grass"},
+                 {"displayName", "Panel Grass"},
+                 {"sourcePath", "content/assets/gameplay/panel/grass.png"},
+                 {"previewKind", "image"},
+                 {"mediaKind", "image"},
+                 {"category", "terrain"},
+                 {"pack", "Panel Pack"},
+                 {"dimensions", {{"width", 48}, {"height", 48}}},
+             },
+             {
+                 {"stableId", "asset_panel_wall"},
+                 {"displayName", "Panel Wall"},
+                 {"sourcePath", "content/assets/gameplay/panel/wall.png"},
+                 {"previewKind", "image"},
+                 {"mediaKind", "image"},
+                 {"category", "walls"},
+                 {"pack", "Panel Pack"},
+                 {"dimensions", {{"width", 48}, {"height", 96}}},
+             },
+         }},
+    });
+    panel.model().selectAssetBrowserRecord("asset_panel_wall");
+
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    const auto& browser = panel.lastAssetBrowserSnapshot();
+    REQUIRE(browser.available);
+    REQUIRE(browser.layout == "left_collapsible_folder_tree");
+    REQUIRE(browser.left_drawer_visible);
+    REQUIRE(browser.total_count == 2);
+    REQUIRE(browser.visible_count == 2);
+    REQUIRE(browser.visible_rows.size() == 2);
+    REQUIRE(browser.visible_rows[0]["stableId"] == "asset_panel_grass");
+    REQUIRE(browser.folder_tree.size() == 1);
+    REQUIRE(browser.category_tree.size() == 2);
+    REQUIRE(browser.preview_drawer_open);
+    REQUIRE(browser.selected_record["stableId"] == "asset_panel_wall");
+    REQUIRE(browser.selected_record["dimensions"]["height"] == 96);
+}
+
+TEST_CASE("AssetLibraryPanel dispatches selected browser asset to Level Builder callback",
+          "[assets][asset_library][editor][browser][level_builder]") {
+    urpg::editor::AssetLibraryPanel panel;
+    panel.model().ingestAssetLibraryIndex(nlohmann::json{
+        {"schemaVersion", 1},
+        {"records",
+         {{
+             {"stableId", "asset_panel_bridge"},
+             {"displayName", "Bridge Asset"},
+             {"sourcePath", "content/assets/gameplay/bridge.png"},
+             {"previewKind", "image"},
+             {"mediaKind", "image"},
+             {"category", "terrain"},
+             {"pack", "Panel Pack"},
+         }}},
+    });
+    panel.model().selectAssetBrowserRecord("asset_panel_bridge");
+
+    nlohmann::json dispatched;
+    panel.setAssetBrowserSelectionCallback([&](const nlohmann::json& selected) {
+        dispatched = selected;
+        return true;
+    });
+
+    REQUIRE(panel.dispatchSelectedAssetToLevelBuilder());
+    REQUIRE(dispatched["stableId"] == "asset_panel_bridge");
+    REQUIRE(dispatched["sourcePath"] == "content/assets/gameplay/bridge.png");
+}
+
+TEST_CASE("AssetLibraryPanel reflects configured asset browser layout",
+          "[assets][asset_library][editor][browser][settings]") {
+    urpg::editor::AssetLibraryPanel panel;
+    panel.model().setAssetBrowserLayout("compact_list");
+    panel.model().ingestAssetLibraryIndex(nlohmann::json{
+        {"schemaVersion", 1},
+        {"records",
+         {{
+             {"stableId", "asset_panel_compact"},
+             {"displayName", "Compact Row"},
+             {"sourcePath", "content/assets/gameplay/compact.png"},
+             {"previewKind", "image"},
+             {"mediaKind", "image"},
+             {"category", "terrain"},
+             {"pack", "Panel Pack"},
+         }}},
+    });
+
+    panel.render();
+
+    REQUIRE(panel.lastAssetBrowserSnapshot().layout == "compact_list");
+    REQUIRE_FALSE(panel.lastAssetBrowserSnapshot().left_drawer_visible);
+}
+
+TEST_CASE("AssetLibraryPanel loads game template manifests into browser snapshots",
+          "[assets][asset_library][editor][browser][template][render]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_panel_template_binding");
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root / "content" / "templates" / "game_maker");
+    std::filesystem::create_directories(root / "content" / "asset_indexes" / "game_maker");
+    {
+        std::ofstream out(root / "content" / "asset_indexes" / "game_maker" / "jrpg_starter.json");
+        out << R"({
+          "schemaVersion": 1,
+          "recordCount": 1,
+          "records": [
+            {
+              "stableId": "asset_panel_template_grass",
+              "displayName": "Panel Template Grass",
+              "sourcePath": "content/assets/gameplay/template/grass.png",
+              "previewKind": "image",
+              "mediaKind": "image",
+              "category": "terrain",
+              "pack": "Template"
+            }
+          ]
+        })";
+    }
+    const auto manifestPath = root / "content" / "templates" / "game_maker" / "jrpg_starter.json";
+    {
+        std::ofstream out(manifestPath);
+        out << R"({
+          "schemaVersion": 1,
+          "templateId": "jrpg",
+          "displayName": "Classic JRPG Starter",
+          "gameType": "party_rpg",
+          "questionProfile": "party_rpg_guided_setup",
+          "defaultWorldSize": {"preset": "small", "maps": 3, "recommendedTileSize": 48},
+          "recommendedMechanics": ["battle_loop", "save_loop"],
+          "defaultCatalogs": ["content/part_catalogs/base_jrpg_parts.json"],
+          "optionalCatalogs": ["content/part_catalogs/game_maker_all_parts.json"],
+          "assetIndexPath": "content/asset_indexes/game_maker/jrpg_starter.json",
+          "fullLibraryPolicy": "opt_in_lazy_load",
+          "browserLayout": "left_collapsible_folder_tree",
+          "indexBackend": "sqlite",
+          "uiThemes": {
+            "defaultGameUiTheme": "complete_ui_essential_flat",
+            "availableGameUiThemes": ["complete_ui_essential_flat"]
+          },
+          "futureCommunityTemplateSlot": true
+        })";
+    }
+
+    urpg::editor::AssetLibraryPanel panel;
+    std::string error;
+    REQUIRE(panel.loadGameTemplateManifest(manifestPath, &error));
+    REQUIRE(error.empty());
+    REQUIRE(panel.lastRenderSnapshot().asset_browser_scope["active_template_id"] == "jrpg");
+    REQUIRE(panel.lastAssetBrowserSnapshot().available);
+    REQUIRE(panel.lastAssetBrowserSnapshot().visible_rows[0]["stableId"] == "asset_panel_template_grass");
+    REQUIRE(panel.lastRenderSnapshot().last_action["action"] == "load_game_template_manifest");
+    REQUIRE(panel.lastRenderSnapshot().last_action["success"] == true);
 
     std::filesystem::remove_all(root);
 }

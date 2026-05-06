@@ -318,6 +318,71 @@ TEST_CASE("Level Builder is the native grid-part authoring workspace", "[grid_pa
     REQUIRE(document.findPart("map001:prop.crate:5:4") != nullptr);
 }
 
+TEST_CASE("Level Builder selects and paints asset browser records", "[grid_part][editor][level_builder][assets]") {
+    GridPartCatalog catalog;
+    auto grass = makeDefinition("asset.tile.grass", GridPartCategory::Tile, GridPartLayer::Terrain);
+    grass.asset_id = "asset.tile.grass";
+    grass.preview_path = "content/assets/gameplay/grass.png";
+    REQUIRE(catalog.addDefinition(grass));
+    GridPartDocument document("map001", 8, 6);
+    auto overlay = makeOverlay();
+
+    LevelBuilderWorkspace workspace;
+    workspace.SetTargets(&document, &catalog, &overlay);
+    workspace.SetProjectionSettings(makeProjection());
+
+    REQUIRE(workspace.SelectAssetBrowserRecord(nlohmann::json{
+        {"stableId", "asset.tile.grass"},
+        {"displayName", "Grass"},
+        {"sourcePath", "content/assets/gameplay/grass.png"},
+        {"previewKind", "image"},
+        {"mediaKind", "image"},
+        {"category", "terrain"},
+        {"pack", "Starter"},
+    }));
+    REQUIRE(workspace.RouteCanvasHover(500.0f, 400.0f));
+    REQUIRE(workspace.RouteCanvasPrimaryAction(500.0f, 400.0f));
+
+    const auto& snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.palette.selected_part_id == "asset.tile.grass");
+    REQUIRE(snapshot.placement.selected_part_id == "asset.tile.grass");
+    REQUIRE(snapshot.placement.placed_count == 1);
+    REQUIRE(document.findPart("map001:asset.tile.grass:5:4") != nullptr);
+}
+
+TEST_CASE("Level Builder paints drag rectangles and erases grid cells through placement commands",
+          "[grid_part][editor][level_builder][assets]") {
+    GridPartCatalog catalog;
+    REQUIRE(catalog.addDefinition(makeDefinition("asset.tile.grass", GridPartCategory::Tile, GridPartLayer::Terrain)));
+    GridPartDocument document("map001", 8, 6);
+    auto overlay = makeOverlay();
+
+    LevelBuilderWorkspace workspace;
+    workspace.SetTargets(&document, &catalog, &overlay);
+    workspace.SetProjectionSettings(makeProjection());
+
+    REQUIRE(workspace.SelectAssetBrowserRecord(nlohmann::json{{"stableId", "asset.tile.grass"}}));
+    REQUIRE(workspace.PaintSelectedGridRectangle(1, 1, 3, 2));
+    REQUIRE(document.parts().size() == 6);
+    REQUIRE(document.findPart("map001:asset.tile.grass:1:1") != nullptr);
+    REQUIRE(document.findPart("map001:asset.tile.grass:3:2") != nullptr);
+    REQUIRE(workspace.lastRenderSnapshot().placement.placed_count == 6);
+    REQUIRE(workspace.lastRenderSnapshot().placement.can_undo);
+
+    REQUIRE(workspace.EraseTopPartAtGrid(2, 1));
+    REQUIRE(document.parts().size() == 5);
+    REQUIRE(document.findPart("map001:asset.tile.grass:2:1") == nullptr);
+    REQUIRE(workspace.lastRenderSnapshot().placement.placed_count == 5);
+    REQUIRE(workspace.lastRenderSnapshot().placement.can_undo);
+
+    const auto undoErase = workspace.UndoLastEdit();
+    REQUIRE(undoErase.success);
+    REQUIRE(document.findPart("map001:asset.tile.grass:2:1") != nullptr);
+    const auto undoFill = workspace.UndoLastEdit();
+    REQUIRE(undoFill.success);
+    REQUIRE(document.parts().empty());
+}
+
 TEST_CASE("Level Builder embeds supporting spatial tools without making them primary",
           "[grid_part][editor][level_builder]") {
     GridPartCatalog catalog;

@@ -429,6 +429,7 @@ set(URPG_CORE_SOURCES
     editor/maker/maker_wysiwyg_panel.cpp
     editor/plugin/plugin_inspector_model.cpp
     editor/plugin/plugin_inspector_panel.cpp
+    editor/project/main_menu_panel.cpp
     editor/project/new_project_wizard_model.cpp
     editor/project/new_project_wizard_panel.cpp
     editor/quest/quest_panel.cpp
@@ -1430,6 +1431,7 @@ add_executable(urpg_tests
     tests/unit/test_offline_tool_manifests.cpp
     tests/unit/test_app_cli.cpp
     tests/unit/test_app_settings_store.cpp
+    tests/unit/test_main_menu_panel.cpp
     tests/unit/test_template_acceptance.cpp
     tests/unit/test_template_bar_quality.cpp
     tests/unit/test_dev_room_generator.cpp
