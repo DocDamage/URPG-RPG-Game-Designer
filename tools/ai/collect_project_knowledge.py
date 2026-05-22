@@ -58,7 +58,10 @@ def stable_id(path: str) -> str:
 
 def path_matches(path: str, patterns: list[str]) -> bool:
     normalized = path.replace("\\", "/")
-    return any(fnmatch.fnmatch(normalized, pattern) for pattern in patterns)
+    return any(
+        pattern == "**/*" or fnmatch.fnmatch(normalized, pattern)
+        for pattern in patterns
+    )
 
 
 def classify_kind(path: Path) -> str:
