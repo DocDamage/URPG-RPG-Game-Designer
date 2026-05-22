@@ -103,13 +103,60 @@ void renderAssetBrowserDrawer(const nlohmann::json& browser) {
                    8);
 }
 
-bool renderAssetBrowserRowsAndPreview(const nlohmann::json& browser) {
+bool renderAssetBrowserRowsAndPreview(AssetLibraryPanel& panel, const nlohmann::json& browser) {
     bool useSelectedInLevelBuilder = false;
     ImGui::SeparatorText("Assets");
-    renderJsonRows("AssetBrowserDrawerRows", browser.value("visible_rows", nlohmann::json::array()),
-                   {"stableId", "displayName", "mediaKind", "category", "pack"}, 16);
-
+    const auto visibleRows = browser.value("visible_rows", nlohmann::json::array());
     const auto selected = browser.contains("selected_record") ? browser["selected_record"] : nlohmann::json::object();
+    const auto selectedStableId = selected.is_object() ? selected.value("stableId", "") : std::string{};
+    if (!visibleRows.is_array() || visibleRows.empty()) {
+        ImGui::TextDisabled("No rows.");
+    } else if (ImGui::BeginTable("AssetBrowserDrawerRows", 6,
+                                 ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
+                                     ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY,
+                                 ImVec2(0.0f, 240.0f))) {
+        ImGui::TableSetupColumn("Action", ImGuiTableColumnFlags_WidthFixed, 86.0f);
+        ImGui::TableSetupColumn("stableId");
+        ImGui::TableSetupColumn("displayName");
+        ImGui::TableSetupColumn("mediaKind");
+        ImGui::TableSetupColumn("category");
+        ImGui::TableSetupColumn("pack");
+        ImGui::TableHeadersRow();
+
+        int rendered = 0;
+        for (size_t rowIndex = 0; rowIndex < visibleRows.size() && rendered < 16; ++rowIndex) {
+            const auto& row = visibleRows[rowIndex];
+            if (!row.is_object()) {
+                continue;
+            }
+            ++rendered;
+
+            const auto stableId = row.value("stableId", "");
+            const bool isSelected = !stableId.empty() && stableId == selectedStableId;
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            if (isSelected) {
+                ImGui::BeginDisabled();
+            }
+            const std::string buttonLabel =
+                std::string(isSelected ? "Selected" : "Select") + "##asset_browser_row_" + std::to_string(rowIndex);
+            if (ImGui::Button(buttonLabel.c_str(), ImVec2(-1.0f, 0.0f))) {
+                (void)panel.selectVisibleAssetBrowserRow(rowIndex);
+            }
+            if (isSelected) {
+                ImGui::EndDisabled();
+            }
+
+            int columnIndex = 1;
+            for (const auto* column : {"stableId", "displayName", "mediaKind", "category", "pack"}) {
+                ImGui::TableSetColumnIndex(columnIndex++);
+                const auto cell = jsonCellString(row, column);
+                ImGui::TextUnformatted(cell.c_str());
+            }
+        }
+        ImGui::EndTable();
+    }
+
     if (selected.is_object() && !selected.empty()) {
         ImGui::SeparatorText("Preview");
         ImGui::Text("Name: %s", selected.value("displayName", "").c_str());
@@ -126,7 +173,8 @@ bool renderAssetBrowserRowsAndPreview(const nlohmann::json& browser) {
     return useSelectedInLevelBuilder;
 }
 
-void renderAssetLibraryWindow(const AssetLibraryModelSnapshot& snapshot,
+void renderAssetLibraryWindow(AssetLibraryPanel& panel,
+                              const AssetLibraryModelSnapshot& snapshot,
                               const AssetLibraryPanel::ImportWizardRenderSnapshot& wizard,
                               bool* useSelectedInLevelBuilder) {
     if (!ImGui::Begin("Assets")) {
@@ -193,7 +241,7 @@ void renderAssetLibraryWindow(const AssetLibraryModelSnapshot& snapshot,
 
     if (ImGui::BeginChild("AssetLibraryMainContent", ImVec2(0.0f, 0.0f), false)) {
         if (browserAvailable) {
-            if (renderAssetBrowserRowsAndPreview(browser) && useSelectedInLevelBuilder != nullptr) {
+            if (renderAssetBrowserRowsAndPreview(panel, browser) && useSelectedInLevelBuilder != nullptr) {
                 *useSelectedInLevelBuilder = true;
             }
             ImGui::Separator();
@@ -493,7 +541,7 @@ void AssetLibraryPanel::render() {
 #ifdef URPG_IMGUI_ENABLED
     if (ImGui::GetCurrentContext() != nullptr) {
         bool useSelectedInLevelBuilder = false;
-        renderAssetLibraryWindow(last_render_snapshot_, last_import_wizard_snapshot_, &useSelectedInLevelBuilder);
+        renderAssetLibraryWindow(*this, last_render_snapshot_, last_import_wizard_snapshot_, &useSelectedInLevelBuilder);
         if (useSelectedInLevelBuilder) {
             (void)dispatchSelectedAssetToLevelBuilder();
         }
@@ -597,6 +645,23 @@ bool AssetLibraryPanel::loadGameTemplateManifest(const std::filesystem::path& ma
     const bool loaded = model_.loadGameTemplateManifestFromFile(manifest_path, error_message);
     refreshRenderSnapshotsFromModel();
     return loaded;
+}
+
+bool AssetLibraryPanel::selectVisibleAssetBrowserRow(size_t visible_row_index) {
+    refreshRenderSnapshotsFromModel();
+    const auto& rows = last_asset_browser_snapshot_.visible_rows;
+    if (!rows.is_array() || visible_row_index >= rows.size() || !rows[visible_row_index].is_object()) {
+        return false;
+    }
+
+    const auto stableId = rows[visible_row_index].value("stableId", "");
+    if (stableId.empty()) {
+        return false;
+    }
+
+    model_.selectAssetBrowserRecord(stableId);
+    refreshRenderSnapshotsFromModel();
+    return last_asset_browser_snapshot_.selected_record.value("stableId", "") == stableId;
 }
 
 bool AssetLibraryPanel::dispatchSelectedAssetToLevelBuilder() {

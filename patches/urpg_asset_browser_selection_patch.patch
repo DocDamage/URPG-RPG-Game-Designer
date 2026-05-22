@@ -1,0 +1,226 @@
+diff --git a/editor/assets/asset_library_panel.h b/editor/assets/asset_library_panel.h
+index d635e916..3b82d9a 100644
+--- a/editor/assets/asset_library_panel.h
++++ b/editor/assets/asset_library_panel.h
+@@ -106,6 +106,7 @@ class AssetLibraryPanel {
+     nlohmann::json attachSelectedPromotedAssetsToProject(std::vector<std::string> paths,
+                                                          const std::filesystem::path& project_root);
+     bool loadGameTemplateManifest(const std::filesystem::path& manifest_path, std::string* error_message = nullptr);
++    bool selectVisibleAssetBrowserRow(size_t visible_row_index);
+     bool dispatchSelectedAssetToLevelBuilder();
+     nlohmann::json validatePackage(const urpg::tools::ExportConfig& config);
+     const AssetLibraryModelSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }
+diff --git a/editor/assets/asset_library_panel.cpp b/editor/assets/asset_library_panel.cpp
+index 262fef7..8f09b64 100644
+--- a/editor/assets/asset_library_panel.cpp
++++ b/editor/assets/asset_library_panel.cpp
+@@ -103,13 +103,59 @@ void renderAssetBrowserDrawer(const nlohmann::json& browser) {
+                    8);
+ }
+
+-bool renderAssetBrowserRowsAndPreview(const nlohmann::json& browser) {
++bool renderAssetBrowserRowsAndPreview(AssetLibraryPanel& panel, const nlohmann::json& browser) {
+     bool useSelectedInLevelBuilder = false;
+     ImGui::SeparatorText("Assets");
+-    renderJsonRows("AssetBrowserDrawerRows", browser.value("visible_rows", nlohmann::json::array()),
+-                   {"stableId", "displayName", "mediaKind", "category", "pack"}, 16);
+-
++    const auto visibleRows = browser.value("visible_rows", nlohmann::json::array());
+     const auto selected = browser.contains("selected_record") ? browser["selected_record"] : nlohmann::json::object();
++    const auto selectedStableId = selected.is_object() ? selected.value("stableId", "") : std::string{};
++    if (!visibleRows.is_array() || visibleRows.empty()) {
++        ImGui::TextDisabled("No rows.");
++    } else if (ImGui::BeginTable("AssetBrowserDrawerRows", 6,
++                                  ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
++                                      ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY,
++                                  ImVec2(0.0f, 240.0f))) {
++        ImGui::TableSetupColumn("Action", ImGuiTableColumnFlags_WidthFixed, 86.0f);
++        ImGui::TableSetupColumn("stableId");
++        ImGui::TableSetupColumn("displayName");
++        ImGui::TableSetupColumn("mediaKind");
++        ImGui::TableSetupColumn("category");
++        ImGui::TableSetupColumn("pack");
++        ImGui::TableHeadersRow();
++
++        int rendered = 0;
++        for (size_t rowIndex = 0; rowIndex < visibleRows.size() && rendered < 16; ++rowIndex) {
++            const auto& row = visibleRows[rowIndex];
++            if (!row.is_object()) {
++                continue;
++            }
++            ++rendered;
++
++            const auto stableId = row.value("stableId", "");
++            const bool isSelected = !stableId.empty() && stableId == selectedStableId;
++            ImGui::TableNextRow();
++            ImGui::TableSetColumnIndex(0);
++            if (isSelected) {
++                ImGui::BeginDisabled();
++            }
++            const std::string buttonLabel =
++                std::string(isSelected ? "Selected" : "Select") + "##asset_browser_row_" + std::to_string(rowIndex);
++            if (ImGui::Button(buttonLabel.c_str(), ImVec2(-1.0f, 0.0f))) {
++                (void)panel.selectVisibleAssetBrowserRow(rowIndex);
++            }
++            if (isSelected) {
++                ImGui::EndDisabled();
++            }
++
++            int columnIndex = 1;
++            for (const auto* column : {"stableId", "displayName", "mediaKind", "category", "pack"}) {
++                ImGui::TableSetColumnIndex(columnIndex++);
++                const auto cell = jsonCellString(row, column);
++                ImGui::TextUnformatted(cell.c_str());
++            }
++        }
++        ImGui::EndTable();
++    }
++
+     if (selected.is_object() && !selected.empty()) {
+         ImGui::SeparatorText("Preview");
+         ImGui::Text("Name: %s", selected.value("displayName", "").c_str());
+@@ -126,7 +172,8 @@ bool renderAssetBrowserRowsAndPreview(const nlohmann::json& browser) {
+     return useSelectedInLevelBuilder;
+ }
+
+-void renderAssetLibraryWindow(const AssetLibraryModelSnapshot& snapshot,
++void renderAssetLibraryWindow(AssetLibraryPanel& panel,
++                              const AssetLibraryModelSnapshot& snapshot,
+                               const AssetLibraryPanel::ImportWizardRenderSnapshot& wizard,
+                               bool* useSelectedInLevelBuilder) {
+     if (!ImGui::Begin("Assets")) {
+@@ -195,7 +242,7 @@ void renderAssetLibraryWindow(const AssetLibraryModelSnapshot& snapshot,
+
+     if (ImGui::BeginChild("AssetLibraryMainContent", ImVec2(0.0f, 0.0f), false)) {
+         if (browserAvailable) {
+-            if (renderAssetBrowserRowsAndPreview(browser) && useSelectedInLevelBuilder != nullptr) {
++            if (renderAssetBrowserRowsAndPreview(panel, browser) && useSelectedInLevelBuilder != nullptr) {
+                 *useSelectedInLevelBuilder = true;
+             }
+             ImGui::Separator();
+@@ -467,7 +514,7 @@ void AssetLibraryPanel::render() {
+ #ifdef URPG_IMGUI_ENABLED
+     if (ImGui::GetCurrentContext() != nullptr) {
+         bool useSelectedInLevelBuilder = false;
+-        renderAssetLibraryWindow(last_render_snapshot_, last_import_wizard_snapshot_, &useSelectedInLevelBuilder);
++        renderAssetLibraryWindow(*this, last_render_snapshot_, last_import_wizard_snapshot_, &useSelectedInLevelBuilder);
+         if (useSelectedInLevelBuilder) {
+             (void)dispatchSelectedAssetToLevelBuilder();
+         }
+@@ -606,6 +653,22 @@ bool AssetLibraryPanel::loadGameTemplateManifest(const std::filesystem::path& ma
+     return loaded;
+ }
+
++bool AssetLibraryPanel::selectVisibleAssetBrowserRow(size_t visible_row_index) {
++    refreshRenderSnapshotsFromModel();
++    const auto& rows = last_asset_browser_snapshot_.visible_rows;
++    if (!rows.is_array() || visible_row_index >= rows.size() || !rows[visible_row_index].is_object()) {
++        return false;
++    }
++
++    const auto stableId = rows[visible_row_index].value("stableId", "");
++    if (stableId.empty()) {
++        return false;
++    }
++
++    model_.selectAssetBrowserRecord(stableId);
++    refreshRenderSnapshotsFromModel();
++    return last_asset_browser_snapshot_.selected_record.value("stableId", "") == stableId;
++}
++
+ bool AssetLibraryPanel::dispatchSelectedAssetToLevelBuilder() {
+     refreshRenderSnapshotsFromModel();
+     const auto& selected = last_asset_browser_snapshot_.selected_record;
+diff --git a/editor/assets/asset_library_model.cpp b/editor/assets/asset_library_model.cpp
+index ed894ae..74d77f2 100644
+--- a/editor/assets/asset_library_model.cpp
++++ b/editor/assets/asset_library_model.cpp
+@@ -1952,7 +1952,9 @@ bool AssetLibraryModel::loadGameTemplateManifestFromFile(const std::filesystem::
+                 optionalCatalogs.push_back(catalog.get<std::string>());
+             }
+         }
++        const auto browserLayout = payload.value("browserLayout", "");
+         setTemplateAssetScope(payload.value("templateId", ""), std::move(defaultCatalogs), std::move(optionalCatalogs));
++        setAssetBrowserLayout(browserLayout);
+
+         const auto indexPathValue = payload.value("assetIndexPath", "");
+         if (!indexPathValue.empty()) {
+diff --git a/tests/unit/test_asset_library_panel.cpp b/tests/unit/test_asset_library_panel.cpp
+index e3b656f..d2d5e8c 100644
+--- a/tests/unit/test_asset_library_panel.cpp
++++ b/tests/unit/test_asset_library_panel.cpp
+@@ -1,4 +1,7 @@
+ #include "editor/assets/asset_library_panel.h"
++#include "editor/spatial/level_builder_workspace.h"
++#include "engine/core/map/grid_part_catalog.h"
++#include "engine/core/map/grid_part_document.h"
+ #include "tests/unit/asset_library_test_helpers.h"
+
+ #include <catch2/catch_test_macros.hpp>
+@@ -727,6 +730,47 @@ TEST_CASE("AssetLibraryPanel exposes indexed browser render snapshot and preview
+     REQUIRE(browser.selected_record["dimensions"]["height"] == 96);
+ }
+
++TEST_CASE("AssetLibraryPanel selects visible browser rows for preview and handoff",
++          "[assets][asset_library][editor][browser][selection]") {
++    urpg::editor::AssetLibraryPanel panel;
++    panel.model().ingestAssetLibraryIndex(nlohmann::json{
++        {"schemaVersion", 1},
++        {"records",
++         {
++             {
++                 {"stableId", "asset_select_grass"},
++                 {"displayName", "Selectable Grass"},
++                 {"sourcePath", "content/assets/gameplay/panel/grass.png"},
++                 {"previewKind", "image"},
++                 {"mediaKind", "image"},
++                 {"category", "terrain"},
++                 {"pack", "Panel Pack"},
++             },
++             {
++                 {"stableId", "asset_select_wall"},
++                 {"displayName", "Selectable Wall"},
++                 {"sourcePath", "content/assets/gameplay/panel/wall.png"},
++                 {"previewKind", "image"},
++                 {"mediaKind", "image"},
++                 {"category", "walls"},
++                 {"pack", "Panel Pack"},
++             },
++         }},
++    });
++
++    panel.render();
++    REQUIRE_FALSE(panel.lastAssetBrowserSnapshot().preview_drawer_open);
++
++    REQUIRE(panel.selectVisibleAssetBrowserRow(1));
++    REQUIRE(panel.lastAssetBrowserSnapshot().preview_drawer_open);
++    REQUIRE(panel.lastAssetBrowserSnapshot().selected_record["stableId"] == "asset_select_wall");
++    REQUIRE(panel.lastAssetBrowserSnapshot().preview_summary["mode"] == "image_preview");
++    REQUIRE(panel.lastAssetBrowserSnapshot().preview_summary["sourcePath"] ==
++            "content/assets/gameplay/panel/wall.png");
++
++    REQUIRE_FALSE(panel.selectVisibleAssetBrowserRow(99));
++    REQUIRE(panel.lastAssetBrowserSnapshot().selected_record["stableId"] == "asset_select_wall");
++}
++
+ TEST_CASE("AssetLibraryPanel dispatches selected browser asset to Level Builder callback",
+           "[assets][asset_library][editor][browser][level_builder]") {
+     urpg::editor::AssetLibraryPanel panel;
+@@ -916,7 +960,7 @@ TEST_CASE("AssetLibraryPanel loads game template manifests into browser snapshot
+           "optionalCatalogs": ["content/part_catalogs/game_maker_all_parts.json"],
+           "assetIndexPath": "content/asset_indexes/game_maker/jrpg_starter.json",
+           "fullLibraryPolicy": "opt_in_lazy_load",
+-          "browserLayout": "left_collapsible_folder_tree",
++          "browserLayout": "compact_list",
+           "indexBackend": "sqlite",
+           "uiThemes": {
+             "defaultGameUiTheme": "complete_ui_essential_flat",
+@@ -933,6 +977,8 @@ TEST_CASE("AssetLibraryPanel loads game template manifests into browser snapshot
+     REQUIRE(error.empty());
+     REQUIRE(panel.lastRenderSnapshot().asset_browser_scope["active_template_id"] == "jrpg");
+     REQUIRE(panel.lastAssetBrowserSnapshot().available);
++    REQUIRE(panel.lastAssetBrowserSnapshot().layout == "compact_list");
++    REQUIRE_FALSE(panel.lastAssetBrowserSnapshot().left_drawer_visible);
+     REQUIRE(panel.lastAssetBrowserSnapshot().visible_rows[0]["stableId"] == "asset_panel_template_grass");
+     REQUIRE(panel.lastRenderSnapshot().last_action["action"] == "load_game_template_manifest");
+     REQUIRE(panel.lastRenderSnapshot().last_action["success"] == true);

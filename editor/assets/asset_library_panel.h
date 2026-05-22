@@ -102,6 +102,7 @@ class AssetLibraryPanel {
     nlohmann::json attachSelectedPromotedAssetsToProject(std::vector<std::string> paths,
                                                          const std::filesystem::path& project_root);
     bool loadGameTemplateManifest(const std::filesystem::path& manifest_path, std::string* error_message = nullptr);
+    bool selectVisibleAssetBrowserRow(size_t visible_row_index);
     bool dispatchSelectedAssetToLevelBuilder();
     nlohmann::json validatePackage(const urpg::tools::ExportConfig& config);
     const AssetLibraryModelSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }

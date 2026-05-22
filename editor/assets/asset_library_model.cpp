@@ -2004,7 +2004,9 @@ bool AssetLibraryModel::loadGameTemplateManifestFromFile(const std::filesystem::
                 optionalCatalogs.push_back(catalog.get<std::string>());
             }
         }
+        const auto browserLayout = payload.value("browserLayout", "");
         setTemplateAssetScope(payload.value("templateId", ""), std::move(defaultCatalogs), std::move(optionalCatalogs));
+        setAssetBrowserLayout(browserLayout);
 
         const auto indexPathValue = payload.value("assetIndexPath", "");
         if (!indexPathValue.empty()) {

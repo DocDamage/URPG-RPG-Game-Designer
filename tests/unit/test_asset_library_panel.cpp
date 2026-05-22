@@ -737,6 +737,48 @@ TEST_CASE("AssetLibraryPanel exposes indexed browser render snapshot and preview
     REQUIRE(browser.selected_record["dimensions"]["height"] == 96);
 }
 
+TEST_CASE("AssetLibraryPanel selects visible browser rows for preview and handoff",
+          "[assets][asset_library][editor][browser][selection]") {
+    urpg::editor::AssetLibraryPanel panel;
+    panel.model().ingestAssetLibraryIndex(nlohmann::json{
+        {"schemaVersion", 1},
+        {"records",
+         {
+             {
+                 {"stableId", "asset_select_grass"},
+                 {"displayName", "Selectable Grass"},
+                 {"sourcePath", "content/assets/gameplay/panel/grass.png"},
+                 {"previewKind", "image"},
+                 {"mediaKind", "image"},
+                 {"category", "terrain"},
+                 {"pack", "Panel Pack"},
+             },
+             {
+                 {"stableId", "asset_select_wall"},
+                 {"displayName", "Selectable Wall"},
+                 {"sourcePath", "content/assets/gameplay/panel/wall.png"},
+                 {"previewKind", "image"},
+                 {"mediaKind", "image"},
+                 {"category", "walls"},
+                 {"pack", "Panel Pack"},
+             },
+         }},
+    });
+
+    panel.render();
+    REQUIRE_FALSE(panel.lastAssetBrowserSnapshot().preview_drawer_open);
+
+    REQUIRE(panel.selectVisibleAssetBrowserRow(1));
+    REQUIRE(panel.lastAssetBrowserSnapshot().preview_drawer_open);
+    REQUIRE(panel.lastAssetBrowserSnapshot().selected_record["stableId"] == "asset_select_wall");
+    REQUIRE(panel.lastAssetBrowserSnapshot().preview_summary["mode"] == "image_preview");
+    REQUIRE(panel.lastAssetBrowserSnapshot().preview_summary["sourcePath"] ==
+            "content/assets/gameplay/panel/wall.png");
+
+    REQUIRE_FALSE(panel.selectVisibleAssetBrowserRow(99));
+    REQUIRE(panel.lastAssetBrowserSnapshot().selected_record["stableId"] == "asset_select_wall");
+}
+
 TEST_CASE("AssetLibraryPanel dispatches selected browser asset to Level Builder callback",
           "[assets][asset_library][editor][browser][level_builder]") {
     urpg::editor::AssetLibraryPanel panel;
@@ -925,7 +967,7 @@ TEST_CASE("AssetLibraryPanel loads game template manifests into browser snapshot
           "optionalCatalogs": ["content/part_catalogs/game_maker_all_parts.json"],
           "assetIndexPath": "content/asset_indexes/game_maker/jrpg_starter.json",
           "fullLibraryPolicy": "opt_in_lazy_load",
-          "browserLayout": "left_collapsible_folder_tree",
+          "browserLayout": "compact_list",
           "indexBackend": "sqlite",
           "uiThemes": {
             "defaultGameUiTheme": "complete_ui_essential_flat",
@@ -941,6 +983,8 @@ TEST_CASE("AssetLibraryPanel loads game template manifests into browser snapshot
     REQUIRE(error.empty());
     REQUIRE(panel.lastRenderSnapshot().asset_browser_scope["active_template_id"] == "jrpg");
     REQUIRE(panel.lastAssetBrowserSnapshot().available);
+    REQUIRE(panel.lastAssetBrowserSnapshot().layout == "compact_list");
+    REQUIRE_FALSE(panel.lastAssetBrowserSnapshot().left_drawer_visible);
     REQUIRE(panel.lastAssetBrowserSnapshot().visible_rows[0]["stableId"] == "asset_panel_template_grass");
     REQUIRE(panel.lastRenderSnapshot().last_action["action"] == "load_game_template_manifest");
     REQUIRE(panel.lastRenderSnapshot().last_action["success"] == true);
