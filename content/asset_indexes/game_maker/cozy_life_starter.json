@@ -17,7 +17,7 @@
       "unloadablePayload": {
         "policy": "lazy",
         "sourcePath": "content/assets/gameplay/cutesckr/farm_1/tile_000.png",
-        "sizeBytes": 0
+        "sizeBytes": 1430
       }
     },
     {
@@ -35,7 +35,7 @@
       "unloadablePayload": {
         "policy": "lazy",
         "sourcePath": "content/assets/gameplay/cutesckr/farm_1/tile_001.png",
-        "sizeBytes": 0
+        "sizeBytes": 2039
       }
     }
   ]

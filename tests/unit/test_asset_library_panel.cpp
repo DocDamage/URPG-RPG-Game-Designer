@@ -1,4 +1,8 @@
 #include "editor/assets/asset_library_panel.h"
+#include "editor/spatial/level_builder_workspace.h"
+#include "engine/core/map/grid_part_catalog.h"
+#include "engine/core/map/grid_part_document.h"
+#include "engine/core/map/grid_part_types.h"
 #include "tests/unit/asset_library_test_helpers.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -760,6 +764,66 @@ TEST_CASE("AssetLibraryPanel dispatches selected browser asset to Level Builder 
     REQUIRE(panel.dispatchSelectedAssetToLevelBuilder());
     REQUIRE(dispatched["stableId"] == "asset_panel_bridge");
     REQUIRE(dispatched["sourcePath"] == "content/assets/gameplay/bridge.png");
+    REQUIRE(dispatched["category"] == "terrain");
+    REQUIRE(dispatched["pack"] == "Panel Pack");
+    REQUIRE(panel.lastAssetBrowserDispatchResult()["success"] == true);
+    REQUIRE(panel.lastAssetBrowserDispatchResult()["code"] == "level_builder_selection_dispatched");
+}
+
+TEST_CASE("AssetLibraryPanel reports diagnostics for invalid Level Builder handoff records",
+          "[assets][asset_library][editor][browser][level_builder][diagnostics]") {
+    urpg::editor::AssetLibraryPanel panel;
+    panel.model().ingestAssetLibraryIndex(nlohmann::json{
+        {"schemaVersion", 1},
+        {"records",
+         {{
+             {"stableId", "asset_panel_missing_path"},
+             {"displayName", "Broken Asset"},
+             {"sourcePath", ""},
+             {"previewKind", "image"},
+             {"mediaKind", "image"},
+             {"category", "terrain"},
+             {"pack", "Panel Pack"},
+         }}},
+    });
+    panel.model().selectAssetBrowserRecord("asset_panel_missing_path");
+    panel.setAssetBrowserSelectionCallback([](const nlohmann::json&) { return true; });
+
+    REQUIRE_FALSE(panel.dispatchSelectedAssetToLevelBuilder());
+    REQUIRE(panel.lastAssetBrowserDispatchResult()["success"] == false);
+    REQUIRE(panel.lastAssetBrowserDispatchResult()["code"] == "asset_browser_record_source_path_missing");
+    REQUIRE(panel.lastAssetBrowserDispatchResult()["stableId"] == "asset_panel_missing_path");
+}
+
+TEST_CASE("LevelBuilderWorkspace accepts selected asset browser stableId as grid-part selection",
+          "[assets][asset_library][editor][browser][level_builder]") {
+    urpg::map::GridPartCatalog catalog;
+    urpg::map::GridPartDefinition definition;
+    definition.part_id = "asset_panel_bridge";
+    definition.display_name = "Bridge Asset";
+    definition.category = urpg::map::GridPartCategory::Tile;
+    definition.default_layer = urpg::map::GridPartLayer::Terrain;
+    definition.asset_id = "asset_panel_bridge";
+    definition.preview_path = "content/assets/gameplay/bridge.png";
+    definition.source_image_path = "content/assets/gameplay/bridge.png";
+    definition.default_properties["sourceBundleId"] = "Panel Pack";
+    REQUIRE(catalog.addDefinition(definition));
+
+    urpg::map::GridPartDocument document{"EditorPreview", 8, 8};
+    urpg::editor::LevelBuilderWorkspace workspace;
+    workspace.SetTargets(&document, &catalog);
+
+    REQUIRE(workspace.SelectAssetBrowserRecord(nlohmann::json{
+        {"stableId", "asset_panel_bridge"},
+        {"displayName", "Bridge Asset"},
+        {"sourcePath", "content/assets/gameplay/bridge.png"},
+        {"previewKind", "image"},
+        {"mediaKind", "image"},
+        {"category", "terrain"},
+        {"pack", "Panel Pack"},
+    }));
+    REQUIRE(workspace.palettePanel().lastRenderSnapshot().selected_part_id == "asset_panel_bridge");
+    REQUIRE(workspace.placementPanel().lastRenderSnapshot().selected_part_id == "asset_panel_bridge");
 }
 
 TEST_CASE("AssetLibraryPanel preview summary covers supported media kinds",

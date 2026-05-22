@@ -1089,7 +1089,9 @@ endif()
 
 install(
     DIRECTORY
+        content/asset_indexes
         content/level_libraries
+        content/part_catalogs
         content/readiness
         content/schemas
         content/templates
@@ -1102,6 +1104,41 @@ install(
         PATTERN "*.md"
         PATTERN "*.png"
         PATTERN "*.gif"
+)
+
+set(URPG_GAME_MAKER_STARTER_ASSET_FILES
+    content/assets/gameplay/cutesckr/farm_1/tile_000.png
+    content/assets/gameplay/cutesckr/farm_1/tile_001.png
+    content/assets/gameplay/cutesckr/forest_wilderness_1/tile_000.png
+    content/assets/gameplay/cutesckr/forest_wilderness_1/tile_001.png
+    content/assets/gameplay/cutesckr/forest_wilderness_1/tile_002.png
+    content/assets/gameplay/cutesckr/forest_wilderness_1/tile_003.png
+    content/assets/gameplay/cutesckr/medieval_castle_1/tile_000.png
+    content/assets/gameplay/cutesckr/medieval_castle_1/tile_001.png
+    content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_000.png
+    content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_001.png
+    content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_002.png
+    content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_003.png
+    content/assets/gameplay/human_rpg_portraits/00000_10_human_barbarian_0_0.png
+    content/assets/gameplay/human_rpg_portraits/00001_10_human_barbarian_0_1.png
+)
+
+foreach(_urpg_game_maker_starter_asset IN LISTS URPG_GAME_MAKER_STARTER_ASSET_FILES)
+    get_filename_component(_urpg_game_maker_starter_asset_dir "${_urpg_game_maker_starter_asset}" DIRECTORY)
+    string(REGEX REPLACE "^content/" "" _urpg_game_maker_starter_asset_content_dir
+        "${_urpg_game_maker_starter_asset_dir}"
+    )
+    install(
+        FILES "${_urpg_game_maker_starter_asset}"
+        DESTINATION "${URPG_INSTALL_DATA_ROOT}/content/${_urpg_game_maker_starter_asset_content_dir}"
+        COMPONENT RuntimeData
+    )
+endforeach()
+
+install(
+    FILES content/assets/gameplay/README.md
+    DESTINATION "${URPG_INSTALL_DATA_ROOT}/content/assets/gameplay"
+    COMPONENT RuntimeData
 )
 
 install(

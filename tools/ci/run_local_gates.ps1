@@ -201,6 +201,10 @@ try {
     Write-Host "== Validate CMake completeness ==" -ForegroundColor Cyan
     & "$PSScriptRoot\check_cmake_completeness.ps1"
 
+    Write-Host "== Validate game-maker asset indexes ==" -ForegroundColor Cyan
+    & python "$PSScriptRoot\..\assets\check_game_maker_asset_indexes.py" --repo-root (Get-AbsoluteRepoPath ".")
+    Assert-LastExitCode "Validate game-maker asset indexes"
+
     Write-Host "== Configure: $ConfigurePreset ==" -ForegroundColor Cyan
     cmake --preset $ConfigurePreset
     Assert-LastExitCode "Configure preset '$ConfigurePreset'"

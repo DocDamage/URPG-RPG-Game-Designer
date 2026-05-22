@@ -17,7 +17,7 @@
       "unloadablePayload": {
         "policy": "lazy",
         "sourcePath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_000.png",
-        "sizeBytes": 0
+        "sizeBytes": 2498
       }
     },
     {
@@ -35,7 +35,7 @@
       "unloadablePayload": {
         "policy": "lazy",
         "sourcePath": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_001.png",
-        "sizeBytes": 0
+        "sizeBytes": 5769
       }
     }
   ]

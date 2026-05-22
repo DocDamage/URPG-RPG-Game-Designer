@@ -107,6 +107,7 @@ class AssetLibraryPanel {
     const AssetLibraryModelSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }
     const ImportWizardRenderSnapshot& lastImportWizardSnapshot() const { return last_import_wizard_snapshot_; }
     const AssetBrowserRenderSnapshot& lastAssetBrowserSnapshot() const { return last_asset_browser_snapshot_; }
+    const nlohmann::json& lastAssetBrowserDispatchResult() const { return last_asset_browser_dispatch_result_; }
     bool hasRenderedFrame() const { return has_rendered_frame_; }
     void setVisible(bool visible) { visible_ = visible; }
     bool isVisible() const { return visible_; }
@@ -120,6 +121,7 @@ class AssetLibraryPanel {
     AssetLibraryModelSnapshot last_render_snapshot_{};
     ImportWizardRenderSnapshot last_import_wizard_snapshot_{};
     AssetBrowserRenderSnapshot last_asset_browser_snapshot_{};
+    nlohmann::json last_asset_browser_dispatch_result_ = nlohmann::json::object();
     bool has_rendered_frame_ = false;
     bool visible_ = true;
 };

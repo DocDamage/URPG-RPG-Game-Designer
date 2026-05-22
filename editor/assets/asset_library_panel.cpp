@@ -602,10 +602,64 @@ bool AssetLibraryPanel::loadGameTemplateManifest(const std::filesystem::path& ma
 bool AssetLibraryPanel::dispatchSelectedAssetToLevelBuilder() {
     refreshRenderSnapshotsFromModel();
     const auto& selected = last_asset_browser_snapshot_.selected_record;
-    if (!selected.is_object() || selected.empty() || !asset_browser_selection_callback_) {
+
+    last_asset_browser_dispatch_result_ = {
+        {"action", "dispatch_asset_browser_record_to_level_builder"},
+        {"success", false},
+        {"code", "asset_browser_record_missing_selection"},
+        {"message", "Select an asset browser record before dispatching it to Level Builder."},
+    };
+
+    if (!selected.is_object() || selected.empty()) {
         return false;
     }
-    return asset_browser_selection_callback_(selected);
+
+    const auto stableId = selected.value("stableId", "");
+    const auto sourcePath = selected.value("sourcePath", "");
+    if (stableId.empty()) {
+        last_asset_browser_dispatch_result_ = {
+            {"action", "dispatch_asset_browser_record_to_level_builder"},
+            {"success", false},
+            {"code", "asset_browser_record_stable_id_missing"},
+            {"message", "Selected asset browser record is missing stableId."},
+            {"record", selected},
+        };
+        return false;
+    }
+    if (sourcePath.empty()) {
+        last_asset_browser_dispatch_result_ = {
+            {"action", "dispatch_asset_browser_record_to_level_builder"},
+            {"success", false},
+            {"code", "asset_browser_record_source_path_missing"},
+            {"message", "Selected asset browser record is missing sourcePath."},
+            {"stableId", stableId},
+            {"record", selected},
+        };
+        return false;
+    }
+    if (!asset_browser_selection_callback_) {
+        last_asset_browser_dispatch_result_ = {
+            {"action", "dispatch_asset_browser_record_to_level_builder"},
+            {"success", false},
+            {"code", "level_builder_callback_missing"},
+            {"message", "Level Builder selection callback is not configured."},
+            {"stableId", stableId},
+            {"sourcePath", sourcePath},
+        };
+        return false;
+    }
+
+    const bool accepted = asset_browser_selection_callback_(selected);
+    last_asset_browser_dispatch_result_ = {
+        {"action", "dispatch_asset_browser_record_to_level_builder"},
+        {"success", accepted},
+        {"code", accepted ? "level_builder_selection_dispatched" : "level_builder_selection_rejected"},
+        {"message", accepted ? "Selected asset browser record was dispatched to Level Builder."
+                             : "Level Builder rejected the selected asset browser record."},
+        {"stableId", stableId},
+        {"sourcePath", sourcePath},
+    };
+    return accepted;
 }
 
 nlohmann::json AssetLibraryPanel::validatePackage(const urpg::tools::ExportConfig& config) {
