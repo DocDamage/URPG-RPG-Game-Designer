@@ -67,7 +67,24 @@ def classify_kind(path: Path) -> str:
         return "doc"
     if ext in {".json", ".yaml", ".yml", ".toml", ".ini", ".xml"}:
         return "data"
-    if ext in {".cpp", ".h", ".hpp", ".c", ".cc", ".cs", ".py", ".ps1", ".js", ".ts", ".tsx", ".jsx", ".rs", ".java", ".sh", ".cmake"}:
+    if ext in {
+        ".cpp",
+        ".h",
+        ".hpp",
+        ".c",
+        ".cc",
+        ".cs",
+        ".py",
+        ".ps1",
+        ".js",
+        ".ts",
+        ".tsx",
+        ".jsx",
+        ".rs",
+        ".java",
+        ".sh",
+        ".cmake",
+    }:
         return "source"
     return "text"
 
@@ -77,7 +94,7 @@ def read_text(path: Path, max_file_bytes: int) -> tuple[str | None, str | None]:
     if size > max_file_bytes:
         return None, "file_too_large"
     data = path.read_bytes()
-    if b"\x00" in data:
+    if bytes([0]) in data:
         return None, "binary_file"
     try:
         return data.decode("utf-8"), None
@@ -85,7 +102,9 @@ def read_text(path: Path, max_file_bytes: int) -> tuple[str | None, str | None]:
         return data.decode("utf-8", errors="replace"), "decode_replaced"
 
 
-def build_record(root: Path, path: Path, content: str, max_age_days: int, now_epoch: int) -> dict:
+def build_record(
+    root: Path, path: Path, content: str, max_age_days: int, now_epoch: int
+) -> dict:
     relative = path.relative_to(root).as_posix()
     stat = path.stat()
     modified = int(stat.st_mtime)
@@ -171,11 +190,23 @@ def collect_documents(
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Collect bounded project filesystem documents for URPG AI knowledge indexing.")
+    parser = argparse.ArgumentParser(
+        description="Collect bounded project filesystem documents for URPG AI knowledge indexing."
+    )
     parser.add_argument("--root", default=".", help="Project root to scan.")
     parser.add_argument("--output", required=True, help="Output JSON path.")
-    parser.add_argument("--include", action="append", default=[], help="Glob to include. May be repeated.")
-    parser.add_argument("--exclude", action="append", default=[], help="Glob to exclude. May be repeated.")
+    parser.add_argument(
+        "--include",
+        action="append",
+        default=[],
+        help="Glob to include. May be repeated.",
+    )
+    parser.add_argument(
+        "--exclude",
+        action="append",
+        default=[],
+        help="Glob to exclude. May be repeated.",
+    )
     parser.add_argument("--max-files", type=int, default=500)
     parser.add_argument("--max-bytes", type=int, default=2 * 1024 * 1024)
     parser.add_argument("--max-file-bytes", type=int, default=64 * 1024)
