@@ -75,15 +75,27 @@ def main() -> int:
         for key in ["title", "system", "remainingDepth"]:
             if not isinstance(lane.get(key), str) or not lane[key].strip():
                 fail(f"{lane_id} must contain non-empty string '{key}'")
-        for key in ["currentEvidence", "nextImplementation", "evidenceTargets", "verificationCommands"]:
+        for key in [
+            "currentEvidence",
+            "nextImplementation",
+            "evidenceTargets",
+            "verificationCommands",
+        ]:
             require_non_empty_list(lane, key)
         if len(lane["nextImplementation"]) < 3:
             fail(f"{lane_id} must have at least three nextImplementation items")
         phrase = REQUIRED_DOC_PHRASES[lane_id]
         if phrase not in doc_text:
-            fail(f"source doc no longer contains required phrase for {lane_id}: {phrase}")
-        if not all(target.endswith((".cpp", ".h", ".py", ".ps1")) for target in lane["evidenceTargets"]):
-            fail(f"{lane_id} evidenceTargets must name concrete implementation/test files")
+            fail(
+                f"source doc no longer contains required phrase for {lane_id}: {phrase}"
+            )
+        if not all(
+            target.endswith((".cpp", ".h", ".py", ".ps1"))
+            for target in lane["evidenceTargets"]
+        ):
+            fail(
+                f"{lane_id} evidenceTargets must name concrete implementation/test files"
+            )
 
     print(f"feature robustness lane check passed: {len(lanes)} lanes governed")
     return 0
