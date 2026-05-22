@@ -16,8 +16,12 @@ class ProjectKnowledgeCollectorTests(unittest.TestCase):
             (root / "docs").mkdir()
             (root / "engine").mkdir()
             (root / "build").mkdir()
-            (root / "docs" / "guide.md").write_text("URPG guide content", encoding="utf-8")
-            (root / "engine" / "system.cpp").write_text("void sample() {}", encoding="utf-8")
+            (root / "docs" / "guide.md").write_text(
+                "URPG guide content", encoding="utf-8"
+            )
+            (root / "engine" / "system.cpp").write_text(
+                "void sample() {}", encoding="utf-8"
+            )
             (root / "build" / "generated.cpp").write_text("ignored", encoding="utf-8")
             (root / "image.png").write_bytes(b"not-text-image")
 
@@ -35,8 +39,12 @@ class ProjectKnowledgeCollectorTests(unittest.TestCase):
             self.assertEqual(paths, {"docs/guide.md", "engine/system.cpp"})
             self.assertEqual(result["summary"]["records"], 2)
             self.assertGreaterEqual(result["summary"]["skipped"].get("excluded", 0), 1)
-            self.assertGreaterEqual(result["summary"]["skipped"].get("unsupported_extension", 0), 1)
-            by_path = {record["path"]: record for record in result["filesystem_documents"]}
+            self.assertGreaterEqual(
+                result["summary"]["skipped"].get("unsupported_extension", 0), 1
+            )
+            by_path = {
+                record["path"]: record for record in result["filesystem_documents"]
+            }
             self.assertEqual(by_path["docs/guide.md"]["kind"], "doc")
             self.assertEqual(by_path["engine/system.cpp"]["kind"], "source")
             self.assertIn("indexed_at_epoch", by_path["docs/guide.md"])
@@ -59,7 +67,9 @@ class ProjectKnowledgeCollectorTests(unittest.TestCase):
             )
 
             self.assertEqual(result["summary"]["records"], 1)
-            self.assertGreaterEqual(result["summary"]["skipped"].get("max_files_exceeded", 0), 1)
+            self.assertGreaterEqual(
+                result["summary"]["skipped"].get("max_files_exceeded", 0), 1
+            )
 
     def test_project_data_contract_shape(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -81,7 +91,9 @@ class ProjectKnowledgeCollectorTests(unittest.TestCase):
             self.assertEqual(loaded["schemaVersion"], "1.0.0")
             self.assertEqual(len(loaded["filesystem_documents"]), 1)
             self.assertEqual(loaded["filesystem_documents"][0]["path"], "README.md")
-            self.assertEqual(loaded["filesystem_documents"][0]["content"], "Project README")
+            self.assertEqual(
+                loaded["filesystem_documents"][0]["content"], "Project README"
+            )
 
 
 if __name__ == "__main__":
