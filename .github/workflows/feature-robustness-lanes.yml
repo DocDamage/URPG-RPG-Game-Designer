@@ -1,0 +1,30 @@
+name: Feature Robustness Lanes
+
+on:
+  pull_request:
+    paths:
+      - "content/readiness/feature_robustness_lanes.json"
+      - "docs/features/FEATURE_ROBUSTNESS_PLAN.md"
+      - "tools/ci/check_feature_robustness_lanes.py"
+      - "tools/ci/check_feature_robustness_lanes.ps1"
+      - ".github/workflows/feature-robustness-lanes.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/readiness/feature_robustness_lanes.json"
+      - "docs/features/FEATURE_ROBUSTNESS_PLAN.md"
+      - "tools/ci/check_feature_robustness_lanes.py"
+      - "tools/ci/check_feature_robustness_lanes.ps1"
+      - ".github/workflows/feature-robustness-lanes.yml"
+  workflow_dispatch:
+
+jobs:
+  feature-robustness-lanes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Validate feature robustness lane governance
+        run: python tools/ci/check_feature_robustness_lanes.py
