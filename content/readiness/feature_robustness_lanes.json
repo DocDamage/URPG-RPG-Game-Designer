@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "1.0.0",
+  "statusDate": "2026-05-22",
+  "authority": "Governed execution tracker for docs/features/FEATURE_ROBUSTNESS_PLAN.md.",
+  "sourceDocument": "docs/features/FEATURE_ROBUSTNESS_PLAN.md",
+  "releaseBoundary": "These lanes are URPG product-depth follow-through, not bounded v0.1.0 release blockers unless a future release scope promotes them into mandatory exit criteria.",
+  "lanes": [
+    {
+      "id": "FRL-01",
+      "priority": 1,
+      "title": "Battle feedback fixture depth",
+      "system": "battle_feedback",
+      "status": "in_progress",
+      "remainingDepth": "Broader battle feedback fixture coverage.",
+      "currentEvidence": ["chip damage/healing", "zero-damage presentation", "custom buff caps", "troop-position reuse", "schema coverage", "legacy policy migration"],
+      "nextImplementation": ["Add imported/plugin-style fixtures for chip damage, healing, zero damage, custom buff caps, and troop-position reuse.", "Verify legacy policy migration with success/failure diagnostics.", "Expose fixture coverage rows in battle feedback evidence."],
+      "evidenceTargets": ["tests/compat/test_battle_feedback_fixture_import.cpp", "tests/unit/test_battle_feedback_policy.cpp"],
+      "verificationCommands": ["ctest --preset dev-all -R \"BattleFeedback|battle_feedback|battle_presentation\" --output-on-failure"]
+    },
+    {
+      "id": "FRL-02",
+      "priority": 2,
+      "title": "State/message/picture fixture import depth",
+      "system": "state_message_picture",
+      "status": "in_progress",
+      "remainingDepth": "Broader fixture import coverage.",
+      "currentEvidence": ["scoped/self/map/JS variable banks", "nested text escapes", "picture task bindings", "high-count picture management", "native preview rows", "compat migration adapters"],
+      "nextImplementation": ["Add fixture imports for scoped banks, self/map/JS variables, nested escapes, and picture task triggers.", "Preserve unsupported picture/state rows with diagnostics.", "Add high-count picture fixture snapshots."],
+      "evidenceTargets": ["tests/compat/test_state_picture_fixture_import.cpp", "tests/unit/test_picture_task_preview.cpp"],
+      "verificationCommands": ["ctest --preset dev-all -R \"State|Picture|Message|Compat\" --output-on-failure"]
+    },
+    {
+      "id": "FRL-03",
+      "priority": 3,
+      "title": "Progression visual controls",
+      "system": "progression",
+      "status": "in_progress",
+      "remainingDepth": "Richer visual controls.",
+      "currentEvidence": ["stat allocation pools", "caps", "class/actor rules", "preview math", "editor snapshots", "save/load records", "post-load actor application rows"],
+      "nextImplementation": ["Add panel-visible pool, class/actor, increment/decrement, cap warning, and post-load apply controls.", "Expose creator-facing disabled reasons and control snapshots.", "Cover cap blocking and apply/already-applied rows."],
+      "evidenceTargets": ["editor/progression/stat_allocation_panel.cpp", "tests/unit/test_stat_allocation_panel.cpp"],
+      "verificationCommands": ["ctest --preset dev-all -R \"Progression|StatAllocation|stat_allocation\" --output-on-failure"]
+    },
+    {
+      "id": "FRL-04",
+      "priority": 4,
+      "title": "Ability task-graph runtime sequencing",
+      "system": "gameplay_abilities",
+      "status": "in_progress",
+      "remainingDepth": "Full task-graph runtime sequencing and arbitrary scripting remain.",
+      "currentEvidence": ["bounded active-condition evaluation", "task-composition JSON", "preview rows", "branch-target validation", "branch-condition diagnostics"],
+      "nextImplementation": ["Implement deterministic runtime sequencing for authored task graphs with task cursor, wait state, branch transitions, effects, and cue playback.", "Keep arbitrary scripting behind an explicit unsupported/sandbox status until a safe API is defined.", "Add runtime replay and diagnostics rows for each executed task."],
+      "evidenceTargets": ["engine/core/ability/gameplay_ability_task_runtime.cpp", "tests/unit/test_gameplay_ability_task_runtime.cpp"],
+      "verificationCommands": ["ctest --preset dev-all -R \"Ability|ability|task_graph|task runtime\" --output-on-failure"]
+    },
+    {
+      "id": "FRL-05",
+      "priority": 5,
+      "title": "Asset promotion and preview depth",
+      "system": "asset_browser_runtime_library",
+      "status": "in_progress",
+      "remainingDepth": "Broader curated payload promotion and richer generated preview assets remain.",
+      "currentEvidence": ["filters", "duplicate groups", "source/license badges", "preview rows", "sequence pack metadata", "promotion manifests", "package/readiness diagnostics"],
+      "nextImplementation": ["Add curated bulk-promotion manifests for the next release-safe payload groups.", "Generate missing thumbnail/waveform/sequence preview records for promoted payloads.", "Add package/readiness diagnostics for missing preview or license evidence."],
+      "evidenceTargets": ["tools/assets/promote_feature_robustness_assets.py", "tests/unit/test_asset_library_import_wizard.cpp"],
+      "verificationCommands": ["ctest --preset dev-all -R \"AssetLibrary|asset_library|export|Export\" --output-on-failure", "python tools/assets/tests/test_global_asset_import.py"]
+    },
+    {
+      "id": "FRL-06",
+      "priority": 6,
+      "title": "Painted AI diff rendering",
+      "system": "ai_editor_workflow",
+      "status": "in_progress",
+      "remainingDepth": "Richer painted diff rendering remains.",
+      "currentEvidence": ["approve/reject/apply/revert", "validation blocking reasons", "patch counts", "persisted _ai_change_history", "undo/apply history", "structured diff rows", "rationale rows"],
+      "nextImplementation": ["Render JSON patch rows as painted before/after groups with add/remove/replace tone.", "Expose selected diff details and blocked-apply reasons in editor/chatbot snapshots.", "Test that painted rows derive from patch data."],
+      "evidenceTargets": ["editor/ai/ai_assistant_panel.cpp", "tests/unit/test_ai_assistant_panel.cpp"],
+      "verificationCommands": ["ctest --preset dev-all -R \"AI|ai_assistant|diff|chatbot\" --output-on-failure"]
+    },
+    {
+      "id": "FRL-07",
+      "priority": 7,
+      "title": "Automatic project filesystem walking",
+      "system": "project_knowledge_indexing",
+      "status": "in_progress",
+      "remainingDepth": "Broader automatic filesystem walking remains.",
+      "currentEvidence": ["project files", "schemas", "readiness reports", "validation reports", "asset catalogs", "project docs", "template specs", "source summaries", "direct ingestion", "freshness metadata"],
+      "nextImplementation": ["Add bounded filesystem crawler configuration with include/exclude globs, max file count, max bytes, and text allowlist.", "Convert walked files into directly ingested knowledge records.", "Emit skipped-file diagnostics for ignored, oversized, binary, or excluded files."],
+      "evidenceTargets": ["engine/core/ai/ai_knowledge_base.cpp", "tests/unit/test_ai_knowledge_base.cpp"],
+      "verificationCommands": ["ctest --preset dev-all -R \"ai_knowledge|filesystem|knowledge\" --output-on-failure"]
+    },
+    {
+      "id": "FRL-08",
+      "priority": 8,
+      "title": "Broader AI validator invocation",
+      "system": "concrete_ai_tools",
+      "status": "in_progress",
+      "remainingDepth": "Broader subsystem validator invocation remains.",
+      "currentEvidence": ["preview artifacts", "run_validation deterministic validator rows", "issue counts", "severity status", "structured issues"],
+      "nextImplementation": ["Route run_validation through subsystem validators where available.", "Record validator source, command, artifact path, severity, and issue rows.", "Add fallback diagnostics when a subsystem validator is unavailable."],
+      "evidenceTargets": ["engine/core/ai/ai_knowledge_base.cpp", "tests/unit/test_ai_knowledge_base.cpp"],
+      "verificationCommands": ["ctest --preset dev-all -R \"AI|validation|validator|tools\" --output-on-failure"]
+    },
+    {
+      "id": "FRL-09",
+      "priority": 9,
+      "title": "Socket-level live chat streaming",
+      "system": "live_chat_providers",
+      "status": "in_progress",
+      "remainingDepth": "True socket-level live chunk delivery remains.",
+      "currentEvidence": ["OpenAI-compatible IChatService", "dry-run request building", "curl execution", "provider profile UI", "stream request bodies", "curl --no-buffer", "SSE response import"],
+      "nextImplementation": ["Add a socket-backed streaming path that emits chunks as they arrive.", "Keep curl/dry-run as deterministic fallback and fixture lane.", "Expose chunk timing, partial text, completion, cancellation, and provider error diagnostics."],
+      "evidenceTargets": ["engine/core/ai/openai_compatible_chat_service.cpp", "tests/unit/test_openai_compatible_chat_service.cpp"],
+      "verificationCommands": ["ctest --preset dev-all -R \"ChatService|stream|OpenAI|provider\" --output-on-failure"]
+    },
+    {
+      "id": "FRL-10",
+      "priority": 10,
+      "title": "Native signing, notarization, and smoke launch depth",
+      "system": "export_release_ux",
+      "status": "in_progress",
+      "remainingDepth": "Full native signing/notarization and launched multi-platform smoke remain.",
+      "currentEvidence": ["platform checklist rows", "missing asset/artifact report", "packaging diagnostics", "signing/notarization status", "staged smoke evidence"],
+      "nextImplementation": ["Implement signing/notarization provider contracts with missing-credential diagnostics.", "Add launched package smoke for generated artifacts.", "Attach platform artifact policy rows to export preview snapshots."],
+      "evidenceTargets": ["tools/ci/package_release_artifacts.ps1", "tests/unit/test_export_validator.cpp"],
+      "verificationCommands": ["ctest --preset dev-export --output-on-failure", ".\\tools\\ci\\package_release_artifacts.ps1 -Mode DevUnsigned -DryRun"]
+    }
+  ]
+}
