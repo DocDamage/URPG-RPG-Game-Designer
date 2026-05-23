@@ -1,6 +1,9 @@
 #include "editor/project/main_menu_panel.h"
 
 #include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
 
 #ifdef URPG_IMGUI_ENABLED
 #include <imgui.h>
