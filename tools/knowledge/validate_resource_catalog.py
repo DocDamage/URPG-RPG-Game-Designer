@@ -69,7 +69,9 @@ def _load_json(path: Path) -> Any:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
-        raise ValueError(f"{path}: invalid JSON at line {exc.lineno}: {exc.msg}") from exc
+        raise ValueError(
+            f"{path}: invalid JSON at line {exc.lineno}: {exc.msg}"
+        ) from exc
 
 
 def validate_catalog(catalog: Any) -> list[str]:
@@ -131,14 +133,19 @@ def validate_catalog(catalog: Any) -> list[str]:
         license_status = entry.get("license_status")
         if approved_use == "usable_asset" and license_status != "verified":
             errors.append(
-                f"{prefix} cannot be approved as usable_asset without license_status=verified"
+                f"{prefix} cannot be approved as usable_asset without "
+                "license_status=verified"
             )
 
         if license_status == "rejected" and approved_use != "rejected":
-            errors.append(f"{prefix} rejected licenses must also use approved_use=rejected")
+            errors.append(
+                f"{prefix} rejected licenses must also use approved_use=rejected"
+            )
 
         if entry.get("urpg_relevance") == "rejected" and approved_use != "rejected":
-            errors.append(f"{prefix} rejected relevance must also use approved_use=rejected")
+            errors.append(
+                f"{prefix} rejected relevance must also use approved_use=rejected"
+            )
 
     return errors
 
