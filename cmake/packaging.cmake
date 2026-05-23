@@ -24,4 +24,6 @@ set(CPACK_COMPONENT_RUNTIMEDATA_DESCRIPTION "Schemas, starter templates, readine
 set(CPACK_COMPONENT_DOCS_DISPLAY_NAME "URPG documentation")
 set(CPACK_COMPONENT_DOCS_DESCRIPTION "Release, legal, credits, privacy, template, and packaging documentation.")
 
+include("${CMAKE_CURRENT_LIST_DIR}/shell_implementation_sources.cmake")
+
 include(CPack)

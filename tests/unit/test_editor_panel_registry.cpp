@@ -19,8 +19,9 @@ bool ContainsId(const std::vector<std::string>& ids, const std::string& id) {
 }
 
 const std::vector<std::string>& CanonicalReleasePanelIds() {
-    static const std::vector<std::string> ids = {"diagnostics", "assets",  "ability", "patterns",
-                                                 "mod",         "analytics", "level_builder"};
+    static const std::vector<std::string> ids = {
+        "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder",
+    };
     return ids;
 }
 
@@ -90,6 +91,7 @@ const std::map<std::string, std::string>& CompiledPanelRegistryOwners() {
         {"editor/presentation/photo_mode_panel.cpp", "photo_mode"},
         {"editor/progression/skill_tree_panel.cpp", "skill_tree"},
         {"editor/progression/stat_allocation_panel.cpp", "skill_tree"},
+        {"editor/project/main_menu_panel.cpp", "new_project_wizard"},
         {"editor/project/new_project_wizard_panel.cpp", "new_project_wizard"},
         {"editor/puzzle/puzzle_panel.cpp", "puzzle"},
         {"editor/quest/quest_panel.cpp", "quest"},
@@ -127,8 +129,7 @@ const std::map<std::string, std::string>& CompiledPanelRegistryOwners() {
     return owners;
 }
 
-bool isAllowedReleasePlaceholderTerm(const std::string& source, const std::string& line,
-                                     const std::string& term) {
+bool isAllowedReleasePlaceholderTerm(const std::string& source, const std::string& line, const std::string& term) {
     struct Allowance {
         const char* source;
         const char* needle;
@@ -236,11 +237,10 @@ TEST_CASE("Editor panel registry documents every hidden compiled panel", "[edito
         REQUIRE_FALSE(entry.owner.empty());
         REQUIRE(seen.insert(entry.id).second);
 
-        const auto isKnownExposure =
-            entry.exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel ||
-            entry.exposure == urpg::editor::EditorPanelExposure::Nested ||
-            entry.exposure == urpg::editor::EditorPanelExposure::DevOnly ||
-            entry.exposure == urpg::editor::EditorPanelExposure::Deferred;
+        const auto isKnownExposure = entry.exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel ||
+                                     entry.exposure == urpg::editor::EditorPanelExposure::Nested ||
+                                     entry.exposure == urpg::editor::EditorPanelExposure::DevOnly ||
+                                     entry.exposure == urpg::editor::EditorPanelExposure::Deferred;
         REQUIRE(isKnownExposure);
 
         if (entry.exposure != urpg::editor::EditorPanelExposure::ReleaseTopLevel) {
