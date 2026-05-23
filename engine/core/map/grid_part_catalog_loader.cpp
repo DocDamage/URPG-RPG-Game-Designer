@@ -43,10 +43,14 @@ GridPartCategory gridPartCategoryFromString(const std::string& value) {
 
 GridPartLayer gridPartLayerFromString(const std::string& value) {
     static const std::unordered_map<std::string, GridPartLayer> layers = {
-        {"Terrain", GridPartLayer::Terrain}, {"Decoration", GridPartLayer::Decoration},
-        {"Collision", GridPartLayer::Collision}, {"Object", GridPartLayer::Object},
-        {"Actor", GridPartLayer::Actor}, {"Trigger", GridPartLayer::Trigger},
-        {"Region", GridPartLayer::Region}, {"Overlay", GridPartLayer::Overlay},
+        {"Terrain", GridPartLayer::Terrain},
+        {"Decoration", GridPartLayer::Decoration},
+        {"Collision", GridPartLayer::Collision},
+        {"Object", GridPartLayer::Object},
+        {"Actor", GridPartLayer::Actor},
+        {"Trigger", GridPartLayer::Trigger},
+        {"Region", GridPartLayer::Region},
+        {"Overlay", GridPartLayer::Overlay},
     };
 
     const auto found = layers.find(value);
@@ -82,7 +86,9 @@ GridPartRuleset gridPartRulesetFromString(const std::string& value) {
     return found == rulesets.end() ? GridPartRuleset::TopDownJRPG : found->second;
 }
 
-bool loadJson(const std::filesystem::path& catalog_path, nlohmann::json& payload, std::string* error_message) {
+bool loadJson(const std::filesystem::path& catalog_path,
+              nlohmann::json& payload,
+              std::string* error_message) {
     std::ifstream stream(catalog_path, std::ios::binary);
     if (!stream) {
         setError(error_message, "catalog_open_failed");
@@ -98,7 +104,31 @@ bool loadJson(const std::filesystem::path& catalog_path, nlohmann::json& payload
     return true;
 }
 
-bool addPayloadParts(const nlohmann::json& payload, GridPartCatalog& loaded, std::string* error_message) {
+void copyStringProperty(const nlohmann::json& part,
+                        const char* json_key,
+                        const char* property_key,
+                        GridPartDefinition& definition) {
+    const auto found = part.find(json_key);
+    if (found != part.end() && found->is_string()) {
+        definition.default_properties[property_key] = found->get<std::string>();
+    }
+}
+
+void copyAtlasRectProperties(const nlohmann::json& part, GridPartDefinition& definition) {
+    const auto atlas_rect = part.find("atlasRect");
+    if (atlas_rect == part.end() || !atlas_rect->is_object()) {
+        return;
+    }
+
+    definition.default_properties["atlasRect.x"] = std::to_string(atlas_rect->value("x", 0));
+    definition.default_properties["atlasRect.y"] = std::to_string(atlas_rect->value("y", 0));
+    definition.default_properties["atlasRect.width"] = std::to_string(atlas_rect->value("width", 0));
+    definition.default_properties["atlasRect.height"] = std::to_string(atlas_rect->value("height", 0));
+}
+
+bool addPayloadParts(const nlohmann::json& payload,
+                     GridPartCatalog& loaded,
+                     std::string* error_message) {
     if (!payload.contains("parts") || !payload["parts"].is_array()) {
         setError(error_message, "catalog_parts_missing");
         return false;
@@ -119,8 +149,6 @@ bool addPayloadParts(const nlohmann::json& payload, GridPartCatalog& loaded, std
         definition.collision_policy = gridPartCollisionPolicyFromString(part.value("collisionPolicy", "None"));
         definition.asset_id = part.value("assetId", "");
         definition.prefab_path = part.value("prefabPath", "");
-        definition.preview_path = part.value("previewPath", "");
-        definition.source_image_path = part.value("sourceImagePath", "");
         definition.tile_id = part.value("tileId", 0);
 
         const auto footprint = part.value("footprint", nlohmann::json::object());
@@ -129,11 +157,9 @@ bool addPayloadParts(const nlohmann::json& payload, GridPartCatalog& loaded, std
         definition.footprint.allow_overlap = footprint.value("allowOverlap", false);
         definition.footprint.blocks_navigation = footprint.value("blocksNavigation", false);
 
-        const auto atlas_rect = part.value("atlasRect", nlohmann::json::object());
-        definition.atlas_rect.x = atlas_rect.value("x", 0);
-        definition.atlas_rect.y = atlas_rect.value("y", 0);
-        definition.atlas_rect.width = atlas_rect.value("width", 0);
-        definition.atlas_rect.height = atlas_rect.value("height", 0);
+        copyStringProperty(part, "previewPath", "previewPath", definition);
+        copyStringProperty(part, "sourceImagePath", "sourceImagePath", definition);
+        copyAtlasRectProperties(part, definition);
 
         for (const auto& ruleset : part.value("supportedRulesets", nlohmann::json::array())) {
             if (ruleset.is_string()) {
@@ -165,7 +191,9 @@ bool addPayloadParts(const nlohmann::json& payload, GridPartCatalog& loaded, std
     return true;
 }
 
-bool loadCatalogInto(const std::filesystem::path& catalog_path, GridPartCatalog& loaded, std::set<std::filesystem::path>& active,
+bool loadCatalogInto(const std::filesystem::path& catalog_path,
+                     GridPartCatalog& loaded,
+                     std::set<std::filesystem::path>& active,
                      std::string* error_message) {
     const auto absolute_path = std::filesystem::absolute(catalog_path).lexically_normal();
     if (active.contains(absolute_path)) {
@@ -201,12 +229,14 @@ bool loadCatalogInto(const std::filesystem::path& catalog_path, GridPartCatalog&
 bool pathLooksLikeFullLibraryScope(const std::filesystem::path& path) {
     const auto normalized = path.generic_string();
     return normalized.find("game_maker_all_parts") != std::string::npos ||
-           normalized.find("cutesckr_all_parts") != std::string::npos || path.stem() == "full";
+           normalized.find("cutesckr_all_parts") != std::string::npos ||
+           path.stem() == "full";
 }
 
 } // namespace
 
-bool LoadGridPartCatalogFromFile(const std::filesystem::path& catalog_path, GridPartCatalog& catalog,
+bool LoadGridPartCatalogFromFile(const std::filesystem::path& catalog_path,
+                                 GridPartCatalog& catalog,
                                  std::string* error_message) {
     if (error_message != nullptr) {
         error_message->clear();
@@ -222,14 +252,17 @@ bool LoadGridPartCatalogFromFile(const std::filesystem::path& catalog_path, Grid
     return true;
 }
 
-bool LoadGridPartCatalogFromProject(const std::filesystem::path& project_root, GridPartCatalog& catalog,
-                                    const std::filesystem::path& relative_catalog_path, std::string* error_message) {
+bool LoadGridPartCatalogFromProject(const std::filesystem::path& project_root,
+                                    GridPartCatalog& catalog,
+                                    const std::filesystem::path& relative_catalog_path,
+                                    std::string* error_message) {
     return LoadGridPartCatalogFromFile(project_root / relative_catalog_path, catalog, error_message);
 }
 
 bool LoadGridPartCatalogScopeFromProject(const std::filesystem::path& project_root,
                                          const std::vector<std::filesystem::path>& relative_catalog_paths,
-                                         GridPartCatalogScope& scope, std::string* error_message) {
+                                         GridPartCatalogScope& scope,
+                                         std::string* error_message) {
     if (error_message != nullptr) {
         error_message->clear();
     }
