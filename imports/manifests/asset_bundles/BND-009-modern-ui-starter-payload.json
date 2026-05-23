@@ -1,7 +1,7 @@
 {
   "bundleId": "BND-009",
   "title": "Modern UI Starter Asset Payload Candidate",
-  "status": "license_evidence_recorded",
+  "status": "candidate_manifest_only",
   "sourceBranch": "codex/modern-ui-asset-ingest",
   "referencePullRequest": 22,
   "relatedIssues": [27],
