@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# fmt: off
 from __future__ import annotations
 
 import json
@@ -151,3 +152,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+# fmt: on
