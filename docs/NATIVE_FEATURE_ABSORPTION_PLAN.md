@@ -18,6 +18,7 @@ Planning-input annexes for this roadmap:
 - `./archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` - earlier native-absorption planning input retained as superseded reference
 - `./archive/planning/URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md` - governance/template expansion addendum retained as planning input while its approved deltas are absorbed into this roadmap and the canonical status stack
 - `./URPG_facebookresearch_tooling_integration_plan.md` - offline ML/research tooling boundary input retained as planning input while its approved scope is absorbed into this roadmap and the canonical status stack
+- `./research/engine_reference_triage_plan.md` - external engine/resource triage input retained as a controlled research annex for knowledge ingestion, asset-lead review, editor UX reference, and anti-vendoring guardrails
 
 These annexes are not parallel execution authorities. New phase, status, and release-gate claims become canonical only after they are absorbed into this roadmap, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/PROGRAM_COMPLETION_STATUS.md`.
 
@@ -41,6 +42,7 @@ URPG's product goal is also explicitly WYSIWYG and easy to use. Native ownership
 3. Integrate external-repo-inspired capabilities as first-class native tracks, not side appendices.
 4. Add explicit governance, readiness, and cross-cutting minimum-bar lanes so subsystem and template claims stay evidence-gated.
 5. Close each remaining lane as both runtime capability and WYSIWYG editor workflow, instead of deferring ease-of-use until after backend completion.
+6. Add controlled external engine/resource triage as a knowledge-ingestion and editor-reference lane, not as an engine-migration, dependency, or bulk-asset import mandate.
 
 2026-04-24 execution note:
 
@@ -82,6 +84,7 @@ URPG's product goal is also explicitly WYSIWYG and easy to use. Native ownership
 - image segmentation and cutout tooling
 - audio separation, analysis, and compression experimentation
 - importer-specific offline adapters and manifest builders
+- license-gated external resource cataloging for asset leads, tools, tutorials, and editor references
 
 ## Repository-informed capability seeds
 
@@ -99,6 +102,27 @@ These projects informed what to absorb. We treat them as design references first
 | `Dahie/sprite-spicifier` | Animation preview/tuning workflow | `Sprite Animation Preview` panel |
 | `matoymush/ExtendedTAS` | Temporary animated sprite spawning | `Transient FX/Animation Events` in timeline lane |
 | `loopier/animatron` | Live animation/timeline orchestration ideas | `Timeline/Animation Orchestration` layer |
+
+## External engine and resource triage boundary
+
+The engine/resource triage annex is now part of the roadmap as a governed research input. It does not authorize dependency adoption, engine migration, or asset import by itself.
+
+| Source | Roadmap role | Asset decision | Native target |
+| --- | --- | --- | --- |
+| `DocDamage/GameDev-Resources` | Resource discovery and knowledge-base seed | Useful as an asset-lead index only; links require license/style/product review before use | `Resource Catalog`, `Asset Intake UX`, `Third-Party Review Gate` |
+| `DocDamage/defold` | Editor/runtime/CLI separation, platform export docs, release-process reference | Reference-only; no sample/editor asset import | `Editor UX Reference`, `Export/Build Documentation`, `Content Pipeline Diagnostics` |
+| `DocDamage/panda3d` | Python/C++ tooling, scene graph concepts, packaging/build reference | Reference-only unless a specific sample asset passes review | `Offline Tooling`, `Import/Conversion Experiments` |
+| `DocDamage/stride` | Visual editor UX, content pipeline, asset browser, modular editor architecture reference | Reference-only; no copied icons/assets without explicit license review | `File Explorer`, `Asset Browser Preview`, `Content Pipeline Status UX` |
+
+Hard rules:
+
+- No bulk import of external engine assets.
+- No vendor drop of Defold, Panda3D, Stride, or any full external engine.
+- No third-party art/audio/model/icon/font/shader/code enters URPG until license, attribution, modification, redistribution, commercial-use, and style-fit are reviewed.
+- External resources may be indexed as reference links before they are approved as usable content.
+- `GameDev-Resources` seeds possible sources; it does not populate URPG with unreviewed files.
+- Engine/editor sample assets are not production game assets by default.
+- Any engine-reference implementation must be original URPG code mapped to a native owner and test anchor.
 
 ## Ownership boundaries
 
@@ -128,6 +152,7 @@ These projects informed what to absorb. We treat them as design references first
 - restartable offline jobs under `tools/`
 - stable manifests, cutouts, indexes, and processed asset outputs
 - no direct authority over shipped runtime behavior beyond exported artifacts
+- external resource catalogs and third-party review metadata before any outside asset/source/tool is promoted to usable project content
 
 ## Execution roadmap
 
@@ -271,6 +296,7 @@ Boundary rules:
 - runtime consumes static outputs only: JSON, manifests, indexes, PNG/WebP cutouts, WAV/OGG, and metadata
 - no PyTorch-heavy dependency enters the player/runtime build unless there is a separately proven product need
 - every offline stage must be restartable, inspectable, and safe to rerun
+- external resource discovery may feed catalogs and review queues, but it must not feed shipped assets without third-party review
 
 ### 4.1 Retrieval and search tooling
 
@@ -297,6 +323,15 @@ Boundary rules:
 
 - [ ] Evaluate Detectron2 only if asset-scale tagging or QA pressure justifies maintenance.
 - [ ] Evaluate PyTorch3D only if the 2.5D / 3D asset pipeline grows into a real maintained content lane.
+
+### 4.5 External resource catalog and engine-reference ingestion
+
+- [ ] Add `content/knowledge/game_dev_resources/resource_catalog.schema.json`.
+- [ ] Add `content/knowledge/game_dev_resources/resource_catalog.seed.json` seeded only with reviewed source-repo entries and reference categories.
+- [ ] Add `docs/research/game_dev_resource_ingestion.md` describing how `GameDev-Resources` links become candidate records instead of imported content.
+- [ ] Add a third-party resource review gate for external art, audio, models, icons, fonts, shaders, snippets, and tools before they can be promoted from reference to usable project content.
+- [ ] Add editor-reference notes for Stride and Defold file explorer, asset browser, preview, diagnostics, and export UI ideas.
+- [ ] Add an ADR locking Defold, Panda3D, Stride, and similar full engines to reference-only status unless a separate approved decision changes that boundary.
 
 ## Lane 5: Productization and release hardening
 
@@ -340,6 +375,7 @@ Goal: make URPG safe to expose as a multi-template engine product by giving subs
 - [x] Project audit command and diagnostics panel with template/subsystem/export blocker reporting
 - [x] Schema versioning registry, schema changelog governance, and CI guardrails for version drift
 - [x] Breaking-change detection for schemas, export contracts, and template minimum bars
+- [ ] External-resource governance for license-gated resource catalog entries, asset-source candidates, and reference-only engine research claims
 
 ### 5.2 Cross-cutting minimum bars
 
@@ -395,6 +431,12 @@ Goal: make URPG safe to expose as a multi-template engine product by giving subs
 - template-readiness contracts published for supported game types
 - full program completion report published
 
+### Milestone M6
+
+- External resource catalog skeleton, license gate, and anti-vendoring ADR landed
+- `GameDev-Resources` entries are represented only as reviewable resource leads
+- Stride/Defold/Panda3D notes are mapped to URPG editor/tooling ideas without importing engine assets or code
+
 ## Definition of complete (100% for this plan)
 
 This plan is complete when:
@@ -407,6 +449,7 @@ This plan is complete when:
 6. Release gates validate native and compat stability with published evidence.
 7. The remaining supported feature lanes are usable through live, low-friction WYSIWYG editor workflows rather than backend-only seams.
 8. Any adopted ML/research tooling remains isolated behind an offline tooling boundary and contributes only stable exported artifacts to the shipped runtime.
+9. External resources and engine-reference ideas are either cataloged as reference-only or promoted through a license-gated, owner-mapped, test-anchored path.
 
 ## Acceptance rules for external-source-inspired work
 
@@ -414,6 +457,8 @@ This plan is complete when:
 2. Code reuse only after explicit license and compatibility review.
 3. No direct import of third-party code that conflicts with URPG licensing strategy.
 4. Every adopted capability must map to a named native owner and test anchor.
+5. External asset leads must remain candidate records until license, attribution, commercial-use, modification, redistribution, and style-fit reviews pass.
+6. Full external engines may be studied but must not be vendored, depended on, or used as migration targets without a separate approved ADR.
 
 ## Non-goals
 
@@ -421,6 +466,8 @@ This plan is complete when:
 - making extension stacks mandatory for core capability
 - treating imported plugin parameter sheets as long-term authoring UX
 - bypassing native schema ownership for convenience
+- importing engine sample assets as production game assets
+- migrating URPG to Defold, Panda3D, Stride, or any other full external engine as part of this roadmap
 
 ## Execution references
 
@@ -438,6 +485,7 @@ This plan is complete when:
   - `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`
   - `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md`
   - `docs/archive/planning/URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md`
+  - `docs/research/engine_reference_triage_plan.md`
 - Wave 1 specs:
   - `docs/UI_MENU_CORE_NATIVE_SPEC.md`
   - `docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`
