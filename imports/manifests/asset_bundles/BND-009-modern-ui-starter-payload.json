@@ -1,0 +1,110 @@
+{
+  "bundleId": "BND-009",
+  "title": "Modern UI Starter Asset Payload Candidate",
+  "status": "candidate_manifest_only",
+  "sourceBranch": "codex/modern-ui-asset-ingest",
+  "referencePullRequest": 22,
+  "relatedIssues": [27],
+  "distribution": "deferred",
+  "releaseRequired": false,
+  "releaseEligible": false,
+  "scope": "Exact candidate list for the later curated starter asset payload split. This manifest does not add binary payloads and does not make release claims.",
+  "requirementsBeforePayloadPromotion": [
+    "Each path must be copied as a real binary blob, not a text/base64 placeholder.",
+    "Each path must have source and license evidence before being marked releaseEligible.",
+    "Only these exact paths may be included in the curated starter payload PR unless this manifest is updated first.",
+    "The payload PR must update .gitattributes only for the approved paths it includes.",
+    "The payload PR must pass release-required asset and package smoke checks."
+  ],
+  "candidateAssets": [
+    {
+      "path": "content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_000.png",
+      "referencedBy": ["content/asset_indexes/game_maker/jrpg_starter.json"],
+      "expectedSizeBytes": 2604,
+      "role": "jrpg terrain starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_001.png",
+      "referencedBy": ["content/asset_indexes/game_maker/jrpg_starter.json"],
+      "expectedSizeBytes": 4863,
+      "role": "jrpg terrain starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_000.png",
+      "referencedBy": ["content/asset_indexes/game_maker/action_rpg_starter.json"],
+      "expectedSizeBytes": 2498,
+      "role": "action rpg terrain starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_001.png",
+      "referencedBy": ["content/asset_indexes/game_maker/action_rpg_starter.json"],
+      "expectedSizeBytes": 5769,
+      "role": "action rpg prop starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/cutesckr/medieval_castle_1/tile_000.png",
+      "referencedBy": ["content/asset_indexes/game_maker/tactical_rpg_starter.json"],
+      "expectedSizeBytes": 5509,
+      "role": "tactical rpg floor starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/cutesckr/medieval_castle_1/tile_001.png",
+      "referencedBy": ["content/asset_indexes/game_maker/tactical_rpg_starter.json"],
+      "expectedSizeBytes": 5533,
+      "role": "tactical rpg wall starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/human_rpg_portraits/00000_10_human_barbarian_0_0.png",
+      "referencedBy": ["content/asset_indexes/game_maker/visual_novel_hybrid_starter.json"],
+      "expectedSizeBytes": 23684,
+      "role": "visual novel portrait starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/human_rpg_portraits/00001_10_human_barbarian_0_1.png",
+      "referencedBy": ["content/asset_indexes/game_maker/visual_novel_hybrid_starter.json"],
+      "expectedSizeBytes": 23990,
+      "role": "visual novel portrait starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/cutesckr/farm_1/tile_000.png",
+      "referencedBy": ["content/asset_indexes/game_maker/cozy_life_starter.json"],
+      "expectedSizeBytes": 1430,
+      "role": "cozy life terrain starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/cutesckr/farm_1/tile_001.png",
+      "referencedBy": ["content/asset_indexes/game_maker/cozy_life_starter.json"],
+      "expectedSizeBytes": 2039,
+      "role": "cozy life prop starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_002.png",
+      "referencedBy": ["content/asset_indexes/game_maker/monster_collector_starter.json"],
+      "expectedSizeBytes": 3698,
+      "role": "monster collector habitat starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/cutesckr/medieval_fantasy_town_1/tile_003.png",
+      "referencedBy": ["content/asset_indexes/game_maker/monster_collector_starter.json"],
+      "expectedSizeBytes": 2285,
+      "role": "monster collector encounter starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_002.png",
+      "referencedBy": ["content/asset_indexes/game_maker/platform_adventure_starter.json"],
+      "expectedSizeBytes": 3340,
+      "role": "platform adventure terrain starter preview"
+    },
+    {
+      "path": "content/assets/gameplay/cutesckr/forest_wilderness_1/tile_003.png",
+      "referencedBy": ["content/asset_indexes/game_maker/platform_adventure_starter.json"],
+      "expectedSizeBytes": 3275,
+      "role": "platform adventure platform starter preview"
+    }
+  ],
+  "verificationCommandsForPayloadPr": [
+    ".\\tools\\ci\\check_release_required_assets.ps1",
+    ".\\tools\\ci\\check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke",
+    "ctest --preset dev-all -R \"AssetLibrary|asset_library|Export|export\" --output-on-failure"
+  ]
+}
