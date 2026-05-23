@@ -2,6 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "../..")
 $cmakePath = Join-Path $repoRoot "CMakeLists.txt"
+$shellImplementationSourcesPath = Join-Path $repoRoot "cmake/shell_implementation_sources.cmake"
 
 Write-Host "Checking CMakeLists.txt completeness..."
 
@@ -10,6 +11,10 @@ if (-not (Test-Path $cmakePath)) {
 }
 
 $cmakeContent = Get-Content -Raw -Path $cmakePath
+$shellImplementationSourcesContent = ""
+if (Test-Path $shellImplementationSourcesPath) {
+    $shellImplementationSourcesContent = Get-Content -Raw -Path $shellImplementationSourcesPath
+}
 
 # Normalize path separators to forward slashes for consistent comparison
 function Normalize-Path {
@@ -88,7 +93,9 @@ function Get-SetFiles {
 }
 
 $coreFiles = Get-SetFiles -content $cmakeContent -variableName "URPG_CORE_SOURCES"
+$coreFiles += Get-SetFiles -content $shellImplementationSourcesContent -variableName "URPG_SHELL_IMPLEMENTATION_CORE_SOURCES"
 $testFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_tests"
+$testFiles += Get-SetFiles -content $shellImplementationSourcesContent -variableName "URPG_SHELL_IMPLEMENTATION_TEST_SOURCES"
 $projectAuditUnitFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_project_audit_unit_tests"
 $exportUnitFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_export_unit_tests"
 $exportProcessFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_export_process_tests"
