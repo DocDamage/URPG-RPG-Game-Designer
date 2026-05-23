@@ -20,13 +20,7 @@ bool ContainsId(const std::vector<std::string>& ids, const std::string& id) {
 
 const std::vector<std::string>& CanonicalReleasePanelIds() {
     static const std::vector<std::string> ids = {
-        "diagnostics",
-        "assets",
-        "ability",
-        "patterns",
-        "mod",
-        "analytics",
-        "level_builder",
+        "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder",
     };
     return ids;
 }
