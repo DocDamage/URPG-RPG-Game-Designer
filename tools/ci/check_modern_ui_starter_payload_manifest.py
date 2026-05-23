@@ -5,7 +5,9 @@ import json
 import sys
 from pathlib import Path
 
-MANIFEST_PATH = Path("imports/manifests/asset_bundles/BND-009-modern-ui-starter-payload.json")
+MANIFEST_PATH = Path(
+    "imports/manifests/asset_bundles/BND-009-modern-ui-starter-payload.json"
+)
 INDEX_ROOT = Path("content/asset_indexes/game_maker")
 EXPECTED_INDEXES = {
     "action_rpg_starter.json",
@@ -54,7 +56,10 @@ def collect_index_assets() -> dict[str, dict]:
             fail(f"{index_path} must contain a records list")
         declared_count = payload.get("recordCount")
         if declared_count != len(records):
-            fail(f"{index_path} recordCount={declared_count} does not match {len(records)} records")
+            fail(
+                f"{index_path} recordCount={declared_count} "
+                f"does not match {len(records)} records"
+            )
         for record in records:
             if not isinstance(record, dict):
                 fail(f"{index_path} contains a non-object record")
@@ -66,7 +71,10 @@ def collect_index_assets() -> dict[str, dict]:
                 fail(f"{index_path} record {source_path} is missing unloadablePayload")
             size_bytes = payload_info.get("sizeBytes")
             if not isinstance(size_bytes, int) or size_bytes <= 0:
-                fail(f"{index_path} record {source_path} must declare positive sizeBytes")
+                fail(
+                    f"{index_path} record {source_path} "
+                    "must declare positive sizeBytes"
+                )
             if source_path in assets:
                 fail(f"duplicate sourcePath across starter indexes: {source_path}")
             assets[source_path] = {
@@ -81,7 +89,9 @@ def main() -> int:
     if manifest.get("bundleId") != "BND-009":
         fail("bundleId must be BND-009")
     if manifest.get("status") != "candidate_manifest_only":
-        fail("status must remain candidate_manifest_only until binary payloads are promoted")
+        fail(
+            "status must remain candidate_manifest_only until binary payloads are promoted"
+        )
     if manifest.get("releaseRequired") is not False:
         fail("releaseRequired must be false for this manifest-only candidate")
     if manifest.get("releaseEligible") is not False:
@@ -110,7 +120,9 @@ def main() -> int:
             fail(f"candidate path must declare positive expectedSizeBytes: {path}")
         referenced_by = asset.get("referencedBy")
         if not isinstance(referenced_by, list) or len(referenced_by) != 1:
-            fail(f"candidate path must have exactly one starter index reference: {path}")
+            fail(
+                f"candidate path must have exactly one starter index reference: {path}"
+            )
         manifest_assets[path] = asset
 
     missing_from_manifest = sorted(set(index_assets) - set(manifest_assets))
