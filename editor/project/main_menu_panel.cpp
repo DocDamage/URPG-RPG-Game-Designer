@@ -164,8 +164,7 @@ nlohmann::json MainMenuModel::snapshot() const {
          {
              {"continue_last_project",
               {{"enabled", !last_project_.empty()}, {"projectPath", last_project_}, {"route", "editor"}}},
-             {"new_project",
-              {{"enabled", true}, {"route", onboarding_enabled_ ? "onboarding" : "template_picker"}}},
+             {"new_project", {{"enabled", true}, {"route", onboarding_enabled_ ? "onboarding" : "template_picker"}}},
              {"open_project", {{"enabled", true}, {"route", "editor"}}},
              {"settings", {{"enabled", true}, {"route", "settings"}}},
          }},
