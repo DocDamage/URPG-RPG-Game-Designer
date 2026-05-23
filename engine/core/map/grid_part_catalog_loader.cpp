@@ -55,10 +55,8 @@ GridPartLayer gridPartLayerFromString(const std::string& value) {
 
 GridPartCollisionPolicy gridPartCollisionPolicyFromString(const std::string& value) {
     static const std::unordered_map<std::string, GridPartCollisionPolicy> policies = {
-        {"None", GridPartCollisionPolicy::None},
-        {"Solid", GridPartCollisionPolicy::Solid},
-        {"Hazard", GridPartCollisionPolicy::Hazard},
-        {"TriggerOnly", GridPartCollisionPolicy::TriggerOnly},
+        {"None", GridPartCollisionPolicy::None},     {"Solid", GridPartCollisionPolicy::Solid},
+        {"Hazard", GridPartCollisionPolicy::Hazard}, {"TriggerOnly", GridPartCollisionPolicy::TriggerOnly},
         {"Custom", GridPartCollisionPolicy::Custom},
     };
 
@@ -68,14 +66,10 @@ GridPartCollisionPolicy gridPartCollisionPolicyFromString(const std::string& val
 
 GridPartRuleset gridPartRulesetFromString(const std::string& value) {
     static const std::unordered_map<std::string, GridPartRuleset> rulesets = {
-        {"TopDownJRPG", GridPartRuleset::TopDownJRPG},
-        {"SideScrollerAction", GridPartRuleset::SideScrollerAction},
-        {"TacticalGrid", GridPartRuleset::TacticalGrid},
-        {"DungeonRoomBuilder", GridPartRuleset::DungeonRoomBuilder},
-        {"WorldMap", GridPartRuleset::WorldMap},
-        {"TownHub", GridPartRuleset::TownHub},
-        {"BattleArena", GridPartRuleset::BattleArena},
-        {"CutsceneStage", GridPartRuleset::CutsceneStage},
+        {"TopDownJRPG", GridPartRuleset::TopDownJRPG},   {"SideScrollerAction", GridPartRuleset::SideScrollerAction},
+        {"TacticalGrid", GridPartRuleset::TacticalGrid}, {"DungeonRoomBuilder", GridPartRuleset::DungeonRoomBuilder},
+        {"WorldMap", GridPartRuleset::WorldMap},         {"TownHub", GridPartRuleset::TownHub},
+        {"BattleArena", GridPartRuleset::BattleArena},   {"CutsceneStage", GridPartRuleset::CutsceneStage},
     };
 
     const auto found = rulesets.find(value);
@@ -98,9 +92,7 @@ bool loadJson(const std::filesystem::path& catalog_path, nlohmann::json& payload
     return true;
 }
 
-void copyStringProperty(const nlohmann::json& part,
-                        const char* json_key,
-                        const char* property_key,
+void copyStringProperty(const nlohmann::json& part, const char* json_key, const char* property_key,
                         GridPartDefinition& definition) {
     const auto found = part.find(json_key);
     if (found != part.end() && found->is_string()) {
@@ -183,10 +175,8 @@ bool addPayloadParts(const nlohmann::json& payload, GridPartCatalog& loaded, std
     return true;
 }
 
-bool loadCatalogInto(const std::filesystem::path& catalog_path,
-                     GridPartCatalog& loaded,
-                     std::set<std::filesystem::path>& active,
-                     std::string* error_message) {
+bool loadCatalogInto(const std::filesystem::path& catalog_path, GridPartCatalog& loaded,
+                     std::set<std::filesystem::path>& active, std::string* error_message) {
     const auto absolute_path = std::filesystem::absolute(catalog_path).lexically_normal();
     if (active.contains(absolute_path)) {
         setError(error_message, "catalog_include_cycle");
@@ -226,8 +216,7 @@ bool pathLooksLikeFullLibraryScope(const std::filesystem::path& path) {
 
 } // namespace
 
-bool LoadGridPartCatalogFromFile(const std::filesystem::path& catalog_path,
-                                 GridPartCatalog& catalog,
+bool LoadGridPartCatalogFromFile(const std::filesystem::path& catalog_path, GridPartCatalog& catalog,
                                  std::string* error_message) {
     if (error_message != nullptr) {
         error_message->clear();
@@ -243,17 +232,14 @@ bool LoadGridPartCatalogFromFile(const std::filesystem::path& catalog_path,
     return true;
 }
 
-bool LoadGridPartCatalogFromProject(const std::filesystem::path& project_root,
-                                    GridPartCatalog& catalog,
-                                    const std::filesystem::path& relative_catalog_path,
-                                    std::string* error_message) {
+bool LoadGridPartCatalogFromProject(const std::filesystem::path& project_root, GridPartCatalog& catalog,
+                                    const std::filesystem::path& relative_catalog_path, std::string* error_message) {
     return LoadGridPartCatalogFromFile(project_root / relative_catalog_path, catalog, error_message);
 }
 
 bool LoadGridPartCatalogScopeFromProject(const std::filesystem::path& project_root,
                                          const std::vector<std::filesystem::path>& relative_catalog_paths,
-                                         GridPartCatalogScope& scope,
-                                         std::string* error_message) {
+                                         GridPartCatalogScope& scope, std::string* error_message) {
     if (error_message != nullptr) {
         error_message->clear();
     }
