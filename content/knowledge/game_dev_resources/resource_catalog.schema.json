@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/game_dev_resource_catalog.schema.json",
+  "title": "URPG Game Development Resource Catalog",
+  "type": "object",
+  "required": ["version", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/resourceEntry"
+      },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "resourceEntry": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "source_url",
+        "source_repo",
+        "category",
+        "cost",
+        "license_status",
+        "commercial_use",
+        "modification_allowed",
+        "redistribution_allowed",
+        "attribution_required",
+        "urpg_relevance",
+        "approved_use",
+        "notes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_\\-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_url": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_repo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "enum": [
+            "asset",
+            "tool",
+            "tutorial",
+            "engine",
+            "audio",
+            "spritesheet",
+            "tile_editor",
+            "resource_index",
+            "reference"
+          ]
+        },
+        "cost": {
+          "enum": ["free", "paid", "limited_free", "mixed", "unknown"]
+        },
+        "license_status": {
+          "enum": ["verified", "needs_review", "rejected", "unknown"]
+        },
+        "commercial_use": {
+          "enum": ["yes", "no", "unknown"]
+        },
+        "modification_allowed": {
+          "enum": ["yes", "no", "unknown"]
+        },
+        "redistribution_allowed": {
+          "enum": ["yes", "no", "unknown"]
+        },
+        "attribution_required": {
+          "enum": ["yes", "no", "unknown"]
+        },
+        "urpg_relevance": {
+          "enum": ["high", "medium", "low", "rejected"]
+        },
+        "approved_use": {
+          "enum": [
+            "knowledge_base",
+            "editor_reference",
+            "asset_source_candidate",
+            "usable_asset",
+            "rejected"
+          ]
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
