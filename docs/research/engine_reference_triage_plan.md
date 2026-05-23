@@ -1,7 +1,7 @@
 # URPG Engine Reference and Resource Triage Plan
 
-Status: Draft planning annex  
-Scope: Research, knowledge ingestion, asset-lead triage, editor UX reference, and anti-vendoring guardrails  
+Status: Draft planning annex
+Scope: Research, knowledge ingestion, asset-lead triage, editor UX reference, and anti-vendoring guardrails
 Primary roadmap: `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 
 ## Executive Decision
