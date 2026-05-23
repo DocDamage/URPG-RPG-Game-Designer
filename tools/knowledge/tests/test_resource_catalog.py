@@ -13,10 +13,17 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.knowledge.validate_resource_catalog import main, validate_catalog  # noqa: E402
+from tools.knowledge.validate_resource_catalog import (  # noqa: E402
+    main,
+    validate_catalog,
+)
 
 SEED_CATALOG_PATH = (
-    REPO_ROOT / "content" / "knowledge" / "game_dev_resources" / "resource_catalog.seed.json"
+    REPO_ROOT
+    / "content"
+    / "knowledge"
+    / "game_dev_resources"
+    / "resource_catalog.seed.json"
 )
 
 
