@@ -2,6 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <string>
+
 TEST_CASE("MainMenuModel exposes startup routes and project actions", "[project][main_menu]") {
     urpg::editor::MainMenuModel model;
     model.setOnboardingEnabled(true);
