@@ -55,11 +55,21 @@ void MainMenuModel::setLastProject(std::string path) {
 }
 
 void MainMenuModel::addRecentProject(std::string path) {
-    eraseValue(recent_projects_, path);
-    recent_projects_.insert(recent_projects_.begin(), std::move(path));
-    if (recent_projects_.size() > 10) {
-        recent_projects_.resize(10);
+    std::vector<std::string> updated;
+    updated.reserve(10);
+    updated.push_back(std::move(path));
+
+    for (const auto& recent_project : recent_projects_) {
+        if (std::find(updated.begin(), updated.end(), recent_project) != updated.end()) {
+            continue;
+        }
+        if (updated.size() == 10) {
+            break;
+        }
+        updated.push_back(recent_project);
     }
+
+    recent_projects_ = std::move(updated);
 }
 
 void MainMenuModel::pinProject(std::string path) {
