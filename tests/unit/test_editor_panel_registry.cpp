@@ -90,6 +90,7 @@ const std::map<std::string, std::string>& CompiledPanelRegistryOwners() {
         {"editor/presentation/photo_mode_panel.cpp", "photo_mode"},
         {"editor/progression/skill_tree_panel.cpp", "skill_tree"},
         {"editor/progression/stat_allocation_panel.cpp", "skill_tree"},
+        {"editor/project/main_menu_panel.cpp", "new_project_wizard"},
         {"editor/project/new_project_wizard_panel.cpp", "new_project_wizard"},
         {"editor/puzzle/puzzle_panel.cpp", "puzzle"},
         {"editor/quest/quest_panel.cpp", "quest"},
