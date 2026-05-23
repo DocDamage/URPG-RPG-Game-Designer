@@ -43,14 +43,10 @@ GridPartCategory gridPartCategoryFromString(const std::string& value) {
 
 GridPartLayer gridPartLayerFromString(const std::string& value) {
     static const std::unordered_map<std::string, GridPartLayer> layers = {
-        {"Terrain", GridPartLayer::Terrain},
-        {"Decoration", GridPartLayer::Decoration},
-        {"Collision", GridPartLayer::Collision},
-        {"Object", GridPartLayer::Object},
-        {"Actor", GridPartLayer::Actor},
-        {"Trigger", GridPartLayer::Trigger},
-        {"Region", GridPartLayer::Region},
-        {"Overlay", GridPartLayer::Overlay},
+        {"Terrain", GridPartLayer::Terrain},     {"Decoration", GridPartLayer::Decoration},
+        {"Collision", GridPartLayer::Collision}, {"Object", GridPartLayer::Object},
+        {"Actor", GridPartLayer::Actor},         {"Trigger", GridPartLayer::Trigger},
+        {"Region", GridPartLayer::Region},       {"Overlay", GridPartLayer::Overlay},
     };
 
     const auto found = layers.find(value);
@@ -86,9 +82,7 @@ GridPartRuleset gridPartRulesetFromString(const std::string& value) {
     return found == rulesets.end() ? GridPartRuleset::TopDownJRPG : found->second;
 }
 
-bool loadJson(const std::filesystem::path& catalog_path,
-              nlohmann::json& payload,
-              std::string* error_message) {
+bool loadJson(const std::filesystem::path& catalog_path, nlohmann::json& payload, std::string* error_message) {
     std::ifstream stream(catalog_path, std::ios::binary);
     if (!stream) {
         setError(error_message, "catalog_open_failed");
@@ -126,9 +120,7 @@ void copyAtlasRectProperties(const nlohmann::json& part, GridPartDefinition& def
     definition.default_properties["atlasRect.height"] = std::to_string(atlas_rect->value("height", 0));
 }
 
-bool addPayloadParts(const nlohmann::json& payload,
-                     GridPartCatalog& loaded,
-                     std::string* error_message) {
+bool addPayloadParts(const nlohmann::json& payload, GridPartCatalog& loaded, std::string* error_message) {
     if (!payload.contains("parts") || !payload["parts"].is_array()) {
         setError(error_message, "catalog_parts_missing");
         return false;
@@ -229,8 +221,7 @@ bool loadCatalogInto(const std::filesystem::path& catalog_path,
 bool pathLooksLikeFullLibraryScope(const std::filesystem::path& path) {
     const auto normalized = path.generic_string();
     return normalized.find("game_maker_all_parts") != std::string::npos ||
-           normalized.find("cutesckr_all_parts") != std::string::npos ||
-           path.stem() == "full";
+           normalized.find("cutesckr_all_parts") != std::string::npos || path.stem() == "full";
 }
 
 } // namespace
