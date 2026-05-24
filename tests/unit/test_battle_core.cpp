@@ -125,7 +125,8 @@ TEST_CASE("BattleRuleResolver escape ratio ramps with failed attempts", "[battle
     REQUIRE(ramp3 <= 100);
 }
 
-TEST_CASE("BattleRuleResolver previews chip feedback zero-damage policy and buff caps", "[battle][core][rules][feedback]") {
+TEST_CASE("BattleRuleResolver previews chip feedback zero-damage policy and buff caps",
+          "[battle][core][rules][feedback]") {
     BattleFeedbackPolicy policy;
     policy.chip_damage_percent = 25;
     policy.chip_healing_percent = 50;
@@ -228,8 +229,7 @@ TEST_CASE("BattleRuleResolver imports plugin-style battle feedback fixtures with
     REQUIRE(imported.diagnostics[0].code == "feedback_fixture_imported");
     REQUIRE(imported.diagnostics[0].target == "TSkBattleFeedbackFixture");
     REQUIRE(std::any_of(imported.diagnostics.begin(), imported.diagnostics.end(), [](const auto& diagnostic) {
-        return diagnostic.code == "feedback_policy_value_clamped" &&
-               diagnostic.target == "Chip Damage Percent";
+        return diagnostic.code == "feedback_policy_value_clamped" && diagnostic.target == "Chip Damage Percent";
     }));
 }
 
@@ -276,9 +276,8 @@ TEST_CASE("BattleRuleResolver imports broader battle feedback fixture shapes",
     REQUIRE(alternate.policy.max_buff_level == 7);
     REQUIRE(alternate.policy.zero_damage_policy == ZeroDamagePresentationPolicy::Immune);
     REQUIRE(alternate.policy.reuse_troop_positions);
-    REQUIRE(std::all_of(alternate.coverage_rows.begin(), alternate.coverage_rows.end(), [](const auto& row) {
-        return row.covered;
-    }));
+    REQUIRE(std::all_of(alternate.coverage_rows.begin(), alternate.coverage_rows.end(),
+                        [](const auto& row) { return row.covered; }));
 }
 
 TEST_CASE("BattleRuleResolver reports malformed battle feedback fixture parameters",
@@ -298,12 +297,10 @@ TEST_CASE("BattleRuleResolver reports malformed battle feedback fixture paramete
     REQUIRE(imported.policy.zero_damage_policy == ZeroDamagePresentationPolicy::Miss);
     REQUIRE(imported.policy.reuse_troop_positions);
     REQUIRE(std::any_of(imported.diagnostics.begin(), imported.diagnostics.end(), [](const auto& diagnostic) {
-        return diagnostic.code == "feedback_policy_value_invalid" &&
-               diagnostic.target == "Chip Damage Percent";
+        return diagnostic.code == "feedback_policy_value_invalid" && diagnostic.target == "Chip Damage Percent";
     }));
     REQUIRE(std::any_of(imported.diagnostics.begin(), imported.diagnostics.end(), [](const auto& diagnostic) {
-        return diagnostic.code == "feedback_policy_value_invalid" &&
-               diagnostic.target == "Reuse Troop Positions";
+        return diagnostic.code == "feedback_policy_value_invalid" && diagnostic.target == "Reuse Troop Positions";
     }));
     REQUIRE(std::any_of(imported.diagnostics.begin(), imported.diagnostics.end(), [](const auto& diagnostic) {
         return diagnostic.code == "feedback_policy_value_unsupported" &&

@@ -22,7 +22,7 @@ struct BattlePresentationPanelSnapshot {
 };
 
 class BattlePresentationPanel {
-public:
+  public:
     void loadProfile(urpg::battle::BattlePresentationProfile profile, std::set<std::string> available_assets);
     void render();
 
@@ -30,7 +30,7 @@ public:
     const urpg::battle::BattlePresentationValidationResult& validation() const { return validation_; }
     bool hasRenderedFrame() const { return has_rendered_frame_; }
 
-private:
+  private:
     urpg::battle::BattlePresentationProfile profile_;
     std::set<std::string> available_assets_;
     urpg::battle::BattlePresentationValidationResult validation_;

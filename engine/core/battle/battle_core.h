@@ -19,15 +19,10 @@ enum class BattleFlowPhase : uint8_t {
     Abort = 7,
 };
 
-enum class ZeroDamagePresentationPolicy : uint8_t {
-    Miss,
-    Evasion,
-    Immune,
-    NoEffect
-};
+enum class ZeroDamagePresentationPolicy : uint8_t { Miss, Evasion, Immune, NoEffect };
 
 class BattleFlowController {
-public:
+  public:
     void beginBattle(bool can_escape);
     void enterInput();
     void enterAction();
@@ -43,7 +38,7 @@ public:
     [[nodiscard]] int32_t escapeFailures() const { return escape_failures_; }
     void noteEscapeFailure();
 
-private:
+  private:
     BattleFlowPhase phase_ = BattleFlowPhase::None;
     bool allow_escape_ = false;
     int32_t turn_count_ = 0;
@@ -59,7 +54,7 @@ struct BattleQueuedAction {
 };
 
 class BattleActionQueue {
-public:
+  public:
     void enqueue(BattleQueuedAction action);
     std::optional<BattleQueuedAction> popNext();
     void clear();
@@ -68,7 +63,7 @@ public:
     [[nodiscard]] size_t size() const { return queue_.size(); }
     [[nodiscard]] std::vector<BattleQueuedAction> snapshotOrdered() const;
 
-private:
+  private:
     std::vector<BattleQueuedAction> queue_;
 };
 
@@ -143,13 +138,10 @@ struct TroopPositionReuseResult {
 };
 
 class BattleRuleResolver {
-public:
+  public:
     static int32_t resolveDamage(const BattleDamageContext& context);
-    static BattleFeedbackPreview resolveFeedbackPreview(int32_t damage,
-                                                        int32_t healing,
-                                                        int32_t current_buff_level,
-                                                        int32_t buff_delta,
-                                                        const BattleFeedbackPolicy& policy);
+    static BattleFeedbackPreview resolveFeedbackPreview(int32_t damage, int32_t healing, int32_t current_buff_level,
+                                                        int32_t buff_delta, const BattleFeedbackPolicy& policy);
     static TroopPositionReuseResult resolveTroopPositions(const std::vector<TroopMemberPosition>& authored_positions,
                                                           const std::vector<TroopMemberPosition>& reusable_positions,
                                                           const BattleFeedbackPolicy& policy);

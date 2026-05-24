@@ -6,9 +6,9 @@
 #include "engine/core/battle/party_tactics_profile.h"
 #include "engine/core/scene/battle_scene.h"
 
-#include <catch2/catch_test_macros.hpp>
-#include <catch2/catch_approx.hpp>
 #include <algorithm>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <filesystem>
 #include <fstream>
 
@@ -32,7 +32,8 @@ nlohmann::json loadJsonFile(const std::filesystem::path& path) {
 
 } // namespace
 
-TEST_CASE("battle authoring validates battlebacks, HUD elements, and deterministic cue replay", "[battle][authoring][ffs05]") {
+TEST_CASE("battle authoring validates battlebacks, HUD elements, and deterministic cue replay",
+          "[battle][authoring][ffs05]") {
     urpg::battle::BattlePresentationProfile profile;
     profile.id = "arena";
     profile.battleback1 = "img/battlebacks1/CrystalCave.png";
@@ -114,45 +115,39 @@ TEST_CASE("battle VFX timeline is visually authorable, previewable, saved, and e
     document.duration_frames = 48;
     document.addTrack({"cast_track", "Cast", "vfx", true, false});
     document.addTrack({"impact_track", "Impact", "vfx", true, false});
-    document.addEvent({
-        "cast_flash",
-        "cast_track",
-        4,
-        "Cast flash",
-        urpg::presentation::effects::EffectCueKind::CastStart,
-        urpg::presentation::effects::EffectAnchorMode::Owner,
-        1,
-        1,
-        1.1f,
-        0.15f,
-        {{"asset", "vfx/cast_flash"}}
-    });
-    document.addEvent({
-        "target_impact",
-        "impact_track",
-        18,
-        "Impact",
-        urpg::presentation::effects::EffectCueKind::HitConfirm,
-        urpg::presentation::effects::EffectAnchorMode::Target,
-        1,
-        2,
-        1.6f,
-        0.65f,
-        {{"asset", "vfx/slash"}}
-    });
-    document.addEvent({
-        "blood_splatter",
-        "impact_track",
-        20,
-        "Blood splatter",
-        urpg::presentation::effects::EffectCueKind::BloodSplatter,
-        urpg::presentation::effects::EffectAnchorMode::Target,
-        1,
-        2,
-        1.0f,
-        0.45f,
-        {{"asset", "vfx/blood_splatter"}}
-    });
+    document.addEvent({"cast_flash",
+                       "cast_track",
+                       4,
+                       "Cast flash",
+                       urpg::presentation::effects::EffectCueKind::CastStart,
+                       urpg::presentation::effects::EffectAnchorMode::Owner,
+                       1,
+                       1,
+                       1.1f,
+                       0.15f,
+                       {{"asset", "vfx/cast_flash"}}});
+    document.addEvent({"target_impact",
+                       "impact_track",
+                       18,
+                       "Impact",
+                       urpg::presentation::effects::EffectCueKind::HitConfirm,
+                       urpg::presentation::effects::EffectAnchorMode::Target,
+                       1,
+                       2,
+                       1.6f,
+                       0.65f,
+                       {{"asset", "vfx/slash"}}});
+    document.addEvent({"blood_splatter",
+                       "impact_track",
+                       20,
+                       "Blood splatter",
+                       urpg::presentation::effects::EffectCueKind::BloodSplatter,
+                       urpg::presentation::effects::EffectAnchorMode::Target,
+                       1,
+                       2,
+                       1.0f,
+                       0.45f,
+                       {{"asset", "vfx/blood_splatter"}}});
 
     urpg::editor::BattleVfxTimelinePanel panel;
     panel.loadDocument(document);
@@ -253,14 +248,13 @@ TEST_CASE("battle presentation profile imports feedback policy and exposes fixtu
     const auto profile_json = nlohmann::json{
         {"id", "feedback_arena"},
         {"battleback1", "img/battlebacks1/CrystalCave.png"},
-        {"hud",
-         nlohmann::json::array({
-             {{"id", "hp"}, {"type", "gauge"}, {"x", 8}, {"y", 8}},
-             {{"id", "state"}, {"type", "state_icon"}, {"x", 8}, {"y", 32}},
-             {{"id", "turns"}, {"type", "turn_order"}, {"x", 160}, {"y", 8}},
-             {{"id", "popup"}, {"type", "damage_popup"}, {"x", 200}, {"y", 80}},
-             {{"id", "guard"}, {"type", "guard_marker"}, {"x", 64}, {"y", 64}},
-         })},
+        {"hud", nlohmann::json::array({
+                    {{"id", "hp"}, {"type", "gauge"}, {"x", 8}, {"y", 8}},
+                    {{"id", "state"}, {"type", "state_icon"}, {"x", 8}, {"y", 32}},
+                    {{"id", "turns"}, {"type", "turn_order"}, {"x", 160}, {"y", 8}},
+                    {{"id", "popup"}, {"type", "damage_popup"}, {"x", 200}, {"y", 80}},
+                    {{"id", "guard"}, {"type", "guard_marker"}, {"x", 64}, {"y", 64}},
+                })},
         {"cue_timeline", nlohmann::json::array()},
         {"feedback_policy",
          {
@@ -293,12 +287,10 @@ TEST_CASE("battle presentation profile imports feedback policy and exposes fixtu
     REQUIRE(panel.snapshot().feedback_fixture_coverage_count == 5);
     REQUIRE(panel.snapshot().feedback_policy_diagnostic_count == 1);
     REQUIRE(panel.snapshot().feedback_fixture_coverage_rows.size() == 5);
-    REQUIRE(panel.snapshot().feedback_fixture_coverage_rows[0] ==
-            "chip_damage:covered:Chip Damage Percent");
+    REQUIRE(panel.snapshot().feedback_fixture_coverage_rows[0] == "chip_damage:covered:Chip Damage Percent");
     REQUIRE(panel.snapshot().feedback_fixture_coverage_rows[2] ==
             "zero_damage_presentation:covered:Zero Damage Presentation");
-    REQUIRE(panel.snapshot().feedback_fixture_coverage_rows[4] ==
-            "troop_position_reuse:covered:Reuse Troop Positions");
+    REQUIRE(panel.snapshot().feedback_fixture_coverage_rows[4] == "troop_position_reuse:covered:Reuse Troop Positions");
 
     const auto saved = urpg::battle::BattlePresentationProfileToJson(profile);
     REQUIRE(saved["feedback_policy"]["schemaVersion"] == "1.0.0");
@@ -313,19 +305,17 @@ TEST_CASE("battle VFX timeline diagnostics block false done claims", "[battle][a
     document.duration_frames = 12;
     document.addTrack({"duplicate", "Duplicate", "vfx", true, false});
     document.addTrack({"duplicate", "Duplicate Two", "vfx", true, false});
-    document.addEvent({
-        "bad_hit",
-        "missing_track",
-        20,
-        "Bad hit",
-        urpg::presentation::effects::EffectCueKind::HitConfirm,
-        urpg::presentation::effects::EffectAnchorMode::Target,
-        0,
-        0,
-        -1.0f,
-        1.5f,
-        {}
-    });
+    document.addEvent({"bad_hit",
+                       "missing_track",
+                       20,
+                       "Bad hit",
+                       urpg::presentation::effects::EffectCueKind::HitConfirm,
+                       urpg::presentation::effects::EffectAnchorMode::Target,
+                       0,
+                       0,
+                       -1.0f,
+                       1.5f,
+                       {}});
 
     urpg::editor::BattleVfxTimelinePanel panel;
     panel.loadDocument(document);
@@ -333,18 +323,15 @@ TEST_CASE("battle VFX timeline diagnostics block false done claims", "[battle][a
 
     REQUIRE(panel.snapshot().diagnostic_count >= 4);
     REQUIRE(panel.snapshot().ux_focus_lane == "diagnostics");
-    REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(), [](const auto& row) {
-        return row.find("event_after_duration:bad_hit") != std::string::npos;
-    }));
+    REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(),
+                        [](const auto& row) { return row.find("event_after_duration:bad_hit") != std::string::npos; }));
     REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(), [](const auto& row) {
         return row.find("missing_anchor_participant:bad_hit") != std::string::npos;
     }));
-    REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(), [](const auto& row) {
-        return row.find("unknown_event_track:bad_hit") != std::string::npos;
-    }));
-    REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(), [](const auto& row) {
-        return row.find("duplicate_track_id:duplicate") != std::string::npos;
-    }));
+    REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(),
+                        [](const auto& row) { return row.find("unknown_event_track:bad_hit") != std::string::npos; }));
+    REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(),
+                        [](const auto& row) { return row.find("duplicate_track_id:duplicate") != std::string::npos; }));
 }
 
 TEST_CASE("battle authoring requires an explicit release battleback", "[battle][authoring][assets]") {
@@ -399,7 +386,8 @@ TEST_CASE("Formula debugger uses bounded combat formula contract and reports fal
     REQUIRE(panel.results()[2].reason == "unsupported_formula_symbol:a.customStat");
 }
 
-TEST_CASE("Enemy AI chooses deterministic weighted actions and rejects zero-weight profiles", "[battle][authoring][ffs05]") {
+TEST_CASE("Enemy AI chooses deterministic weighted actions and rejects zero-weight profiles",
+          "[battle][authoring][ffs05]") {
     urpg::battle::EnemyAiProfile profile;
     profile.id = "slime";
     profile.actions = {

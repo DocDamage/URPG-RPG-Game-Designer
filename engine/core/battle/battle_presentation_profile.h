@@ -80,10 +80,8 @@ struct BattlePresentationValidationResult {
 };
 
 BattlePresentationProfile BattlePresentationProfileFromJson(const nlohmann::json& json);
-BattlePresentationValidationResult ValidateBattlePresentationProfile(
-    const BattlePresentationProfile& profile,
-    const std::set<std::string>& available_assets
-);
+BattlePresentationValidationResult ValidateBattlePresentationProfile(const BattlePresentationProfile& profile,
+                                                                     const std::set<std::string>& available_assets);
 nlohmann::json BattlePresentationProfileToJson(const BattlePresentationProfile& profile);
 
 const char* ToString(BattleAuthoringSeverity severity);

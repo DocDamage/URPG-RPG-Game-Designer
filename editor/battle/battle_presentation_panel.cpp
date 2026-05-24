@@ -7,7 +7,8 @@ namespace urpg::editor {
 
 namespace {
 
-std::vector<std::string> buildFeedbackCoverageRows(const urpg::battle::BattleFeedbackPolicyImportResult& import_result) {
+std::vector<std::string>
+buildFeedbackCoverageRows(const urpg::battle::BattleFeedbackPolicyImportResult& import_result) {
     std::vector<std::string> rows;
     rows.reserve(import_result.coverage_rows.size());
     for (const auto& row : import_result.coverage_rows) {

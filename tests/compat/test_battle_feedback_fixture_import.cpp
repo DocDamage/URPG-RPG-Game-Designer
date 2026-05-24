@@ -29,9 +29,8 @@ TEST_CASE("Compat fixture import: battle feedback policy payloads produce native
     REQUIRE(imported.policy.zero_damage_policy == urpg::battle::ZeroDamagePresentationPolicy::Evasion);
     REQUIRE(imported.policy.reuse_troop_positions);
     REQUIRE(imported.coverage_rows.size() == 5);
-    REQUIRE(std::all_of(imported.coverage_rows.begin(), imported.coverage_rows.end(), [](const auto& row) {
-        return row.covered;
-    }));
+    REQUIRE(std::all_of(imported.coverage_rows.begin(), imported.coverage_rows.end(),
+                        [](const auto& row) { return row.covered; }));
     REQUIRE(imported.diagnostics[0].code == "feedback_fixture_imported");
     REQUIRE(imported.diagnostics[0].target == "CompatBattleFeedbackFixture");
 }

@@ -8,11 +8,8 @@ namespace urpg::battle {
 
 namespace {
 
-void addDiagnostic(std::vector<BattleAuthoringDiagnostic>& diagnostics,
-                   BattleAuthoringSeverity severity,
-                   std::string code,
-                   std::string message,
-                   std::string target) {
+void addDiagnostic(std::vector<BattleAuthoringDiagnostic>& diagnostics, BattleAuthoringSeverity severity,
+                   std::string code, std::string message, std::string target) {
     diagnostics.push_back({severity, std::move(code), std::move(message), std::move(target)});
 }
 
@@ -24,9 +21,7 @@ bool isHexColor(const std::string& value) {
     if (value.size() != 7 || value[0] != '#') {
         return false;
     }
-    return std::all_of(value.begin() + 1, value.end(), [](unsigned char ch) {
-        return std::isxdigit(ch) != 0;
-    });
+    return std::all_of(value.begin() + 1, value.end(), [](unsigned char ch) { return std::isxdigit(ch) != 0; });
 }
 
 } // namespace
@@ -40,8 +35,7 @@ BattlePresentationProfile BattlePresentationProfileFromJson(const nlohmann::json
     profile.battleback1 = json.value("battleback1", "");
     profile.battleback2 = json.value("battleback2", "");
 
-    if (const auto media_it = json.find("media_layers");
-        media_it != json.end() && media_it->is_array()) {
+    if (const auto media_it = json.find("media_layers"); media_it != json.end() && media_it->is_array()) {
         for (const auto& row : *media_it) {
             if (!row.is_object()) {
                 continue;
@@ -59,8 +53,7 @@ BattlePresentationProfile BattlePresentationProfileFromJson(const nlohmann::json
         }
     }
 
-    if (const auto light_it = json.find("light_cues");
-        light_it != json.end() && light_it->is_array()) {
+    if (const auto light_it = json.find("light_cues"); light_it != json.end() && light_it->is_array()) {
         for (const auto& row : *light_it) {
             if (!row.is_object()) {
                 continue;
@@ -78,8 +71,7 @@ BattlePresentationProfile BattlePresentationProfileFromJson(const nlohmann::json
         }
     }
 
-    if (const auto hud_it = json.find("hud");
-        hud_it != json.end() && hud_it->is_array()) {
+    if (const auto hud_it = json.find("hud"); hud_it != json.end() && hud_it->is_array()) {
         for (const auto& row : *hud_it) {
             if (!row.is_object()) {
                 continue;
@@ -94,8 +86,7 @@ BattlePresentationProfile BattlePresentationProfileFromJson(const nlohmann::json
         }
     }
 
-    if (const auto cue_it = json.find("cue_timeline");
-        cue_it != json.end() && cue_it->is_array()) {
+    if (const auto cue_it = json.find("cue_timeline"); cue_it != json.end() && cue_it->is_array()) {
         for (const auto& row : *cue_it) {
             if (!row.is_object()) {
                 continue;
@@ -109,8 +100,7 @@ BattlePresentationProfile BattlePresentationProfileFromJson(const nlohmann::json
         }
     }
 
-    if (const auto feedback_it = json.find("feedback_policy");
-        feedback_it != json.end() && feedback_it->is_object()) {
+    if (const auto feedback_it = json.find("feedback_policy"); feedback_it != json.end() && feedback_it->is_object()) {
         profile.feedback_policy_import = BattleRuleResolver::importFeedbackPolicyFixture(*feedback_it);
         profile.feedback_policy = profile.feedback_policy_import.policy;
         profile.has_feedback_policy = profile.feedback_policy_import.imported;
@@ -118,10 +108,8 @@ BattlePresentationProfile BattlePresentationProfileFromJson(const nlohmann::json
     return profile;
 }
 
-BattlePresentationValidationResult ValidateBattlePresentationProfile(
-    const BattlePresentationProfile& profile,
-    const std::set<std::string>& available_assets
-) {
+BattlePresentationValidationResult ValidateBattlePresentationProfile(const BattlePresentationProfile& profile,
+                                                                     const std::set<std::string>& available_assets) {
     BattlePresentationValidationResult result;
 
     if (profile.battleback1.empty()) {
@@ -189,16 +177,14 @@ BattlePresentationValidationResult ValidateBattlePresentationProfile(
     std::set<std::string> lower_assets;
     for (const auto& asset : available_assets) {
         std::string lowered = asset;
-        std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char ch) {
-            return static_cast<char>(std::tolower(ch));
-        });
+        std::transform(lowered.begin(), lowered.end(), lowered.begin(),
+                       [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
         lower_assets.insert(lowered);
     }
     for (const auto& battleback : {profile.battleback1, profile.battleback2}) {
         std::string lowered = battleback;
-        std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char ch) {
-            return static_cast<char>(std::tolower(ch));
-        });
+        std::transform(lowered.begin(), lowered.end(), lowered.begin(),
+                       [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
         if (!battleback.empty() && !available_assets.contains(battleback) && lower_assets.contains(lowered)) {
             addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Warning, "battleback_case_mismatch",
                           "Battleback differs by case from an available asset: " + battleback, battleback);
@@ -209,9 +195,8 @@ BattlePresentationValidationResult ValidateBattlePresentationProfile(
         "gauge", "state_icon", "turn_order", "damage_popup", "guard_marker",
     };
     for (const auto& expected : expected_hud_types) {
-        const bool found = std::any_of(profile.hud_elements.begin(), profile.hud_elements.end(), [&](const auto& element) {
-            return element.type == expected;
-        });
+        const bool found = std::any_of(profile.hud_elements.begin(), profile.hud_elements.end(),
+                                       [&](const auto& element) { return element.type == expected; });
         if (!found) {
             addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Warning, "missing_hud_element",
                           "HUD layout is missing expected element type: " + expected, expected);
