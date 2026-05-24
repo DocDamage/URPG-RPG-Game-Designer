@@ -13,6 +13,33 @@ permissions:
   security-events: write
 
 jobs:
+  classify-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      fast_lane: ${{ steps.classify.outputs.fast_lane }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: classify
+        name: Classify changed paths
+        shell: bash
+        run: |
+          git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" > changed-files.txt
+          cat changed-files.txt
+          fast_lane=true
+          while IFS= read -r path; do
+            case "$path" in
+              docs/*|docs/**|content/knowledge/*|content/knowledge/**|imports/manifests/*|imports/manifests/**|*.md|CHANGELOG.md|CREDITS.md|EULA.md|LICENSE|PRIVACY_POLICY.md|SECURITY.md|THIRD_PARTY_NOTICES.md)
+                ;;
+              *)
+                fast_lane=false
+                ;;
+            esac
+          done < changed-files.txt
+          echo "fast_lane=${fast_lane}" >> "$GITHUB_OUTPUT"
+
   gitleaks:
     runs-on: ubuntu-latest
     steps:
@@ -26,7 +53,8 @@ jobs:
           GITLEAKS_CONFIG: gitleaks.toml
 
   codeql:
-    if: (github.event.repository.private == false || vars.ENABLE_CODEQL_PRIVATE == 'true') && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
+    needs: classify-pr
+    if: always() && (github.event_name != 'pull_request' || needs.classify-pr.outputs.fast_lane != 'true') && (github.event.repository.private == false || vars.ENABLE_CODEQL_PRIVATE == 'true') && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
