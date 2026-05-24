@@ -248,6 +248,65 @@ TEST_CASE("battle presentation schema exposes feedback policy authoring contract
     REQUIRE(feedback["properties"].contains("reuseTroopPositions"));
 }
 
+TEST_CASE("battle presentation profile imports feedback policy and exposes fixture evidence",
+          "[battle][authoring][feedback][fixtures]") {
+    const auto profile_json = nlohmann::json{
+        {"id", "feedback_arena"},
+        {"battleback1", "img/battlebacks1/CrystalCave.png"},
+        {"hud",
+         nlohmann::json::array({
+             {{"id", "hp"}, {"type", "gauge"}, {"x", 8}, {"y", 8}},
+             {{"id", "state"}, {"type", "state_icon"}, {"x", 8}, {"y", 32}},
+             {{"id", "turns"}, {"type", "turn_order"}, {"x", 160}, {"y", 8}},
+             {{"id", "popup"}, {"type", "damage_popup"}, {"x", 200}, {"y", 80}},
+             {{"id", "guard"}, {"type", "guard_marker"}, {"x", 64}, {"y", 64}},
+         })},
+        {"cue_timeline", nlohmann::json::array()},
+        {"feedback_policy",
+         {
+             {"Chip Damage Percent", "25"},
+             {"Chip Healing Percent", "50"},
+             {"Minimum Chip Damage", "2"},
+             {"Minimum Chip Healing", "4"},
+             {"Custom Buff Levels", "6"},
+             {"Zero Damage Presentation", "zero_as_no_effect"},
+             {"Reuse Troop Positions", "false"},
+         }},
+    };
+
+    const auto profile = urpg::battle::BattlePresentationProfileFromJson(profile_json);
+
+    REQUIRE(profile.feedback_policy.chip_damage_percent == 25);
+    REQUIRE(profile.feedback_policy.chip_healing_percent == 50);
+    REQUIRE(profile.feedback_policy.min_chip_damage == 2);
+    REQUIRE(profile.feedback_policy.min_chip_healing == 4);
+    REQUIRE(profile.feedback_policy.max_buff_level == 6);
+    REQUIRE(profile.feedback_policy.zero_damage_policy == urpg::battle::ZeroDamagePresentationPolicy::NoEffect);
+    REQUIRE_FALSE(profile.feedback_policy.reuse_troop_positions);
+    REQUIRE(profile.feedback_policy_import.imported);
+    REQUIRE(profile.feedback_policy_import.coverage_rows.size() == 5);
+
+    urpg::editor::BattlePresentationPanel panel;
+    panel.loadProfile(profile, {"img/battlebacks1/CrystalCave.png"});
+    panel.render();
+
+    REQUIRE(panel.snapshot().feedback_fixture_coverage_count == 5);
+    REQUIRE(panel.snapshot().feedback_policy_diagnostic_count == 1);
+    REQUIRE(panel.snapshot().feedback_fixture_coverage_rows.size() == 5);
+    REQUIRE(panel.snapshot().feedback_fixture_coverage_rows[0] ==
+            "chip_damage:covered:Chip Damage Percent");
+    REQUIRE(panel.snapshot().feedback_fixture_coverage_rows[2] ==
+            "zero_damage_presentation:covered:Zero Damage Presentation");
+    REQUIRE(panel.snapshot().feedback_fixture_coverage_rows[4] ==
+            "troop_position_reuse:covered:Reuse Troop Positions");
+
+    const auto saved = urpg::battle::BattlePresentationProfileToJson(profile);
+    REQUIRE(saved["feedback_policy"]["schemaVersion"] == "1.0.0");
+    REQUIRE(saved["feedback_policy"]["chipDamagePercent"] == 25);
+    REQUIRE(saved["feedback_policy"]["zeroDamagePolicy"] == "no_effect");
+    REQUIRE(saved["feedback_policy"]["reuseTroopPositions"] == false);
+}
+
 TEST_CASE("battle VFX timeline diagnostics block false done claims", "[battle][authoring][vfx][diagnostics]") {
     urpg::battle::BattleVfxTimelineDocument document;
     document.id.clear();

@@ -3,6 +3,8 @@
 #include "engine/core/battle/battle_presentation_profile.h"
 
 #include <set>
+#include <string>
+#include <vector>
 
 namespace urpg::editor {
 
@@ -14,6 +16,9 @@ struct BattlePresentationPanelSnapshot {
     size_t light_cue_count = 0;
     size_t diagnostic_count = 0;
     size_t replay_cue_count = 0;
+    size_t feedback_fixture_coverage_count = 0;
+    size_t feedback_policy_diagnostic_count = 0;
+    std::vector<std::string> feedback_fixture_coverage_rows;
 };
 
 class BattlePresentationPanel {

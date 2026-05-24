@@ -1,12 +1,12 @@
 # Feature Robustness Plan
 
-Status date: 2026-04-30
+Status date: 2026-05-24
 
 URPG has enough native subsystems now that the next work should deepen existing surfaces instead of adding isolated demos. This plan tracks the feature-packed follow-through requested after the asset, AI, and plugin absorption passes.
 
 ## Priority Lanes
 
-1. Battle feedback: chip damage/healing, configurable zero-damage presentation, custom buff caps, troop-position reuse, preview panel visibility, schema coverage, and legacy policy migration are started in native code; broader battle feedback fixture coverage remains.
+1. Battle feedback: chip damage/healing, configurable zero-damage presentation, custom buff caps, troop-position reuse, preview panel visibility, schema coverage, legacy policy migration, broader imported/plugin-style fixture aliases, malformed fixture diagnostics, profile/panel evidence rows, and compat-level fixture import coverage are landed; FRL-01 governed battle feedback fixture depth is complete for current scope.
 2. State/message/picture: scoped/self/map/JS variable banks, nested text escapes, picture task bindings, high-count picture management, native picture UI runtime preview rows, and compat migration adapters for scoped state/picture tasks are started in native code; broader fixture import coverage remains.
 3. Progression: level-up stat allocation pools, caps, class/actor rules, preview math, editor snapshots, applied stat-allocation save/load records, and post-load actor application rows are started in native code; richer visual controls remain.
 4. Gameplay abilities: bounded active-condition evaluation over source HP/MP/attributes, source and primary-target tag checks, comparisons, and `&&`/`||` connectors is landed with fail-closed parse diagnostics; authored task-composition JSON, preview rows, branch-target validation, and branch-condition diagnostics are landed for wait input/event/projectile, branch, apply-effect, and play-cue rows; full task-graph runtime sequencing and arbitrary scripting remain.
@@ -75,4 +75,4 @@ Loaded stat-allocation records now build actor-specific application previews tha
 
 ## Battle Feedback Policy
 
-Battle feedback policy now round-trips through schema-versioned JSON, migrates legacy snake-case/plugin-style keys, clamps chip percentages and minimum values, and is exposed in `battle_presentation.schema.json` for editor/project authoring.
+Battle feedback policy now round-trips through schema-versioned JSON, migrates legacy snake-case/plugin-style keys, clamps chip percentages and minimum values, and is exposed in `battle_presentation.schema.json` for editor/project authoring. Imported/plugin-style battle feedback fixtures can now be parsed from plugin parameter payloads, including string-valued chip damage/healing, zero-damage presentation, custom buff caps, and troop-position reuse settings, with import diagnostics and deterministic coverage rows for FRL-01 evidence. Battle presentation profiles ingest and re-export the normalized policy, and the battle presentation panel snapshot exposes feedback fixture coverage counts, policy diagnostic counts, and editor-facing coverage row labels. The governed FRL-01 scope is ready; future battle feedback fixture variants should extend this importer contract or be tracked as new follow-up work.

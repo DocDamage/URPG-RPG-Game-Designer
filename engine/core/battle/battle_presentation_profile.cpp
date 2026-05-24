@@ -108,6 +108,13 @@ BattlePresentationProfile BattlePresentationProfileFromJson(const nlohmann::json
             });
         }
     }
+
+    if (const auto feedback_it = json.find("feedback_policy");
+        feedback_it != json.end() && feedback_it->is_object()) {
+        profile.feedback_policy_import = BattleRuleResolver::importFeedbackPolicyFixture(*feedback_it);
+        profile.feedback_policy = profile.feedback_policy_import.policy;
+        profile.has_feedback_policy = profile.feedback_policy_import.imported;
+    }
     return profile;
 }
 
@@ -293,6 +300,9 @@ nlohmann::json BattlePresentationProfileToJson(const BattlePresentationProfile& 
             {"frame", cue.frame},
             {"payload", cue.payload},
         });
+    }
+    if (profile.has_feedback_policy || profile.feedback_policy_import.imported) {
+        json["feedback_policy"] = BattleRuleResolver::feedbackPolicyToJson(profile.feedback_policy);
     }
     return json;
 }

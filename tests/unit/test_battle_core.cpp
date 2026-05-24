@@ -2,6 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
+
 using namespace urpg::battle;
 
 TEST_CASE("BattleFlowController transitions deterministically across phases", "[battle][core][flow]") {
@@ -183,6 +185,130 @@ TEST_CASE("BattleRuleResolver serializes and migrates feedback policy contracts"
     REQUIRE(migrated.max_buff_level == 8);
     REQUIRE(migrated.zero_damage_policy == ZeroDamagePresentationPolicy::Evasion);
     REQUIRE(migrated.reuse_troop_positions);
+}
+
+TEST_CASE("BattleRuleResolver imports plugin-style battle feedback fixtures with coverage rows",
+          "[battle][core][rules][feedback][fixtures][migration]") {
+    const auto imported = BattleRuleResolver::importFeedbackPolicyFixture(nlohmann::json{
+        {"name", "TSkBattleFeedbackFixture"},
+        {"parameters",
+         {
+             {"Chip Damage Percent", "135"},
+             {"Chip Healing Percent", "45"},
+             {"Minimum Chip Damage", "3"},
+             {"Minimum Chip Healing", "5"},
+             {"Custom Buff Levels", "8"},
+             {"Zero Damage Presentation", "zero_as_immune"},
+             {"Reuse Troop Positions", "true"},
+         }},
+    });
+
+    REQUIRE(imported.imported);
+    REQUIRE(imported.policy.chip_damage_percent == 100);
+    REQUIRE(imported.policy.chip_healing_percent == 45);
+    REQUIRE(imported.policy.min_chip_damage == 3);
+    REQUIRE(imported.policy.min_chip_healing == 5);
+    REQUIRE(imported.policy.max_buff_level == 8);
+    REQUIRE(imported.policy.zero_damage_policy == ZeroDamagePresentationPolicy::Immune);
+    REQUIRE(imported.policy.reuse_troop_positions);
+
+    REQUIRE(imported.coverage_rows.size() == 5);
+    REQUIRE(imported.coverage_rows[0].id == "chip_damage");
+    REQUIRE(imported.coverage_rows[0].covered);
+    REQUIRE(imported.coverage_rows[1].id == "chip_healing");
+    REQUIRE(imported.coverage_rows[1].covered);
+    REQUIRE(imported.coverage_rows[2].id == "zero_damage_presentation");
+    REQUIRE(imported.coverage_rows[2].covered);
+    REQUIRE(imported.coverage_rows[3].id == "custom_buff_caps");
+    REQUIRE(imported.coverage_rows[3].covered);
+    REQUIRE(imported.coverage_rows[4].id == "troop_position_reuse");
+    REQUIRE(imported.coverage_rows[4].covered);
+
+    REQUIRE_FALSE(imported.diagnostics.empty());
+    REQUIRE(imported.diagnostics[0].code == "feedback_fixture_imported");
+    REQUIRE(imported.diagnostics[0].target == "TSkBattleFeedbackFixture");
+    REQUIRE(std::any_of(imported.diagnostics.begin(), imported.diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "feedback_policy_value_clamped" &&
+               diagnostic.target == "Chip Damage Percent";
+    }));
+}
+
+TEST_CASE("BattleRuleResolver imports broader battle feedback fixture shapes",
+          "[battle][core][rules][feedback][fixtures][migration]") {
+    const auto canonical = BattleRuleResolver::importFeedbackPolicyFixture(nlohmann::json{
+        {"name", "CanonicalBattleFeedback"},
+        {"feedbackPolicy",
+         {
+             {"chipDamagePercent", 30},
+             {"chipHealingPercent", 40},
+             {"minChipDamage", 2},
+             {"minChipHealing", 3},
+             {"maxBuffLevel", 5},
+             {"zeroDamagePolicy", "zero_as_evasion"},
+             {"reuseTroopPositions", false},
+         }},
+    });
+    REQUIRE(canonical.imported);
+    REQUIRE(canonical.policy.chip_damage_percent == 30);
+    REQUIRE(canonical.policy.chip_healing_percent == 40);
+    REQUIRE(canonical.policy.max_buff_level == 5);
+    REQUIRE(canonical.policy.zero_damage_policy == ZeroDamagePresentationPolicy::Evasion);
+    REQUIRE_FALSE(canonical.policy.reuse_troop_positions);
+
+    const auto alternate = BattleRuleResolver::importFeedbackPolicyFixture(nlohmann::json{
+        {"name", "AlternateBattleFeedback"},
+        {"battleFeedback",
+         {
+             {"Chip Damage Percentage", "15"},
+             {"Chip Healing", "25"},
+             {"Min Chip Damage", "1"},
+             {"Min Chip Healing", "2"},
+             {"Custom Buff Cap", "7"},
+             {"Zero Damage Policy", "immune"},
+             {"Troop Position Reuse", "yes"},
+         }},
+    });
+    REQUIRE(alternate.imported);
+    REQUIRE(alternate.policy.chip_damage_percent == 15);
+    REQUIRE(alternate.policy.chip_healing_percent == 25);
+    REQUIRE(alternate.policy.min_chip_damage == 1);
+    REQUIRE(alternate.policy.min_chip_healing == 2);
+    REQUIRE(alternate.policy.max_buff_level == 7);
+    REQUIRE(alternate.policy.zero_damage_policy == ZeroDamagePresentationPolicy::Immune);
+    REQUIRE(alternate.policy.reuse_troop_positions);
+    REQUIRE(std::all_of(alternate.coverage_rows.begin(), alternate.coverage_rows.end(), [](const auto& row) {
+        return row.covered;
+    }));
+}
+
+TEST_CASE("BattleRuleResolver reports malformed battle feedback fixture parameters",
+          "[battle][core][rules][feedback][fixtures][diagnostics]") {
+    const auto imported = BattleRuleResolver::importFeedbackPolicyFixture(nlohmann::json{
+        {"name", "MalformedBattleFeedback"},
+        {"parameters",
+         {
+             {"Chip Damage Percent", "loud"},
+             {"Reuse Troop Positions", "maybe"},
+             {"Zero Damage Presentation", "sparkle_text"},
+         }},
+    });
+
+    REQUIRE(imported.imported);
+    REQUIRE(imported.policy.chip_damage_percent == 10);
+    REQUIRE(imported.policy.zero_damage_policy == ZeroDamagePresentationPolicy::Miss);
+    REQUIRE(imported.policy.reuse_troop_positions);
+    REQUIRE(std::any_of(imported.diagnostics.begin(), imported.diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "feedback_policy_value_invalid" &&
+               diagnostic.target == "Chip Damage Percent";
+    }));
+    REQUIRE(std::any_of(imported.diagnostics.begin(), imported.diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "feedback_policy_value_invalid" &&
+               diagnostic.target == "Reuse Troop Positions";
+    }));
+    REQUIRE(std::any_of(imported.diagnostics.begin(), imported.diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "feedback_policy_value_unsupported" &&
+               diagnostic.target == "Zero Damage Presentation";
+    }));
 }
 
 TEST_CASE("BattleRuleResolver reuses troop positions by enemy id when enabled", "[battle][core][rules][feedback]") {

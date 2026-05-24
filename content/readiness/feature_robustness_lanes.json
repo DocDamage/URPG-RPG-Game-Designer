@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "statusDate": "2026-05-22",
+  "statusDate": "2026-05-24",
   "authority": "Governed execution tracker for docs/features/FEATURE_ROBUSTNESS_PLAN.md.",
   "sourceDocument": "docs/features/FEATURE_ROBUSTNESS_PLAN.md",
   "releaseBoundary": "These lanes are URPG product-depth follow-through, not bounded v0.1.0 release blockers unless a future release scope promotes them into mandatory exit criteria.",
@@ -10,12 +10,12 @@
       "priority": 1,
       "title": "Battle feedback fixture depth",
       "system": "battle_feedback",
-      "status": "in_progress",
-      "remainingDepth": "Broader battle feedback fixture coverage.",
-      "currentEvidence": ["chip damage/healing", "zero-damage presentation", "custom buff caps", "troop-position reuse", "schema coverage", "legacy policy migration"],
-      "nextImplementation": ["Add imported/plugin-style fixtures for chip damage, healing, zero damage, custom buff caps, and troop-position reuse.", "Verify legacy policy migration with success/failure diagnostics.", "Expose fixture coverage rows in battle feedback evidence."],
-      "evidenceTargets": ["tests/compat/test_battle_feedback_fixture_import.cpp", "tests/unit/test_battle_feedback_policy.cpp"],
-      "verificationCommands": ["ctest --preset dev-all -R \"BattleFeedback|battle_feedback|battle_presentation\" --output-on-failure"]
+      "status": "ready",
+      "remainingDepth": "Governed FRL-01 battle feedback fixture depth is complete for the current scope.",
+      "currentEvidence": ["chip damage/healing", "zero-damage presentation", "custom buff caps", "troop-position reuse", "schema coverage", "legacy policy migration", "plugin-style fixture import diagnostics", "fixture coverage rows", "battle presentation profile and panel evidence counts", "editor-facing fixture coverage row labels", "broader feedback fixture shape aliases", "malformed plugin parameter diagnostics", "compat-level fixture import coverage"],
+      "nextImplementation": ["Keep future battle feedback fixture variants covered by the same import diagnostics and coverage-row contract.", "Route newly discovered plugin aliases through the existing normalized policy importer instead of adding parallel policy paths.", "Open a new FRL or issue if future battle presentation work expands beyond the completed chip, zero-damage, buff-cap, and troop-position scope."],
+      "evidenceTargets": ["tests/unit/test_battle_core.cpp", "tests/unit/test_battle_authoring_suite.cpp", "tests/compat/test_battle_feedback_fixture_import.cpp"],
+      "verificationCommands": ["ctest --preset dev-all -R \"BattleRuleResolver|battle presentation|Compat fixture import: battle feedback\" --output-on-failure"]
     },
     {
       "id": "FRL-02",

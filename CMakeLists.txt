@@ -1585,6 +1585,7 @@ urpg_configure_unit_test_target(urpg_snapshot_renderer_tests)
 
 add_executable(urpg_compat_tests
     tests/compat/test_compat_authority_suite.cpp
+    tests/compat/test_battle_feedback_fixture_import.cpp
     tests/compat/test_compat_window_plugin_profiles.cpp
     tests/compat/test_compat_plugin_fixtures.cpp
     tests/compat/test_compat_plugin_fixtures_content.cpp
@@ -1679,6 +1680,28 @@ set_tests_properties(
 
 catch_discover_tests(
     urpg_compat_tests
+    TEST_SPEC "[failure]"
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "weekly"
+)
+
+catch_discover_tests(
+    urpg_compat_tests
+    TEST_SPEC "[compat][fixtures]~[failure]"
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "weekly"
+)
+
+catch_discover_tests(
+    urpg_compat_tests
+    TEST_SPEC "[compat][profiles]"
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "weekly"
+)
+
+catch_discover_tests(
+    urpg_compat_tests
+    TEST_SPEC "[authority]"
     DISCOVERY_MODE PRE_TEST
     PROPERTIES LABELS "weekly"
 )

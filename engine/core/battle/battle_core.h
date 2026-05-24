@@ -110,6 +110,26 @@ struct BattleFeedbackPreview {
     std::string zero_damage_label;
 };
 
+struct BattleFeedbackImportDiagnostic {
+    std::string code;
+    std::string message;
+    std::string target;
+};
+
+struct BattleFeedbackFixtureCoverageRow {
+    std::string id;
+    bool covered = false;
+    std::string source_key;
+    std::string summary;
+};
+
+struct BattleFeedbackPolicyImportResult {
+    BattleFeedbackPolicy policy;
+    bool imported = false;
+    std::vector<BattleFeedbackImportDiagnostic> diagnostics;
+    std::vector<BattleFeedbackFixtureCoverageRow> coverage_rows;
+};
+
 struct TroopMemberPosition {
     std::string enemy_id;
     int32_t x = 0;
@@ -138,6 +158,7 @@ public:
     static nlohmann::json feedbackPolicyToJson(const BattleFeedbackPolicy& policy);
     static BattleFeedbackPolicy feedbackPolicyFromJson(const nlohmann::json& json);
     static BattleFeedbackPolicy migrateFeedbackPolicy(const nlohmann::json& legacy_json);
+    static BattleFeedbackPolicyImportResult importFeedbackPolicyFixture(const nlohmann::json& fixture_json);
     static int32_t resolveEscapeRatio(int32_t party_agi, int32_t troop_agi, int32_t fail_count);
 };
 

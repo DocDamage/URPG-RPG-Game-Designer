@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/core/battle/battle_core.h"
+
 #include <nlohmann/json.hpp>
 
 #include <cstdint>
@@ -67,6 +69,9 @@ struct BattlePresentationProfile {
     std::vector<BattleLightCue> light_cues;
     std::vector<BattleHudElement> hud_elements;
     std::vector<BattlePresentationCue> cue_timeline;
+    BattleFeedbackPolicy feedback_policy;
+    BattleFeedbackPolicyImportResult feedback_policy_import;
+    bool has_feedback_policy = false;
 };
 
 struct BattlePresentationValidationResult {

@@ -1,6 +1,6 @@
 # Feature Robustness Execution Tracker
 
-Status date: 2026-05-22
+Status date: 2026-05-24
 
 This document turns `docs/features/FEATURE_ROBUSTNESS_PLAN.md` from prose backlog into governed execution work. The canonical machine-readable tracker is `content/readiness/feature_robustness_lanes.json`.
 
@@ -29,11 +29,22 @@ python tools/ci/check_feature_robustness_lanes.py
 python -m unittest tools.ai.tests.test_collect_project_knowledge
 ```
 
+## FRL-01 Follow-Up Slice
+
+This branch completes the governed `FRL-01` scope by adding native imported/plugin-style battle feedback fixture parsing through `BattleRuleResolver::importFeedbackPolicyFixture()`. The importer accepts plugin parameter-style keys and string values for chip damage, chip healing, zero-damage presentation, custom buff caps, and troop-position reuse; it emits success/failure diagnostics plus deterministic fixture coverage rows. `BattlePresentationProfileFromJson()` now ingests `feedback_policy`, `BattlePresentationProfileToJson()` writes the normalized schema-versioned policy back out, and `BattlePresentationPanelSnapshot` exposes feedback fixture coverage counts, policy diagnostic counts, and editor-facing coverage row labels. Focused unit, profile/panel, and compat fixture tests now cover the completed lane.
+
+Verification:
+
+```powershell
+ctest --preset dev-all -R "BattleRuleResolver|battle presentation|Compat fixture import: battle feedback" --output-on-failure
+python tools\ci\check_feature_robustness_lanes.py
+```
+
 ## Lane Order
 
 | Lane | System | Remaining Depth |
 | --- | --- | --- |
-| `FRL-01` | Battle feedback | Broader battle feedback fixture coverage. |
+| `FRL-01` | Battle feedback | Complete for the governed FRL-01 fixture-depth scope. |
 | `FRL-02` | State/message/picture | Broader fixture import coverage. |
 | `FRL-03` | Progression | Richer visual controls. |
 | `FRL-04` | Gameplay abilities | Full task-graph runtime sequencing and arbitrary scripting policy. |

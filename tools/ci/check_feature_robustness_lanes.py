@@ -8,7 +8,7 @@ from pathlib import Path
 REQUIRED_LANES = [f"FRL-{index:02d}" for index in range(1, 11)]
 ALLOWED_STATUSES = {"not_started", "in_progress", "ready", "blocked", "deferred"}
 REQUIRED_DOC_PHRASES = {
-    "FRL-01": "broader battle feedback fixture coverage remains",
+    "FRL-01": "frl-01 governed battle feedback fixture depth is complete for current scope",
     "FRL-02": "broader fixture import coverage remains",
     "FRL-03": "richer visual controls remain",
     "FRL-04": "full task-graph runtime sequencing and arbitrary scripting remain",
