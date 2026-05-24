@@ -20,10 +20,11 @@ set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 set(CPACK_COMPONENT_RUNTIME_DISPLAY_NAME "URPG applications")
 set(CPACK_COMPONENT_RUNTIME_DESCRIPTION "URPG runtime, editor, audio smoke app, and required runtime DLLs.")
 set(CPACK_COMPONENT_RUNTIMEDATA_DISPLAY_NAME "URPG runtime data")
-set(CPACK_COMPONENT_RUNTIMEDATA_DESCRIPTION "Schemas, starter templates, readiness data, level libraries, and governed manifests.")
+set(CPACK_COMPONENT_RUNTIMEDATA_DESCRIPTION "Schemas, starter templates, starter asset indexes, curated starter assets, readiness data, level libraries, and governed manifests.")
 set(CPACK_COMPONENT_DOCS_DISPLAY_NAME "URPG documentation")
 set(CPACK_COMPONENT_DOCS_DESCRIPTION "Release, legal, credits, privacy, template, and packaging documentation.")
 
 include("${CMAKE_CURRENT_LIST_DIR}/shell_implementation_sources.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/starter_payload_packaging.cmake")
 
 include(CPack)
