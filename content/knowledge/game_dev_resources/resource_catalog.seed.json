@@ -64,6 +64,22 @@
       "urpg_relevance": "high",
       "approved_use": "editor_reference",
       "notes": "Reference for visual editor UX, content pipeline, project browser, asset browser, and release documentation. Do not copy icons/assets without explicit third-party review."
+    },
+    {
+      "id": "assetcooker_pipeline_reference",
+      "name": "AssetCooker",
+      "source_url": "https://github.com/DocDamage/AssetCooker",
+      "source_repo": "DocDamage/AssetCooker",
+      "category": "tool",
+      "cost": "free",
+      "license_status": "verified",
+      "commercial_use": "yes",
+      "modification_allowed": "yes",
+      "redistribution_allowed": "yes",
+      "attribution_required": "yes",
+      "urpg_relevance": "high",
+      "approved_use": "editor_reference",
+      "notes": "Reference for URPG native asset cooking concepts: dirty-state detection, dependency-file parsing, rule-version invalidation, priority queues, command execution, no-UI operation, and editor diagnostics. Use as reference only; do not vendor the Win32/D3D11 app or MPL source without separate review."
     }
   ]
 }
