@@ -32,3 +32,17 @@ TEST_CASE("DiagnosticsFacade - Emits accurate snapshot via facade", "[editor][di
         REQUIRE(callback_called);
     }
 }
+
+TEST_CASE("DiagnosticsFacade emits deterministic telemetry envelope for snapshots",
+          "[editor][diagnostics][telemetry]") {
+    DiagnosticsWorkspace workspace;
+    DiagnosticsFacade facade(workspace);
+
+    const auto envelope = facade.emitTelemetryEnvelope();
+
+    REQUIRE(envelope["schema"] == "urpg.telemetry.event.v1");
+    REQUIRE(envelope["subsystem"] == "editor.diagnostics");
+    REQUIRE(envelope["name"] == "diagnostics_snapshot");
+    REQUIRE(envelope["severity"] == "info");
+    REQUIRE(envelope["fields"]["snapshot"].is_string());
+}
