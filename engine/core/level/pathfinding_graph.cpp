@@ -124,6 +124,7 @@ PathfindingResult PathfindingGraph::findPath(PathGridPoint start, PathGridPoint 
     std::vector<int32_t> previous(cellCount, -1);
     std::priority_queue<QueueNode, std::vector<QueueNode>, Compare> frontier;
     std::set<std::pair<int32_t, int32_t>> reportedBlocked;
+    std::vector<PathfindingDiagnostic> blockedDiagnostics;
     int32_t sequence = 0;
 
     bestCost[index(start)] = 0;
@@ -158,7 +159,7 @@ PathfindingResult PathfindingGraph::findPath(PathGridPoint start, PathGridPoint 
             }
             if (blocked(next)) {
                 if (reportedBlocked.insert({next.x, next.y}).second) {
-                    result.diagnostics.push_back({"neighbor_blocked", next, blockReason(next)});
+                    blockedDiagnostics.push_back({"neighbor_blocked", next, blockReason(next)});
                 }
                 continue;
             }
@@ -175,6 +176,7 @@ PathfindingResult PathfindingGraph::findPath(PathGridPoint start, PathGridPoint 
     }
 
     result.reason = "no_route";
+    result.diagnostics = std::move(blockedDiagnostics);
     return result;
 }
 
