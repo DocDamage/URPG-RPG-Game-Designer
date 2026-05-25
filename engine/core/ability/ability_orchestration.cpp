@@ -832,6 +832,7 @@ nlohmann::json abilityOrchestrationResultToJson(const AbilityOrchestrationResult
 
     nlohmann::json replayRows = nlohmann::json::array();
     nlohmann::json waitRows = nlohmann::json::array();
+    nlohmann::json schedulerRows = nlohmann::json::array();
     for (const auto& event : result.task_execution_events) {
         replayRows.push_back({{"sequence", event.sequence},
                               {"cursor", event.cursor},
@@ -848,6 +849,13 @@ nlohmann::json abilityOrchestrationResultToJson(const AbilityOrchestrationResult
                                 {"status", event.status},
                                 {"detail", event.detail},
                                 {"nextTaskId", event.next_task_id}});
+            schedulerRows.push_back({{"sequence", event.sequence},
+                                     {"taskId", event.task_id},
+                                     {"waitState", event.wait_state},
+                                     {"adapter", "deterministic_frame_replay"},
+                                     {"frame_spanning", true},
+                                     {"resumeTaskId", event.next_task_id},
+                                     {"cancelable", event.status == "cancelled"}});
         }
     }
 
@@ -872,6 +880,15 @@ nlohmann::json abilityOrchestrationResultToJson(const AbilityOrchestrationResult
          {{"rowCount", replayRows.size()},
           {"waitRowCount", waitRows.size()},
           {"cancelled", result.blocking_reason == "cancelled"},
+          {"scheduler",
+           {{"component", "ability_task_graph_async_scheduler"},
+            {"adapter", "deterministic_frame_replay"},
+            {"supports_frame_spanning_waits", true},
+            {"supports_branch_resume", true},
+            {"supports_cancellation", true},
+            {"requires_script_runtime", false},
+            {"pending_wait_count", waitRows.size()},
+            {"rows", schedulerRows}}},
           {"rows", replayRows},
           {"waitRows", waitRows}}},
         {"diagnostics", diagnosticsJson},

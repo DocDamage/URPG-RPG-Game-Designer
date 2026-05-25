@@ -702,6 +702,11 @@ TEST_CASE("Ability orchestration executes authored task graphs deterministically
     REQUIRE(runtime["taskRuntimeReplay"]["rowCount"] == runtime["taskExecutionEvents"].size());
     REQUIRE(runtime["taskRuntimeReplay"]["waitRowCount"] == 2);
     REQUIRE(runtime["taskRuntimeReplay"]["waitRows"][1]["waitState"] == "wait_projectile_collision");
+    REQUIRE(runtime["taskRuntimeReplay"]["scheduler"]["component"] == "ability_task_graph_async_scheduler");
+    REQUIRE(runtime["taskRuntimeReplay"]["scheduler"]["adapter"] == "deterministic_frame_replay");
+    REQUIRE(runtime["taskRuntimeReplay"]["scheduler"]["supports_frame_spanning_waits"] == true);
+    REQUIRE(runtime["taskRuntimeReplay"]["scheduler"]["pending_wait_count"] == 2);
+    REQUIRE(runtime["taskRuntimeReplay"]["scheduler"]["rows"][1]["resumeTaskId"] == "apply_hit");
 }
 
 TEST_CASE("Ability orchestration branches, joins parallel waits, and cancels authored task graphs",
@@ -788,6 +793,7 @@ TEST_CASE("Ability orchestration branches, joins parallel waits, and cancels aut
     REQUIRE(cancelled["taskExecutionEvents"][2]["status"] == "cancelled");
     REQUIRE(cancelled["taskRuntimeReplay"]["cancelled"] == true);
     REQUIRE(cancelled["taskRuntimeReplay"]["waitRows"][1]["status"] == "cancelled");
+    REQUIRE(cancelled["taskRuntimeReplay"]["scheduler"]["rows"][1]["cancelable"] == true);
     REQUIRE(cancelled["taskExecutionEvents"].back()["taskId"] != "cooldown");
 }
 
