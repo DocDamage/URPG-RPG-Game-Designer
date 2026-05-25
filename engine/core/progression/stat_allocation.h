@@ -94,18 +94,16 @@ struct StatAllocationApplicationPreview {
 };
 
 class StatAllocationDocument {
-public:
+  public:
     void addPool(StatAllocationPool pool);
     [[nodiscard]] std::vector<ProgressionDiagnostic> validate() const;
-    [[nodiscard]] StatAllocationPreview preview(const std::string& pool_id,
-                                                const ActorStatBlock& current_stats,
+    [[nodiscard]] StatAllocationPreview preview(const std::string& pool_id, const ActorStatBlock& current_stats,
                                                 const StatAllocationRequest& request) const;
-    [[nodiscard]] AppliedStatAllocation commit(const std::string& pool_id,
-                                               const ActorStatBlock& current_stats,
+    [[nodiscard]] AppliedStatAllocation commit(const std::string& pool_id, const ActorStatBlock& current_stats,
                                                const StatAllocationRequest& request) const;
     [[nodiscard]] const std::map<std::string, StatAllocationPool>& pools() const { return pools_; }
 
-private:
+  private:
     [[nodiscard]] const StatAllocationPool* findPool(const std::string& pool_id) const;
     [[nodiscard]] const StatAllocationRule* findRule(const StatAllocationPool& pool, const std::string& stat_id) const;
 
@@ -120,16 +118,14 @@ std::optional<AppliedStatAllocation> appliedStatAllocationFromJson(const nlohman
                                                                    std::vector<std::string>* diagnostics = nullptr);
 bool attachStatAllocationToSaveDocument(nlohmann::json& document, const AppliedStatAllocation& allocation,
                                         std::vector<std::string>* diagnostics = nullptr);
-std::vector<AppliedStatAllocation> loadStatAllocationsFromSaveDocument(
-    const nlohmann::json& document, std::vector<std::string>* diagnostics = nullptr);
-StatAllocationApplicationPreview buildStatAllocationApplicationPreview(
-    const std::string& actor_id,
-    const ActorStatBlock& current_stats,
-    const std::vector<AppliedStatAllocation>& allocations);
-std::optional<ActorStatBlock> applyLatestStatAllocationForActor(
-    const std::string& actor_id,
-    const ActorStatBlock& current_stats,
-    const std::vector<AppliedStatAllocation>& allocations,
-    std::vector<std::string>* diagnostics = nullptr);
+std::vector<AppliedStatAllocation> loadStatAllocationsFromSaveDocument(const nlohmann::json& document,
+                                                                       std::vector<std::string>* diagnostics = nullptr);
+StatAllocationApplicationPreview
+buildStatAllocationApplicationPreview(const std::string& actor_id, const ActorStatBlock& current_stats,
+                                      const std::vector<AppliedStatAllocation>& allocations);
+std::optional<ActorStatBlock> applyLatestStatAllocationForActor(const std::string& actor_id,
+                                                                const ActorStatBlock& current_stats,
+                                                                const std::vector<AppliedStatAllocation>& allocations,
+                                                                std::vector<std::string>* diagnostics = nullptr);
 
 } // namespace urpg::progression

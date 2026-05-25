@@ -143,9 +143,7 @@ nlohmann::json previewStatus(const AssetRecord& asset) {
 
 nlohmann::json assetReadinessDiagnostics(const AssetRecord& asset) {
     nlohmann::json rows = nlohmann::json::array();
-    const auto add = [&](const std::string& code,
-                         const std::string& severity,
-                         const std::string& message,
+    const auto add = [&](const std::string& code, const std::string& severity, const std::string& message,
                          const std::string& target) {
         rows.push_back({{"code", code}, {"severity", severity}, {"message", message}, {"target", target}});
     };
@@ -161,8 +159,8 @@ nlohmann::json assetReadinessDiagnostics(const AssetRecord& asset) {
         add("runtime_payload_missing", "error", "Runtime packageable asset needs a promoted payload path.",
             asset.asset_id);
     }
-    if (asset.preview_kind == "image" && (asset.preview_path.empty() || asset.preview_width <= 0 ||
-                                           asset.preview_height <= 0)) {
+    if (asset.preview_kind == "image" &&
+        (asset.preview_path.empty() || asset.preview_width <= 0 || asset.preview_height <= 0)) {
         add("thumbnail_preview_missing", asset.required_for_release ? "error" : "warning",
             "Image asset needs thumbnail path and dimensions for WYSIWYG preview.", asset.asset_id);
     }
@@ -177,8 +175,8 @@ nlohmann::json assetReadinessDiagnostics(const AssetRecord& asset) {
             "Sequence/video asset needs representative preview metadata.", asset.asset_id);
     }
     for (const auto& diagnostic : asset.promotion_diagnostics) {
-        add(std::string("promotion_manifest_") + diagnostic, "warning", "Promotion manifest reported " + diagnostic + ".",
-            asset.asset_id);
+        add(std::string("promotion_manifest_") + diagnostic, "warning",
+            "Promotion manifest reported " + diagnostic + ".", asset.asset_id);
     }
     return rows;
 }

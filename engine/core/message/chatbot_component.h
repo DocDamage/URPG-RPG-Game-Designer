@@ -133,12 +133,8 @@ class ChatbotComponent {
         urpg::message::DialogueCommandProcessor processor;
         const auto result = processor.execute(command);
         m_lastAiToolSnapshot = {
-            {"type", "dialogue_command"},
-            {"command", command},
-            {"handled", result.handled},
-            {"success", result.success},
-            {"code", result.code},
-            {"message", result.message},
+            {"type", "dialogue_command"}, {"command", command},  {"handled", result.handled},
+            {"success", result.success},  {"code", result.code}, {"message", result.message},
         };
         return m_lastAiToolSnapshot;
     }
@@ -443,9 +439,7 @@ class ChatbotComponent {
         };
     }
 
-    void rebuildAiKnowledge() {
-        m_aiKnowledge = buildDefaultAiKnowledgeSnapshot(m_projectData);
-    }
+    void rebuildAiKnowledge() { m_aiKnowledge = buildDefaultAiKnowledgeSnapshot(m_projectData); }
 
     void prepareHistory(const std::string& userInput) {
         // ALWAYS refresh the dynamic world state context for every request

@@ -1,12 +1,12 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "engine/core/ability/gameplay_ability.h"
-#include "engine/core/ability/ability_orchestration.h"
-#include "engine/core/ability/ability_system_component.h"
-#include "engine/core/ability/ability_state_machine.h"
+#include "editor/ability/ability_inspector_panel.h"
 #include "editor/ability/ability_orchestration_panel.h"
 #include "editor/ability/ability_sandbox_panel.h"
-#include "editor/ability/ability_inspector_panel.h"
+#include "engine/core/ability/ability_orchestration.h"
+#include "engine/core/ability/ability_state_machine.h"
+#include "engine/core/ability/ability_system_component.h"
+#include "engine/core/ability/gameplay_ability.h"
 #include "engine/core/ability/gameplay_effect.h"
 
 #include <algorithm>
@@ -41,7 +41,7 @@ nlohmann::json loadAbilityJson(const std::filesystem::path& path) {
  * @brief A realistic ability that applies a timed buff and uses a state machine.
  */
 class BuffAbility : public GameplayAbility {
-public:
+  public:
     BuffAbility() {
         id = "skill.power_surge";
         cooldownTime = 5.0f;
@@ -79,7 +79,7 @@ public:
  * @brief A state-machine-driven ability with windup, impact, and recovery.
  */
 class StateDrivenAbility : public GameplayAbility {
-public:
+  public:
     StateDrivenAbility() {
         id = "skill.heavy_slam";
         cooldownTime = 4.0f;
@@ -105,9 +105,7 @@ public:
         AbilityState windup;
         windup.name = "windup";
         windup.inherentTags.addTag(GameplayTag("State.Ability.Windup"));
-        windup.onEnter = [](AbilitySystemComponent& asc) {
-            asc.addTag(GameplayTag("State.Immune.Stagger"));
-        };
+        windup.onEnter = [](AbilitySystemComponent& asc) { asc.addTag(GameplayTag("State.Immune.Stagger")); };
         windup.onTick = [this](AbilitySystemComponent&, float dt) {
             m_windupTimer += dt;
             return m_windupTimer >= 0.5f;
@@ -152,7 +150,7 @@ public:
 
     AbilityStateMachine* getMachine() const { return m_machine.get(); }
 
-private:
+  private:
     std::unique_ptr<AbilityStateMachine> m_machine;
     float m_windupTimer = 0.0f;
     float m_recoveryTimer = 0.0f;
@@ -240,7 +238,8 @@ TEST_CASE("Ability end-to-end: activation, commit, cooldown, effect, and inspect
     }
 }
 
-TEST_CASE("Ability end-to-end: state machine transitions with effect application and inspector coherence", "[ability][e2e]") {
+TEST_CASE("Ability end-to-end: state machine transitions with effect application and inspector coherence",
+          "[ability][e2e]") {
     AbilitySystemComponent asc;
     asc.setAttribute("MP", 30.0f);
     asc.setAttribute("Defense", 50.0f);
@@ -282,7 +281,9 @@ TEST_CASE("Ability end-to-end: state machine transitions with effect application
         machine->update(asc, 0.4f);
 
         const auto& history = asc.getAbilityExecutionHistory();
-        REQUIRE(history.size() == 5); // windup entered (during activate) + activate executed + impact entered + recovery entered + finished
+        REQUIRE(
+            history.size() ==
+            5); // windup entered (during activate) + activate executed + impact entered + recovery entered + finished
         // Note: state machine start() records inside activate() before tryActivateAbility records the activate outcome.
         REQUIRE(history[0].stage == "state_machine");
         REQUIRE(history[0].outcome == "entered");
@@ -316,9 +317,12 @@ TEST_CASE("Ability end-to-end: state machine transitions with effect application
         bool foundImpact = false;
         bool foundRecovery = false;
         for (const auto& line : snap.diagnostic_lines) {
-            if (line.find("[windup]") != std::string::npos) foundWindup = true;
-            if (line.find("[impact]") != std::string::npos) foundImpact = true;
-            if (line.find("[recovery]") != std::string::npos) foundRecovery = true;
+            if (line.find("[windup]") != std::string::npos)
+                foundWindup = true;
+            if (line.find("[impact]") != std::string::npos)
+                foundImpact = true;
+            if (line.find("[recovery]") != std::string::npos)
+                foundRecovery = true;
         }
         REQUIRE(foundWindup);
         REQUIRE(foundImpact);
@@ -407,8 +411,8 @@ TEST_CASE("Ability sandbox panel edits live costs, cooldowns, tags, and effects 
     REQUIRE(panel.result().activation_steps[0].effect_attribute_after == 22.0f);
     REQUIRE(panel.result().activation_steps[1].executed);
     REQUIRE(panel.result().activation_steps[1].cooldown_before == 0.0f);
-    REQUIRE(std::find(panel.result().runtime_trace.begin(), panel.result().runtime_trace.end(),
-                      "tick:2.000000") != panel.result().runtime_trace.end());
+    REQUIRE(std::find(panel.result().runtime_trace.begin(), panel.result().runtime_trace.end(), "tick:2.000000") !=
+            panel.result().runtime_trace.end());
 
     const auto saved = nlohmann::json::parse(panel.snapshot().saved_project_json);
     REQUIRE(saved["source_mp"] == 50.0f);
@@ -419,8 +423,7 @@ TEST_CASE("Ability sandbox panel edits live costs, cooldowns, tags, and effects 
     REQUIRE(saved["seconds_between_attempts"] == 2.0f);
 }
 
-TEST_CASE("Ability sandbox saved project data round-trips through schema surface",
-          "[ability][sandbox][wysiwyg]") {
+TEST_CASE("Ability sandbox saved project data round-trips through schema surface", "[ability][sandbox][wysiwyg]") {
     const auto json = loadAbilityJson(abilityRepoRoot() / "content" / "fixtures" / "ability_sandbox_fixture.json");
     const auto document = AbilitySandboxDocument::fromJson(json);
     const auto saved = document.toJson();
@@ -442,8 +445,7 @@ TEST_CASE("Ability sandbox saved project data round-trips through schema surface
     REQUIRE(result.activation_steps[1].blocking_reason == "cooldown_active");
 }
 
-TEST_CASE("Ability sandbox diagnostics and tag gates block false complete claims",
-          "[ability][sandbox][wysiwyg]") {
+TEST_CASE("Ability sandbox diagnostics and tag gates block false complete claims", "[ability][sandbox][wysiwyg]") {
     AbilitySandboxDocument document;
     document.id = "broken_sandbox";
     document.source_mp = 4.0f;
@@ -469,9 +471,8 @@ TEST_CASE("Ability sandbox diagnostics and tag gates block false complete claims
 
     const auto& diagnostics = panel.result().diagnostics;
     const auto hasCode = [&diagnostics](const std::string& code) {
-        return std::any_of(diagnostics.begin(), diagnostics.end(), [&code](const auto& diagnostic) {
-            return diagnostic.code == code;
-        });
+        return std::any_of(diagnostics.begin(), diagnostics.end(),
+                           [&code](const auto& diagnostic) { return diagnostic.code == code; });
     };
     REQUIRE(hasCode("invalid_cooldown"));
     REQUIRE(hasCode("invalid_activation_attempts"));
@@ -494,7 +495,8 @@ TEST_CASE("Ability sandbox diagnostics and tag gates block false complete claims
 
 TEST_CASE("Ability orchestration executes authored battle asset through runtime targets",
           "[ability][orchestration][wysiwyg]") {
-    const auto json = loadAbilityJson(abilityRepoRoot() / "content" / "fixtures" / "ability_orchestration_fixture.json");
+    const auto json =
+        loadAbilityJson(abilityRepoRoot() / "content" / "fixtures" / "ability_orchestration_fixture.json");
     const auto document = AbilityOrchestrationDocument::fromJson(json);
     const auto result = runAbilityOrchestration(document);
 
@@ -523,7 +525,8 @@ TEST_CASE("Ability orchestration executes authored battle asset through runtime 
 
 TEST_CASE("Ability orchestration panel exposes saved data, live preview, and diagnostics",
           "[ability][orchestration][wysiwyg]") {
-    const auto json = loadAbilityJson(abilityRepoRoot() / "content" / "fixtures" / "ability_orchestration_fixture.json");
+    const auto json =
+        loadAbilityJson(abilityRepoRoot() / "content" / "fixtures" / "ability_orchestration_fixture.json");
     const auto document = AbilityOrchestrationDocument::fromJson(json);
 
     AbilityOrchestrationPanel panel;
@@ -562,8 +565,10 @@ TEST_CASE("Ability orchestration task composition round-trips and previews creat
           {"effect_value", -12.0},
           {"effect_duration", 3.0},
           {"pattern", {{"name", "single"}, {"points", {{{"x", 0}, {"y", 0}}}}}}}},
-        {"source", {{"id", "actor.mage"}, {"mp", 12.0}, {"effect_attribute_base", 40.0}, {"tags", nlohmann::json::array()}}},
-        {"targets", {{{"id", "enemy.slime"}, {"mp", 0.0}, {"effect_attribute_base", 30.0}, {"tags", nlohmann::json::array()}}}},
+        {"source",
+         {{"id", "actor.mage"}, {"mp", 12.0}, {"effect_attribute_base", 40.0}, {"tags", nlohmann::json::array()}}},
+        {"targets",
+         {{{"id", "enemy.slime"}, {"mp", 0.0}, {"effect_attribute_base", 30.0}, {"tags", nlohmann::json::array()}}}},
         {"tasks",
          {{{"id", "await_confirm"}, {"kind", "wait_input"}, {"action", "Confirm"}, {"timeout_ms", 1000}},
           {{"id", "branch_mp"},
@@ -624,9 +629,8 @@ TEST_CASE("Ability orchestration task composition validates branch targets and c
 
     const auto diagnostics = document.validate();
     const auto hasCode = [&diagnostics](const std::string& code) {
-        return std::any_of(diagnostics.begin(), diagnostics.end(), [&code](const auto& diagnostic) {
-            return diagnostic.code == code;
-        });
+        return std::any_of(diagnostics.begin(), diagnostics.end(),
+                           [&code](const auto& diagnostic) { return diagnostic.code == code; });
     };
 
     REQUIRE(hasCode("ability_task_branch_missing_target"));
@@ -821,9 +825,8 @@ TEST_CASE("Ability orchestration rejects script task strings and detects graph c
 
     const auto diagnostics = document.validate();
     const auto hasCode = [&diagnostics](const std::string& code) {
-        return std::any_of(diagnostics.begin(), diagnostics.end(), [&code](const auto& diagnostic) {
-            return diagnostic.code == code;
-        });
+        return std::any_of(diagnostics.begin(), diagnostics.end(),
+                           [&code](const auto& diagnostic) { return diagnostic.code == code; });
     };
 
     REQUIRE(hasCode("ability_task_script_unsupported"));
@@ -846,9 +849,8 @@ TEST_CASE("Ability orchestration task graph fixtures document valid examples and
 
     const auto invalid = AbilityOrchestrationDocument::fromJson(examples.at("invalid_cycle"));
     const auto diagnostics = invalid.validate();
-    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
-        return diagnostic.code == "ability_task_graph_cycle";
-    }));
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(),
+                        [](const auto& diagnostic) { return diagnostic.code == "ability_task_graph_cycle"; }));
 }
 
 TEST_CASE("Ability orchestration panel authors, previews, saves, applies, and reverts task graph rows",
@@ -907,8 +909,7 @@ TEST_CASE("Ability orchestration panel authors, previews, saves, applies, and re
     REQUIRE(loaded.snapshot().applied_project_json.empty());
 }
 
-TEST_CASE("Ability orchestration reports map pattern and tag gate diagnostics",
-          "[ability][orchestration][wysiwyg]") {
+TEST_CASE("Ability orchestration reports map pattern and tag gate diagnostics", "[ability][orchestration][wysiwyg]") {
     AbilityOrchestrationDocument document;
     document.id = "map_bad_target";
     document.mode = AbilityOrchestrationMode::Map;

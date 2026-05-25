@@ -1,8 +1,8 @@
+#include "editor/progression/skill_tree_panel.h"
+#include "editor/progression/stat_allocation_panel.h"
 #include "engine/core/progression/class_progression.h"
 #include "engine/core/progression/skill_tree.h"
-#include "editor/progression/skill_tree_panel.h"
 #include "engine/core/progression/stat_allocation.h"
-#include "editor/progression/stat_allocation_panel.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <filesystem>
@@ -212,7 +212,8 @@ TEST_CASE("Stat allocation previews level-up spending and editor state", "[progr
 
 TEST_CASE("Stat allocation reports overspend missing rules and invalid pools", "[progression][stat_allocation]") {
     urpg::progression::StatAllocationDocument document;
-    document.addPool({"bad_pool", "", "class.mage", -1, 1, {{"atk", 0, 1, 10}, {"atk", 1, 1, 10}, {"unknown", 1, 1, 10}}});
+    document.addPool(
+        {"bad_pool", "", "class.mage", -1, 1, {{"atk", 0, 1, 10}, {"atk", 1, 1, 10}, {"unknown", 1, 1, 10}}});
     auto diagnostics = document.validate();
     REQUIRE(diagnostics.size() >= 4);
 
@@ -228,12 +229,10 @@ TEST_CASE("Stat allocation reports overspend missing rules and invalid pools", "
     REQUIRE(preview.spent_points == 2);
     REQUIRE(preview.remaining_points == -1);
     REQUIRE(preview.after.mat == 12);
-    REQUIRE(std::any_of(preview.diagnostics.begin(), preview.diagnostics.end(), [](const auto& diagnostic) {
-        return diagnostic.code == "stat_points_overspent";
-    }));
-    REQUIRE(std::any_of(preview.diagnostics.begin(), preview.diagnostics.end(), [](const auto& diagnostic) {
-        return diagnostic.code == "missing_stat_rule";
-    }));
+    REQUIRE(std::any_of(preview.diagnostics.begin(), preview.diagnostics.end(),
+                        [](const auto& diagnostic) { return diagnostic.code == "stat_points_overspent"; }));
+    REQUIRE(std::any_of(preview.diagnostics.begin(), preview.diagnostics.end(),
+                        [](const auto& diagnostic) { return diagnostic.code == "missing_stat_rule"; }));
 
     urpg::editor::StatAllocationPanel panel;
     panel.bindDocument(valid);

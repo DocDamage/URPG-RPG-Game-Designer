@@ -2,8 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("OpenAI-compatible chat service builds request and curl command",
-          "[ai][chat][provider]") {
+TEST_CASE("OpenAI-compatible chat service builds request and curl command", "[ai][chat][provider]") {
     urpg::ai::OpenAiCompatibleChatConfig config;
     config.endpoint = "http://127.0.0.1:1234/v1/chat/completions";
     config.model = "local-test";
@@ -30,8 +29,7 @@ TEST_CASE("OpenAI-compatible chat service builds request and curl command",
     REQUIRE(command.find("tmp/chat-response.json") != std::string::npos);
 }
 
-TEST_CASE("OpenAI-compatible chat service builds streaming requests",
-          "[ai][chat][provider]") {
+TEST_CASE("OpenAI-compatible chat service builds streaming requests", "[ai][chat][provider]") {
     urpg::ai::OpenAiCompatibleChatConfig config;
     config.stream = true;
     config.model = "stream-test";
@@ -43,15 +41,15 @@ TEST_CASE("OpenAI-compatible chat service builds streaming requests",
     REQUIRE(command.find("--no-buffer") != std::string::npos);
 }
 
-TEST_CASE("OpenAI-compatible provider profiles cover local and hosted gateways",
-          "[ai][chat][provider][ui]") {
+TEST_CASE("OpenAI-compatible provider profiles cover local and hosted gateways", "[ai][chat][provider][ui]") {
     const auto profiles = urpg::ai::openAiCompatibleProviderProfiles();
     REQUIRE(profiles.size() >= 7);
     REQUIRE(std::any_of(profiles.begin(), profiles.end(), [](const auto& profile) {
         return profile.id == "chatgpt" && profile.api_key_required && !profile.local_provider;
     }));
     REQUIRE(std::any_of(profiles.begin(), profiles.end(), [](const auto& profile) {
-        return profile.id == "ollama" && !profile.api_key_required && profile.local_provider && profile.streaming_supported;
+        return profile.id == "ollama" && !profile.api_key_required && profile.local_provider &&
+               profile.streaming_supported;
     }));
     REQUIRE(std::any_of(profiles.begin(), profiles.end(), [](const auto& profile) {
         return profile.id == "openrouter" && profile.endpoint.find("openrouter") != std::string::npos;
@@ -66,8 +64,7 @@ TEST_CASE("OpenAI-compatible provider profiles cover local and hosted gateways",
     REQUIRE(applied.api_key.empty());
 }
 
-TEST_CASE("OpenAI-compatible chat parser combines streamed SSE chunks",
-          "[ai][chat][provider]") {
+TEST_CASE("OpenAI-compatible chat parser combines streamed SSE chunks", "[ai][chat][provider]") {
     const std::string stream =
         "data: {\"choices\":[{\"delta\":{\"content\":\"Hel\"}}]}\n\n"
         "data: {\"choices\":[{\"delta\":{\"content\":\"lo\\nCOMMAND:AI_TASK:open export preview\"}}]}\n\n"
@@ -90,10 +87,9 @@ TEST_CASE("OpenAI-compatible chat parser combines streamed SSE chunks",
 
 TEST_CASE("OpenAI-compatible stream diagnostics expose provider errors and cancellation",
           "[ai][chat][provider][stream]") {
-    const std::string stream =
-        "data: {\"choices\":[{\"delta\":{\"content\":\"Working\"}}]}\n\n"
-        "event: cancelled\n\n"
-        "data: {\"error\":{\"message\":\"provider disconnected\"}}\n\n";
+    const std::string stream = "data: {\"choices\":[{\"delta\":{\"content\":\"Working\"}}]}\n\n"
+                               "event: cancelled\n\n"
+                               "data: {\"error\":{\"message\":\"provider disconnected\"}}\n\n";
 
     const auto diagnostics = urpg::ai::buildOpenAiCompatibleStreamDiagnostics(stream);
     REQUIRE(diagnostics["chunk_count"] == 1);
@@ -104,12 +100,11 @@ TEST_CASE("OpenAI-compatible stream diagnostics expose provider errors and cance
     REQUIRE(diagnostics["final_state"] == "cancelled");
 }
 
-TEST_CASE("OpenAI-compatible chat parser supports common response shapes",
-          "[ai][chat][provider]") {
+TEST_CASE("OpenAI-compatible chat parser supports common response shapes", "[ai][chat][provider]") {
     const auto chat = urpg::ai::parseOpenAiCompatibleChatResponse({
         {"choices", nlohmann::json::array({
-            {{"message", {{"role", "assistant"}, {"content", "Done.\nCOMMAND:AI_TASK:create dialogue"}}}},
-        })},
+                        {{"message", {{"role", "assistant"}, {"content", "Done.\nCOMMAND:AI_TASK:create dialogue"}}}},
+                    })},
     });
     REQUIRE(chat.first == "Done.");
     REQUIRE(chat.second == "AI_TASK:create dialogue");
@@ -128,8 +123,7 @@ TEST_CASE("OpenAI-compatible chat parser supports common response shapes",
     REQUIRE(direct.second == "AI_APPROVE_ALL");
 }
 
-TEST_CASE("OpenAI-compatible chat service dry run is deterministic",
-          "[ai][chat][provider]") {
+TEST_CASE("OpenAI-compatible chat service dry run is deterministic", "[ai][chat][provider]") {
     urpg::ai::OpenAiCompatibleChatConfig config;
     config.execute = false;
     config.endpoint = "http://127.0.0.1:11434/v1/chat/completions";

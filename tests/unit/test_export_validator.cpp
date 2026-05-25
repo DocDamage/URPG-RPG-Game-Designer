@@ -203,8 +203,7 @@ TEST_CASE("ExportValidator: platform artifact policy reports missing release cre
     std::filesystem::remove_all(base);
 }
 
-TEST_CASE("ExportValidator: platform artifact policy accepts staged smoke evidence",
-          "[export][validation][policy]") {
+TEST_CASE("ExportValidator: platform artifact policy accepts staged smoke evidence", "[export][validation][policy]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_validator_smoke_policy";
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(base);

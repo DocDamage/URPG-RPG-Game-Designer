@@ -121,7 +121,8 @@ nlohmann::json OpenAiCompatibleChatTransportResult::toJson() const {
 std::vector<OpenAiCompatibleProviderProfile> openAiCompatibleProviderProfiles() {
     return {
         {"chatgpt", "ChatGPT / OpenAI", "https://api.openai.com/v1/chat/completions", "gpt-5.5", false, true, true},
-        {"openrouter", "OpenRouter", "https://openrouter.ai/api/v1/chat/completions", "openai/gpt-5.5", false, true, true},
+        {"openrouter", "OpenRouter", "https://openrouter.ai/api/v1/chat/completions", "openai/gpt-5.5", false, true,
+         true},
         {"kimi", "Kimi / Moonshot", "https://api.moonshot.ai/v1/chat/completions", "moonshot-v1-8k", false, true, true},
         {"ollama", "Ollama", "http://127.0.0.1:11434/v1/chat/completions", "llama3.1", true, false, true},
         {"lm_studio", "LM Studio", "http://127.0.0.1:1234/v1/chat/completions", "local-model", true, false, true},
@@ -132,9 +133,8 @@ std::vector<OpenAiCompatibleProviderProfile> openAiCompatibleProviderProfiles() 
 
 OpenAiCompatibleProviderProfile openAiCompatibleProviderProfileById(const std::string& id) {
     const auto profiles = openAiCompatibleProviderProfiles();
-    const auto it = std::find_if(profiles.begin(), profiles.end(), [&](const auto& profile) {
-        return profile.id == id;
-    });
+    const auto it =
+        std::find_if(profiles.begin(), profiles.end(), [&](const auto& profile) { return profile.id == id; });
     return it == profiles.end() ? profiles.front() : *it;
 }
 
@@ -169,8 +169,7 @@ std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfi
     std::ostringstream command;
     command << quoteCommandArg(config.curl_executable.empty() ? "curl" : config.curl_executable)
             << " --fail --silent --show-error"
-            << " --max-time " << std::max(1, config.timeout_seconds)
-            << " -X POST"
+            << " --max-time " << std::max(1, config.timeout_seconds) << " -X POST"
             << " -H " << quoteCommandArg("Content-Type: application/json");
     if (config.stream) {
         command << " --no-buffer";
@@ -178,9 +177,11 @@ std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfi
     if (!config.api_key.empty()) {
         command << " -H " << quoteCommandArg("Authorization: Bearer " + config.api_key);
     }
-    command << " --data-binary @" << quoteCommandArg(config.request_path.empty() ? "chat_request.json" : config.request_path)
-            << " -o " << quoteCommandArg(config.response_path.empty() ? "chat_response.json" : config.response_path)
-            << " " << quoteCommandArg(config.endpoint.empty() ? "http://127.0.0.1:11434/v1/chat/completions" : config.endpoint);
+    command << " --data-binary @"
+            << quoteCommandArg(config.request_path.empty() ? "chat_request.json" : config.request_path) << " -o "
+            << quoteCommandArg(config.response_path.empty() ? "chat_response.json" : config.response_path) << " "
+            << quoteCommandArg(config.endpoint.empty() ? "http://127.0.0.1:11434/v1/chat/completions"
+                                                       : config.endpoint);
     return command.str();
 }
 
@@ -304,7 +305,8 @@ nlohmann::json buildOpenAiCompatibleStreamDiagnostics(std::string_view responseT
         {"cancelled", cancelled},
         {"provider_error", !errors.empty()},
         {"errors", errors},
-        {"final_state", cancelled ? "cancelled" : (!errors.empty() ? "provider_error" : (completed ? "completed" : "open"))},
+        {"final_state",
+         cancelled ? "cancelled" : (!errors.empty() ? "provider_error" : (completed ? "completed" : "open"))},
     };
 }
 
@@ -389,13 +391,12 @@ void OpenAiCompatibleChatService::requestStream(const std::vector<ChatMessage>& 
         }
         last_result_.stream_diagnostics = {
             {"chunk_count", parsed.first.empty() ? 0 : 1},
-            {"chunks", parsed.first.empty()
-                           ? nlohmann::json::array()
-                           : nlohmann::json::array({{{"index", 0},
-                                                      {"line", 1},
-                                                      {"text", parsed.first},
-                                                      {"partial_text", parsed.first},
-                                                      {"sequence_ms", 1}}})},
+            {"chunks", parsed.first.empty() ? nlohmann::json::array()
+                                            : nlohmann::json::array({{{"index", 0},
+                                                                      {"line", 1},
+                                                                      {"text", parsed.first},
+                                                                      {"partial_text", parsed.first},
+                                                                      {"sequence_ms", 1}}})},
             {"partial_text", parsed.first},
             {"raw_partial_text", parsed.first},
             {"command", parsed.second},

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/core/ability/authored_ability_asset.h"
 #include "engine/core/ability/ability_battle_integration.h"
+#include "engine/core/ability/authored_ability_asset.h"
 
 #include <nlohmann/json.hpp>
 

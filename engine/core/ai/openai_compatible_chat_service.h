@@ -62,7 +62,7 @@ OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector
                                                                const OpenAiCompatibleChatConfig& config);
 
 class OpenAiCompatibleChatService : public IChatService {
-public:
+  public:
     explicit OpenAiCompatibleChatService(OpenAiCompatibleChatConfig config);
 
     void requestResponse(const std::vector<ChatMessage>& history, ChatCallback callback) override;
@@ -70,7 +70,7 @@ public:
                        ChatCallback onComplete) override;
     const OpenAiCompatibleChatTransportResult& lastTransportResult() const { return last_result_; }
 
-private:
+  private:
     OpenAiCompatibleChatConfig config_;
     OpenAiCompatibleChatTransportResult last_result_;
 };

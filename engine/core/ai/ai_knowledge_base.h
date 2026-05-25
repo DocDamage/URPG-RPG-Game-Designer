@@ -26,7 +26,7 @@ struct AppCapability {
 };
 
 class AppCapabilityRegistry {
-public:
+  public:
     void registerCapability(AppCapability capability);
     const AppCapability* find(const std::string& id) const;
     std::vector<AppCapability> search(const std::string& query) const;
@@ -35,7 +35,7 @@ public:
 
     static AppCapabilityRegistry buildDefault();
 
-private:
+  private:
     std::vector<AppCapability> capabilities_;
 };
 
@@ -51,7 +51,7 @@ struct KnowledgeEntry {
 };
 
 class ProjectKnowledgeIndex {
-public:
+  public:
     void addEntry(KnowledgeEntry entry);
     std::vector<KnowledgeEntry> search(const std::string& query) const;
     const std::vector<KnowledgeEntry>& entries() const { return entries_; }
@@ -59,12 +59,12 @@ public:
 
     static ProjectKnowledgeIndex buildFromProjectData(const nlohmann::json& projectData);
 
-private:
+  private:
     std::vector<KnowledgeEntry> entries_;
 };
 
 class DocumentationKnowledgeIndex {
-public:
+  public:
     void addEntry(KnowledgeEntry entry);
     std::vector<KnowledgeEntry> search(const std::string& query) const;
     const std::vector<KnowledgeEntry>& entries() const { return entries_; }
@@ -72,7 +72,7 @@ public:
 
     static DocumentationKnowledgeIndex buildDefault();
 
-private:
+  private:
     std::vector<KnowledgeEntry> entries_;
 };
 
@@ -133,31 +133,28 @@ struct AiToolApprovalSummary {
 };
 
 class AiToolRegistry {
-public:
+  public:
     void registerTool(AiToolDefinition tool);
     const AiToolDefinition* find(const std::string& id) const;
     const std::vector<AiToolDefinition>& tools() const { return tools_; }
     std::vector<AiToolDefinition> mutatingToolsRequiringApproval() const;
     std::vector<AiToolApprovalSummary> pendingApprovalSteps(const AiTaskPlan& plan,
                                                             const AppCapabilityRegistry& capabilities) const;
-    nlohmann::json approvalManifest(const AiTaskPlan& plan,
-                                    const AppCapabilityRegistry& capabilities) const;
+    nlohmann::json approvalManifest(const AiTaskPlan& plan, const AppCapabilityRegistry& capabilities) const;
     std::vector<AiKnowledgeDiagnostic> validatePlan(const AiTaskPlan& plan) const;
     AiToolApplyResult applyApprovedPlan(const AiTaskPlan& plan, const nlohmann::json& projectData) const;
     nlohmann::json toJson() const;
 
     static AiToolRegistry buildDefault();
 
-private:
+  private:
     std::vector<AiToolDefinition> tools_;
 };
 
 class AiTaskPlanner {
-public:
-    AiTaskPlan planTask(const std::string& userRequest,
-                        const AppCapabilityRegistry& capabilities,
-                        const ProjectKnowledgeIndex& projectIndex,
-                        const DocumentationKnowledgeIndex& docs,
+  public:
+    AiTaskPlan planTask(const std::string& userRequest, const AppCapabilityRegistry& capabilities,
+                        const ProjectKnowledgeIndex& projectIndex, const DocumentationKnowledgeIndex& docs,
                         const AiToolRegistry& tools) const;
 };
 
