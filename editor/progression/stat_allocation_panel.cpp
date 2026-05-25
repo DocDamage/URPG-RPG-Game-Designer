@@ -185,46 +185,46 @@ void StatAllocationPanel::render() {
     post_load_already_applied = application_preview.already_applied_count;
     post_load_blocked = application_preview.blocked_count;
 
-    snapshot_ = {
-        {"panel", "stat_allocation"},
-        {"render_contract",
-         {{"component", "stat_allocation_control_panel"},
-          {"pool_renderer", "segmented_pool_rows"},
-          {"stat_renderer", "stat_stepper_rows"},
-          {"post_load_renderer", "saved_allocation_apply_rows"},
-          {"supports_disabled_reasons", true},
-          {"supports_cap_warnings", true}}},
-        {"pool_id", request_.pool_id},
-        {"pool_rows", buildPoolRows(document_, request_.pool_id)},
-        {"selected_pool",
-         document_.pools().count(request_.pool_id) == 0
-             ? nlohmann::json(nullptr)
-             : nlohmann::json({{"pool_id", request_.pool_id},
-                               {"actor_id", document_.pools().at(request_.pool_id).actor_id},
-                               {"class_id", document_.pools().at(request_.pool_id).class_id},
-                               {"unspent_points", document_.pools().at(request_.pool_id).unspent_points}})},
-        {"spent_points", preview.spent_points},
-        {"remaining_points", preview.remaining_points},
-        {"before", statsToJson(preview.before)},
-        {"after", statsToJson(preview.after)},
-        {"diagnostic_count", preview.diagnostics.size()},
-        {"diagnostics", diagnosticsToJson(preview.diagnostics)},
-        {"stat_controls",
-         buildStatControlRows(document_, request_, preview.before, preview.after, preview.remaining_points)},
-        {"controls",
-         {{"commit_button",
-           {{"visible", true},
-            {"enabled", preview.diagnostics.empty()},
-            {"action", "commit_stat_allocation"},
-            {"disabled_reason", preview.diagnostics.empty() ? nlohmann::json(nullptr)
-                                                            : nlohmann::json(commitDisabledReason(preview.diagnostics))}}}}},
-        {"post_load",
-         {{"actor_id", actor_id},
-          {"row_count", application_preview.row_count},
-          {"applicable_count", post_load_applicable},
-          {"already_applied_count", post_load_already_applied},
-          {"blocked_count", post_load_blocked},
-          {"rows", post_load_rows}}}};
+    snapshot_ = {{"panel", "stat_allocation"},
+                 {"render_contract",
+                  {{"component", "stat_allocation_control_panel"},
+                   {"pool_renderer", "segmented_pool_rows"},
+                   {"stat_renderer", "stat_stepper_rows"},
+                   {"post_load_renderer", "saved_allocation_apply_rows"},
+                   {"supports_disabled_reasons", true},
+                   {"supports_cap_warnings", true}}},
+                 {"pool_id", request_.pool_id},
+                 {"pool_rows", buildPoolRows(document_, request_.pool_id)},
+                 {"selected_pool",
+                  document_.pools().count(request_.pool_id) == 0
+                      ? nlohmann::json(nullptr)
+                      : nlohmann::json({{"pool_id", request_.pool_id},
+                                        {"actor_id", document_.pools().at(request_.pool_id).actor_id},
+                                        {"class_id", document_.pools().at(request_.pool_id).class_id},
+                                        {"unspent_points", document_.pools().at(request_.pool_id).unspent_points}})},
+                 {"spent_points", preview.spent_points},
+                 {"remaining_points", preview.remaining_points},
+                 {"before", statsToJson(preview.before)},
+                 {"after", statsToJson(preview.after)},
+                 {"diagnostic_count", preview.diagnostics.size()},
+                 {"diagnostics", diagnosticsToJson(preview.diagnostics)},
+                 {"stat_controls",
+                  buildStatControlRows(document_, request_, preview.before, preview.after, preview.remaining_points)},
+                 {"controls",
+                  {{"commit_button",
+                    {{"visible", true},
+                     {"enabled", preview.diagnostics.empty()},
+                     {"action", "commit_stat_allocation"},
+                     {"disabled_reason", preview.diagnostics.empty()
+                                             ? nlohmann::json(nullptr)
+                                             : nlohmann::json(commitDisabledReason(preview.diagnostics))}}}}},
+                 {"post_load",
+                  {{"actor_id", actor_id},
+                   {"row_count", application_preview.row_count},
+                   {"applicable_count", post_load_applicable},
+                   {"already_applied_count", post_load_already_applied},
+                   {"blocked_count", post_load_blocked},
+                   {"rows", post_load_rows}}}};
 }
 
 nlohmann::json StatAllocationPanel::lastRenderSnapshot() const {
