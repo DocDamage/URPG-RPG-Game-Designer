@@ -1,7 +1,10 @@
 #pragma once
 
 #include "editor/diagnostics/diagnostics_workspace.h"
+#include "engine/core/telemetry/telemetry_event.h"
+
 #include <functional>
+#include <nlohmann/json.hpp>
 #include <string>
 
 namespace urpg::editor {
@@ -23,6 +26,7 @@ class DiagnosticsFacade {
      * @return std::string A JSON-formatted string representing the diagnostics snapshot.
      */
     std::string emitSnapshot() const;
+    nlohmann::json emitTelemetryEnvelope() const;
 
     /**
      * @brief Triggers a refresh of all diagnostic panels before emitting a snapshot.
