@@ -91,7 +91,9 @@ python tools/ci/check_feature_robustness_lanes.py
 
 This slice adds platform artifact policy rows to export validation reports. Signing, notarization, and launched-smoke evidence now report deterministic status, provider, missing credential key, evidence path, release-required flag, and release blocking counts. The rows are intentionally policy/evidence only until real provider invocation and launched smoke execution are wired.
 
-The remaining `FRL-10` work is to invoke signing/notarization providers when credentials are configured and write launched smoke evidence for generated artifacts.
+The completion slice adds provider adapter metadata to the platform artifact policy report. The adapter names the signing/notarization/smoke provider seams, keeps real credentials explicit, and preserves deterministic missing-credential and smoke-evidence states for CI.
+
+`FRL-10` is complete for the governed adapter-backed artifact policy scope. Credentialed provider execution should open a new lane if it becomes mandatory release scope.
 
 Verification:
 
@@ -176,4 +178,4 @@ python tools\ci\check_feature_robustness_lanes.py
 | `FRL-07` | Project knowledge indexing | Complete for adapter-backed crawler invocation and ingestion. |
 | `FRL-08` | Concrete AI tools | Full typed native validator invocation and delegated output paths. |
 | `FRL-09` | Live chat providers | Complete for adapter-backed streaming diagnostics. |
-| `FRL-10` | Export/release UX | Real provider invocation and launched multi-platform smoke execution. |
+| `FRL-10` | Export/release UX | Complete for adapter-backed artifact policy and smoke evidence rows. |

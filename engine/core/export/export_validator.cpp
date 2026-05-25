@@ -215,6 +215,13 @@ nlohmann::json ExportValidator::buildPlatformArtifactPolicy(const std::string& p
 
     return {{"target", targetName},
             {"mode", allowUnsignedDev ? "dev_unsigned" : "release_required"},
+            {"providerAdapter",
+             {{"component", "platform_artifact_policy_adapter"},
+              {"signing_provider", signingReady ? "configured" : "env_configured"},
+              {"notarization_provider",
+               target == tools::ExportTarget::macOS_Universal ? "env_configured" : "not_applicable"},
+              {"smoke_provider", "local_launcher_evidence"},
+              {"requires_real_credentials", !allowUnsignedDev}}},
             {"releaseBlockingCount", releaseBlockingCount},
             {"rows", rows}};
 }

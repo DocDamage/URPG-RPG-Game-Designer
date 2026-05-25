@@ -191,6 +191,8 @@ TEST_CASE("ExportValidator: platform artifact policy reports missing release cre
 
     REQUIRE(report["platformArtifactPolicy"]["target"] == "macOS_Universal");
     REQUIRE(report["platformArtifactPolicy"]["mode"] == "release_required");
+    REQUIRE(report["platformArtifactPolicy"]["providerAdapter"]["component"] == "platform_artifact_policy_adapter");
+    REQUIRE(report["platformArtifactPolicy"]["providerAdapter"]["requires_real_credentials"] == true);
     REQUIRE(report["platformArtifactPolicy"]["releaseBlockingCount"].get<std::size_t>() >= 2);
     REQUIRE(report["platformArtifactPolicy"]["rows"][0]["id"] == "signing");
     REQUIRE(report["platformArtifactPolicy"]["rows"][0]["status"] == "missing_credentials");
@@ -216,6 +218,7 @@ TEST_CASE("ExportValidator: platform artifact policy accepts staged smoke eviden
     const auto policy = validator.buildPlatformArtifactPolicy(base.string(), ExportTarget::Windows_x64);
 
     REQUIRE(policy["target"] == "Windows_x64");
+    REQUIRE(policy["providerAdapter"]["smoke_provider"] == "local_launcher_evidence");
     REQUIRE(policy["rows"][1]["id"] == "notarization");
     REQUIRE(policy["rows"][1]["status"] == "not_applicable");
     REQUIRE(policy["rows"][2]["id"] == "launched_smoke");
