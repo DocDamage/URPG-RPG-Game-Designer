@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <set>
@@ -80,6 +81,31 @@ std::vector<std::string> normalizedErrors(std::vector<std::string> errors) {
     return errors;
 }
 
+bool envEnabled(const char* name) {
+    const char* value = std::getenv(name);
+    if (value == nullptr) {
+        return false;
+    }
+    const std::string text(value);
+    return text == "1" || text == "true" || text == "TRUE" || text == "on" || text == "ON";
+}
+
+nlohmann::json makePolicyRow(std::string id,
+                             std::string label,
+                             std::string status,
+                             std::string provider,
+                             std::string missingCredential,
+                             std::string evidencePath,
+                             bool requiredForRelease) {
+    return {{"id", std::move(id)},
+            {"label", std::move(label)},
+            {"status", std::move(status)},
+            {"provider", std::move(provider)},
+            {"missingCredential", std::move(missingCredential)},
+            {"evidencePath", std::move(evidencePath)},
+            {"requiredForRelease", requiredForRelease}};
+}
+
 } // namespace
 
 namespace urpg::exporting {
@@ -149,6 +175,57 @@ std::vector<PlatformRequirement> ExportValidator::getRequirementsForTarget(tools
     }
 }
 
+nlohmann::json ExportValidator::buildPlatformArtifactPolicy(const std::string& path,
+                                                            tools::ExportTarget target) const {
+    const auto root = std::filesystem::path(path);
+    const auto targetName = targetToString(target);
+    const bool allowUnsignedDev = envEnabled("URPG_ALLOW_UNSIGNED_DEV_EXPORT");
+    const bool smokeEvidenceExists = std::filesystem::exists(root / "smoke_evidence.json");
+    const bool signingReady = envEnabled("URPG_SIGNING_PROVIDER_READY");
+    const bool notarizationReady =
+        target == tools::ExportTarget::macOS_Universal && envEnabled("URPG_NOTARIZATION_PROVIDER_READY");
+
+    nlohmann::json rows = nlohmann::json::array();
+    rows.push_back(makePolicyRow("signing", "Code signing",
+                                 signingReady ? "ready" : (allowUnsignedDev ? "dev_unsigned" : "missing_credentials"),
+                                 signingReady ? "configured" : "none",
+                                 signingReady || allowUnsignedDev ? "" : "URPG_SIGNING_PROVIDER_READY",
+                                 (root / "signing_evidence.json").generic_string(), true));
+
+    if (target == tools::ExportTarget::macOS_Universal) {
+        rows.push_back(makePolicyRow("notarization", "macOS notarization",
+                                     notarizationReady ? "ready"
+                                                       : (allowUnsignedDev ? "dev_unsigned" : "missing_credentials"),
+                                     notarizationReady ? "configured" : "none",
+                                     notarizationReady || allowUnsignedDev ? "" : "URPG_NOTARIZATION_PROVIDER_READY",
+                                     (root / "notarization_evidence.json").generic_string(), true));
+    } else {
+        rows.push_back(makePolicyRow("notarization", "Notarization", "not_applicable", "none", "",
+                                     (root / "notarization_evidence.json").generic_string(), false));
+    }
+
+    rows.push_back(makePolicyRow("launched_smoke", "Launched package smoke",
+                                 smokeEvidenceExists ? "evidence_present" : "missing_evidence", "local_launcher",
+                                 smokeEvidenceExists ? "" : "smoke_evidence.json",
+                                 (root / "smoke_evidence.json").generic_string(), true));
+
+    std::size_t releaseBlockingCount = 0;
+    for (const auto& row : rows) {
+        if (!row.value("requiredForRelease", false)) {
+            continue;
+        }
+        const auto status = row.value("status", "");
+        if (status == "missing_credentials" || status == "missing_evidence") {
+            ++releaseBlockingCount;
+        }
+    }
+
+    return {{"target", targetName},
+            {"mode", allowUnsignedDev ? "dev_unsigned" : "release_required"},
+            {"releaseBlockingCount", releaseBlockingCount},
+            {"rows", rows}};
+}
+
 nlohmann::json ExportValidator::buildReportJson(const std::vector<std::string>& errors,
                                                 tools::ExportTarget target) const {
     const auto normalized = normalizedErrors(errors);
@@ -170,6 +247,7 @@ nlohmann::json ExportValidator::buildReportJson(const std::string& path, tools::
             report["bundleSummary"] = *summary;
         }
     }
+    report["platformArtifactPolicy"] = buildPlatformArtifactPolicy(path, target);
 
     return report;
 }

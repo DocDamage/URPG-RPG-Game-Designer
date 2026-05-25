@@ -141,6 +141,67 @@ nlohmann::json previewStatus(const AssetRecord& asset) {
     return "ready";
 }
 
+nlohmann::json assetReadinessDiagnostics(const AssetRecord& asset) {
+    nlohmann::json rows = nlohmann::json::array();
+    const auto add = [&](const std::string& code,
+                         const std::string& severity,
+                         const std::string& message,
+                         const std::string& target) {
+        rows.push_back({{"code", code}, {"severity", severity}, {"message", message}, {"target", target}});
+    };
+
+    if (asset.path.empty() || hasStatus(asset, AssetStatus::MissingFile)) {
+        add("asset_file_missing", "error", "Asset source file is missing.", asset.path);
+    }
+    if (hasStatus(asset, AssetStatus::MissingLicense) || asset.license_id.empty()) {
+        add("license_evidence_missing", asset.required_for_release ? "error" : "warning",
+            "Asset needs license evidence before release packaging.", asset.asset_id);
+    }
+    if (asset.include_in_runtime && asset.promoted_path.empty()) {
+        add("runtime_payload_missing", "error", "Runtime packageable asset needs a promoted payload path.",
+            asset.asset_id);
+    }
+    if (asset.preview_kind == "image" && (asset.preview_path.empty() || asset.preview_width <= 0 ||
+                                           asset.preview_height <= 0)) {
+        add("thumbnail_preview_missing", asset.required_for_release ? "error" : "warning",
+            "Image asset needs thumbnail path and dimensions for WYSIWYG preview.", asset.asset_id);
+    }
+    if (asset.preview_kind == "audio" && asset.waveform_peaks.empty()) {
+        add("waveform_preview_missing", asset.required_for_release ? "error" : "warning",
+            "Audio asset needs waveform peaks for WYSIWYG preview.", asset.asset_id);
+    }
+    if ((asset.preview_kind == "video" || asset.media_kind == "image_sequence" ||
+         asset.media_kind == "image_sequence_collection") &&
+        (asset.preview_path.empty() || asset.preview_width <= 0 || asset.preview_height <= 0)) {
+        add("sequence_preview_missing", asset.required_for_release ? "error" : "warning",
+            "Sequence/video asset needs representative preview metadata.", asset.asset_id);
+    }
+    for (const auto& diagnostic : asset.promotion_diagnostics) {
+        add(std::string("promotion_manifest_") + diagnostic, "warning", "Promotion manifest reported " + diagnostic + ".",
+            asset.asset_id);
+    }
+    return rows;
+}
+
+nlohmann::json readinessSummary(const AssetRecord& asset) {
+    const auto diagnostics = assetReadinessDiagnostics(asset);
+    std::size_t errorCount = 0;
+    std::size_t warningCount = 0;
+    for (const auto& diagnostic : diagnostics) {
+        if (diagnostic.value("severity", "") == "error") {
+            ++errorCount;
+        } else if (diagnostic.value("severity", "") == "warning") {
+            ++warningCount;
+        }
+    }
+    return {{"package_ready", errorCount == 0 && asset.include_in_runtime && !asset.promoted_path.empty()},
+            {"preview_ready", previewStatus(asset) == "ready"},
+            {"release_ready", errorCount == 0 && warningCount == 0 && asset.release_eligible},
+            {"error_count", errorCount},
+            {"warning_count", warningCount},
+            {"diagnostics", diagnostics}};
+}
+
 nlohmann::json sequenceMetadata(const AssetRecord& asset) {
     const bool isSequence = asset.media_kind == "image_sequence_collection" || asset.media_kind == "image_sequence";
     return {
@@ -192,6 +253,7 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
             {"required_for_release", asset.required_for_release},
             {"release_eligible", asset.release_eligible || asset.provenance.export_eligible},
             {"promotion_diagnostics", asset.promotion_diagnostics},
+            {"readiness", readinessSummary(asset)},
             {"project_attached", isProjectAttached(asset)},
             {"recommended_action", recommendedAction(asset, canPromote, canArchive, canAttach)},
             {"promote_button",
@@ -261,6 +323,7 @@ nlohmann::json buildAssetPreviewRows(const AssetLibrarySnapshot& snapshot) {
                  {"peaks", waveform},
              }},
             {"sequence", sequenceMetadata(asset)},
+            {"readiness", readinessSummary(asset)},
         });
     }
     std::sort(rows.begin(), rows.end(),

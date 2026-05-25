@@ -103,6 +103,7 @@ public:
     [[nodiscard]] AppliedStatAllocation commit(const std::string& pool_id,
                                                const ActorStatBlock& current_stats,
                                                const StatAllocationRequest& request) const;
+    [[nodiscard]] const std::map<std::string, StatAllocationPool>& pools() const { return pools_; }
 
 private:
     [[nodiscard]] const StatAllocationPool* findPool(const std::string& pool_id) const;

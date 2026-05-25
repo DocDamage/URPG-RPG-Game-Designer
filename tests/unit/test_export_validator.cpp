@@ -179,6 +179,52 @@ TEST_CASE("ExportValidator: report JSON emits sorted unique errors", "[export][v
     REQUIRE(report["errors"] == nlohmann::json::array({"Missing required file: a", "Missing required file: z"}));
 }
 
+TEST_CASE("ExportValidator: platform artifact policy reports missing release credentials and smoke",
+          "[export][validation][policy]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_validator_policy";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+    CreateRealExportFixture(base, ExportTarget::macOS_Universal);
+
+    ExportValidator validator;
+    const auto report = validator.buildReportJson(base.string(), ExportTarget::macOS_Universal);
+
+    REQUIRE(report["platformArtifactPolicy"]["target"] == "macOS_Universal");
+    REQUIRE(report["platformArtifactPolicy"]["mode"] == "release_required");
+    REQUIRE(report["platformArtifactPolicy"]["releaseBlockingCount"].get<std::size_t>() >= 2);
+    REQUIRE(report["platformArtifactPolicy"]["rows"][0]["id"] == "signing");
+    REQUIRE(report["platformArtifactPolicy"]["rows"][0]["status"] == "missing_credentials");
+    REQUIRE(report["platformArtifactPolicy"]["rows"][0]["missingCredential"] == "URPG_SIGNING_PROVIDER_READY");
+    REQUIRE(report["platformArtifactPolicy"]["rows"][1]["id"] == "notarization");
+    REQUIRE(report["platformArtifactPolicy"]["rows"][1]["missingCredential"] == "URPG_NOTARIZATION_PROVIDER_READY");
+    REQUIRE(report["platformArtifactPolicy"]["rows"][2]["id"] == "launched_smoke");
+    REQUIRE(report["platformArtifactPolicy"]["rows"][2]["status"] == "missing_evidence");
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportValidator: platform artifact policy accepts staged smoke evidence",
+          "[export][validation][policy]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_validator_smoke_policy";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+    CreateRealExportFixture(base, ExportTarget::Windows_x64);
+    std::ofstream smoke(base / "smoke_evidence.json", std::ios::binary | std::ios::trunc);
+    smoke << R"({"playable_smoke_status":"passed"})";
+    smoke.close();
+
+    ExportValidator validator;
+    const auto policy = validator.buildPlatformArtifactPolicy(base.string(), ExportTarget::Windows_x64);
+
+    REQUIRE(policy["target"] == "Windows_x64");
+    REQUIRE(policy["rows"][1]["id"] == "notarization");
+    REQUIRE(policy["rows"][1]["status"] == "not_applicable");
+    REQUIRE(policy["rows"][2]["id"] == "launched_smoke");
+    REQUIRE(policy["rows"][2]["status"] == "evidence_present");
+
+    std::filesystem::remove_all(base);
+}
+
 TEST_CASE("ExportValidator: directory report JSON surfaces bundle discovery summary", "[export][validation]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_validator_report_summary";
     std::filesystem::remove_all(base);

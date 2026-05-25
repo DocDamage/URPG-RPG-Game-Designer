@@ -76,6 +76,32 @@ TEST_CASE("OpenAI-compatible chat parser combines streamed SSE chunks",
     const auto parsed = urpg::ai::parseOpenAiCompatibleChatStreamResponse(stream);
     REQUIRE(parsed.first == "Hello");
     REQUIRE(parsed.second == "AI_TASK:open export preview");
+
+    const auto diagnostics = urpg::ai::buildOpenAiCompatibleStreamDiagnostics(stream);
+    REQUIRE(diagnostics["chunk_count"] == 2);
+    REQUIRE(diagnostics["chunks"][0]["text"] == "Hel");
+    REQUIRE(diagnostics["chunks"][1]["partial_text"].get<std::string>().find("COMMAND:") != std::string::npos);
+    REQUIRE(diagnostics["partial_text"] == "Hello");
+    REQUIRE(diagnostics["command"] == "AI_TASK:open export preview");
+    REQUIRE(diagnostics["completed"] == true);
+    REQUIRE(diagnostics["provider_error"] == false);
+    REQUIRE(diagnostics["final_state"] == "completed");
+}
+
+TEST_CASE("OpenAI-compatible stream diagnostics expose provider errors and cancellation",
+          "[ai][chat][provider][stream]") {
+    const std::string stream =
+        "data: {\"choices\":[{\"delta\":{\"content\":\"Working\"}}]}\n\n"
+        "event: cancelled\n\n"
+        "data: {\"error\":{\"message\":\"provider disconnected\"}}\n\n";
+
+    const auto diagnostics = urpg::ai::buildOpenAiCompatibleStreamDiagnostics(stream);
+    REQUIRE(diagnostics["chunk_count"] == 1);
+    REQUIRE(diagnostics["partial_text"] == "Working");
+    REQUIRE(diagnostics["cancelled"] == true);
+    REQUIRE(diagnostics["provider_error"] == true);
+    REQUIRE(diagnostics["errors"][0]["message"] == "provider disconnected");
+    REQUIRE(diagnostics["final_state"] == "cancelled");
 }
 
 TEST_CASE("OpenAI-compatible chat parser supports common response shapes",

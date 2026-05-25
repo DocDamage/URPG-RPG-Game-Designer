@@ -133,6 +133,39 @@ std::string excerpt(std::string text, std::size_t maxLength = 180) {
     return text.substr(0, maxLength) + "...";
 }
 
+std::string filesystemDocumentFreshness(const nlohmann::json& record) {
+    const auto indexedAt = jsonInt64(record, "indexed_at_epoch");
+    const auto modifiedAt = jsonInt64(record, "modified_at_epoch");
+    const auto maxAgeDays = jsonInt(record, "max_age_days", 30);
+    const auto ageDays = jsonInt(record, "age_days", 0);
+    const bool staleByModified = indexedAt > 0 && modifiedAt > 0 && modifiedAt > indexedAt;
+    const bool staleByAge = ageDays > maxAgeDays;
+    return staleByModified || staleByAge ? "stale" : "fresh";
+}
+
+std::int64_t skippedCountFromSummary(const nlohmann::json& root) {
+    if (!root.is_object() || !root.contains("summary") || !root["summary"].is_object() ||
+        !root["summary"].contains("skipped") || !root["summary"]["skipped"].is_object()) {
+        return 0;
+    }
+
+    std::int64_t total = 0;
+    for (const auto& item : root["summary"]["skipped"].items()) {
+        if (item.value().is_number_integer()) {
+            total += item.value().get<std::int64_t>();
+        }
+    }
+    return total;
+}
+
+const nlohmann::json& filesystemKnowledgeRoot(const nlohmann::json& projectData) {
+    if (projectData.is_object() && projectData.contains("filesystem_knowledge") &&
+        projectData["filesystem_knowledge"].is_object()) {
+        return projectData["filesystem_knowledge"];
+    }
+    return projectData;
+}
+
 nlohmann::json& ensureArray(nlohmann::json& root, const std::string& key) {
     auto& value = root[key];
     if (!value.is_array()) {
@@ -171,18 +204,126 @@ nlohmann::json makeValidationIssue(const std::string& code,
     return {{"code", code}, {"severity", severity}, {"message", message}, {"target", target}};
 }
 
+std::string patchPathRoot(const std::string& path) {
+    if (path.empty() || path == "/") {
+        return "/";
+    }
+    const auto next = path.find('/', 1);
+    return next == std::string::npos ? path.substr(1) : path.substr(1, next - 1);
+}
+
+std::string patchTone(const std::string& operation) {
+    if (operation == "add") {
+        return "added";
+    }
+    if (operation == "remove") {
+        return "removed";
+    }
+    if (operation == "replace") {
+        return "changed";
+    }
+    return "review";
+}
+
+std::string patchCssClass(const std::string& operation) {
+    if (operation == "add") {
+        return "diff-row--added";
+    }
+    if (operation == "remove") {
+        return "diff-row--removed";
+    }
+    if (operation == "replace") {
+        return "diff-row--changed";
+    }
+    return "diff-row--review";
+}
+
+std::string patchIcon(const std::string& operation) {
+    if (operation == "add") {
+        return "plus";
+    }
+    if (operation == "remove") {
+        return "minus";
+    }
+    if (operation == "replace") {
+        return "replace";
+    }
+    return "circle-alert";
+}
+
+nlohmann::json valueAtPointerOrNull(const nlohmann::json& document, const std::string& path) {
+    try {
+        const nlohmann::json::json_pointer pointer(path);
+        if (document.contains(pointer)) {
+            return document.at(pointer);
+        }
+    } catch (const nlohmann::json::exception&) {
+        return nullptr;
+    }
+    return nullptr;
+}
+
+std::string previewText(const nlohmann::json& value) {
+    if (value.is_null()) {
+        return "";
+    }
+    if (value.is_string()) {
+        return excerpt(value.get<std::string>(), 120);
+    }
+    return excerpt(value.dump(), 120);
+}
+
+std::string previewArtifactPath(const nlohmann::json& preview) {
+    const auto explicitPath = jsonString(preview, "artifact_path");
+    if (!explicitPath.empty()) {
+        return explicitPath;
+    }
+    const auto kind = jsonString(preview, "kind", "preview");
+    const auto id = jsonString(preview, "id", "artifact");
+    return "/ai_tool_previews/" + kind + "/" + id;
+}
+
+nlohmann::json validatorRoute(const std::string& kind) {
+    if (kind == "event_graph_authoring") {
+        return {{"subsystem", "event_graph"}, {"validator_source", "native_event_graph_preview_validator"},
+                {"command", "validate_event_graph_preview"}, {"fallback", false}};
+    }
+    if (kind == "ability_sandbox_composition") {
+        return {{"subsystem", "ability_sandbox"}, {"validator_source", "native_ability_sandbox_validator"},
+                {"command", "validate_ability_sandbox_preview"}, {"fallback", false}};
+    }
+    if (kind == "vfx_timeline_edit") {
+        return {{"subsystem", "battle_vfx"}, {"validator_source", "native_battle_vfx_timeline_validator"},
+                {"command", "validate_battle_vfx_timeline_preview"}, {"fallback", false}};
+    }
+    if (kind == "lighting_weather_preview") {
+        return {{"subsystem", "map_environment"}, {"validator_source", "native_map_environment_preview_validator"},
+                {"command", "validate_map_environment_preview"}, {"fallback", false}};
+    }
+    if (kind == "asset_import_promotion") {
+        return {{"subsystem", "asset_pipeline"}, {"validator_source", "native_asset_import_promotion_validator"},
+                {"command", "validate_asset_import_promotion_preview"}, {"fallback", false}};
+    }
+    if (kind == "export_preview_configuration") {
+        return {{"subsystem", "export_preview"}, {"validator_source", "native_export_preview_validator"},
+                {"command", "validate_export_preview_configuration"}, {"fallback", false}};
+    }
+    return {{"subsystem", "unknown"}, {"validator_source", "ai_preview_fallback_validator"},
+            {"command", "validate_preview_shape_fallback"}, {"fallback", true}};
+}
+
 nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
     const auto kind = jsonString(preview, "kind");
     const auto id = jsonString(preview, "id");
     const auto toolId = jsonString(preview, "tool_id");
+    const auto route = validatorRoute(kind);
     const auto payload = preview.is_object() && preview.contains("payload") && preview["payload"].is_object()
                              ? preview["payload"]
                              : nlohmann::json::object();
     nlohmann::json issues = nlohmann::json::array();
-    std::string validator = "ai_preview_validator";
+    std::string validator = route.value("validator_source", "ai_preview_fallback_validator");
 
     if (kind == "event_graph_authoring") {
-        validator = "event_graph_validator";
         if (payload.value("node_count", 0) <= 0) {
             issues.push_back(makeValidationIssue("event_graph_empty", "error",
                                                  "Event graph preview has no command nodes.", id));
@@ -192,7 +333,6 @@ nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
                                                  "Event graph preview needs event and map identity.", id));
         }
     } else if (kind == "ability_sandbox_composition") {
-        validator = "ability_sandbox_validator";
         if (payload.value("cost", 0) < 0 || payload.value("cooldown", 0) < 0) {
             issues.push_back(makeValidationIssue("ability_negative_cost_or_cooldown", "error",
                                                  "Ability sandbox preview cannot use negative cost or cooldown.", id));
@@ -202,7 +342,6 @@ nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
                                                  "Ability sandbox preview has no authored effects.", id));
         }
     } else if (kind == "vfx_timeline_edit") {
-        validator = "battle_vfx_timeline_validator";
         if (payload.value("keyframe_count", 0) <= 0) {
             issues.push_back(makeValidationIssue("vfx_timeline_empty", "error",
                                                  "Battle VFX timeline preview has no keyframes.", id));
@@ -213,13 +352,11 @@ nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
                                                  "Latest VFX keyframe is missing an effect id.", id));
         }
     } else if (kind == "lighting_weather_preview") {
-        validator = "map_environment_preview_validator";
         if (jsonString(payload, "weather").empty() || jsonString(payload, "lighting_profile").empty()) {
             issues.push_back(makeValidationIssue("environment_missing_weather_or_lighting", "error",
                                                  "Lighting/weather preview needs both weather and lighting profile.", id));
         }
     } else if (kind == "asset_import_promotion") {
-        validator = "asset_import_promotion_validator";
         if (jsonString(payload, "path").empty() || jsonString(payload, "path") == "project-configured") {
             issues.push_back(makeValidationIssue("asset_import_path_needs_review", "warning",
                                                  "Asset import preview needs a concrete project-local source path.", id));
@@ -229,11 +366,13 @@ nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
                                                  "Asset import preview requires license review before promotion.", id));
         }
     } else if (kind == "export_preview_configuration") {
-        validator = "export_preview_validator";
         if (jsonString(payload, "profile").empty()) {
             issues.push_back(makeValidationIssue("export_preview_missing_profile", "error",
                                                  "Export preview needs a profile id.", id));
         }
+    } else {
+        issues.push_back(makeValidationIssue("subsystem_validator_unavailable", "warning",
+                                             "No subsystem validator is registered for this AI preview artifact.", id));
     }
 
     bool hasError = false;
@@ -247,6 +386,12 @@ nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
         {"id", id},
         {"tool_id", toolId},
         {"validator", validator},
+        {"validator_source", route.value("validator_source", "ai_preview_fallback_validator")},
+        {"subsystem", route.value("subsystem", "unknown")},
+        {"command", route.value("command", "validate_preview_shape_fallback")},
+        {"artifact_path", previewArtifactPath(preview)},
+        {"fallback", route.value("fallback", true)},
+        {"severity", hasError ? "error" : (hasWarning ? "warning" : "info")},
         {"status", hasError ? "failed" : (hasWarning ? "warning" : "passed")},
         {"issue_count", issues.size()},
         {"issues", issues},
@@ -260,14 +405,24 @@ nlohmann::json buildAiValidationReport(const nlohmann::json& projectData,
                               ? projectData["ai_tool_previews"]
                               : nlohmann::json::array();
     nlohmann::json validators = nlohmann::json::array();
+    nlohmann::json validatorSources = nlohmann::json::array();
+    nlohmann::json artifactPaths = nlohmann::json::array();
     std::size_t issueCount = 0;
     std::size_t failedCount = 0;
     std::size_t warningCount = 0;
+    std::size_t fallbackCount = 0;
+    std::set<std::string> seenSources;
     for (const auto& preview : previews) {
         const auto row = validateAiToolPreviewArtifact(preview);
         issueCount += row.value("issue_count", std::size_t{0});
         failedCount += row.value("status", "") == "failed" ? 1U : 0U;
         warningCount += row.value("status", "") == "warning" ? 1U : 0U;
+        fallbackCount += row.value("fallback", false) ? 1U : 0U;
+        const auto source = row.value("validator_source", "");
+        if (!source.empty() && seenSources.insert(source).second) {
+            validatorSources.push_back(source);
+        }
+        artifactPaths.push_back(row.value("artifact_path", ""));
         validators.push_back(row);
     }
     return {
@@ -276,6 +431,10 @@ nlohmann::json buildAiValidationReport(const nlohmann::json& projectData,
         {"status", failedCount > 0 ? "failed" : (warningCount > 0 ? "warning" : "passed")},
         {"preview_artifact_count", previews.size()},
         {"validator_count", validators.size()},
+        {"validator_source_count", validatorSources.size()},
+        {"validator_sources", validatorSources},
+        {"artifact_paths", artifactPaths},
+        {"fallback_count", fallbackCount},
         {"issue_count", issueCount},
         {"failed_count", failedCount},
         {"warning_count", warningCount},
@@ -391,9 +550,7 @@ void appendIngestedDocumentRecords(urpg::ai::ProjectKnowledgeIndex& index,
         const auto modifiedAt = jsonInt64(record, "modified_at_epoch");
         const auto maxAgeDays = jsonInt(record, "max_age_days", 30);
         const auto ageDays = jsonInt(record, "age_days", 0);
-        const bool staleByModified = indexedAt > 0 && modifiedAt > 0 && modifiedAt > indexedAt;
-        const bool staleByAge = ageDays > maxAgeDays;
-        const std::string freshness = staleByModified || staleByAge ? "stale" : "fresh";
+        const auto freshness = filesystemDocumentFreshness(record);
 
         auto recordKeywords = keywords;
         pushUnique(recordKeywords, id);
@@ -432,6 +589,60 @@ void appendIngestedDocumentRecords(urpg::ai::ProjectKnowledgeIndex& index,
                 {"stale", freshness == "stale"},
                 {"direct_ingestion", true},
             },
+        });
+    }
+}
+
+void appendFilesystemCrawlerDiagnostics(urpg::ai::ProjectKnowledgeIndex& index, const nlohmann::json& root) {
+    const bool hasDiagnostics = root.is_object() && root.contains("diagnostics") && root["diagnostics"].is_array();
+    const auto skippedCount = skippedCountFromSummary(root);
+    if (!hasDiagnostics && skippedCount == 0) {
+        return;
+    }
+
+    const auto diagnosticCount = hasDiagnostics ? root["diagnostics"].size() : 0U;
+    nlohmann::json skipped = nlohmann::json::object();
+    if (root.contains("summary") && root["summary"].is_object() && root["summary"].contains("skipped") &&
+        root["summary"]["skipped"].is_object()) {
+        skipped = root["summary"]["skipped"];
+    }
+
+    index.addEntry({
+        "filesystem_diagnostics",
+        "filesystem_diagnostic_collection",
+        "Filesystem Crawler Diagnostics",
+        "/diagnostics",
+        "Filesystem crawler skipped files: " + std::to_string(skippedCount) +
+            "; diagnostic rows: " + std::to_string(diagnosticCount),
+        {"filesystem", "crawler", "diagnostic", "skipped", "excluded", "oversized", "binary"},
+        {{"diagnostic_count", diagnosticCount}, {"skipped_count", skippedCount}, {"skipped", skipped}},
+    });
+
+    if (!hasDiagnostics) {
+        return;
+    }
+
+    const auto& diagnostics = root["diagnostics"];
+    for (std::size_t i = 0; i < diagnostics.size(); ++i) {
+        const auto& diagnosticRecord = diagnostics[i];
+        if (!diagnosticRecord.is_object()) {
+            continue;
+        }
+        const auto code = jsonString(diagnosticRecord, "code", "unknown");
+        const auto path = jsonString(diagnosticRecord, "path", std::to_string(i));
+        auto message = jsonString(diagnosticRecord, "message");
+        if (message.empty()) {
+            message = "Filesystem crawler skipped " + path + " (" + code + ").";
+        }
+
+        index.addEntry({
+            "filesystem_diagnostics:" + code + ":" + path,
+            "filesystem_diagnostic",
+            "Skipped file: " + path,
+            path,
+            message,
+            {"filesystem", "crawler", "diagnostic", "skipped", code, path},
+            {{"code", code}, {"path", path}, {"message", message}, {"skipped", true}},
         });
     }
 }
@@ -603,11 +814,180 @@ ProjectKnowledgeIndex ProjectKnowledgeIndex::buildFromProjectData(const nlohmann
                                      {"template", "starter", "genre", "spec"});
     appendStructuredKnowledgeRecords(index, projectData, "source_summaries", "source_summary", "Source Summaries",
                                      {"source", "code", "summary", "subsystem"});
-    appendIngestedDocumentRecords(index, projectData, "filesystem_documents", "filesystem_document", "Filesystem Documents",
+    const auto& filesystemRoot = filesystemKnowledgeRoot(projectData);
+    appendIngestedDocumentRecords(index, filesystemRoot, "filesystem_documents", "filesystem_document", "Filesystem Documents",
                                   {"filesystem", "file", "direct", "ingested", "freshness"});
+    appendFilesystemCrawlerDiagnostics(index, filesystemRoot);
     appendIngestedDocumentRecords(index, projectData, "ingested_docs", "ingested_doc", "Ingested Project Docs",
                                   {"doc", "documentation", "direct", "ingested", "freshness"});
     return index;
+}
+
+nlohmann::json buildFilesystemKnowledgeReport(const nlohmann::json& projectData) {
+    nlohmann::json report = {
+        {"available", false},
+        {"document_count", 0},
+        {"diagnostic_count", 0},
+        {"skipped_count", 0},
+        {"skipped", nlohmann::json::object()},
+        {"document_rows", nlohmann::json::array()},
+        {"diagnostics", nlohmann::json::array()},
+    };
+
+    if (!projectData.is_object()) {
+        return report;
+    }
+
+    const auto& filesystemRoot = filesystemKnowledgeRoot(projectData);
+
+    const bool hasDocuments =
+        filesystemRoot.contains("filesystem_documents") && filesystemRoot["filesystem_documents"].is_array();
+    const bool hasDiagnostics = filesystemRoot.contains("diagnostics") && filesystemRoot["diagnostics"].is_array();
+    const bool hasSkipped = filesystemRoot.contains("summary") && filesystemRoot["summary"].is_object() &&
+                            filesystemRoot["summary"].contains("skipped") &&
+                            filesystemRoot["summary"]["skipped"].is_object();
+    report["available"] = hasDocuments || hasDiagnostics || hasSkipped;
+
+    if (hasDocuments) {
+        const auto& documents = filesystemRoot["filesystem_documents"];
+        report["document_count"] = documents.size();
+        for (const auto& document : documents) {
+            if (!document.is_object()) {
+                continue;
+            }
+            const auto content = jsonString(document, "content", jsonString(document, "text"));
+            report["document_rows"].push_back({
+                {"id", jsonString(document, "id", jsonString(document, "path"))},
+                {"path", jsonString(document, "path", jsonString(document, "uri"))},
+                {"title", jsonString(document, "title", jsonString(document, "path"))},
+                {"kind", jsonString(document, "kind")},
+                {"content_bytes", content.size()},
+                {"summary", jsonString(document, "summary", excerpt(content))},
+                {"freshness", filesystemDocumentFreshness(document)},
+                {"stale", filesystemDocumentFreshness(document) == "stale"},
+            });
+        }
+    }
+
+    if (hasSkipped) {
+        report["skipped"] = filesystemRoot["summary"]["skipped"];
+        report["skipped_count"] = skippedCountFromSummary(filesystemRoot);
+    }
+
+    if (hasDiagnostics) {
+        const auto& diagnostics = filesystemRoot["diagnostics"];
+        report["diagnostic_count"] = diagnostics.size();
+        for (const auto& diagnosticRecord : diagnostics) {
+            if (!diagnosticRecord.is_object()) {
+                continue;
+            }
+            const auto code = jsonString(diagnosticRecord, "code", "unknown");
+            const auto path = jsonString(diagnosticRecord, "path");
+            auto message = jsonString(diagnosticRecord, "message");
+            if (message.empty()) {
+                message = "Filesystem crawler skipped " + path + " (" + code + ").";
+            }
+            report["diagnostics"].push_back({
+                {"code", code},
+                {"path", path},
+                {"message", message},
+                {"severity", "info"},
+            });
+        }
+    }
+
+    if (filesystemRoot.contains("filesystem_crawler_config") && filesystemRoot["filesystem_crawler_config"].is_object()) {
+        report["config"] = filesystemRoot["filesystem_crawler_config"];
+    } else if (filesystemRoot.contains("crawler_config") && filesystemRoot["crawler_config"].is_object()) {
+        report["config"] = filesystemRoot["crawler_config"];
+    }
+
+    return report;
+}
+
+nlohmann::json mergeFilesystemKnowledgeIntoProjectData(nlohmann::json projectData,
+                                                       const nlohmann::json& filesystemKnowledge) {
+    if (!projectData.is_object()) {
+        projectData = nlohmann::json::object();
+    }
+    projectData["filesystem_knowledge"] =
+        filesystemKnowledge.is_object() ? filesystemKnowledge : nlohmann::json::object({{"error", "invalid_payload"}});
+    return projectData;
+}
+
+nlohmann::json buildAiToolResultDiff(const AiToolApplyResult& result) {
+    nlohmann::json rows = nlohmann::json::array();
+    if (result.project_patch.is_array()) {
+        for (std::size_t index = 0; index < result.project_patch.size(); ++index) {
+            const auto& patch = result.project_patch[index];
+            if (!patch.is_object()) {
+                continue;
+            }
+            const auto op = patch.value("op", "");
+            const auto path = patch.value("path", "");
+            const auto before = valueAtPointerOrNull(result.before_project_data, path);
+            const auto after = valueAtPointerOrNull(result.project_data, path);
+            const auto tone = patchTone(op);
+
+            rows.push_back({
+                {"index", index},
+                {"operation", op},
+                {"path", path},
+                {"root", patchPathRoot(path)},
+                {"tone", tone},
+                {"before", before},
+                {"after", after},
+                {"before_group",
+                 {
+                     {"visible", op != "add"},
+                     {"label", "Before"},
+                     {"value", before},
+                     {"preview_text", previewText(before)},
+                 }},
+                {"after_group",
+                 {
+                     {"visible", op != "remove"},
+                     {"label", "After"},
+                     {"value", after},
+                     {"preview_text", previewText(after)},
+                 }},
+                {"paint",
+                 {
+                     {"tone", tone},
+                     {"css_class", patchCssClass(op)},
+                     {"icon", patchIcon(op)},
+                     {"badge", tone},
+                 }},
+                {"selected_detail",
+                 {
+                     {"title", tone + std::string(" ") + path},
+                     {"root", patchPathRoot(path)},
+                     {"operation", op},
+                     {"before", before},
+                     {"after", after},
+                     {"patch", patch},
+                 }},
+                {"patch", patch},
+                {"summary", tone + std::string(" ") + path},
+            });
+        }
+    }
+
+    const auto diagnostics = diagnosticsToJson(result.diagnostics);
+    return {
+        {"has_changes", !rows.empty()},
+        {"painted", true},
+        {"forward_patch_count", result.project_patch.is_array() ? result.project_patch.size() : 0U},
+        {"revert_patch_count", result.revert_patch.is_array() ? result.revert_patch.size() : 0U},
+        {"row_count", rows.size()},
+        {"rows", rows},
+        {"selected_row", rows.empty() ? nlohmann::json(nullptr) : nlohmann::json(rows.front())},
+        {"blocked_apply_reason",
+         result.applied || diagnostics.empty() ? nlohmann::json(nullptr) : nlohmann::json(diagnostics[0]["code"])},
+        {"diagnostics", diagnostics},
+        {"forward_patch", result.project_patch.is_array() ? result.project_patch : nlohmann::json::array()},
+        {"revert_patch", result.revert_patch.is_array() ? result.revert_patch : nlohmann::json::array()},
+    };
 }
 
 void DocumentationKnowledgeIndex::addEntry(KnowledgeEntry entry) {

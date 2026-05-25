@@ -79,6 +79,16 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
                 {"max_age_days", 14},
             },
         })},
+        {"summary", {{"records", 2}, {"totalBytes", 150}, {"skipped", {{"excluded", 2}, {"unsupported_extension", 1}}}}},
+        {"diagnostics", nlohmann::json::array({
+            {{"code", "excluded"}, {"path", "build/cache.tmp"}},
+            {{"code", "unsupported_extension"}, {"path", "notes/reference.bmp"}},
+        })},
+        {"filesystem_crawler_config",
+         {{"include", nlohmann::json::array({"engine/**", "imports/reports/**"})},
+          {"exclude", nlohmann::json::array({"build/**"})},
+          {"max_files", 256},
+          {"max_bytes", 1048576}}},
         {"ingested_docs", nlohmann::json::array({
             {
                 {"id", "readme"},
@@ -132,6 +142,29 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
     REQUIRE(freshIt != freshMatches.end());
     REQUIRE(freshIt->metadata["freshness"] == "fresh");
     REQUIRE(freshIt->metadata["content_excerpt"].get<std::string>().find("Event runtime") != std::string::npos);
+
+    const auto diagnosticMatches = snapshot.project_index.search("build/cache.tmp excluded");
+    const auto diagnosticIt = std::find_if(diagnosticMatches.begin(), diagnosticMatches.end(), [](const auto& entry) {
+        return entry.id == "filesystem_diagnostics:excluded:build/cache.tmp";
+    });
+    REQUIRE(diagnosticIt != diagnosticMatches.end());
+    REQUIRE(diagnosticIt->metadata["skipped"] == true);
+
+    const auto filesystemReport = urpg::ai::buildFilesystemKnowledgeReport(project);
+    REQUIRE(filesystemReport["available"] == true);
+    REQUIRE(filesystemReport["document_count"] == 2);
+    REQUIRE(filesystemReport["diagnostic_count"] == 2);
+    REQUIRE(filesystemReport["skipped_count"] == 3);
+    REQUIRE(filesystemReport["skipped"]["excluded"] == 2);
+    REQUIRE(filesystemReport["document_rows"][1]["freshness"] == "stale");
+    REQUIRE(filesystemReport["diagnostics"][0]["message"].get<std::string>().find("excluded") != std::string::npos);
+    REQUIRE(filesystemReport["config"]["max_files"] == 256);
+
+    const auto mergedProject = urpg::ai::mergeFilesystemKnowledgeIntoProjectData({{"project_id", "merged"}}, project);
+    REQUIRE(urpg::ai::buildFilesystemKnowledgeReport(mergedProject)["document_count"] == 2);
+    REQUIRE_FALSE(urpg::ai::buildDefaultAiKnowledgeSnapshot(mergedProject)
+                      .project_index.search("notes/reference.bmp unsupported_extension")
+                      .empty());
 }
 
 TEST_CASE("AI chatbot knowledge covers release WYSIWYG panels features and asset actions",
@@ -374,13 +407,51 @@ TEST_CASE("AI run_validation executes concrete preview validators",
     REQUIRE(result.project_data["last_ai_validation"]["scope"] == "ai_tool_previews");
     REQUIRE(result.project_data["last_ai_validation"]["preview_artifact_count"] == 2);
     REQUIRE(result.project_data["last_ai_validation"]["validator_count"] == 2);
+    REQUIRE(result.project_data["last_ai_validation"]["validator_source_count"] == 2);
+    REQUIRE(result.project_data["last_ai_validation"]["fallback_count"] == 0);
     REQUIRE(result.project_data["last_ai_validation"]["issue_count"].get<std::size_t>() >= 3);
     REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["status"] == "failed");
     REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["issues"][0]["code"] == "event_graph_empty");
-    REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["validator"] == "asset_import_promotion_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_source"] ==
+            "native_event_graph_preview_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["command"] == "validate_event_graph_preview");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["artifact_path"] ==
+            "/ai_tool_previews/event_graph_authoring/empty");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["validator"] ==
+            "native_asset_import_promotion_validator");
     REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["status"] == "warning");
     REQUIRE(result.project_data["ai_tool_previews"].back()["kind"] == "validation_execution");
     REQUIRE(result.project_data["ai_tool_previews"].back()["payload"]["validator_count"] == 2);
+}
+
+TEST_CASE("AI run_validation emits fallback diagnostics for unsupported preview validators",
+          "[ai_knowledge][ai_assistant][tools][validation]") {
+    const auto tools = urpg::ai::AiToolRegistry::buildDefault();
+    urpg::ai::AiTaskPlan plan;
+    plan.id = "fallback_validation_plan";
+    plan.user_request = "validate unsupported preview";
+    plan.steps = {
+        {"validate", "run_validation", "Run validators.", {{"scope", "ai_tool_previews"}}, true},
+    };
+    const nlohmann::json project = {
+        {"project_id", "p1"},
+        {"ai_tool_previews",
+         nlohmann::json::array({{{"kind", "unknown_preview"}, {"id", "mystery"}, {"tool_id", "custom_tool"},
+                                 {"artifact_path", "reports/ai/mystery.json"}, {"payload", nlohmann::json::object()}}})},
+    };
+
+    REQUIRE(tools.validatePlan(plan).empty());
+    const auto result = tools.applyApprovedPlan(plan, project);
+
+    REQUIRE(result.applied);
+    REQUIRE(result.project_data["last_ai_validation"]["status"] == "warning");
+    REQUIRE(result.project_data["last_ai_validation"]["fallback_count"] == 1);
+    REQUIRE(result.project_data["last_ai_validation"]["artifact_paths"][0] == "reports/ai/mystery.json");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["fallback"] == true);
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_source"] ==
+            "ai_preview_fallback_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["issues"][0]["code"] ==
+            "subsystem_validator_unavailable");
 }
 
 TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
@@ -415,6 +486,13 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     providerConfig.temperature = 0.4f;
     panel.setOpenAiProviderConfig(providerConfig, "ollama");
     panel.setProjectData({{"project_id", "p1"}, {"maps", {{"town", {{"width", 20}, {"height", 20}}}}}});
+    const auto panelFilesystemReport = panel.ingestFilesystemKnowledge({
+        {"filesystem_documents",
+         nlohmann::json::array({{{"id", "map_notes"}, {"path", "docs/maps/town.md"}, {"content", "Town map notes."}}})},
+        {"summary", {{"skipped", {{"excluded", 1}}}}},
+        {"diagnostics", nlohmann::json::array({{{"code", "excluded"}, {"path", "build/generated.log"}}})},
+    });
+    REQUIRE(panelFilesystemReport["document_count"] == 1);
     panel.setAssetLibrarySnapshot(library.snapshot());
     panel.setTaskRequest("create dialogue for the town intro");
     panel.render();
@@ -431,6 +509,9 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     REQUIRE(snapshot["provider_ui"]["test_request_button"]["enabled"] == true);
     REQUIRE(snapshot["knowledge"]["capability_count"].get<size_t>() >= 10);
     REQUIRE(snapshot["knowledge"]["tool_count"].get<size_t>() >= 8);
+    REQUIRE(snapshot["filesystem_knowledge"]["document_count"] == 1);
+    REQUIRE(snapshot["filesystem_knowledge"]["skipped"]["excluded"] == 1);
+    REQUIRE(snapshot["filesystem_knowledge"]["diagnostics"][0]["path"] == "build/generated.log");
     REQUIRE(snapshot["task_plan"]["steps"].size() == 1);
     REQUIRE(snapshot["task_plan"]["steps"][0]["tool_id"] == "edit_dialogue");
     REQUIRE(snapshot["approval"]["pending_count"] == 1);
@@ -438,10 +519,13 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     REQUIRE(snapshot["controls"]["approve_all_button"]["enabled"] == true);
     REQUIRE(snapshot["controls"]["apply_button"]["enabled"] == false);
     REQUIRE(snapshot["controls"]["step_controls"][0]["approve_button"]["enabled"] == true);
+    REQUIRE(snapshot["controls"]["filesystem_knowledge"]["report_button"]["enabled"] == true);
+    REQUIRE(snapshot["controls"]["filesystem_knowledge"]["diagnostic_rows"][0]["code"] == "excluded");
     REQUIRE(snapshot["validation"]["valid"] == false);
     REQUIRE(snapshot["validation"]["blocked_reason"] == "ai_tool_unapproved");
     REQUIRE(snapshot["apply_preview"]["would_apply"] == false);
     REQUIRE(snapshot["apply_preview"]["project_patch_count"] == 0);
+    REQUIRE(snapshot["apply_preview"]["result_diff"]["blocked_apply_reason"] == "ai_tool_unapproved");
     REQUIRE(snapshot["apply_history"]["count"] == 0);
     REQUIRE(snapshot["apply_history"]["can_revert_latest"] == false);
     REQUIRE(snapshot["rationale_rows"].size() == 1);
@@ -500,6 +584,8 @@ TEST_CASE("AI assistant panel approves and applies task plans",
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0]["operation"] == "add");
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0].contains("before"));
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0].contains("after"));
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0]["paint"]["css_class"] == "diff-row--added");
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["selected_row"]["selected_detail"]["operation"] == "add");
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["count"] == 1);
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["can_revert_latest"] == true);
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["can_revert"] == true);
@@ -630,6 +716,15 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
          }}});
     REQUIRE(library.promoteAsset("imports/raw/curated/characters/hero.png").success);
     chatbot.setProjectData({{"project_id", "p1"}});
+    const nlohmann::json chatbotFilesystemKnowledge = {
+        {"filesystem_documents",
+         nlohmann::json::array({{{"id", "quest_script"}, {"path", "engine/core/quests/quest_runtime.cpp"}, {"content", "Quest runtime script context."}}})},
+        {"summary", {{"skipped", {{"excluded", 1}}}}},
+        {"diagnostics", nlohmann::json::array({{{"code", "excluded"}, {"path", "build/quest_runtime.obj"}}})},
+    };
+    const auto ingested = chatbot.executeTool("AI_INGEST_FILESYSTEM_KNOWLEDGE:" + chatbotFilesystemKnowledge.dump());
+    REQUIRE(ingested["ingested_filesystem_knowledge"]["success"] == true);
+    REQUIRE(chatbot.projectData()["filesystem_knowledge"]["filesystem_documents"].size() == 1);
     chatbot.setAssetLibrarySnapshot(library.snapshot());
 
     bool callbackCalled = false;
@@ -648,6 +743,11 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
     REQUIRE(chatbot.lastAiToolSnapshot()["asset_preview_rows"].size() == 1);
     REQUIRE(chatbot.lastAiToolSnapshot()["asset_preview_rows"][0]["thumbnail"]["ready"] == true);
     REQUIRE(chatbot.lastAiToolSnapshot()["asset_preview_rows"][0]["thumbnail"]["width"] == 128);
+    REQUIRE(chatbot.lastAiToolSnapshot()["filesystem_knowledge"]["document_count"] == 1);
+    REQUIRE(chatbot.lastAiToolSnapshot()["filesystem_knowledge"]["skipped_count"] == 1);
+    REQUIRE(chatbot.lastAiToolSnapshot()["filesystem_knowledge"]["diagnostics"][0]["path"] == "build/quest_runtime.obj");
+    REQUIRE(chatbot.lastAiToolSnapshot()["controls"]["filesystem_knowledge"]["report_button"]["enabled"] == true);
+    REQUIRE(chatbot.lastAiToolSnapshot()["controls"]["filesystem_knowledge"]["diagnostic_count"] == 1);
     REQUIRE(chatbot.lastAiToolSnapshot()["task_plan"]["steps"][0]["tool_id"] == "edit_dialogue");
     REQUIRE(chatbot.lastAiToolSnapshot()["approval"]["pending_count"] == 1);
 
@@ -657,6 +757,8 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
 
     const auto applied = chatbot.executeTool("AI_APPLY");
     REQUIRE(applied["last_apply"]["applied"] == true);
+    REQUIRE(applied["result_diff"]["painted"] == true);
+    REQUIRE(applied["result_diff"]["rows"][0]["paint"]["tone"] == "added");
     REQUIRE(chatbot.projectData()["dialogue"]["generated_dialogue"]["lines"].size() == 1);
     REQUIRE(chatbot.projectData()["_ai_change_history"].size() == 1);
     REQUIRE(applied["apply_history"]["can_revert_latest"] == true);

@@ -689,10 +689,15 @@ TEST_CASE("Ability orchestration executes authored task graphs deterministically
     REQUIRE(runtime["taskExecutionEvents"][0]["status"] == "started");
     REQUIRE(runtime["taskExecutionEvents"][3]["taskId"] == "confirm");
     REQUIRE(runtime["taskExecutionEvents"][3]["status"] == "waiting");
+    REQUIRE(runtime["taskExecutionEvents"][3]["waitState"] == "wait_input");
+    REQUIRE(runtime["taskExecutionEvents"][3]["nextTaskId"] == "impact");
     REQUIRE(runtime["taskExecutionEvents"][9]["taskId"] == "apply_hit");
     REQUIRE(runtime["taskExecutionEvents"][9]["status"] == "completed");
     REQUIRE(runtime["taskExecutionEvents"][11]["taskId"] == "cooldown");
     REQUIRE(runtime["taskExecutionEvents"][11]["status"] == "completed");
+    REQUIRE(runtime["taskRuntimeReplay"]["rowCount"] == runtime["taskExecutionEvents"].size());
+    REQUIRE(runtime["taskRuntimeReplay"]["waitRowCount"] == 2);
+    REQUIRE(runtime["taskRuntimeReplay"]["waitRows"][1]["waitState"] == "wait_projectile_collision");
 }
 
 TEST_CASE("Ability orchestration branches, joins parallel waits, and cancels authored task graphs",
@@ -740,6 +745,8 @@ TEST_CASE("Ability orchestration branches, joins parallel waits, and cancels aut
     REQUIRE(branchResult["targets"][0]["effectAttributeAfter"] == 23.0f);
     REQUIRE(branchResult["taskExecutionEvents"][1]["status"] == "branched");
     REQUIRE(branchResult["taskExecutionEvents"][1]["detail"] == "true -> apply_true");
+    REQUIRE(branchResult["taskExecutionEvents"][1]["branchTaken"] == "true");
+    REQUIRE(branchResult["taskRuntimeReplay"]["rows"][1]["nextTaskId"] == "apply_true");
 
     auto parallelDoc = baseDocument();
     auto waitEvent = task("wait_event", "wait_event");
@@ -775,6 +782,8 @@ TEST_CASE("Ability orchestration branches, joins parallel waits, and cancels aut
     REQUIRE(cancelled["cooldownAfter"] == 0.0f);
     REQUIRE(cancelled["targets"][0]["effectAttributeAfter"] == 30.0f);
     REQUIRE(cancelled["taskExecutionEvents"][2]["status"] == "cancelled");
+    REQUIRE(cancelled["taskRuntimeReplay"]["cancelled"] == true);
+    REQUIRE(cancelled["taskRuntimeReplay"]["waitRows"][1]["status"] == "cancelled");
     REQUIRE(cancelled["taskExecutionEvents"].back()["taskId"] != "cooldown");
 }
 

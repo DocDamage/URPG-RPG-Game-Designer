@@ -20,6 +20,7 @@ public:
     void setProjectData(nlohmann::json projectData);
     void setAssetLibrarySnapshot(urpg::assets::AssetLibrarySnapshot assetLibrarySnapshot);
     void setTaskRequest(std::string taskRequest);
+    nlohmann::json ingestFilesystemKnowledge(nlohmann::json filesystemKnowledge);
     void render();
     bool approveStep(const std::string& stepId);
     std::size_t approveAllPendingSteps();

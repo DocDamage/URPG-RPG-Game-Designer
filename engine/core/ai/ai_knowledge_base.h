@@ -170,5 +170,9 @@ struct AiKnowledgeSnapshot {
 };
 
 AiKnowledgeSnapshot buildDefaultAiKnowledgeSnapshot(const nlohmann::json& projectData = nlohmann::json::object());
+nlohmann::json buildFilesystemKnowledgeReport(const nlohmann::json& projectData);
+nlohmann::json mergeFilesystemKnowledgeIntoProjectData(nlohmann::json projectData,
+                                                       const nlohmann::json& filesystemKnowledge);
+nlohmann::json buildAiToolResultDiff(const AiToolApplyResult& result);
 
 } // namespace urpg::ai

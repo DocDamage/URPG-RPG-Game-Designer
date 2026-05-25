@@ -253,11 +253,13 @@ TEST_CASE("Message migration maps scoped state banks and picture task adapters",
            json::array({
                {{"scope", "self"}, {"mapId", "map_1"}, {"eventId", "event_2"}, {"id", "A"}, {"value", true}},
                {{"scope", "bad_scope"}, {"id", "drop_me"}, {"value", true}},
+               "not-a-switch-row",
            })},
           {"variables",
            json::array({
                {{"scope", "map"}, {"map_id", "map_1"}, {"id", "weather_seed"}, {"value", 42}},
                {{"scope", "js"}, {"scopeId", "plugin_cache"}, {"id", "cached_result"}, {"value", "ok"}},
+               {{"scope", "self"}, {"id", "bad_payload"}, {"value", json::object({{"nested", true}})}},
            })}}},
         {"scopedVariables", json::array({{{"scope", "scoped"}, {"scope_id", "quest"}, {"id", "progress"}, {"value", 3}}})},
         {"pictureTasks",
@@ -274,6 +276,8 @@ TEST_CASE("Message migration maps scoped state banks and picture task adapters",
                 {"common_event_id", "common_event.preview_codex"},
                 {"trigger", "press"},
                 {"enabled", false}},
+               {{"picture_id", 352}, {"task_id", ""}, {"common_event_id", "common_event.missing_task"}},
+               "not-a-picture-binding",
            })}}},
     };
 
@@ -292,6 +296,13 @@ TEST_CASE("Message migration maps scoped state banks and picture task adapters",
     REQUIRE(migrated.scoped_state_banks["variables"][1]["scope"] == "js");
     REQUIRE(migrated.scoped_state_banks["variables"][1]["scope_id"] == "plugin_cache");
     REQUIRE(migrated.scoped_state_banks["variables"][2]["scope"] == "scoped");
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"].size() == 3);
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][0]["code"] == "unsupported_state_scope");
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][0]["source_row"]["id"] == "drop_me");
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][1]["code"] == "unsupported_state_bank_row");
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][1]["kind"] == "switch");
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][2]["code"] == "unsupported_state_value");
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][2]["source_row"]["id"] == "bad_payload");
 
     REQUIRE(migrated.picture_tasks["version"] == "1.0.0");
     REQUIRE(migrated.picture_tasks["max_pictures"] == 1000);
@@ -302,6 +313,11 @@ TEST_CASE("Message migration maps scoped state banks and picture task adapters",
     REQUIRE(migrated.picture_tasks["bindings"][0]["trigger"] == "confirm");
     REQUIRE(migrated.picture_tasks["bindings"][1]["trigger"] == "click");
     REQUIRE(migrated.picture_tasks["bindings"][1]["enabled"] == false);
+    REQUIRE(migrated.picture_tasks["unsupported_rows"].size() == 2);
+    REQUIRE(migrated.picture_tasks["unsupported_rows"][0]["code"] == "invalid_picture_task_binding");
+    REQUIRE(migrated.picture_tasks["unsupported_rows"][0]["source_row"]["picture_id"] == 352);
+    REQUIRE(migrated.picture_tasks["unsupported_rows"][1]["code"] == "unsupported_picture_task_row");
+    REQUIRE(migrated.picture_tasks["unsupported_rows"][1]["source_index"] == 3);
 
     const auto has_code = [&](std::string_view code) {
         return std::any_of(
@@ -310,5 +326,9 @@ TEST_CASE("Message migration maps scoped state banks and picture task adapters",
             [&](const urpg::message::MessageMigrationDiagnostic& d) { return d.code == code; });
     };
     REQUIRE(has_code("unsupported_state_scope"));
+    REQUIRE(has_code("unsupported_state_bank_row"));
+    REQUIRE(has_code("unsupported_state_value"));
+    REQUIRE(has_code("invalid_picture_task_binding"));
+    REQUIRE(has_code("unsupported_picture_task_row"));
     REQUIRE(has_code("normalized_picture_task_trigger"));
 }

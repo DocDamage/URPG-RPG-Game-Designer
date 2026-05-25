@@ -20,6 +20,7 @@ class ExportValidator {
 public:
     std::vector<std::string> validateExportDirectory(const std::string& path, tools::ExportTarget target) const;
     std::vector<PlatformRequirement> getRequirementsForTarget(tools::ExportTarget target) const;
+    nlohmann::json buildPlatformArtifactPolicy(const std::string& path, tools::ExportTarget target) const;
     nlohmann::json buildReportJson(const std::vector<std::string>& errors, tools::ExportTarget target) const;
     nlohmann::json buildReportJson(const std::string& path, tools::ExportTarget target) const;
 

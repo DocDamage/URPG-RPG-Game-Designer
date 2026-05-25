@@ -329,8 +329,21 @@ struct TaskGraphRunState {
     bool cancelled = false;
     size_t sequence = 0;
 
-    void addEvent(const AbilityOrchestrationTask& task, std::string status, std::string detail = {}) {
-        result.task_execution_events.push_back({++sequence, task.id, task.kind, std::move(status), std::move(detail)});
+    void addEvent(const AbilityOrchestrationTask& task,
+                  std::string status,
+                  std::string detail = {},
+                  std::string waitState = {},
+                  std::string nextTaskId = {},
+                  std::string branchTaken = {}) {
+        result.task_execution_events.push_back({++sequence,
+                                                task.id,
+                                                task.kind,
+                                                std::move(status),
+                                                std::move(detail),
+                                                visited.size(),
+                                                std::move(waitState),
+                                                std::move(nextTaskId),
+                                                std::move(branchTaken)});
     }
 
     bool dependenciesSatisfied(const AbilityOrchestrationTask& task) const {
@@ -354,30 +367,32 @@ struct TaskGraphRunState {
 
         if (task.kind == "wait_input" || task.kind == "wait_event" || task.kind == "wait_projectile_collision" ||
             task.kind == "delay") {
-            addEvent(task, "waiting", task.action.empty() ? task.target : task.action);
+            addEvent(task, "waiting", task.action.empty() ? task.target : task.action, task.kind, task.next);
             if (task.kind == "wait_input" && task.skip_cooldown_on_cancel && toLower(task.action) == "cancel") {
-                addEvent(task, "cancelled", "input cancel");
+                addEvent(task, "cancelled", "input cancel", "cancelled", task.next);
                 cancelled = true;
                 result.activation_executed = false;
                 result.blocking_reason = "cancelled";
                 return false;
             }
-            addEvent(task, "completed");
+            addEvent(task, "completed", {}, {}, task.next);
         } else if (task.kind == "branch_on_condition") {
             AbilityConditionEvaluator evaluator;
             const auto decision = evaluator.evaluate(task.condition, sourceAsc, &context);
             const bool branchTrue = decision.parsed && decision.value;
             const auto& next = branchTrue ? task.on_true : task.on_false;
-            addEvent(task, "branched", std::string(branchTrue ? "true -> " : "false -> ") + next);
+            addEvent(task, "branched", std::string(branchTrue ? "true -> " : "false -> ") + next, {}, next,
+                     branchTrue ? "true" : "false");
             completed.insert(task.id);
             return run(next);
         } else if (task.kind == "apply_effect") {
             applyTaskEffect(document, task, context);
-            addEvent(task, "completed", task.effect_id.empty() ? document.ability.effect_id : task.effect_id);
+            addEvent(task, "completed", task.effect_id.empty() ? document.ability.effect_id : task.effect_id, {},
+                     task.next);
         } else if (task.kind == "play_cue") {
-            addEvent(task, "completed", task.cue_id);
+            addEvent(task, "completed", task.cue_id, {}, task.next);
         } else {
-            addEvent(task, "completed");
+            addEvent(task, "completed", {}, {}, task.next);
         }
 
         completed.insert(task.id);
@@ -830,7 +845,32 @@ nlohmann::json abilityOrchestrationResultToJson(const AbilityOrchestrationResult
             {"kind", event.kind},
             {"status", event.status},
             {"detail", event.detail},
+            {"cursor", event.cursor},
+            {"waitState", event.wait_state},
+            {"nextTaskId", event.next_task_id},
+            {"branchTaken", event.branch_taken},
         });
+    }
+
+    nlohmann::json replayRows = nlohmann::json::array();
+    nlohmann::json waitRows = nlohmann::json::array();
+    for (const auto& event : result.task_execution_events) {
+        replayRows.push_back({{"sequence", event.sequence},
+                              {"cursor", event.cursor},
+                              {"taskId", event.task_id},
+                              {"kind", event.kind},
+                              {"status", event.status},
+                              {"detail", event.detail},
+                              {"nextTaskId", event.next_task_id},
+                              {"branchTaken", event.branch_taken}});
+        if (!event.wait_state.empty()) {
+            waitRows.push_back({{"sequence", event.sequence},
+                                {"taskId", event.task_id},
+                                {"waitState", event.wait_state},
+                                {"status", event.status},
+                                {"detail", event.detail},
+                                {"nextTaskId", event.next_task_id}});
+        }
     }
 
     return {
@@ -850,6 +890,12 @@ nlohmann::json abilityOrchestrationResultToJson(const AbilityOrchestrationResult
         {"targets", targetJson},
         {"taskPreviewRows", taskPreviewRowsToJson(result.task_preview_rows)},
         {"taskExecutionEvents", taskExecutionJson},
+        {"taskRuntimeReplay",
+         {{"rowCount", replayRows.size()},
+          {"waitRowCount", waitRows.size()},
+          {"cancelled", result.blocking_reason == "cancelled"},
+          {"rows", replayRows},
+          {"waitRows", waitRows}}},
         {"diagnostics", diagnosticsJson},
         {"battleSnapshot", result.battle_snapshot},
     };

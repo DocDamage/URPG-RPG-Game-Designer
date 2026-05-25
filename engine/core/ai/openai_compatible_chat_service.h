@@ -44,6 +44,7 @@ struct OpenAiCompatibleChatTransportResult {
     std::string response_path;
     std::string message;
     nlohmann::json request_body = nlohmann::json::object();
+    nlohmann::json stream_diagnostics = nlohmann::json::object();
     nlohmann::json toJson() const;
 };
 
@@ -56,6 +57,7 @@ nlohmann::json buildOpenAiCompatibleChatRequest(const std::vector<ChatMessage>& 
 std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfig& config);
 std::pair<std::string, std::string> parseOpenAiCompatibleChatResponse(const nlohmann::json& response);
 std::pair<std::string, std::string> parseOpenAiCompatibleChatStreamResponse(std::string_view responseText);
+nlohmann::json buildOpenAiCompatibleStreamDiagnostics(std::string_view responseText);
 OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector<ChatMessage>& history,
                                                                const OpenAiCompatibleChatConfig& config);
 

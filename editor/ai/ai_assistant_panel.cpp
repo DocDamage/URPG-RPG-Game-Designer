@@ -17,39 +17,6 @@ nlohmann::json diagnosticsToJson(const std::vector<urpg::ai::AiKnowledgeDiagnost
     return out;
 }
 
-std::string patchPathRoot(const std::string& path) {
-    if (path.empty() || path == "/") {
-        return "/";
-    }
-    const auto next = path.find('/', 1);
-    return next == std::string::npos ? path.substr(1) : path.substr(1, next - 1);
-}
-
-std::string patchTone(const std::string& operation) {
-    if (operation == "add") {
-        return "added";
-    }
-    if (operation == "remove") {
-        return "removed";
-    }
-    if (operation == "replace") {
-        return "changed";
-    }
-    return "review";
-}
-
-nlohmann::json valueAtPointerOrNull(const nlohmann::json& document, const std::string& path) {
-    try {
-        const nlohmann::json::json_pointer pointer(path);
-        if (document.contains(pointer)) {
-            return document.at(pointer);
-        }
-    } catch (const nlohmann::json::exception&) {
-        return nullptr;
-    }
-    return nullptr;
-}
-
 nlohmann::json makeAiChangeRecord(const urpg::ai::AiTaskPlan& plan,
                                   const urpg::ai::AiToolApplyResult& result,
                                   std::size_t index) {
@@ -116,6 +83,12 @@ void AiAssistantPanel::setTaskRequest(std::string taskRequest) {
     rebuildTaskPlan();
 }
 
+nlohmann::json AiAssistantPanel::ingestFilesystemKnowledge(nlohmann::json filesystemKnowledge) {
+    project_data_ = urpg::ai::mergeFilesystemKnowledgeIntoProjectData(std::move(project_data_), filesystemKnowledge);
+    rebuildTaskPlan();
+    return urpg::ai::buildFilesystemKnowledgeReport(project_data_);
+}
+
 void AiAssistantPanel::rebuildTaskPlan() {
     knowledge_ = urpg::ai::buildDefaultAiKnowledgeSnapshot(project_data_);
     urpg::ai::AiTaskPlanner planner;
@@ -139,6 +112,7 @@ void AiAssistantPanel::render() {
             {"doc_entry_count", knowledge_.docs_index.entries().size()},
             {"tool_count", knowledge_.tools.tools().size()},
         }},
+        {"filesystem_knowledge", urpg::ai::buildFilesystemKnowledgeReport(project_data_)},
         {"wysiwyg_chatbot_coverage",
          urpg::ai::buildWysiwygChatbotCoverageReport(knowledge_, asset_library_snapshot_).toJson()},
         {"asset_preview_rows", urpg::assets::buildAssetPreviewRows(asset_library_snapshot_)},
@@ -152,25 +126,19 @@ void AiAssistantPanel::render() {
     };
     if (!applied_changes_.empty()) {
         last_render_snapshot_["last_apply"] = applied_changes_.back().toJson();
-        const auto diffRows = buildDiffRows(applied_changes_.back());
-        last_render_snapshot_["result_diff"] = {
-            {"has_changes", !applied_changes_.back().project_patch.empty()},
-            {"forward_patch_count", applied_changes_.back().project_patch.size()},
-            {"revert_patch_count", applied_changes_.back().revert_patch.size()},
-            {"forward_patch", applied_changes_.back().project_patch},
-            {"revert_patch", applied_changes_.back().revert_patch},
-            {"rows", diffRows},
-            {"row_count", diffRows.size()},
-        };
+        last_render_snapshot_["result_diff"] = urpg::ai::buildAiToolResultDiff(applied_changes_.back());
     } else {
         last_render_snapshot_["result_diff"] = {
             {"has_changes", false},
+            {"painted", true},
             {"forward_patch_count", 0},
             {"revert_patch_count", 0},
             {"forward_patch", nlohmann::json::array()},
             {"revert_patch", nlohmann::json::array()},
             {"rows", nlohmann::json::array()},
             {"row_count", 0},
+            {"selected_row", nullptr},
+            {"blocked_apply_reason", nullptr},
         };
     }
 }
@@ -337,6 +305,7 @@ nlohmann::json AiAssistantPanel::buildControlSnapshot() const {
     const auto latestChangeIndex = latestUnrevertedAiChangeIndex(project_data_);
     const bool canRevert = latestChangeIndex.has_value();
     const auto history = buildApplyHistorySnapshot();
+    const auto filesystemReport = urpg::ai::buildFilesystemKnowledgeReport(project_data_);
     nlohmann::json stepControls = nlohmann::json::array();
     for (const auto& step : current_task_plan_.steps) {
         const auto* tool = knowledge_.tools.find(step.tool_id);
@@ -388,6 +357,24 @@ nlohmann::json AiAssistantPanel::buildControlSnapshot() const {
             {"latest_revert_patch_count",
              canRevert ? project_data_["_ai_change_history"][*latestChangeIndex].value("revert_patch", nlohmann::json::array()).size() : 0},
         }},
+        {"filesystem_knowledge", {
+            {"refresh_button", {
+                {"visible", true},
+                {"enabled", true},
+                {"label", "Refresh Project Knowledge"},
+                {"action", "ingest_filesystem_knowledge"},
+            }},
+            {"report_button", {
+                {"visible", true},
+                {"enabled", filesystemReport.value("available", false)},
+                {"label", "Review Project Knowledge"},
+                {"action", "show_filesystem_knowledge_report"},
+            }},
+            {"document_count", filesystemReport.value("document_count", std::size_t{0})},
+            {"skipped_count", filesystemReport.value("skipped_count", 0)},
+            {"diagnostic_count", filesystemReport.value("diagnostic_count", std::size_t{0})},
+            {"diagnostic_rows", filesystemReport.value("diagnostics", nlohmann::json::array())},
+        }},
         {"step_controls", stepControls},
         {"diagnostics", current_task_plan_.id.empty() ? nlohmann::json::array() : diagnosticsToJson(diagnostics)},
     };
@@ -398,6 +385,7 @@ nlohmann::json AiAssistantPanel::buildApplyPreviewSnapshot() const {
         return {{"would_apply", false}, {"diagnostics", nlohmann::json::array()}};
     }
     const auto result = knowledge_.tools.applyApprovedPlan(current_task_plan_, project_data_);
+    const auto resultDiff = urpg::ai::buildAiToolResultDiff(result);
     return {
         {"would_apply", result.applied},
         {"diagnostics", result.toJson()["diagnostics"]},
@@ -405,7 +393,8 @@ nlohmann::json AiAssistantPanel::buildApplyPreviewSnapshot() const {
         {"revert_patch_count", result.revert_patch.size()},
         {"project_patch", result.project_patch},
         {"revert_patch", result.revert_patch},
-        {"diff_rows", buildDiffRows(result)},
+        {"diff_rows", resultDiff["rows"]},
+        {"result_diff", resultDiff},
         {"rationale_rows", buildRationaleRows()},
     };
 }
@@ -440,6 +429,7 @@ nlohmann::json AiAssistantPanel::buildApplyHistorySnapshot() const {
             {"project_patch", change.project_patch},
             {"revert_patch", change.revert_patch},
             {"diff_rows", buildDiffRows(change)},
+            {"result_diff", urpg::ai::buildAiToolResultDiff(change)},
         });
     }
     const auto latestIndex = latestUnrevertedAiChangeIndex(project_data_);
@@ -610,30 +600,7 @@ nlohmann::json AiAssistantPanel::buildRationaleRows() const {
 }
 
 nlohmann::json AiAssistantPanel::buildDiffRows(const urpg::ai::AiToolApplyResult& result) const {
-    nlohmann::json rows = nlohmann::json::array();
-    if (!result.project_patch.is_array()) {
-        return rows;
-    }
-    for (std::size_t index = 0; index < result.project_patch.size(); ++index) {
-        const auto& patch = result.project_patch[index];
-        if (!patch.is_object()) {
-            continue;
-        }
-        const std::string op = patch.value("op", "");
-        const std::string path = patch.value("path", "");
-        rows.push_back({
-            {"index", index},
-            {"operation", op},
-            {"path", path},
-            {"root", patchPathRoot(path)},
-            {"tone", patchTone(op)},
-            {"before", valueAtPointerOrNull(result.before_project_data, path)},
-            {"after", valueAtPointerOrNull(result.project_data, path)},
-            {"patch", patch},
-            {"summary", patchTone(op) + std::string(" ") + path},
-        });
-    }
-    return rows;
+    return urpg::ai::buildAiToolResultDiff(result)["rows"];
 }
 
 } // namespace urpg::editor

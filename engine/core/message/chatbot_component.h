@@ -103,6 +103,14 @@ class ChatbotComponent {
         if (command.rfind("AI_TASK:", 0) == 0) {
             return planAiTask(command.substr(std::string("AI_TASK:").size()));
         }
+        if (command.rfind("AI_INGEST_FILESYSTEM_KNOWLEDGE:", 0) == 0) {
+            return ingestFilesystemKnowledgeCommand(
+                command.substr(std::string("AI_INGEST_FILESYSTEM_KNOWLEDGE:").size()));
+        }
+        if (command == "AI_FILESYSTEM_KNOWLEDGE") {
+            m_lastAiToolSnapshot = aiToolSnapshot();
+            return m_lastAiToolSnapshot;
+        }
         if (command.rfind("AI_APPROVE_STEP:", 0) == 0) {
             return approveAiToolStep(command.substr(std::string("AI_APPROVE_STEP:").size()));
         }
@@ -141,6 +149,27 @@ class ChatbotComponent {
         m_currentAiTaskPlan = planner.planTask(userRequest, m_aiKnowledge.capabilities, m_aiKnowledge.project_index,
                                                m_aiKnowledge.docs_index, m_aiKnowledge.tools);
         m_lastAiToolSnapshot = aiToolSnapshot();
+        return m_lastAiToolSnapshot;
+    }
+
+    nlohmann::json ingestFilesystemKnowledgeCommand(const std::string& payload) {
+        try {
+            const auto filesystemKnowledge = nlohmann::json::parse(payload);
+            m_projectData = mergeFilesystemKnowledgeIntoProjectData(std::move(m_projectData), filesystemKnowledge);
+            rebuildAiKnowledge();
+            m_lastAiToolSnapshot = aiToolSnapshot();
+            m_lastAiToolSnapshot["ingested_filesystem_knowledge"] = {
+                {"success", true},
+                {"report", buildFilesystemKnowledgeReport(m_projectData)},
+            };
+        } catch (const nlohmann::json::exception& ex) {
+            m_lastAiToolSnapshot = aiToolSnapshot();
+            m_lastAiToolSnapshot["ingested_filesystem_knowledge"] = {
+                {"success", false},
+                {"error", "invalid_json"},
+                {"message", ex.what()},
+            };
+        }
         return m_lastAiToolSnapshot;
     }
 
@@ -211,6 +240,7 @@ class ChatbotComponent {
         }
         m_lastAiToolSnapshot = aiToolSnapshot();
         m_lastAiToolSnapshot["last_apply"] = result.toJson();
+        m_lastAiToolSnapshot["result_diff"] = buildAiToolResultDiff(result);
         return m_lastAiToolSnapshot;
     }
 
@@ -262,6 +292,7 @@ class ChatbotComponent {
              buildWysiwygChatbotCoverageReport(m_aiKnowledge, m_assetLibrarySnapshot).toJson()},
             {"asset_action_rows", urpg::assets::buildAssetActionRows(m_assetLibrarySnapshot)},
             {"asset_preview_rows", urpg::assets::buildAssetPreviewRows(m_assetLibrarySnapshot)},
+            {"filesystem_knowledge", buildFilesystemKnowledgeReport(m_projectData)},
             {"task_plan", m_currentAiTaskPlan.toJson()},
             {"approval", m_aiKnowledge.tools.approvalManifest(m_currentAiTaskPlan, m_aiKnowledge.capabilities)},
             {"controls", buildAiToolControls()},
@@ -373,6 +404,7 @@ class ChatbotComponent {
     nlohmann::json buildAiToolControls() const {
         const auto history = buildApplyHistorySnapshot();
         const bool canRevert = history.value("can_revert_latest", false);
+        const auto filesystemReport = buildFilesystemKnowledgeReport(m_projectData);
         return {
             {"revert_button",
              {
@@ -386,6 +418,27 @@ class ChatbotComponent {
                  {"available", canRevert},
                  {"count", history.value("count", std::size_t{0})},
                  {"latest_change_id", history.value("latest_change_id", nlohmann::json(nullptr))},
+             }},
+            {"filesystem_knowledge",
+             {
+                 {"refresh_button",
+                  {
+                      {"visible", true},
+                      {"enabled", true},
+                      {"label", "Refresh Project Knowledge"},
+                      {"action", "AI_INGEST_FILESYSTEM_KNOWLEDGE"},
+                  }},
+                 {"report_button",
+                  {
+                      {"visible", true},
+                      {"enabled", filesystemReport.value("available", false)},
+                      {"label", "Review Project Knowledge"},
+                      {"action", "AI_FILESYSTEM_KNOWLEDGE"},
+                  }},
+                 {"document_count", filesystemReport.value("document_count", std::size_t{0})},
+                 {"skipped_count", filesystemReport.value("skipped_count", 0)},
+                 {"diagnostic_count", filesystemReport.value("diagnostic_count", std::size_t{0})},
+                 {"diagnostic_rows", filesystemReport.value("diagnostics", nlohmann::json::array())},
              }},
         };
     }

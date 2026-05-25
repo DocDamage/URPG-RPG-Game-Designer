@@ -150,11 +150,13 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         {"version", "1.0.0"},
         {"switches", json::array()},
         {"variables", json::array()},
+        {"unsupported_rows", json::array()},
     };
     result.picture_tasks = {
         {"version", "1.0.0"},
         {"max_pictures", 100},
         {"bindings", json::array()},
+        {"unsupported_rows", json::array()},
     };
 
     const auto emit_diagnostic = [&](MessageMigrationSeverity severity, std::string code, std::string page_id,
@@ -168,10 +170,33 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         result.diagnostics.push_back(std::move(diagnostic));
     };
 
+    const auto preserve_state_row = [&](std::string code, std::string reason, const json& source_row,
+                                        size_t index, bool is_switch) {
+        result.scoped_state_banks["unsupported_rows"].push_back({
+            {"code", std::move(code)},
+            {"reason", std::move(reason)},
+            {"kind", is_switch ? "switch" : "variable"},
+            {"source_index", static_cast<int64_t>(index)},
+            {"source_row", source_row},
+        });
+    };
+
+    const auto preserve_picture_row = [&](std::string code, std::string reason, const json& source_row,
+                                          size_t index) {
+        result.picture_tasks["unsupported_rows"].push_back({
+            {"code", std::move(code)},
+            {"reason", std::move(reason)},
+            {"source_index", static_cast<int64_t>(index)},
+            {"source_row", source_row},
+        });
+    };
+
     const auto map_state_row = [&](const json& source_row, bool is_switch, size_t index) {
         if (!source_row.is_object()) {
             emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_state_bank_row", "state_bank",
                             "State bank row had unsupported shape and was dropped.");
+            preserve_state_row("unsupported_state_bank_row", "State bank row had unsupported shape.", source_row,
+                               index, is_switch);
             return;
         }
 
@@ -180,6 +205,9 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         if (scope == "unsupported") {
             emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_state_scope", "state_bank",
                             "State bank scope '" + raw_scope + "' is not supported and was dropped.");
+            preserve_state_row("unsupported_state_scope",
+                               "State bank scope '" + raw_scope + "' is not supported.", source_row, index,
+                               is_switch);
             return;
         }
 
@@ -187,6 +215,8 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         if (id.empty()) {
             emit_diagnostic(MessageMigrationSeverity::Warning, "missing_state_bank_id", "state_bank",
                             "State bank row is missing an id and was dropped.");
+            preserve_state_row("missing_state_bank_id", "State bank row is missing an id.", source_row, index,
+                               is_switch);
             return;
         }
 
@@ -210,6 +240,8 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         if (!supported) {
             emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_state_value", "state_bank",
                             "State bank variable value is not scalar and was dropped.", id);
+            preserve_state_row("unsupported_state_value", "State bank variable value is not scalar.", source_row,
+                               index, is_switch);
             return;
         }
         row["value"] = value;
@@ -244,6 +276,8 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
                     if (!source_binding.is_object()) {
                         emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_picture_task_row", "picture_tasks",
                                         "Picture task binding had unsupported shape and was dropped.");
+                        preserve_picture_row("unsupported_picture_task_row",
+                                             "Picture task binding had unsupported shape.", source_binding, i);
                         continue;
                     }
                     const int32_t picture_id = SafeValue<int32_t>(source_binding, "pictureId",
@@ -256,6 +290,9 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
                     if (picture_id <= 0 || task_id.empty() || common_event_id.empty()) {
                         emit_diagnostic(MessageMigrationSeverity::Warning, "invalid_picture_task_binding", "picture_tasks",
                                         "Picture task binding is missing picture id, task id, or common event id.");
+                        preserve_picture_row("invalid_picture_task_binding",
+                                             "Picture task binding is missing picture id, task id, or common event id.",
+                                             source_binding, i);
                         continue;
                     }
                     const std::string raw_trigger =
