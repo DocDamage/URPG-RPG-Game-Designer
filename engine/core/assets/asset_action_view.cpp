@@ -195,6 +195,12 @@ nlohmann::json readinessSummary(const AssetRecord& asset) {
     return {{"package_ready", errorCount == 0 && asset.include_in_runtime && !asset.promoted_path.empty()},
             {"preview_ready", previewStatus(asset) == "ready"},
             {"release_ready", errorCount == 0 && warningCount == 0 && asset.release_eligible},
+            {"render_contract",
+             {{"component", "asset_readiness_badge_stack"},
+              {"supports_package_ready", true},
+              {"supports_preview_ready", true},
+              {"supports_release_ready", true},
+              {"diagnostic_renderer", "asset_readiness_diagnostic_rows"}}},
             {"error_count", errorCount},
             {"warning_count", warningCount},
             {"diagnostics", diagnostics}};

@@ -1206,6 +1206,7 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE((*unlicensed)["attach_button"]["disabled_reason"] == "asset_not_promoted");
     REQUIRE((*unlicensed)["readiness"]["warning_count"].get<std::size_t>() >= 1);
     REQUIRE((*unlicensed)["readiness"]["diagnostics"][0]["code"] == "license_evidence_missing");
+    REQUIRE((*unlicensed)["readiness"]["render_contract"]["component"] == "asset_readiness_badge_stack");
 
     const auto sequence = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
         return row["path"] == "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon";
@@ -1236,6 +1237,8 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE((*audioPreview)["waveform"]["duration_ms"] == 420);
     REQUIRE((*audioPreview)["waveform"]["peak_count"] == 4);
     REQUIRE((*audioPreview)["readiness"]["preview_ready"] == true);
+    REQUIRE((*audioPreview)["readiness"]["render_contract"]["diagnostic_renderer"] ==
+            "asset_readiness_diagnostic_rows");
 
     const auto sequencePreview = std::find_if(previewRows.begin(), previewRows.end(), [](const auto& row) {
         return row["path"] == "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon";

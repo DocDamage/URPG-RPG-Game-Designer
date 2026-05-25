@@ -121,7 +121,9 @@ python tools/ci/check_feature_robustness_lanes.py
 
 This slice adds shared package/readiness diagnostics to asset action and preview rows. Missing license evidence, runtime payloads, thumbnail metadata, waveform peaks, and sequence/video representative previews now surface as structured diagnostics with severity and target fields instead of only implicit preview states.
 
-The remaining `FRL-05` work is curated bulk-promotion manifests plus generated preview media evidence for the next release-safe payload groups.
+The completion slice adds a renderer-facing `asset_readiness_badge_stack` contract to readiness rows. Asset action and preview rows now share the same package, preview, release, and diagnostic-row rendering contract while retaining thumbnail, waveform, sequence, and promotion manifest evidence.
+
+`FRL-05` is complete for the governed asset readiness and promotion/preview evidence scope. New curated payload groups or generated media pipelines should open a new lane.
 
 Verification:
 
@@ -173,7 +175,7 @@ python tools\ci\check_feature_robustness_lanes.py
 | `FRL-02` | State/message/picture | Dedicated compat fixture files and rendered high-count picture snapshot evidence. |
 | `FRL-03` | Progression | Complete for stat allocation control rows and render contract. |
 | `FRL-04` | Gameplay abilities | Long-running async scheduling and scripting sandbox policy. |
-| `FRL-05` | Asset browser/runtime library | Curated bulk promotion and generated preview media evidence. |
+| `FRL-05` | Asset browser/runtime library | Complete for asset readiness diagnostics and render contract. |
 | `FRL-06` | AI editor workflow | Complete for shared painted diff rows and render contract. |
 | `FRL-07` | Project knowledge indexing | Complete for adapter-backed crawler invocation and ingestion. |
 | `FRL-08` | Concrete AI tools | Full typed native validator invocation and delegated output paths. |
