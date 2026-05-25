@@ -3,6 +3,26 @@
 
 namespace urpg::ai {
 
+BattleBehaviorTreeResult queueBehaviorTreeBattleAction(const BehaviorTreeDefinition& tree,
+                                                       BehaviorBlackboard& blackboard, bool featureEnabled,
+                                                       const std::string& subjectId, const std::string& targetId,
+                                                       urpg::battle::BattleActionQueue& queue) {
+    BattleBehaviorTreeResult result;
+    result.enabled = featureEnabled;
+    if (!featureEnabled) {
+        result.tick.diagnostics.push_back("behavior_tree.disabled");
+        return result;
+    }
+
+    BehaviorTreeRuntime runtime;
+    runtime.setActionExecutor([](const std::string&, BehaviorBlackboard&) { return BehaviorStatus::Success; });
+    result.tick = runtime.tick(tree, blackboard);
+    if (result.tick.status == BehaviorStatus::Success && !result.tick.selected_action_id.empty()) {
+        queue.enqueue({subjectId, targetId, result.tick.selected_action_id, 0, 0});
+    }
+    return result;
+}
+
 std::string BattleKnowledgeBridge::describeStatBlock(const urpg::battle::BattleRuleStatBlock& stats) {
     std::stringstream ss;
     ss << "HP: " << stats.hp << "/" << stats.mhp;

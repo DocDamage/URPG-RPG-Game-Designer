@@ -1,6 +1,8 @@
 #pragma once
 
+#include "engine/core/ai/behavior_tree_runtime.h"
 #include "engine/core/battle/battle_core.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -37,5 +39,16 @@ class BattleKnowledgeBridge {
      */
     static std::string describeStatBlock(const urpg::battle::BattleRuleStatBlock& stats);
 };
+
+struct BattleBehaviorTreeResult {
+    bool enabled = false;
+    BehaviorTreeTickResult tick;
+};
+
+[[nodiscard]] BattleBehaviorTreeResult queueBehaviorTreeBattleAction(const BehaviorTreeDefinition& tree,
+                                                                     BehaviorBlackboard& blackboard,
+                                                                     bool featureEnabled, const std::string& subjectId,
+                                                                     const std::string& targetId,
+                                                                     urpg::battle::BattleActionQueue& queue);
 
 } // namespace urpg::ai

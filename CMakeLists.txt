@@ -229,6 +229,8 @@ set(URPG_CORE_SOURCES
     engine/core/ai/ai_assistant_config.cpp
     engine/core/ai/ai_knowledge_base.cpp
     engine/core/ai/ai_suggestion_record.cpp
+    engine/core/ai/behavior_blackboard.cpp
+    engine/core/ai/behavior_tree_runtime.cpp
     engine/core/ai/creator_command_planner.cpp
     engine/core/ai/openai_compatible_chat_service.cpp
     engine/core/ai/wysiwyg_chatbot_coverage.cpp
@@ -1227,6 +1229,9 @@ add_executable(urpg_tests
     tests/unit/test_ai_knowledge_base.cpp
     tests/unit/test_creator_command_planner.cpp
     tests/unit/test_openai_compatible_chat_service.cpp
+    tests/unit/test_behavior_blackboard.cpp
+    tests/unit/test_behavior_tree_runtime.cpp
+    tests/unit/test_battle_ai_behavior_tree.cpp
     tests/unit/test_perf_profiler.cpp
     tests/unit/test_perf_diagnostics_panel.cpp
     tests/unit/test_ecs_world.cpp
