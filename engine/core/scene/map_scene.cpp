@@ -925,6 +925,20 @@ bool MapScene::activateInteractionAbilityAtTile(const std::string& trigger_id, i
     return false;
 }
 
+urpg::level::RoutedPathRequest MapScene::routePathRequest(urpg::level::PathRequest request) const {
+    urpg::level::PathfindingGraph graph(m_width, m_height);
+    for (int y = 0; y < m_height; ++y) {
+        for (int x = 0; x < m_width; ++x) {
+            if (checkCollision(x, y)) {
+                graph.setBlocked(x, y, true, "map_collision");
+            }
+        }
+    }
+
+    request.surface_id = m_mapId;
+    return urpg::level::RoutePathRequest(graph, request);
+}
+
 bool MapScene::activateInteractionAbilityForProp(const std::string& trigger_id, const std::string& prop_asset_id) {
     for (const auto& binding : m_interaction_ability_bindings) {
         if (BindingMatches(binding, trigger_id, std::nullopt, prop_asset_id)) {

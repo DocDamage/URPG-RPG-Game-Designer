@@ -5,6 +5,7 @@
 #include "engine/core/animation/animation_components.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/input/input_core.h"
+#include "engine/core/level/path_request_router.h"
 #include "engine/core/message/chatbot_component.h"
 #include "engine/core/message/dialogue_registry.h"
 #include "engine/core/message/message_core.h"
@@ -151,6 +152,7 @@ class MapScene : public GameScene {
 
     int getWidth() const { return m_width; }
     int getHeight() const { return m_height; }
+    urpg::level::RoutedPathRequest routePathRequest(urpg::level::PathRequest request) const;
 
     /**
      * @brief Triggers a dialogue flow in this scene.
