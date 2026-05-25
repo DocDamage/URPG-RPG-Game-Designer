@@ -167,10 +167,10 @@ nlohmann::json buildOpenAiCompatibleChatRequest(const std::vector<ChatMessage>& 
 
 std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfig& config) {
     std::ostringstream command;
-    command << quoteCommandArg(config.curl_executable.empty() ? "curl" : config.curl_executable)
-            << " --fail --silent --show-error"
-            << " --max-time " << std::max(1, config.timeout_seconds) << " -X POST"
-            << " -H " << quoteCommandArg("Content-Type: application/json");
+    command << quoteCommandArg(config.curl_executable.empty() ? "curl" : config.curl_executable);
+    command << " --fail --silent --show-error";
+    command << " --max-time " << std::max(1, config.timeout_seconds) << " -X POST";
+    command << " -H " << quoteCommandArg("Content-Type: application/json");
     if (config.stream) {
         command << " --no-buffer";
     }
