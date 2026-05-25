@@ -39,6 +39,12 @@ TEST_CASE("OpenAI-compatible chat service builds streaming requests", "[ai][chat
 
     const auto command = urpg::ai::buildOpenAiCompatibleChatCurlCommand(config);
     REQUIRE(command.find("--no-buffer") != std::string::npos);
+
+    const auto adapter = urpg::ai::buildOpenAiCompatibleStreamAdapterPlan(config);
+    REQUIRE(adapter["component"] == "openai_compatible_stream_adapter");
+    REQUIRE(adapter["stream_requested"] == true);
+    REQUIRE(adapter["transport"] == "buffered_request");
+    REQUIRE(adapter["socket_adapter_ready"] == true);
 }
 
 TEST_CASE("OpenAI-compatible provider profiles cover local and hosted gateways", "[ai][chat][provider][ui]") {
@@ -141,4 +147,6 @@ TEST_CASE("OpenAI-compatible chat service dry run is deterministic", "[ai][chat]
     REQUIRE_FALSE(service.lastTransportResult().attempted);
     REQUIRE_FALSE(service.lastTransportResult().success);
     REQUIRE(service.lastTransportResult().request_body["model"] == "llama-local");
+    REQUIRE(service.lastTransportResult().stream_diagnostics["adapter_plan"]["component"] ==
+            "openai_compatible_stream_adapter");
 }

@@ -55,6 +55,7 @@ OpenAiCompatibleChatConfig applyOpenAiCompatibleProviderProfile(OpenAiCompatible
 nlohmann::json buildOpenAiCompatibleChatRequest(const std::vector<ChatMessage>& history,
                                                 const OpenAiCompatibleChatConfig& config);
 std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfig& config);
+nlohmann::json buildOpenAiCompatibleStreamAdapterPlan(const OpenAiCompatibleChatConfig& config);
 std::pair<std::string, std::string> parseOpenAiCompatibleChatResponse(const nlohmann::json& response);
 std::pair<std::string, std::string> parseOpenAiCompatibleChatStreamResponse(std::string_view responseText);
 nlohmann::json buildOpenAiCompatibleStreamDiagnostics(std::string_view responseText);

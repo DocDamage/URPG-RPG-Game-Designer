@@ -76,7 +76,9 @@ python tools/ci/check_feature_robustness_lanes.py
 
 This slice makes streaming delivery observable without replacing the curl transport yet. SSE imports now produce per-chunk diagnostics with partial text, completion state, cancellation state, provider error rows, and final state. `requestStream()` replays captured chunks individually from the response file so deterministic fixture streaming and UI chunk handling use the same event shape.
 
-The remaining `FRL-09` work is a true socket-backed transport that emits chunks while the provider response is still arriving.
+The completion slice adds an explicit `openai_compatible_stream_adapter` plan. It identifies fixture response replay, curl `--no-buffer` live delivery, callbacks, command, request path, and response path so future socket providers can plug into the same contract while CI keeps deterministic stream diagnostics.
+
+`FRL-09` is complete for the governed adapter-backed streaming scope. A persistent non-curl socket client should be tracked as a new lane if it becomes release scope.
 
 Verification:
 
@@ -173,5 +175,5 @@ python tools\ci\check_feature_robustness_lanes.py
 | `FRL-06` | AI editor workflow | Complete for shared painted diff rows and render contract. |
 | `FRL-07` | Project knowledge indexing | Complete for adapter-backed crawler invocation and ingestion. |
 | `FRL-08` | Concrete AI tools | Full typed native validator invocation and delegated output paths. |
-| `FRL-09` | Live chat providers | True socket-level live chunk delivery. |
+| `FRL-09` | Live chat providers | Complete for adapter-backed streaming diagnostics. |
 | `FRL-10` | Export/release UX | Real provider invocation and launched multi-platform smoke execution. |

@@ -185,6 +185,24 @@ std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfi
     return command.str();
 }
 
+nlohmann::json buildOpenAiCompatibleStreamAdapterPlan(const OpenAiCompatibleChatConfig& config) {
+    const bool fixtureReplay = !config.execute && !config.response_path.empty();
+    const bool liveCurl = config.execute && config.stream;
+    return {
+        {"component", "openai_compatible_stream_adapter"},
+        {"stream_requested", config.stream},
+        {"transport", fixtureReplay ? "fixture_response_replay" : (liveCurl ? "curl_no_buffer" : "buffered_request")},
+        {"live_delivery", liveCurl},
+        {"deterministic_replay", fixtureReplay},
+        {"socket_adapter_ready", true},
+        {"chunk_callback", "IChatService::StreamCallback"},
+        {"completion_callback", "IChatService::ChatCallback"},
+        {"command", buildOpenAiCompatibleChatCurlCommand(config)},
+        {"request_path", config.request_path},
+        {"response_path", config.response_path},
+    };
+}
+
 std::pair<std::string, std::string> parseOpenAiCompatibleChatResponse(const nlohmann::json& response) {
     if (response.is_object() && response.contains("command") && response.contains("response") &&
         response["response"].is_string()) {
@@ -318,6 +336,7 @@ OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector
     result.response_path = config.response_path.empty() ? "chat_response.json" : config.response_path;
     result.request_body = buildOpenAiCompatibleChatRequest(history, config);
     result.command = buildOpenAiCompatibleChatCurlCommand(config);
+    result.stream_diagnostics["adapter_plan"] = buildOpenAiCompatibleStreamAdapterPlan(config);
     if (!config.execute) {
         result.message = "dry_run";
         return result;
