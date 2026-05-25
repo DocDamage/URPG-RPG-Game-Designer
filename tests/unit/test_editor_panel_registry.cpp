@@ -64,6 +64,7 @@ const std::map<std::string, std::string>& CompiledPanelRegistryOwners() {
         {"editor/diagnostics/diagnostics_bundle_panel.cpp", "diagnostics_bundle"},
         {"editor/diagnostics/diagnostics_workspace.cpp", "diagnostics"},
         {"editor/diagnostics/event_authority_panel.cpp", "event_authority"},
+        {"editor/diagnostics/pathfinding_debug_panel.cpp", "diagnostics"},
         {"editor/diagnostics/project_audit_panel.cpp", "project_audit"},
         {"editor/diagnostics/project_health_panel.cpp", "project_health"},
         {"editor/dialogue/dialogue_graph_panel.cpp", "dialogue_graph"},

@@ -165,6 +165,50 @@ TEST_CASE("MovementAuthority: Input Integration", "[scene][movement][input]") {
     }
 }
 
+TEST_CASE("MapScene routes path requests over the native collision grid", "[scene][map][pathfinding]") {
+    MapScene map("map001", 4, 3);
+    map.setTilePassable(1, 0, false);
+    map.setTilePassable(1, 1, false);
+
+    urpg::level::PathRequest request;
+    request.request_id = "map:player:path_to_exit";
+    request.actor_id = "player";
+    request.source = urpg::level::PathRequestSource::MapRuntime;
+    request.start = {0, 0};
+    request.goal = {3, 2};
+
+    const auto routed = map.routePathRequest(request);
+    const auto json = routed.toJson();
+
+    REQUIRE(routed.ok);
+    REQUIRE(routed.surface_id == "map001");
+    REQUIRE(routed.path.nodes.front() == urpg::level::PathGridPoint{0, 0});
+    REQUIRE(routed.path.nodes.back() == urpg::level::PathGridPoint{3, 2});
+    REQUIRE(json["source"] == "map_runtime");
+    REQUIRE(json["route"]["found"] == true);
+}
+
+TEST_CASE("MapScene path requests expose blocked tile diagnostics", "[scene][map][pathfinding]") {
+    MapScene map("map001", 2, 2);
+    map.setTilePassable(1, 0, false);
+    map.setTilePassable(0, 1, false);
+
+    urpg::level::PathRequest request;
+    request.request_id = "event:npc_001:blocked";
+    request.actor_id = "npc_001";
+    request.source = urpg::level::PathRequestSource::EventRuntime;
+    request.start = {0, 0};
+    request.goal = {1, 1};
+
+    const auto routed = map.routePathRequest(request);
+
+    REQUIRE_FALSE(routed.ok);
+    REQUIRE(routed.status == "blocked");
+    REQUIRE(routed.surface_id == "map001");
+    REQUIRE(routed.path.diagnostics.size() == 2);
+    REQUIRE(routed.path.diagnostics[0].reason == "map_collision");
+}
+
 TEST_CASE("MapLoader: Bridge DataManager to MapScene", "[scene][map][loader]") {
     // 1. Setup tileset collision in the registry
     urpg::TilesetData ts;
