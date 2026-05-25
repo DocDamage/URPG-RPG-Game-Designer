@@ -135,6 +135,28 @@ TEST_CASE("MessageInspectorModel supports page body editing", "[message][editor]
     REQUIRE(model.SelectedPageId().value() == "page_a");
 }
 
+TEST_CASE("MessageInspectorModel imports and exports dialogue script text", "[message][editor][dialogue_script]") {
+    urpg::message::RichTextLayoutEngine layout;
+    urpg::editor::MessageInspectorModel model;
+
+    const std::string script = ":: intro\n"
+                               "Alicia: Welcome home.\n"
+                               "? Choose a destination\n"
+                               "- town | Visit town\n";
+
+    const auto import_result = model.importScript(script, layout);
+    REQUIRE(import_result.ok());
+    REQUIRE(model.Summary().total_pages == 1);
+    REQUIRE(model.VisibleRows().size() == 1);
+    REQUIRE(model.VisibleRows()[0].page_id == "intro");
+    REQUIRE(model.pages()[0].choices.size() == 1);
+
+    REQUIRE(model.exportScript() == ":: intro\n"
+                                    "Alicia: Welcome home.\n"
+                                    "? Choose a destination\n"
+                                    "- town | Visit town\n");
+}
+
 TEST_CASE("MessageInspectorModel supports adding and removing pages", "[message][editor]") {
     urpg::message::MessageFlowRunner runner;
     runner.begin({

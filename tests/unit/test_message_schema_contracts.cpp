@@ -40,6 +40,7 @@ TEST_CASE("Message schema contract files exist and expose required roots", "[mes
     const auto choice_schema_path = schema_dir / "choice_prompts.schema.json";
     const auto picture_tasks_schema_path = schema_dir / "picture_tasks.schema.json";
     const auto scoped_state_schema_path = schema_dir / "scoped_state_banks.schema.json";
+    const auto dialogue_script_schema_path = schema_dir / "dialogue_script.schema.json";
 
     REQUIRE(std::filesystem::exists(dialogue_schema_path));
     REQUIRE(std::filesystem::exists(style_schema_path));
@@ -47,6 +48,7 @@ TEST_CASE("Message schema contract files exist and expose required roots", "[mes
     REQUIRE(std::filesystem::exists(choice_schema_path));
     REQUIRE(std::filesystem::exists(picture_tasks_schema_path));
     REQUIRE(std::filesystem::exists(scoped_state_schema_path));
+    REQUIRE(std::filesystem::exists(dialogue_script_schema_path));
 
     const auto dialogue_schema = LoadJson(dialogue_schema_path);
     const auto style_schema = LoadJson(style_schema_path);
@@ -54,6 +56,7 @@ TEST_CASE("Message schema contract files exist and expose required roots", "[mes
     const auto choice_schema = LoadJson(choice_schema_path);
     const auto picture_tasks_schema = LoadJson(picture_tasks_schema_path);
     const auto scoped_state_schema = LoadJson(scoped_state_schema_path);
+    const auto dialogue_script_schema = LoadJson(dialogue_script_schema_path);
 
     REQUIRE(dialogue_schema["$id"] == "https://urpg.dev/schemas/dialogue_sequences.schema.json");
     REQUIRE(style_schema["$id"] == "https://urpg.dev/schemas/message_styles.schema.json");
@@ -61,6 +64,7 @@ TEST_CASE("Message schema contract files exist and expose required roots", "[mes
     REQUIRE(choice_schema["$id"] == "https://urpg.dev/schemas/choice_prompts.schema.json");
     REQUIRE(picture_tasks_schema["$id"] == "urn:urpg:picture_tasks");
     REQUIRE(scoped_state_schema["$id"] == "urn:urpg:scoped_state_banks");
+    REQUIRE(dialogue_script_schema["$id"] == "https://urpg.dev/schemas/dialogue_script.schema.json");
 
     REQUIRE(dialogue_schema["required"].is_array());
     REQUIRE(style_schema["required"].is_array());
@@ -75,6 +79,22 @@ TEST_CASE("Message schema contract files exist and expose required roots", "[mes
     REQUIRE(choice_schema["required"][0] == "_urpg_format_version");
     REQUIRE(picture_tasks_schema["required"][0] == "version");
     REQUIRE(scoped_state_schema["required"][0] == "version");
+    REQUIRE(dialogue_script_schema["required"][0] == "_urpg_format_version");
+}
+
+TEST_CASE("Dialogue script schema exposes compiler diagnostic and line contracts",
+          "[message][schema][dialogue_script]") {
+    const auto root = sourceRootFromMacro();
+    REQUIRE_FALSE(root.empty());
+    const auto schema_path = root / "content" / "schemas" / "dialogue_script.schema.json";
+    const auto schema = LoadJson(schema_path);
+
+    const auto properties = schema["properties"];
+    REQUIRE(properties.contains("source"));
+    REQUIRE(properties.contains("diagnostics"));
+    REQUIRE(properties["diagnostics"]["items"]["required"][0] == "line");
+    REQUIRE(properties["diagnostics"]["items"]["required"][1] == "severity");
+    REQUIRE(properties["diagnostics"]["items"]["required"][2] == "code");
 }
 
 TEST_CASE("Dialogue sequence schema includes native presentation enums", "[message][schema]") {
@@ -83,8 +103,8 @@ TEST_CASE("Dialogue sequence schema includes native presentation enums", "[messa
     const auto dialogue_schema_path = root / "content" / "schemas" / "dialogue_sequences.schema.json";
     const auto dialogue_schema = LoadJson(dialogue_schema_path);
 
-    const auto enums =
-        dialogue_schema["properties"]["sequences"]["items"]["properties"]["pages"]["items"]["properties"]["presentation_mode"]["enum"];
+    const auto enums = dialogue_schema["properties"]["sequences"]["items"]["properties"]["pages"]["items"]["properties"]
+                                      ["presentation_mode"]["enum"];
     REQUIRE(enums.is_array());
     REQUIRE(enums.size() == 3);
     REQUIRE(enums[0] == "speaker");
@@ -98,7 +118,8 @@ TEST_CASE("Dialogue sequence schema page definition includes default_choice_inde
     const auto dialogue_schema_path = root / "content" / "schemas" / "dialogue_sequences.schema.json";
     const auto dialogue_schema = LoadJson(dialogue_schema_path);
 
-    const auto page_properties = dialogue_schema["properties"]["sequences"]["items"]["properties"]["pages"]["items"]["properties"];
+    const auto page_properties =
+        dialogue_schema["properties"]["sequences"]["items"]["properties"]["pages"]["items"]["properties"];
     REQUIRE(page_properties.contains("default_choice_index"));
     REQUIRE(page_properties.contains("command"));
 }
