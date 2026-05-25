@@ -1,5 +1,7 @@
 #include "editor/message/message_inspector_model.h"
 
+#include "engine/core/message/dialogue_script_exporter.h"
+
 #include <algorithm>
 #include <sstream>
 #include <unordered_map>
@@ -69,8 +71,8 @@ void MessageInspectorModel::RebuildAll() {
 
     std::unordered_map<std::string, size_t> issue_count_by_page_id;
 
-    const auto addIssue = [&](MessageInspectorIssueSeverity severity, std::string code,
-                              std::string page_id, std::string message) {
+    const auto addIssue = [&](MessageInspectorIssueSeverity severity, std::string code, std::string page_id,
+                              std::string message) {
         MessageInspectorIssue issue;
         issue.severity = severity;
         issue.code = std::move(code);
@@ -125,11 +127,9 @@ void MessageInspectorModel::RebuildAll() {
                      "Dialogue page id is required for migration-safe references.");
         }
         if (page.body.empty()) {
-            addIssue(MessageInspectorIssueSeverity::Warning, "empty_body", row_page_id,
-                     "Dialogue page body is empty.");
+            addIssue(MessageInspectorIssueSeverity::Warning, "empty_body", row_page_id, "Dialogue page body is empty.");
         }
-        if (page.variant.mode == urpg::message::MessagePresentationMode::Speaker &&
-            page.variant.speaker.empty()) {
+        if (page.variant.mode == urpg::message::MessagePresentationMode::Speaker && page.variant.speaker.empty()) {
             addIssue(MessageInspectorIssueSeverity::Warning, "missing_speaker", row_page_id,
                      "Speaker route page is missing speaker binding.");
         }
@@ -141,8 +141,7 @@ void MessageInspectorModel::RebuildAll() {
         }
         if (layout.metrics.width > 640) {
             std::ostringstream oss;
-            oss << "Preview width " << layout.metrics.width
-                << " exceeds 640 and may overflow default message chrome.";
+            oss << "Preview width " << layout.metrics.width << " exceeds 640 and may overflow default message chrome.";
             addIssue(MessageInspectorIssueSeverity::Warning, "overflow_risk", row_page_id, oss.str());
         }
 
@@ -229,6 +228,26 @@ bool MessageInspectorModel::removePage(size_t row_index) {
 bool MessageInspectorModel::applyToRuntime(urpg::message::MessageFlowRunner& runner) {
     runner.resetWithPages(pages_);
     return true;
+}
+
+urpg::message::DialogueScriptCompileResult
+MessageInspectorModel::importScript(const std::string& script,
+                                    const urpg::message::RichTextLayoutEngine& layout_engine) {
+    auto result = urpg::message::compileDialogueScript(script);
+    if (!result.ok()) {
+        return result;
+    }
+
+    const auto previously_selected_page_id = SelectedPageId();
+    pages_ = result.pages;
+    layout_engine_ = &layout_engine;
+    RebuildAll();
+    RestoreSelectionByPageId(previously_selected_page_id);
+    return result;
+}
+
+std::string MessageInspectorModel::exportScript() const {
+    return urpg::message::exportDialogueScript(pages_);
 }
 
 void MessageInspectorModel::clear() {

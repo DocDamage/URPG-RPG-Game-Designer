@@ -164,10 +164,25 @@ TEST_CASE("MessageInspectorPanel delegates page mutations to model", "[message][
     REQUIRE(snapshot.visible_rows[1].page_id == "speaker_b");
 }
 
+TEST_CASE("MessageInspectorPanel exposes script import and export hooks", "[message][editor][panel][dialogue_script]") {
+    urpg::message::RichTextLayoutEngine layout;
+    urpg::editor::MessageInspectorPanel panel;
+
+    const auto import_result = panel.importScript(":: intro\n"
+                                                  "Alicia: Welcome home.\n",
+                                                  layout);
+
+    REQUIRE(import_result.ok());
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().total_pages == 1);
+    REQUIRE(panel.exportScript() == ":: intro\n"
+                                    "Alicia: Welcome home.\n");
+}
+
 TEST_CASE("Dialogue preview resolves portraits, choices, variables, localization, and runtime flow",
           "[message][editor][dialogue_preview][wysiwyg]") {
-    const auto json = loadMessagePanelJson(
-        messagePanelRepoRoot() / "content" / "fixtures" / "dialogue_preview_fixture.json");
+    const auto json =
+        loadMessagePanelJson(messagePanelRepoRoot() / "content" / "fixtures" / "dialogue_preview_fixture.json");
     const auto document = urpg::message::DialoguePreviewDocument::fromJson(json);
 
     urpg::editor::DialoguePreviewPanel panel;
@@ -206,8 +221,8 @@ TEST_CASE("Dialogue preview resolves portraits, choices, variables, localization
 
 TEST_CASE("Dialogue preview confirms authored choice effects through runtime trace",
           "[message][editor][dialogue_preview][wysiwyg]") {
-    const auto json = loadMessagePanelJson(
-        messagePanelRepoRoot() / "content" / "fixtures" / "dialogue_preview_fixture.json");
+    const auto json =
+        loadMessagePanelJson(messagePanelRepoRoot() / "content" / "fixtures" / "dialogue_preview_fixture.json");
     const auto document = urpg::message::DialoguePreviewDocument::fromJson(json);
 
     urpg::editor::DialoguePreviewPanel panel;
@@ -236,8 +251,8 @@ TEST_CASE("Dialogue preview confirms authored choice effects through runtime tra
 
 TEST_CASE("Dialogue preview saved project data round-trips through schema surface",
           "[message][editor][dialogue_preview][wysiwyg]") {
-    const auto json = loadMessagePanelJson(
-        messagePanelRepoRoot() / "content" / "fixtures" / "dialogue_preview_fixture.json");
+    const auto json =
+        loadMessagePanelJson(messagePanelRepoRoot() / "content" / "fixtures" / "dialogue_preview_fixture.json");
     const auto document = urpg::message::DialoguePreviewDocument::fromJson(json);
     const auto saved = document.toJson();
     const auto restored = urpg::message::DialoguePreviewDocument::fromJson(saved);
@@ -256,8 +271,7 @@ TEST_CASE("Dialogue preview saved project data round-trips through schema surfac
     REQUIRE(result.portrait.has_value());
 }
 
-TEST_CASE("Dialogue preview diagnostics block false complete claims",
-          "[message][editor][dialogue_preview][wysiwyg]") {
+TEST_CASE("Dialogue preview diagnostics block false complete claims", "[message][editor][dialogue_preview][wysiwyg]") {
     urpg::message::DialoguePreviewDocument document;
     document.id = "broken_dialogue";
     document.locale = "en-US";
@@ -285,9 +299,8 @@ TEST_CASE("Dialogue preview diagnostics block false complete claims",
 
     const auto& diagnostics = panel.preview().diagnostics;
     const auto hasCode = [&diagnostics](const std::string& code) {
-        return std::any_of(diagnostics.begin(), diagnostics.end(), [&code](const auto& diagnostic) {
-            return diagnostic.code == code;
-        });
+        return std::any_of(diagnostics.begin(), diagnostics.end(),
+                           [&code](const auto& diagnostic) { return diagnostic.code == code; });
     };
     REQUIRE(hasCode("missing_localization_key"));
     REQUIRE(hasCode("missing_speaker"));

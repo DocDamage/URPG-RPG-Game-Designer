@@ -3,7 +3,7 @@
 namespace urpg::editor {
 
 void MessageInspectorPanel::bindRuntime(const urpg::message::MessageFlowRunner& flow_runner,
-                                         const urpg::message::RichTextLayoutEngine& layout_engine) {
+                                        const urpg::message::RichTextLayoutEngine& layout_engine) {
     flow_runner_ = &flow_runner;
     layout_engine_ = &layout_engine;
 }
@@ -101,6 +101,17 @@ bool MessageInspectorPanel::removePage(size_t row) {
 
 bool MessageInspectorPanel::applyToRuntime(urpg::message::MessageFlowRunner& runner) {
     return model_.applyToRuntime(runner);
+}
+
+urpg::message::DialogueScriptCompileResult
+MessageInspectorPanel::importScript(const std::string& script,
+                                    const urpg::message::RichTextLayoutEngine& layout_engine) {
+    layout_engine_ = &layout_engine;
+    return model_.importScript(script, layout_engine);
+}
+
+std::string MessageInspectorPanel::exportScript() const {
+    return model_.exportScript();
 }
 
 bool MessageInspectorPanel::hasRenderedFrame() const {

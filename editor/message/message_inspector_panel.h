@@ -5,7 +5,7 @@
 namespace urpg::editor {
 
 class MessageInspectorPanel {
-public:
+  public:
     struct RenderSnapshot {
         bool has_data = false;
         size_t total_pages = 0;
@@ -43,11 +43,14 @@ public:
     bool addPage(const urpg::message::DialoguePage& page);
     bool removePage(size_t row);
     bool applyToRuntime(urpg::message::MessageFlowRunner& runner);
+    urpg::message::DialogueScriptCompileResult importScript(const std::string& script,
+                                                            const urpg::message::RichTextLayoutEngine& layout_engine);
+    std::string exportScript() const;
 
     bool hasRenderedFrame() const;
     const RenderSnapshot& lastRenderSnapshot() const;
 
-private:
+  private:
     const urpg::message::MessageFlowRunner* flow_runner_ = nullptr;
     const urpg::message::RichTextLayoutEngine* layout_engine_ = nullptr;
     MessageInspectorModel model_;
