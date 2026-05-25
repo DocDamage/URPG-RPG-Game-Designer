@@ -560,6 +560,8 @@ set(URPG_CORE_SOURCES
     engine/core/project/template_runtime_profile.cpp
     engine/core/project/template_certification.cpp
     engine/core/tutorial/tutorial_lesson.cpp
+    engine/core/level/pathfinding_graph.cpp
+    engine/core/level/path_request_router.cpp
     engine/core/level/level_assembly.cpp
     engine/core/ui/menu_serializer.cpp
     engine/core/scene/battle_scene.cpp
@@ -1370,6 +1372,7 @@ add_executable(urpg_tests
     tests/unit/test_pattern_field.cpp
     tests/unit/test_effect_resolver.cpp
     tests/unit/test_wave3_gaf.cpp
+    tests/unit/test_pathfinding_graph.cpp
     tests/unit/test_level_assembly.cpp
     tests/unit/test_grid_part_document.cpp
     tests/unit/test_grid_part_catalog.cpp
