@@ -316,6 +316,23 @@ nlohmann::json validatorRoute(const std::string& kind) {
             {"fallback", true}};
 }
 
+nlohmann::json validatorAdapterContract(const nlohmann::json& route, const std::string& artifactPath) {
+    const auto fallback = route.value("fallback", true);
+    const auto command = route.value("command", "validate_preview_shape_fallback");
+    return {
+        {"component", "ai_preview_typed_validator_adapter"},
+        {"subsystem", route.value("subsystem", "unknown")},
+        {"validator_source", route.value("validator_source", "ai_preview_fallback_validator")},
+        {"command", command},
+        {"artifact_path", artifactPath},
+        {"typed_input", !fallback},
+        {"deterministic_fixture", true},
+        {"requires_external_credentials", false},
+        {"output_path", "reports/ai/validation/" + command + ".json"},
+        {"fallback", fallback},
+    };
+}
+
 nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
     const auto kind = jsonString(preview, "kind");
     const auto id = jsonString(preview, "id");
@@ -387,6 +404,8 @@ nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
         hasError = hasError || issue.value("severity", "") == "error";
         hasWarning = hasWarning || issue.value("severity", "") == "warning";
     }
+    const auto artifactPath = previewArtifactPath(preview);
+    const auto adapterContract = validatorAdapterContract(route, artifactPath);
     return {
         {"kind", kind},
         {"id", id},
@@ -395,7 +414,9 @@ nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
         {"validator_source", route.value("validator_source", "ai_preview_fallback_validator")},
         {"subsystem", route.value("subsystem", "unknown")},
         {"command", route.value("command", "validate_preview_shape_fallback")},
-        {"artifact_path", previewArtifactPath(preview)},
+        {"artifact_path", artifactPath},
+        {"validator_adapter", adapterContract},
+        {"output_path", adapterContract.value("output_path", "")},
         {"fallback", route.value("fallback", true)},
         {"severity", hasError ? "error" : (hasWarning ? "warning" : "info")},
         {"status", hasError ? "failed" : (hasWarning ? "warning" : "passed")},
@@ -412,6 +433,7 @@ nlohmann::json buildAiValidationReport(const nlohmann::json& projectData, const 
     nlohmann::json validators = nlohmann::json::array();
     nlohmann::json validatorSources = nlohmann::json::array();
     nlohmann::json artifactPaths = nlohmann::json::array();
+    nlohmann::json adapterContracts = nlohmann::json::array();
     std::size_t issueCount = 0;
     std::size_t failedCount = 0;
     std::size_t warningCount = 0;
@@ -428,6 +450,7 @@ nlohmann::json buildAiValidationReport(const nlohmann::json& projectData, const 
             validatorSources.push_back(source);
         }
         artifactPaths.push_back(row.value("artifact_path", ""));
+        adapterContracts.push_back(row.value("validator_adapter", nlohmann::json::object()));
         validators.push_back(row);
     }
     return {
@@ -439,6 +462,7 @@ nlohmann::json buildAiValidationReport(const nlohmann::json& projectData, const 
         {"validator_source_count", validatorSources.size()},
         {"validator_sources", validatorSources},
         {"artifact_paths", artifactPaths},
+        {"validator_adapter_contracts", adapterContracts},
         {"fallback_count", fallbackCount},
         {"issue_count", issueCount},
         {"failed_count", failedCount},

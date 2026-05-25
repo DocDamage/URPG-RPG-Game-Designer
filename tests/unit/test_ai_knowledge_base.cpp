@@ -525,9 +525,15 @@ TEST_CASE("AI run_validation executes concrete preview validators", "[ai_knowled
     REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["command"] == "validate_event_graph_preview");
     REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["artifact_path"] ==
             "/ai_tool_previews/event_graph_authoring/empty");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_adapter"]["component"] ==
+            "ai_preview_typed_validator_adapter");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_adapter"]["typed_input"] == true);
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_adapter"]["output_path"] ==
+            "reports/ai/validation/validate_event_graph_preview.json");
     REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["validator"] ==
             "native_asset_import_promotion_validator");
     REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["status"] == "warning");
+    REQUIRE(result.project_data["last_ai_validation"]["validator_adapter_contracts"].size() == 2);
     REQUIRE(result.project_data["ai_tool_previews"].back()["kind"] == "validation_execution");
     REQUIRE(result.project_data["ai_tool_previews"].back()["payload"]["validator_count"] == 2);
 }
@@ -560,6 +566,8 @@ TEST_CASE("AI run_validation emits fallback diagnostics for unsupported preview 
     REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["fallback"] == true);
     REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_source"] ==
             "ai_preview_fallback_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_adapter"]["typed_input"] == false);
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_adapter"]["fallback"] == true);
     REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["issues"][0]["code"] ==
             "subsystem_validator_unavailable");
 }
