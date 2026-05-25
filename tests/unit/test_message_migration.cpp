@@ -287,6 +287,9 @@ TEST_CASE("Message migration maps scoped state banks and picture task adapters",
     REQUIRE(migrated.scoped_state_banks["variables"][1]["scope"] == "js");
     REQUIRE(migrated.scoped_state_banks["variables"][1]["scope_id"] == "plugin_cache");
     REQUIRE(migrated.scoped_state_banks["variables"][2]["scope"] == "scoped");
+    REQUIRE(migrated.scoped_state_banks["fixture_import_contract"]["component"] ==
+            "compat_scoped_state_fixture_import");
+    REQUIRE(migrated.scoped_state_banks["fixture_import_contract"]["preserves_unsupported_rows"] == true);
     REQUIRE(migrated.scoped_state_banks["unsupported_rows"].size() == 3);
     REQUIRE(migrated.scoped_state_banks["unsupported_rows"][0]["code"] == "unsupported_state_scope");
     REQUIRE(migrated.scoped_state_banks["unsupported_rows"][0]["source_row"]["id"] == "drop_me");
@@ -304,6 +307,9 @@ TEST_CASE("Message migration maps scoped state banks and picture task adapters",
     REQUIRE(migrated.picture_tasks["bindings"][0]["trigger"] == "confirm");
     REQUIRE(migrated.picture_tasks["bindings"][1]["trigger"] == "click");
     REQUIRE(migrated.picture_tasks["bindings"][1]["enabled"] == false);
+    REQUIRE(migrated.picture_tasks["fixture_import_contract"]["component"] == "compat_picture_task_fixture_import");
+    REQUIRE(migrated.picture_tasks["fixture_import_contract"]["supports_high_count_pictures"] == true);
+    REQUIRE(migrated.picture_tasks["fixture_import_contract"]["preview_component"] == "picture_task_runtime_preview");
     REQUIRE(migrated.picture_tasks["unsupported_rows"].size() == 2);
     REQUIRE(migrated.picture_tasks["unsupported_rows"][0]["code"] == "invalid_picture_task_binding");
     REQUIRE(migrated.picture_tasks["unsupported_rows"][0]["source_row"]["picture_id"] == 352);

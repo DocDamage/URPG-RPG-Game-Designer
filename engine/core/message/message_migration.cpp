@@ -145,6 +145,14 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
     };
     result.scoped_state_banks = {
         {"version", "1.0.0"},
+        {"fixture_import_contract",
+         {{"component", "compat_scoped_state_fixture_import"},
+          {"supports_scoped_switches", true},
+          {"supports_scoped_variables", true},
+          {"supports_self_scope", true},
+          {"supports_map_scope", true},
+          {"supports_js_scope", true},
+          {"preserves_unsupported_rows", true}}},
         {"switches", json::array()},
         {"variables", json::array()},
         {"unsupported_rows", json::array()},
@@ -152,6 +160,13 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
     result.picture_tasks = {
         {"version", "1.0.0"},
         {"max_pictures", 100},
+        {"fixture_import_contract",
+         {{"component", "compat_picture_task_fixture_import"},
+          {"supports_high_count_pictures", true},
+          {"supports_common_event_triggers", true},
+          {"supports_trigger_normalization", true},
+          {"preserves_unsupported_rows", true},
+          {"preview_component", "picture_task_runtime_preview"}}},
         {"bindings", json::array()},
         {"unsupported_rows", json::array()},
     };

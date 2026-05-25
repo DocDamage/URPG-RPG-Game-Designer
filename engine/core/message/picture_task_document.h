@@ -93,9 +93,8 @@ struct PictureRuntimePreview {
 
         nlohmann::json diagnostic_json = nlohmann::json::array();
         for (const auto& diagnostic : diagnostics) {
-            diagnostic_json.push_back({{"code", diagnostic.code},
-                                       {"message", diagnostic.message},
-                                       {"picture_id", diagnostic.picture_id}});
+            diagnostic_json.push_back(
+                {{"code", diagnostic.code}, {"message", diagnostic.message}, {"picture_id", diagnostic.picture_id}});
         }
         return {{"max_pictures", max_pictures},
                 {"pointer_x", pointer_x},
@@ -104,6 +103,16 @@ struct PictureRuntimePreview {
                 {"bound_picture_count", bound_picture_count},
                 {"clickable_picture_count", clickable_picture_count},
                 {"hoverable_picture_count", hoverable_picture_count},
+                {"render_contract",
+                 {{"component", "picture_task_runtime_preview"},
+                  {"slot_renderer", "high_count_picture_rows"},
+                  {"binding_renderer", "common_event_trigger_badges"},
+                  {"supports_high_count_slots", max_pictures > 100},
+                  {"supports_hover_hit_testing", true},
+                  {"supports_common_event_bindings", true},
+                  {"supports_out_of_range_diagnostics", true},
+                  {"row_count", row_json.size()},
+                  {"diagnostic_count", diagnostic_json.size()}}},
                 {"rows", row_json},
                 {"diagnostics", diagnostic_json}};
     }
@@ -131,21 +140,24 @@ class PictureTaskDocument {
         std::vector<PictureTaskDiagnostic> diagnostics;
         for (const auto& binding : bindings_) {
             if (binding.picture_id <= 0 || binding.picture_id > max_pictures_) {
-                diagnostics.push_back({"picture_id_out_of_range", "Picture task binding references an unavailable picture slot.", binding.picture_id});
+                diagnostics.push_back({"picture_id_out_of_range",
+                                       "Picture task binding references an unavailable picture slot.",
+                                       binding.picture_id});
             }
             if (binding.task_id.empty()) {
-                diagnostics.push_back({"missing_picture_task_id", "Picture task binding needs a task id.", binding.picture_id});
+                diagnostics.push_back(
+                    {"missing_picture_task_id", "Picture task binding needs a task id.", binding.picture_id});
             }
             if (binding.common_event_id.empty()) {
-                diagnostics.push_back({"missing_picture_common_event", "Picture task binding needs a common event id.", binding.picture_id});
+                diagnostics.push_back({"missing_picture_common_event", "Picture task binding needs a common event id.",
+                                       binding.picture_id});
             }
         }
         return diagnostics;
     }
 
     [[nodiscard]] PictureRuntimePreview previewRuntime(const std::vector<PictureRuntimeSlot>& pictures,
-                                                       int32_t pointer_x,
-                                                       int32_t pointer_y) const {
+                                                       int32_t pointer_x, int32_t pointer_y) const {
         PictureRuntimePreview preview;
         preview.max_pictures = max_pictures_;
         preview.pointer_x = pointer_x;
@@ -190,8 +202,8 @@ class PictureTaskDocument {
                     row.hoverable = true;
                 }
             }
-            row.hovered = row.visible && pointer_x >= row.x && pointer_x < row.x + row.width &&
-                          pointer_y >= row.y && pointer_y < row.y + row.height;
+            row.hovered = row.visible && pointer_x >= row.x && pointer_x < row.x + row.width && pointer_y >= row.y &&
+                          pointer_y < row.y + row.height;
             if (row.visible) {
                 ++preview.visible_picture_count;
             }
