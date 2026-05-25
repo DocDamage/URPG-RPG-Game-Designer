@@ -110,7 +110,31 @@ function Write-Report {
     errors = @($errors.ToArray())
   }
 
-  $report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $resolvedReportPath -Encoding UTF8
+  $serializedReport = $report | ConvertTo-Json -Depth 8
+  if (Test-Path -LiteralPath $resolvedReportPath -PathType Leaf) {
+    try {
+      $existingText = Get-Content -LiteralPath $resolvedReportPath -Raw
+      $existingReport = $existingText | ConvertFrom-Json
+      $existingGeneratedAt = $existingReport.generatedAt
+      if ($null -ne $existingReport.PSObject.Properties["generatedAt"]) {
+        $existingReport.generatedAt = $report.generatedAt
+      }
+      $existingComparable = $existingReport | ConvertTo-Json -Depth 8
+      if ($existingComparable -eq $serializedReport -and -not [string]::IsNullOrWhiteSpace($existingGeneratedAt)) {
+        $report.generatedAt = $existingGeneratedAt
+        $serializedReport = $report | ConvertTo-Json -Depth 8
+      }
+      $existingNormalized = ($existingText -replace "`r`n", "`n").TrimEnd()
+      $serializedNormalized = ($serializedReport -replace "`r`n", "`n").TrimEnd()
+      if ($existingNormalized -eq $serializedNormalized) {
+        return
+      }
+    } catch {
+      # Invalid prior reports are replaced with the current validation output.
+    }
+  }
+
+  $serializedReport | Set-Content -LiteralPath $resolvedReportPath -Encoding UTF8
 }
 
 try {
@@ -245,6 +269,13 @@ if (-not (Test-Path -LiteralPath $bundleRoot -PathType Container)) {
       $bundle = Get-Content -LiteralPath $bundleFile.FullName -Raw | ConvertFrom-Json
     } catch {
       Add-Error "Asset bundle manifest is invalid JSON: $($bundleFile.Name)"
+      continue
+    }
+
+    if ($null -eq $bundle.assets) {
+      if ($bundle.release_required -eq $true -or $bundle.releaseRequired -eq $true) {
+        Add-Error "Release-required bundle has no assets array: $($bundleFile.Name)"
+      }
       continue
     }
 

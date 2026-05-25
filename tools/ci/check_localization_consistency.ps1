@@ -124,6 +124,27 @@ function Write-LocalizationReport {
 
     $Report["generatedAtUtc"] = [DateTime]::UtcNow.ToString("o")
     $jsonText = $Report | ConvertTo-Json -Depth 8
+    if (Test-Path -LiteralPath $LiteralPath -PathType Leaf) {
+        try {
+            $existing = Get-Content -LiteralPath $LiteralPath -Raw | ConvertFrom-Json
+            $existingSummary = $existing.summary | ConvertTo-Json -Depth 8
+            $currentSummary = $Report["summary"] | ConvertTo-Json -Depth 8
+            $existingBundles = @($existing.bundles) | ConvertTo-Json -Depth 8
+            $currentBundles = @($Report["bundles"]) | ConvertTo-Json -Depth 8
+            $existingErrors = @($existing.errors) | ConvertTo-Json -Depth 8
+            $currentErrors = @($Report["errors"]) | ConvertTo-Json -Depth 8
+            if ($existing.schemaVersion -eq $Report["schemaVersion"] -and
+                $existing.status -eq $Report["status"] -and
+                $existingSummary -eq $currentSummary -and
+                $existingBundles -eq $currentBundles -and
+                $existingErrors -eq $currentErrors) {
+                return
+            }
+        } catch {
+            # Invalid prior reports are replaced with the current validation output.
+        }
+    }
+
     [System.IO.File]::WriteAllText($LiteralPath, $jsonText + [Environment]::NewLine)
 }
 

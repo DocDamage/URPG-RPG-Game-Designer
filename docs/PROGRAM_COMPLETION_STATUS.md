@@ -1,11 +1,11 @@
 # URPG Program Completion Status
 
-Status Date: 2026-05-01
+Status Date: 2026-05-25
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`.
 
-Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 follow-up verification pass, local gates, the unwaived release-candidate gate, and the remote manual GitHub Actions release-candidate workflow pass, including fresh-clone release-required asset verification from GitHub. Public release legal/privacy review is owner-waived in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; final release tagging remains pending.
+Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. The bounded `v0.1.0` public release tag now exists at `1d3debb95b6df1d09996e723cc616369cfca99c6`. Public release legal/privacy review is owner-waived in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; post-tag commits require fresh final gates and a new release-owner decision before another public distribution claim.
 
 2026-05-01 100-percent completion phase-one checkpoint:
 - Active remaining-work inventory for the 100-percent completion push: [`docs/release/100_PERCENT_COMPLETION_INVENTORY.md`](release/100_PERCENT_COMPLETION_INVENTORY.md).
@@ -103,7 +103,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 
 2026-04-28 Wave 1 signoff closure:
 - `battle_core`, `save_data_core`, and `compat_bridge_exit` are promoted to `READY` for their bounded claimed scopes after release-owner signoff artifacts were updated and governance gates were changed to require approved signoff metadata for READY rows.
-- Public release legal/privacy/distribution review is owner-waived in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; final release tagging remains an app-release gate, not a subsystem readiness gap.
+- Public release legal/privacy/distribution review is owner-waived in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; post-`v0.1.0` release tagging remains an app-release gate, not a subsystem readiness gap.
 
 2026-04-27 export-hardening follow-through:
 - `RuntimeBundleLoader` now enforces the keyed SHA-256 `data.pck` bundle signature and per-entry integrity tags at load time, and `RuntimeStartupServices` rejects tampered bundles before project content use.
@@ -933,7 +933,7 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 - [x] Mandatory: close every remaining feature lane with direct editor workflows suitable for non-technical creators, not diagnostics-only or fixture-only paths.
 - [x] Mandatory: keep public docs, readiness language, and completion claims aligned with that WYSIWYG definition of done.
 
-Phase 10 WYSIWYG roadmap closure is complete for the current 100-percent program scope. The closure evidence is the enforced WYSIWYG done rule in `content/readiness/wysiwyg_done_rule.json`, READY subsystem evidence fields for visual authoring, live preview, saved project data, runtime execution, diagnostics, and tests, template showcase `editor_panel_registry_id` bindings for every surface, registry-backed `ReleaseTopLevel` or `Nested` route exposure, app factory inventory for every route, and focused regressions in `tests/unit/test_s32_wysiwyg_lanes.cpp`, `tests/unit/test_template_acceptance.cpp`, `tests/unit/test_editor_panel_registry.cpp`, and `tests/unit/test_editor_app_panels.cpp`. Phase 12 is ready for the bounded `v0.1.0` release-tag scope; future content expansions still need new curated evidence before broader asset-complete claims.
+Phase 10 WYSIWYG roadmap closure is complete for the current 100-percent program scope. The closure evidence is the enforced WYSIWYG done rule in `content/readiness/wysiwyg_done_rule.json`, READY subsystem evidence fields for visual authoring, live preview, saved project data, runtime execution, diagnostics, and tests, template showcase `editor_panel_registry_id` bindings for every surface, registry-backed `ReleaseTopLevel` or `Nested` route exposure, app factory inventory for every route, and focused regressions in `tests/unit/test_s32_wysiwyg_lanes.cpp`, `tests/unit/test_template_acceptance.cpp`, `tests/unit/test_editor_panel_registry.cpp`, and `tests/unit/test_editor_app_panels.cpp`. Phase 12 is tagged for the bounded `v0.1.0` release scope; future content expansions still need new curated evidence before broader asset-complete claims.
 
 ### 8. Offline tooling boundary and pipeline adoption (complete)
 
@@ -941,7 +941,7 @@ Phase 10 WYSIWYG roadmap closure is complete for the current 100-percent program
 - [x] Mandatory: land the approved offline tooling lanes: FAISS retrieval, SAM/SAM2 segmentation, and Demucs/Encodec audio tooling.
 - [x] Mandatory: ensure the runtime consumes only exported artifacts from those pipelines and does not silently acquire heavyweight research dependencies.
 
-Phase 11 offline tooling closure is complete for the current 100-percent program scope. FAISS retrieval chunk manifests and retrieval bundles, SAM/SAM2-compatible segmentation manifests, and Demucs/Encodec-compatible audio manifests are artifact-producing offline jobs under `tools/`, with shared job-runner coverage proving the retrieval, vision, and audio entrypoints remain addressable without runtime ML dependencies. Phase 12 is ready for the bounded `v0.1.0` release-tag scope; future content expansions still need new curated evidence before broader asset-complete claims.
+Phase 11 offline tooling closure is complete for the current 100-percent program scope. FAISS retrieval chunk manifests and retrieval bundles, SAM/SAM2-compatible segmentation manifests, and Demucs/Encodec-compatible audio manifests are artifact-producing offline jobs under `tools/`, with shared job-runner coverage proving the retrieval, vision, and audio entrypoints remain addressable without runtime ML dependencies. Phase 12 is tagged for the bounded `v0.1.0` release scope; future content expansions still need new curated evidence before broader asset-complete claims.
 
 ## Work complete, not remaining
 

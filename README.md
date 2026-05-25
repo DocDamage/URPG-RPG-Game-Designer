@@ -6,20 +6,22 @@ The project is built for creators who want RPG Maker-style production speed with
 
 ## Current Status
 
-Status date: 2026-05-04
+Status date: 2026-05-25
 
-The current `codex/release-surface-p0` branch has completed the release-surface audit remediation plan through Phase 6 Task P6-002. The full local gate now passes end to end:
+The bounded public `v0.1.0` release tag exists as an annotated tag targeting commit `1d3debb95b6df1d09996e723cc616369cfca99c6`. The current `development` workspace is post-`v0.1.0` and must pass the final gates again before any follow-up public release or broader completion claim.
+
+For active development, use the full local gate:
 
 ```powershell
 .\tools\ci\run_local_gates.ps1
 ```
 
-This means the current branch has verified editor release navigation, Level Builder exposure, release authoring persistence, input and pause behavior, release-required asset checks, install/package smoke, PR tests, nightly tests, weekly compat tests, and documentation/readiness guard scripts.
+That gate verifies editor release navigation, Level Builder exposure, release authoring persistence, input and pause behavior, release-required asset checks, install/package smoke, PR tests, nightly tests, weekly compat tests, and documentation/readiness guard scripts.
 
 Public release is release-owner-waived for legal/privacy review, not qualified-counsel-approved. `EULA.md`,
-`PRIVACY_POLICY.md`, and `docs/release/LEGAL_REVIEW_SIGNOFF.md` now state the same distribution scope. Final public
-distribution still requires a release tag and any platform-specific signing/notarization credentials required for final
-distribution.
+`PRIVACY_POLICY.md`, and `docs/release/LEGAL_REVIEW_SIGNOFF.md` now state the same distribution scope. Any follow-up
+public distribution still requires fresh gate evidence, a release-owner decision, a new release tag or release update, and
+any platform-specific signing/notarization credentials required for final distribution.
 
 ## Verified Release Surface
 
@@ -46,10 +48,10 @@ Within the bounded internal/private release-candidate scope:
 - Install and package smoke checks verify app binaries, runtime data, docs/legal files, icons, desktop entries, and component ZIP archives.
 - Compat diagnostics distinguish successful execution diagnostics from failure diagnostics in both model and live panel refresh paths.
 
-## Still Blocked For Public Release
+## Remaining Public Distribution Constraints
 
 - Release-owner legal/privacy waiver is recorded in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; qualified public legal review has not been performed.
-- Public distribution approval and release tagging.
+- New public distribution approval and release tagging for post-`v0.1.0` commits.
 - Platform signing/notarization credentials for final release artifacts.
 - Repository-wide source/vendor LFS budget/access if future release work depends on full vendor/source asset hydration. Current release-required app assets are normal Git blobs and are checked separately.
 

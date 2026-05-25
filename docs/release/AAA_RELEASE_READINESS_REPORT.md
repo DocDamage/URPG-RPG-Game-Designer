@@ -1,17 +1,17 @@
 # AAA Release-Readiness Report - URPG Engine
 
-**Report date:** 2026-05-05
+**Report date:** 2026-05-25
 **Repository audited:** `C:\dev\URPG Maker`
-**Active branch:** `codex/public-release-record` docs-only release record for `main`
-**Verification base commit:** `60f61bd07179cc85a665695ddc2d543ff766eba0` on `main`
+**Active branch:** `development` post-`v0.1.0`
+**Verification base commit:** `1d3debb95b6df1d09996e723cc616369cfca99c6` for the annotated `v0.1.0` tag; current post-tag HEAD must be freshly gated before any follow-up release.
 **Purpose:** Authoritative release-readiness audit for the current runtime, editor, packaging, release governance, and asset-hydration gates.
-**Verdict:** **PUBLIC RELEASE READY; V0.1.0 TAG AUTHORIZED**
+**Verdict:** **V0.1.0 TAGGED FOR THE BOUNDED RELEASE SCOPE; POST-TAG COMMITS REQUIRE FRESH RELEASE GATES**
 
-**Current documentation note (2026-05-05):** The production release execution-plan remediation has been merged to `main`. Runtime chat text entry, project-root-aware save/load, AI animation application, release-mode missing-asset diagnostics, release legal/contact metadata, hidden cloud-sync policy, silent audio scope, bounded starter-visual scope, public security reporting policy, install/package docs, and release evidence fixes are implemented and covered by local and remote gates. This report records the release-owner decision to create the public `v0.1.0` release tag after the final docs-only release record lands and the final gate passes on the tag target commit.
+**Current documentation note (2026-05-25):** The production release execution-plan remediation merged to `main`, and the annotated `v0.1.0` tag now exists for the bounded package scope at commit `1d3debb95b6df1d09996e723cc616369cfca99c6`. Runtime chat text entry, project-root-aware save/load, AI animation application, release-mode missing-asset diagnostics, release legal/contact metadata, hidden cloud-sync policy, silent audio scope, bounded starter-visual scope, public security reporting policy, install/package docs, and release evidence fixes are implemented and covered by the recorded release gates. Current `development` is post-tag and requires fresh final gates plus a new release-owner decision before another public release.
 
-URPG is no longer blocked by the original app-entry, editor-navigation, install/package, metadata, release-required asset hydration, legal owner acceptance/waiver, remote workflow, local release-candidate validation, security-reporting, or package-documentation issues recorded in the release audits. Those items now have direct implementation and gate evidence or explicit release-owner waiver. For the bounded `v0.1.0` package scope, the remaining action is mechanical publication: create the annotated release tag and GitHub release from the verified package artifacts.
+URPG is no longer blocked by the original app-entry, editor-navigation, install/package, metadata, release-required asset hydration, legal owner acceptance/waiver, remote workflow, local release-candidate validation, security-reporting, or package-documentation issues recorded in the release audits. Those items now have direct implementation and gate evidence or explicit release-owner waiver. For the bounded `v0.1.0` package scope, the annotated release tag has been created; post-tag changes are tracked as the next validation target.
 
-- The release owner approved public `v0.1.0` tag creation for the verified bounded package scope.
+- The release owner approved public `v0.1.0` tag creation for the verified bounded package scope, and the annotated tag exists.
 
 The current app-level source of truth is [docs/APP_RELEASE_READINESS_MATRIX.md](../APP_RELEASE_READINESS_MATRIX.md). That matrix maps each release-facing workflow to owner files, task IDs, evidence commands, and remaining release gates.
 
@@ -26,7 +26,7 @@ The current app-level source of truth is [docs/APP_RELEASE_READINESS_MATRIX.md](
 | Release-candidate gate script | `VERIFIED` | `.\tools\ci\run_release_candidate_gate.ps1` passed on `main`; GitHub Actions run `25351794008` passed at `60f61bd07179cc85a665695ddc2d543ff766eba0` | Local gate passes through fresh-clone asset verification, configure, build, PR tests, presentation validation, install smoke, package smoke, and CPack package generation; remote manual workflow passed on `main`: `https://github.com/DocDamage/URPG-RPG-Game-Designer/actions/runs/25351794008`. |
 | Release-required asset hydration | `VERIFIED` | `resources/icons/*.png` were demoted from LFS to normal Git blobs; fresh clone from GitHub passed the RC asset check | No longer a release-package blocker. Repository-wide vendor/source LFS hydration remains blocked by GitHub budget/access and is not required by current package/install rules. |
 | Legal/privacy/distribution review | `VERIFIED` | Required docs exist and install/package; release owner recorded `WAIVED_BY_RELEASE_OWNER` in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; P5-02 evidence reflects bundled `BND-001`, deferred `BND-002`, opt-in local analytics behavior, and release-owner certification that shipped paid/licensed assets are usable in distributed games | Does not block public release. This is an owner waiver, not qualified legal counsel approval. |
-| Release tag | `APPROVED_TO_TAG` | `git tag --list 'v0.1.0'` returned no existing tag before publication; local and remote release-candidate gates passed on `main` at `60f61bd07179cc85a665695ddc2d543ff766eba0`; release owner approved public release | Create annotated `v0.1.0` tag and GitHub release from the final `main` release commit after this docs-only release record passes the final gate. |
+| Release tag | `TAGGED_FOR_V0.1.0` | Annotated tag `v0.1.0` exists and targets `1d3debb95b6df1d09996e723cc616369cfca99c6`; local and remote release-candidate gates passed on the recorded `main` release lineage; release owner approved public release | Treat current post-tag commits as a new release-candidate target. Before any follow-up public distribution, rerun final gates and record a new release-owner decision. |
 
 ## 2026-05-05 Public Release Verification Results
 
@@ -44,7 +44,7 @@ Results:
 
 - `.\tools\ci\run_release_candidate_gate.ps1`: passed on `main` at `60f61bd07179cc85a665695ddc2d543ff766eba0`. The gate hydrated release-required assets from a fresh clone, configured and built the release preset, ran PR-level tests, ran the presentation gate, passed install smoke, passed package smoke, and generated the component ZIPs.
 - GitHub Actions run `25351794008`: passed on `main` at `60f61bd07179cc85a665695ddc2d543ff766eba0`; `release-candidate` and `gate1-pr` completed successfully, while nightly and weekly jobs were skipped by design for the manually triggered release run.
-- `git tag --list 'v0.1.0'`: returned no existing tag before publication.
+- `git tag --list 'v0.1.0'`: returned no existing tag before publication; the tag was later created as an annotated `v0.1.0` release tag targeting `1d3debb95b6df1d09996e723cc616369cfca99c6`.
 - `gh release view v0.1.0`: returned no existing GitHub release before publication.
 
 Verified package artifacts:
@@ -185,11 +185,11 @@ The manual GitHub Actions release-candidate workflow passed in run `25351794008`
 
 This is no longer a release blocker for public `v0.1.0` validation.
 
-### RB-3: Release Tag Approved
+### RB-3: Release Tag Created
 
-**Status:** `APPROVED_TO_TAG`
+**Status:** `TAGGED_FOR_V0.1.0`
 
-Legal review is formally waived by the release owner, local and remote release-candidate gates have passed for the `v0.1.0` target lineage, and the release owner approved public tag creation. The publication step is to create an annotated `v0.1.0` tag and GitHub release from the final `main` release commit after this docs-only release record passes the final gate.
+Legal review is formally waived by the release owner, local and remote release-candidate gates passed for the `v0.1.0` target lineage, and the release owner approved public tag creation. The annotated `v0.1.0` tag exists at `1d3debb95b6df1d09996e723cc616369cfca99c6`; post-tag public releases require a new target commit, fresh final gates, and a new release-owner decision.
 
 ### Non-Release Block: Repository-Wide Source/Vendor LFS Hydration
 
@@ -211,4 +211,4 @@ The project may be marked release-ready only after all of the following are true
 - Legal/privacy/distribution review is complete for the intended distribution scope or explicitly waived by the release owner.
 - A release owner records the release decision and creates an annotated prerelease or release tag.
 
-For the bounded `v0.1.0` package scope, these criteria are satisfied or owner-waived. The authoritative verdict is **public-release ready; `v0.1.0` tag authorized**.
+For the bounded `v0.1.0` package scope, these criteria were satisfied or owner-waived and the annotated tag now exists. The authoritative verdict is **`v0.1.0` tagged for the bounded release scope; post-tag commits require fresh release gates**.

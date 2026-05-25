@@ -202,7 +202,7 @@ try {
     & "$PSScriptRoot\check_cmake_completeness.ps1"
 
     Write-Host "== Configure: $ConfigurePreset ==" -ForegroundColor Cyan
-    cmake --preset $ConfigurePreset
+    cmake --fresh --preset $ConfigurePreset
     Assert-LastExitCode "Configure preset '$ConfigurePreset'"
 
     if (-not $SkipBuild) {
@@ -219,7 +219,7 @@ try {
 
     if (-not $SkipWarningsAsErrorsGate) {
         Write-Host "== Configure strict warnings gate: $strictBuildDir ==" -ForegroundColor Cyan
-        cmake --preset $ConfigurePreset -B $strictBuildDir -DURPG_WARNINGS_AS_ERRORS=ON
+        cmake --fresh --preset $ConfigurePreset -B $strictBuildDir -DURPG_WARNINGS_AS_ERRORS=ON
         Assert-LastExitCode "Configure strict warnings gate '$strictBuildDir'"
 
         Write-Host "== Build strict warnings gate ==" -ForegroundColor Cyan
