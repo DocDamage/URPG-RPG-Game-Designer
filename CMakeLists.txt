@@ -1628,6 +1628,7 @@ add_executable(urpg_compat_tests
     tests/compat/test_compat_plugin_fixtures_menu_presentation.cpp
     tests/compat/test_compat_plugin_fixtures_battle.cpp
     tests/compat/test_compat_plugin_failure_diagnostics.cpp
+    tests/compat/test_compat_plugin_failure_telemetry.cpp
     tests/compat/test_compat_plugin_failure_diagnostics_malformed.cpp
     tests/compat/test_compat_plugin_failure_diagnostics_runtime.cpp
     tests/compat/test_compat_plugin_failure_diagnostics_directory.cpp

@@ -256,6 +256,9 @@ class PluginManager {
     // Status: FULL - Exports compat bridge failure diagnostics
     std::string exportFailureDiagnosticsJsonl() const;
 
+    // Status: FULL - Projects compat bridge failure diagnostics into telemetry envelopes
+    std::string exportFailureTelemetryJsonl() const;
+
     // Status: FULL - Clears compat bridge failure diagnostics
     void clearFailureDiagnostics();
 

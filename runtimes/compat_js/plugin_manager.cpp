@@ -2,6 +2,7 @@
 // Phase 2 - Compat Layer
 
 #include "plugin_manager.h"
+#include "engine/core/telemetry/telemetry_event.h"
 #include "plugin_manager_directory_scan.h"
 #include "plugin_manager_fixture_script.h"
 #include "plugin_manager_status.h"
@@ -44,9 +45,7 @@ std::string trimPluginHeaderValue(std::string_view value) {
 }
 
 bool isBlankString(const std::string& value) {
-    return std::all_of(value.begin(), value.end(), [](unsigned char ch) {
-        return std::isspace(ch) != 0;
-    });
+    return std::all_of(value.begin(), value.end(), [](unsigned char ch) { return std::isspace(ch) != 0; });
 }
 
 void normalizeDependencyIds(std::vector<std::string>& dependencies) {
@@ -91,6 +90,26 @@ Object objectFromParameterMap(const std::unordered_map<std::string, Value>& para
         out[key] = value;
     }
     return out;
+}
+
+urpg::telemetry::TelemetryEvent telemetryEventFromFailureDiagnostic(const nlohmann::json& diagnostic) {
+    urpg::telemetry::TelemetryEvent event;
+    event.subsystem = "compat.plugin_manager";
+    event.name = diagnostic.value("event", "compat_failure");
+    event.severity = urpg::telemetry::severityFromCompatTag(diagnostic.value("severity", ""));
+    event.code = "compat.plugin_manager." + diagnostic.value("operation", "failure");
+    event.message = diagnostic.value("message", "");
+    event.fields["plugin"] = diagnostic.value("plugin", "");
+    event.fields["command"] = diagnostic.value("command", "");
+    event.fields["operation"] = diagnostic.value("operation", "");
+    event.fields["severity_tag"] = diagnostic.value("severity", "");
+    if (diagnostic.contains("seq")) {
+        event.fields["seq"] = std::to_string(diagnostic.value("seq", 0ULL));
+    }
+    if (diagnostic.contains("ts") && diagnostic["ts"].is_string()) {
+        event.fields["ts"] = diagnostic["ts"].get<std::string>();
+    }
+    return event;
 }
 
 std::string makeLivePluginBootstrapSource() {
@@ -1457,6 +1476,23 @@ std::string PluginManager::exportFailureDiagnosticsJsonl() const {
     std::ostringstream out;
     for (size_t i = 0; i < impl_->failureDiagnosticsJsonl_.size(); ++i) {
         out << impl_->failureDiagnosticsJsonl_[i];
+        if (i + 1 < impl_->failureDiagnosticsJsonl_.size()) {
+            out << '\n';
+        }
+    }
+    return out.str();
+}
+
+std::string PluginManager::exportFailureTelemetryJsonl() const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
+    if (impl_->failureDiagnosticsJsonl_.empty()) {
+        return "";
+    }
+
+    std::ostringstream out;
+    for (size_t i = 0; i < impl_->failureDiagnosticsJsonl_.size(); ++i) {
+        const auto diagnostic = nlohmann::json::parse(impl_->failureDiagnosticsJsonl_[i]);
+        out << telemetryEventFromFailureDiagnostic(diagnostic).toJson().dump();
         if (i + 1 < impl_->failureDiagnosticsJsonl_.size()) {
             out << '\n';
         }
