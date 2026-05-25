@@ -1,4 +1,5 @@
 #include "engine/core/localization/locale_catalog.h"
+#include "engine/core/localization/localization_document_tools.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -142,4 +143,70 @@ TEST_CASE("getAllKeys returns all inserted keys", "[localization][catalog]") {
     REQUIRE(keys[0] == "A");
     REQUIRE(keys[1] == "M");
     REQUIRE(keys[2] == "Z");
+}
+
+TEST_CASE("Localization extraction emits canonical dialogue preview bundle", "[localization][catalog][extract]") {
+    const auto document = nlohmann::json::parse(R"({
+        "id": "intro",
+        "locale": "en-US",
+        "pages": [
+            {
+                "id": "p1",
+                "body": "Welcome home.",
+                "localization_key": "dialogue.intro.body",
+                "choices": [
+                    {
+                        "id": "yes",
+                        "label": "Yes",
+                        "localization_key": "dialogue.intro.yes",
+                        "target_page_id": "p2"
+                    }
+                ]
+            }
+        ]
+    })");
+
+    const auto bundle = urpg::localization::extractDialoguePreviewLocalizationBundle(document);
+
+    REQUIRE(bundle["locale"] == "en-US");
+    REQUIRE(bundle["keys"]["dialogue.intro.body"] == "Welcome home.");
+    REQUIRE(bundle["keys"]["dialogue.intro.yes"] == "Yes");
+}
+
+TEST_CASE("Localization writeback updates only localized dialogue text fields", "[localization][catalog][writeback]") {
+    const auto document = nlohmann::json::parse(R"({
+        "id": "intro",
+        "locale": "en-US",
+        "pages": [
+            {
+                "id": "p1",
+                "speaker": "Guide",
+                "body": "Welcome home.",
+                "localization_key": "dialogue.intro.body",
+                "choices": [
+                    {
+                        "id": "yes",
+                        "label": "Yes",
+                        "localization_key": "dialogue.intro.yes",
+                        "target_page_id": "p2"
+                    }
+                ]
+            }
+        ]
+    })");
+    const auto bundle = nlohmann::json::parse(R"({
+        "locale": "ja-JP",
+        "keys": {
+            "dialogue.intro.body": "Okaeri.",
+            "dialogue.intro.yes": "Hai"
+        }
+    })");
+
+    const auto updated = urpg::localization::writebackDialoguePreviewLocalizationBundle(document, bundle);
+
+    REQUIRE(updated["id"] == document["id"]);
+    REQUIRE(updated["pages"][0]["speaker"] == "Guide");
+    REQUIRE(updated["pages"][0]["body"] == "Okaeri.");
+    REQUIRE(updated["pages"][0]["choices"][0]["label"] == "Hai");
+    REQUIRE(updated["pages"][0]["choices"][0]["target_page_id"] == "p2");
 }

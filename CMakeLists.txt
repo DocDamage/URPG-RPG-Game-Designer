@@ -404,6 +404,7 @@ set(URPG_CORE_SOURCES
     engine/core/message/dialogue_project_loader.cpp
     engine/core/message/message_migration.cpp
     engine/core/localization/locale_catalog.cpp
+    engine/core/localization/localization_document_tools.cpp
     engine/core/localization/completeness_checker.cpp
     engine/core/localization/template_localization_audit.cpp
     engine/core/accessibility/accessibility_auditor.cpp
@@ -1182,6 +1183,22 @@ add_executable(urpg_pack_cli
 target_link_libraries(urpg_pack_cli PRIVATE urpg_core)
 target_include_directories(urpg_pack_cli PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 urpg_enable_windows_test_binary_unlock(urpg_pack_cli)
+
+add_executable(urpg_extract_localization
+    tools/localization/extract_localization.cpp
+)
+
+target_link_libraries(urpg_extract_localization PRIVATE urpg_core)
+target_include_directories(urpg_extract_localization PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+urpg_enable_windows_test_binary_unlock(urpg_extract_localization)
+
+add_executable(urpg_writeback_localization
+    tools/localization/writeback_localization.cpp
+)
+
+target_link_libraries(urpg_writeback_localization PRIVATE urpg_core)
+target_include_directories(urpg_writeback_localization PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+urpg_enable_windows_test_binary_unlock(urpg_writeback_localization)
 
 add_executable(urpg_presentation_release_validation
     engine/core/presentation/release_validation.cpp
