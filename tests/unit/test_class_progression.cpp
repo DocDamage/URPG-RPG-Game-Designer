@@ -133,6 +133,9 @@ TEST_CASE("Stat allocation previews level-up spending and editor state", "[progr
 
     const auto snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot["panel"] == "stat_allocation");
+    REQUIRE(snapshot["render_contract"]["component"] == "stat_allocation_control_panel");
+    REQUIRE(snapshot["render_contract"]["stat_renderer"] == "stat_stepper_rows");
+    REQUIRE(snapshot["render_contract"]["supports_cap_warnings"] == true);
     REQUIRE(snapshot["pool_id"] == "actor_hero_pool");
     REQUIRE(snapshot["selected_pool"]["actor_id"] == "actor.hero");
     REQUIRE(snapshot["selected_pool"]["class_id"] == "class.warrior");
@@ -240,6 +243,7 @@ TEST_CASE("Stat allocation reports overspend missing rules and invalid pools", "
     panel.setRequest(request);
     panel.render();
     const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["render_contract"]["supports_disabled_reasons"] == true);
     REQUIRE(snapshot["controls"]["commit_button"]["enabled"] == false);
     REQUIRE(snapshot["controls"]["commit_button"]["disabled_reason"] == "stat_points_overspent");
     REQUIRE(snapshot["stat_controls"][0]["stat_id"] == "mat");

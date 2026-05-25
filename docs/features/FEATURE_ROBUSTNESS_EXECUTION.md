@@ -102,7 +102,9 @@ python tools/ci/check_feature_robustness_lanes.py
 
 This slice adds creator-facing stat allocation control rows to the editor snapshot. The panel now exposes pool/class/actor rows, per-stat increment/decrement controls, cap warnings, commit disabled reasons, and post-load apply buttons that distinguish applicable rows from already-applied rows.
 
-The remaining `FRL-03` work is the final rendered ImGui treatment plus visual fixture coverage for cap blocking and already-applied post-load rows.
+The completion slice adds a renderer-facing `stat_allocation_control_panel` contract for segmented pool rows, stat stepper rows, and saved-allocation apply rows. The snapshot continues to carry cap warnings and disabled reasons so the ImGui layer can render controls without recomputing progression rules.
+
+`FRL-03` is complete for the governed visual-control contract scope.
 
 Verification:
 
@@ -165,7 +167,7 @@ python tools\ci\check_feature_robustness_lanes.py
 | --- | --- | --- |
 | `FRL-01` | Battle feedback | Complete for the governed FRL-01 fixture-depth scope. |
 | `FRL-02` | State/message/picture | Dedicated compat fixture files and rendered high-count picture snapshot evidence. |
-| `FRL-03` | Progression | Final rendered ImGui treatment and visual fixtures. |
+| `FRL-03` | Progression | Complete for stat allocation control rows and render contract. |
 | `FRL-04` | Gameplay abilities | Long-running async scheduling and scripting sandbox policy. |
 | `FRL-05` | Asset browser/runtime library | Curated bulk promotion and generated preview media evidence. |
 | `FRL-06` | AI editor workflow | Complete for shared painted diff rows and render contract. |
