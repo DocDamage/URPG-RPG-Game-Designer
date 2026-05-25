@@ -33,7 +33,9 @@ python -m unittest tools.ai.tests.test_collect_project_knowledge
 
 This slice moves AI patch review from raw JSON patch rows toward a rendered contract. `buildAiToolResultDiff()` now emits painted add/remove/replace rows with before/after groups, tone classes, icons, selected detail payloads, and blocked-apply reasons. The AI assistant panel and chatbot snapshots both expose the same result diff shape so UI rendering can share one contract.
 
-The remaining `FRL-06` work is the final ImGui rendering treatment plus visual fixture coverage for add/remove/replace rows.
+The completion slice adds a renderer-facing `render_contract` to the shared result diff payload. Editor and chatbot surfaces now expose the `painted_ai_diff_panel` contract with before/after row rendering, selection support, and blocked-apply support so ImGui can render the diff without reinterpreting JSON patches.
+
+`FRL-06` is complete for the governed painted-diff scope. More interactive side-by-side editing should open a new lane.
 
 Verification:
 
@@ -166,7 +168,7 @@ python tools\ci\check_feature_robustness_lanes.py
 | `FRL-03` | Progression | Final rendered ImGui treatment and visual fixtures. |
 | `FRL-04` | Gameplay abilities | Long-running async scheduling and scripting sandbox policy. |
 | `FRL-05` | Asset browser/runtime library | Curated bulk promotion and generated preview media evidence. |
-| `FRL-06` | AI editor workflow | Final rendered ImGui treatment and visual fixtures. |
+| `FRL-06` | AI editor workflow | Complete for shared painted diff rows and render contract. |
 | `FRL-07` | Project knowledge indexing | Complete for adapter-backed crawler invocation and ingestion. |
 | `FRL-08` | Concrete AI tools | Full typed native validator invocation and delegated output paths. |
 | `FRL-09` | Live chat providers | True socket-level live chunk delivery. |

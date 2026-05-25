@@ -138,6 +138,15 @@ void AiAssistantPanel::render() {
         last_render_snapshot_["result_diff"] = {
             {"has_changes", false},
             {"painted", true},
+            {"render_contract",
+             {
+                 {"component", "painted_ai_diff_panel"},
+                 {"row_renderer", "before_after_patch_rows"},
+                 {"supports_selection", true},
+                 {"supports_blocked_apply_reason", true},
+                 {"row_count", 0},
+                 {"empty_state", "No AI changes to render."},
+             }},
             {"forward_patch_count", 0},
             {"revert_patch_count", 0},
             {"forward_patch", nlohmann::json::array()},

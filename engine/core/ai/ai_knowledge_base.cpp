@@ -1078,6 +1078,15 @@ nlohmann::json buildAiToolResultDiff(const AiToolApplyResult& result) {
     return {
         {"has_changes", !rows.empty()},
         {"painted", true},
+        {"render_contract",
+         {
+             {"component", "painted_ai_diff_panel"},
+             {"row_renderer", "before_after_patch_rows"},
+             {"supports_selection", true},
+             {"supports_blocked_apply_reason", true},
+             {"row_count", rows.size()},
+             {"empty_state", rows.empty() ? "No AI changes to render." : ""},
+         }},
         {"forward_patch_count", result.project_patch.is_array() ? result.project_patch.size() : 0U},
         {"revert_patch_count", result.revert_patch.is_array() ? result.revert_patch.size() : 0U},
         {"row_count", rows.size()},

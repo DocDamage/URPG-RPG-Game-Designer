@@ -701,6 +701,9 @@ TEST_CASE("AI assistant panel approves and applies task plans", "[ai_knowledge][
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["forward_patch_count"].get<size_t>() > 0);
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["revert_patch_count"].get<size_t>() > 0);
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["row_count"].get<size_t>() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["render_contract"]["component"] == "painted_ai_diff_panel");
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["render_contract"]["row_renderer"] == "before_after_patch_rows");
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["render_contract"]["supports_selection"] == true);
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0]["operation"] == "add");
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0].contains("before"));
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0].contains("after"));
@@ -888,6 +891,7 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands", "[ai_
     const auto applied = chatbot.executeTool("AI_APPLY");
     REQUIRE(applied["last_apply"]["applied"] == true);
     REQUIRE(applied["result_diff"]["painted"] == true);
+    REQUIRE(applied["result_diff"]["render_contract"]["component"] == "painted_ai_diff_panel");
     REQUIRE(applied["result_diff"]["rows"][0]["paint"]["tone"] == "added");
     REQUIRE(chatbot.projectData()["dialogue"]["generated_dialogue"]["lines"].size() == 1);
     REQUIRE(chatbot.projectData()["_ai_change_history"].size() == 1);
