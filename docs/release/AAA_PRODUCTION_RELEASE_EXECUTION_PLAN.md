@@ -1,8 +1,8 @@
 # AAA Production Release Execution Plan
 
-Status Date: 2026-05-04
+Status Date: 2026-05-25
 
-This plan converts the latest senior release-engineering audit into ordered remediation work. Tasks are grouped so a developer or coding agent can execute them one by one without guessing. The current blocker is that the canonical `build/dev-ninja-debug` tree is not a valid CMake build directory, so release evidence must be regenerated after build/test discovery is restored.
+This plan converted the senior release-engineering audit into ordered remediation work. The original invalid `build/dev-ninja-debug` blocker is closed for the current workspace after a fresh configure/build restored test discovery. The bounded `v0.1.0` release tag now exists; post-tag commits should use this plan as historical remediation context and must rerun the final gates before any follow-up public release.
 
 ## Phase 0 - Build Blockers And App-Breaking Issues
 

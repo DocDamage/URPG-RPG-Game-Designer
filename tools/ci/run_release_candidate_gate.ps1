@@ -236,7 +236,7 @@ try {
 
   if (-not $SkipConfigure) {
     Invoke-GateStep "Configure release build ($ConfigurePreset)" {
-      cmake --preset $script:RcConfigurePreset
+      cmake --fresh --preset $script:RcConfigurePreset
       Assert-LastExitCode "Configure preset '$script:RcConfigurePreset'"
     }
   }

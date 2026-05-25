@@ -17,41 +17,7 @@ nlohmann::json diagnosticsToJson(const std::vector<urpg::ai::AiKnowledgeDiagnost
     return out;
 }
 
-std::string patchPathRoot(const std::string& path) {
-    if (path.empty() || path == "/") {
-        return "/";
-    }
-    const auto next = path.find('/', 1);
-    return next == std::string::npos ? path.substr(1) : path.substr(1, next - 1);
-}
-
-std::string patchTone(const std::string& operation) {
-    if (operation == "add") {
-        return "added";
-    }
-    if (operation == "remove") {
-        return "removed";
-    }
-    if (operation == "replace") {
-        return "changed";
-    }
-    return "review";
-}
-
-nlohmann::json valueAtPointerOrNull(const nlohmann::json& document, const std::string& path) {
-    try {
-        const nlohmann::json::json_pointer pointer(path);
-        if (document.contains(pointer)) {
-            return document.at(pointer);
-        }
-    } catch (const nlohmann::json::exception&) {
-        return nullptr;
-    }
-    return nullptr;
-}
-
-nlohmann::json makeAiChangeRecord(const urpg::ai::AiTaskPlan& plan,
-                                  const urpg::ai::AiToolApplyResult& result,
+nlohmann::json makeAiChangeRecord(const urpg::ai::AiTaskPlan& plan, const urpg::ai::AiToolApplyResult& result,
                                   std::size_t index) {
     return {
         {"change_id", "ai_change_" + std::to_string(index + 1)},
@@ -116,6 +82,18 @@ void AiAssistantPanel::setTaskRequest(std::string taskRequest) {
     rebuildTaskPlan();
 }
 
+nlohmann::json AiAssistantPanel::ingestFilesystemKnowledge(nlohmann::json filesystemKnowledge) {
+    project_data_ = urpg::ai::mergeFilesystemKnowledgeIntoProjectData(std::move(project_data_), filesystemKnowledge);
+    rebuildTaskPlan();
+    return urpg::ai::buildFilesystemKnowledgeReport(project_data_);
+}
+
+nlohmann::json AiAssistantPanel::buildFilesystemKnowledgeRefresh(std::string projectRoot, std::string outputPath) {
+    last_filesystem_refresh_ =
+        urpg::ai::buildFilesystemCrawlerInvocation(project_data_, std::move(projectRoot), std::move(outputPath));
+    return last_filesystem_refresh_;
+}
+
 void AiAssistantPanel::rebuildTaskPlan() {
     knowledge_ = urpg::ai::buildDefaultAiKnowledgeSnapshot(project_data_);
     urpg::ai::AiTaskPlanner planner;
@@ -133,12 +111,15 @@ void AiAssistantPanel::render() {
         {"status", validator.evaluate(config_, provider_available_).toJson()},
         {"provider_ui", buildProviderUiSnapshot()},
         {"suggestion", policy.toJson(suggestion_)},
-        {"knowledge", {
-            {"capability_count", knowledge_.capabilities.capabilities().size()},
-            {"project_entry_count", knowledge_.project_index.entries().size()},
-            {"doc_entry_count", knowledge_.docs_index.entries().size()},
-            {"tool_count", knowledge_.tools.tools().size()},
-        }},
+        {"knowledge",
+         {
+             {"capability_count", knowledge_.capabilities.capabilities().size()},
+             {"project_entry_count", knowledge_.project_index.entries().size()},
+             {"doc_entry_count", knowledge_.docs_index.entries().size()},
+             {"tool_count", knowledge_.tools.tools().size()},
+         }},
+        {"filesystem_knowledge", urpg::ai::buildFilesystemKnowledgeReport(project_data_)},
+        {"filesystem_knowledge_refresh", last_filesystem_refresh_},
         {"wysiwyg_chatbot_coverage",
          urpg::ai::buildWysiwygChatbotCoverageReport(knowledge_, asset_library_snapshot_).toJson()},
         {"asset_preview_rows", urpg::assets::buildAssetPreviewRows(asset_library_snapshot_)},
@@ -152,25 +133,28 @@ void AiAssistantPanel::render() {
     };
     if (!applied_changes_.empty()) {
         last_render_snapshot_["last_apply"] = applied_changes_.back().toJson();
-        const auto diffRows = buildDiffRows(applied_changes_.back());
-        last_render_snapshot_["result_diff"] = {
-            {"has_changes", !applied_changes_.back().project_patch.empty()},
-            {"forward_patch_count", applied_changes_.back().project_patch.size()},
-            {"revert_patch_count", applied_changes_.back().revert_patch.size()},
-            {"forward_patch", applied_changes_.back().project_patch},
-            {"revert_patch", applied_changes_.back().revert_patch},
-            {"rows", diffRows},
-            {"row_count", diffRows.size()},
-        };
+        last_render_snapshot_["result_diff"] = urpg::ai::buildAiToolResultDiff(applied_changes_.back());
     } else {
         last_render_snapshot_["result_diff"] = {
             {"has_changes", false},
+            {"painted", true},
+            {"render_contract",
+             {
+                 {"component", "painted_ai_diff_panel"},
+                 {"row_renderer", "before_after_patch_rows"},
+                 {"supports_selection", true},
+                 {"supports_blocked_apply_reason", true},
+                 {"row_count", 0},
+                 {"empty_state", "No AI changes to render."},
+             }},
             {"forward_patch_count", 0},
             {"revert_patch_count", 0},
             {"forward_patch", nlohmann::json::array()},
             {"revert_patch", nlohmann::json::array()},
             {"rows", nlohmann::json::array()},
             {"row_count", 0},
+            {"selected_row", nullptr},
+            {"blocked_apply_reason", nullptr},
         };
     }
 }
@@ -279,9 +263,8 @@ bool AiAssistantPanel::revertLastAppliedPlan() {
 
 bool AiAssistantPanel::selectOpenAiProvider(const std::string& providerId) {
     const auto profiles = urpg::ai::openAiCompatibleProviderProfiles();
-    const auto found = std::find_if(profiles.begin(), profiles.end(), [&](const auto& profile) {
-        return profile.id == providerId;
-    });
+    const auto found =
+        std::find_if(profiles.begin(), profiles.end(), [&](const auto& profile) { return profile.id == providerId; });
     if (found == profiles.end()) {
         last_provider_test_ = {
             {"attempted", false},
@@ -312,10 +295,9 @@ nlohmann::json AiAssistantPanel::testOpenAiProviderRequest() {
         };
         return last_provider_test_;
     }
-    const auto result = urpg::ai::invokeOpenAiCompatibleChat(
-        {{"user", "URPG provider connectivity test."}}, selectedConfig);
-    const std::string connectionState =
-        !selectedConfig.execute ? "dry_run" : (result.success ? "connected" : "failed");
+    const auto result =
+        urpg::ai::invokeOpenAiCompatibleChat({{"user", "URPG provider connectivity test."}}, selectedConfig);
+    const std::string connectionState = !selectedConfig.execute ? "dry_run" : (result.success ? "connected" : "failed");
     const std::string failureReason = result.success ? "" : result.message;
     last_provider_test_ = result.toJson();
     last_provider_test_["connection_state"] = connectionState;
@@ -337,6 +319,7 @@ nlohmann::json AiAssistantPanel::buildControlSnapshot() const {
     const auto latestChangeIndex = latestUnrevertedAiChangeIndex(project_data_);
     const bool canRevert = latestChangeIndex.has_value();
     const auto history = buildApplyHistorySnapshot();
+    const auto filesystemReport = urpg::ai::buildFilesystemKnowledgeReport(project_data_);
     nlohmann::json stepControls = nlohmann::json::array();
     for (const auto& step : current_task_plan_.steps) {
         const auto* tool = knowledge_.tools.find(step.tool_id);
@@ -346,48 +329,81 @@ nlohmann::json AiAssistantPanel::buildControlSnapshot() const {
             {"tool_id", step.tool_id},
             {"summary", step.summary},
             {"state", step.rejected ? "rejected" : (step.approved ? "approved" : "needs_review")},
-            {"approve_button", {
-                {"visible", requiresApproval},
-                {"enabled", requiresApproval && !step.approved && !step.rejected},
-                {"label", "Approve"},
-                {"action", "approve_step"},
-            }},
-            {"reject_button", {
-                {"visible", requiresApproval},
-                {"enabled", requiresApproval && !step.rejected},
-                {"label", "Reject"},
-                {"action", "reject_step"},
-            }},
+            {"approve_button",
+             {
+                 {"visible", requiresApproval},
+                 {"enabled", requiresApproval && !step.approved && !step.rejected},
+                 {"label", "Approve"},
+                 {"action", "approve_step"},
+             }},
+            {"reject_button",
+             {
+                 {"visible", requiresApproval},
+                 {"enabled", requiresApproval && !step.rejected},
+                 {"label", "Reject"},
+                 {"action", "reject_step"},
+             }},
         });
     }
     return {
-        {"approve_all_button", {
-            {"visible", true},
-            {"enabled", approval.value("pending_count", std::size_t{0}) > 0U},
-            {"label", "Approve All"},
-            {"action", "approve_all_pending_steps"},
-        }},
-        {"apply_button", {
-            {"visible", true},
-            {"enabled", canApply},
-            {"label", "Apply"},
-            {"action", "apply_approved_plan"},
-        }},
-        {"revert_button", {
-            {"visible", true},
-            {"enabled", canRevert},
-            {"label", "Revert AI Change"},
-            {"action", "revert_last_applied_plan"},
-        }},
-        {"undo_stack", {
-            {"available", canRevert},
-            {"count", history.value("count", std::size_t{0})},
-            {"latest_change_id", history.value("latest_change_id", nlohmann::json(nullptr))},
-            {"latest_forward_patch_count",
-             canRevert ? project_data_["_ai_change_history"][*latestChangeIndex].value("forward_patch", nlohmann::json::array()).size() : 0},
-            {"latest_revert_patch_count",
-             canRevert ? project_data_["_ai_change_history"][*latestChangeIndex].value("revert_patch", nlohmann::json::array()).size() : 0},
-        }},
+        {"approve_all_button",
+         {
+             {"visible", true},
+             {"enabled", approval.value("pending_count", std::size_t{0}) > 0U},
+             {"label", "Approve All"},
+             {"action", "approve_all_pending_steps"},
+         }},
+        {"apply_button",
+         {
+             {"visible", true},
+             {"enabled", canApply},
+             {"label", "Apply"},
+             {"action", "apply_approved_plan"},
+         }},
+        {"revert_button",
+         {
+             {"visible", true},
+             {"enabled", canRevert},
+             {"label", "Revert AI Change"},
+             {"action", "revert_last_applied_plan"},
+         }},
+        {"undo_stack",
+         {
+             {"available", canRevert},
+             {"count", history.value("count", std::size_t{0})},
+             {"latest_change_id", history.value("latest_change_id", nlohmann::json(nullptr))},
+             {"latest_forward_patch_count", canRevert ? project_data_["_ai_change_history"][*latestChangeIndex]
+                                                            .value("forward_patch", nlohmann::json::array())
+                                                            .size()
+                                                      : 0},
+             {"latest_revert_patch_count", canRevert ? project_data_["_ai_change_history"][*latestChangeIndex]
+                                                           .value("revert_patch", nlohmann::json::array())
+                                                           .size()
+                                                     : 0},
+         }},
+        {"filesystem_knowledge",
+         {
+             {"refresh_button",
+              {
+                  {"visible", true},
+                  {"enabled", true},
+                  {"label", "Refresh Project Knowledge"},
+                  {"action", "refresh_filesystem_knowledge"},
+                  {"invocation", urpg::ai::buildFilesystemCrawlerInvocation(project_data_, ".",
+                                                                            ".urpg/ai/filesystem_knowledge.json")},
+              }},
+             {"report_button",
+              {
+                  {"visible", true},
+                  {"enabled", filesystemReport.value("available", false)},
+                  {"label", "Review Project Knowledge"},
+                  {"action", "show_filesystem_knowledge_report"},
+              }},
+             {"document_count", filesystemReport.value("document_count", std::size_t{0})},
+             {"skipped_count", filesystemReport.value("skipped_count", 0)},
+             {"diagnostic_count", filesystemReport.value("diagnostic_count", std::size_t{0})},
+             {"diagnostic_rows", filesystemReport.value("diagnostics", nlohmann::json::array())},
+         }},
         {"step_controls", stepControls},
         {"diagnostics", current_task_plan_.id.empty() ? nlohmann::json::array() : diagnosticsToJson(diagnostics)},
     };
@@ -398,6 +414,7 @@ nlohmann::json AiAssistantPanel::buildApplyPreviewSnapshot() const {
         return {{"would_apply", false}, {"diagnostics", nlohmann::json::array()}};
     }
     const auto result = knowledge_.tools.applyApprovedPlan(current_task_plan_, project_data_);
+    const auto resultDiff = urpg::ai::buildAiToolResultDiff(result);
     return {
         {"would_apply", result.applied},
         {"diagnostics", result.toJson()["diagnostics"]},
@@ -405,7 +422,8 @@ nlohmann::json AiAssistantPanel::buildApplyPreviewSnapshot() const {
         {"revert_patch_count", result.revert_patch.size()},
         {"project_patch", result.project_patch},
         {"revert_patch", result.revert_patch},
-        {"diff_rows", buildDiffRows(result)},
+        {"diff_rows", resultDiff["rows"]},
+        {"result_diff", resultDiff},
         {"rationale_rows", buildRationaleRows()},
     };
 }
@@ -440,6 +458,7 @@ nlohmann::json AiAssistantPanel::buildApplyHistorySnapshot() const {
             {"project_patch", change.project_patch},
             {"revert_patch", change.revert_patch},
             {"diff_rows", buildDiffRows(change)},
+            {"result_diff", urpg::ai::buildAiToolResultDiff(change)},
         });
     }
     const auto latestIndex = latestUnrevertedAiChangeIndex(project_data_);
@@ -547,7 +566,8 @@ nlohmann::json AiAssistantPanel::buildProviderUiSnapshot() const {
              {"enabled", selected.streaming_supported},
              {"checked", streamEnabled},
              {"action", "toggle_provider_streaming"},
-             {"disabled_reason", selected.streaming_supported ? nlohmann::json(nullptr) : "provider_streaming_not_supported"},
+             {"disabled_reason",
+              selected.streaming_supported ? nlohmann::json(nullptr) : "provider_streaming_not_supported"},
          }},
         {"dry_run_button",
          {
@@ -561,7 +581,8 @@ nlohmann::json AiAssistantPanel::buildProviderUiSnapshot() const {
              {"enabled", !apiKeyMissing || selected.local_provider},
              {"checked", selectedConfig.execute},
              {"action", "toggle_provider_live_execute"},
-             {"disabled_reason", apiKeyMissing && !selected.local_provider ? "missing_api_key" : nlohmann::json(nullptr)},
+             {"disabled_reason",
+              apiKeyMissing && !selected.local_provider ? "missing_api_key" : nlohmann::json(nullptr)},
          }},
         {"test_request_button",
          {
@@ -598,42 +619,16 @@ nlohmann::json AiAssistantPanel::buildRationaleRows() const {
             {"requires_approval", tool != nullptr && tool->requires_approval},
             {"project_paths", projectPaths},
             {"arguments", step.arguments},
-            {"rationale",
-             step.rejected
-                 ? "Step was rejected by the user and is blocked from apply."
-                 : (step.approved
-                        ? "Step is approved for a controlled project-data patch."
-                        : "Step requires review before it can modify project data.")},
+            {"rationale", step.rejected ? "Step was rejected by the user and is blocked from apply."
+                                        : (step.approved ? "Step is approved for a controlled project-data patch."
+                                                         : "Step requires review before it can modify project data.")},
         });
     }
     return rows;
 }
 
 nlohmann::json AiAssistantPanel::buildDiffRows(const urpg::ai::AiToolApplyResult& result) const {
-    nlohmann::json rows = nlohmann::json::array();
-    if (!result.project_patch.is_array()) {
-        return rows;
-    }
-    for (std::size_t index = 0; index < result.project_patch.size(); ++index) {
-        const auto& patch = result.project_patch[index];
-        if (!patch.is_object()) {
-            continue;
-        }
-        const std::string op = patch.value("op", "");
-        const std::string path = patch.value("path", "");
-        rows.push_back({
-            {"index", index},
-            {"operation", op},
-            {"path", path},
-            {"root", patchPathRoot(path)},
-            {"tone", patchTone(op)},
-            {"before", valueAtPointerOrNull(result.before_project_data, path)},
-            {"after", valueAtPointerOrNull(result.project_data, path)},
-            {"patch", patch},
-            {"summary", patchTone(op) + std::string(" ") + path},
-        });
-    }
-    return rows;
+    return urpg::ai::buildAiToolResultDiff(result)["rows"];
 }
 
 } // namespace urpg::editor

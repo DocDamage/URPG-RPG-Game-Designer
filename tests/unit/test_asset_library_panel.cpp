@@ -520,11 +520,14 @@ TEST_CASE("AssetLibraryPanel exposes governed promotion manifest action rows",
     REQUIRE(unlicensed != rows.end());
     REQUIRE((*unlicensed)["recommended_action"] == "add_license_evidence");
     REQUIRE((*unlicensed)["include_in_runtime"] == false);
+    REQUIRE((*unlicensed)["readiness"]["diagnostics"][0]["code"] == "license_evidence_missing");
+    REQUIRE((*unlicensed)["readiness"]["render_contract"]["component"] == "asset_readiness_badge_stack");
 
     const auto missing = std::find_if(rows.begin(), rows.end(),
                                       [](const auto& row) { return row["path"] == "imports/raw/example/missing.png"; });
     REQUIRE(missing != rows.end());
     REQUIRE((*missing)["recommended_action"] == "fix_missing_file");
+    REQUIRE((*missing)["readiness"]["diagnostics"][0]["code"] == "asset_file_missing");
 
     const auto archived = std::find_if(
         rows.begin(), rows.end(), [](const auto& row) { return row["path"] == "imports/raw/example/hero-copy.png"; });

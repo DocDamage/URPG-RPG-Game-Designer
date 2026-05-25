@@ -1,8 +1,8 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
-#include <optional>
 
 #include <nlohmann/json.hpp>
 
@@ -17,13 +17,14 @@ struct PlatformRequirement {
 };
 
 class ExportValidator {
-public:
+  public:
     std::vector<std::string> validateExportDirectory(const std::string& path, tools::ExportTarget target) const;
     std::vector<PlatformRequirement> getRequirementsForTarget(tools::ExportTarget target) const;
+    nlohmann::json buildPlatformArtifactPolicy(const std::string& path, tools::ExportTarget target) const;
     nlohmann::json buildReportJson(const std::vector<std::string>& errors, tools::ExportTarget target) const;
     nlohmann::json buildReportJson(const std::string& path, tools::ExportTarget target) const;
 
-private:
+  private:
     bool checkPatternExists(const std::filesystem::path& dir, const std::string& pattern) const;
     bool checkAnyAppDirectory(const std::filesystem::path& dir) const;
     bool checkAnyExecutableWithoutExtension(const std::filesystem::path& dir) const;

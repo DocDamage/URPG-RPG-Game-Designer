@@ -10,9 +10,8 @@
 namespace {
 
 std::string lowerCopy(std::string value) {
-    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
-        return static_cast<char>(std::tolower(c));
-    });
+    std::transform(value.begin(), value.end(), value.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     return value;
 }
 
@@ -25,9 +24,8 @@ std::vector<std::string> tokens(const std::string& query) {
     std::stringstream ss(lowerCopy(query));
     std::string token;
     while (ss >> token) {
-        token.erase(std::remove_if(token.begin(), token.end(), [](unsigned char c) {
-                        return !std::isalnum(c) && c != '_' && c != '-';
-                    }),
+        token.erase(std::remove_if(token.begin(), token.end(),
+                                   [](unsigned char c) { return !std::isalnum(c) && c != '_' && c != '-'; }),
                     token.end());
         if (!token.empty()) {
             out.push_back(token);
@@ -44,8 +42,7 @@ bool matchesKeywords(const std::vector<std::string>& keywords, const std::vector
     });
 }
 
-urpg::ai::AiKnowledgeDiagnostic diagnostic(const std::string& code,
-                                           const std::string& message,
+urpg::ai::AiKnowledgeDiagnostic diagnostic(const std::string& code, const std::string& message,
                                            const std::string& target) {
     return {code, message, target};
 }
@@ -75,11 +72,8 @@ void pushUnique(std::vector<std::string>& values, const std::string& value) {
     }
 }
 
-void appendObjectSummary(urpg::ai::ProjectKnowledgeIndex& index,
-                         const nlohmann::json& root,
-                         const std::string& key,
-                         const std::string& type,
-                         const std::string& title) {
+void appendObjectSummary(urpg::ai::ProjectKnowledgeIndex& index, const nlohmann::json& root, const std::string& key,
+                         const std::string& type, const std::string& title) {
     if (!root.contains(key)) {
         return;
     }
@@ -133,6 +127,39 @@ std::string excerpt(std::string text, std::size_t maxLength = 180) {
     return text.substr(0, maxLength) + "...";
 }
 
+std::string filesystemDocumentFreshness(const nlohmann::json& record) {
+    const auto indexedAt = jsonInt64(record, "indexed_at_epoch");
+    const auto modifiedAt = jsonInt64(record, "modified_at_epoch");
+    const auto maxAgeDays = jsonInt(record, "max_age_days", 30);
+    const auto ageDays = jsonInt(record, "age_days", 0);
+    const bool staleByModified = indexedAt > 0 && modifiedAt > 0 && modifiedAt > indexedAt;
+    const bool staleByAge = ageDays > maxAgeDays;
+    return staleByModified || staleByAge ? "stale" : "fresh";
+}
+
+std::int64_t skippedCountFromSummary(const nlohmann::json& root) {
+    if (!root.is_object() || !root.contains("summary") || !root["summary"].is_object() ||
+        !root["summary"].contains("skipped") || !root["summary"]["skipped"].is_object()) {
+        return 0;
+    }
+
+    std::int64_t total = 0;
+    for (const auto& item : root["summary"]["skipped"].items()) {
+        if (item.value().is_number_integer()) {
+            total += item.value().get<std::int64_t>();
+        }
+    }
+    return total;
+}
+
+const nlohmann::json& filesystemKnowledgeRoot(const nlohmann::json& projectData) {
+    if (projectData.is_object() && projectData.contains("filesystem_knowledge") &&
+        projectData["filesystem_knowledge"].is_object()) {
+        return projectData["filesystem_knowledge"];
+    }
+    return projectData;
+}
+
 nlohmann::json& ensureArray(nlohmann::json& root, const std::string& key) {
     auto& value = root[key];
     if (!value.is_array()) {
@@ -149,9 +176,7 @@ nlohmann::json& ensureObject(nlohmann::json& root, const std::string& key) {
     return value;
 }
 
-nlohmann::json makeAiToolPreview(const std::string& kind,
-                                 const std::string& id,
-                                 const urpg::ai::AiToolStep& step,
+nlohmann::json makeAiToolPreview(const std::string& kind, const std::string& id, const urpg::ai::AiToolStep& step,
                                  nlohmann::json payload) {
     return {
         {"kind", kind},
@@ -164,35 +189,171 @@ nlohmann::json makeAiToolPreview(const std::string& kind,
     };
 }
 
-nlohmann::json makeValidationIssue(const std::string& code,
-                                   const std::string& severity,
-                                   const std::string& message,
+nlohmann::json makeValidationIssue(const std::string& code, const std::string& severity, const std::string& message,
                                    const std::string& target) {
     return {{"code", code}, {"severity", severity}, {"message", message}, {"target", target}};
+}
+
+std::string patchPathRoot(const std::string& path) {
+    if (path.empty() || path == "/") {
+        return "/";
+    }
+    const auto next = path.find('/', 1);
+    return next == std::string::npos ? path.substr(1) : path.substr(1, next - 1);
+}
+
+std::string patchTone(const std::string& operation) {
+    if (operation == "add") {
+        return "added";
+    }
+    if (operation == "remove") {
+        return "removed";
+    }
+    if (operation == "replace") {
+        return "changed";
+    }
+    return "review";
+}
+
+std::string patchCssClass(const std::string& operation) {
+    if (operation == "add") {
+        return "diff-row--added";
+    }
+    if (operation == "remove") {
+        return "diff-row--removed";
+    }
+    if (operation == "replace") {
+        return "diff-row--changed";
+    }
+    return "diff-row--review";
+}
+
+std::string patchIcon(const std::string& operation) {
+    if (operation == "add") {
+        return "plus";
+    }
+    if (operation == "remove") {
+        return "minus";
+    }
+    if (operation == "replace") {
+        return "replace";
+    }
+    return "circle-alert";
+}
+
+nlohmann::json valueAtPointerOrNull(const nlohmann::json& document, const std::string& path) {
+    try {
+        const nlohmann::json::json_pointer pointer(path);
+        if (document.contains(pointer)) {
+            return document.at(pointer);
+        }
+    } catch (const nlohmann::json::exception&) {
+        return nullptr;
+    }
+    return nullptr;
+}
+
+std::string previewText(const nlohmann::json& value) {
+    if (value.is_null()) {
+        return "";
+    }
+    if (value.is_string()) {
+        return excerpt(value.get<std::string>(), 120);
+    }
+    return excerpt(value.dump(), 120);
+}
+
+std::string previewArtifactPath(const nlohmann::json& preview) {
+    const auto explicitPath = jsonString(preview, "artifact_path");
+    if (!explicitPath.empty()) {
+        return explicitPath;
+    }
+    const auto kind = jsonString(preview, "kind", "preview");
+    const auto id = jsonString(preview, "id", "artifact");
+    return "/ai_tool_previews/" + kind + "/" + id;
+}
+
+nlohmann::json validatorRoute(const std::string& kind) {
+    if (kind == "event_graph_authoring") {
+        return {{"subsystem", "event_graph"},
+                {"validator_source", "native_event_graph_preview_validator"},
+                {"command", "validate_event_graph_preview"},
+                {"fallback", false}};
+    }
+    if (kind == "ability_sandbox_composition") {
+        return {{"subsystem", "ability_sandbox"},
+                {"validator_source", "native_ability_sandbox_validator"},
+                {"command", "validate_ability_sandbox_preview"},
+                {"fallback", false}};
+    }
+    if (kind == "vfx_timeline_edit") {
+        return {{"subsystem", "battle_vfx"},
+                {"validator_source", "native_battle_vfx_timeline_validator"},
+                {"command", "validate_battle_vfx_timeline_preview"},
+                {"fallback", false}};
+    }
+    if (kind == "lighting_weather_preview") {
+        return {{"subsystem", "map_environment"},
+                {"validator_source", "native_map_environment_preview_validator"},
+                {"command", "validate_map_environment_preview"},
+                {"fallback", false}};
+    }
+    if (kind == "asset_import_promotion") {
+        return {{"subsystem", "asset_pipeline"},
+                {"validator_source", "native_asset_import_promotion_validator"},
+                {"command", "validate_asset_import_promotion_preview"},
+                {"fallback", false}};
+    }
+    if (kind == "export_preview_configuration") {
+        return {{"subsystem", "export_preview"},
+                {"validator_source", "native_export_preview_validator"},
+                {"command", "validate_export_preview_configuration"},
+                {"fallback", false}};
+    }
+    return {{"subsystem", "unknown"},
+            {"validator_source", "ai_preview_fallback_validator"},
+            {"command", "validate_preview_shape_fallback"},
+            {"fallback", true}};
+}
+
+nlohmann::json validatorAdapterContract(const nlohmann::json& route, const std::string& artifactPath) {
+    const auto fallback = route.value("fallback", true);
+    const auto command = route.value("command", "validate_preview_shape_fallback");
+    return {
+        {"component", "ai_preview_typed_validator_adapter"},
+        {"subsystem", route.value("subsystem", "unknown")},
+        {"validator_source", route.value("validator_source", "ai_preview_fallback_validator")},
+        {"command", command},
+        {"artifact_path", artifactPath},
+        {"typed_input", !fallback},
+        {"deterministic_fixture", true},
+        {"requires_external_credentials", false},
+        {"output_path", "reports/ai/validation/" + command + ".json"},
+        {"fallback", fallback},
+    };
 }
 
 nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
     const auto kind = jsonString(preview, "kind");
     const auto id = jsonString(preview, "id");
     const auto toolId = jsonString(preview, "tool_id");
+    const auto route = validatorRoute(kind);
     const auto payload = preview.is_object() && preview.contains("payload") && preview["payload"].is_object()
                              ? preview["payload"]
                              : nlohmann::json::object();
     nlohmann::json issues = nlohmann::json::array();
-    std::string validator = "ai_preview_validator";
+    std::string validator = route.value("validator_source", "ai_preview_fallback_validator");
 
     if (kind == "event_graph_authoring") {
-        validator = "event_graph_validator";
         if (payload.value("node_count", 0) <= 0) {
-            issues.push_back(makeValidationIssue("event_graph_empty", "error",
-                                                 "Event graph preview has no command nodes.", id));
+            issues.push_back(
+                makeValidationIssue("event_graph_empty", "error", "Event graph preview has no command nodes.", id));
         }
         if (jsonString(payload, "event_id").empty() || jsonString(payload, "map_id").empty()) {
             issues.push_back(makeValidationIssue("event_graph_missing_identity", "error",
                                                  "Event graph preview needs event and map identity.", id));
         }
     } else if (kind == "ability_sandbox_composition") {
-        validator = "ability_sandbox_validator";
         if (payload.value("cost", 0) < 0 || payload.value("cooldown", 0) < 0) {
             issues.push_back(makeValidationIssue("ability_negative_cost_or_cooldown", "error",
                                                  "Ability sandbox preview cannot use negative cost or cooldown.", id));
@@ -202,7 +363,6 @@ nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
                                                  "Ability sandbox preview has no authored effects.", id));
         }
     } else if (kind == "vfx_timeline_edit") {
-        validator = "battle_vfx_timeline_validator";
         if (payload.value("keyframe_count", 0) <= 0) {
             issues.push_back(makeValidationIssue("vfx_timeline_empty", "error",
                                                  "Battle VFX timeline preview has no keyframes.", id));
@@ -213,27 +373,29 @@ nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
                                                  "Latest VFX keyframe is missing an effect id.", id));
         }
     } else if (kind == "lighting_weather_preview") {
-        validator = "map_environment_preview_validator";
         if (jsonString(payload, "weather").empty() || jsonString(payload, "lighting_profile").empty()) {
             issues.push_back(makeValidationIssue("environment_missing_weather_or_lighting", "error",
-                                                 "Lighting/weather preview needs both weather and lighting profile.", id));
+                                                 "Lighting/weather preview needs both weather and lighting profile.",
+                                                 id));
         }
     } else if (kind == "asset_import_promotion") {
-        validator = "asset_import_promotion_validator";
         if (jsonString(payload, "path").empty() || jsonString(payload, "path") == "project-configured") {
             issues.push_back(makeValidationIssue("asset_import_path_needs_review", "warning",
-                                                 "Asset import preview needs a concrete project-local source path.", id));
+                                                 "Asset import preview needs a concrete project-local source path.",
+                                                 id));
         }
         if (jsonString(payload, "license").empty() || jsonString(payload, "license") == "review_required") {
             issues.push_back(makeValidationIssue("asset_import_license_needs_review", "warning",
                                                  "Asset import preview requires license review before promotion.", id));
         }
     } else if (kind == "export_preview_configuration") {
-        validator = "export_preview_validator";
         if (jsonString(payload, "profile").empty()) {
             issues.push_back(makeValidationIssue("export_preview_missing_profile", "error",
                                                  "Export preview needs a profile id.", id));
         }
+    } else {
+        issues.push_back(makeValidationIssue("subsystem_validator_unavailable", "warning",
+                                             "No subsystem validator is registered for this AI preview artifact.", id));
     }
 
     bool hasError = false;
@@ -242,32 +404,53 @@ nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
         hasError = hasError || issue.value("severity", "") == "error";
         hasWarning = hasWarning || issue.value("severity", "") == "warning";
     }
+    const auto artifactPath = previewArtifactPath(preview);
+    const auto adapterContract = validatorAdapterContract(route, artifactPath);
     return {
         {"kind", kind},
         {"id", id},
         {"tool_id", toolId},
         {"validator", validator},
+        {"validator_source", route.value("validator_source", "ai_preview_fallback_validator")},
+        {"subsystem", route.value("subsystem", "unknown")},
+        {"command", route.value("command", "validate_preview_shape_fallback")},
+        {"artifact_path", artifactPath},
+        {"validator_adapter", adapterContract},
+        {"output_path", adapterContract.value("output_path", "")},
+        {"fallback", route.value("fallback", true)},
+        {"severity", hasError ? "error" : (hasWarning ? "warning" : "info")},
         {"status", hasError ? "failed" : (hasWarning ? "warning" : "passed")},
         {"issue_count", issues.size()},
         {"issues", issues},
     };
 }
 
-nlohmann::json buildAiValidationReport(const nlohmann::json& projectData,
-                                       const std::string& planId,
+nlohmann::json buildAiValidationReport(const nlohmann::json& projectData, const std::string& planId,
                                        const std::string& scope) {
     const auto previews = projectData.contains("ai_tool_previews") && projectData["ai_tool_previews"].is_array()
                               ? projectData["ai_tool_previews"]
                               : nlohmann::json::array();
     nlohmann::json validators = nlohmann::json::array();
+    nlohmann::json validatorSources = nlohmann::json::array();
+    nlohmann::json artifactPaths = nlohmann::json::array();
+    nlohmann::json adapterContracts = nlohmann::json::array();
     std::size_t issueCount = 0;
     std::size_t failedCount = 0;
     std::size_t warningCount = 0;
+    std::size_t fallbackCount = 0;
+    std::set<std::string> seenSources;
     for (const auto& preview : previews) {
         const auto row = validateAiToolPreviewArtifact(preview);
         issueCount += row.value("issue_count", std::size_t{0});
         failedCount += row.value("status", "") == "failed" ? 1U : 0U;
         warningCount += row.value("status", "") == "warning" ? 1U : 0U;
+        fallbackCount += row.value("fallback", false) ? 1U : 0U;
+        const auto source = row.value("validator_source", "");
+        if (!source.empty() && seenSources.insert(source).second) {
+            validatorSources.push_back(source);
+        }
+        artifactPaths.push_back(row.value("artifact_path", ""));
+        adapterContracts.push_back(row.value("validator_adapter", nlohmann::json::object()));
         validators.push_back(row);
     }
     return {
@@ -276,6 +459,11 @@ nlohmann::json buildAiValidationReport(const nlohmann::json& projectData,
         {"status", failedCount > 0 ? "failed" : (warningCount > 0 ? "warning" : "passed")},
         {"preview_artifact_count", previews.size()},
         {"validator_count", validators.size()},
+        {"validator_source_count", validatorSources.size()},
+        {"validator_sources", validatorSources},
+        {"artifact_paths", artifactPaths},
+        {"validator_adapter_contracts", adapterContracts},
+        {"fallback_count", fallbackCount},
         {"issue_count", issueCount},
         {"failed_count", failedCount},
         {"warning_count", warningCount},
@@ -283,11 +471,8 @@ nlohmann::json buildAiValidationReport(const nlohmann::json& projectData,
     };
 }
 
-void appendStructuredKnowledgeRecords(urpg::ai::ProjectKnowledgeIndex& index,
-                                      const nlohmann::json& root,
-                                      const std::string& key,
-                                      const std::string& type,
-                                      const std::string& title,
+void appendStructuredKnowledgeRecords(urpg::ai::ProjectKnowledgeIndex& index, const nlohmann::json& root,
+                                      const std::string& key, const std::string& type, const std::string& title,
                                       const std::vector<std::string>& keywords) {
     if (!root.contains(key)) {
         return;
@@ -358,11 +543,8 @@ void appendStructuredKnowledgeRecords(urpg::ai::ProjectKnowledgeIndex& index,
     }
 }
 
-void appendIngestedDocumentRecords(urpg::ai::ProjectKnowledgeIndex& index,
-                                   const nlohmann::json& root,
-                                   const std::string& key,
-                                   const std::string& type,
-                                   const std::string& title,
+void appendIngestedDocumentRecords(urpg::ai::ProjectKnowledgeIndex& index, const nlohmann::json& root,
+                                   const std::string& key, const std::string& type, const std::string& title,
                                    const std::vector<std::string>& keywords) {
     if (!root.contains(key) || !root[key].is_array()) {
         return;
@@ -391,9 +573,7 @@ void appendIngestedDocumentRecords(urpg::ai::ProjectKnowledgeIndex& index,
         const auto modifiedAt = jsonInt64(record, "modified_at_epoch");
         const auto maxAgeDays = jsonInt(record, "max_age_days", 30);
         const auto ageDays = jsonInt(record, "age_days", 0);
-        const bool staleByModified = indexedAt > 0 && modifiedAt > 0 && modifiedAt > indexedAt;
-        const bool staleByAge = ageDays > maxAgeDays;
-        const std::string freshness = staleByModified || staleByAge ? "stale" : "fresh";
+        const auto freshness = filesystemDocumentFreshness(record);
 
         auto recordKeywords = keywords;
         pushUnique(recordKeywords, id);
@@ -436,6 +616,60 @@ void appendIngestedDocumentRecords(urpg::ai::ProjectKnowledgeIndex& index,
     }
 }
 
+void appendFilesystemCrawlerDiagnostics(urpg::ai::ProjectKnowledgeIndex& index, const nlohmann::json& root) {
+    const bool hasDiagnostics = root.is_object() && root.contains("diagnostics") && root["diagnostics"].is_array();
+    const auto skippedCount = skippedCountFromSummary(root);
+    if (!hasDiagnostics && skippedCount == 0) {
+        return;
+    }
+
+    const auto diagnosticCount = hasDiagnostics ? root["diagnostics"].size() : 0U;
+    nlohmann::json skipped = nlohmann::json::object();
+    if (root.contains("summary") && root["summary"].is_object() && root["summary"].contains("skipped") &&
+        root["summary"]["skipped"].is_object()) {
+        skipped = root["summary"]["skipped"];
+    }
+
+    index.addEntry({
+        "filesystem_diagnostics",
+        "filesystem_diagnostic_collection",
+        "Filesystem Crawler Diagnostics",
+        "/diagnostics",
+        "Filesystem crawler skipped files: " + std::to_string(skippedCount) +
+            "; diagnostic rows: " + std::to_string(diagnosticCount),
+        {"filesystem", "crawler", "diagnostic", "skipped", "excluded", "oversized", "binary"},
+        {{"diagnostic_count", diagnosticCount}, {"skipped_count", skippedCount}, {"skipped", skipped}},
+    });
+
+    if (!hasDiagnostics) {
+        return;
+    }
+
+    const auto& diagnostics = root["diagnostics"];
+    for (std::size_t i = 0; i < diagnostics.size(); ++i) {
+        const auto& diagnosticRecord = diagnostics[i];
+        if (!diagnosticRecord.is_object()) {
+            continue;
+        }
+        const auto code = jsonString(diagnosticRecord, "code", "unknown");
+        const auto path = jsonString(diagnosticRecord, "path", std::to_string(i));
+        auto message = jsonString(diagnosticRecord, "message");
+        if (message.empty()) {
+            message = "Filesystem crawler skipped " + path + " (" + code + ").";
+        }
+
+        index.addEntry({
+            "filesystem_diagnostics:" + code + ":" + path,
+            "filesystem_diagnostic",
+            "Skipped file: " + path,
+            path,
+            message,
+            {"filesystem", "crawler", "diagnostic", "skipped", code, path},
+            {{"code", code}, {"path", path}, {"message", message}, {"skipped", true}},
+        });
+    }
+}
+
 } // namespace
 
 namespace urpg::ai {
@@ -453,9 +687,8 @@ nlohmann::json AppCapability::toJson() const {
 }
 
 void AppCapabilityRegistry::registerCapability(AppCapability capability) {
-    const auto it = std::find_if(capabilities_.begin(), capabilities_.end(), [&](const auto& existing) {
-        return existing.id == capability.id;
-    });
+    const auto it = std::find_if(capabilities_.begin(), capabilities_.end(),
+                                 [&](const auto& existing) { return existing.id == capability.id; });
     if (it == capabilities_.end()) {
         capabilities_.push_back(std::move(capability));
     } else {
@@ -464,9 +697,8 @@ void AppCapabilityRegistry::registerCapability(AppCapability capability) {
 }
 
 const AppCapability* AppCapabilityRegistry::find(const std::string& id) const {
-    const auto it = std::find_if(capabilities_.begin(), capabilities_.end(), [&](const auto& capability) {
-        return capability.id == id;
-    });
+    const auto it = std::find_if(capabilities_.begin(), capabilities_.end(),
+                                 [&](const auto& capability) { return capability.id == id; });
     return it == capabilities_.end() ? nullptr : &(*it);
 }
 
@@ -494,32 +726,75 @@ nlohmann::json AppCapabilityRegistry::toJson() const {
 AppCapabilityRegistry AppCapabilityRegistry::buildDefault() {
     AppCapabilityRegistry registry;
     const std::vector<AppCapability> defaults = {
-        {"map_authoring", "Map Authoring", "Worldbuilding", "map lighting/weather/region preview",
+        {"map_authoring",
+         "Map Authoring",
+         "Worldbuilding",
+         "map lighting/weather/region preview",
          {"create_map", "place_tile", "paint_region", "preview_lighting", "preview_weather"},
-         {"/maps", "/tiles", "/regions"}, {"map", "tile", "house", "lighting", "weather", "region"}},
-        {"event_authoring", "Event Authoring", "Events", "event-command visual graph",
+         {"/maps", "/tiles", "/regions"},
+         {"map", "tile", "house", "lighting", "weather", "region"}},
+        {"event_authoring",
+         "Event Authoring",
+         "Events",
+         "event-command visual graph",
          {"add_event", "wire_event_command", "preview_event_flow", "validate_event"},
-         {"/events", "/common_events", "/switches", "/variables"}, {"event", "logic", "switch", "variable", "door", "chest"}},
-        {"dialogue_authoring", "Dialogue Authoring", "Narrative", "dialogue preview with portraits choices variables localization",
+         {"/events", "/common_events", "/switches", "/variables"},
+         {"event", "logic", "switch", "variable", "door", "chest"}},
+        {"dialogue_authoring",
+         "Dialogue Authoring",
+         "Narrative",
+         "dialogue preview with portraits choices variables localization",
          {"edit_dialogue", "add_choice", "bind_portrait", "preview_localization"},
-         {"/dialogue", "/localization", "/portraits"}, {"dialogue", "choice", "portrait", "localization", "npc"}},
-        {"ability_authoring", "Ability Authoring", "Gameplay", "ability sandbox",
+         {"/dialogue", "/localization", "/portraits"},
+         {"dialogue", "choice", "portrait", "localization", "npc"}},
+        {"ability_authoring",
+         "Ability Authoring",
+         "Gameplay",
+         "ability sandbox",
          {"add_ability", "set_cost", "set_cooldown", "preview_effects", "validate_tags"},
-         {"/abilities", "/effects", "/gameplay_tags"}, {"ability", "skill", "cooldown", "cost", "tag", "effect"}},
-        {"battle_vfx_authoring", "Battle VFX Authoring", "Battle", "battle animation/VFX timeline editor",
+         {"/abilities", "/effects", "/gameplay_tags"},
+         {"ability", "skill", "cooldown", "cost", "tag", "effect"}},
+        {"battle_vfx_authoring",
+         "Battle VFX Authoring",
+         "Battle",
+         "battle animation/VFX timeline editor",
          {"add_vfx_track", "add_keyframe", "preview_battle_vfx", "validate_timeline"},
-         {"/battle_vfx", "/timelines"}, {"battle", "vfx", "animation", "timeline", "keyframe"}},
-        {"save_lab", "Save/Load Preview Lab", "Diagnostics", "save/load preview lab",
+         {"/battle_vfx", "/timelines"},
+         {"battle", "vfx", "animation", "timeline", "keyframe"}},
+        {"save_lab",
+         "Save/Load Preview Lab",
+         "Diagnostics",
+         "save/load preview lab",
          {"preview_save", "migrate_save", "validate_save_compatibility"},
-         {"/saves", "/save_migrations"}, {"save", "load", "migration", "compatibility"}},
-        {"export_preview", "Export Preview", "Release", "export preview showing exactly what will ship",
-         {"run_export_preview", "validate_bundle", "audit_assets"}, {"/export", "/assets"}, {"export", "ship", "bundle", "package"}},
-        {"asset_pipeline", "Asset Pipeline", "Content", "asset library and license audit",
-         {"import_asset", "audit_license", "promote_asset", "cleanup_unused_assets"}, {"/assets"}, {"asset", "license", "import", "cleanup"}},
-        {"template_authoring", "Template Authoring", "Project", "template wizard and sample projects",
-         {"create_template_project", "validate_template", "instantiate_template"}, {"/templates"}, {"template", "starter", "project", "genre"}},
-        {"creator_command", "Creator Command", "AI", "selected-tile WYSIWYG creator command panel",
-         {"plan_creator_command", "validate_creator_plan", "apply_creator_plan"}, {"/maps", "/creator_command_history"},
+         {"/saves", "/save_migrations"},
+         {"save", "load", "migration", "compatibility"}},
+        {"export_preview",
+         "Export Preview",
+         "Release",
+         "export preview showing exactly what will ship",
+         {"run_export_preview", "validate_bundle", "audit_assets"},
+         {"/export", "/assets"},
+         {"export", "ship", "bundle", "package"}},
+        {"asset_pipeline",
+         "Asset Pipeline",
+         "Content",
+         "asset library and license audit",
+         {"import_asset", "audit_license", "promote_asset", "cleanup_unused_assets"},
+         {"/assets"},
+         {"asset", "license", "import", "cleanup"}},
+        {"template_authoring",
+         "Template Authoring",
+         "Project",
+         "template wizard and sample projects",
+         {"create_template_project", "validate_template", "instantiate_template"},
+         {"/templates"},
+         {"template", "starter", "project", "genre"}},
+        {"creator_command",
+         "Creator Command",
+         "AI",
+         "selected-tile WYSIWYG creator command panel",
+         {"plan_creator_command", "validate_creator_plan", "apply_creator_plan"},
+         {"/maps", "/creator_command_history"},
          {"chatbot", "ai", "generate", "make", "house", "shop", "inn", "npc", "puzzle"}},
     };
     for (const auto& capability : defaults) {
@@ -530,13 +805,8 @@ AppCapabilityRegistry AppCapabilityRegistry::buildDefault() {
 
 nlohmann::json KnowledgeEntry::toJson() const {
     return {
-        {"id", id},
-        {"type", type},
-        {"title", title},
-        {"path", path},
-        {"summary", summary},
-        {"keywords", keywords},
-        {"metadata", metadata},
+        {"id", id},           {"type", type},         {"title", title},       {"path", path},
+        {"summary", summary}, {"keywords", keywords}, {"metadata", metadata},
     };
 }
 
@@ -567,7 +837,8 @@ nlohmann::json ProjectKnowledgeIndex::toJson() const {
 ProjectKnowledgeIndex ProjectKnowledgeIndex::buildFromProjectData(const nlohmann::json& projectData) {
     ProjectKnowledgeIndex index;
     if (!projectData.is_object()) {
-        index.addEntry({"empty_project", "project", "Empty Project", "/", "No project data was supplied.", {"empty", "project"}});
+        index.addEntry(
+            {"empty_project", "project", "Empty Project", "/", "No project data was supplied.", {"empty", "project"}});
         return index;
     }
     index.addEntry({
@@ -593,8 +864,8 @@ ProjectKnowledgeIndex ProjectKnowledgeIndex::buildFromProjectData(const nlohmann
                                      {"schema", "contract", "validation", "json"});
     appendStructuredKnowledgeRecords(index, projectData, "readiness_reports", "readiness_report", "Readiness Reports",
                                      {"readiness", "status", "release", "wysiwyg"});
-    appendStructuredKnowledgeRecords(index, projectData, "validation_reports", "validation_report", "Validation Reports",
-                                     {"validation", "test", "gate", "diagnostic"});
+    appendStructuredKnowledgeRecords(index, projectData, "validation_reports", "validation_report",
+                                     "Validation Reports", {"validation", "test", "gate", "diagnostic"});
     appendStructuredKnowledgeRecords(index, projectData, "asset_catalogs", "asset_catalog", "Asset Catalogs",
                                      {"asset", "catalog", "license", "duplicate", "preview"});
     appendStructuredKnowledgeRecords(index, projectData, "docs", "doc", "Project Docs",
@@ -603,11 +874,254 @@ ProjectKnowledgeIndex ProjectKnowledgeIndex::buildFromProjectData(const nlohmann
                                      {"template", "starter", "genre", "spec"});
     appendStructuredKnowledgeRecords(index, projectData, "source_summaries", "source_summary", "Source Summaries",
                                      {"source", "code", "summary", "subsystem"});
-    appendIngestedDocumentRecords(index, projectData, "filesystem_documents", "filesystem_document", "Filesystem Documents",
-                                  {"filesystem", "file", "direct", "ingested", "freshness"});
+    const auto& filesystemRoot = filesystemKnowledgeRoot(projectData);
+    appendIngestedDocumentRecords(index, filesystemRoot, "filesystem_documents", "filesystem_document",
+                                  "Filesystem Documents", {"filesystem", "file", "direct", "ingested", "freshness"});
+    appendFilesystemCrawlerDiagnostics(index, filesystemRoot);
     appendIngestedDocumentRecords(index, projectData, "ingested_docs", "ingested_doc", "Ingested Project Docs",
                                   {"doc", "documentation", "direct", "ingested", "freshness"});
     return index;
+}
+
+nlohmann::json buildFilesystemKnowledgeReport(const nlohmann::json& projectData) {
+    nlohmann::json report = {
+        {"available", false},
+        {"document_count", 0},
+        {"diagnostic_count", 0},
+        {"skipped_count", 0},
+        {"skipped", nlohmann::json::object()},
+        {"document_rows", nlohmann::json::array()},
+        {"diagnostics", nlohmann::json::array()},
+    };
+
+    if (!projectData.is_object()) {
+        return report;
+    }
+
+    const auto& filesystemRoot = filesystemKnowledgeRoot(projectData);
+
+    const bool hasDocuments =
+        filesystemRoot.contains("filesystem_documents") && filesystemRoot["filesystem_documents"].is_array();
+    const bool hasDiagnostics = filesystemRoot.contains("diagnostics") && filesystemRoot["diagnostics"].is_array();
+    const bool hasSkipped = filesystemRoot.contains("summary") && filesystemRoot["summary"].is_object() &&
+                            filesystemRoot["summary"].contains("skipped") &&
+                            filesystemRoot["summary"]["skipped"].is_object();
+    report["available"] = hasDocuments || hasDiagnostics || hasSkipped;
+
+    if (hasDocuments) {
+        const auto& documents = filesystemRoot["filesystem_documents"];
+        report["document_count"] = documents.size();
+        for (const auto& document : documents) {
+            if (!document.is_object()) {
+                continue;
+            }
+            const auto content = jsonString(document, "content", jsonString(document, "text"));
+            report["document_rows"].push_back({
+                {"id", jsonString(document, "id", jsonString(document, "path"))},
+                {"path", jsonString(document, "path", jsonString(document, "uri"))},
+                {"title", jsonString(document, "title", jsonString(document, "path"))},
+                {"kind", jsonString(document, "kind")},
+                {"content_bytes", content.size()},
+                {"summary", jsonString(document, "summary", excerpt(content))},
+                {"freshness", filesystemDocumentFreshness(document)},
+                {"stale", filesystemDocumentFreshness(document) == "stale"},
+            });
+        }
+    }
+
+    if (hasSkipped) {
+        report["skipped"] = filesystemRoot["summary"]["skipped"];
+        report["skipped_count"] = skippedCountFromSummary(filesystemRoot);
+    }
+
+    if (hasDiagnostics) {
+        const auto& diagnostics = filesystemRoot["diagnostics"];
+        report["diagnostic_count"] = diagnostics.size();
+        for (const auto& diagnosticRecord : diagnostics) {
+            if (!diagnosticRecord.is_object()) {
+                continue;
+            }
+            const auto code = jsonString(diagnosticRecord, "code", "unknown");
+            const auto path = jsonString(diagnosticRecord, "path");
+            auto message = jsonString(diagnosticRecord, "message");
+            if (message.empty()) {
+                message = "Filesystem crawler skipped " + path + " (" + code + ").";
+            }
+            report["diagnostics"].push_back({
+                {"code", code},
+                {"path", path},
+                {"message", message},
+                {"severity", "info"},
+            });
+        }
+    }
+
+    if (filesystemRoot.contains("filesystem_crawler_config") &&
+        filesystemRoot["filesystem_crawler_config"].is_object()) {
+        report["config"] = filesystemRoot["filesystem_crawler_config"];
+    } else if (filesystemRoot.contains("crawler_config") && filesystemRoot["crawler_config"].is_object()) {
+        report["config"] = filesystemRoot["crawler_config"];
+    }
+
+    return report;
+}
+
+nlohmann::json buildFilesystemCrawlerInvocation(const nlohmann::json& projectData, const std::string& projectRoot,
+                                                const std::string& outputPath) {
+    const auto& filesystemRoot = filesystemKnowledgeRoot(projectData);
+    nlohmann::json config = nlohmann::json::object();
+    if (filesystemRoot.is_object() && filesystemRoot.contains("filesystem_crawler_config") &&
+        filesystemRoot["filesystem_crawler_config"].is_object()) {
+        config = filesystemRoot["filesystem_crawler_config"];
+    } else if (filesystemRoot.is_object() && filesystemRoot.contains("crawler_config") &&
+               filesystemRoot["crawler_config"].is_object()) {
+        config = filesystemRoot["crawler_config"];
+    }
+
+    const std::string root = projectRoot.empty() ? "." : projectRoot;
+    const std::string output = outputPath.empty() ? ".urpg/ai/filesystem_knowledge.json" : outputPath;
+    nlohmann::json args =
+        nlohmann::json::array({"python", "tools/ai/collect_project_knowledge.py", "--root", root, "--output", output});
+
+    const auto appendRepeated = [&](const std::string& key, const std::string& flag) {
+        if (!config.contains(key) || !config[key].is_array()) {
+            return;
+        }
+        for (const auto& value : config[key]) {
+            if (value.is_string()) {
+                args.push_back(flag);
+                args.push_back(value.get<std::string>());
+            }
+        }
+    };
+    appendRepeated("include", "--include");
+    appendRepeated("exclude", "--exclude");
+
+    const auto appendNumeric = [&](const std::string& key, const std::string& flag) {
+        if (config.contains(key) && config[key].is_number_integer()) {
+            args.push_back(flag);
+            args.push_back(std::to_string(config[key].get<std::int64_t>()));
+        }
+    };
+    appendNumeric("max_files", "--max-files");
+    appendNumeric("max_bytes", "--max-bytes");
+    appendNumeric("max_file_bytes", "--max-file-bytes");
+    appendNumeric("max_age_days", "--max-age-days");
+
+    std::string command;
+    for (const auto& arg : args) {
+        if (!command.empty()) {
+            command.push_back(' ');
+        }
+        const auto text = arg.get<std::string>();
+        command += text.find(' ') == std::string::npos ? text : "\"" + text + "\"";
+    }
+
+    return {
+        {"available", true},
+        {"status", "ready_to_invoke"},
+        {"adapter", "tools/ai/collect_project_knowledge.py"},
+        {"root", root},
+        {"output_path", output},
+        {"command", command},
+        {"command_args", args},
+        {"config", config},
+        {"ingest_command", "AI_INGEST_FILESYSTEM_KNOWLEDGE:<contents of output_path>"},
+    };
+}
+
+nlohmann::json mergeFilesystemKnowledgeIntoProjectData(nlohmann::json projectData,
+                                                       const nlohmann::json& filesystemKnowledge) {
+    if (!projectData.is_object()) {
+        projectData = nlohmann::json::object();
+    }
+    projectData["filesystem_knowledge"] =
+        filesystemKnowledge.is_object() ? filesystemKnowledge : nlohmann::json::object({{"error", "invalid_payload"}});
+    return projectData;
+}
+
+nlohmann::json buildAiToolResultDiff(const AiToolApplyResult& result) {
+    nlohmann::json rows = nlohmann::json::array();
+    if (result.project_patch.is_array()) {
+        for (std::size_t index = 0; index < result.project_patch.size(); ++index) {
+            const auto& patch = result.project_patch[index];
+            if (!patch.is_object()) {
+                continue;
+            }
+            const auto op = patch.value("op", "");
+            const auto path = patch.value("path", "");
+            const auto before = valueAtPointerOrNull(result.before_project_data, path);
+            const auto after = valueAtPointerOrNull(result.project_data, path);
+            const auto tone = patchTone(op);
+
+            rows.push_back({
+                {"index", index},
+                {"operation", op},
+                {"path", path},
+                {"root", patchPathRoot(path)},
+                {"tone", tone},
+                {"before", before},
+                {"after", after},
+                {"before_group",
+                 {
+                     {"visible", op != "add"},
+                     {"label", "Before"},
+                     {"value", before},
+                     {"preview_text", previewText(before)},
+                 }},
+                {"after_group",
+                 {
+                     {"visible", op != "remove"},
+                     {"label", "After"},
+                     {"value", after},
+                     {"preview_text", previewText(after)},
+                 }},
+                {"paint",
+                 {
+                     {"tone", tone},
+                     {"css_class", patchCssClass(op)},
+                     {"icon", patchIcon(op)},
+                     {"badge", tone},
+                 }},
+                {"selected_detail",
+                 {
+                     {"title", tone + std::string(" ") + path},
+                     {"root", patchPathRoot(path)},
+                     {"operation", op},
+                     {"before", before},
+                     {"after", after},
+                     {"patch", patch},
+                 }},
+                {"patch", patch},
+                {"summary", tone + std::string(" ") + path},
+            });
+        }
+    }
+
+    const auto diagnostics = diagnosticsToJson(result.diagnostics);
+    return {
+        {"has_changes", !rows.empty()},
+        {"painted", true},
+        {"render_contract",
+         {
+             {"component", "painted_ai_diff_panel"},
+             {"row_renderer", "before_after_patch_rows"},
+             {"supports_selection", true},
+             {"supports_blocked_apply_reason", true},
+             {"row_count", rows.size()},
+             {"empty_state", rows.empty() ? "No AI changes to render." : ""},
+         }},
+        {"forward_patch_count", result.project_patch.is_array() ? result.project_patch.size() : 0U},
+        {"revert_patch_count", result.revert_patch.is_array() ? result.revert_patch.size() : 0U},
+        {"row_count", rows.size()},
+        {"rows", rows},
+        {"selected_row", rows.empty() ? nlohmann::json(nullptr) : nlohmann::json(rows.front())},
+        {"blocked_apply_reason",
+         result.applied || diagnostics.empty() ? nlohmann::json(nullptr) : nlohmann::json(diagnostics[0]["code"])},
+        {"diagnostics", diagnostics},
+        {"forward_patch", result.project_patch.is_array() ? result.project_patch : nlohmann::json::array()},
+        {"revert_patch", result.revert_patch.is_array() ? result.revert_patch : nlohmann::json::array()},
+    };
 }
 
 void DocumentationKnowledgeIndex::addEntry(KnowledgeEntry entry) {
@@ -636,16 +1150,36 @@ nlohmann::json DocumentationKnowledgeIndex::toJson() const {
 
 DocumentationKnowledgeIndex DocumentationKnowledgeIndex::buildDefault() {
     DocumentationKnowledgeIndex index;
-    index.addEntry({"agent_index", "doc", "Agent Knowledge Index", "docs/agent/INDEX.md",
-                    "Canonical starting point for agent work.", {"agent", "index", "documentation"}});
-    index.addEntry({"architecture_map", "doc", "Architecture Map", "docs/agent/ARCHITECTURE_MAP.md",
-                    "Subsystem ownership and code location map.", {"architecture", "subsystem", "code"}});
-    index.addEntry({"quality_gates", "doc", "Quality Gates", "docs/agent/QUALITY_GATES.md",
-                    "Validation command map and expected gates.", {"test", "validation", "quality"}});
-    index.addEntry({"ai_copilot", "doc", "AI Copilot Guide", "docs/integrations/AI_COPILOT_GUIDE.md",
-                    "AI assistant, creator command, provider, and safety guidance.", {"ai", "chatbot", "provider", "creator"}});
-    index.addEntry({"readiness", "doc", "Release Readiness Matrix", "docs/RELEASE_READINESS_MATRIX.md",
-                    "Release status and readiness evidence.", {"release", "readiness", "status"}});
+    index.addEntry({"agent_index",
+                    "doc",
+                    "Agent Knowledge Index",
+                    "docs/agent/INDEX.md",
+                    "Canonical starting point for agent work.",
+                    {"agent", "index", "documentation"}});
+    index.addEntry({"architecture_map",
+                    "doc",
+                    "Architecture Map",
+                    "docs/agent/ARCHITECTURE_MAP.md",
+                    "Subsystem ownership and code location map.",
+                    {"architecture", "subsystem", "code"}});
+    index.addEntry({"quality_gates",
+                    "doc",
+                    "Quality Gates",
+                    "docs/agent/QUALITY_GATES.md",
+                    "Validation command map and expected gates.",
+                    {"test", "validation", "quality"}});
+    index.addEntry({"ai_copilot",
+                    "doc",
+                    "AI Copilot Guide",
+                    "docs/integrations/AI_COPILOT_GUIDE.md",
+                    "AI assistant, creator command, provider, and safety guidance.",
+                    {"ai", "chatbot", "provider", "creator"}});
+    index.addEntry({"readiness",
+                    "doc",
+                    "Release Readiness Matrix",
+                    "docs/RELEASE_READINESS_MATRIX.md",
+                    "Release status and readiness evidence.",
+                    {"release", "readiness", "status"}});
     for (const auto& panel : urpg::editor::editorPanelRegistry()) {
         if (panel.exposure != urpg::editor::EditorPanelExposure::ReleaseTopLevel) {
             continue;
@@ -734,9 +1268,8 @@ nlohmann::json AiToolApprovalSummary::toJson() const {
 }
 
 void AiToolRegistry::registerTool(AiToolDefinition tool) {
-    const auto it = std::find_if(tools_.begin(), tools_.end(), [&](const auto& existing) {
-        return existing.id == tool.id;
-    });
+    const auto it =
+        std::find_if(tools_.begin(), tools_.end(), [&](const auto& existing) { return existing.id == tool.id; });
     if (it == tools_.end()) {
         tools_.push_back(std::move(tool));
     } else {
@@ -745,9 +1278,7 @@ void AiToolRegistry::registerTool(AiToolDefinition tool) {
 }
 
 const AiToolDefinition* AiToolRegistry::find(const std::string& id) const {
-    const auto it = std::find_if(tools_.begin(), tools_.end(), [&](const auto& tool) {
-        return tool.id == id;
-    });
+    const auto it = std::find_if(tools_.begin(), tools_.end(), [&](const auto& tool) { return tool.id == id; });
     return it == tools_.end() ? nullptr : &(*it);
 }
 
@@ -761,9 +1292,8 @@ std::vector<AiToolDefinition> AiToolRegistry::mutatingToolsRequiringApproval() c
     return out;
 }
 
-std::vector<AiToolApprovalSummary> AiToolRegistry::pendingApprovalSteps(
-    const AiTaskPlan& plan,
-    const AppCapabilityRegistry& capabilities) const {
+std::vector<AiToolApprovalSummary>
+AiToolRegistry::pendingApprovalSteps(const AiTaskPlan& plan, const AppCapabilityRegistry& capabilities) const {
     std::vector<AiToolApprovalSummary> out;
     for (const auto& step : plan.steps) {
         const auto* tool = find(step.tool_id);
@@ -825,14 +1355,17 @@ std::vector<AiKnowledgeDiagnostic> AiToolRegistry::validatePlan(const AiTaskPlan
         }
         for (const auto& field : tool->required_fields) {
             if (!step.arguments.contains(field)) {
-                diagnostics.push_back(diagnostic("ai_tool_missing_argument", "AI tool step is missing a required argument.", step.id + ":" + field));
+                diagnostics.push_back(diagnostic(
+                    "ai_tool_missing_argument", "AI tool step is missing a required argument.", step.id + ":" + field));
             }
         }
         if (step.rejected) {
-            diagnostics.push_back(diagnostic("ai_tool_rejected", "AI tool step was rejected and cannot be applied.", step.id));
+            diagnostics.push_back(
+                diagnostic("ai_tool_rejected", "AI tool step was rejected and cannot be applied.", step.id));
         }
         if (tool->requires_approval && !step.approved) {
-            diagnostics.push_back(diagnostic("ai_tool_unapproved", "Mutating AI tool step requires approval before apply.", step.id));
+            diagnostics.push_back(
+                diagnostic("ai_tool_unapproved", "Mutating AI tool step requires approval before apply.", step.id));
         }
     }
     return diagnostics;
@@ -898,14 +1431,15 @@ AiToolApplyResult AiToolRegistry::applyApprovedPlan(const AiTaskPlan& plan, cons
             events.push_back(step.arguments);
             const auto eventId = step.arguments.value("event_id", "generated_event");
             ensureArray(result.project_data, "ai_tool_previews")
-                .push_back(makeAiToolPreview("event_graph_authoring", eventId, step,
-                                             {{"event_id", eventId},
-                                              {"map_id", step.arguments.value("map_id", "current_map")},
-                                              {"node_count", step.arguments.contains("commands") && step.arguments["commands"].is_array()
-                                                                 ? step.arguments["commands"].size()
-                                                                 : 0},
-                                              {"commands", step.arguments.value("commands", nlohmann::json::array())},
-                                              {"preview_surface", "event_command_graph"}}));
+                .push_back(makeAiToolPreview(
+                    "event_graph_authoring", eventId, step,
+                    {{"event_id", eventId},
+                     {"map_id", step.arguments.value("map_id", "current_map")},
+                     {"node_count", step.arguments.contains("commands") && step.arguments["commands"].is_array()
+                                        ? step.arguments["commands"].size()
+                                        : 0},
+                     {"commands", step.arguments.value("commands", nlohmann::json::array())},
+                     {"preview_surface", "event_command_graph"}}));
         } else if (step.tool_id == "edit_dialogue") {
             auto& dialogue = result.project_data["dialogue"];
             if (!dialogue.is_object()) {
@@ -972,7 +1506,8 @@ AiToolApplyResult AiToolRegistry::applyApprovedPlan(const AiTaskPlan& plan, cons
                             {"status", "review_required"},
                             {"requested_by_step", step.id}});
             ensureArray(result.project_data, "ai_tool_previews")
-                .push_back(makeAiToolPreview("asset_import_promotion", step.arguments.value("asset_id", "generated_asset"), step,
+                .push_back(makeAiToolPreview("asset_import_promotion",
+                                             step.arguments.value("asset_id", "generated_asset"), step,
                                              {{"asset_id", step.arguments.value("asset_id", "generated_asset")},
                                               {"path", step.arguments.value("path", "project-configured")},
                                               {"license", step.arguments.value("license", "review_required")},
@@ -999,8 +1534,8 @@ AiToolApplyResult AiToolRegistry::applyApprovedPlan(const AiTaskPlan& plan, cons
                 {"preview_surface", "export_preview_panel"},
             };
             ensureArray(result.project_data, "ai_tool_previews")
-                .push_back(makeAiToolPreview("export_preview_configuration", step.arguments.value("profile", "default"), step,
-                                             result.project_data["last_ai_export_preview"]));
+                .push_back(makeAiToolPreview("export_preview_configuration", step.arguments.value("profile", "default"),
+                                             step, result.project_data["last_ai_export_preview"]));
         } else if (step.tool_id == "plan_creator_command") {
             auto& commands = result.project_data["creator_command_requests"];
             if (!commands.is_array()) {
@@ -1026,29 +1561,60 @@ nlohmann::json AiToolRegistry::toJson() const {
 AiToolRegistry AiToolRegistry::buildDefault() {
     AiToolRegistry registry;
     registry.registerTool({"create_map", "Create Map", "map_authoring", true, true, {"map_id", "width", "height"}});
-    registry.registerTool({"place_tile", "Place Tile", "map_authoring", true, true, {"map_id", "layer_id", "x", "y", "tile_id"}});
-    registry.registerTool({"paint_region", "Paint Region", "map_authoring", true, true, {"map_id", "region_id", "x", "y", "rule"}});
-    registry.registerTool({"configure_environment", "Configure Environment", "map_authoring", true, true, {"map_id", "weather", "lighting_profile"}});
-    registry.registerTool({"add_event", "Add Event", "event_authoring", true, true, {"event_id", "map_id", "x", "y", "commands"}});
-    registry.registerTool({"edit_dialogue", "Edit Dialogue", "dialogue_authoring", true, true, {"dialogue_id", "lines"}});
-    registry.registerTool({"add_localization_entry", "Add Localization Entry", "dialogue_authoring", true, true, {"locale", "key", "text"}});
+    registry.registerTool(
+        {"place_tile", "Place Tile", "map_authoring", true, true, {"map_id", "layer_id", "x", "y", "tile_id"}});
+    registry.registerTool(
+        {"paint_region", "Paint Region", "map_authoring", true, true, {"map_id", "region_id", "x", "y", "rule"}});
+    registry.registerTool({"configure_environment",
+                           "Configure Environment",
+                           "map_authoring",
+                           true,
+                           true,
+                           {"map_id", "weather", "lighting_profile"}});
+    registry.registerTool(
+        {"add_event", "Add Event", "event_authoring", true, true, {"event_id", "map_id", "x", "y", "commands"}});
+    registry.registerTool(
+        {"edit_dialogue", "Edit Dialogue", "dialogue_authoring", true, true, {"dialogue_id", "lines"}});
+    registry.registerTool({"add_localization_entry",
+                           "Add Localization Entry",
+                           "dialogue_authoring",
+                           true,
+                           true,
+                           {"locale", "key", "text"}});
     registry.registerTool({"add_quest", "Add Quest", "dialogue_authoring", true, true, {"quest_id", "objectives"}});
-    registry.registerTool({"set_npc_schedule", "Set NPC Schedule", "event_authoring", true, true, {"npc_id", "schedule"}});
-    registry.registerTool({"add_ability", "Add Ability", "ability_authoring", true, true, {"ability_id", "cost", "cooldown", "effects"}});
-    registry.registerTool({"add_vfx_keyframe", "Add VFX Keyframe", "battle_vfx_authoring", true, true, {"timeline_id", "time", "effect"}});
-    registry.registerTool({"configure_save_preview", "Configure Save Preview", "save_lab", true, true, {"save_id", "scenario"}});
-    registry.registerTool({"import_asset_record", "Import Asset Record", "asset_pipeline", true, true, {"asset_id", "path", "license"}});
-    registry.registerTool({"create_template_project", "Create Template Project", "template_authoring", true, true, {"template_id", "project_id"}});
+    registry.registerTool(
+        {"set_npc_schedule", "Set NPC Schedule", "event_authoring", true, true, {"npc_id", "schedule"}});
+    registry.registerTool(
+        {"add_ability", "Add Ability", "ability_authoring", true, true, {"ability_id", "cost", "cooldown", "effects"}});
+    registry.registerTool({"add_vfx_keyframe",
+                           "Add VFX Keyframe",
+                           "battle_vfx_authoring",
+                           true,
+                           true,
+                           {"timeline_id", "time", "effect"}});
+    registry.registerTool(
+        {"configure_save_preview", "Configure Save Preview", "save_lab", true, true, {"save_id", "scenario"}});
+    registry.registerTool(
+        {"import_asset_record", "Import Asset Record", "asset_pipeline", true, true, {"asset_id", "path", "license"}});
+    registry.registerTool({"create_template_project",
+                           "Create Template Project",
+                           "template_authoring",
+                           true,
+                           true,
+                           {"template_id", "project_id"}});
     registry.registerTool({"run_validation", "Run Validation", "export_preview", false, false, {"scope"}});
     registry.registerTool({"run_export_preview", "Run Export Preview", "export_preview", false, false, {"profile"}});
-    registry.registerTool({"plan_creator_command", "Plan Creator Command", "creator_command", true, true, {"prompt", "map_id", "tile_x", "tile_y"}});
+    registry.registerTool({"plan_creator_command",
+                           "Plan Creator Command",
+                           "creator_command",
+                           true,
+                           true,
+                           {"prompt", "map_id", "tile_x", "tile_y"}});
     return registry;
 }
 
-AiTaskPlan AiTaskPlanner::planTask(const std::string& userRequest,
-                                   const AppCapabilityRegistry& capabilities,
-                                   const ProjectKnowledgeIndex& projectIndex,
-                                   const DocumentationKnowledgeIndex& docs,
+AiTaskPlan AiTaskPlanner::planTask(const std::string& userRequest, const AppCapabilityRegistry& capabilities,
+                                   const ProjectKnowledgeIndex& projectIndex, const DocumentationKnowledgeIndex& docs,
                                    const AiToolRegistry& tools) const {
     (void)projectIndex;
     (void)docs;
@@ -1058,7 +1624,8 @@ AiTaskPlan AiTaskPlanner::planTask(const std::string& userRequest,
     const auto lowered = lowerCopy(userRequest);
     auto addCapability = [&](const std::string& id) {
         if (capabilities.find(id) == nullptr) {
-            plan.diagnostics.push_back(diagnostic("ai_capability_missing", "Required capability is not registered.", id));
+            plan.diagnostics.push_back(
+                diagnostic("ai_capability_missing", "Required capability is not registered.", id));
         } else {
             pushUnique(plan.capability_ids, id);
         }
@@ -1077,68 +1644,118 @@ AiTaskPlan AiTaskPlanner::planTask(const std::string& userRequest,
         addCapability("creator_command");
         addCapability("map_authoring");
         addCapability("event_authoring");
-        addStep({"step_creator_command", "plan_creator_command", "Generate selected-tile map edits and runtime logic.",
-                 {{"prompt", userRequest}, {"map_id", "current_map"}, {"tile_x", 0}, {"tile_y", 0}}, false});
+        addStep({"step_creator_command",
+                 "plan_creator_command",
+                 "Generate selected-tile map edits and runtime logic.",
+                 {{"prompt", userRequest}, {"map_id", "current_map"}, {"tile_x", 0}, {"tile_y", 0}},
+                 false});
     } else if (lowered.find("dialogue") != std::string::npos || lowered.find("conversation") != std::string::npos) {
         addCapability("dialogue_authoring");
-        addStep({"step_dialogue", "edit_dialogue", "Create or update dialogue with localization-ready lines.",
-                 {{"dialogue_id", "generated_dialogue"}, {"lines", nlohmann::json::array({userRequest})}}, false});
+        addStep({"step_dialogue",
+                 "edit_dialogue",
+                 "Create or update dialogue with localization-ready lines.",
+                 {{"dialogue_id", "generated_dialogue"}, {"lines", nlohmann::json::array({userRequest})}},
+                 false});
     } else if (lowered.find("localization") != std::string::npos || lowered.find("translate") != std::string::npos) {
         addCapability("dialogue_authoring");
-        addStep({"step_localization", "add_localization_entry", "Add a localization-ready string entry.",
-                 {{"locale", "en-US"}, {"key", "generated.string"}, {"text", userRequest}}, false});
+        addStep({"step_localization",
+                 "add_localization_entry",
+                 "Add a localization-ready string entry.",
+                 {{"locale", "en-US"}, {"key", "generated.string"}, {"text", userRequest}},
+                 false});
     } else if (lowered.find("quest") != std::string::npos) {
         addCapability("dialogue_authoring");
         addCapability("event_authoring");
-        addStep({"step_quest", "add_quest", "Create a quest record with objectives.",
-                 {{"quest_id", "generated_quest"}, {"objectives", nlohmann::json::array({userRequest})}}, false});
+        addStep({"step_quest",
+                 "add_quest",
+                 "Create a quest record with objectives.",
+                 {{"quest_id", "generated_quest"}, {"objectives", nlohmann::json::array({userRequest})}},
+                 false});
     } else if (lowered.find("schedule") != std::string::npos) {
         addCapability("event_authoring");
-        addStep({"step_npc_schedule", "set_npc_schedule", "Create an NPC schedule preview record.",
-                 {{"npc_id", "generated_npc"}, {"schedule", nlohmann::json::array({{{"time", "day"}, {"activity", userRequest}}})}}, false});
+        addStep({"step_npc_schedule",
+                 "set_npc_schedule",
+                 "Create an NPC schedule preview record.",
+                 {{"npc_id", "generated_npc"},
+                  {"schedule", nlohmann::json::array({{{"time", "day"}, {"activity", userRequest}}})}},
+                 false});
     } else if (lowered.find("ability") != std::string::npos || lowered.find("skill") != std::string::npos) {
         addCapability("ability_authoring");
-        addStep({"step_ability", "add_ability", "Create an authored ability with visible cost, cooldown, tags, and effects.",
-                 {{"ability_id", "generated_ability"}, {"cost", 10}, {"cooldown", 3}, {"effects", nlohmann::json::array({userRequest})}}, false});
+        addStep({"step_ability",
+                 "add_ability",
+                 "Create an authored ability with visible cost, cooldown, tags, and effects.",
+                 {{"ability_id", "generated_ability"},
+                  {"cost", 10},
+                  {"cooldown", 3},
+                  {"effects", nlohmann::json::array({userRequest})}},
+                 false});
     } else if (lowered.find("vfx") != std::string::npos || lowered.find("battle animation") != std::string::npos) {
         addCapability("battle_vfx_authoring");
-        addStep({"step_vfx", "add_vfx_keyframe", "Add a battle VFX timeline keyframe.",
-                 {{"timeline_id", "generated_vfx"}, {"time", 0.0}, {"effect", userRequest}}, false});
+        addStep({"step_vfx",
+                 "add_vfx_keyframe",
+                 "Add a battle VFX timeline keyframe.",
+                 {{"timeline_id", "generated_vfx"}, {"time", 0.0}, {"effect", userRequest}},
+                 false});
     } else if (lowered.find("save") != std::string::npos) {
         addCapability("save_lab");
-        addStep({"step_save_lab", "configure_save_preview", "Configure a save/load preview scenario.",
-                 {{"save_id", "generated_save_case"}, {"scenario", userRequest}}, false});
+        addStep({"step_save_lab",
+                 "configure_save_preview",
+                 "Configure a save/load preview scenario.",
+                 {{"save_id", "generated_save_case"}, {"scenario", userRequest}},
+                 false});
     } else if (lowered.find("asset") != std::string::npos || lowered.find("import") != std::string::npos) {
         addCapability("asset_pipeline");
-        addStep({"step_asset", "import_asset_record", "Create an asset import record for review.",
-                 {{"asset_id", "generated_asset"}, {"path", "project-configured"}, {"license", "review_required"}}, false});
+        addStep({"step_asset",
+                 "import_asset_record",
+                 "Create an asset import record for review.",
+                 {{"asset_id", "generated_asset"}, {"path", "project-configured"}, {"license", "review_required"}},
+                 false});
     } else if (lowered.find("template") != std::string::npos || lowered.find("starter") != std::string::npos) {
         addCapability("template_authoring");
-        addStep({"step_template", "create_template_project", "Create a template project instance record.",
-                 {{"template_id", "generated_template"}, {"project_id", "generated_project"}}, false});
+        addStep({"step_template",
+                 "create_template_project",
+                 "Create a template project instance record.",
+                 {{"template_id", "generated_template"}, {"project_id", "generated_project"}},
+                 false});
     } else if (lowered.find("lighting") != std::string::npos || lowered.find("weather") != std::string::npos) {
         addCapability("map_authoring");
-        addStep({"step_environment", "configure_environment", "Configure map lighting and weather preview data.",
-                 {{"map_id", "current_map"}, {"weather", "rain"}, {"lighting_profile", "generated_lighting"}}, false});
+        addStep({"step_environment",
+                 "configure_environment",
+                 "Configure map lighting and weather preview data.",
+                 {{"map_id", "current_map"}, {"weather", "rain"}, {"lighting_profile", "generated_lighting"}},
+                 false});
     } else if (lowered.find("region") != std::string::npos) {
         addCapability("map_authoring");
-        addStep({"step_region", "paint_region", "Paint a region rule into the map authoring data.",
-                 {{"map_id", "current_map"}, {"region_id", "generated_region"}, {"x", 0}, {"y", 0}, {"rule", userRequest}}, false});
+        addStep(
+            {"step_region",
+             "paint_region",
+             "Paint a region rule into the map authoring data.",
+             {{"map_id", "current_map"}, {"region_id", "generated_region"}, {"x", 0}, {"y", 0}, {"rule", userRequest}},
+             false});
     } else if (lowered.find("create map") != std::string::npos || lowered.find("new map") != std::string::npos) {
         addCapability("map_authoring");
-        addStep({"step_map", "create_map", "Create a new map record.",
-                 {{"map_id", "generated_map"}, {"width", 32}, {"height", 32}}, false});
+        addStep({"step_map",
+                 "create_map",
+                 "Create a new map record.",
+                 {{"map_id", "generated_map"}, {"width", 32}, {"height", 32}},
+                 false});
     } else if (lowered.find("export") != std::string::npos || lowered.find("ship") != std::string::npos) {
         addCapability("export_preview");
-        addStep({"step_export_preview", "run_export_preview", "Preview exactly what will ship.",
-                 {{"profile", "default"}}, true});
+        addStep({"step_export_preview",
+                 "run_export_preview",
+                 "Preview exactly what will ship.",
+                 {{"profile", "default"}},
+                 true});
     } else {
         const auto matches = capabilities.search(userRequest);
         if (!matches.empty()) {
             addCapability(matches.front().id);
         }
-        addStep({"step_validation", "run_validation", "Inspect project state before choosing a mutating tool.",
-                 {{"scope", "project"}}, true});
+        addStep({"step_validation",
+                 "run_validation",
+                 "Inspect project state before choosing a mutating tool.",
+                 {{"scope", "project"}},
+                 true});
     }
 
     const auto validation = tools.validatePlan(plan);

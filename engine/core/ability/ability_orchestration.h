@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/core/ability/authored_ability_asset.h"
 #include "engine/core/ability/ability_battle_integration.h"
+#include "engine/core/ability/authored_ability_asset.h"
 
 #include <nlohmann/json.hpp>
 
@@ -58,6 +58,10 @@ struct AbilityTaskExecutionEvent {
     std::string kind;
     std::string status;
     std::string detail;
+    size_t cursor = 0;
+    std::string wait_state;
+    std::string next_task_id;
+    std::string branch_taken;
 };
 
 struct AbilityOrchestrationDocument {

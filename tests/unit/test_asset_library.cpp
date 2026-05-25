@@ -1,9 +1,9 @@
 #include "engine/core/assets/asset_action_view.h"
 #include "engine/core/assets/asset_import_session.h"
-#include "engine/core/assets/global_asset_library_store.h"
-#include "engine/core/assets/global_asset_promotion_service.h"
 #include "engine/core/assets/asset_library.h"
 #include "engine/core/assets/asset_promotion_manifest.h"
+#include "engine/core/assets/global_asset_library_store.h"
+#include "engine/core/assets/global_asset_promotion_service.h"
 #include "engine/core/assets/project_asset_attachment_service.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -242,9 +242,8 @@ TEST_CASE("AssetImportSession round-trips and builds review rows", "[assets][ass
 
     const auto rows = urpg::assets::buildAssetImportReviewRows({loaded});
     REQUIRE(rows.size() == 6);
-    const auto ready = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["relative_path"] == "characters/hero.png";
-    });
+    const auto ready = std::find_if(rows.begin(), rows.end(),
+                                    [](const auto& row) { return row["relative_path"] == "characters/hero.png"; });
     REQUIRE(ready != rows.end());
     REQUIRE((*ready)["review_state"] == "ready_to_promote");
     REQUIRE((*ready)["recommended_action"] == "promote");
@@ -252,16 +251,14 @@ TEST_CASE("AssetImportSession round-trips and builds review rows", "[assets][ass
     REQUIRE((*ready)["preview_available"] == true);
     REQUIRE((*ready)["preview_kind"] == "image");
 
-    const auto missingLicense = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["relative_path"] == "ui/button.png";
-    });
+    const auto missingLicense =
+        std::find_if(rows.begin(), rows.end(), [](const auto& row) { return row["relative_path"] == "ui/button.png"; });
     REQUIRE(missingLicense != rows.end());
     REQUIRE((*missingLicense)["review_state"] == "missing_license");
     REQUIRE((*missingLicense)["recommended_action"] == "add_license_attribution");
 
-    const auto conversion = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["relative_path"] == "audio/theme.mp3";
-    });
+    const auto conversion = std::find_if(rows.begin(), rows.end(),
+                                         [](const auto& row) { return row["relative_path"] == "audio/theme.mp3"; });
     REQUIRE(conversion != rows.end());
     REQUIRE((*conversion)["conversion_required"] == true);
     REQUIRE((*conversion)["conversion_target_path"] == "converted/audio/theme.wav");
@@ -269,9 +266,8 @@ TEST_CASE("AssetImportSession round-trips and builds review rows", "[assets][ass
     REQUIRE((*conversion)["preview_available"] == true);
     REQUIRE((*conversion)["preview_kind"] == "audio");
 
-    const auto tooling = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["relative_path"] == "tools/setup.exe";
-    });
+    const auto tooling = std::find_if(rows.begin(), rows.end(),
+                                      [](const auto& row) { return row["relative_path"] == "tools/setup.exe"; });
     REQUIRE(tooling != rows.end());
     REQUIRE((*tooling)["preview_available"] == false);
     REQUIRE((*tooling)["no_preview_diagnostic"] == "no_preview_tooling_only");
@@ -365,8 +361,8 @@ TEST_CASE("AssetImportSession plans governed promotion manifests", "[assets][ass
         },
     };
 
-    const auto ready = urpg::assets::planAssetPromotionManifest(
-        session, session.records[0], "user_license_note", ".urpg/asset-library/promoted", true);
+    const auto ready = urpg::assets::planAssetPromotionManifest(session, session.records[0], "user_license_note",
+                                                                ".urpg/asset-library/promoted", true);
     REQUIRE(ready.status == urpg::assets::AssetPromotionStatus::RuntimeReady);
     REQUIRE(ready.assetId == "asset.hero");
     REQUIRE(ready.sourcePath == ".urpg/asset-library/sources/import_20260430_001/extracted/characters/hero.png");
@@ -385,14 +381,14 @@ TEST_CASE("AssetImportSession plans governed promotion manifests", "[assets][ass
     REQUIRE(std::find(conversionNeeded.diagnostics.begin(), conversionNeeded.diagnostics.end(),
                       "source_record_requires_conversion") != conversionNeeded.diagnostics.end());
 
-    const auto duplicate = urpg::assets::planAssetPromotionManifest(
-        session, session.records[2], "user_license_note", ".urpg/asset-library/promoted", true);
+    const auto duplicate = urpg::assets::planAssetPromotionManifest(session, session.records[2], "user_license_note",
+                                                                    ".urpg/asset-library/promoted", true);
     REQUIRE(duplicate.status == urpg::assets::AssetPromotionStatus::Blocked);
     REQUIRE(std::find(duplicate.diagnostics.begin(), duplicate.diagnostics.end(), "source_record_duplicate") !=
             duplicate.diagnostics.end());
 
-    const auto missingLicense = urpg::assets::planAssetPromotionManifest(
-        session, session.records[0], "", ".urpg/asset-library/promoted", true);
+    const auto missingLicense =
+        urpg::assets::planAssetPromotionManifest(session, session.records[0], "", ".urpg/asset-library/promoted", true);
     REQUIRE(missingLicense.status == urpg::assets::AssetPromotionStatus::Blocked);
     REQUIRE(std::find(missingLicense.diagnostics.begin(), missingLicense.diagnostics.end(),
                       "license_evidence_missing") != missingLicense.diagnostics.end());
@@ -497,9 +493,8 @@ TEST_CASE("AssetImportSession builds character appearance import rows",
     const auto rows = urpg::assets::buildAppearancePartImportRows({session});
     REQUIRE(rows.size() == 4);
 
-    const auto portrait = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["asset_id"] == "asset.hero.face";
-    });
+    const auto portrait =
+        std::find_if(rows.begin(), rows.end(), [](const auto& row) { return row["asset_id"] == "asset.hero.face"; });
     REQUIRE(portrait != rows.end());
     REQUIRE((*portrait)["slot"] == "portrait");
     REQUIRE((*portrait)["source_path"] ==
@@ -516,23 +511,20 @@ TEST_CASE("AssetImportSession builds character appearance import rows",
     REQUIRE((*portrait)["management_actions"]["archive"]["enabled"] == false);
     REQUIRE((*portrait)["management_actions"]["assign"]["target_slot"] == "portrait");
 
-    const auto field = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["asset_id"] == "asset.hero.field";
-    });
+    const auto field =
+        std::find_if(rows.begin(), rows.end(), [](const auto& row) { return row["asset_id"] == "asset.hero.field"; });
     REQUIRE(field != rows.end());
     REQUIRE((*field)["slot"] == "field");
     REQUIRE((*field)["category"] == "character/field");
 
-    const auto battle = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["asset_id"] == "asset.hero.battle";
-    });
+    const auto battle =
+        std::find_if(rows.begin(), rows.end(), [](const auto& row) { return row["asset_id"] == "asset.hero.battle"; });
     REQUIRE(battle != rows.end());
     REQUIRE((*battle)["slot"] == "battle");
     REQUIRE((*battle)["category"] == "character/battle");
 
-    const auto blocked = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["asset_id"] == "asset.hero.missing_license";
-    });
+    const auto blocked = std::find_if(rows.begin(), rows.end(),
+                                      [](const auto& row) { return row["asset_id"] == "asset.hero.missing_license"; });
     REQUIRE(blocked != rows.end());
     REQUIRE((*blocked)["runtime_ready"] == false);
     REQUIRE((*blocked)["attribution_state"] == "missing_license");
@@ -666,18 +658,18 @@ TEST_CASE("GlobalAssetPromotionService copies quarantined payloads into promoted
     };
 
     urpg::assets::GlobalAssetPromotionService service;
-    const auto result = service.promoteImportRecord(
-        session, session.records.front(), "user_license_note", root / ".urpg" / "asset-library" / "promoted");
+    const auto result = service.promoteImportRecord(session, session.records.front(), "user_license_note",
+                                                    root / ".urpg" / "asset-library" / "promoted");
 
     REQUIRE(result.success);
     REQUIRE(result.code == "global_asset_promoted");
     REQUIRE(result.manifest.status == urpg::assets::AssetPromotionStatus::RuntimeReady);
     REQUIRE(std::filesystem::is_regular_file(result.payloadPath));
     REQUIRE(std::filesystem::is_regular_file(result.manifestPath));
-    REQUIRE(result.payloadPath == root / ".urpg" / "asset-library" / "promoted" / "asset.hero" / "payloads" /
-                                  "hero.png");
-    REQUIRE(result.manifestPath == root / ".urpg" / "asset-library" / "promoted" / "asset.hero" /
-                                   "asset_promotion_manifest.json");
+    REQUIRE(result.payloadPath ==
+            root / ".urpg" / "asset-library" / "promoted" / "asset.hero" / "payloads" / "hero.png");
+    REQUIRE(result.manifestPath ==
+            root / ".urpg" / "asset-library" / "promoted" / "asset.hero" / "asset_promotion_manifest.json");
 
     std::ifstream manifestStream(result.manifestPath);
     const auto manifest = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json::parse(manifestStream));
@@ -837,11 +829,10 @@ TEST_CASE("ProjectAssetAttachmentService rejects blocked or missing promoted pay
 TEST_CASE("AssetLibrary ingests duplicate groups deterministically", "[assets][asset_library]") {
     urpg::assets::AssetLibrary library;
 
-    library.ingestDuplicateCsv(
-        "sha256,size_bytes,path_rel,recommended_keep,recommended_remove\n"
-        "bbb,20,z/path.png,z/path.png,no\n"
-        "aaa,10,b/path.png,a/path.png,yes\n"
-        "aaa,10,a/path.png,a/path.png,no\n");
+    library.ingestDuplicateCsv("sha256,size_bytes,path_rel,recommended_keep,recommended_remove\n"
+                               "bbb,20,z/path.png,z/path.png,no\n"
+                               "aaa,10,b/path.png,a/path.png,yes\n"
+                               "aaa,10,a/path.png,a/path.png,no\n");
 
     const auto& snapshot = library.snapshot();
     REQUIRE(snapshot.duplicate_groups.size() == 2);
@@ -854,17 +845,13 @@ TEST_CASE("AssetLibrary ingests duplicate groups deterministically", "[assets][a
 
 TEST_CASE("AssetLibrary provenance packet round-trips JSON", "[assets][asset_library]") {
     urpg::assets::AssetLibrary library;
-    library.ingestIntakeReport(nlohmann::json{
-        {"sources", {
-            {
-                {"source_id", "SRC-001"},
-                {"repo_name", "GDQuest/game-sprites"},
-                {"legal_disposition", "cc0_candidate_recorded_for_private_use_intake"},
-                {"promotion_status", "promoted"},
-                {"normalized_assets", {"imports/normalized/prototype_sprites/gdquest_blue_actor.svg"}}
-            }
-        }}
-    });
+    library.ingestIntakeReport(
+        nlohmann::json{{"sources",
+                        {{{"source_id", "SRC-001"},
+                          {"repo_name", "GDQuest/game-sprites"},
+                          {"legal_disposition", "cc0_candidate_recorded_for_private_use_intake"},
+                          {"promotion_status", "promoted"},
+                          {"normalized_assets", {"imports/normalized/prototype_sprites/gdquest_blue_actor.svg"}}}}}});
 
     const auto asset = library.findAsset("imports/normalized/prototype_sprites/gdquest_blue_actor.svg");
     REQUIRE(asset.has_value());
@@ -947,8 +934,10 @@ TEST_CASE("AssetLibrary ingests promotion catalog summary", "[assets][asset_libr
          }},
         {"shards",
          {
-             {{"category", "audio/ui"}, {"path", "imports/reports/asset_intake/urpg_stuff_promotion_catalog/audio-ui.json"}},
-             {{"category", "characters"}, {"path", "imports/reports/asset_intake/urpg_stuff_promotion_catalog/characters.json"}},
+             {{"category", "audio/ui"},
+              {"path", "imports/reports/asset_intake/urpg_stuff_promotion_catalog/audio-ui.json"}},
+             {{"category", "characters"},
+              {"path", "imports/reports/asset_intake/urpg_stuff_promotion_catalog/characters.json"}},
          }},
     });
 
@@ -985,52 +974,52 @@ TEST_CASE("AssetLibrary detects case collisions and unsupported paths", "[assets
 
 TEST_CASE("AssetLibrary filters by tags status references and runtime readiness", "[assets][asset_library][browser]") {
     urpg::assets::AssetLibrary library;
-    library.ingestPromotionCatalog(nlohmann::json{
-        {"source_id", "SRC-007"},
-        {"source_root", "imports/raw/urpg_stuff"},
-        {"export_eligible", false},
-        {"assets",
-         {
-             {
-                 {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
-                 {"normalized_path", "asset://src-007/characters/hero.png"},
-                 {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
-                 {"preview_kind", "image"},
-                 {"preview_width", 64},
-                 {"preview_height", 48},
-                 {"media_kind", "image"},
-                 {"category", "characters"},
-                 {"pack", "Hero Pack"},
-                 {"tags", {"kind:image", "character", "hero"}},
-                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
-             },
-             {
-                 {"source_path", "imports/raw/urpg_stuff/audio/click.ogg"},
-                 {"normalized_path", "asset://src-007/audio/click.ogg"},
-                 {"preview_path", "imports/raw/urpg_stuff/audio/click.ogg"},
-                 {"preview_kind", "audio"},
-                 {"duration_ms", 420},
-                 {"waveform_peaks", {0.2, 0.4, 0.8, 0.4}},
-                 {"media_kind", "audio"},
-                 {"category", "audio/ui"},
-                 {"pack", "UI Pack"},
-                 {"tags", {"kind:audio", "ui"}},
-                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
-             },
-             {
-                 {"source_path", "imports/raw/urpg_stuff/audio/click-copy.ogg"},
-                 {"normalized_path", "asset://src-007/audio/click-copy.ogg"},
-                 {"preview_path", "imports/raw/urpg_stuff/audio/click-copy.ogg"},
-                 {"preview_kind", "audio"},
-                 {"media_kind", "audio"},
-                 {"category", "audio/ui"},
-                 {"pack", "UI Pack"},
-                 {"tags", {"kind:audio", "ui"}},
-                 {"duplicate_of", "click"},
-                 {"status", "duplicate"},
-                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
-             },
-         }}});
+    library.ingestPromotionCatalog(
+        nlohmann::json{{"source_id", "SRC-007"},
+                       {"source_root", "imports/raw/urpg_stuff"},
+                       {"export_eligible", false},
+                       {"assets",
+                        {
+                            {
+                                {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                {"normalized_path", "asset://src-007/characters/hero.png"},
+                                {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                {"preview_kind", "image"},
+                                {"preview_width", 64},
+                                {"preview_height", 48},
+                                {"media_kind", "image"},
+                                {"category", "characters"},
+                                {"pack", "Hero Pack"},
+                                {"tags", {"kind:image", "character", "hero"}},
+                                {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                            },
+                            {
+                                {"source_path", "imports/raw/urpg_stuff/audio/click.ogg"},
+                                {"normalized_path", "asset://src-007/audio/click.ogg"},
+                                {"preview_path", "imports/raw/urpg_stuff/audio/click.ogg"},
+                                {"preview_kind", "audio"},
+                                {"duration_ms", 420},
+                                {"waveform_peaks", {0.2, 0.4, 0.8, 0.4}},
+                                {"media_kind", "audio"},
+                                {"category", "audio/ui"},
+                                {"pack", "UI Pack"},
+                                {"tags", {"kind:audio", "ui"}},
+                                {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                            },
+                            {
+                                {"source_path", "imports/raw/urpg_stuff/audio/click-copy.ogg"},
+                                {"normalized_path", "asset://src-007/audio/click-copy.ogg"},
+                                {"preview_path", "imports/raw/urpg_stuff/audio/click-copy.ogg"},
+                                {"preview_kind", "audio"},
+                                {"media_kind", "audio"},
+                                {"category", "audio/ui"},
+                                {"pack", "UI Pack"},
+                                {"tags", {"kind:audio", "ui"}},
+                                {"duplicate_of", "click"},
+                                {"status", "duplicate"},
+                                {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                            },
+                        }}});
 
     library.addUsageReference("imports/raw/urpg_stuff/characters/hero.png", "project.map_001");
     library.addUsageReference("imports/raw/urpg_stuff/characters/hero.png", "project.actor_hero");
@@ -1056,33 +1045,33 @@ TEST_CASE("AssetLibrary filters by tags status references and runtime readiness"
 
 TEST_CASE("AssetLibrary promotes and archives curated assets", "[assets][asset_library][browser][actions]") {
     urpg::assets::AssetLibrary library;
-    library.ingestPromotionCatalog(nlohmann::json{
-        {"source_id", "SRC-007"},
-        {"source_root", "imports/raw/urpg_stuff"},
-        {"assets",
-         {
-             {
-                 {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
-                 {"normalized_path", "asset://src-007/characters/hero.png"},
-                 {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
-                 {"preview_kind", "image"},
-                 {"preview_width", 64},
-                 {"preview_height", 48},
-                 {"media_kind", "image"},
-                 {"category", "characters"},
-                 {"tags", {"hero", "kind:image"}},
-                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
-             },
-             {
-                 {"source_path", "imports/raw/urpg_stuff/characters/hero-copy.png"},
-                 {"normalized_path", "asset://src-007/characters/hero-copy.png"},
-                 {"media_kind", "image"},
-                 {"category", "characters"},
-                 {"duplicate_of", "hero"},
-                 {"status", "duplicate"},
-                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
-             },
-         }}});
+    library.ingestPromotionCatalog(
+        nlohmann::json{{"source_id", "SRC-007"},
+                       {"source_root", "imports/raw/urpg_stuff"},
+                       {"assets",
+                        {
+                            {
+                                {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                {"normalized_path", "asset://src-007/characters/hero.png"},
+                                {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                {"preview_kind", "image"},
+                                {"preview_width", 64},
+                                {"preview_height", 48},
+                                {"media_kind", "image"},
+                                {"category", "characters"},
+                                {"tags", {"hero", "kind:image"}},
+                                {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                            },
+                            {
+                                {"source_path", "imports/raw/urpg_stuff/characters/hero-copy.png"},
+                                {"normalized_path", "asset://src-007/characters/hero-copy.png"},
+                                {"media_kind", "image"},
+                                {"category", "characters"},
+                                {"duplicate_of", "hero"},
+                                {"status", "duplicate"},
+                                {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                            },
+                        }}});
 
     const auto promoted = library.promoteAsset("imports/raw/urpg_stuff/characters/hero.png");
     REQUIRE(promoted.success);
@@ -1215,6 +1204,9 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE((*unlicensed)["promote_button"]["enabled"] == false);
     REQUIRE((*unlicensed)["promote_button"]["disabled_reason"] == "asset_missing_license");
     REQUIRE((*unlicensed)["attach_button"]["disabled_reason"] == "asset_not_promoted");
+    REQUIRE((*unlicensed)["readiness"]["warning_count"].get<std::size_t>() >= 1);
+    REQUIRE((*unlicensed)["readiness"]["diagnostics"][0]["code"] == "license_evidence_missing");
+    REQUIRE((*unlicensed)["readiness"]["render_contract"]["component"] == "asset_readiness_badge_stack");
 
     const auto sequence = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
         return row["path"] == "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon";
@@ -1244,6 +1236,9 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE((*audioPreview)["waveform"]["ready"] == true);
     REQUIRE((*audioPreview)["waveform"]["duration_ms"] == 420);
     REQUIRE((*audioPreview)["waveform"]["peak_count"] == 4);
+    REQUIRE((*audioPreview)["readiness"]["preview_ready"] == true);
+    REQUIRE((*audioPreview)["readiness"]["render_contract"]["diagnostic_renderer"] ==
+            "asset_readiness_diagnostic_rows");
 
     const auto sequencePreview = std::find_if(previewRows.begin(), previewRows.end(), [](const auto& row) {
         return row["path"] == "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon";
@@ -1254,6 +1249,7 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE((*sequencePreview)["sequence"]["frame_count"] == 1200);
     REQUIRE((*sequencePreview)["sequence"]["sequence_count"] == 18);
     REQUIRE((*sequencePreview)["thumbnail"]["ready"] == true);
+    REQUIRE((*sequencePreview)["readiness"]["preview_ready"] == true);
 }
 
 TEST_CASE("AssetLibrary action rows expose governed promotion manifests", "[assets][promotion][asset_library]") {
@@ -1317,9 +1313,8 @@ TEST_CASE("AssetLibrary action rows expose governed promotion manifests", "[asse
     const auto rows = urpg::assets::buildAssetActionRows(library.snapshot());
     REQUIRE(rows.size() == 4);
 
-    const auto promoted = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["path"] == "imports/raw/example/hero.png";
-    });
+    const auto promoted = std::find_if(rows.begin(), rows.end(),
+                                       [](const auto& row) { return row["path"] == "imports/raw/example/hero.png"; });
     REQUIRE(promoted != rows.end());
     REQUIRE((*promoted)["recommended_action"] == "attach_to_project");
     REQUIRE((*promoted)["attach_button"]["enabled"] == true);
@@ -1332,9 +1327,8 @@ TEST_CASE("AssetLibrary action rows expose governed promotion manifests", "[asse
     REQUIRE((*promoted)["required_for_release"] == false);
     REQUIRE((*promoted)["promotion_diagnostics"].empty());
 
-    const auto unlicensed = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["path"] == "imports/raw/example/unlicensed.png";
-    });
+    const auto unlicensed = std::find_if(
+        rows.begin(), rows.end(), [](const auto& row) { return row["path"] == "imports/raw/example/unlicensed.png"; });
     REQUIRE(unlicensed != rows.end());
     REQUIRE((*unlicensed)["recommended_action"] == "add_license_evidence");
     REQUIRE((*unlicensed)["include_in_runtime"] == false);
@@ -1342,17 +1336,15 @@ TEST_CASE("AssetLibrary action rows expose governed promotion manifests", "[asse
     REQUIRE((*unlicensed)["attach_button"]["disabled_reason"] == "asset_not_promoted");
     REQUIRE((*unlicensed)["promotion_diagnostics"][0] == "license_evidence_missing");
 
-    const auto missing = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["path"] == "imports/raw/example/missing.png";
-    });
+    const auto missing = std::find_if(rows.begin(), rows.end(),
+                                      [](const auto& row) { return row["path"] == "imports/raw/example/missing.png"; });
     REQUIRE(missing != rows.end());
     REQUIRE((*missing)["recommended_action"] == "fix_missing_file");
     REQUIRE((*missing)["include_in_runtime"] == false);
     REQUIRE((*missing)["attach_button"]["disabled_reason"] == "asset_not_promoted");
 
-    const auto archived = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
-        return row["path"] == "imports/raw/example/hero-copy.png";
-    });
+    const auto archived = std::find_if(
+        rows.begin(), rows.end(), [](const auto& row) { return row["path"] == "imports/raw/example/hero-copy.png"; });
     REQUIRE(archived != rows.end());
     REQUIRE((*archived)["recommended_action"] == "archived");
     REQUIRE((*archived)["include_in_runtime"] == false);

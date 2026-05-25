@@ -2,8 +2,8 @@
 
 #include "engine/core/ai/ai_assistant_config.h"
 #include "engine/core/ai/ai_knowledge_base.h"
-#include "engine/core/ai/openai_compatible_chat_service.h"
 #include "engine/core/ai/ai_suggestion_record.h"
+#include "engine/core/ai/openai_compatible_chat_service.h"
 #include "engine/core/assets/asset_library.h"
 
 #include <nlohmann/json.hpp>
@@ -13,13 +13,16 @@
 namespace urpg::editor {
 
 class AiAssistantPanel {
-public:
+  public:
     void setConfig(urpg::ai::AiAssistantConfig config, bool providerAvailable);
     void setOpenAiProviderConfig(urpg::ai::OpenAiCompatibleChatConfig config, std::string selectedProviderId = {});
     void setSuggestion(urpg::ai::AiSuggestionRecord suggestion);
     void setProjectData(nlohmann::json projectData);
     void setAssetLibrarySnapshot(urpg::assets::AssetLibrarySnapshot assetLibrarySnapshot);
     void setTaskRequest(std::string taskRequest);
+    nlohmann::json ingestFilesystemKnowledge(nlohmann::json filesystemKnowledge);
+    nlohmann::json buildFilesystemKnowledgeRefresh(std::string projectRoot = ".",
+                                                   std::string outputPath = ".urpg/ai/filesystem_knowledge.json");
     void render();
     bool approveStep(const std::string& stepId);
     std::size_t approveAllPendingSteps();
@@ -30,7 +33,7 @@ public:
     nlohmann::json testOpenAiProviderRequest();
     nlohmann::json lastRenderSnapshot() const;
 
-private:
+  private:
     void rebuildTaskPlan();
     nlohmann::json buildControlSnapshot() const;
     nlohmann::json buildApplyPreviewSnapshot() const;
@@ -48,6 +51,7 @@ private:
     nlohmann::json project_data_ = nlohmann::json::object();
     urpg::assets::AssetLibrarySnapshot asset_library_snapshot_{};
     std::string task_request_;
+    nlohmann::json last_filesystem_refresh_ = nlohmann::json::object();
     urpg::ai::AiKnowledgeSnapshot knowledge_;
     urpg::ai::AiTaskPlan current_task_plan_;
     std::vector<urpg::ai::AiToolApplyResult> applied_changes_;

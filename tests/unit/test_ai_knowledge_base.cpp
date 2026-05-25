@@ -12,7 +12,7 @@
 namespace {
 
 class ToolCommandChatService : public urpg::ai::IChatService {
-public:
+  public:
     explicit ToolCommandChatService(std::string command) : command_(std::move(command)) {}
 
     void requestResponse(const std::vector<urpg::ai::ChatMessage>& history, ChatCallback callback) override {
@@ -20,7 +20,7 @@ public:
         callback("I prepared a tool plan.", command_);
     }
 
-private:
+  private:
     std::string command_;
 };
 
@@ -37,55 +37,90 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
         {"abilities", nlohmann::json::array({{{"ability_id", "fire"}}})},
         {"assets", nlohmann::json::array({{{"id", "hero"}}})},
         {"project_files", nlohmann::json::array({
-            {{"id", "project_json"}, {"path", "game/project.urpg.json"}, {"title", "Project Manifest"}, {"summary", "Root project file."}},
-        })},
+                              {{"id", "project_json"},
+                               {"path", "game/project.urpg.json"},
+                               {"title", "Project Manifest"},
+                               {"summary", "Root project file."}},
+                          })},
         {"schemas", nlohmann::json::array({
-            {{"id", "ability_schema"}, {"path", "content/schemas/gameplay_ability.schema.json"}, {"title", "Ability Schema"}, {"summary", "Ability authoring contract."}},
-        })},
+                        {{"id", "ability_schema"},
+                         {"path", "content/schemas/gameplay_ability.schema.json"},
+                         {"title", "Ability Schema"},
+                         {"summary", "Ability authoring contract."}},
+                    })},
         {"readiness_reports", nlohmann::json::array({
-            {{"id", "release_matrix"}, {"path", "docs/RELEASE_READINESS_MATRIX.md"}, {"status", "PARTIAL"}, {"summary", "Release readiness evidence."}},
-        })},
+                                  {{"id", "release_matrix"},
+                                   {"path", "docs/RELEASE_READINESS_MATRIX.md"},
+                                   {"status", "PARTIAL"},
+                                   {"summary", "Release readiness evidence."}},
+                              })},
         {"validation_reports", nlohmann::json::array({
-            {{"id", "local_gate"}, {"path", "reports/local_gate.json"}, {"status", "passed"}, {"summary", "Local gate validation output."}},
-        })},
+                                   {{"id", "local_gate"},
+                                    {"path", "reports/local_gate.json"},
+                                    {"status", "passed"},
+                                    {"summary", "Local gate validation output."}},
+                               })},
         {"asset_catalogs", nlohmann::json::array({
-            {{"id", "main_catalog"}, {"path", "imports/reports/asset_intake/catalog.json"}, {"asset_count", 42}, {"duplicate_group_count", 3}, {"summary", "Indexed asset catalog."}},
-        })},
+                               {{"id", "main_catalog"},
+                                {"path", "imports/reports/asset_intake/catalog.json"},
+                                {"asset_count", 42},
+                                {"duplicate_group_count", 3},
+                                {"summary", "Indexed asset catalog."}},
+                           })},
         {"docs", nlohmann::json::array({
-            {{"id", "combat_doc"}, {"path", "docs/BATTLE_CORE_NATIVE_SPEC.md"}, {"title", "Battle Spec"}, {"summary", "Battle authoring docs."}},
-        })},
+                     {{"id", "combat_doc"},
+                      {"path", "docs/BATTLE_CORE_NATIVE_SPEC.md"},
+                      {"title", "Battle Spec"},
+                      {"summary", "Battle authoring docs."}},
+                 })},
         {"template_specs", nlohmann::json::array({
-            {{"id", "monster_collector"}, {"path", "docs/templates/monster_collector_rpg.md"}, {"status", "starter"}, {"summary", "Monster collector template spec."}},
-        })},
-        {"filesystem_documents", nlohmann::json::array({
-            {
-                {"id", "event_runtime_cpp"},
-                {"path", "engine/core/events/event_runtime.cpp"},
-                {"kind", "source"},
-                {"content", "Event runtime executes command graphs and validates switch conditions."},
-                {"indexed_at_epoch", 100},
-                {"modified_at_epoch", 90},
-                {"age_days", 2},
-                {"max_age_days", 14},
-            },
-            {
-                {"id", "asset_report"},
-                {"path", "imports/reports/asset_intake/summary.json"},
-                {"kind", "report"},
-                {"content", "Asset catalog report lists promoted sprites and duplicate groups."},
-                {"indexed_at_epoch", 100},
-                {"modified_at_epoch", 120},
-                {"age_days", 40},
-                {"max_age_days", 14},
-            },
-        })},
-        {"ingested_docs", nlohmann::json::array({
-            {
-                {"id", "readme"},
-                {"path", "README.md"},
-                {"content", "URPG Maker provides WYSIWYG RPG authoring with deterministic native runtime ownership."},
-            },
-        })},
+                               {{"id", "monster_collector"},
+                                {"path", "docs/templates/monster_collector_rpg.md"},
+                                {"status", "starter"},
+                                {"summary", "Monster collector template spec."}},
+                           })},
+        {"filesystem_documents",
+         nlohmann::json::array({
+             {
+                 {"id", "event_runtime_cpp"},
+                 {"path", "engine/core/events/event_runtime.cpp"},
+                 {"kind", "source"},
+                 {"content", "Event runtime executes command graphs and validates switch conditions."},
+                 {"indexed_at_epoch", 100},
+                 {"modified_at_epoch", 90},
+                 {"age_days", 2},
+                 {"max_age_days", 14},
+             },
+             {
+                 {"id", "asset_report"},
+                 {"path", "imports/reports/asset_intake/summary.json"},
+                 {"kind", "report"},
+                 {"content", "Asset catalog report lists promoted sprites and duplicate groups."},
+                 {"indexed_at_epoch", 100},
+                 {"modified_at_epoch", 120},
+                 {"age_days", 40},
+                 {"max_age_days", 14},
+             },
+         })},
+        {"summary",
+         {{"records", 2}, {"totalBytes", 150}, {"skipped", {{"excluded", 2}, {"unsupported_extension", 1}}}}},
+        {"diagnostics", nlohmann::json::array({
+                            {{"code", "excluded"}, {"path", "build/cache.tmp"}},
+                            {{"code", "unsupported_extension"}, {"path", "notes/reference.bmp"}},
+                        })},
+        {"filesystem_crawler_config",
+         {{"include", nlohmann::json::array({"engine/**", "imports/reports/**"})},
+          {"exclude", nlohmann::json::array({"build/**"})},
+          {"max_files", 256},
+          {"max_bytes", 1048576}}},
+        {"ingested_docs",
+         nlohmann::json::array({
+             {
+                 {"id", "readme"},
+                 {"path", "README.md"},
+                 {"content", "URPG Maker provides WYSIWYG RPG authoring with deterministic native runtime ownership."},
+             },
+         })},
     };
 
     const auto snapshot = urpg::ai::buildDefaultAiKnowledgeSnapshot(project);
@@ -109,9 +144,8 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
     REQUIRE_FALSE(snapshot.docs_index.search("release checklist dashboard").empty());
     REQUIRE(snapshot.toJson()["capabilities"].size() == snapshot.capabilities.capabilities().size());
     const auto catalogMatches = snapshot.project_index.search("main_catalog");
-    const auto catalogIt = std::find_if(catalogMatches.begin(), catalogMatches.end(), [](const auto& entry) {
-        return entry.id == "asset_catalogs:main_catalog";
-    });
+    const auto catalogIt = std::find_if(catalogMatches.begin(), catalogMatches.end(),
+                                        [](const auto& entry) { return entry.id == "asset_catalogs:main_catalog"; });
     REQUIRE(catalogIt != catalogMatches.end());
     REQUIRE(catalogIt->metadata["asset_count"] == 42);
     REQUIRE(catalogIt->metadata["duplicate_group_count"] == 3);
@@ -132,28 +166,60 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
     REQUIRE(freshIt != freshMatches.end());
     REQUIRE(freshIt->metadata["freshness"] == "fresh");
     REQUIRE(freshIt->metadata["content_excerpt"].get<std::string>().find("Event runtime") != std::string::npos);
+
+    const auto diagnosticMatches = snapshot.project_index.search("build/cache.tmp excluded");
+    const auto diagnosticIt = std::find_if(diagnosticMatches.begin(), diagnosticMatches.end(), [](const auto& entry) {
+        return entry.id == "filesystem_diagnostics:excluded:build/cache.tmp";
+    });
+    REQUIRE(diagnosticIt != diagnosticMatches.end());
+    REQUIRE(diagnosticIt->metadata["skipped"] == true);
+
+    const auto filesystemReport = urpg::ai::buildFilesystemKnowledgeReport(project);
+    REQUIRE(filesystemReport["available"] == true);
+    REQUIRE(filesystemReport["document_count"] == 2);
+    REQUIRE(filesystemReport["diagnostic_count"] == 2);
+    REQUIRE(filesystemReport["skipped_count"] == 3);
+    REQUIRE(filesystemReport["skipped"]["excluded"] == 2);
+    REQUIRE(filesystemReport["document_rows"][1]["freshness"] == "stale");
+    REQUIRE(filesystemReport["diagnostics"][0]["message"].get<std::string>().find("excluded") != std::string::npos);
+    REQUIRE(filesystemReport["config"]["max_files"] == 256);
+
+    const auto mergedProject = urpg::ai::mergeFilesystemKnowledgeIntoProjectData({{"project_id", "merged"}}, project);
+    REQUIRE(urpg::ai::buildFilesystemKnowledgeReport(mergedProject)["document_count"] == 2);
+    const auto invocation =
+        urpg::ai::buildFilesystemCrawlerInvocation(mergedProject, "C:/repo/URPG", "build/ai/filesystem.json");
+    REQUIRE(invocation["status"] == "ready_to_invoke");
+    REQUIRE(invocation["adapter"] == "tools/ai/collect_project_knowledge.py");
+    REQUIRE(invocation["root"] == "C:/repo/URPG");
+    REQUIRE(invocation["output_path"] == "build/ai/filesystem.json");
+    REQUIRE(invocation["command_args"][1] == "tools/ai/collect_project_knowledge.py");
+    REQUIRE(invocation["command"].get<std::string>().find("--max-files") != std::string::npos);
+    REQUIRE(invocation["ingest_command"] == "AI_INGEST_FILESYSTEM_KNOWLEDGE:<contents of output_path>");
+    REQUIRE_FALSE(urpg::ai::buildDefaultAiKnowledgeSnapshot(mergedProject)
+                      .project_index.search("notes/reference.bmp unsupported_extension")
+                      .empty());
 }
 
 TEST_CASE("AI chatbot knowledge covers release WYSIWYG panels features and asset actions",
           "[ai_knowledge][ai_assistant][wysiwyg][coverage]") {
     const auto snapshot = urpg::ai::buildDefaultAiKnowledgeSnapshot();
     urpg::assets::AssetLibrary library;
-    library.ingestPromotionCatalog(nlohmann::json{
-        {"source_id", "SRC-007"},
-        {"source_root", "imports/raw/urpg_stuff"},
-        {"assets",
-         {
-             {
-                 {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
-                 {"normalized_path", "asset://src-007/characters/hero.png"},
-                 {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
-                 {"preview_kind", "image"},
-                 {"media_kind", "image"},
-                 {"category", "characters"},
-                 {"tags", {"hero", "kind:image"}},
-                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
-             },
-         }}});
+    library.ingestPromotionCatalog(
+        nlohmann::json{{"source_id", "SRC-007"},
+                       {"source_root", "imports/raw/urpg_stuff"},
+                       {"assets",
+                        {
+                            {
+                                {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                {"normalized_path", "asset://src-007/characters/hero.png"},
+                                {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                {"preview_kind", "image"},
+                                {"media_kind", "image"},
+                                {"category", "characters"},
+                                {"tags", {"hero", "kind:image"}},
+                                {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                            },
+                        }}});
     REQUIRE(library.promoteAsset("imports/raw/urpg_stuff/characters/hero.png").success);
 
     const auto report = urpg::ai::buildWysiwygChatbotCoverageReport(snapshot, library.snapshot());
@@ -174,11 +240,8 @@ TEST_CASE("AI task planner creates safe reviewable tool plans for creator tasks"
     const auto snapshot = urpg::ai::buildDefaultAiKnowledgeSnapshot();
     urpg::ai::AiTaskPlanner planner;
 
-    const auto plan = planner.planTask("make a house with a door and event logic",
-                                       snapshot.capabilities,
-                                       snapshot.project_index,
-                                       snapshot.docs_index,
-                                       snapshot.tools);
+    const auto plan = planner.planTask("make a house with a door and event logic", snapshot.capabilities,
+                                       snapshot.project_index, snapshot.docs_index, snapshot.tools);
 
     REQUIRE(plan.schema == "urpg.ai_task_plan.v1");
     REQUIRE(plan.ready_for_approval);
@@ -212,24 +275,33 @@ TEST_CASE("AI tool registry lists every mutating tool that needs approval",
     REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "create_map"; }));
     REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "place_tile"; }));
     REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "paint_region"; }));
-    REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "configure_environment"; }));
+    REQUIRE(std::any_of(mutating.begin(), mutating.end(),
+                        [](const auto& tool) { return tool.id == "configure_environment"; }));
     REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "add_event"; }));
     REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "edit_dialogue"; }));
-    REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "add_localization_entry"; }));
+    REQUIRE(std::any_of(mutating.begin(), mutating.end(),
+                        [](const auto& tool) { return tool.id == "add_localization_entry"; }));
     REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "add_quest"; }));
-    REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "set_npc_schedule"; }));
+    REQUIRE(
+        std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "set_npc_schedule"; }));
     REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "add_ability"; }));
-    REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "add_vfx_keyframe"; }));
-    REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "configure_save_preview"; }));
-    REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "import_asset_record"; }));
-    REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "create_template_project"; }));
-    REQUIRE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "plan_creator_command"; }));
-    REQUIRE_FALSE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "run_validation"; }));
-    REQUIRE_FALSE(std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "run_export_preview"; }));
+    REQUIRE(
+        std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "add_vfx_keyframe"; }));
+    REQUIRE(std::any_of(mutating.begin(), mutating.end(),
+                        [](const auto& tool) { return tool.id == "configure_save_preview"; }));
+    REQUIRE(std::any_of(mutating.begin(), mutating.end(),
+                        [](const auto& tool) { return tool.id == "import_asset_record"; }));
+    REQUIRE(std::any_of(mutating.begin(), mutating.end(),
+                        [](const auto& tool) { return tool.id == "create_template_project"; }));
+    REQUIRE(std::any_of(mutating.begin(), mutating.end(),
+                        [](const auto& tool) { return tool.id == "plan_creator_command"; }));
+    REQUIRE_FALSE(
+        std::any_of(mutating.begin(), mutating.end(), [](const auto& tool) { return tool.id == "run_validation"; }));
+    REQUIRE_FALSE(std::any_of(mutating.begin(), mutating.end(),
+                              [](const auto& tool) { return tool.id == "run_export_preview"; }));
 }
 
-TEST_CASE("AI task planner covers broader WYSIWYG tool lanes",
-          "[ai_knowledge][ai_assistant][tools]") {
+TEST_CASE("AI task planner covers broader WYSIWYG tool lanes", "[ai_knowledge][ai_assistant][tools]") {
     const auto snapshot = urpg::ai::buildDefaultAiKnowledgeSnapshot();
     urpg::ai::AiTaskPlanner planner;
 
@@ -247,8 +319,8 @@ TEST_CASE("AI task planner covers broader WYSIWYG tool lanes",
     };
 
     for (const auto& [request, toolId] : cases) {
-        const auto plan = planner.planTask(request, snapshot.capabilities, snapshot.project_index,
-                                           snapshot.docs_index, snapshot.tools);
+        const auto plan = planner.planTask(request, snapshot.capabilities, snapshot.project_index, snapshot.docs_index,
+                                           snapshot.tools);
         INFO(request);
         REQUIRE(plan.ready_for_approval);
         REQUIRE(plan.steps.size() == 1);
@@ -264,10 +336,30 @@ TEST_CASE("AI tool registry applies approved map event dialogue ability and expo
     plan.user_request = "build a complete starter flow";
     plan.steps = {
         {"create_map", "create_map", "Create the town map.", {{"map_id", "town"}, {"width", 30}, {"height", 22}}, true},
-        {"place_tile", "place_tile", "Place a visible marker tile.", {{"map_id", "town"}, {"layer_id", "terrain"}, {"x", 4}, {"y", 5}, {"tile_id", 2}}, true},
-        {"add_event", "add_event", "Add intro event.", {{"event_id", "intro_event"}, {"map_id", "town"}, {"x", 4}, {"y", 5}, {"commands", nlohmann::json::array({"message"})}}, true},
-        {"dialogue", "edit_dialogue", "Add intro dialogue.", {{"dialogue_id", "intro"}, {"lines", nlohmann::json::array({"Welcome."})}}, true},
-        {"ability", "add_ability", "Add starter ability.", {{"ability_id", "spark"}, {"cost", 3}, {"cooldown", 1}, {"effects", nlohmann::json::array({"damage"})}}, true},
+        {"place_tile",
+         "place_tile",
+         "Place a visible marker tile.",
+         {{"map_id", "town"}, {"layer_id", "terrain"}, {"x", 4}, {"y", 5}, {"tile_id", 2}},
+         true},
+        {"add_event",
+         "add_event",
+         "Add intro event.",
+         {{"event_id", "intro_event"},
+          {"map_id", "town"},
+          {"x", 4},
+          {"y", 5},
+          {"commands", nlohmann::json::array({"message"})}},
+         true},
+        {"dialogue",
+         "edit_dialogue",
+         "Add intro dialogue.",
+         {{"dialogue_id", "intro"}, {"lines", nlohmann::json::array({"Welcome."})}},
+         true},
+        {"ability",
+         "add_ability",
+         "Add starter ability.",
+         {{"ability_id", "spark"}, {"cost", 3}, {"cooldown", 1}, {"effects", nlohmann::json::array({"damage"})}},
+         true},
         {"validate", "run_validation", "Queue validation.", {{"scope", "project"}}, true},
         {"export", "run_export_preview", "Queue export preview.", {{"profile", "default"}}, true},
     };
@@ -284,28 +376,61 @@ TEST_CASE("AI tool registry applies approved map event dialogue ability and expo
     REQUIRE(result.project_data["last_ai_validation"]["status"] == "passed");
     REQUIRE(result.project_data["last_ai_validation"]["scope"] == "project");
     REQUIRE(result.project_data["last_ai_validation"]["validator_count"] == 2);
-    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator"] == "event_graph_validator");
-    REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["validator"] == "ability_sandbox_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator"] ==
+            "native_event_graph_preview_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["validator"] ==
+            "native_ability_sandbox_validator");
     REQUIRE(result.project_data["ai_validation_reports"].size() == 1);
     REQUIRE(result.project_data["last_ai_export_preview"]["status"] == "queued");
 }
 
-TEST_CASE("AI tool registry applies broader WYSIWYG project records",
-          "[ai_knowledge][ai_assistant][tools]") {
+TEST_CASE("AI tool registry applies broader WYSIWYG project records", "[ai_knowledge][ai_assistant][tools]") {
     const auto tools = urpg::ai::AiToolRegistry::buildDefault();
     urpg::ai::AiTaskPlan plan;
     plan.id = "broad_plan";
     plan.user_request = "configure broad wysiwyg systems";
     plan.steps = {
-        {"region", "paint_region", "Paint region.", {{"map_id", "town"}, {"region_id", "safe_zone"}, {"x", 1}, {"y", 2}, {"rule", "no_encounters"}}, true},
-        {"environment", "configure_environment", "Set weather.", {{"map_id", "town"}, {"weather", "rain"}, {"lighting_profile", "night"}}, true},
-        {"localization", "add_localization_entry", "Add text.", {{"locale", "en-US"}, {"key", "intro.hello"}, {"text", "Hello"}}, true},
-        {"quest", "add_quest", "Add quest.", {{"quest_id", "q1"}, {"objectives", nlohmann::json::array({"talk"})}}, true},
-        {"schedule", "set_npc_schedule", "Add schedule.", {{"npc_id", "merchant"}, {"schedule", nlohmann::json::array({{{"time", "day"}, {"activity", "shop"}}})}}, true},
+        {"region",
+         "paint_region",
+         "Paint region.",
+         {{"map_id", "town"}, {"region_id", "safe_zone"}, {"x", 1}, {"y", 2}, {"rule", "no_encounters"}},
+         true},
+        {"environment",
+         "configure_environment",
+         "Set weather.",
+         {{"map_id", "town"}, {"weather", "rain"}, {"lighting_profile", "night"}},
+         true},
+        {"localization",
+         "add_localization_entry",
+         "Add text.",
+         {{"locale", "en-US"}, {"key", "intro.hello"}, {"text", "Hello"}},
+         true},
+        {"quest",
+         "add_quest",
+         "Add quest.",
+         {{"quest_id", "q1"}, {"objectives", nlohmann::json::array({"talk"})}},
+         true},
+        {"schedule",
+         "set_npc_schedule",
+         "Add schedule.",
+         {{"npc_id", "merchant"}, {"schedule", nlohmann::json::array({{{"time", "day"}, {"activity", "shop"}}})}},
+         true},
         {"vfx", "add_vfx_keyframe", "Add VFX.", {{"timeline_id", "slash"}, {"time", 0.5}, {"effect", "spark"}}, true},
-        {"save", "configure_save_preview", "Add save scenario.", {{"save_id", "slot1"}, {"scenario", "corrupt save"}}, true},
-        {"asset", "import_asset_record", "Add asset.", {{"asset_id", "hero"}, {"path", "assets/hero.png"}, {"license", "CC0"}}, true},
-        {"template", "create_template_project", "Add template.", {{"template_id", "jrpg"}, {"project_id", "new_game"}}, true},
+        {"save",
+         "configure_save_preview",
+         "Add save scenario.",
+         {{"save_id", "slot1"}, {"scenario", "corrupt save"}},
+         true},
+        {"asset",
+         "import_asset_record",
+         "Add asset.",
+         {{"asset_id", "hero"}, {"path", "assets/hero.png"}, {"license", "CC0"}},
+         true},
+        {"template",
+         "create_template_project",
+         "Add template.",
+         {{"template_id", "jrpg"}, {"project_id", "new_game"}},
+         true},
     };
 
     REQUIRE(tools.validatePlan(plan).empty());
@@ -328,15 +453,26 @@ TEST_CASE("AI tool registry applies broader WYSIWYG project records",
     REQUIRE(result.project_data["asset_promotion_requests"][0]["status"] == "review_required");
 }
 
-TEST_CASE("AI tool registry emits concrete subsystem preview artifacts",
-          "[ai_knowledge][ai_assistant][tools]") {
+TEST_CASE("AI tool registry emits concrete subsystem preview artifacts", "[ai_knowledge][ai_assistant][tools]") {
     const auto tools = urpg::ai::AiToolRegistry::buildDefault();
     urpg::ai::AiTaskPlan plan;
     plan.id = "concrete_tool_plan";
     plan.user_request = "build concrete subsystem previews";
     plan.steps = {
-        {"event", "add_event", "Add event graph.", {{"event_id", "door"}, {"map_id", "town"}, {"x", 2}, {"y", 3}, {"commands", nlohmann::json::array({"show_text", "transfer_player"})}}, true},
-        {"ability", "add_ability", "Compose ability sandbox.", {{"ability_id", "spark"}, {"cost", 4}, {"cooldown", 2}, {"effects", nlohmann::json::array({"damage"})}}, true},
+        {"event",
+         "add_event",
+         "Add event graph.",
+         {{"event_id", "door"},
+          {"map_id", "town"},
+          {"x", 2},
+          {"y", 3},
+          {"commands", nlohmann::json::array({"show_text", "transfer_player"})}},
+         true},
+        {"ability",
+         "add_ability",
+         "Compose ability sandbox.",
+         {{"ability_id", "spark"}, {"cost", 4}, {"cooldown", 2}, {"effects", nlohmann::json::array({"damage"})}},
+         true},
         {"export", "run_export_preview", "Configure export preview.", {{"profile", "windows_debug"}}, true},
     };
 
@@ -354,15 +490,22 @@ TEST_CASE("AI tool registry emits concrete subsystem preview artifacts",
     REQUIRE(result.project_data["last_ai_export_preview"]["preview_surface"] == "export_preview_panel");
 }
 
-TEST_CASE("AI run_validation executes concrete preview validators",
-          "[ai_knowledge][ai_assistant][tools][validation]") {
+TEST_CASE("AI run_validation executes concrete preview validators", "[ai_knowledge][ai_assistant][tools][validation]") {
     const auto tools = urpg::ai::AiToolRegistry::buildDefault();
     urpg::ai::AiTaskPlan plan;
     plan.id = "validation_plan";
     plan.user_request = "validate concrete previews";
     plan.steps = {
-        {"event", "add_event", "Add incomplete event graph.", {{"event_id", "empty"}, {"map_id", "town"}, {"x", 1}, {"y", 1}, {"commands", nlohmann::json::array()}}, true},
-        {"asset", "import_asset_record", "Review asset import.", {{"asset_id", "hero"}, {"path", "project-configured"}, {"license", "review_required"}}, true},
+        {"event",
+         "add_event",
+         "Add incomplete event graph.",
+         {{"event_id", "empty"}, {"map_id", "town"}, {"x", 1}, {"y", 1}, {"commands", nlohmann::json::array()}},
+         true},
+        {"asset",
+         "import_asset_record",
+         "Review asset import.",
+         {{"asset_id", "hero"}, {"path", "project-configured"}, {"license", "review_required"}},
+         true},
         {"validate", "run_validation", "Run validators.", {{"scope", "ai_tool_previews"}}, true},
     };
 
@@ -374,35 +517,82 @@ TEST_CASE("AI run_validation executes concrete preview validators",
     REQUIRE(result.project_data["last_ai_validation"]["scope"] == "ai_tool_previews");
     REQUIRE(result.project_data["last_ai_validation"]["preview_artifact_count"] == 2);
     REQUIRE(result.project_data["last_ai_validation"]["validator_count"] == 2);
+    REQUIRE(result.project_data["last_ai_validation"]["validator_source_count"] == 2);
+    REQUIRE(result.project_data["last_ai_validation"]["fallback_count"] == 0);
     REQUIRE(result.project_data["last_ai_validation"]["issue_count"].get<std::size_t>() >= 3);
     REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["status"] == "failed");
     REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["issues"][0]["code"] == "event_graph_empty");
-    REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["validator"] == "asset_import_promotion_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_source"] ==
+            "native_event_graph_preview_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["command"] == "validate_event_graph_preview");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["artifact_path"] ==
+            "/ai_tool_previews/event_graph_authoring/empty");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_adapter"]["component"] ==
+            "ai_preview_typed_validator_adapter");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_adapter"]["typed_input"] == true);
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_adapter"]["output_path"] ==
+            "reports/ai/validation/validate_event_graph_preview.json");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["validator"] ==
+            "native_asset_import_promotion_validator");
     REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["status"] == "warning");
+    REQUIRE(result.project_data["last_ai_validation"]["validator_adapter_contracts"].size() == 2);
     REQUIRE(result.project_data["ai_tool_previews"].back()["kind"] == "validation_execution");
     REQUIRE(result.project_data["ai_tool_previews"].back()["payload"]["validator_count"] == 2);
 }
 
-TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
-          "[ai_knowledge][ai_assistant][editor]") {
+TEST_CASE("AI run_validation emits fallback diagnostics for unsupported preview validators",
+          "[ai_knowledge][ai_assistant][tools][validation]") {
+    const auto tools = urpg::ai::AiToolRegistry::buildDefault();
+    urpg::ai::AiTaskPlan plan;
+    plan.id = "fallback_validation_plan";
+    plan.user_request = "validate unsupported preview";
+    plan.steps = {
+        {"validate", "run_validation", "Run validators.", {{"scope", "ai_tool_previews"}}, true},
+    };
+    const nlohmann::json project = {
+        {"project_id", "p1"},
+        {"ai_tool_previews", nlohmann::json::array({{{"kind", "unknown_preview"},
+                                                     {"id", "mystery"},
+                                                     {"tool_id", "custom_tool"},
+                                                     {"artifact_path", "reports/ai/mystery.json"},
+                                                     {"payload", nlohmann::json::object()}}})},
+    };
+
+    REQUIRE(tools.validatePlan(plan).empty());
+    const auto result = tools.applyApprovedPlan(plan, project);
+
+    REQUIRE(result.applied);
+    REQUIRE(result.project_data["last_ai_validation"]["status"] == "warning");
+    REQUIRE(result.project_data["last_ai_validation"]["fallback_count"] == 1);
+    REQUIRE(result.project_data["last_ai_validation"]["artifact_paths"][0] == "reports/ai/mystery.json");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["fallback"] == true);
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_source"] ==
+            "ai_preview_fallback_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_adapter"]["typed_input"] == false);
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator_adapter"]["fallback"] == true);
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["issues"][0]["code"] ==
+            "subsystem_validator_unavailable");
+}
+
+TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots", "[ai_knowledge][ai_assistant][editor]") {
     urpg::editor::AiAssistantPanel panel;
     urpg::assets::AssetLibrary library;
-    library.ingestPromotionCatalog(nlohmann::json{
-        {"source_id", "SRC-008"},
-        {"source_root", "imports/raw/curated"},
-        {"assets",
-         {
-             {
-                 {"source_path", "imports/raw/curated/ui/menu.png"},
-                 {"normalized_path", "asset://src-008/ui/menu.png"},
-                 {"preview_path", "imports/raw/curated/ui/menu.png"},
-                 {"preview_kind", "image"},
-                 {"media_kind", "image"},
-                 {"category", "ui"},
-                 {"tags", {"menu", "kind:image"}},
-                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
-             },
-         }}});
+    library.ingestPromotionCatalog(
+        nlohmann::json{{"source_id", "SRC-008"},
+                       {"source_root", "imports/raw/curated"},
+                       {"assets",
+                        {
+                            {
+                                {"source_path", "imports/raw/curated/ui/menu.png"},
+                                {"normalized_path", "asset://src-008/ui/menu.png"},
+                                {"preview_path", "imports/raw/curated/ui/menu.png"},
+                                {"preview_kind", "image"},
+                                {"media_kind", "image"},
+                                {"category", "ui"},
+                                {"tags", {"menu", "kind:image"}},
+                                {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                            },
+                        }}});
     REQUIRE(library.promoteAsset("imports/raw/curated/ui/menu.png").success);
 
     urpg::ai::AiAssistantConfig config;
@@ -415,6 +605,16 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     providerConfig.temperature = 0.4f;
     panel.setOpenAiProviderConfig(providerConfig, "ollama");
     panel.setProjectData({{"project_id", "p1"}, {"maps", {{"town", {{"width", 20}, {"height", 20}}}}}});
+    const auto panelFilesystemReport = panel.ingestFilesystemKnowledge({
+        {"filesystem_documents",
+         nlohmann::json::array({{{"id", "map_notes"}, {"path", "docs/maps/town.md"}, {"content", "Town map notes."}}})},
+        {"summary", {{"skipped", {{"excluded", 1}}}}},
+        {"diagnostics", nlohmann::json::array({{{"code", "excluded"}, {"path", "build/generated.log"}}})},
+    });
+    REQUIRE(panelFilesystemReport["document_count"] == 1);
+    const auto refresh = panel.buildFilesystemKnowledgeRefresh("C:/repo/game", "build/ai/crawler.json");
+    REQUIRE(refresh["root"] == "C:/repo/game");
+    REQUIRE(refresh["output_path"] == "build/ai/crawler.json");
     panel.setAssetLibrarySnapshot(library.snapshot());
     panel.setTaskRequest("create dialogue for the town intro");
     panel.render();
@@ -431,6 +631,11 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     REQUIRE(snapshot["provider_ui"]["test_request_button"]["enabled"] == true);
     REQUIRE(snapshot["knowledge"]["capability_count"].get<size_t>() >= 10);
     REQUIRE(snapshot["knowledge"]["tool_count"].get<size_t>() >= 8);
+    REQUIRE(snapshot["filesystem_knowledge"]["document_count"] == 1);
+    REQUIRE(snapshot["filesystem_knowledge_refresh"]["status"] == "ready_to_invoke");
+    REQUIRE(snapshot["filesystem_knowledge_refresh"]["output_path"] == "build/ai/crawler.json");
+    REQUIRE(snapshot["filesystem_knowledge"]["skipped"]["excluded"] == 1);
+    REQUIRE(snapshot["filesystem_knowledge"]["diagnostics"][0]["path"] == "build/generated.log");
     REQUIRE(snapshot["task_plan"]["steps"].size() == 1);
     REQUIRE(snapshot["task_plan"]["steps"][0]["tool_id"] == "edit_dialogue");
     REQUIRE(snapshot["approval"]["pending_count"] == 1);
@@ -438,10 +643,16 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     REQUIRE(snapshot["controls"]["approve_all_button"]["enabled"] == true);
     REQUIRE(snapshot["controls"]["apply_button"]["enabled"] == false);
     REQUIRE(snapshot["controls"]["step_controls"][0]["approve_button"]["enabled"] == true);
+    REQUIRE(snapshot["controls"]["filesystem_knowledge"]["report_button"]["enabled"] == true);
+    REQUIRE(snapshot["controls"]["filesystem_knowledge"]["refresh_button"]["action"] == "refresh_filesystem_knowledge");
+    REQUIRE(snapshot["controls"]["filesystem_knowledge"]["refresh_button"]["invocation"]["adapter"] ==
+            "tools/ai/collect_project_knowledge.py");
+    REQUIRE(snapshot["controls"]["filesystem_knowledge"]["diagnostic_rows"][0]["code"] == "excluded");
     REQUIRE(snapshot["validation"]["valid"] == false);
     REQUIRE(snapshot["validation"]["blocked_reason"] == "ai_tool_unapproved");
     REQUIRE(snapshot["apply_preview"]["would_apply"] == false);
     REQUIRE(snapshot["apply_preview"]["project_patch_count"] == 0);
+    REQUIRE(snapshot["apply_preview"]["result_diff"]["blocked_apply_reason"] == "ai_tool_unapproved");
     REQUIRE(snapshot["apply_history"]["count"] == 0);
     REQUIRE(snapshot["apply_history"]["can_revert_latest"] == false);
     REQUIRE(snapshot["rationale_rows"].size() == 1);
@@ -453,8 +664,7 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     REQUIRE(snapshot["wysiwyg_chatbot_coverage"]["release_panel_count"].get<size_t>() > 0);
 }
 
-TEST_CASE("AI assistant panel approves and applies task plans",
-          "[ai_knowledge][ai_assistant][editor][approval]") {
+TEST_CASE("AI assistant panel approves and applies task plans", "[ai_knowledge][ai_assistant][editor][approval]") {
     urpg::editor::AiAssistantPanel panel;
     urpg::ai::AiAssistantConfig config;
     config.enabled = true;
@@ -479,12 +689,16 @@ TEST_CASE("AI assistant panel approves and applies task plans",
 
     REQUIRE(panel.applyApprovedPlan());
     REQUIRE(panel.lastRenderSnapshot()["last_apply"]["applied"] == true);
-    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["dialogue"]["generated_dialogue"]["lines"].size() == 1);
+    REQUIRE(
+        panel.lastRenderSnapshot()["last_apply"]["project_data"]["dialogue"]["generated_dialogue"]["lines"].size() ==
+        1);
     REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"].size() == 1);
     REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"][0]["plan_id"] ==
             panel.lastRenderSnapshot()["task_plan"]["id"]);
-    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"][0]["forward_patch"].size() > 0);
-    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"][0]["revert_patch"].size() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"][0]["forward_patch"].size() >
+            0);
+    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"][0]["revert_patch"].size() >
+            0);
     REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"][0]["reverted"] == false);
     REQUIRE_FALSE(panel.lastRenderSnapshot()["last_apply"]["project_patch"].empty());
     REQUIRE_FALSE(panel.lastRenderSnapshot()["last_apply"]["revert_patch"].empty());
@@ -497,9 +711,14 @@ TEST_CASE("AI assistant panel approves and applies task plans",
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["forward_patch_count"].get<size_t>() > 0);
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["revert_patch_count"].get<size_t>() > 0);
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["row_count"].get<size_t>() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["render_contract"]["component"] == "painted_ai_diff_panel");
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["render_contract"]["row_renderer"] == "before_after_patch_rows");
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["render_contract"]["supports_selection"] == true);
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0]["operation"] == "add");
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0].contains("before"));
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0].contains("after"));
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0]["paint"]["css_class"] == "diff-row--added");
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["selected_row"]["selected_detail"]["operation"] == "add");
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["count"] == 1);
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["can_revert_latest"] == true);
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["can_revert"] == true);
@@ -574,8 +793,7 @@ TEST_CASE("AI assistant panel selects and tests OpenAI-compatible providers",
     REQUIRE(panel.lastRenderSnapshot()["provider_ui"]["test_request_button"]["enabled"] == false);
 }
 
-TEST_CASE("AI assistant panel rejects proposed task steps",
-          "[ai_knowledge][ai_assistant][editor][approval]") {
+TEST_CASE("AI assistant panel rejects proposed task steps", "[ai_knowledge][ai_assistant][editor][approval]") {
     urpg::editor::AiAssistantPanel panel;
     panel.setProjectData({{"project_id", "p1"}});
     panel.setTaskRequest("create dialogue for the town intro");
@@ -605,31 +823,45 @@ TEST_CASE("AI assistant panel approve all handles creator command plans",
     REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["creator_command_requests"].size() == 1);
 }
 
-TEST_CASE("Chatbot component plans approves and applies AI tool commands",
-          "[ai_knowledge][ai_assistant][chatbot]") {
+TEST_CASE("Chatbot component plans approves and applies AI tool commands", "[ai_knowledge][ai_assistant][chatbot]") {
     auto service = std::make_shared<ToolCommandChatService>("AI_TASK:create dialogue for the town intro");
     urpg::ai::ChatbotComponent chatbot(service);
     urpg::assets::AssetLibrary library;
-    library.ingestPromotionCatalog(nlohmann::json{
-        {"source_id", "SRC-009"},
-        {"source_root", "imports/raw/curated"},
-        {"assets",
-         {
-             {
-                 {"source_path", "imports/raw/curated/characters/hero.png"},
-                 {"normalized_path", "asset://src-009/characters/hero.png"},
-                 {"preview_path", "imports/raw/curated/characters/hero.png"},
-                 {"preview_kind", "image"},
-                 {"preview_width", 128},
-                 {"preview_height", 96},
-                 {"media_kind", "image"},
-                 {"category", "characters"},
-                 {"tags", {"hero", "kind:image"}},
-                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
-             },
-         }}});
+    library.ingestPromotionCatalog(
+        nlohmann::json{{"source_id", "SRC-009"},
+                       {"source_root", "imports/raw/curated"},
+                       {"assets",
+                        {
+                            {
+                                {"source_path", "imports/raw/curated/characters/hero.png"},
+                                {"normalized_path", "asset://src-009/characters/hero.png"},
+                                {"preview_path", "imports/raw/curated/characters/hero.png"},
+                                {"preview_kind", "image"},
+                                {"preview_width", 128},
+                                {"preview_height", 96},
+                                {"media_kind", "image"},
+                                {"category", "characters"},
+                                {"tags", {"hero", "kind:image"}},
+                                {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                            },
+                        }}});
     REQUIRE(library.promoteAsset("imports/raw/curated/characters/hero.png").success);
     chatbot.setProjectData({{"project_id", "p1"}});
+    const nlohmann::json chatbotFilesystemKnowledge = {
+        {"filesystem_documents", nlohmann::json::array({{{"id", "quest_script"},
+                                                         {"path", "engine/core/quests/quest_runtime.cpp"},
+                                                         {"content", "Quest runtime script context."}}})},
+        {"summary", {{"skipped", {{"excluded", 1}}}}},
+        {"diagnostics", nlohmann::json::array({{{"code", "excluded"}, {"path", "build/quest_runtime.obj"}}})},
+    };
+    const auto ingested = chatbot.executeTool("AI_INGEST_FILESYSTEM_KNOWLEDGE:" + chatbotFilesystemKnowledge.dump());
+    REQUIRE(ingested["ingested_filesystem_knowledge"]["success"] == true);
+    REQUIRE(chatbot.projectData()["filesystem_knowledge"]["filesystem_documents"].size() == 1);
+    const auto refresh = chatbot.executeTool(
+        R"(AI_REFRESH_FILESYSTEM_KNOWLEDGE:{"root":"C:/repo/game","output_path":"build/ai/chatbot.json"})");
+    REQUIRE(refresh["filesystem_knowledge_refresh"]["status"] == "ready_to_invoke");
+    REQUIRE(refresh["filesystem_knowledge_refresh"]["root"] == "C:/repo/game");
+    REQUIRE(refresh["filesystem_knowledge_refresh"]["output_path"] == "build/ai/chatbot.json");
     chatbot.setAssetLibrarySnapshot(library.snapshot());
 
     bool callbackCalled = false;
@@ -648,6 +880,17 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
     REQUIRE(chatbot.lastAiToolSnapshot()["asset_preview_rows"].size() == 1);
     REQUIRE(chatbot.lastAiToolSnapshot()["asset_preview_rows"][0]["thumbnail"]["ready"] == true);
     REQUIRE(chatbot.lastAiToolSnapshot()["asset_preview_rows"][0]["thumbnail"]["width"] == 128);
+    REQUIRE(chatbot.lastAiToolSnapshot()["filesystem_knowledge"]["document_count"] == 1);
+    REQUIRE(chatbot.lastAiToolSnapshot()["filesystem_knowledge"]["skipped_count"] == 1);
+    REQUIRE(chatbot.lastAiToolSnapshot()["filesystem_knowledge"]["diagnostics"][0]["path"] ==
+            "build/quest_runtime.obj");
+    REQUIRE(chatbot.lastAiToolSnapshot()["controls"]["filesystem_knowledge"]["report_button"]["enabled"] == true);
+    REQUIRE(chatbot.lastAiToolSnapshot()["controls"]["filesystem_knowledge"]["refresh_button"]["action"] ==
+            "AI_REFRESH_FILESYSTEM_KNOWLEDGE");
+    REQUIRE(
+        chatbot.lastAiToolSnapshot()["controls"]["filesystem_knowledge"]["refresh_button"]["invocation"]["adapter"] ==
+        "tools/ai/collect_project_knowledge.py");
+    REQUIRE(chatbot.lastAiToolSnapshot()["controls"]["filesystem_knowledge"]["diagnostic_count"] == 1);
     REQUIRE(chatbot.lastAiToolSnapshot()["task_plan"]["steps"][0]["tool_id"] == "edit_dialogue");
     REQUIRE(chatbot.lastAiToolSnapshot()["approval"]["pending_count"] == 1);
 
@@ -657,6 +900,9 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
 
     const auto applied = chatbot.executeTool("AI_APPLY");
     REQUIRE(applied["last_apply"]["applied"] == true);
+    REQUIRE(applied["result_diff"]["painted"] == true);
+    REQUIRE(applied["result_diff"]["render_contract"]["component"] == "painted_ai_diff_panel");
+    REQUIRE(applied["result_diff"]["rows"][0]["paint"]["tone"] == "added");
     REQUIRE(chatbot.projectData()["dialogue"]["generated_dialogue"]["lines"].size() == 1);
     REQUIRE(chatbot.projectData()["_ai_change_history"].size() == 1);
     REQUIRE(applied["apply_history"]["can_revert_latest"] == true);
@@ -671,8 +917,7 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
     REQUIRE(restoredSnapshot["apply_history"]["can_revert_latest"] == false);
 }
 
-TEST_CASE("Chatbot component rejects AI tool commands before apply",
-          "[ai_knowledge][ai_assistant][chatbot]") {
+TEST_CASE("Chatbot component rejects AI tool commands before apply", "[ai_knowledge][ai_assistant][chatbot]") {
     urpg::ai::ChatbotComponent chatbot(std::make_shared<ToolCommandChatService>("AI_TASK:make a house"));
     chatbot.setProjectData({{"project_id", "p1"}});
 

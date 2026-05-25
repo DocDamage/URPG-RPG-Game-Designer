@@ -103,6 +103,17 @@ class ChatbotComponent {
         if (command.rfind("AI_TASK:", 0) == 0) {
             return planAiTask(command.substr(std::string("AI_TASK:").size()));
         }
+        if (command.rfind("AI_INGEST_FILESYSTEM_KNOWLEDGE:", 0) == 0) {
+            return ingestFilesystemKnowledgeCommand(
+                command.substr(std::string("AI_INGEST_FILESYSTEM_KNOWLEDGE:").size()));
+        }
+        if (command == "AI_REFRESH_FILESYSTEM_KNOWLEDGE" || command.rfind("AI_REFRESH_FILESYSTEM_KNOWLEDGE:", 0) == 0) {
+            return refreshFilesystemKnowledgeCommand(command);
+        }
+        if (command == "AI_FILESYSTEM_KNOWLEDGE") {
+            m_lastAiToolSnapshot = aiToolSnapshot();
+            return m_lastAiToolSnapshot;
+        }
         if (command.rfind("AI_APPROVE_STEP:", 0) == 0) {
             return approveAiToolStep(command.substr(std::string("AI_APPROVE_STEP:").size()));
         }
@@ -125,13 +136,34 @@ class ChatbotComponent {
         urpg::message::DialogueCommandProcessor processor;
         const auto result = processor.execute(command);
         m_lastAiToolSnapshot = {
-            {"type", "dialogue_command"},
-            {"command", command},
-            {"handled", result.handled},
-            {"success", result.success},
-            {"code", result.code},
-            {"message", result.message},
+            {"type", "dialogue_command"}, {"command", command},  {"handled", result.handled},
+            {"success", result.success},  {"code", result.code}, {"message", result.message},
         };
+        return m_lastAiToolSnapshot;
+    }
+
+    nlohmann::json refreshFilesystemKnowledgeCommand(const std::string& command) {
+        std::string root = ".";
+        std::string outputPath = ".urpg/ai/filesystem_knowledge.json";
+        if (command.rfind("AI_REFRESH_FILESYSTEM_KNOWLEDGE:", 0) == 0) {
+            try {
+                const auto payload =
+                    nlohmann::json::parse(command.substr(std::string("AI_REFRESH_FILESYSTEM_KNOWLEDGE:").size()));
+                root = payload.value("root", root);
+                outputPath = payload.value("output_path", outputPath);
+            } catch (const nlohmann::json::exception&) {
+                m_lastAiToolSnapshot = aiToolSnapshot();
+                m_lastAiToolSnapshot["filesystem_knowledge_refresh"] = {
+                    {"available", false},
+                    {"status", "invalid_request"},
+                    {"error", "invalid_json"},
+                };
+                return m_lastAiToolSnapshot;
+            }
+        }
+        m_lastAiToolSnapshot = aiToolSnapshot();
+        m_lastAiToolSnapshot["filesystem_knowledge_refresh"] =
+            buildFilesystemCrawlerInvocation(m_projectData, root, outputPath);
         return m_lastAiToolSnapshot;
     }
 
@@ -141,6 +173,27 @@ class ChatbotComponent {
         m_currentAiTaskPlan = planner.planTask(userRequest, m_aiKnowledge.capabilities, m_aiKnowledge.project_index,
                                                m_aiKnowledge.docs_index, m_aiKnowledge.tools);
         m_lastAiToolSnapshot = aiToolSnapshot();
+        return m_lastAiToolSnapshot;
+    }
+
+    nlohmann::json ingestFilesystemKnowledgeCommand(const std::string& payload) {
+        try {
+            const auto filesystemKnowledge = nlohmann::json::parse(payload);
+            m_projectData = mergeFilesystemKnowledgeIntoProjectData(std::move(m_projectData), filesystemKnowledge);
+            rebuildAiKnowledge();
+            m_lastAiToolSnapshot = aiToolSnapshot();
+            m_lastAiToolSnapshot["ingested_filesystem_knowledge"] = {
+                {"success", true},
+                {"report", buildFilesystemKnowledgeReport(m_projectData)},
+            };
+        } catch (const nlohmann::json::exception& ex) {
+            m_lastAiToolSnapshot = aiToolSnapshot();
+            m_lastAiToolSnapshot["ingested_filesystem_knowledge"] = {
+                {"success", false},
+                {"error", "invalid_json"},
+                {"message", ex.what()},
+            };
+        }
         return m_lastAiToolSnapshot;
     }
 
@@ -211,6 +264,7 @@ class ChatbotComponent {
         }
         m_lastAiToolSnapshot = aiToolSnapshot();
         m_lastAiToolSnapshot["last_apply"] = result.toJson();
+        m_lastAiToolSnapshot["result_diff"] = buildAiToolResultDiff(result);
         return m_lastAiToolSnapshot;
     }
 
@@ -262,6 +316,7 @@ class ChatbotComponent {
              buildWysiwygChatbotCoverageReport(m_aiKnowledge, m_assetLibrarySnapshot).toJson()},
             {"asset_action_rows", urpg::assets::buildAssetActionRows(m_assetLibrarySnapshot)},
             {"asset_preview_rows", urpg::assets::buildAssetPreviewRows(m_assetLibrarySnapshot)},
+            {"filesystem_knowledge", buildFilesystemKnowledgeReport(m_projectData)},
             {"task_plan", m_currentAiTaskPlan.toJson()},
             {"approval", m_aiKnowledge.tools.approvalManifest(m_currentAiTaskPlan, m_aiKnowledge.capabilities)},
             {"controls", buildAiToolControls()},
@@ -373,6 +428,7 @@ class ChatbotComponent {
     nlohmann::json buildAiToolControls() const {
         const auto history = buildApplyHistorySnapshot();
         const bool canRevert = history.value("can_revert_latest", false);
+        const auto filesystemReport = buildFilesystemKnowledgeReport(m_projectData);
         return {
             {"revert_button",
              {
@@ -387,12 +443,33 @@ class ChatbotComponent {
                  {"count", history.value("count", std::size_t{0})},
                  {"latest_change_id", history.value("latest_change_id", nlohmann::json(nullptr))},
              }},
+            {"filesystem_knowledge",
+             {
+                 {"refresh_button",
+                  {
+                      {"visible", true},
+                      {"enabled", true},
+                      {"label", "Refresh Project Knowledge"},
+                      {"action", "AI_REFRESH_FILESYSTEM_KNOWLEDGE"},
+                      {"invocation",
+                       buildFilesystemCrawlerInvocation(m_projectData, ".", ".urpg/ai/filesystem_knowledge.json")},
+                  }},
+                 {"report_button",
+                  {
+                      {"visible", true},
+                      {"enabled", filesystemReport.value("available", false)},
+                      {"label", "Review Project Knowledge"},
+                      {"action", "AI_FILESYSTEM_KNOWLEDGE"},
+                  }},
+                 {"document_count", filesystemReport.value("document_count", std::size_t{0})},
+                 {"skipped_count", filesystemReport.value("skipped_count", 0)},
+                 {"diagnostic_count", filesystemReport.value("diagnostic_count", std::size_t{0})},
+                 {"diagnostic_rows", filesystemReport.value("diagnostics", nlohmann::json::array())},
+             }},
         };
     }
 
-    void rebuildAiKnowledge() {
-        m_aiKnowledge = buildDefaultAiKnowledgeSnapshot(m_projectData);
-    }
+    void rebuildAiKnowledge() { m_aiKnowledge = buildDefaultAiKnowledgeSnapshot(m_projectData); }
 
     void prepareHistory(const std::string& userInput) {
         // ALWAYS refresh the dynamic world state context for every request

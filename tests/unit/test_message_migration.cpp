@@ -10,29 +10,28 @@ using nlohmann::json;
 TEST_CASE("Message migration maps compat pages into native dialogue schemas", "[message][migration]") {
     const json compat = {
         {"id", "imported_sequence"},
-        {"pages",
-         json::array({
-             {
-                 {"id", "speaker_page"},
-                 {"route", "speaker"},
-                 {"speaker", "Alicia"},
-                 {"faceActorId", 3},
-                 {"body", "\\C[2]HP\\I[5]\\V[2]\\G"},
-                 {"choices", json::array({{{"id", "yes"}, {"label", "Yes"}, {"enabled", true}}})},
-             },
-             {
-                 {"id", "custom_route"},
-                 {"route", "cinematic"},
-                 {"faceActorId", 8},
-                 {"body", "\\Q[9] Unknown escape"},
-                 {"choices", json::array({{{"id", "locked"}, {"label", "Locked"}, {"enabled", false}}})},
-             },
-             {
-                 {"id", "object_body"},
-                 {"route", "narration"},
-                 {"body", {{"line", "Serialized"}}},
-             },
-         })},
+        {"pages", json::array({
+                      {
+                          {"id", "speaker_page"},
+                          {"route", "speaker"},
+                          {"speaker", "Alicia"},
+                          {"faceActorId", 3},
+                          {"body", "\\C[2]HP\\I[5]\\V[2]\\G"},
+                          {"choices", json::array({{{"id", "yes"}, {"label", "Yes"}, {"enabled", true}}})},
+                      },
+                      {
+                          {"id", "custom_route"},
+                          {"route", "cinematic"},
+                          {"faceActorId", 8},
+                          {"body", "\\Q[9] Unknown escape"},
+                          {"choices", json::array({{{"id", "locked"}, {"label", "Locked"}, {"enabled", false}}})},
+                      },
+                      {
+                          {"id", "object_body"},
+                          {"route", "narration"},
+                          {"body", {{"line", "Serialized"}}},
+                      },
+                  })},
     };
 
     const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
@@ -68,10 +67,8 @@ TEST_CASE("Message migration maps compat pages into native dialogue schemas", "[
     REQUIRE(migrated.message_styles["styles"][1]["id"] == "safe_text_only");
 
     const auto has_code = [&](std::string_view code) {
-        return std::any_of(
-            migrated.diagnostics.begin(),
-            migrated.diagnostics.end(),
-            [&](const urpg::message::MessageMigrationDiagnostic& d) { return d.code == code; });
+        return std::any_of(migrated.diagnostics.begin(), migrated.diagnostics.end(),
+                           [&](const urpg::message::MessageMigrationDiagnostic& d) { return d.code == code; });
     };
 
     REQUIRE(has_code("unsupported_route"));
@@ -121,15 +118,14 @@ TEST_CASE("Message migration diagnostics export emits JSONL stream", "[message][
 TEST_CASE("MessageMigration maps defaultChoiceIndex to native default_choice_index", "[message][migration]") {
     const json compat = {
         {"id", "seq_with_default_choice"},
-        {"pages",
-         json::array({{
-             {"id", "page_with_default"},
-             {"route", "speaker"},
-             {"speaker", "Guide"},
-             {"body", "Choose wisely."},
-             {"choices", json::array({{{"id", "opt_a"}, {"label", "A"}}, {{"id", "opt_b"}, {"label", "B"}}})},
-             {"defaultChoiceIndex", 1},
-         }})},
+        {"pages", json::array({{
+                      {"id", "page_with_default"},
+                      {"route", "speaker"},
+                      {"speaker", "Guide"},
+                      {"body", "Choose wisely."},
+                      {"choices", json::array({{{"id", "opt_a"}, {"label", "A"}}, {{"id", "opt_b"}, {"label", "B"}}})},
+                      {"defaultChoiceIndex", 1},
+                  }})},
     };
 
     const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
@@ -141,13 +137,12 @@ TEST_CASE("MessageMigration maps defaultChoiceIndex to native default_choice_ind
 TEST_CASE("MessageMigration maps command tool hook", "[message][migration]") {
     const json compat = {
         {"id", "seq_with_command"},
-        {"pages",
-         json::array({{
-             {"id", "page_with_command"},
-             {"route", "narration"},
-             {"body", "A command fires."},
-             {"command", "fire_event"},
-         }})},
+        {"pages", json::array({{
+                      {"id", "page_with_command"},
+                      {"route", "narration"},
+                      {"body", "A command fires."},
+                      {"command", "fire_event"},
+                  }})},
     };
 
     const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
@@ -159,18 +154,17 @@ TEST_CASE("MessageMigration maps command tool hook", "[message][migration]") {
 TEST_CASE("MessageMigration maps window style fields", "[message][migration]") {
     const json compat = {
         {"id", "seq_with_window_style"},
-        {"pages",
-         json::array({{
-             {"id", "page_window_style"},
-             {"route", "speaker"},
-             {"speaker", "NPC"},
-             {"body", "Styled window."},
-             {"windowSkin", "img/system/CustomWindow.png"},
-             {"windowOpacity", 200},
-             {"padding", 12},
-             {"fontSize", 18},
-             {"lineHeight", 28},
-         }})},
+        {"pages", json::array({{
+                      {"id", "page_window_style"},
+                      {"route", "speaker"},
+                      {"speaker", "NPC"},
+                      {"body", "Styled window."},
+                      {"windowSkin", "img/system/CustomWindow.png"},
+                      {"windowOpacity", 200},
+                      {"padding", 12},
+                      {"fontSize", 18},
+                      {"lineHeight", 28},
+                  }})},
     };
 
     const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
@@ -189,15 +183,14 @@ TEST_CASE("MessageMigration maps window style fields", "[message][migration]") {
 TEST_CASE("MessageMigration maps audio style fields", "[message][migration]") {
     const json compat = {
         {"id", "seq_with_audio_style"},
-        {"pages",
-         json::array({{
-             {"id", "page_audio_style"},
-             {"route", "narration"},
-             {"body", "Audio styled."},
-             {"typing_se", "se/type.wav"},
-             {"open_se", "se/open.wav"},
-             {"close_se", "se/close.wav"},
-         }})},
+        {"pages", json::array({{
+                      {"id", "page_audio_style"},
+                      {"route", "narration"},
+                      {"body", "Audio styled."},
+                      {"typing_se", "se/type.wav"},
+                      {"open_se", "se/open.wav"},
+                      {"close_se", "se/close.wav"},
+                  }})},
     };
 
     const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
@@ -214,15 +207,14 @@ TEST_CASE("MessageMigration maps audio style fields", "[message][migration]") {
 TEST_CASE("MessageMigration output conforms to dialogue_sequences schema", "[message][migration]") {
     const json compat = {
         {"id", "conformance_seq"},
-        {"pages",
-         json::array({{
-             {"id", "conformance_page"},
-             {"route", "speaker"},
-             {"speaker", "Tester"},
-             {"body", "Conformance check."},
-             {"waitForAdvance", true},
-             {"defaultChoiceIndex", 0},
-         }})},
+        {"pages", json::array({{
+                      {"id", "conformance_page"},
+                      {"route", "speaker"},
+                      {"speaker", "Tester"},
+                      {"body", "Conformance check."},
+                      {"waitForAdvance", true},
+                      {"defaultChoiceIndex", 0},
+                  }})},
     };
 
     const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
@@ -253,28 +245,31 @@ TEST_CASE("Message migration maps scoped state banks and picture task adapters",
            json::array({
                {{"scope", "self"}, {"mapId", "map_1"}, {"eventId", "event_2"}, {"id", "A"}, {"value", true}},
                {{"scope", "bad_scope"}, {"id", "drop_me"}, {"value", true}},
+               "not-a-switch-row",
            })},
-          {"variables",
-           json::array({
-               {{"scope", "map"}, {"map_id", "map_1"}, {"id", "weather_seed"}, {"value", 42}},
-               {{"scope", "js"}, {"scopeId", "plugin_cache"}, {"id", "cached_result"}, {"value", "ok"}},
-           })}}},
-        {"scopedVariables", json::array({{{"scope", "scoped"}, {"scope_id", "quest"}, {"id", "progress"}, {"value", 3}}})},
+          {"variables", json::array({
+                            {{"scope", "map"}, {"map_id", "map_1"}, {"id", "weather_seed"}, {"value", 42}},
+                            {{"scope", "js"}, {"scopeId", "plugin_cache"}, {"id", "cached_result"}, {"value", "ok"}},
+                            {{"scope", "self"}, {"id", "bad_payload"}, {"value", json::object({{"nested", true}})}},
+                        })}}},
+        {"scopedVariables",
+         json::array({{{"scope", "scoped"}, {"scope_id", "quest"}, {"id", "progress"}, {"value", 3}}})},
         {"pictureTasks",
          {{"maxPictures", 1000},
-          {"bindings",
-           json::array({
-               {{"pictureId", 350},
-                {"taskId", "open_codex_hotspot"},
-                {"commonEventId", "common_event.open_codex"},
-                {"trigger", "confirm"},
-                {"enabled", true}},
-               {{"picture_id", 351},
-                {"task_id", "hover_codex_hotspot"},
-                {"common_event_id", "common_event.preview_codex"},
-                {"trigger", "press"},
-                {"enabled", false}},
-           })}}},
+          {"bindings", json::array({
+                           {{"pictureId", 350},
+                            {"taskId", "open_codex_hotspot"},
+                            {"commonEventId", "common_event.open_codex"},
+                            {"trigger", "confirm"},
+                            {"enabled", true}},
+                           {{"picture_id", 351},
+                            {"task_id", "hover_codex_hotspot"},
+                            {"common_event_id", "common_event.preview_codex"},
+                            {"trigger", "press"},
+                            {"enabled", false}},
+                           {{"picture_id", 352}, {"task_id", ""}, {"common_event_id", "common_event.missing_task"}},
+                           "not-a-picture-binding",
+                       })}}},
     };
 
     const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
@@ -292,6 +287,16 @@ TEST_CASE("Message migration maps scoped state banks and picture task adapters",
     REQUIRE(migrated.scoped_state_banks["variables"][1]["scope"] == "js");
     REQUIRE(migrated.scoped_state_banks["variables"][1]["scope_id"] == "plugin_cache");
     REQUIRE(migrated.scoped_state_banks["variables"][2]["scope"] == "scoped");
+    REQUIRE(migrated.scoped_state_banks["fixture_import_contract"]["component"] ==
+            "compat_scoped_state_fixture_import");
+    REQUIRE(migrated.scoped_state_banks["fixture_import_contract"]["preserves_unsupported_rows"] == true);
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"].size() == 3);
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][0]["code"] == "unsupported_state_scope");
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][0]["source_row"]["id"] == "drop_me");
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][1]["code"] == "unsupported_state_bank_row");
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][1]["kind"] == "switch");
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][2]["code"] == "unsupported_state_value");
+    REQUIRE(migrated.scoped_state_banks["unsupported_rows"][2]["source_row"]["id"] == "bad_payload");
 
     REQUIRE(migrated.picture_tasks["version"] == "1.0.0");
     REQUIRE(migrated.picture_tasks["max_pictures"] == 1000);
@@ -302,13 +307,23 @@ TEST_CASE("Message migration maps scoped state banks and picture task adapters",
     REQUIRE(migrated.picture_tasks["bindings"][0]["trigger"] == "confirm");
     REQUIRE(migrated.picture_tasks["bindings"][1]["trigger"] == "click");
     REQUIRE(migrated.picture_tasks["bindings"][1]["enabled"] == false);
+    REQUIRE(migrated.picture_tasks["fixture_import_contract"]["component"] == "compat_picture_task_fixture_import");
+    REQUIRE(migrated.picture_tasks["fixture_import_contract"]["supports_high_count_pictures"] == true);
+    REQUIRE(migrated.picture_tasks["fixture_import_contract"]["preview_component"] == "picture_task_runtime_preview");
+    REQUIRE(migrated.picture_tasks["unsupported_rows"].size() == 2);
+    REQUIRE(migrated.picture_tasks["unsupported_rows"][0]["code"] == "invalid_picture_task_binding");
+    REQUIRE(migrated.picture_tasks["unsupported_rows"][0]["source_row"]["picture_id"] == 352);
+    REQUIRE(migrated.picture_tasks["unsupported_rows"][1]["code"] == "unsupported_picture_task_row");
+    REQUIRE(migrated.picture_tasks["unsupported_rows"][1]["source_index"] == 3);
 
     const auto has_code = [&](std::string_view code) {
-        return std::any_of(
-            migrated.diagnostics.begin(),
-            migrated.diagnostics.end(),
-            [&](const urpg::message::MessageMigrationDiagnostic& d) { return d.code == code; });
+        return std::any_of(migrated.diagnostics.begin(), migrated.diagnostics.end(),
+                           [&](const urpg::message::MessageMigrationDiagnostic& d) { return d.code == code; });
     };
     REQUIRE(has_code("unsupported_state_scope"));
+    REQUIRE(has_code("unsupported_state_bank_row"));
+    REQUIRE(has_code("unsupported_state_value"));
+    REQUIRE(has_code("invalid_picture_task_binding"));
+    REQUIRE(has_code("unsupported_picture_task_row"));
     REQUIRE(has_code("normalized_picture_task_trigger"));
 }

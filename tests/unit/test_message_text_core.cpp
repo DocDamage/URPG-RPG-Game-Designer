@@ -111,8 +111,7 @@ TEST_CASE("RichTextLayoutEngine expands escapes and measures deterministic layou
         bool found_nested_value = false;
         for (const auto& token : nested_tokens.tokens) {
             found_nested_value = found_nested_value ||
-                                 (token.type == RichTextTokenType::Text &&
-                                  token.text.find("777") != std::string::npos);
+                                 (token.type == RichTextTokenType::Text && token.text.find("777") != std::string::npos);
         }
         REQUIRE(found_nested_value);
     }
@@ -322,7 +321,8 @@ TEST_CASE("MessageFlowRunner snapshot and restore keeps in-flight choice state",
     REQUIRE(restored.choicePrompt().selectedOption()->id == "c");
 }
 
-TEST_CASE("PictureTaskDocument supports high-count picture slots and common-event bindings", "[message][picture][tasks]") {
+TEST_CASE("PictureTaskDocument supports high-count picture slots and common-event bindings",
+          "[message][picture][tasks]") {
     PictureTaskDocument document;
     document.setMaxPictures(1000);
     document.addBinding({350, "open_codex_hotspot", "common_event.open_codex", "click", true});
@@ -387,5 +387,10 @@ TEST_CASE("PictureTaskDocument builds runtime preview rows for WYSIWYG picture U
     REQUIRE(json["rows"][1]["picture_id"] == 350);
     REQUIRE(json["rows"][1]["hovered"] == true);
     REQUIRE(json["rows"][1]["bindings"].size() == 2);
+    REQUIRE(json["render_contract"]["component"] == "picture_task_runtime_preview");
+    REQUIRE(json["render_contract"]["slot_renderer"] == "high_count_picture_rows");
+    REQUIRE(json["render_contract"]["supports_high_count_slots"] == true);
+    REQUIRE(json["render_contract"]["supports_common_event_bindings"] == true);
+    REQUIRE(json["render_contract"]["row_count"] == 3);
     REQUIRE(json["diagnostics"][0]["picture_id"] == 1001);
 }

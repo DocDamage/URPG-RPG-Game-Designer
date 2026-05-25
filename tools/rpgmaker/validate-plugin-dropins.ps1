@@ -73,6 +73,35 @@ function Add-Issue {
         })
 }
 
+function Test-SummaryMatchesExistingResult {
+    param(
+        [string]$Path,
+        [object]$CurrentSummary
+    )
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        return $false
+    }
+
+    try {
+        $existing = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
+        foreach ($propertyName in @(
+                "FileCount",
+                "ErrorCount",
+                "WarnCount",
+                "StemCollisionCount",
+                "PluginKeyCollisionCount"
+            )) {
+            if ($existing.$propertyName -ne $CurrentSummary.$propertyName) {
+                return $false
+            }
+        }
+        return $true
+    } catch {
+        return $false
+    }
+}
+
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
     $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 } else {
@@ -199,7 +228,9 @@ $summaryJsonPath = Join-Path $reportRoot "${ReportPrefix}_summary.json"
 $filesCsvPath = Join-Path $reportRoot "${ReportPrefix}_files.csv"
 $issuesCsvPath = Join-Path $reportRoot "${ReportPrefix}_issues.csv"
 
-$summary | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $summaryJsonPath
+if (-not (Test-SummaryMatchesExistingResult -Path $summaryJsonPath -CurrentSummary $summary)) {
+    $summary | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $summaryJsonPath
+}
 $fileRows | Export-Csv -LiteralPath $filesCsvPath -NoTypeInformation -Encoding UTF8
 $issueRows | Export-Csv -LiteralPath $issuesCsvPath -NoTypeInformation -Encoding UTF8
 

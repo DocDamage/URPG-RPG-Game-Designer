@@ -1,8 +1,8 @@
+#include "editor/progression/skill_tree_panel.h"
+#include "editor/progression/stat_allocation_panel.h"
 #include "engine/core/progression/class_progression.h"
 #include "engine/core/progression/skill_tree.h"
-#include "editor/progression/skill_tree_panel.h"
 #include "engine/core/progression/stat_allocation.h"
-#include "editor/progression/stat_allocation_panel.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <filesystem>
@@ -133,9 +133,21 @@ TEST_CASE("Stat allocation previews level-up spending and editor state", "[progr
 
     const auto snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot["panel"] == "stat_allocation");
+    REQUIRE(snapshot["render_contract"]["component"] == "stat_allocation_control_panel");
+    REQUIRE(snapshot["render_contract"]["stat_renderer"] == "stat_stepper_rows");
+    REQUIRE(snapshot["render_contract"]["supports_cap_warnings"] == true);
     REQUIRE(snapshot["pool_id"] == "actor_hero_pool");
+    REQUIRE(snapshot["selected_pool"]["actor_id"] == "actor.hero");
+    REQUIRE(snapshot["selected_pool"]["class_id"] == "class.warrior");
+    REQUIRE(snapshot["pool_rows"][0]["selected"] == true);
     REQUIRE(snapshot["remaining_points"] == 0);
     REQUIRE(snapshot["after"]["hp"] == 170);
+    REQUIRE(snapshot["stat_controls"].size() == 3);
+    REQUIRE(snapshot["stat_controls"][0]["stat_id"] == "hp");
+    REQUIRE(snapshot["stat_controls"][0]["increment_button"]["enabled"] == false);
+    REQUIRE(snapshot["stat_controls"][0]["increment_button"]["disabled_reason"] == "not_enough_points");
+    REQUIRE(snapshot["stat_controls"][0]["decrement_button"]["enabled"] == true);
+    REQUIRE(snapshot["controls"]["commit_button"]["enabled"] == true);
 
     const auto committed = document.commit("actor_hero_pool", stats, request);
     REQUIRE(committed.valid);
@@ -183,6 +195,7 @@ TEST_CASE("Stat allocation previews level-up spending and editor state", "[progr
     REQUIRE(post_load_snapshot["row_count"] == 1);
     REQUIRE(post_load_snapshot["applicable_count"] == 1);
     REQUIRE(post_load_snapshot["rows"][0]["can_apply"] == true);
+    REQUIRE(post_load_snapshot["rows"][0]["apply_button"]["enabled"] == true);
     REQUIRE(post_load_snapshot["rows"][0]["saved_after"]["agi"] == 12);
 
     const auto already_applied_preview =
@@ -191,11 +204,19 @@ TEST_CASE("Stat allocation previews level-up spending and editor state", "[progr
     REQUIRE(already_applied_preview.applicable_count == 0);
     REQUIRE(already_applied_preview.already_applied_count == 1);
     REQUIRE(already_applied_preview.rows[0].blocked_reason == "already_applied");
+
+    panel.setCurrentStats(loaded[0].after);
+    panel.render();
+    const auto already_applied_snapshot = panel.lastRenderSnapshot()["post_load"];
+    REQUIRE(already_applied_snapshot["already_applied_count"] == 1);
+    REQUIRE(already_applied_snapshot["rows"][0]["apply_button"]["enabled"] == false);
+    REQUIRE(already_applied_snapshot["rows"][0]["apply_button"]["disabled_reason"] == "already_applied");
 }
 
 TEST_CASE("Stat allocation reports overspend missing rules and invalid pools", "[progression][stat_allocation]") {
     urpg::progression::StatAllocationDocument document;
-    document.addPool({"bad_pool", "", "class.mage", -1, 1, {{"atk", 0, 1, 10}, {"atk", 1, 1, 10}, {"unknown", 1, 1, 10}}});
+    document.addPool(
+        {"bad_pool", "", "class.mage", -1, 1, {{"atk", 0, 1, 10}, {"atk", 1, 1, 10}, {"unknown", 1, 1, 10}}});
     auto diagnostics = document.validate();
     REQUIRE(diagnostics.size() >= 4);
 
@@ -211,10 +232,21 @@ TEST_CASE("Stat allocation reports overspend missing rules and invalid pools", "
     REQUIRE(preview.spent_points == 2);
     REQUIRE(preview.remaining_points == -1);
     REQUIRE(preview.after.mat == 12);
-    REQUIRE(std::any_of(preview.diagnostics.begin(), preview.diagnostics.end(), [](const auto& diagnostic) {
-        return diagnostic.code == "stat_points_overspent";
-    }));
-    REQUIRE(std::any_of(preview.diagnostics.begin(), preview.diagnostics.end(), [](const auto& diagnostic) {
-        return diagnostic.code == "missing_stat_rule";
-    }));
+    REQUIRE(std::any_of(preview.diagnostics.begin(), preview.diagnostics.end(),
+                        [](const auto& diagnostic) { return diagnostic.code == "stat_points_overspent"; }));
+    REQUIRE(std::any_of(preview.diagnostics.begin(), preview.diagnostics.end(),
+                        [](const auto& diagnostic) { return diagnostic.code == "missing_stat_rule"; }));
+
+    urpg::editor::StatAllocationPanel panel;
+    panel.bindDocument(valid);
+    panel.setCurrentStats(stats);
+    panel.setRequest(request);
+    panel.render();
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["render_contract"]["supports_disabled_reasons"] == true);
+    REQUIRE(snapshot["controls"]["commit_button"]["enabled"] == false);
+    REQUIRE(snapshot["controls"]["commit_button"]["disabled_reason"] == "stat_points_overspent");
+    REQUIRE(snapshot["stat_controls"][0]["stat_id"] == "mat");
+    REQUIRE(snapshot["stat_controls"][0]["at_cap"] == true);
+    REQUIRE(snapshot["stat_controls"][0]["increment_button"]["disabled_reason"] == "stat_cap_reached");
 }

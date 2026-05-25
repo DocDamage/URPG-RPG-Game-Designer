@@ -114,13 +114,15 @@ nlohmann::json OpenAiCompatibleChatTransportResult::toJson() const {
         {"response_path", response_path},
         {"message", message},
         {"request_body", request_body},
+        {"stream_diagnostics", stream_diagnostics},
     };
 }
 
 std::vector<OpenAiCompatibleProviderProfile> openAiCompatibleProviderProfiles() {
     return {
         {"chatgpt", "ChatGPT / OpenAI", "https://api.openai.com/v1/chat/completions", "gpt-5.5", false, true, true},
-        {"openrouter", "OpenRouter", "https://openrouter.ai/api/v1/chat/completions", "openai/gpt-5.5", false, true, true},
+        {"openrouter", "OpenRouter", "https://openrouter.ai/api/v1/chat/completions", "openai/gpt-5.5", false, true,
+         true},
         {"kimi", "Kimi / Moonshot", "https://api.moonshot.ai/v1/chat/completions", "moonshot-v1-8k", false, true, true},
         {"ollama", "Ollama", "http://127.0.0.1:11434/v1/chat/completions", "llama3.1", true, false, true},
         {"lm_studio", "LM Studio", "http://127.0.0.1:1234/v1/chat/completions", "local-model", true, false, true},
@@ -131,9 +133,8 @@ std::vector<OpenAiCompatibleProviderProfile> openAiCompatibleProviderProfiles() 
 
 OpenAiCompatibleProviderProfile openAiCompatibleProviderProfileById(const std::string& id) {
     const auto profiles = openAiCompatibleProviderProfiles();
-    const auto it = std::find_if(profiles.begin(), profiles.end(), [&](const auto& profile) {
-        return profile.id == id;
-    });
+    const auto it =
+        std::find_if(profiles.begin(), profiles.end(), [&](const auto& profile) { return profile.id == id; });
     return it == profiles.end() ? profiles.front() : *it;
 }
 
@@ -166,21 +167,40 @@ nlohmann::json buildOpenAiCompatibleChatRequest(const std::vector<ChatMessage>& 
 
 std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfig& config) {
     std::ostringstream command;
-    command << quoteCommandArg(config.curl_executable.empty() ? "curl" : config.curl_executable)
-            << " --fail --silent --show-error"
-            << " --max-time " << std::max(1, config.timeout_seconds)
-            << " -X POST"
-            << " -H " << quoteCommandArg("Content-Type: application/json");
+    command << quoteCommandArg(config.curl_executable.empty() ? "curl" : config.curl_executable);
+    command << " --fail --silent --show-error";
+    command << " --max-time " << std::max(1, config.timeout_seconds) << " -X POST";
+    command << " -H " << quoteCommandArg("Content-Type: application/json");
     if (config.stream) {
         command << " --no-buffer";
     }
     if (!config.api_key.empty()) {
         command << " -H " << quoteCommandArg("Authorization: Bearer " + config.api_key);
     }
-    command << " --data-binary @" << quoteCommandArg(config.request_path.empty() ? "chat_request.json" : config.request_path)
-            << " -o " << quoteCommandArg(config.response_path.empty() ? "chat_response.json" : config.response_path)
-            << " " << quoteCommandArg(config.endpoint.empty() ? "http://127.0.0.1:11434/v1/chat/completions" : config.endpoint);
+    command << " --data-binary @"
+            << quoteCommandArg(config.request_path.empty() ? "chat_request.json" : config.request_path) << " -o "
+            << quoteCommandArg(config.response_path.empty() ? "chat_response.json" : config.response_path) << " "
+            << quoteCommandArg(config.endpoint.empty() ? "http://127.0.0.1:11434/v1/chat/completions"
+                                                       : config.endpoint);
     return command.str();
+}
+
+nlohmann::json buildOpenAiCompatibleStreamAdapterPlan(const OpenAiCompatibleChatConfig& config) {
+    const bool fixtureReplay = !config.execute && !config.response_path.empty();
+    const bool liveCurl = config.execute && config.stream;
+    return {
+        {"component", "openai_compatible_stream_adapter"},
+        {"stream_requested", config.stream},
+        {"transport", fixtureReplay ? "fixture_response_replay" : (liveCurl ? "curl_no_buffer" : "buffered_request")},
+        {"live_delivery", liveCurl},
+        {"deterministic_replay", fixtureReplay},
+        {"socket_adapter_ready", true},
+        {"chunk_callback", "IChatService::StreamCallback"},
+        {"completion_callback", "IChatService::ChatCallback"},
+        {"command", buildOpenAiCompatibleChatCurlCommand(config)},
+        {"request_path", config.request_path},
+        {"response_path", config.response_path},
+    };
 }
 
 std::pair<std::string, std::string> parseOpenAiCompatibleChatResponse(const nlohmann::json& response) {
@@ -228,12 +248,28 @@ std::pair<std::string, std::string> parseOpenAiCompatibleChatResponse(const nloh
 }
 
 std::pair<std::string, std::string> parseOpenAiCompatibleChatStreamResponse(std::string_view responseText) {
+    const auto diagnostics = buildOpenAiCompatibleStreamDiagnostics(responseText);
+    return {diagnostics.value("partial_text", ""), diagnostics.value("command", "")};
+}
+
+nlohmann::json buildOpenAiCompatibleStreamDiagnostics(std::string_view responseText) {
     std::istringstream input{std::string(responseText)};
     std::string line;
     std::string combined;
+    nlohmann::json chunks = nlohmann::json::array();
+    nlohmann::json errors = nlohmann::json::array();
+    bool completed = false;
+    bool cancelled = false;
+    std::size_t lineIndex = 0;
+    std::size_t chunkIndex = 0;
     while (std::getline(input, line)) {
+        ++lineIndex;
         line = trim(std::move(line));
         if (line.empty()) {
+            continue;
+        }
+        if (line.rfind("event:", 0) == 0 && trim(line.substr(std::string("event:").size())) == "cancelled") {
+            cancelled = true;
             continue;
         }
         constexpr std::string_view prefix = "data:";
@@ -241,24 +277,55 @@ std::pair<std::string, std::string> parseOpenAiCompatibleChatStreamResponse(std:
             line = trim(line.substr(prefix.size()));
         }
         if (line == "[DONE]") {
+            completed = true;
             break;
         }
         try {
             const auto chunk = nlohmann::json::parse(line);
+            if (chunk.is_object() && chunk.contains("error")) {
+                const auto& error = chunk["error"];
+                const auto message =
+                    error.is_object() ? error.value("message", "provider_stream_error") : "provider_stream_error";
+                errors.push_back({{"line", lineIndex}, {"message", message}, {"raw", chunk}});
+                continue;
+            }
             const auto delta = streamedDeltaText(chunk);
             if (!delta.empty()) {
                 combined += delta;
+                chunks.push_back({{"index", chunkIndex++},
+                                  {"line", lineIndex},
+                                  {"text", delta},
+                                  {"partial_text", combined},
+                                  {"sequence_ms", chunkIndex}});
                 continue;
             }
             const auto parsed = parseOpenAiCompatibleChatResponse(chunk);
             if (!parsed.first.empty()) {
                 combined += parsed.first;
+                chunks.push_back({{"index", chunkIndex++},
+                                  {"line", lineIndex},
+                                  {"text", parsed.first},
+                                  {"partial_text", combined},
+                                  {"sequence_ms", chunkIndex}});
             }
         } catch (const nlohmann::json::exception&) {
-            continue;
+            errors.push_back({{"line", lineIndex}, {"message", "stream_chunk_parse_failed"}, {"raw", line}});
         }
     }
-    return splitCommand(combined);
+    const auto parsed = splitCommand(combined);
+    return {
+        {"chunk_count", chunks.size()},
+        {"chunks", chunks},
+        {"partial_text", parsed.first},
+        {"raw_partial_text", combined},
+        {"command", parsed.second},
+        {"completed", completed},
+        {"cancelled", cancelled},
+        {"provider_error", !errors.empty()},
+        {"errors", errors},
+        {"final_state",
+         cancelled ? "cancelled" : (!errors.empty() ? "provider_error" : (completed ? "completed" : "open"))},
+    };
 }
 
 OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector<ChatMessage>& history,
@@ -269,6 +336,7 @@ OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector
     result.response_path = config.response_path.empty() ? "chat_response.json" : config.response_path;
     result.request_body = buildOpenAiCompatibleChatRequest(history, config);
     result.command = buildOpenAiCompatibleChatCurlCommand(config);
+    result.stream_diagnostics["adapter_plan"] = buildOpenAiCompatibleStreamAdapterPlan(config);
     if (!config.execute) {
         result.message = "dry_run";
         return result;
@@ -340,15 +408,35 @@ void OpenAiCompatibleChatService::requestStream(const std::vector<ChatMessage>& 
         if (!parsed.first.empty()) {
             onChunk(parsed.first);
         }
+        last_result_.stream_diagnostics = {
+            {"chunk_count", parsed.first.empty() ? 0 : 1},
+            {"chunks", parsed.first.empty() ? nlohmann::json::array()
+                                            : nlohmann::json::array({{{"index", 0},
+                                                                      {"line", 1},
+                                                                      {"text", parsed.first},
+                                                                      {"partial_text", parsed.first},
+                                                                      {"sequence_ms", 1}}})},
+            {"partial_text", parsed.first},
+            {"raw_partial_text", parsed.first},
+            {"command", parsed.second},
+            {"completed", true},
+            {"cancelled", false},
+            {"provider_error", false},
+            {"errors", nlohmann::json::array()},
+            {"final_state", "completed"},
+        };
         onComplete(parsed.first.empty() ? "provider_response_empty" : parsed.first, parsed.second);
         return;
     } catch (const nlohmann::json::exception&) {
     }
 
-    const auto parsed = parseOpenAiCompatibleChatStreamResponse(responseText);
-    if (!parsed.first.empty()) {
-        onChunk(parsed.first);
+    last_result_.stream_diagnostics = buildOpenAiCompatibleStreamDiagnostics(responseText);
+    for (const auto& chunk : last_result_.stream_diagnostics.value("chunks", nlohmann::json::array())) {
+        if (chunk.is_object() && chunk.contains("text") && chunk["text"].is_string()) {
+            onChunk(chunk["text"].get<std::string>());
+        }
     }
+    const auto parsed = parseOpenAiCompatibleChatStreamResponse(responseText);
     onComplete(parsed.first.empty() ? "provider_response_empty" : parsed.first, parsed.second);
 }
 

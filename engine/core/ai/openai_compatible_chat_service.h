@@ -44,6 +44,7 @@ struct OpenAiCompatibleChatTransportResult {
     std::string response_path;
     std::string message;
     nlohmann::json request_body = nlohmann::json::object();
+    nlohmann::json stream_diagnostics = nlohmann::json::object();
     nlohmann::json toJson() const;
 };
 
@@ -54,13 +55,15 @@ OpenAiCompatibleChatConfig applyOpenAiCompatibleProviderProfile(OpenAiCompatible
 nlohmann::json buildOpenAiCompatibleChatRequest(const std::vector<ChatMessage>& history,
                                                 const OpenAiCompatibleChatConfig& config);
 std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfig& config);
+nlohmann::json buildOpenAiCompatibleStreamAdapterPlan(const OpenAiCompatibleChatConfig& config);
 std::pair<std::string, std::string> parseOpenAiCompatibleChatResponse(const nlohmann::json& response);
 std::pair<std::string, std::string> parseOpenAiCompatibleChatStreamResponse(std::string_view responseText);
+nlohmann::json buildOpenAiCompatibleStreamDiagnostics(std::string_view responseText);
 OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector<ChatMessage>& history,
                                                                const OpenAiCompatibleChatConfig& config);
 
 class OpenAiCompatibleChatService : public IChatService {
-public:
+  public:
     explicit OpenAiCompatibleChatService(OpenAiCompatibleChatConfig config);
 
     void requestResponse(const std::vector<ChatMessage>& history, ChatCallback callback) override;
@@ -68,7 +71,7 @@ public:
                        ChatCallback onComplete) override;
     const OpenAiCompatibleChatTransportResult& lastTransportResult() const { return last_result_; }
 
-private:
+  private:
     OpenAiCompatibleChatConfig config_;
     OpenAiCompatibleChatTransportResult last_result_;
 };

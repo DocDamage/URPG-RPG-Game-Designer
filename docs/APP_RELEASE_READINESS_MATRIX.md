@@ -1,11 +1,11 @@
 # App Release Readiness Matrix
 
-Status Date: 2026-05-05
+Status Date: 2026-05-25
 Authority: canonical app-level release-readiness tracker for runtime, editor, packaging, legal, and asset-hydration gates.
 
 This matrix maps release-facing application workflows to the execution-plan task that proves or blocks them. It complements `docs/release/RELEASE_READINESS_MATRIX.md`, which remains the subsystem status reference.
 
-Latest audit-remediation checkpoint: Phase 0 through Phase 12 plus the 2026-05-05 public-release record pass are landed or approved for the bounded `v0.1.0` package scope. The mandatory completion-scope lock is active: curated asset/content promotion has governed bundle evidence, final local and remote release-candidate gates passed on `main` at `60f61bd07179cc85a665695ddc2d543ff766eba0`, and release-owner approval authorizes the annotated `v0.1.0` tag after this docs-only release record passes the final gate. Editor navigation is verified against app-shell factories, release authoring surfaces have persistence/input/error-state coverage, release-required assets are classified, selected Phase 9 release bundle categories are checksumed and package-gated, approved Phase 11 offline retrieval/vision/audio tooling stays artifact-producing under `tools/`, install/package smoke passes against `build/dev-ninja-release`, and `.\tools\ci\run_local_gates.ps1`, `.\tools\ci\run_presentation_gate.ps1`, and `.\tools\ci\run_release_candidate_gate.ps1` pass end to end.
+Latest audit-remediation checkpoint: Phase 0 through Phase 12 plus the 2026-05-05 public-release record pass landed for the bounded `v0.1.0` package scope. The annotated `v0.1.0` tag now exists and targets commit `1d3debb95b6df1d09996e723cc616369cfca99c6`. Current `development` is post-tag, so any follow-up public release or broader completion claim requires fresh gate evidence on the new target commit. The mandatory completion-scope lock remains active: curated asset/content promotion has governed bundle evidence, final local and remote release-candidate gates passed on `main` at `60f61bd07179cc85a665695ddc2d543ff766eba0` for the original release record, editor navigation is verified against app-shell factories, release authoring surfaces have persistence/input/error-state coverage, release-required assets are classified, selected Phase 9 release bundle categories are checksumed and package-gated, approved Phase 11 offline retrieval/vision/audio tooling stays artifact-producing under `tools/`, and install/package smoke is covered by the release gates.
 
 ## Status Values
 
@@ -43,7 +43,7 @@ Latest audit-remediation checkpoint: Phase 0 through Phase 12 plus the 2026-05-0
 | --- | --- | --- |
 | Repository-wide source/vendor LFS budget/access | `RESOLVED_FOR_CURRENT_BRANCH` | Current branch no-smudge fresh clone reports zero tracked LFS pointers. Do not depend on old branch history for source/vendor payload recovery; keep broad raw/source intake local and ignored unless selected assets are promoted through governed manifests. |
 | Legal review | `VERIFIED` | Public release legal/privacy/distribution review is explicitly waived by the release owner in `docs/release/LEGAL_REVIEW_SIGNOFF.md`. This records owner acceptance of risk and distribution responsibility; it is not qualified legal counsel approval. |
-| Release tagging | `APPROVED_TO_TAG` | The release owner approved public `v0.1.0` publication for the bounded package scope. Create the annotated tag and GitHub release from the final `main` release commit after this docs-only release record passes the final gate. |
+| Release tagging | `TAGGED_FOR_V0.1.0` | The annotated `v0.1.0` tag exists for the bounded package scope at `1d3debb95b6df1d09996e723cc616369cfca99c6`. Post-tag commits require a fresh release-owner decision, passing final gates, and a new tag or release update before public distribution. |
 
 ## Verification
 

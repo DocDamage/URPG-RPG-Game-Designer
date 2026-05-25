@@ -27,9 +27,8 @@ std::string SeverityLabel(MessageMigrationSeverity severity) {
 }
 
 std::string NormalizeRoute(std::string route) {
-    std::transform(route.begin(), route.end(), route.begin(), [](unsigned char ch) {
-        return static_cast<char>(std::tolower(ch));
-    });
+    std::transform(route.begin(), route.end(), route.begin(),
+                   [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
     if (route == "speaker" || route == "narration" || route == "system") {
         return route;
     }
@@ -37,9 +36,8 @@ std::string NormalizeRoute(std::string route) {
 }
 
 std::string NormalizeStateScope(std::string scope) {
-    std::transform(scope.begin(), scope.end(), scope.begin(), [](unsigned char ch) {
-        return static_cast<char>(std::tolower(ch));
-    });
+    std::transform(scope.begin(), scope.end(), scope.begin(),
+                   [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
     if (scope == "global" || scope == "map" || scope == "self" || scope == "scoped" || scope == "js") {
         return scope;
     }
@@ -47,9 +45,8 @@ std::string NormalizeStateScope(std::string scope) {
 }
 
 std::string NormalizePictureTrigger(std::string trigger) {
-    std::transform(trigger.begin(), trigger.end(), trigger.begin(), [](unsigned char ch) {
-        return static_cast<char>(std::tolower(ch));
-    });
+    std::transform(trigger.begin(), trigger.end(), trigger.begin(),
+                   [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
     if (trigger == "click" || trigger == "hover" || trigger == "focus" || trigger == "confirm" || trigger == "cancel") {
         return trigger;
     }
@@ -85,8 +82,7 @@ json NormalizeStateValue(const json& value, bool* supported) {
     return {};
 }
 
-template <typename T>
-T SafeValue(const json& object, const char* key, T fallback) {
+template<typename T> T SafeValue(const json& object, const char* key, T fallback) {
     if (!object.is_object()) {
         return fallback;
     }
@@ -137,24 +133,42 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
     };
     result.message_styles = {
         {"_urpg_format_version", "1.0"},
-        {"styles", json::array(
-            {
-                {
-                    {"id", "default"},
-                    {"namebox", {{"visible", true}, {"margin_x", 12}, {"margin_y", 8}, {"max_width", 320}}},
-                    {"portrait", {{"visible", true}, {"dock", "left"}, {"x", 16}, {"y", 12}, {"width", 144}, {"height", 144}}},
-                },
-            })},
+        {"styles",
+         json::array({
+             {
+                 {"id", "default"},
+                 {"namebox", {{"visible", true}, {"margin_x", 12}, {"margin_y", 8}, {"max_width", 320}}},
+                 {"portrait",
+                  {{"visible", true}, {"dock", "left"}, {"x", 16}, {"y", 12}, {"width", 144}, {"height", 144}}},
+             },
+         })},
     };
     result.scoped_state_banks = {
         {"version", "1.0.0"},
+        {"fixture_import_contract",
+         {{"component", "compat_scoped_state_fixture_import"},
+          {"supports_scoped_switches", true},
+          {"supports_scoped_variables", true},
+          {"supports_self_scope", true},
+          {"supports_map_scope", true},
+          {"supports_js_scope", true},
+          {"preserves_unsupported_rows", true}}},
         {"switches", json::array()},
         {"variables", json::array()},
+        {"unsupported_rows", json::array()},
     };
     result.picture_tasks = {
         {"version", "1.0.0"},
         {"max_pictures", 100},
+        {"fixture_import_contract",
+         {{"component", "compat_picture_task_fixture_import"},
+          {"supports_high_count_pictures", true},
+          {"supports_common_event_triggers", true},
+          {"supports_trigger_normalization", true},
+          {"preserves_unsupported_rows", true},
+          {"preview_component", "picture_task_runtime_preview"}}},
         {"bindings", json::array()},
+        {"unsupported_rows", json::array()},
     };
 
     const auto emit_diagnostic = [&](MessageMigrationSeverity severity, std::string code, std::string page_id,
@@ -168,10 +182,32 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         result.diagnostics.push_back(std::move(diagnostic));
     };
 
+    const auto preserve_state_row = [&](std::string code, std::string reason, const json& source_row, size_t index,
+                                        bool is_switch) {
+        result.scoped_state_banks["unsupported_rows"].push_back({
+            {"code", std::move(code)},
+            {"reason", std::move(reason)},
+            {"kind", is_switch ? "switch" : "variable"},
+            {"source_index", static_cast<int64_t>(index)},
+            {"source_row", source_row},
+        });
+    };
+
+    const auto preserve_picture_row = [&](std::string code, std::string reason, const json& source_row, size_t index) {
+        result.picture_tasks["unsupported_rows"].push_back({
+            {"code", std::move(code)},
+            {"reason", std::move(reason)},
+            {"source_index", static_cast<int64_t>(index)},
+            {"source_row", source_row},
+        });
+    };
+
     const auto map_state_row = [&](const json& source_row, bool is_switch, size_t index) {
         if (!source_row.is_object()) {
             emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_state_bank_row", "state_bank",
                             "State bank row had unsupported shape and was dropped.");
+            preserve_state_row("unsupported_state_bank_row", "State bank row had unsupported shape.", source_row, index,
+                               is_switch);
             return;
         }
 
@@ -180,6 +216,8 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         if (scope == "unsupported") {
             emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_state_scope", "state_bank",
                             "State bank scope '" + raw_scope + "' is not supported and was dropped.");
+            preserve_state_row("unsupported_state_scope", "State bank scope '" + raw_scope + "' is not supported.",
+                               source_row, index, is_switch);
             return;
         }
 
@@ -187,14 +225,18 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         if (id.empty()) {
             emit_diagnostic(MessageMigrationSeverity::Warning, "missing_state_bank_id", "state_bank",
                             "State bank row is missing an id and was dropped.");
+            preserve_state_row("missing_state_bank_id", "State bank row is missing an id.", source_row, index,
+                               is_switch);
             return;
         }
 
         json row = {
             {"scope", scope},
             {"map_id", SafeValue<std::string>(source_row, "mapId", SafeValue<std::string>(source_row, "map_id", ""))},
-            {"event_id", SafeValue<std::string>(source_row, "eventId", SafeValue<std::string>(source_row, "event_id", ""))},
-            {"scope_id", SafeValue<std::string>(source_row, "scopeId", SafeValue<std::string>(source_row, "scope_id", ""))},
+            {"event_id",
+             SafeValue<std::string>(source_row, "eventId", SafeValue<std::string>(source_row, "event_id", ""))},
+            {"scope_id",
+             SafeValue<std::string>(source_row, "scopeId", SafeValue<std::string>(source_row, "scope_id", ""))},
             {"id", id},
             {"source_index", static_cast<int64_t>(index)},
         };
@@ -210,6 +252,8 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         if (!supported) {
             emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_state_value", "state_bank",
                             "State bank variable value is not scalar and was dropped.", id);
+            preserve_state_row("unsupported_state_value", "State bank variable value is not scalar.", source_row, index,
+                               is_switch);
             return;
         }
         row["value"] = value;
@@ -235,41 +279,49 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
 
         const json picture_tasks = compat_document.value("pictureTasks", json::object());
         if (picture_tasks.is_object()) {
-            result.picture_tasks["max_pictures"] = std::max(1, SafeValue<int32_t>(picture_tasks, "maxPictures",
-                                                                                  SafeValue<int32_t>(picture_tasks, "max_pictures", 100)));
+            result.picture_tasks["max_pictures"] =
+                std::max(1, SafeValue<int32_t>(picture_tasks, "maxPictures",
+                                               SafeValue<int32_t>(picture_tasks, "max_pictures", 100)));
             const json bindings = picture_tasks.value("bindings", json::array());
             if (bindings.is_array()) {
                 for (size_t i = 0; i < bindings.size(); ++i) {
                     const json& source_binding = bindings[i];
                     if (!source_binding.is_object()) {
-                        emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_picture_task_row", "picture_tasks",
-                                        "Picture task binding had unsupported shape and was dropped.");
+                        emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_picture_task_row",
+                                        "picture_tasks", "Picture task binding had unsupported shape and was dropped.");
+                        preserve_picture_row("unsupported_picture_task_row",
+                                             "Picture task binding had unsupported shape.", source_binding, i);
                         continue;
                     }
                     const int32_t picture_id = SafeValue<int32_t>(source_binding, "pictureId",
                                                                   SafeValue<int32_t>(source_binding, "picture_id", 0));
-                    const std::string task_id = SafeValue<std::string>(source_binding, "taskId",
-                                                                       SafeValue<std::string>(source_binding, "task_id", ""));
-                    const std::string common_event_id =
-                        SafeValue<std::string>(source_binding, "commonEventId",
-                                               SafeValue<std::string>(source_binding, "common_event_id", ""));
+                    const std::string task_id = SafeValue<std::string>(
+                        source_binding, "taskId", SafeValue<std::string>(source_binding, "task_id", ""));
+                    const std::string common_event_id = SafeValue<std::string>(
+                        source_binding, "commonEventId", SafeValue<std::string>(source_binding, "common_event_id", ""));
                     if (picture_id <= 0 || task_id.empty() || common_event_id.empty()) {
-                        emit_diagnostic(MessageMigrationSeverity::Warning, "invalid_picture_task_binding", "picture_tasks",
+                        emit_diagnostic(MessageMigrationSeverity::Warning, "invalid_picture_task_binding",
+                                        "picture_tasks",
                                         "Picture task binding is missing picture id, task id, or common event id.");
+                        preserve_picture_row("invalid_picture_task_binding",
+                                             "Picture task binding is missing picture id, task id, or common event id.",
+                                             source_binding, i);
                         continue;
                     }
-                    const std::string raw_trigger =
-                        SafeValue<std::string>(source_binding, "trigger", SafeValue<std::string>(source_binding, "action", "click"));
+                    const std::string raw_trigger = SafeValue<std::string>(
+                        source_binding, "trigger", SafeValue<std::string>(source_binding, "action", "click"));
                     const std::string trigger = NormalizePictureTrigger(raw_trigger);
                     if (trigger != raw_trigger) {
-                        emit_diagnostic(MessageMigrationSeverity::Info, "normalized_picture_task_trigger", "picture_tasks",
-                                        "Picture task trigger '" + raw_trigger + "' was normalized to '" + trigger + "'.");
+                        emit_diagnostic(
+                            MessageMigrationSeverity::Info, "normalized_picture_task_trigger", "picture_tasks",
+                            "Picture task trigger '" + raw_trigger + "' was normalized to '" + trigger + "'.");
                     }
-                    result.picture_tasks["bindings"].push_back({{"picture_id", picture_id},
-                                                                 {"task_id", task_id},
-                                                                 {"common_event_id", common_event_id},
-                                                                 {"trigger", trigger},
-                                                                 {"enabled", SafeValue<bool>(source_binding, "enabled", true)}});
+                    result.picture_tasks["bindings"].push_back(
+                        {{"picture_id", picture_id},
+                         {"task_id", task_id},
+                         {"common_event_id", common_event_id},
+                         {"trigger", trigger},
+                         {"enabled", SafeValue<bool>(source_binding, "enabled", true)}});
                 }
             }
         }
@@ -316,9 +368,9 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         const std::string speaker_default = SafeValue<std::string>(compat_page, "speaker", default_speaker);
         int32_t face_actor_id = SafeValue<int32_t>(compat_page, "faceActorId", 0);
 
-        MessagePresentationVariant variant =
-            variantFromCompatRoute(normalized_route, speaker_default.empty() && normalized_route == "system" ? "System" : speaker_default,
-                                   face_actor_id);
+        MessagePresentationVariant variant = variantFromCompatRoute(
+            normalized_route, speaker_default.empty() && normalized_route == "system" ? "System" : speaker_default,
+            face_actor_id);
 
         if (variant.mode == MessagePresentationMode::Speaker && variant.speaker.empty()) {
             emit_diagnostic(MessageMigrationSeverity::Warning, "missing_speaker", page_id,
@@ -403,7 +455,8 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         page["id"] = page_id;
         page["style_id"] = safe_text_only ? "safe_text_only" : "default";
         page["presentation_mode"] = normalized_route;
-        page["tone"] = (normalized_route == "speaker" ? "portrait" : (normalized_route == "narration" ? "neutral" : "system"));
+        page["tone"] =
+            (normalized_route == "speaker" ? "portrait" : (normalized_route == "narration" ? "neutral" : "system"));
         page["speaker"] = variant.speaker;
         page["face_actor_id"] = variant.face_actor_id;
         page["body"] = body;
@@ -473,7 +526,8 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
                 json new_style = {
                     {"id", "default"},
                     {"namebox", {{"visible", true}, {"margin_x", 12}, {"margin_y", 8}, {"max_width", 320}}},
-                    {"portrait", {{"visible", true}, {"dock", "left"}, {"x", 16}, {"y", 12}, {"width", 144}, {"height", 144}}},
+                    {"portrait",
+                     {{"visible", true}, {"dock", "left"}, {"x", 16}, {"y", 12}, {"width", 144}, {"height", 144}}},
                 };
                 if (!window_obj.empty()) {
                     new_style["window"] = std::move(window_obj);
@@ -486,8 +540,8 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         }
 
         // Warn on unsupported style fields that we don't yet map.
-        const std::set<std::string> known_unmapped_style_fields = {
-            "positionType", "background", "continue_to", "faceName", "faceIndex", "conditions"};
+        const std::set<std::string> known_unmapped_style_fields = {"positionType", "background", "continue_to",
+                                                                   "faceName",     "faceIndex",  "conditions"};
         for (const auto& field : known_unmapped_style_fields) {
             if (compat_page.contains(field)) {
                 emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_style_field", page_id,
@@ -496,12 +550,11 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         }
 
         if (safe_text_only && !added_safe_style) {
-            result.message_styles["styles"].push_back(
-                {
-                    {"id", "safe_text_only"},
-                    {"namebox", {{"visible", false}, {"margin_x", 0}, {"margin_y", 0}, {"max_width", 320}}},
-                    {"portrait", {{"visible", false}, {"dock", "left"}, {"x", 0}, {"y", 0}, {"width", 0}, {"height", 0}}},
-                });
+            result.message_styles["styles"].push_back({
+                {"id", "safe_text_only"},
+                {"namebox", {{"visible", false}, {"margin_x", 0}, {"margin_y", 0}, {"max_width", 320}}},
+                {"portrait", {{"visible", false}, {"dock", "left"}, {"x", 0}, {"y", 0}, {"width", 0}, {"height", 0}}},
+            });
             added_safe_style = true;
         }
     }
