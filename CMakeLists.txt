@@ -236,6 +236,8 @@ set(URPG_CORE_SOURCES
     engine/core/diagnostics/diagnostics_bundle_exporter.cpp
     engine/core/debug/debug_session.cpp
     engine/core/debug/debug_ai_bridge.cpp
+    engine/core/telemetry/telemetry_event.cpp
+    engine/core/telemetry/crash_envelope.cpp
     engine/core/editor/editor_panel_registry.cpp
     engine/core/engine_shell.cpp
     engine/core/gameplay/gameplay_wysiwyg_system.cpp
@@ -397,6 +399,8 @@ set(URPG_CORE_SOURCES
     engine/core/ui/chat_window.cpp
     engine/core/ui/ui_command_list.cpp
     engine/core/message/message_core.cpp
+    engine/core/message/dialogue_script_compiler.cpp
+    engine/core/message/dialogue_script_exporter.cpp
     engine/core/message/dialogue_preview.cpp
     engine/core/message/visual_novel_pacing.cpp
     engine/core/message/ai_sync_coordinator.cpp
@@ -1317,6 +1321,8 @@ add_executable(urpg_tests
     tests/unit/test_editor_panel_registry.cpp
     tests/unit/test_editor_app_panels.cpp
     tests/unit/test_debug_session.cpp
+    tests/unit/test_telemetry_event.cpp
+    tests/unit/test_crash_envelope.cpp
     tests/unit/test_quickjs_runtime.cpp
     tests/unit/test_window_compat.cpp
     tests/unit/test_window_compat_selectable_command.cpp
@@ -1344,6 +1350,8 @@ add_executable(urpg_tests
     tests/unit/test_audio_mix_presets.cpp
     tests/unit/test_message_text_core.cpp
     tests/unit/test_message_migration.cpp
+    tests/unit/test_dialogue_script_compiler.cpp
+    tests/unit/test_dialogue_script_exporter.cpp
     tests/unit/test_dialogue_project_loader.cpp
     tests/unit/test_dialogue_command_handlers.cpp
     tests/unit/test_message_schema_contracts.cpp
@@ -1580,6 +1588,7 @@ urpg_enable_windows_test_binary_unlock(urpg_integration_tests)
 
 add_executable(urpg_snapshot_canonical_tests
     tests/snapshot/test_snapshot_canonical_outputs.cpp
+    tests/snapshot/test_snapshot_dialogue_roundtrip.cpp
 )
 urpg_configure_unit_test_target(urpg_snapshot_canonical_tests)
 

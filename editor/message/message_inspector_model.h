@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/core/message/dialogue_script_compiler.h"
 #include "engine/core/message/message_core.h"
 
 #include <cstdint>
@@ -51,7 +52,7 @@ struct MessageInspectorSummary {
 };
 
 class MessageInspectorModel {
-public:
+  public:
     void LoadFromFlow(const urpg::message::MessageFlowRunner& flow_runner,
                       const urpg::message::RichTextLayoutEngine& layout_engine);
     void SetRouteFilter(std::optional<urpg::message::MessagePresentationMode> route_filter);
@@ -71,11 +72,14 @@ public:
     bool addPage(const urpg::message::DialoguePage& page);
     bool removePage(size_t row_index);
     bool applyToRuntime(urpg::message::MessageFlowRunner& runner);
+    urpg::message::DialogueScriptCompileResult importScript(const std::string& script,
+                                                            const urpg::message::RichTextLayoutEngine& layout_engine);
+    std::string exportScript() const;
     void clear();
     bool selectPageById(const std::string& page_id);
     const urpg::message::DialoguePage* selectedPage() const;
 
-private:
+  private:
     void RebuildAll();
     void RebuildVisibleRows();
     void RestoreSelectionByPageId(const std::optional<std::string>& page_id);
