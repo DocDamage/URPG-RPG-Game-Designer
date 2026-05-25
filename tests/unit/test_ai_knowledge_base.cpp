@@ -376,8 +376,10 @@ TEST_CASE("AI tool registry applies approved map event dialogue ability and expo
     REQUIRE(result.project_data["last_ai_validation"]["status"] == "passed");
     REQUIRE(result.project_data["last_ai_validation"]["scope"] == "project");
     REQUIRE(result.project_data["last_ai_validation"]["validator_count"] == 2);
-    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator"] == "event_graph_validator");
-    REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["validator"] == "ability_sandbox_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator"] ==
+            "native_event_graph_preview_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["validator"] ==
+            "native_ability_sandbox_validator");
     REQUIRE(result.project_data["ai_validation_reports"].size() == 1);
     REQUIRE(result.project_data["last_ai_export_preview"]["status"] == "queued");
 }

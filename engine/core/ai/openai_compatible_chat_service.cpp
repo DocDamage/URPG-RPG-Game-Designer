@@ -249,7 +249,7 @@ std::pair<std::string, std::string> parseOpenAiCompatibleChatResponse(const nloh
 
 std::pair<std::string, std::string> parseOpenAiCompatibleChatStreamResponse(std::string_view responseText) {
     const auto diagnostics = buildOpenAiCompatibleStreamDiagnostics(responseText);
-    return splitCommand(diagnostics.value("partial_text", ""));
+    return {diagnostics.value("partial_text", ""), diagnostics.value("command", "")};
 }
 
 nlohmann::json buildOpenAiCompatibleStreamDiagnostics(std::string_view responseText) {

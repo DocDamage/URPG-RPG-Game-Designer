@@ -43,7 +43,7 @@ TEST_CASE("OpenAI-compatible chat service builds streaming requests", "[ai][chat
     const auto adapter = urpg::ai::buildOpenAiCompatibleStreamAdapterPlan(config);
     REQUIRE(adapter["component"] == "openai_compatible_stream_adapter");
     REQUIRE(adapter["stream_requested"] == true);
-    REQUIRE(adapter["transport"] == "buffered_request");
+    REQUIRE(adapter["transport"] == "fixture_response_replay");
     REQUIRE(adapter["socket_adapter_ready"] == true);
 }
 

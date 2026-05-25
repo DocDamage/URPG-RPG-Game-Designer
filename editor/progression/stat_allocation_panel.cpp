@@ -1,5 +1,6 @@
 #include "editor/progression/stat_allocation_panel.h"
 
+#include <algorithm>
 #include <utility>
 
 namespace urpg::editor {
@@ -110,6 +111,16 @@ nlohmann::json buildStatControlRows(const urpg::progression::StatAllocationDocum
     return rows;
 }
 
+std::string commitDisabledReason(const std::vector<urpg::progression::ProgressionDiagnostic>& diagnostics) {
+    const auto overspend = std::find_if(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "stat_points_overspent";
+    });
+    if (overspend != diagnostics.end()) {
+        return overspend->code;
+    }
+    return diagnostics.empty() ? "" : diagnostics.front().code;
+}
+
 } // namespace
 
 void StatAllocationPanel::bindDocument(urpg::progression::StatAllocationDocument document) {
@@ -206,7 +217,7 @@ void StatAllocationPanel::render() {
             {"enabled", preview.diagnostics.empty()},
             {"action", "commit_stat_allocation"},
             {"disabled_reason", preview.diagnostics.empty() ? nlohmann::json(nullptr)
-                                                            : nlohmann::json(preview.diagnostics.front().code)}}}}},
+                                                            : nlohmann::json(commitDisabledReason(preview.diagnostics))}}}}},
         {"post_load",
          {{"actor_id", actor_id},
           {"row_count", application_preview.row_count},
