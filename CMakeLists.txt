@@ -418,6 +418,7 @@ set(URPG_CORE_SOURCES
     editor/diagnostics/diagnostics_facade.cpp
     editor/diagnostics/project_audit_export_parity.cpp
     editor/diagnostics/project_audit_panel.cpp
+    editor/diagnostics/pathfinding_debug_panel.cpp
     editor/diagnostics/project_health_model.cpp
     editor/diagnostics/project_health_panel.cpp
     editor/events/event_authoring_model.cpp
@@ -1372,6 +1373,7 @@ add_executable(urpg_tests
     tests/unit/test_pattern_field.cpp
     tests/unit/test_effect_resolver.cpp
     tests/unit/test_wave3_gaf.cpp
+    tests/unit/test_pathfinding_debug_panel.cpp
     tests/unit/test_pathfinding_graph.cpp
     tests/unit/test_level_assembly.cpp
     tests/unit/test_grid_part_document.cpp
