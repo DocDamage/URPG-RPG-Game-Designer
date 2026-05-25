@@ -16,7 +16,7 @@ $requiredPaths = @(
   "content/schemas/patch_manifest.schema.json",
   "content/schemas/creator_package_manifest.schema.json",
   "content/fixtures/export_packaging_fixture.json",
-  "docs/RELEASE_PACKAGING.md",
+  "docs/release/RELEASE_PACKAGING.md",
   "tools/ci/package_release_artifacts.ps1",
   "tests/unit/test_runtime_bundle_loader.cpp",
   "tests/unit/test_export_artifact_compare.cpp",
@@ -51,7 +51,7 @@ foreach ($needle in @(
   }
 }
 
-$plan = Get-Content (Join-Path $RepoRoot "docs/FUTURE_FEATURE_ACTIONABLE_SPRINT_PLAN.md") -Raw
+$plan = Get-Content (Join-Path $RepoRoot "docs/archive/planning/FUTURE_FEATURE_ACTIONABLE_SPRINT_PLAN.md") -Raw
 if (-not $plan.Contains("FFS-07 - Export, Patch, And Packaging Hardening")) {
   throw "FFS-07 plan section is missing."
 }
