@@ -186,6 +186,15 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
 
     const auto mergedProject = urpg::ai::mergeFilesystemKnowledgeIntoProjectData({{"project_id", "merged"}}, project);
     REQUIRE(urpg::ai::buildFilesystemKnowledgeReport(mergedProject)["document_count"] == 2);
+    const auto invocation =
+        urpg::ai::buildFilesystemCrawlerInvocation(mergedProject, "C:/repo/URPG", "build/ai/filesystem.json");
+    REQUIRE(invocation["status"] == "ready_to_invoke");
+    REQUIRE(invocation["adapter"] == "tools/ai/collect_project_knowledge.py");
+    REQUIRE(invocation["root"] == "C:/repo/URPG");
+    REQUIRE(invocation["output_path"] == "build/ai/filesystem.json");
+    REQUIRE(invocation["command_args"][1] == "tools/ai/collect_project_knowledge.py");
+    REQUIRE(invocation["command"].get<std::string>().find("--max-files") != std::string::npos);
+    REQUIRE(invocation["ingest_command"] == "AI_INGEST_FILESYSTEM_KNOWLEDGE:<contents of output_path>");
     REQUIRE_FALSE(urpg::ai::buildDefaultAiKnowledgeSnapshot(mergedProject)
                       .project_index.search("notes/reference.bmp unsupported_extension")
                       .empty());
@@ -593,6 +602,9 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots", "[ai_k
         {"diagnostics", nlohmann::json::array({{{"code", "excluded"}, {"path", "build/generated.log"}}})},
     });
     REQUIRE(panelFilesystemReport["document_count"] == 1);
+    const auto refresh = panel.buildFilesystemKnowledgeRefresh("C:/repo/game", "build/ai/crawler.json");
+    REQUIRE(refresh["root"] == "C:/repo/game");
+    REQUIRE(refresh["output_path"] == "build/ai/crawler.json");
     panel.setAssetLibrarySnapshot(library.snapshot());
     panel.setTaskRequest("create dialogue for the town intro");
     panel.render();
@@ -610,6 +622,8 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots", "[ai_k
     REQUIRE(snapshot["knowledge"]["capability_count"].get<size_t>() >= 10);
     REQUIRE(snapshot["knowledge"]["tool_count"].get<size_t>() >= 8);
     REQUIRE(snapshot["filesystem_knowledge"]["document_count"] == 1);
+    REQUIRE(snapshot["filesystem_knowledge_refresh"]["status"] == "ready_to_invoke");
+    REQUIRE(snapshot["filesystem_knowledge_refresh"]["output_path"] == "build/ai/crawler.json");
     REQUIRE(snapshot["filesystem_knowledge"]["skipped"]["excluded"] == 1);
     REQUIRE(snapshot["filesystem_knowledge"]["diagnostics"][0]["path"] == "build/generated.log");
     REQUIRE(snapshot["task_plan"]["steps"].size() == 1);
@@ -620,6 +634,9 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots", "[ai_k
     REQUIRE(snapshot["controls"]["apply_button"]["enabled"] == false);
     REQUIRE(snapshot["controls"]["step_controls"][0]["approve_button"]["enabled"] == true);
     REQUIRE(snapshot["controls"]["filesystem_knowledge"]["report_button"]["enabled"] == true);
+    REQUIRE(snapshot["controls"]["filesystem_knowledge"]["refresh_button"]["action"] == "refresh_filesystem_knowledge");
+    REQUIRE(snapshot["controls"]["filesystem_knowledge"]["refresh_button"]["invocation"]["adapter"] ==
+            "tools/ai/collect_project_knowledge.py");
     REQUIRE(snapshot["controls"]["filesystem_knowledge"]["diagnostic_rows"][0]["code"] == "excluded");
     REQUIRE(snapshot["validation"]["valid"] == false);
     REQUIRE(snapshot["validation"]["blocked_reason"] == "ai_tool_unapproved");
@@ -827,6 +844,11 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands", "[ai_
     const auto ingested = chatbot.executeTool("AI_INGEST_FILESYSTEM_KNOWLEDGE:" + chatbotFilesystemKnowledge.dump());
     REQUIRE(ingested["ingested_filesystem_knowledge"]["success"] == true);
     REQUIRE(chatbot.projectData()["filesystem_knowledge"]["filesystem_documents"].size() == 1);
+    const auto refresh = chatbot.executeTool(
+        R"(AI_REFRESH_FILESYSTEM_KNOWLEDGE:{"root":"C:/repo/game","output_path":"build/ai/chatbot.json"})");
+    REQUIRE(refresh["filesystem_knowledge_refresh"]["status"] == "ready_to_invoke");
+    REQUIRE(refresh["filesystem_knowledge_refresh"]["root"] == "C:/repo/game");
+    REQUIRE(refresh["filesystem_knowledge_refresh"]["output_path"] == "build/ai/chatbot.json");
     chatbot.setAssetLibrarySnapshot(library.snapshot());
 
     bool callbackCalled = false;
@@ -850,6 +872,11 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands", "[ai_
     REQUIRE(chatbot.lastAiToolSnapshot()["filesystem_knowledge"]["diagnostics"][0]["path"] ==
             "build/quest_runtime.obj");
     REQUIRE(chatbot.lastAiToolSnapshot()["controls"]["filesystem_knowledge"]["report_button"]["enabled"] == true);
+    REQUIRE(chatbot.lastAiToolSnapshot()["controls"]["filesystem_knowledge"]["refresh_button"]["action"] ==
+            "AI_REFRESH_FILESYSTEM_KNOWLEDGE");
+    REQUIRE(
+        chatbot.lastAiToolSnapshot()["controls"]["filesystem_knowledge"]["refresh_button"]["invocation"]["adapter"] ==
+        "tools/ai/collect_project_knowledge.py");
     REQUIRE(chatbot.lastAiToolSnapshot()["controls"]["filesystem_knowledge"]["diagnostic_count"] == 1);
     REQUIRE(chatbot.lastAiToolSnapshot()["task_plan"]["steps"][0]["tool_id"] == "edit_dialogue");
     REQUIRE(chatbot.lastAiToolSnapshot()["approval"]["pending_count"] == 1);

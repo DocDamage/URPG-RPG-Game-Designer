@@ -168,6 +168,8 @@ struct AiKnowledgeSnapshot {
 
 AiKnowledgeSnapshot buildDefaultAiKnowledgeSnapshot(const nlohmann::json& projectData = nlohmann::json::object());
 nlohmann::json buildFilesystemKnowledgeReport(const nlohmann::json& projectData);
+nlohmann::json buildFilesystemCrawlerInvocation(const nlohmann::json& projectData, const std::string& projectRoot,
+                                                const std::string& outputPath);
 nlohmann::json mergeFilesystemKnowledgeIntoProjectData(nlohmann::json projectData,
                                                        const nlohmann::json& filesystemKnowledge);
 nlohmann::json buildAiToolResultDiff(const AiToolApplyResult& result);

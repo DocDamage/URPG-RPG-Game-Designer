@@ -107,6 +107,9 @@ class ChatbotComponent {
             return ingestFilesystemKnowledgeCommand(
                 command.substr(std::string("AI_INGEST_FILESYSTEM_KNOWLEDGE:").size()));
         }
+        if (command == "AI_REFRESH_FILESYSTEM_KNOWLEDGE" || command.rfind("AI_REFRESH_FILESYSTEM_KNOWLEDGE:", 0) == 0) {
+            return refreshFilesystemKnowledgeCommand(command);
+        }
         if (command == "AI_FILESYSTEM_KNOWLEDGE") {
             m_lastAiToolSnapshot = aiToolSnapshot();
             return m_lastAiToolSnapshot;
@@ -136,6 +139,31 @@ class ChatbotComponent {
             {"type", "dialogue_command"}, {"command", command},  {"handled", result.handled},
             {"success", result.success},  {"code", result.code}, {"message", result.message},
         };
+        return m_lastAiToolSnapshot;
+    }
+
+    nlohmann::json refreshFilesystemKnowledgeCommand(const std::string& command) {
+        std::string root = ".";
+        std::string outputPath = ".urpg/ai/filesystem_knowledge.json";
+        if (command.rfind("AI_REFRESH_FILESYSTEM_KNOWLEDGE:", 0) == 0) {
+            try {
+                const auto payload =
+                    nlohmann::json::parse(command.substr(std::string("AI_REFRESH_FILESYSTEM_KNOWLEDGE:").size()));
+                root = payload.value("root", root);
+                outputPath = payload.value("output_path", outputPath);
+            } catch (const nlohmann::json::exception&) {
+                m_lastAiToolSnapshot = aiToolSnapshot();
+                m_lastAiToolSnapshot["filesystem_knowledge_refresh"] = {
+                    {"available", false},
+                    {"status", "invalid_request"},
+                    {"error", "invalid_json"},
+                };
+                return m_lastAiToolSnapshot;
+            }
+        }
+        m_lastAiToolSnapshot = aiToolSnapshot();
+        m_lastAiToolSnapshot["filesystem_knowledge_refresh"] =
+            buildFilesystemCrawlerInvocation(m_projectData, root, outputPath);
         return m_lastAiToolSnapshot;
     }
 
@@ -422,7 +450,9 @@ class ChatbotComponent {
                       {"visible", true},
                       {"enabled", true},
                       {"label", "Refresh Project Knowledge"},
-                      {"action", "AI_INGEST_FILESYSTEM_KNOWLEDGE"},
+                      {"action", "AI_REFRESH_FILESYSTEM_KNOWLEDGE"},
+                      {"invocation",
+                       buildFilesystemCrawlerInvocation(m_projectData, ".", ".urpg/ai/filesystem_knowledge.json")},
                   }},
                  {"report_button",
                   {

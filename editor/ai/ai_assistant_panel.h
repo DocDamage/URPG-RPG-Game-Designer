@@ -21,6 +21,8 @@ class AiAssistantPanel {
     void setAssetLibrarySnapshot(urpg::assets::AssetLibrarySnapshot assetLibrarySnapshot);
     void setTaskRequest(std::string taskRequest);
     nlohmann::json ingestFilesystemKnowledge(nlohmann::json filesystemKnowledge);
+    nlohmann::json buildFilesystemKnowledgeRefresh(std::string projectRoot = ".",
+                                                   std::string outputPath = ".urpg/ai/filesystem_knowledge.json");
     void render();
     bool approveStep(const std::string& stepId);
     std::size_t approveAllPendingSteps();
@@ -49,6 +51,7 @@ class AiAssistantPanel {
     nlohmann::json project_data_ = nlohmann::json::object();
     urpg::assets::AssetLibrarySnapshot asset_library_snapshot_{};
     std::string task_request_;
+    nlohmann::json last_filesystem_refresh_ = nlohmann::json::object();
     urpg::ai::AiKnowledgeSnapshot knowledge_;
     urpg::ai::AiTaskPlan current_task_plan_;
     std::vector<urpg::ai::AiToolApplyResult> applied_changes_;

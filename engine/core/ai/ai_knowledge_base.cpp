@@ -942,6 +942,70 @@ nlohmann::json buildFilesystemKnowledgeReport(const nlohmann::json& projectData)
     return report;
 }
 
+nlohmann::json buildFilesystemCrawlerInvocation(const nlohmann::json& projectData, const std::string& projectRoot,
+                                                const std::string& outputPath) {
+    const auto& filesystemRoot = filesystemKnowledgeRoot(projectData);
+    nlohmann::json config = nlohmann::json::object();
+    if (filesystemRoot.is_object() && filesystemRoot.contains("filesystem_crawler_config") &&
+        filesystemRoot["filesystem_crawler_config"].is_object()) {
+        config = filesystemRoot["filesystem_crawler_config"];
+    } else if (filesystemRoot.is_object() && filesystemRoot.contains("crawler_config") &&
+               filesystemRoot["crawler_config"].is_object()) {
+        config = filesystemRoot["crawler_config"];
+    }
+
+    const std::string root = projectRoot.empty() ? "." : projectRoot;
+    const std::string output = outputPath.empty() ? ".urpg/ai/filesystem_knowledge.json" : outputPath;
+    nlohmann::json args =
+        nlohmann::json::array({"python", "tools/ai/collect_project_knowledge.py", "--root", root, "--output", output});
+
+    const auto appendRepeated = [&](const std::string& key, const std::string& flag) {
+        if (!config.contains(key) || !config[key].is_array()) {
+            return;
+        }
+        for (const auto& value : config[key]) {
+            if (value.is_string()) {
+                args.push_back(flag);
+                args.push_back(value.get<std::string>());
+            }
+        }
+    };
+    appendRepeated("include", "--include");
+    appendRepeated("exclude", "--exclude");
+
+    const auto appendNumeric = [&](const std::string& key, const std::string& flag) {
+        if (config.contains(key) && config[key].is_number_integer()) {
+            args.push_back(flag);
+            args.push_back(std::to_string(config[key].get<std::int64_t>()));
+        }
+    };
+    appendNumeric("max_files", "--max-files");
+    appendNumeric("max_bytes", "--max-bytes");
+    appendNumeric("max_file_bytes", "--max-file-bytes");
+    appendNumeric("max_age_days", "--max-age-days");
+
+    std::string command;
+    for (const auto& arg : args) {
+        if (!command.empty()) {
+            command.push_back(' ');
+        }
+        const auto text = arg.get<std::string>();
+        command += text.find(' ') == std::string::npos ? text : "\"" + text + "\"";
+    }
+
+    return {
+        {"available", true},
+        {"status", "ready_to_invoke"},
+        {"adapter", "tools/ai/collect_project_knowledge.py"},
+        {"root", root},
+        {"output_path", output},
+        {"command", command},
+        {"command_args", args},
+        {"config", config},
+        {"ingest_command", "AI_INGEST_FILESYSTEM_KNOWLEDGE:<contents of output_path>"},
+    };
+}
+
 nlohmann::json mergeFilesystemKnowledgeIntoProjectData(nlohmann::json projectData,
                                                        const nlohmann::json& filesystemKnowledge) {
     if (!projectData.is_object()) {

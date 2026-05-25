@@ -88,6 +88,12 @@ nlohmann::json AiAssistantPanel::ingestFilesystemKnowledge(nlohmann::json filesy
     return urpg::ai::buildFilesystemKnowledgeReport(project_data_);
 }
 
+nlohmann::json AiAssistantPanel::buildFilesystemKnowledgeRefresh(std::string projectRoot, std::string outputPath) {
+    last_filesystem_refresh_ =
+        urpg::ai::buildFilesystemCrawlerInvocation(project_data_, std::move(projectRoot), std::move(outputPath));
+    return last_filesystem_refresh_;
+}
+
 void AiAssistantPanel::rebuildTaskPlan() {
     knowledge_ = urpg::ai::buildDefaultAiKnowledgeSnapshot(project_data_);
     urpg::ai::AiTaskPlanner planner;
@@ -113,6 +119,7 @@ void AiAssistantPanel::render() {
              {"tool_count", knowledge_.tools.tools().size()},
          }},
         {"filesystem_knowledge", urpg::ai::buildFilesystemKnowledgeReport(project_data_)},
+        {"filesystem_knowledge_refresh", last_filesystem_refresh_},
         {"wysiwyg_chatbot_coverage",
          urpg::ai::buildWysiwygChatbotCoverageReport(knowledge_, asset_library_snapshot_).toJson()},
         {"asset_preview_rows", urpg::assets::buildAssetPreviewRows(asset_library_snapshot_)},
@@ -372,7 +379,9 @@ nlohmann::json AiAssistantPanel::buildControlSnapshot() const {
                   {"visible", true},
                   {"enabled", true},
                   {"label", "Refresh Project Knowledge"},
-                  {"action", "ingest_filesystem_knowledge"},
+                  {"action", "refresh_filesystem_knowledge"},
+                  {"invocation", urpg::ai::buildFilesystemCrawlerInvocation(project_data_, ".",
+                                                                            ".urpg/ai/filesystem_knowledge.json")},
               }},
              {"report_button",
               {

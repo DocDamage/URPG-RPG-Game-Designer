@@ -46,7 +46,9 @@ python tools/ci/check_feature_robustness_lanes.py
 
 This slice promotes the crawler output into native AI/editor surfaces. `ProjectKnowledgeIndex` now indexes skipped-file diagnostics from collector output, `buildFilesystemKnowledgeReport()` summarizes direct document rows, freshness, skipped counts, and diagnostic rows, and both the chatbot tool snapshot and AI assistant panel render snapshot expose that filesystem knowledge report. The chatbot also accepts `AI_INGEST_FILESYSTEM_KNOWLEDGE:<json>` and the editor panel exposes `ingestFilesystemKnowledge()` so crawler output can be merged into project data without clobbering project-level fields. Both surfaces expose review/refresh control rows for direct documents and skipped-file diagnostics.
 
-The remaining `FRL-07` work is to invoke the crawler process from the editor/chatbot path and cover larger repository fixtures.
+The completion slice adds the adapter-backed refresh contract. `buildFilesystemCrawlerInvocation()` emits the deterministic `tools/ai/collect_project_knowledge.py` command, arguments, output path, config, and follow-up ingest command. The editor snapshot exposes `filesystem_knowledge_refresh`, the editor refresh control points at `refresh_filesystem_knowledge`, and the chatbot supports `AI_REFRESH_FILESYSTEM_KNOWLEDGE` with optional root/output JSON.
+
+`FRL-07` is complete for the governed adapter-backed scope. Future live background indexing or file-watch behavior should open a new lane instead of expanding this one.
 
 Verification:
 
@@ -165,7 +167,7 @@ python tools\ci\check_feature_robustness_lanes.py
 | `FRL-04` | Gameplay abilities | Long-running async scheduling and scripting sandbox policy. |
 | `FRL-05` | Asset browser/runtime library | Curated bulk promotion and generated preview media evidence. |
 | `FRL-06` | AI editor workflow | Final rendered ImGui treatment and visual fixtures. |
-| `FRL-07` | Project knowledge indexing | Editor/chatbot crawler process invocation and larger repo fixtures. |
+| `FRL-07` | Project knowledge indexing | Complete for adapter-backed crawler invocation and ingestion. |
 | `FRL-08` | Concrete AI tools | Full typed native validator invocation and delegated output paths. |
 | `FRL-09` | Live chat providers | True socket-level live chunk delivery. |
 | `FRL-10` | Export/release UX | Real provider invocation and launched multi-platform smoke execution. |
