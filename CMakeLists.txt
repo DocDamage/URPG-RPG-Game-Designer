@@ -236,6 +236,8 @@ set(URPG_CORE_SOURCES
     engine/core/diagnostics/diagnostics_bundle_exporter.cpp
     engine/core/debug/debug_session.cpp
     engine/core/debug/debug_ai_bridge.cpp
+    engine/core/telemetry/telemetry_event.cpp
+    engine/core/telemetry/crash_envelope.cpp
     engine/core/editor/editor_panel_registry.cpp
     engine/core/engine_shell.cpp
     engine/core/gameplay/gameplay_wysiwyg_system.cpp
@@ -1314,6 +1316,8 @@ add_executable(urpg_tests
     tests/unit/test_editor_panel_registry.cpp
     tests/unit/test_editor_app_panels.cpp
     tests/unit/test_debug_session.cpp
+    tests/unit/test_telemetry_event.cpp
+    tests/unit/test_crash_envelope.cpp
     tests/unit/test_quickjs_runtime.cpp
     tests/unit/test_window_compat.cpp
     tests/unit/test_window_compat_selectable_command.cpp
