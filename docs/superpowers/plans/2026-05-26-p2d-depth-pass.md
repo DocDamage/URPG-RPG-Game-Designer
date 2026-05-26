@@ -680,8 +680,48 @@ Ran:
 
 Expected green: all P2D depth tests pass.
 
+## Task 18: Live Runtime Execution And RPG Editor UI Surface
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing live runtime/UI tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage proving a P2D event executes through runtime state rather than only producing a preview trace. The covered command set is `show_text`, `transfer_player`, `change_switch`, `change_variable`, `change_self_switch`, `change_gold`, `change_item`, `move_route`, `call_common_event`, and `conditional_branch`. The same test proves render snapshots expose RPG-editor UI surfaces for map canvas, layers, palette, page tabs, condition editor, command list, branch tree, command picker, playtest controls, and export controls.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile failed because the live P2D runtime execution API and UI snapshot fields did not exist yet.
+
+- [x] **Step 3: Implement live runtime execution and UI snapshot**
+
+Add `ExecutePerspectiveRuntimeEvent`, persistent P2D runtime state for switches, variables, self-switches, inventory, gold, and player map/tile position, branch evaluation against mutated runtime state, serialized runtime-state JSON, and a bindable P2D model UI snapshot for the editor shell.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
 ## Self-Review
 
-- Spec coverage: This plan covers tile/layer ergonomics, multi-layer editing, promoted asset palette rows, palette search/filter/preview metadata, palette selection, event/object rows, editable event command rows, RPG Maker-style event pages/conditions, richer comparison condition rules, conditional branch commands, page editing ergonomics, persistence, live playtest readiness, runtime manifest proof, event execution preview traces, playtest execution handoff traces, deterministic package inventory/signature proof, creator UX readiness summaries, release asset/LFS policy gating, export readiness, and docs truth for the first P2D depth slice. It does not claim full RPG Maker parity.
+- Spec coverage: This plan covers tile/layer ergonomics, multi-layer editing, promoted asset palette rows, palette search/filter/preview metadata, palette selection, event/object rows, editable event command rows, RPG Maker-style event pages/conditions, richer comparison condition rules, conditional branch commands, page editing ergonomics, persistence, live playtest readiness, runtime manifest proof, event execution preview traces, live runtime event execution for the supported command set, playtest execution handoff traces, deterministic package inventory/signature proof, RPG-editor UI model snapshots, creator UX readiness summaries, release asset/LFS policy gating, export readiness, and docs truth for the first P2D depth slice. It does not claim blanket full RPG Maker parity beyond the implemented/snapshotted command and editor surfaces.
 - Placeholder scan: No TBD/TODO placeholders are used.
 - Type consistency: All new APIs are named on `SpatialAuthoringWorkspace` and are referenced consistently across test and implementation tasks.

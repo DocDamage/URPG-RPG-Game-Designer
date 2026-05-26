@@ -1575,6 +1575,92 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D completes playtes
     REQUIRE(snapshot.last_perspective_2d_release_asset_gate.success);
 }
 
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D executes live event commands and exposes RPG editor UI",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_live_runtime";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_live_runtime", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    workspace.SetPerspectiveTilePaletteOptions({
+        {"grass_01", "Grass A", "overworld", "grass_a", "asset.overworld.grass_a",
+         "content/tiles/grass_a.png", "field", "content/tiles/grass_a.preview.png"},
+    });
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTilePaletteOption("grass_01"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_runtime", "Runtime Event", "confirm_interact", 80.0f, 80.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_runtime", "main", "Main", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "show_text", "Welcome."));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "change_switch", "door_open=true"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "change_variable", "rank+=2"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "change_self_switch", "A=true"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "change_gold", "+50"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "change_item", "potion:+3"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "move_route", "right,down"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "call_common_event", "common_unlock"));
+    REQUIRE(workspace.AddPerspectiveEventPageConditionalBranch("ev_runtime", "main", "switch", "door_open", "equals", "true"));
+    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_runtime", "main", 8, true, "transfer_player", "castle:2,7"));
+    REQUIRE(workspace.SelectPerspectiveEventPage("ev_runtime", "main"));
+
+    const auto runtime = workspace.ExecutePerspectiveRuntimeEvent("ev_runtime");
+    REQUIRE(runtime.success);
+    REQUIRE(runtime.executed_command_count == 10);
+    REQUIRE(runtime.messages[0] == "Welcome.");
+    REQUIRE(runtime.switches[0].key == "door_open");
+    REQUIRE(runtime.switches[0].value == "true");
+    REQUIRE(runtime.variables[0].key == "rank");
+    REQUIRE(runtime.variables[0].value == "2");
+    REQUIRE(runtime.self_switches[0].key == "ev_runtime:A");
+    REQUIRE(runtime.self_switches[0].value == "true");
+    REQUIRE(runtime.gold == 50);
+    REQUIRE(runtime.inventory[0].key == "potion");
+    REQUIRE(runtime.inventory[0].value == "3");
+    REQUIRE(runtime.common_events[0] == "common_unlock");
+    REQUIRE(runtime.movement_route_steps[0] == "right");
+    REQUIRE(runtime.player_map_id == "castle");
+    REQUIRE(runtime.player_tile_x == 2);
+    REQUIRE(runtime.player_tile_y == 7);
+
+    workspace.Render({0.016f, 36});
+    const auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.last_perspective_2d_runtime.success);
+    REQUIRE(snapshot.perspective_2d_ui.map_canvas_visible);
+    REQUIRE(snapshot.perspective_2d_ui.layer_panel_visible);
+    REQUIRE(snapshot.perspective_2d_ui.tile_palette_visible);
+    REQUIRE(snapshot.perspective_2d_ui.event_page_tabs_visible);
+    REQUIRE(snapshot.perspective_2d_ui.condition_editor_visible);
+    REQUIRE(snapshot.perspective_2d_ui.command_list_visible);
+    REQUIRE(snapshot.perspective_2d_ui.branch_tree_visible);
+    REQUIRE(snapshot.perspective_2d_ui.command_picker_visible);
+    REQUIRE(snapshot.perspective_2d_ui.playtest_controls_visible);
+    REQUIRE(snapshot.perspective_2d_ui.export_controls_visible);
+    REQUIRE(snapshot.perspective_2d_ui.selected_event_id == "ev_runtime");
+    REQUIRE(snapshot.perspective_2d_ui.selected_page_id == "main");
+    REQUIRE(snapshot.perspective_2d_ui.command_picker_options.size() >= 9);
+    REQUIRE(std::find(snapshot.perspective_2d_ui.command_picker_options.begin(),
+                      snapshot.perspective_2d_ui.command_picker_options.end(),
+                      "transfer_player") != snapshot.perspective_2d_ui.command_picker_options.end());
+    REQUIRE(std::find(snapshot.perspective_2d_ui.command_picker_options.begin(),
+                      snapshot.perspective_2d_ui.command_picker_options.end(),
+                      "change_switch") != snapshot.perspective_2d_ui.command_picker_options.end());
+}
+
 TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D edits event pages conditions and commands",
           "[editor][spatial][p2d_depth]") {
     SpatialMapOverlay overlay;

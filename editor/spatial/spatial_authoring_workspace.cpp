@@ -33,10 +33,46 @@ bool containsString(const std::vector<std::string>& values, const std::string& v
     return std::find(values.begin(), values.end(), value) != values.end();
 }
 
+std::string trimCopy(const std::string& value) {
+    const auto first = std::find_if_not(value.begin(), value.end(), [](unsigned char character) {
+        return std::isspace(character) != 0;
+    });
+    const auto last = std::find_if_not(value.rbegin(), value.rend(), [](unsigned char character) {
+        return std::isspace(character) != 0;
+    }).base();
+    if (first >= last) {
+        return {};
+    }
+    return std::string(first, last);
+}
+
+std::vector<std::string> splitString(const std::string& value, char delimiter) {
+    std::vector<std::string> pieces;
+    std::stringstream stream(value);
+    std::string piece;
+    while (std::getline(stream, piece, delimiter)) {
+        const std::string trimmed = trimCopy(piece);
+        if (!trimmed.empty()) {
+            pieces.push_back(trimmed);
+        }
+    }
+    return pieces;
+}
+
 bool parseDouble(const std::string& value, double& out_value) {
     char* end = nullptr;
     out_value = std::strtod(value.c_str(), &end);
     return end != value.c_str() && end != nullptr && *end == '\0';
+}
+
+bool parseInt(const std::string& value, int& out_value) {
+    char* end = nullptr;
+    const long parsed = std::strtol(value.c_str(), &end, 10);
+    if (end == value.c_str() || end == nullptr || *end != '\0') {
+        return false;
+    }
+    out_value = static_cast<int>(parsed);
+    return true;
 }
 
 bool conditionValueMatches(const std::string& actual_value,
@@ -2212,6 +2248,325 @@ SpatialAuthoringWorkspace::PreviewPerspectiveEventExecution(const std::string& e
     return last_perspective_event_execution_result_;
 }
 
+SpatialAuthoringWorkspace::Perspective2DRuntimeResult
+SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& event_id) {
+    Perspective2DRuntimeResult result;
+    result.map_id = m_target_overlay != nullptr ? m_target_overlay->mapId : std::string{};
+    result.event_id = event_id;
+    result.switches = perspective_runtime_switches_;
+    result.variables = perspective_runtime_variables_;
+    result.self_switches = perspective_runtime_self_switches_;
+    result.inventory = perspective_runtime_inventory_;
+    result.gold = perspective_runtime_gold_;
+    result.player_map_id =
+        perspective_runtime_player_map_id_.empty() ? result.map_id : perspective_runtime_player_map_id_;
+    result.player_tile_x = perspective_runtime_player_tile_x_;
+    result.player_tile_y = perspective_runtime_player_tile_y_;
+    result.blocker_codes = validatePerspectiveMapForPlaytest();
+
+    const auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                                    [&](const PerspectiveEvent& candidate) {
+                                        return candidate.event_id == event_id;
+                                    });
+    if (event == perspective_events_.end()) {
+        result.blocker_codes.push_back("p2d_event_missing");
+    }
+    if (!result.blocker_codes.empty()) {
+        result.message = "Perspective 2D runtime event execution is blocked.";
+        last_perspective_runtime_result_ = result;
+        captureRenderSnapshot();
+        return last_perspective_runtime_result_;
+    }
+
+    const auto set_state_entry = [](std::vector<Perspective2DStateEntry>& entries,
+                                    const std::string& key,
+                                    const std::string& value) {
+        const auto found = std::find_if(entries.begin(), entries.end(), [&](const Perspective2DStateEntry& entry) {
+            return entry.key == key;
+        });
+        if (found != entries.end()) {
+            found->value = value;
+        } else {
+            entries.push_back({key, value});
+        }
+    };
+    const auto find_state_entry = [](const std::vector<Perspective2DStateEntry>& entries,
+                                     const std::string& key,
+                                     std::string& out_value) {
+        const auto found = std::find_if(entries.begin(), entries.end(), [&](const Perspective2DStateEntry& entry) {
+            return entry.key == key;
+        });
+        if (found == entries.end()) {
+            return false;
+        }
+        out_value = found->value;
+        return true;
+    };
+    const auto sync_condition_value = [&](const std::string& type,
+                                          const std::string& key,
+                                          const std::string& value) {
+        const auto found = std::find_if(perspective_event_condition_values_.begin(),
+                                        perspective_event_condition_values_.end(),
+                                        [&](const PerspectiveEventConditionValue& condition_value) {
+                                            return condition_value.type == type && condition_value.key == key;
+                                        });
+        if (found != perspective_event_condition_values_.end()) {
+            found->value = value;
+        } else {
+            perspective_event_condition_values_.push_back({type, key, value});
+        }
+    };
+    const auto condition_state_value = [&](const std::string& type,
+                                           const std::string& key,
+                                           std::string& out_value) {
+        const std::string self_switch_key =
+            type == "self_switch" && key.find(':') == std::string::npos ? event->event_id + ":" + key : key;
+        if (type == "switch" && find_state_entry(result.switches, key, out_value)) {
+            return true;
+        }
+        if (type == "variable" && find_state_entry(result.variables, key, out_value)) {
+            return true;
+        }
+        if (type == "self_switch" && find_state_entry(result.self_switches, self_switch_key, out_value)) {
+            return true;
+        }
+        const auto found = std::find_if(perspective_event_condition_values_.begin(),
+                                        perspective_event_condition_values_.end(),
+                                        [&](const PerspectiveEventConditionValue& condition_value) {
+                                            return condition_value.type == type &&
+                                                   (condition_value.key == key ||
+                                                    condition_value.key == self_switch_key);
+                                        });
+        if (found == perspective_event_condition_values_.end()) {
+            return false;
+        }
+        out_value = found->value;
+        return true;
+    };
+    const auto page_condition_matches = [&](const PerspectiveEvent::Condition& condition) {
+        std::string actual_value;
+        return condition_state_value(condition.type, condition.key, actual_value) &&
+               conditionValueMatches(actual_value, condition.comparison, condition.value);
+    };
+    const auto page_matches = [&](const PerspectiveEvent::Page& page) {
+        return std::all_of(page.conditions.begin(), page.conditions.end(), page_condition_matches);
+    };
+
+    const PerspectiveEvent::Page* active_page = nullptr;
+    for (const auto& page : event->pages) {
+        if (page_matches(page)) {
+            active_page = &page;
+        }
+    }
+    if (active_page == nullptr && !event->pages.empty()) {
+        active_page = &event->pages.front();
+    }
+    if (active_page != nullptr) {
+        result.active_page_id = active_page->page_id;
+        result.trigger_id = active_page->trigger_id;
+    } else {
+        result.trigger_id = event->trigger_id;
+    }
+    if (result.player_map_id.empty()) {
+        result.player_map_id = result.map_id;
+    }
+    if (result.player_tile_x == 0 && result.player_tile_y == 0) {
+        result.player_tile_x = event->tile_x;
+        result.player_tile_y = event->tile_y;
+    }
+
+    const std::function<void(const std::vector<PerspectiveEvent::Command>&, const std::string&)>
+        execute_commands = [&](const std::vector<PerspectiveEvent::Command>& commands,
+                               const std::string& branch_path) {
+            for (const auto& command : commands) {
+                Perspective2DEventExecutionStep step;
+                step.code = command.code;
+                step.argument = command.argument;
+                step.branch_path = branch_path;
+                step.condition_type = command.condition_type;
+                step.condition_key = command.condition_key;
+                step.condition_comparison = command.condition_comparison;
+                step.condition_value = command.condition_value;
+
+                if (command.code == "conditional_branch") {
+                    std::string actual_value;
+                    step.condition_matched =
+                        condition_state_value(command.condition_type, command.condition_key, actual_value) &&
+                        conditionValueMatches(actual_value, command.condition_comparison, command.condition_value);
+                    result.executed_commands.push_back(std::move(step));
+                    const bool matched = result.executed_commands.back().condition_matched;
+                    const std::string child_path = branch_path == "root"
+                                                       ? (matched ? "true" : "false")
+                                                       : branch_path + (matched ? ".true" : ".false");
+                    execute_commands(matched ? command.true_commands : command.false_commands, child_path);
+                    continue;
+                }
+
+                result.executed_commands.push_back(std::move(step));
+                const std::string argument = trimCopy(command.argument);
+                if (command.code == "show_text") {
+                    result.messages.push_back(argument);
+                } else if (command.code == "transfer_player") {
+                    const auto map_split = argument.find(':');
+                    const auto comma_split = argument.find(',', map_split == std::string::npos ? 0 : map_split + 1);
+                    int tile_x = result.player_tile_x;
+                    int tile_y = result.player_tile_y;
+                    if (map_split != std::string::npos && comma_split != std::string::npos &&
+                        parseInt(trimCopy(argument.substr(map_split + 1, comma_split - map_split - 1)), tile_x) &&
+                        parseInt(trimCopy(argument.substr(comma_split + 1)), tile_y)) {
+                        result.player_map_id = trimCopy(argument.substr(0, map_split));
+                        result.player_tile_x = tile_x;
+                        result.player_tile_y = tile_y;
+                    }
+                } else if (command.code == "change_switch") {
+                    const auto equals = argument.find('=');
+                    if (equals != std::string::npos) {
+                        const std::string key = trimCopy(argument.substr(0, equals));
+                        const std::string value = trimCopy(argument.substr(equals + 1));
+                        set_state_entry(result.switches, key, value);
+                        sync_condition_value("switch", key, value);
+                    }
+                } else if (command.code == "change_variable") {
+                    std::string key;
+                    std::string op;
+                    std::string value_text;
+                    size_t op_pos = argument.find("+=");
+                    if (op_pos != std::string::npos) {
+                        op = "+=";
+                    } else {
+                        op_pos = argument.find("-=");
+                        if (op_pos != std::string::npos) {
+                            op = "-=";
+                        } else {
+                            op_pos = argument.find('=');
+                            if (op_pos != std::string::npos) {
+                                op = "=";
+                            }
+                        }
+                    }
+                    if (!op.empty()) {
+                        key = trimCopy(argument.substr(0, op_pos));
+                        value_text = trimCopy(argument.substr(op_pos + op.size()));
+                        int delta = 0;
+                        if (parseInt(value_text, delta)) {
+                            int current = 0;
+                            std::string current_text;
+                            if (find_state_entry(result.variables, key, current_text)) {
+                                parseInt(current_text, current);
+                            }
+                            const int next_value = op == "+=" ? current + delta : (op == "-=" ? current - delta : delta);
+                            const std::string serialized_value = std::to_string(next_value);
+                            set_state_entry(result.variables, key, serialized_value);
+                            sync_condition_value("variable", key, serialized_value);
+                        }
+                    }
+                } else if (command.code == "change_self_switch") {
+                    const auto equals = argument.find('=');
+                    if (equals != std::string::npos) {
+                        const std::string key = event->event_id + ":" + trimCopy(argument.substr(0, equals));
+                        const std::string value = trimCopy(argument.substr(equals + 1));
+                        set_state_entry(result.self_switches, key, value);
+                        sync_condition_value("self_switch", key, value);
+                    }
+                } else if (command.code == "change_gold") {
+                    int amount = 0;
+                    if (parseInt(argument, amount)) {
+                        result.gold = std::max(0, result.gold + amount);
+                    }
+                } else if (command.code == "change_item") {
+                    const auto separator = argument.find(':');
+                    if (separator != std::string::npos) {
+                        const std::string key = trimCopy(argument.substr(0, separator));
+                        int delta = 0;
+                        if (parseInt(trimCopy(argument.substr(separator + 1)), delta)) {
+                            int current = 0;
+                            std::string current_text;
+                            if (find_state_entry(result.inventory, key, current_text)) {
+                                parseInt(current_text, current);
+                            }
+                            set_state_entry(result.inventory, key, std::to_string(std::max(0, current + delta)));
+                        }
+                    }
+                } else if (command.code == "move_route") {
+                    for (const auto& route_step : splitString(argument, ',')) {
+                        result.movement_route_steps.push_back(route_step);
+                        const std::string normalized = lowerCopy(route_step);
+                        if (normalized == "left") {
+                            --result.player_tile_x;
+                        } else if (normalized == "right") {
+                            ++result.player_tile_x;
+                        } else if (normalized == "up") {
+                            --result.player_tile_y;
+                        } else if (normalized == "down") {
+                            ++result.player_tile_y;
+                        }
+                    }
+                } else if (command.code == "call_common_event") {
+                    result.common_events.push_back(argument);
+                }
+            }
+        };
+
+    execute_commands(active_page != nullptr ? active_page->commands : event->commands, "root");
+    result.executed_command_count = result.executed_commands.size();
+    result.success = true;
+    result.message = "Perspective 2D runtime event executed.";
+
+    perspective_runtime_switches_ = result.switches;
+    perspective_runtime_variables_ = result.variables;
+    perspective_runtime_self_switches_ = result.self_switches;
+    perspective_runtime_inventory_ = result.inventory;
+    perspective_runtime_gold_ = result.gold;
+    perspective_runtime_player_map_id_ = result.player_map_id;
+    perspective_runtime_player_tile_x_ = result.player_tile_x;
+    perspective_runtime_player_tile_y_ = result.player_tile_y;
+
+    nlohmann::json runtime_json;
+    runtime_json["document_kind"] = "urpg.perspective_2d.runtime_state";
+    runtime_json["version"] = 1;
+    runtime_json["map_id"] = result.map_id;
+    runtime_json["event_id"] = result.event_id;
+    runtime_json["active_page_id"] = result.active_page_id;
+    runtime_json["trigger_id"] = result.trigger_id;
+    runtime_json["messages"] = result.messages;
+    runtime_json["movement_route_steps"] = result.movement_route_steps;
+    runtime_json["common_events"] = result.common_events;
+    runtime_json["gold"] = result.gold;
+    runtime_json["player"] = {{"map_id", result.player_map_id},
+                              {"tile_x", result.player_tile_x},
+                              {"tile_y", result.player_tile_y}};
+    const auto append_entries = [](const std::vector<Perspective2DStateEntry>& entries) {
+        nlohmann::json json = nlohmann::json::array();
+        for (const auto& entry : entries) {
+            json.push_back({{"key", entry.key}, {"value", entry.value}});
+        }
+        return json;
+    };
+    runtime_json["switches"] = append_entries(result.switches);
+    runtime_json["variables"] = append_entries(result.variables);
+    runtime_json["self_switches"] = append_entries(result.self_switches);
+    runtime_json["inventory"] = append_entries(result.inventory);
+    runtime_json["executed_commands"] = nlohmann::json::array();
+    for (const auto& step : result.executed_commands) {
+        nlohmann::json step_json = {{"code", step.code},
+                                    {"argument", step.argument},
+                                    {"branch_path", step.branch_path}};
+        if (step.code == "conditional_branch") {
+            step_json["condition"] = {{"type", step.condition_type},
+                                      {"key", step.condition_key},
+                                      {"comparison", step.condition_comparison},
+                                      {"value", step.condition_value},
+                                      {"matched", step.condition_matched}};
+        }
+        runtime_json["executed_commands"].push_back(std::move(step_json));
+    }
+    result.serialized_runtime_state_json = runtime_json.dump(2);
+
+    last_perspective_runtime_result_ = result;
+    captureRenderSnapshot();
+    return last_perspective_runtime_result_;
+}
+
 SpatialAuthoringWorkspace::Perspective2DReleaseAssetGateResult
 SpatialAuthoringWorkspace::RecordPerspectiveReleaseAssetGate(size_t release_required_asset_count,
                                                              size_t verified_release_required_asset_count,
@@ -2422,6 +2777,73 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
             layer != perspective_layers_.end() && layer->visible && !layer->locked;
         last_render_snapshot_.perspective_2d_events.push_back(std::move(event_snapshot));
     }
+    last_render_snapshot_.perspective_2d_ui.map_canvas_visible =
+        last_render_snapshot_.visible && last_render_snapshot_.has_target_scene && last_render_snapshot_.has_target_overlay;
+    last_render_snapshot_.perspective_2d_ui.layer_panel_visible = last_render_snapshot_.has_target_overlay;
+    last_render_snapshot_.perspective_2d_ui.tile_palette_visible = last_render_snapshot_.has_target_overlay;
+    last_render_snapshot_.perspective_2d_ui.event_page_tabs_visible = !perspective_events_.empty();
+    last_render_snapshot_.perspective_2d_ui.condition_editor_visible = !perspective_events_.empty();
+    last_render_snapshot_.perspective_2d_ui.command_list_visible = !perspective_events_.empty();
+    last_render_snapshot_.perspective_2d_ui.command_picker_visible = last_render_snapshot_.has_target_overlay;
+    last_render_snapshot_.perspective_2d_ui.playtest_controls_visible = last_render_snapshot_.has_target_overlay;
+    last_render_snapshot_.perspective_2d_ui.export_controls_visible = last_render_snapshot_.has_target_overlay;
+    last_render_snapshot_.perspective_2d_ui.visible_layer_count = static_cast<size_t>(std::count_if(
+        perspective_layers_.begin(), perspective_layers_.end(), [](const PerspectiveLayer& layer) {
+            return layer.visible;
+        }));
+    last_render_snapshot_.perspective_2d_ui.visible_event_count = static_cast<size_t>(std::count_if(
+        last_render_snapshot_.perspective_2d_events.begin(),
+        last_render_snapshot_.perspective_2d_events.end(),
+        [](const Perspective2DEventSnapshot& event) {
+            return event.visible_in_playtest;
+        }));
+    last_render_snapshot_.perspective_2d_ui.command_picker_options = {
+        "show_text",
+        "transfer_player",
+        "change_switch",
+        "change_variable",
+        "change_self_switch",
+        "change_gold",
+        "change_item",
+        "move_route",
+        "call_common_event",
+        "conditional_branch",
+    };
+    const auto has_branch_command = [&](const auto& self, const std::vector<PerspectiveEvent::Command>& commands) -> bool {
+        return std::any_of(commands.begin(), commands.end(), [&](const PerspectiveEvent::Command& command) {
+            return command.code == "conditional_branch" || self(self, command.true_commands) ||
+                   self(self, command.false_commands);
+        });
+    };
+    if (!perspective_events_.empty()) {
+        const PerspectiveEvent& selected_event = perspective_events_.front();
+        last_render_snapshot_.perspective_2d_ui.selected_event_id = selected_event.event_id;
+        const PerspectiveEvent::Page* selected_page = nullptr;
+        if (!selected_event.selected_page_id.empty()) {
+            const auto found = std::find_if(selected_event.pages.begin(),
+                                            selected_event.pages.end(),
+                                            [&](const PerspectiveEvent::Page& page) {
+                                                return page.page_id == selected_event.selected_page_id;
+                                            });
+            if (found != selected_event.pages.end()) {
+                selected_page = &(*found);
+            }
+        }
+        if (selected_page == nullptr && !selected_event.pages.empty()) {
+            selected_page = &selected_event.pages.front();
+        }
+        if (selected_page != nullptr) {
+            last_render_snapshot_.perspective_2d_ui.selected_page_id = selected_page->page_id;
+            last_render_snapshot_.perspective_2d_ui.page_tab_count = selected_event.pages.size();
+            last_render_snapshot_.perspective_2d_ui.command_row_count = selected_page->commands.size();
+            last_render_snapshot_.perspective_2d_ui.branch_tree_visible =
+                has_branch_command(has_branch_command, selected_page->commands);
+        } else {
+            last_render_snapshot_.perspective_2d_ui.command_row_count = selected_event.commands.size();
+            last_render_snapshot_.perspective_2d_ui.branch_tree_visible =
+                has_branch_command(has_branch_command, selected_event.commands);
+        }
+    }
     last_render_snapshot_.perspective_2d_project.map_id =
         m_target_overlay != nullptr ? m_target_overlay->mapId : std::string{};
     last_render_snapshot_.perspective_2d_project.width =
@@ -2487,6 +2909,7 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     last_render_snapshot_.last_perspective_2d_playtest = last_perspective_playtest_result_;
     last_render_snapshot_.last_perspective_2d_export = last_perspective_export_result_;
     last_render_snapshot_.last_perspective_2d_event_execution = last_perspective_event_execution_result_;
+    last_render_snapshot_.last_perspective_2d_runtime = last_perspective_runtime_result_;
     last_render_snapshot_.last_perspective_2d_release_asset_gate = last_perspective_release_asset_gate_result_;
     last_render_snapshot_.toolbar.active_mode = modeName(active_mode_);
     last_render_snapshot_.toolbar.selected_trigger_id = last_render_snapshot_.canvas.selection.trigger_id;

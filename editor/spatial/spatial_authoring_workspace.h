@@ -261,6 +261,36 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::vector<std::string> blocker_codes;
     };
 
+    struct Perspective2DStateEntry {
+        std::string key;
+        std::string value;
+    };
+
+    struct Perspective2DRuntimeResult {
+        bool success = false;
+        std::string command_id = "execute_perspective_2d_runtime_event";
+        std::string message = "Perspective 2D runtime event has not run.";
+        std::string map_id;
+        std::string event_id;
+        std::string active_page_id;
+        std::string trigger_id;
+        size_t executed_command_count = 0;
+        std::vector<Perspective2DEventExecutionStep> executed_commands;
+        std::vector<std::string> messages;
+        std::vector<Perspective2DStateEntry> switches;
+        std::vector<Perspective2DStateEntry> variables;
+        std::vector<Perspective2DStateEntry> self_switches;
+        std::vector<Perspective2DStateEntry> inventory;
+        std::vector<std::string> movement_route_steps;
+        std::vector<std::string> common_events;
+        int gold = 0;
+        std::string player_map_id;
+        int32_t player_tile_x = 0;
+        int32_t player_tile_y = 0;
+        std::string serialized_runtime_state_json;
+        std::vector<std::string> blocker_codes;
+    };
+
     struct Perspective2DReleaseAssetGateResult {
         bool success = false;
         std::string command_id = "gate_perspective_2d_release_assets";
@@ -271,6 +301,26 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         size_t optional_lfs_asset_count = 0;
         size_t optional_lfs_deferred_count = 0;
         std::vector<std::string> blocker_codes;
+    };
+
+    struct Perspective2DModelUiSnapshot {
+        bool map_canvas_visible = false;
+        bool layer_panel_visible = false;
+        bool tile_palette_visible = false;
+        bool event_page_tabs_visible = false;
+        bool condition_editor_visible = false;
+        bool command_list_visible = false;
+        bool branch_tree_visible = false;
+        bool command_picker_visible = false;
+        bool playtest_controls_visible = false;
+        bool export_controls_visible = false;
+        std::string selected_event_id;
+        std::string selected_page_id;
+        size_t visible_layer_count = 0;
+        size_t visible_event_count = 0;
+        size_t page_tab_count = 0;
+        size_t command_row_count = 0;
+        std::vector<std::string> command_picker_options;
     };
 
     struct RenderSnapshot {
@@ -301,7 +351,9 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         Perspective2DPlaytestResult last_perspective_2d_playtest;
         Perspective2DExportResult last_perspective_2d_export;
         Perspective2DEventExecutionResult last_perspective_2d_event_execution;
+        Perspective2DRuntimeResult last_perspective_2d_runtime;
         Perspective2DReleaseAssetGateResult last_perspective_2d_release_asset_gate;
+        Perspective2DModelUiSnapshot perspective_2d_ui;
     };
 
     SpatialAuthoringWorkspace() : EditorPanel("Perspective 2D Map Editor") {}
@@ -426,6 +478,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     Perspective2DPlaytestResult RunPerspectiveMapPlaytest();
     Perspective2DExportResult ExportPerspectiveMap();
     Perspective2DEventExecutionResult PreviewPerspectiveEventExecution(const std::string& event_id);
+    Perspective2DRuntimeResult ExecutePerspectiveRuntimeEvent(const std::string& event_id);
     Perspective2DReleaseAssetGateResult RecordPerspectiveReleaseAssetGate(
         size_t release_required_asset_count,
         size_t verified_release_required_asset_count,
@@ -563,7 +616,16 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     Perspective2DPlaytestResult last_perspective_playtest_result_;
     Perspective2DExportResult last_perspective_export_result_;
     Perspective2DEventExecutionResult last_perspective_event_execution_result_;
+    Perspective2DRuntimeResult last_perspective_runtime_result_;
     Perspective2DReleaseAssetGateResult last_perspective_release_asset_gate_result_;
+    std::vector<Perspective2DStateEntry> perspective_runtime_switches_;
+    std::vector<Perspective2DStateEntry> perspective_runtime_variables_;
+    std::vector<Perspective2DStateEntry> perspective_runtime_self_switches_;
+    std::vector<Perspective2DStateEntry> perspective_runtime_inventory_;
+    int perspective_runtime_gold_ = 0;
+    std::string perspective_runtime_player_map_id_;
+    int32_t perspective_runtime_player_tile_x_ = 0;
+    int32_t perspective_runtime_player_tile_y_ = 0;
     RenderSnapshot last_render_snapshot_;
 };
 
