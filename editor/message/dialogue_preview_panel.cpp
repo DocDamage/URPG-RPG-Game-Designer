@@ -5,6 +5,17 @@
 #include <utility>
 
 namespace urpg::editor {
+namespace {
+
+urpg::wysiwyg::PreviewTraceRow makeTraceRow(const std::string& command, const std::string& source_id) {
+    const auto separator = command.find(':');
+    if (separator == std::string::npos) {
+        return {command, source_id, command};
+    }
+    return {command.substr(0, separator), source_id, command.substr(separator + 1)};
+}
+
+} // namespace
 
 void DialoguePreviewPanel::loadDocument(urpg::message::DialoguePreviewDocument document,
                                         urpg::localization::LocaleCatalog locale_catalog) {
@@ -95,6 +106,46 @@ void DialoguePreviewPanel::refreshPreview() {
     snapshot_.saved_project_json = document_.toJson().dump();
     snapshot_.status_message =
         snapshot_.diagnostic_count == 0 ? "Dialogue preview is ready." : "Dialogue preview has diagnostics.";
+
+    preview_session_ = {};
+    preview_session_.route_id = "message/dialogue_preview";
+    preview_session_.surface_id = "dialogue_preview";
+    preview_session_.source_id = document_.id;
+    preview_session_.mode =
+        preview_.runtime_commands.empty() ? urpg::wysiwyg::PreviewMode::EditorOnly
+                                          : urpg::wysiwyg::PreviewMode::RuntimeBacked;
+    for (const auto& command : preview_.runtime_commands) {
+        preview_session_.runtime_trace_rows.push_back(makeTraceRow(command, preview_.page_id));
+    }
+    preview_session_.summary_rows.push_back({"page", preview_.page_id, preview_.body});
+    preview_session_.summary_rows.push_back({"speaker", preview_.page_id, preview_.speaker});
+    preview_session_.summary_rows.push_back({"choices", preview_.page_id, snapshot_.choice_state_summary});
+    if (!preview_.next_page_id.empty()) {
+        preview_session_.summary_rows.push_back({"next_page", preview_.page_id, preview_.next_page_id});
+    }
+    for (const auto& diagnostic : preview_.diagnostics) {
+        preview_session_.diagnostics.push_back(
+            {diagnostic.code, diagnostic.message, diagnostic.page_id.empty() ? diagnostic.target : diagnostic.page_id, true});
+    }
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::SavedData,
+                                         !document_.id.empty(),
+                                         document_.id.empty() ? "Dialogue preview document id is missing."
+                                                              : "Dialogue preview document is saved."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::LivePreview,
+                                         !preview_.page_id.empty(),
+                                         preview_.page_id.empty() ? "No dialogue page was projected."
+                                                                  : "Dialogue page was projected."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::RuntimeExecution,
+                                         !preview_.runtime_commands.empty(),
+                                         std::to_string(preview_.runtime_commands.size()) + " runtime command rows."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::Diagnostics,
+                                         preview_.diagnostics.empty(),
+                                         preview_.diagnostics.empty() ? "No dialogue preview blockers."
+                                                                      : "Dialogue preview diagnostics are present."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::Tests,
+                                         true,
+                                         "Covered by PreviewSession and dialogue preview tests."});
+    preview_session_.recomputeConfidence();
 }
 
 } // namespace urpg::editor

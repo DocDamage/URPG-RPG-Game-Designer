@@ -6,6 +6,8 @@ Use the narrowest command that covers the changed surface. If a release plan spe
 
 Use anchored label presets for common lanes. Raw `ctest -L pr` is regex-based and also matches labels such as `presentation`; prefer `ctest --preset dev-pr`.
 
+On Windows, configure the default Ninja debug tree with `.\tools\ci\configure_dev_ninja_debug.ps1`. It detects stale CMake caches where standalone Clang or Clang-only debug flags leaked into the GCC preset and runs a fresh preset configure before builds.
+
 ## Command Map
 
 | Change Area | Command |

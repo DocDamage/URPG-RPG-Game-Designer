@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/message/dialogue_preview.h"
+#include "engine/core/wysiwyg/preview_session.h"
 
 #include <string>
 
@@ -48,6 +49,7 @@ public:
 
     const DialoguePreviewPanelSnapshot& snapshot() const { return snapshot_; }
     const urpg::message::DialoguePreviewResult& preview() const { return preview_; }
+    const urpg::wysiwyg::WysiwygPreviewSession& previewSession() const { return preview_session_; }
     bool hasRenderedFrame() const { return snapshot_.rendered; }
 
 private:
@@ -56,6 +58,7 @@ private:
     urpg::message::DialoguePreviewDocument document_;
     urpg::localization::LocaleCatalog locale_catalog_;
     urpg::message::DialoguePreviewResult preview_;
+    urpg::wysiwyg::WysiwygPreviewSession preview_session_;
     DialoguePreviewPanelSnapshot snapshot_{};
     std::string selected_page_id_;
     urpg::message::DialoguePreviewInteraction interaction_;

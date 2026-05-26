@@ -154,7 +154,7 @@ This branch completes the governed `FRL-01` scope by adding native imported/plug
 Verification:
 
 ```powershell
-ctest --preset dev-all -R "BattleRuleResolver|battle presentation|Compat fixture import: battle feedback" --output-on-failure
+ctest --preset dev-all -R "BattleRuleResolver|battle presentation|BattleRuleResolver imports broader battle feedback fixture shapes" --output-on-failure
 python tools\ci\check_feature_robustness_lanes.py
 ```
 

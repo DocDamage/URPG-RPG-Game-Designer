@@ -8,6 +8,59 @@ endif()
 include(CheckCXXSourceCompiles)
 include(GNUInstallDirs)
 
+function(urpg_remove_flag_with_optional_value out_var value flag)
+    separate_arguments(_urpg_flags NATIVE_COMMAND "${value}")
+    set(_urpg_filtered_flags)
+    set(_urpg_skip_next OFF)
+    foreach(_urpg_flag IN LISTS _urpg_flags)
+        if(_urpg_skip_next)
+            set(_urpg_skip_next OFF)
+            continue()
+        endif()
+        if(_urpg_flag STREQUAL "${flag}")
+            set(_urpg_skip_next ON)
+            continue()
+        endif()
+        list(APPEND _urpg_filtered_flags "${_urpg_flag}")
+    endforeach()
+    string(JOIN " " _urpg_filtered_value ${_urpg_filtered_flags})
+    set(${out_var} "${_urpg_filtered_value}" PARENT_SCOPE)
+endfunction()
+
+function(urpg_remove_exact_flag out_var value flag)
+    separate_arguments(_urpg_flags NATIVE_COMMAND "${value}")
+    list(REMOVE_ITEM _urpg_flags "${flag}")
+    string(JOIN " " _urpg_filtered_value ${_urpg_flags})
+    set(${out_var} "${_urpg_filtered_value}" PARENT_SCOPE)
+endfunction()
+
+function(urpg_sanitize_cached_gnu_flags)
+    if(NOT CMAKE_C_COMPILER_ID STREQUAL "GNU" AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        return()
+    endif()
+
+    foreach(_urpg_flag_var
+            CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_C_FLAGS_MINSIZEREL
+            CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO CMAKE_CXX_FLAGS_MINSIZEREL)
+        if(NOT DEFINED ${_urpg_flag_var})
+            continue()
+        endif()
+        set(_urpg_original_flags "${${_urpg_flag_var}}")
+        set(_urpg_cleaned_flags "${_urpg_original_flags}")
+        urpg_remove_flag_with_optional_value(_urpg_cleaned_flags "${_urpg_cleaned_flags}" "-Xclang")
+        urpg_remove_exact_flag(_urpg_cleaned_flags "${_urpg_cleaned_flags}" "-gcodeview")
+        if(NOT _urpg_cleaned_flags STREQUAL _urpg_original_flags)
+            set(${_urpg_flag_var} "${_urpg_cleaned_flags}" CACHE STRING
+                "Sanitized ${_urpg_flag_var}; removed Clang-only flags from a GNU configure." FORCE)
+            message(STATUS
+                "URPG: removed Clang-only cached flags from ${_urpg_flag_var} for GNU compiler: "
+                "'${_urpg_original_flags}' -> '${_urpg_cleaned_flags}'")
+        endif()
+    endforeach()
+endfunction()
+
+urpg_sanitize_cached_gnu_flags()
+
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/urpg_version.h.in"
     "${CMAKE_CURRENT_BINARY_DIR}/generated/urpg_version.h"
@@ -1423,6 +1476,7 @@ add_executable(urpg_tests
     tests/unit/test_save_policy_governance.cpp
     tests/unit/test_message_inspector_model.cpp
     tests/unit/test_message_inspector_panel.cpp
+    tests/unit/test_wysiwyg_preview_session.cpp
     tests/unit/test_menu_inspector_panel.cpp
     tests/unit/test_menu_inspector_model.cpp
     tests/unit/test_menu_preview_panel.cpp

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/events/event_command_graph.h"
+#include "engine/core/wysiwyg/preview_session.h"
 
 #include <string>
 
@@ -45,6 +46,7 @@ public:
     const EventCommandGraphPanelSnapshot& snapshot() const { return snapshot_; }
     const urpg::events::EventCommandGraphRuntimeResult& runtimePreview() const { return runtime_preview_; }
     const urpg::events::EventDocument& runtimeDocument() const { return runtime_document_; }
+    const urpg::wysiwyg::WysiwygPreviewSession& previewSession() const { return preview_session_; }
     bool hasRenderedFrame() const { return snapshot_.rendered; }
 
 private:
@@ -54,6 +56,7 @@ private:
     urpg::events::EventWorldState initial_state_;
     urpg::events::EventCommandGraphRuntimeResult runtime_preview_;
     urpg::events::EventDocument runtime_document_;
+    urpg::wysiwyg::WysiwygPreviewSession preview_session_;
     EventCommandGraphPanelSnapshot snapshot_{};
     bool loaded_ = false;
 };
