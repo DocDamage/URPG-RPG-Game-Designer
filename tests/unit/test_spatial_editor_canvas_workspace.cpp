@@ -1661,6 +1661,198 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D executes live eve
                       "change_switch") != snapshot.perspective_2d_ui.command_picker_options.end());
 }
 
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D exposes RPG Maker-grade tile metadata",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_tile_metadata";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_tile_metadata", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    std::vector<SpatialAuthoringWorkspace::Perspective2DTilesetPage> pages;
+    for (char page = 'A'; page <= 'Z'; ++page) {
+        const std::string page_id(1, page);
+        pages.push_back({page_id,
+                         "Page " + page_id,
+                         "asset.tiles.page_" + page_id,
+                         "content/tiles/page_" + page_id + ".png",
+                         16,
+                         16,
+                         48,
+                         48});
+    }
+    REQUIRE(workspace.SetPerspectiveTilesetPages(pages));
+
+    SpatialAuthoringWorkspace::Perspective2DTileDefinition water_tile;
+    water_tile.tileset_id = "overworld";
+    water_tile.tile_id = "water_edge";
+    water_tile.page_id = "A";
+    water_tile.autotile = true;
+    water_tile.autotile_kind = "water";
+    water_tile.animated = true;
+    water_tile.animation_frame_tile_ids = {"water_edge_0", "water_edge_1", "water_edge_2"};
+    water_tile.animation_frame_ms = 180;
+    water_tile.passable_down = false;
+    water_tile.passable_left = true;
+    water_tile.passable_right = true;
+    water_tile.passable_up = false;
+    water_tile.collision = true;
+    water_tile.terrain_tag = 3;
+    water_tile.region_id = 7;
+    water_tile.priority = 5;
+    water_tile.star_passability = true;
+    water_tile.preview_path = "content/tiles/water_edge.preview.png";
+    REQUIRE(workspace.SetPerspectiveTileDefinition(water_tile));
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    workspace.SetPerspectiveTilePaletteOptions({
+        {"water", "Water Edge", "overworld", "water_edge", "asset.overworld.water_edge",
+         "content/tiles/water_edge.png", "water", "content/tiles/water_edge.preview.png"},
+    });
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTilePaletteOption("water"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+
+    const auto preview = workspace.PreviewPerspectiveTileAt(4, 4);
+    REQUIRE(preview.success);
+    REQUIRE(preview.page_id == "A");
+    REQUIRE(preview.autotile);
+    REQUIRE(preview.autotile_kind == "water");
+    REQUIRE(preview.animated);
+    REQUIRE(preview.animation_frame_tile_ids.size() == 3);
+    REQUIRE_FALSE(preview.passable_down);
+    REQUIRE(preview.passable_left);
+    REQUIRE(preview.collision);
+    REQUIRE(preview.terrain_tag == 3);
+    REQUIRE(preview.region_id == 7);
+    REQUIRE(preview.priority == 5);
+    REQUIRE(preview.star_passability);
+    REQUIRE(preview.preview_path == "content/tiles/water_edge.preview.png");
+
+    const auto playtest = workspace.RunPerspectiveMapPlaytest();
+    REQUIRE(playtest.success);
+    const auto manifest = nlohmann::json::parse(playtest.serialized_runtime_manifest_json);
+    REQUIRE(manifest["tileset_pages"].size() == 26);
+    REQUIRE(manifest["tile_definitions"].size() == 1);
+    REQUIRE(manifest["tile_definitions"][0]["page_id"] == "A");
+    REQUIRE(manifest["tile_definitions"][0]["autotile"] == true);
+    REQUIRE(manifest["tile_definitions"][0]["animated"] == true);
+    REQUIRE(manifest["tiles"][0]["metadata"]["region_id"] == 7);
+    REQUIRE(manifest["tiles"][0]["metadata"]["star_passability"] == true);
+
+    workspace.Render({0.016f, 37});
+    const auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_tiles.tile_page_count == 26);
+    REQUIRE(snapshot.perspective_2d_tiles.tile_definition_count == 1);
+    REQUIRE(snapshot.perspective_2d_tiles.autotile_count == 1);
+    REQUIRE(snapshot.perspective_2d_tiles.animated_tile_count == 1);
+    REQUIRE(snapshot.perspective_2d_tiles.collision_tile_count == 1);
+    REQUIRE(snapshot.perspective_2d_tiles.star_passability_tile_count == 1);
+    REQUIRE(snapshot.perspective_2d_tiles.latest_preview.success);
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D connects maps to project database references",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "town";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("town", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.SetPerspectiveProjectDatabaseReferences({
+        {"actor", "hero", "Hero", "", 0, 0},
+        {"item", "potion", "Potion", "", 0, 0},
+        {"switch", "door_open", "Door Open", "", 0, 0},
+        {"variable", "rank", "Rank", "", 0, 0},
+        {"common_event", "common_unlock", "Unlock Door", "", 0, 0},
+        {"map", "town", "Town", "", 0, 0},
+        {"map", "castle", "Castle", "", 0, 0},
+        {"transfer", "town_to_castle", "Town To Castle", "castle", 2, 7},
+        {"encounter", "slime_field", "Slime Field", "town", 4, 4},
+        {"asset", "asset.overworld.grass_a", "Grass A", "", 0, 0},
+    }));
+    REQUIRE(workspace.SetPerspectiveProjectStartingParty({"hero"}));
+    REQUIRE(workspace.SetPerspectiveProjectSaveLoadState(true, "slot_1"));
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    workspace.SetPerspectiveTilePaletteOptions({
+        {"grass_01", "Grass A", "overworld", "grass_a", "asset.overworld.grass_a",
+         "content/tiles/grass_a.png", "field", "content/tiles/grass_a.preview.png"},
+    });
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTilePaletteOption("grass_01"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_db", "Database Event", "confirm_interact", 80.0f, 80.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_db", "main", "Main", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_db", "main", "change_item", "potion:+1"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_db", "main", "change_switch", "door_open=true"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_db", "main", "change_variable", "rank+=1"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_db", "main", "call_common_event", "common_unlock"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_db", "main", "transfer_player", "castle:2,7"));
+
+    const auto integration = workspace.ValidatePerspectiveProjectIntegration();
+    REQUIRE(integration.success);
+    REQUIRE(integration.actor_count == 1);
+    REQUIRE(integration.item_count == 1);
+    REQUIRE(integration.switch_count == 1);
+    REQUIRE(integration.variable_count == 1);
+    REQUIRE(integration.common_event_count == 1);
+    REQUIRE(integration.map_count == 2);
+    REQUIRE(integration.transfer_count == 1);
+    REQUIRE(integration.encounter_count == 1);
+    REQUIRE(integration.asset_count == 1);
+    REQUIRE(integration.starting_party_count == 1);
+    REQUIRE(integration.save_load_enabled);
+    REQUIRE(integration.diagnostics.empty());
+
+    const auto playtest = workspace.RunPerspectiveMapPlaytest();
+    REQUIRE(playtest.success);
+    const auto manifest = nlohmann::json::parse(playtest.serialized_runtime_manifest_json);
+    REQUIRE(manifest["project_database"]["actors"].size() == 1);
+    REQUIRE(manifest["project_database"]["items"].size() == 1);
+    REQUIRE(manifest["project_database"]["switches"].size() == 1);
+    REQUIRE(manifest["project_database"]["variables"].size() == 1);
+    REQUIRE(manifest["project_database"]["common_events"].size() == 1);
+    REQUIRE(manifest["project_database"]["maps"].size() == 2);
+    REQUIRE(manifest["project_database"]["starting_party"][0] == "hero");
+    REQUIRE(manifest["project_database"]["save_load"]["enabled"] == true);
+    REQUIRE(manifest["project_database"]["save_load"]["profile_id"] == "slot_1");
+    REQUIRE(manifest["project_database"]["transfers"][0]["target_map_id"] == "castle");
+    REQUIRE(manifest["project_database"]["encounters"][0]["id"] == "slime_field");
+    REQUIRE(manifest["project_database"]["assets"][0]["id"] == "asset.overworld.grass_a");
+
+    workspace.Render({0.016f, 38});
+    const auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_project_database.ready);
+    REQUIRE(snapshot.perspective_2d_project_database.actor_count == 1);
+    REQUIRE(snapshot.perspective_2d_project_database.map_count == 2);
+    REQUIRE(snapshot.perspective_2d_project_database.save_load_enabled);
+}
+
 TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D edits event pages conditions and commands",
           "[editor][spatial][p2d_depth]") {
     SpatialMapOverlay overlay;

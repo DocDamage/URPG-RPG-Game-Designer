@@ -193,6 +193,108 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string thumbnail_path = "";
     };
 
+    struct Perspective2DTilesetPage {
+        std::string page_id;
+        std::string label;
+        std::string asset_id;
+        std::string project_path;
+        int columns = 0;
+        int rows = 0;
+        int tile_width = 48;
+        int tile_height = 48;
+    };
+
+    struct Perspective2DTileDefinition {
+        std::string tileset_id;
+        std::string tile_id;
+        std::string page_id;
+        bool autotile = false;
+        std::string autotile_kind;
+        bool animated = false;
+        std::vector<std::string> animation_frame_tile_ids;
+        int animation_frame_ms = 0;
+        bool passable_down = true;
+        bool passable_left = true;
+        bool passable_right = true;
+        bool passable_up = true;
+        bool collision = false;
+        int terrain_tag = 0;
+        int region_id = 0;
+        int priority = 0;
+        bool star_passability = false;
+        std::string preview_path;
+    };
+
+    struct Perspective2DTilePreviewResult {
+        bool success = false;
+        std::string command_id = "preview_perspective_2d_tile";
+        std::string message = "Perspective 2D tile preview has not run.";
+        std::string layer_id;
+        std::string tileset_id;
+        std::string tile_id;
+        std::string page_id;
+        int32_t tile_x = 0;
+        int32_t tile_y = 0;
+        bool autotile = false;
+        std::string autotile_kind;
+        bool animated = false;
+        std::vector<std::string> animation_frame_tile_ids;
+        int animation_frame_ms = 0;
+        bool passable_down = true;
+        bool passable_left = true;
+        bool passable_right = true;
+        bool passable_up = true;
+        bool collision = false;
+        int terrain_tag = 0;
+        int region_id = 0;
+        int priority = 0;
+        bool star_passability = false;
+        std::string preview_path;
+        std::vector<std::string> blocker_codes;
+    };
+
+    struct Perspective2DTileSystemSnapshot {
+        size_t tile_page_count = 0;
+        size_t tile_definition_count = 0;
+        size_t autotile_count = 0;
+        size_t animated_tile_count = 0;
+        size_t collision_tile_count = 0;
+        size_t star_passability_tile_count = 0;
+        Perspective2DTilePreviewResult latest_preview;
+    };
+
+    struct Perspective2DProjectReference {
+        std::string kind;
+        std::string id;
+        std::string label;
+        std::string target_map_id;
+        int32_t tile_x = 0;
+        int32_t tile_y = 0;
+    };
+
+    struct Perspective2DProjectIntegrationResult {
+        bool success = false;
+        std::string command_id = "validate_perspective_2d_project_integration";
+        std::string message = "Perspective 2D project integration has not run.";
+        size_t actor_count = 0;
+        size_t item_count = 0;
+        size_t switch_count = 0;
+        size_t variable_count = 0;
+        size_t common_event_count = 0;
+        size_t map_count = 0;
+        size_t transfer_count = 0;
+        size_t encounter_count = 0;
+        size_t asset_count = 0;
+        size_t starting_party_count = 0;
+        bool save_load_enabled = false;
+        std::string save_profile_id;
+        std::vector<std::string> diagnostics;
+    };
+
+    struct Perspective2DProjectDatabaseSnapshot : Perspective2DProjectIntegrationResult {
+        bool ready = false;
+    };
+
     struct Perspective2DPlaytestResult {
         bool success = false;
         std::string command_id = "playtest_perspective_2d_map";
@@ -344,6 +446,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         SpatialAbilityCanvasPanel::RenderSnapshot canvas;
         Perspective2DProjectSnapshot perspective_2d_project;
         Perspective2DPaletteSnapshot perspective_2d_palette;
+        Perspective2DTileSystemSnapshot perspective_2d_tiles;
+        Perspective2DProjectDatabaseSnapshot perspective_2d_project_database;
         std::vector<Perspective2DLayerSnapshot> perspective_2d_layers;
         std::vector<Perspective2DEventSnapshot> perspective_2d_events;
         Perspective2DDraftResult last_perspective_2d_save;
@@ -392,6 +496,9 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                    const std::string& new_label);
     bool ClearPerspectiveLayer(const std::string& layer_id);
     void SetPerspectiveTilePaletteOptions(std::vector<Perspective2DPaletteOption> options);
+    bool SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages);
+    bool SetPerspectiveTileDefinition(Perspective2DTileDefinition definition);
+    Perspective2DTilePreviewResult PreviewPerspectiveTileAt(int32_t tile_x, int32_t tile_y);
     void SetPerspectiveTilePaletteFilter(const std::string& search_text,
                                          const std::string& tileset_id,
                                          const std::string& category_id);
@@ -479,6 +586,10 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     Perspective2DExportResult ExportPerspectiveMap();
     Perspective2DEventExecutionResult PreviewPerspectiveEventExecution(const std::string& event_id);
     Perspective2DRuntimeResult ExecutePerspectiveRuntimeEvent(const std::string& event_id);
+    bool SetPerspectiveProjectDatabaseReferences(std::vector<Perspective2DProjectReference> references);
+    bool SetPerspectiveProjectStartingParty(std::vector<std::string> actor_ids);
+    bool SetPerspectiveProjectSaveLoadState(bool enabled, const std::string& save_profile_id);
+    Perspective2DProjectIntegrationResult ValidatePerspectiveProjectIntegration();
     Perspective2DReleaseAssetGateResult RecordPerspectiveReleaseAssetGate(
         size_t release_required_asset_count,
         size_t verified_release_required_asset_count,
@@ -600,6 +711,12 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     std::vector<PerspectiveEvent> perspective_events_;
     std::vector<PerspectiveEventConditionValue> perspective_event_condition_values_;
     std::vector<Perspective2DPaletteOption> perspective_tile_palette_options_;
+    std::vector<Perspective2DTilesetPage> perspective_tileset_pages_;
+    std::vector<Perspective2DTileDefinition> perspective_tile_definitions_;
+    std::vector<Perspective2DProjectReference> perspective_project_references_;
+    std::vector<std::string> perspective_starting_party_;
+    bool perspective_save_load_enabled_ = false;
+    std::string perspective_save_profile_id_;
     std::string selected_perspective_layer_id_;
     std::vector<std::string> selected_perspective_layer_ids_;
     std::string selected_palette_option_id_;
@@ -617,6 +734,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     Perspective2DExportResult last_perspective_export_result_;
     Perspective2DEventExecutionResult last_perspective_event_execution_result_;
     Perspective2DRuntimeResult last_perspective_runtime_result_;
+    Perspective2DTilePreviewResult last_perspective_tile_preview_result_;
+    Perspective2DProjectIntegrationResult last_perspective_project_integration_result_;
     Perspective2DReleaseAssetGateResult last_perspective_release_asset_gate_result_;
     std::vector<Perspective2DStateEntry> perspective_runtime_switches_;
     std::vector<Perspective2DStateEntry> perspective_runtime_variables_;
