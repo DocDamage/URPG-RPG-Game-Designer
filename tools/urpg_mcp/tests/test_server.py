@@ -371,6 +371,152 @@ class UrpgMcpServerTests(unittest.TestCase):
         self.assertEqual(loaded["p2d"]["events"][0]["id"], "ev_intro")
         self.assertEqual(loaded["p2d"]["events"][0]["map_id"], "Town")
 
+    def test_project_patch_adds_p2d_tilesets_and_tile_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project_path = root / "project.json"
+            project_path.write_text(json.dumps({"name": "Tileset Project"}), encoding="utf-8")
+
+            tileset_result = server.call_tool(
+                "urpg.project_patch",
+                {
+                    "project_path": "project.json",
+                    "patch_kind": "add_p2d_tileset",
+                    "value": "tileset.overworld",
+                    "label": "Overworld",
+                    "asset_id": "asset.tiles.overworld",
+                    "page": "A",
+                    "apply": True,
+                },
+                repo_root=root,
+            )
+            tile_result = server.call_tool(
+                "urpg.project_patch",
+                {
+                    "project_path": "project.json",
+                    "patch_kind": "set_p2d_tile_metadata",
+                    "value": "tile.grass",
+                    "tileset_id": "tileset.overworld",
+                    "page": "A",
+                    "passability": "star",
+                    "collision": "blocked",
+                    "terrain_tag": "field",
+                    "region_id": "7",
+                    "priority": "3",
+                    "animated": True,
+                    "apply": True,
+                },
+                repo_root=root,
+            )
+            loaded = json.loads(project_path.read_text(encoding="utf-8"))
+
+        self.assertTrue(tileset_result["applied"])
+        self.assertTrue(tile_result["applied"])
+        self.assertEqual(
+            loaded["p2d"]["tilesets"],
+            [
+                {
+                    "id": "tileset.overworld",
+                    "name": "Overworld",
+                    "asset_id": "asset.tiles.overworld",
+                    "pages": ["A"],
+                    "tiles": [
+                        {
+                            "id": "tile.grass",
+                            "page": "A",
+                            "passability": "star",
+                            "collision": "blocked",
+                            "terrain_tag": "field",
+                            "region_id": 7,
+                            "priority": 3,
+                            "animated": True,
+                        }
+                    ],
+                }
+            ],
+        )
+
+    def test_project_patch_adds_p2d_event_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project_path = root / "project.json"
+            project_path.write_text(
+                json.dumps(
+                    {
+                        "name": "Event Command Project",
+                        "p2d": {
+                            "events": [
+                                {"id": "ev_intro", "map_id": "Town", "label": "Intro"},
+                            ]
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool(
+                "urpg.project_patch",
+                {
+                    "project_path": "project.json",
+                    "patch_kind": "add_p2d_event_command",
+                    "value": "show_text",
+                    "event_id": "ev_intro",
+                    "text": "Welcome home.",
+                    "apply": True,
+                },
+                repo_root=root,
+            )
+            loaded = json.loads(project_path.read_text(encoding="utf-8"))
+
+        self.assertTrue(result["applied"])
+        self.assertEqual(loaded["p2d"]["events"][0]["commands"], [{"type": "show_text", "text": "Welcome home."}])
+
+    def test_project_patch_rejects_event_command_for_missing_p2d_event(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.json").write_text(json.dumps({"name": "Missing Event Project"}), encoding="utf-8")
+
+            with self.assertRaises(server.ToolError) as context:
+                server.call_tool(
+                    "urpg.project_patch",
+                    {
+                        "project_path": "project.json",
+                        "patch_kind": "add_p2d_event_command",
+                        "value": "show_text",
+                        "event_id": "ev_missing",
+                        "text": "Nope.",
+                        "apply": True,
+                    },
+                    repo_root=root,
+                )
+
+        self.assertEqual(context.exception.code, "p2d_event_missing")
+
+    def test_project_validate_reports_unsupported_p2d_event_command(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.json").write_text(
+                json.dumps(
+                    {
+                        "name": "Invalid Command Project",
+                        "p2d": {
+                            "events": [
+                                {
+                                    "id": "ev_intro",
+                                    "commands": [{"type": "launch_rocket"}],
+                                }
+                            ]
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool("urpg.project_validate", {"project_path": "project.json"}, repo_root=root)
+
+        self.assertFalse(result["valid"])
+        self.assertIn("p2d_event_command_unsupported:ev_intro:launch_rocket", result["diagnostics"])
+
     def test_project_patch_adds_database_records_and_asset_references(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -42,6 +42,9 @@ PROJECT_PATCH_KINDS = [
     "set_map_asset",
     "add_p2d_map",
     "add_p2d_event",
+    "add_p2d_tileset",
+    "set_p2d_tile_metadata",
+    "add_p2d_event_command",
     "add_actor",
     "add_item",
     "add_switch",
@@ -56,6 +59,19 @@ DATABASE_PATCH_TARGETS = {
     "add_switch": ("switches", "/database/switches"),
     "add_variable": ("variables", "/database/variables"),
     "add_common_event": ("common_events", "/database/common_events"),
+}
+
+P2D_EVENT_COMMAND_TYPES = {
+    "call_common_event",
+    "change_gold",
+    "change_item",
+    "change_self_switch",
+    "change_switch",
+    "change_variable",
+    "conditional_branch",
+    "move_route",
+    "show_text",
+    "transfer_player",
 }
 
 
@@ -118,8 +134,19 @@ def list_tools() -> list[dict[str, Any]]:
                     "value": {"type": "string"},
                     "key": {"type": "string"},
                     "map_id": {"type": "string"},
+                    "event_id": {"type": "string"},
+                    "tileset_id": {"type": "string"},
+                    "asset_id": {"type": "string"},
+                    "page": {"type": "string"},
+                    "passability": {"type": "string"},
+                    "collision": {"type": "string"},
+                    "terrain_tag": {"type": "string"},
+                    "region_id": {"type": "string"},
+                    "priority": {"type": "string"},
                     "label": {"type": "string"},
                     "path": {"type": "string"},
+                    "text": {"type": "string"},
+                    "animated": {"type": "boolean"},
                     "apply": {"type": "boolean", "default": False},
                 },
                 ["patch_kind", "value"],
@@ -338,6 +365,15 @@ def _project_validate(arguments: dict[str, Any], repo_root: Path) -> dict[str, A
                     diagnostics.append("p2d_event_missing_id")
                 if map_id and p2d_map_ids and map_id not in p2d_map_ids:
                     diagnostics.append(f"p2d_event_map_missing:{event_id}")
+                commands = event.get("commands", [])
+                if isinstance(commands, list):
+                    for command in commands:
+                        if not isinstance(command, dict):
+                            diagnostics.append(f"p2d_event_command_invalid:{event_id}")
+                            continue
+                        command_type = command.get("type", "")
+                        if not isinstance(command_type, str) or command_type not in P2D_EVENT_COMMAND_TYPES:
+                            diagnostics.append(f"p2d_event_command_unsupported:{event_id}:{command_type}")
     return {
         "project_path": str(resolved),
         "valid": not diagnostics,
@@ -372,6 +408,23 @@ def _add_unique_record(records: list[Any], row: dict[str, str], path: str) -> li
         return [{"op": "test", "path": path, "value": record_id}]
     records.append(row)
     return [{"op": "add", "path": f"{path}/-", "value": row}]
+
+
+def _to_optional_int(arguments: dict[str, Any], key: str) -> int | None:
+    value = arguments.get(key)
+    if value is None or value == "":
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError) as exc:
+        raise ToolError("invalid_patch_value", f"{key} must be an integer.") from exc
+
+
+def _find_record(records: list[Any], record_id: str) -> dict[str, Any] | None:
+    for record in records:
+        if isinstance(record, dict) and record.get("id") == record_id:
+            return record
+    return None
 
 
 def _project_patch(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]:
@@ -416,6 +469,67 @@ def _project_patch(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]
         if not any(isinstance(event, dict) and event.get("id") == value for event in events):
             events.append(row)
         patch = [{"op": "add", "path": "/p2d/events/-", "value": row}]
+    elif patch_kind == "add_p2d_tileset":
+        p2d = _ensure_object(preview, "p2d")
+        tilesets = _ensure_array(p2d, "tilesets")
+        label = str(arguments.get("label", value))
+        asset_id = str(arguments.get("asset_id", ""))
+        page = str(arguments.get("page", "A"))
+        row = {"id": value, "name": label}
+        if asset_id:
+            row["asset_id"] = asset_id
+        row["pages"] = [page]
+        row["tiles"] = []
+        patch = _add_unique_record(tilesets, row, "/p2d/tilesets")
+    elif patch_kind == "set_p2d_tile_metadata":
+        tileset_id = str(arguments.get("tileset_id", ""))
+        if not tileset_id:
+            raise ToolError("invalid_patch_value", "set_p2d_tile_metadata requires tileset_id.")
+        p2d = _ensure_object(preview, "p2d")
+        tilesets = _ensure_array(p2d, "tilesets")
+        tileset = _find_record(tilesets, tileset_id)
+        if tileset is None:
+            raise ToolError("p2d_tileset_missing", f"P2D tileset does not exist: {tileset_id}")
+        page = str(arguments.get("page", "A"))
+        pages = _ensure_array(tileset, "pages")
+        if page not in pages:
+            pages.append(page)
+        tiles = _ensure_array(tileset, "tiles")
+        tile = _find_record(tiles, value)
+        op = "replace" if tile is not None else "add"
+        if tile is None:
+            tile = {"id": value}
+            tiles.append(tile)
+        tile["page"] = page
+        for key in ("passability", "collision", "terrain_tag"):
+            field_value = str(arguments.get(key, ""))
+            if field_value:
+                tile[key] = field_value
+        for key in ("region_id", "priority"):
+            field_value = _to_optional_int(arguments, key)
+            if field_value is not None:
+                tile[key] = field_value
+        if "animated" in arguments:
+            tile["animated"] = bool(arguments.get("animated", False))
+        patch = [{"op": op, "path": f"/p2d/tilesets/{tileset_id}/tiles/{value}", "value": tile}]
+    elif patch_kind == "add_p2d_event_command":
+        event_id = str(arguments.get("event_id", ""))
+        if not event_id:
+            raise ToolError("invalid_patch_value", "add_p2d_event_command requires event_id.")
+        if value not in P2D_EVENT_COMMAND_TYPES:
+            raise ToolError("unsupported_p2d_event_command", f"Unsupported P2D event command: {value}")
+        p2d = _ensure_object(preview, "p2d")
+        events = _ensure_array(p2d, "events")
+        event = _find_record(events, event_id)
+        if event is None:
+            raise ToolError("p2d_event_missing", f"P2D event does not exist: {event_id}")
+        commands = _ensure_array(event, "commands")
+        command: dict[str, Any] = {"type": value}
+        text = str(arguments.get("text", ""))
+        if text:
+            command["text"] = text
+        commands.append(command)
+        patch = [{"op": "add", "path": f"/p2d/events/{event_id}/commands/-", "value": command}]
     elif patch_kind in DATABASE_PATCH_TARGETS:
         collection, path = DATABASE_PATCH_TARGETS[patch_kind]
         label = str(arguments.get("label", value))

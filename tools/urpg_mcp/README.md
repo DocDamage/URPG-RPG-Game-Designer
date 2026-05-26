@@ -6,8 +6,8 @@
 
 - `urpg.project_status`: reports local branch, head, dirty files, diagnostics, and guardrails.
 - `urpg.project_summary`: reads a bounded project JSON file and reports startup map, map counts, P2D counts, and asset ids.
-- `urpg.project_validate`: validates startup, startup asset, and P2D references inside bounded project JSON.
-- `urpg.project_patch`: previews or explicitly applies an allowlisted project JSON patch. Supported patch kinds are `set_startup_map`, `set_map_asset`, `add_p2d_map`, `add_p2d_event`, `add_actor`, `add_item`, `add_switch`, `add_variable`, `add_common_event`, and `add_asset_reference`.
+- `urpg.project_validate`: validates startup, startup asset, P2D references, and P2D event command types inside bounded project JSON.
+- `urpg.project_patch`: previews or explicitly applies an allowlisted project JSON patch. Supported patch kinds are `set_startup_map`, `set_map_asset`, `add_p2d_map`, `add_p2d_event`, `add_p2d_tileset`, `set_p2d_tile_metadata`, `add_p2d_event_command`, `add_actor`, `add_item`, `add_switch`, `add_variable`, `add_common_event`, and `add_asset_reference`.
 - `urpg.asset_catalog_summary`: reads a bounded asset catalog JSON file and reports media-kind counts, license-status counts, release-ready count, and asset ids.
 - `urpg.p2d_capabilities`: reports the current Perspective 2D tile, event runtime, and project/database capability surface.
 - `urpg.focused_gate`: returns an allowlisted validation command and runs it only when `run=true`.
