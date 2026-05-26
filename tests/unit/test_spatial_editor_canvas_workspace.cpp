@@ -803,6 +803,74 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D gates playtest an
     REQUIRE(snapshot.last_perspective_2d_export.success);
 }
 
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D emits runtime manifests for playtest and export",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_runtime_manifest";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_runtime_manifest", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("secret", "Secret", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(workspace.SelectPerspectiveTile("overworld", "grass"));
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("secret"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(90.0f, 80.0f));
+    REQUIRE(workspace.SetPerspectiveLayerVisible("secret", false));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_gate", "Gate", "confirm_interact", 100.0f, 90.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_gate", "closed", "Closed", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "closed", "show_text", "Closed."));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_gate", "open", "Open", "player_touch"));
+    REQUIRE(workspace.AddPerspectiveEventPageCondition("ev_gate", "open", "switch", "gate_open", "true"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "open", "transfer_player", "castle:2,7"));
+    REQUIRE(workspace.SetPerspectiveEventConditionValue("switch", "gate_open", "true"));
+
+    const auto playtest = workspace.RunPerspectiveMapPlaytest();
+    REQUIRE(playtest.success);
+    REQUIRE(playtest.runtime_layer_count == 2);
+    REQUIRE(playtest.runtime_tile_count == 1);
+    REQUIRE(playtest.runtime_event_count == 1);
+    const auto playtestManifest = nlohmann::json::parse(playtest.serialized_runtime_manifest_json);
+    REQUIRE(playtestManifest["document_kind"] == "urpg.perspective_2d.runtime_manifest");
+    REQUIRE(playtestManifest["map_id"] == "p2d_runtime_manifest");
+    REQUIRE(playtestManifest["layers"].size() == 2);
+    REQUIRE(playtestManifest["layers"][0]["id"] == "ground");
+    REQUIRE(playtestManifest["tiles"].size() == 1);
+    REQUIRE(playtestManifest["tiles"][0]["layer_id"] == "ground");
+    REQUIRE(playtestManifest["events"][0]["active_page_id"] == "open");
+    REQUIRE(playtestManifest["events"][0]["trigger_id"] == "player_touch");
+    REQUIRE(playtestManifest["events"][0]["commands"][0]["code"] == "transfer_player");
+
+    const auto exportResult = workspace.ExportPerspectiveMap();
+    REQUIRE(exportResult.success);
+    REQUIRE(exportResult.runtime_layer_count == 2);
+    REQUIRE(exportResult.runtime_tile_count == 1);
+    REQUIRE(exportResult.runtime_event_count == 1);
+    const auto exportManifest = nlohmann::json::parse(exportResult.serialized_runtime_manifest_json);
+    REQUIRE(exportManifest["events"][0]["commands"][0]["argument"] == "castle:2,7");
+    const auto packageManifest = nlohmann::json::parse(exportResult.serialized_package_manifest_json);
+    REQUIRE(packageManifest["document_kind"] == "urpg.perspective_2d.export_package");
+    REQUIRE(packageManifest["map_id"] == "p2d_runtime_manifest");
+    REQUIRE(packageManifest["draft_document_kind"] == "urpg.perspective_2d.map");
+    REQUIRE(packageManifest["runtime_manifest_kind"] == "urpg.perspective_2d.runtime_manifest");
+    REQUIRE(packageManifest["runtime_tile_count"] == 1);
+}
+
 TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D supports brush erase and layer ergonomics",
           "[editor][spatial][p2d_depth]") {
     SpatialMapOverlay overlay;
@@ -853,6 +921,80 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D supports brush er
     workspace.Render({0.016f, 11});
     REQUIRE(workspace.lastRenderSnapshot().perspective_2d_project.layer_count == 1);
     REQUIRE(workspace.lastRenderSnapshot().perspective_2d_project.painted_tile_count == 4);
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D supports multi layer editing",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_multi_layer";
+    overlay.elevation.width = 10;
+    overlay.elevation.height = 10;
+    overlay.elevation.levels.resize(100, 0);
+    urpg::scene::MapScene map("p2d_multi_layer", 10, 10);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 200.0f;
+    projection.viewportHeight = 100.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 5.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("detail", "Details", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(workspace.SelectPerspectiveTile("town", "floor"));
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(100.0f, 50.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("detail"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(110.0f, 50.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_gate", "Gate", "confirm_interact", 120.0f, 60.0f));
+
+    REQUIRE(workspace.SelectPerspectiveLayers({"ground", "detail"}));
+    workspace.Render({0.016f, 27});
+    auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_project.selected_layer_count == 2);
+    REQUIRE(snapshot.perspective_2d_layers[0].selected_for_bulk_edit);
+    REQUIRE(snapshot.perspective_2d_layers[1].selected_for_bulk_edit);
+    REQUIRE_FALSE(snapshot.perspective_2d_layers[2].selected_for_bulk_edit);
+
+    REQUIRE(workspace.SetSelectedPerspectiveLayersVisible(false));
+    REQUIRE(workspace.SetSelectedPerspectiveLayersLocked(true));
+    workspace.Render({0.016f, 28});
+    snapshot = workspace.lastRenderSnapshot();
+    REQUIRE_FALSE(snapshot.perspective_2d_layers[0].visible);
+    REQUIRE(snapshot.perspective_2d_layers[0].locked);
+    REQUIRE_FALSE(snapshot.perspective_2d_layers[1].visible);
+    REQUIRE(snapshot.perspective_2d_layers[1].locked);
+    REQUIRE(snapshot.perspective_2d_layers[2].visible);
+
+    REQUIRE(workspace.SetSelectedPerspectiveLayersVisible(true));
+    REQUIRE(workspace.SetSelectedPerspectiveLayersLocked(false));
+    REQUIRE(workspace.DuplicateSelectedPerspectiveLayers("_copy"));
+    workspace.Render({0.016f, 29});
+    snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_project.layer_count == 5);
+    REQUIRE(snapshot.perspective_2d_project.selected_layer_count == 2);
+    REQUIRE(snapshot.perspective_2d_project.painted_tile_count == 4);
+    REQUIRE(snapshot.perspective_2d_layers[3].id == "ground_copy");
+    REQUIRE(snapshot.perspective_2d_layers[3].selected_for_bulk_edit);
+    REQUIRE(snapshot.perspective_2d_layers[4].id == "detail_copy");
+    REQUIRE(snapshot.perspective_2d_layers[4].selected_for_bulk_edit);
+
+    REQUIRE(workspace.DeleteSelectedPerspectiveLayers());
+    workspace.Render({0.016f, 30});
+    snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_project.layer_count == 3);
+    REQUIRE(snapshot.perspective_2d_project.selected_layer_count == 1);
+    REQUIRE(snapshot.perspective_2d_project.selected_layer_id == "ground");
+    REQUIRE(snapshot.perspective_2d_project.painted_tile_count == 2);
+    REQUIRE(snapshot.perspective_2d_project.event_count == 1);
+    REQUIRE(snapshot.perspective_2d_layers[0].order == 0);
+    REQUIRE(snapshot.perspective_2d_layers[1].order == 1);
+    REQUIRE(snapshot.perspective_2d_layers[2].order == 2);
 }
 
 TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D supports event command editing and movement",
@@ -969,6 +1111,71 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D exposes promoted 
     REQUIRE(savedJson["tiles"][0]["tile_id"] == "stone_floor");
 }
 
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D filters promoted tile palette options",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_palette_filtering";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_palette_filtering", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    workspace.SetPerspectiveTilePaletteOptions({
+        {"grass_01", "Grass A", "overworld", "grass_a", "asset.overworld.grass_a",
+         "content/tiles/grass_a.png", "field", "content/tiles/grass_a.preview.png"},
+        {"stone_01", "Stone Floor", "dungeon", "stone_floor", "asset.dungeon.stone_floor",
+         "content/tiles/stone_floor.png", "interior", "content/tiles/stone_floor.preview.png"},
+        {"water_01", "Water Edge", "overworld", "water_edge", "asset.overworld.water_edge",
+         "content/tiles/water_edge.png", "field", "content/tiles/water_edge.preview.png"},
+    });
+    REQUIRE(workspace.SelectPerspectiveTilePaletteOption("stone_01"));
+
+    workspace.Render({0.016f, 22});
+    auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_palette.tile_option_count == 3);
+    REQUIRE(snapshot.perspective_2d_palette.visible_tile_option_count == 3);
+    REQUIRE(snapshot.perspective_2d_palette.selected_option_visible);
+    REQUIRE(snapshot.perspective_2d_palette.tile_options[1].category_id == "interior");
+    REQUIRE(snapshot.perspective_2d_palette.tile_options[1].thumbnail_path ==
+            "content/tiles/stone_floor.preview.png");
+
+    workspace.SetPerspectiveTilePaletteFilter("water", "", "");
+    workspace.Render({0.016f, 23});
+    snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_palette.search_text == "water");
+    REQUIRE(snapshot.perspective_2d_palette.tile_option_count == 3);
+    REQUIRE(snapshot.perspective_2d_palette.visible_tile_option_count == 1);
+    REQUIRE_FALSE(snapshot.perspective_2d_palette.selected_option_visible);
+    REQUIRE(snapshot.perspective_2d_palette.tile_options[0].option_id == "water_01");
+
+    workspace.SetPerspectiveTilePaletteFilter("", "overworld", "field");
+    workspace.Render({0.016f, 24});
+    snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_palette.filtered_tileset_id == "overworld");
+    REQUIRE(snapshot.perspective_2d_palette.filtered_category_id == "field");
+    REQUIRE(snapshot.perspective_2d_palette.visible_tile_option_count == 2);
+    REQUIRE(snapshot.perspective_2d_palette.tile_options[0].option_id == "grass_01");
+    REQUIRE(snapshot.perspective_2d_palette.tile_options[1].option_id == "water_01");
+
+    workspace.SetPerspectiveTilePaletteFilter("missing", "overworld", "field");
+    workspace.Render({0.016f, 25});
+    snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_palette.visible_tile_option_count == 0);
+    REQUIRE(snapshot.perspective_2d_palette.tile_options.empty());
+    REQUIRE_FALSE(snapshot.perspective_2d_palette.selected_option_visible);
+
+    workspace.ClearPerspectiveTilePaletteFilter();
+    workspace.Render({0.016f, 26});
+    snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_palette.search_text.empty());
+    REQUIRE(snapshot.perspective_2d_palette.filtered_tileset_id.empty());
+    REQUIRE(snapshot.perspective_2d_palette.filtered_category_id.empty());
+    REQUIRE(snapshot.perspective_2d_palette.visible_tile_option_count == 3);
+    REQUIRE(snapshot.perspective_2d_palette.selected_option_visible);
+}
+
 TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D updates and removes event command rows",
           "[editor][spatial][p2d_depth]") {
     SpatialMapOverlay overlay;
@@ -1010,4 +1217,270 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D updates and remov
     const auto savedJson = nlohmann::json::parse(save.serialized_document_json);
     REQUIRE(savedJson["events"][0]["commands"].size() == 1);
     REQUIRE(savedJson["events"][0]["commands"][0]["argument"] == "New line");
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D supports event pages conditions and active preview",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_event_pages";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_event_pages", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_gate", "Castle Gate", "confirm_interact", 80.0f, 80.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_gate", "closed", "Closed", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "closed", "show_text", "The gate is closed."));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_gate", "open", "Open", "player_touch"));
+    REQUIRE(workspace.AddPerspectiveEventPageCondition("ev_gate", "open", "switch", "gate_open", "true"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "open", "transfer_player", "castle:2,7"));
+    REQUIRE(workspace.SelectPerspectiveEventPage("ev_gate", "closed"));
+
+    workspace.Render({0.016f, 17});
+    auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_events[0].page_count == 2);
+    REQUIRE(snapshot.perspective_2d_events[0].selected_page_id == "closed");
+    REQUIRE(snapshot.perspective_2d_events[0].active_page_id == "closed");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].page_id == "closed");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].command_count == 1);
+    REQUIRE(snapshot.perspective_2d_events[0].pages[1].condition_count == 1);
+    REQUIRE(snapshot.perspective_2d_events[0].pages[1].conditions[0].key == "gate_open");
+    REQUIRE_FALSE(snapshot.perspective_2d_events[0].pages[1].active_in_playtest);
+
+    REQUIRE(workspace.SetPerspectiveEventConditionValue("switch", "gate_open", "true"));
+    workspace.Render({0.016f, 18});
+    snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_events[0].active_page_id == "open");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[1].active_in_playtest);
+    REQUIRE(snapshot.perspective_2d_events[0].trigger_id == "player_touch");
+    REQUIRE(snapshot.perspective_2d_events[0].commands[0].code == "transfer_player");
+
+    const auto save = workspace.SavePerspectiveMapDraft();
+    REQUIRE(save.success);
+    const auto savedJson = nlohmann::json::parse(save.serialized_document_json);
+    REQUIRE(savedJson["events"][0]["selected_page_id"] == "closed");
+    REQUIRE(savedJson["events"][0]["pages"].size() == 2);
+    REQUIRE(savedJson["events"][0]["pages"][1]["conditions"][0]["type"] == "switch");
+    REQUIRE(savedJson["events"][0]["pages"][1]["commands"][0]["code"] == "transfer_player");
+
+    SpatialMapOverlay loadedOverlay;
+    loadedOverlay.mapId = "p2d_event_pages";
+    loadedOverlay.elevation.width = 8;
+    loadedOverlay.elevation.height = 8;
+    loadedOverlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene loadedMap("p2d_event_pages", 8, 8);
+    SpatialAuthoringWorkspace loadedWorkspace;
+    loadedWorkspace.SetTargets(&loadedMap, &loadedOverlay);
+    REQUIRE(loadedWorkspace.LoadPerspectiveMapDraft(save.serialized_document_json).success);
+    REQUIRE(loadedWorkspace.SetPerspectiveEventConditionValue("switch", "gate_open", "true"));
+
+    loadedWorkspace.Render({0.016f, 19});
+    const auto loadedSnapshot = loadedWorkspace.lastRenderSnapshot();
+    REQUIRE(loadedSnapshot.perspective_2d_events[0].page_count == 2);
+    REQUIRE(loadedSnapshot.perspective_2d_events[0].selected_page_id == "closed");
+    REQUIRE(loadedSnapshot.perspective_2d_events[0].active_page_id == "open");
+    REQUIRE(loadedSnapshot.perspective_2d_events[0].pages[1].commands[0].argument == "castle:2,7");
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D supports comparison condition pages",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_condition_rules";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_condition_rules", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTile("town", "floor"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_rank_gate", "Rank Gate", "confirm_interact", 80.0f, 80.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_rank_gate", "default", "Default", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_rank_gate", "default", "show_text", "Come back later."));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_rank_gate", "ranked", "Ranked", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageConditionRule("ev_rank_gate", "ranked", "variable", "rank", "greater_equal", "3"));
+    REQUIRE(workspace.AddPerspectiveEventPageConditionRule("ev_rank_gate", "ranked", "switch", "gate_open", "equals", "true"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_rank_gate", "ranked", "show_text", "Welcome, ranked hero."));
+
+    REQUIRE(workspace.SetPerspectiveEventConditionValue("variable", "rank", "2"));
+    REQUIRE(workspace.SetPerspectiveEventConditionValue("switch", "gate_open", "true"));
+    workspace.Render({0.016f, 31});
+    auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_events[0].active_page_id == "default");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[1].conditions[0].comparison == "greater_equal");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[1].conditions[0].value == "3");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[1].conditions[1].comparison == "equals");
+
+    REQUIRE(workspace.SetPerspectiveEventConditionValue("variable", "rank", "3"));
+    workspace.Render({0.016f, 32});
+    snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_events[0].active_page_id == "ranked");
+    REQUIRE(snapshot.perspective_2d_events[0].commands[0].argument == "Welcome, ranked hero.");
+
+    const auto save = workspace.SavePerspectiveMapDraft();
+    REQUIRE(save.success);
+    const auto savedJson = nlohmann::json::parse(save.serialized_document_json);
+    REQUIRE(savedJson["events"][0]["pages"][1]["conditions"][0]["comparison"] == "greater_equal");
+    REQUIRE(savedJson["events"][0]["pages"][1]["conditions"][1]["comparison"] == "equals");
+
+    const auto playtest = workspace.RunPerspectiveMapPlaytest();
+    REQUIRE(playtest.success);
+    const auto manifest = nlohmann::json::parse(playtest.serialized_runtime_manifest_json);
+    REQUIRE(manifest["events"][0]["active_page_id"] == "ranked");
+    REQUIRE(manifest["events"][0]["commands"][0]["argument"] == "Welcome, ranked hero.");
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D supports conditional branch event commands",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_branch_commands";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_branch_commands", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTile("town", "floor"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_guard", "Guard", "confirm_interact", 80.0f, 80.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_guard", "main", "Main", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageConditionalBranch("ev_guard", "main", "switch", "guard_bribed", "equals", "true"));
+    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_guard", "main", 0, true, "show_text", "Go on through."));
+    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_guard", "main", 0, false, "show_text", "No entry."));
+
+    workspace.Render({0.016f, 33});
+    auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].command_count == 1);
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].commands[0].code == "conditional_branch");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].commands[0].condition_type == "switch");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].commands[0].condition_key == "guard_bribed");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].commands[0].condition_comparison == "equals");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].commands[0].condition_value == "true");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].commands[0].true_command_count == 1);
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].commands[0].false_command_count == 1);
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].commands[0].true_commands[0].argument == "Go on through.");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].commands[0].false_commands[0].argument == "No entry.");
+
+    const auto save = workspace.SavePerspectiveMapDraft();
+    REQUIRE(save.success);
+    const auto savedJson = nlohmann::json::parse(save.serialized_document_json);
+    const auto branchJson = savedJson["events"][0]["pages"][0]["commands"][0];
+    REQUIRE(branchJson["code"] == "conditional_branch");
+    REQUIRE(branchJson["condition"]["key"] == "guard_bribed");
+    REQUIRE(branchJson["true_commands"][0]["argument"] == "Go on through.");
+    REQUIRE(branchJson["false_commands"][0]["argument"] == "No entry.");
+
+    const auto playtest = workspace.RunPerspectiveMapPlaytest();
+    REQUIRE(playtest.success);
+    const auto manifest = nlohmann::json::parse(playtest.serialized_runtime_manifest_json);
+    const auto manifestBranch = manifest["events"][0]["commands"][0];
+    REQUIRE(manifestBranch["code"] == "conditional_branch");
+    REQUIRE(manifestBranch["condition"]["comparison"] == "equals");
+    REQUIRE(manifestBranch["true_commands"][0]["code"] == "show_text");
+    REQUIRE(manifestBranch["false_commands"][0]["code"] == "show_text");
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D edits event pages conditions and commands",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_event_page_editing";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_event_page_editing", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_gate", "Castle Gate", "confirm_interact", 80.0f, 80.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_gate", "closed", "Closed", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "closed", "show_text", "Closed."));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_gate", "open", "Open", "player_touch"));
+    REQUIRE(workspace.AddPerspectiveEventPageCondition("ev_gate", "open", "switch", "gate_open", "true"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "open", "transfer_player", "castle:2,7"));
+
+    REQUIRE(workspace.DuplicatePerspectiveEventPage("ev_gate", "open", "locked", "Locked"));
+    REQUIRE(workspace.UpdatePerspectiveEventPageCondition("ev_gate", "locked", 0, "self_switch", "A", "on"));
+    REQUIRE(workspace.UpdatePerspectiveEventPageCommand("ev_gate", "locked", 0, "show_text", "Locked tight."));
+    REQUIRE(workspace.MovePerspectiveEventPage("ev_gate", "locked", 0));
+    REQUIRE(workspace.SelectPerspectiveEventPage("ev_gate", "locked"));
+
+    workspace.Render({0.016f, 20});
+    auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_events[0].page_count == 3);
+    REQUIRE(snapshot.perspective_2d_events[0].selected_page_id == "locked");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].page_id == "locked");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].order == 0);
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].conditions[0].type == "self_switch");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].commands[0].argument == "Locked tight.");
+
+    REQUIRE(workspace.RemovePerspectiveEventPageCondition("ev_gate", "locked", 0));
+    REQUIRE(workspace.RemovePerspectiveEventPageCommand("ev_gate", "locked", 0));
+    REQUIRE(workspace.DeletePerspectiveEventPage("ev_gate", "closed"));
+    REQUIRE_FALSE(workspace.DeletePerspectiveEventPage("ev_gate", "missing"));
+
+    workspace.Render({0.016f, 21});
+    snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_events[0].page_count == 2);
+    REQUIRE(snapshot.perspective_2d_events[0].selected_page_id == "locked");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].condition_count == 0);
+    REQUIRE(snapshot.perspective_2d_events[0].pages[0].command_count == 0);
+    REQUIRE(snapshot.perspective_2d_events[0].pages[1].page_id == "open");
+    REQUIRE(snapshot.perspective_2d_events[0].pages[1].order == 1);
+
+    const auto save = workspace.SavePerspectiveMapDraft();
+    REQUIRE(save.success);
+    const auto savedJson = nlohmann::json::parse(save.serialized_document_json);
+    REQUIRE(savedJson["events"][0]["selected_page_id"] == "locked");
+    REQUIRE(savedJson["events"][0]["pages"].size() == 2);
+    REQUIRE(savedJson["events"][0]["pages"][0]["page_id"] == "locked");
+    REQUIRE(savedJson["events"][0]["pages"][0]["conditions"].empty());
+    REQUIRE(savedJson["events"][0]["pages"][0]["commands"].empty());
 }

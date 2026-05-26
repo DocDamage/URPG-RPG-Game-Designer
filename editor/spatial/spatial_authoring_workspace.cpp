@@ -1,11 +1,72 @@
 #include "editor/spatial/spatial_authoring_workspace.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstddef>
+#include <cstdlib>
+#include <functional>
 #include <nlohmann/json.hpp>
 
 namespace urpg::editor {
+
+namespace {
+
+std::string lowerCopy(std::string value) {
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char character) {
+        return static_cast<char>(std::tolower(character));
+    });
+    return value;
+}
+
+bool containsCaseInsensitive(const std::string& haystack, const std::string& needle) {
+    if (needle.empty()) {
+        return true;
+    }
+    return lowerCopy(haystack).find(lowerCopy(needle)) != std::string::npos;
+}
+
+bool containsString(const std::vector<std::string>& values, const std::string& value) {
+    return std::find(values.begin(), values.end(), value) != values.end();
+}
+
+bool parseDouble(const std::string& value, double& out_value) {
+    char* end = nullptr;
+    out_value = std::strtod(value.c_str(), &end);
+    return end != value.c_str() && end != nullptr && *end == '\0';
+}
+
+bool conditionValueMatches(const std::string& actual_value,
+                           const std::string& comparison,
+                           const std::string& expected_value) {
+    if (comparison == "equals" || comparison.empty()) {
+        return actual_value == expected_value;
+    }
+    if (comparison == "not_equals") {
+        return actual_value != expected_value;
+    }
+
+    double actual_number = 0.0;
+    double expected_number = 0.0;
+    if (!parseDouble(actual_value, actual_number) || !parseDouble(expected_value, expected_number)) {
+        return false;
+    }
+    if (comparison == "greater_equal") {
+        return actual_number >= expected_number;
+    }
+    if (comparison == "greater_than") {
+        return actual_number > expected_number;
+    }
+    if (comparison == "less_equal") {
+        return actual_number <= expected_number;
+    }
+    if (comparison == "less_than") {
+        return actual_number < expected_number;
+    }
+    return false;
+}
+
+} // namespace
 
 const char* SpatialAuthoringWorkspace::modeName(ToolMode mode) {
     switch (mode) {
@@ -416,6 +477,7 @@ bool SpatialAuthoringWorkspace::AddPerspectiveLayer(const std::string& layer_id,
     perspective_layers_.push_back(std::move(layer));
     if (selected_perspective_layer_id_.empty()) {
         selected_perspective_layer_id_ = layer_id;
+        selected_perspective_layer_ids_ = {layer_id};
     }
     markPerspectiveDirty();
     captureRenderSnapshot();
@@ -430,6 +492,170 @@ bool SpatialAuthoringWorkspace::SelectPerspectiveLayer(const std::string& layer_
         return false;
     }
     selected_perspective_layer_id_ = layer_id;
+    selected_perspective_layer_ids_ = {layer_id};
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::SelectPerspectiveLayers(const std::vector<std::string>& layer_ids) {
+    if (layer_ids.empty()) {
+        return false;
+    }
+    std::vector<std::string> valid_layer_ids;
+    for (const auto& layer_id : layer_ids) {
+        if (layer_id.empty() || containsString(valid_layer_ids, layer_id)) {
+            continue;
+        }
+        const auto existing = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                           [&](const PerspectiveLayer& layer) { return layer.id == layer_id; });
+        if (existing == perspective_layers_.end()) {
+            return false;
+        }
+        valid_layer_ids.push_back(layer_id);
+    }
+    if (valid_layer_ids.empty()) {
+        return false;
+    }
+    selected_perspective_layer_ids_ = std::move(valid_layer_ids);
+    if (!containsString(selected_perspective_layer_ids_, selected_perspective_layer_id_)) {
+        selected_perspective_layer_id_ = selected_perspective_layer_ids_.front();
+    }
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::SetSelectedPerspectiveLayersVisible(bool visible) {
+    if (selected_perspective_layer_ids_.empty()) {
+        return false;
+    }
+    bool changed = false;
+    for (auto& layer : perspective_layers_) {
+        if (containsString(selected_perspective_layer_ids_, layer.id)) {
+            layer.visible = visible;
+            changed = true;
+        }
+    }
+    if (!changed) {
+        return false;
+    }
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::SetSelectedPerspectiveLayersLocked(bool locked) {
+    if (selected_perspective_layer_ids_.empty()) {
+        return false;
+    }
+    bool changed = false;
+    for (auto& layer : perspective_layers_) {
+        if (containsString(selected_perspective_layer_ids_, layer.id)) {
+            layer.locked = locked;
+            changed = true;
+        }
+    }
+    if (!changed) {
+        return false;
+    }
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::DuplicateSelectedPerspectiveLayers(const std::string& id_suffix) {
+    if (selected_perspective_layer_ids_.empty() || id_suffix.empty()) {
+        return false;
+    }
+    std::vector<std::string> new_layer_ids;
+    for (const auto& layer_id : selected_perspective_layer_ids_) {
+        const auto source = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                         [&](const PerspectiveLayer& layer) { return layer.id == layer_id; });
+        if (source == perspective_layers_.end()) {
+            return false;
+        }
+        const std::string new_layer_id = layer_id + id_suffix;
+        const auto existing = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                           [&](const PerspectiveLayer& layer) {
+                                               return layer.id == new_layer_id;
+                                           });
+        if (existing != perspective_layers_.end()) {
+            return false;
+        }
+    }
+
+    const std::vector<std::string> source_layer_ids = selected_perspective_layer_ids_;
+    for (const auto& layer_id : source_layer_ids) {
+        const auto source = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                         [&](const PerspectiveLayer& layer) { return layer.id == layer_id; });
+        PerspectiveLayer copy = *source;
+        copy.id = layer_id + id_suffix;
+        copy.label += " Copy";
+        copy.locked = false;
+        copy.order = static_cast<int>(perspective_layers_.size());
+        new_layer_ids.push_back(copy.id);
+        perspective_layers_.push_back(std::move(copy));
+
+        const auto original_tile_count = perspective_tiles_.size();
+        for (size_t i = 0; i < original_tile_count; ++i) {
+            if (perspective_tiles_[i].layer_id == layer_id) {
+                PerspectiveTilePaint tile = perspective_tiles_[i];
+                tile.layer_id = new_layer_ids.back();
+                perspective_tiles_.push_back(std::move(tile));
+            }
+        }
+        const auto original_event_count = perspective_events_.size();
+        for (size_t i = 0; i < original_event_count; ++i) {
+            if (perspective_events_[i].layer_id == layer_id) {
+                PerspectiveEvent event = perspective_events_[i];
+                event.layer_id = new_layer_ids.back();
+                event.event_id += id_suffix;
+                perspective_events_.push_back(std::move(event));
+            }
+        }
+    }
+    selected_perspective_layer_ids_ = std::move(new_layer_ids);
+    selected_perspective_layer_id_ = selected_perspective_layer_ids_.front();
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::DeleteSelectedPerspectiveLayers() {
+    if (selected_perspective_layer_ids_.empty()) {
+        return false;
+    }
+    bool removed = false;
+    for (const auto& layer_id : selected_perspective_layer_ids_) {
+        auto layer = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                  [&](const PerspectiveLayer& candidate) { return candidate.id == layer_id; });
+        if (layer == perspective_layers_.end()) {
+            continue;
+        }
+        perspective_layers_.erase(layer);
+        perspective_tiles_.erase(std::remove_if(perspective_tiles_.begin(), perspective_tiles_.end(),
+                                                [&](const PerspectiveTilePaint& tile) {
+                                                    return tile.layer_id == layer_id;
+                                                }),
+                                 perspective_tiles_.end());
+        perspective_events_.erase(std::remove_if(perspective_events_.begin(), perspective_events_.end(),
+                                                 [&](const PerspectiveEvent& event) {
+                                                     return event.layer_id == layer_id;
+                                                 }),
+                                  perspective_events_.end());
+        removed = true;
+    }
+    if (!removed) {
+        return false;
+    }
+    for (size_t i = 0; i < perspective_layers_.size(); ++i) {
+        perspective_layers_[i].order = static_cast<int>(i);
+    }
+    selected_perspective_layer_id_ = perspective_layers_.empty() ? std::string{} : perspective_layers_.front().id;
+    selected_perspective_layer_ids_.clear();
+    if (!selected_perspective_layer_id_.empty()) {
+        selected_perspective_layer_ids_.push_back(selected_perspective_layer_id_);
+    }
+    markPerspectiveDirty();
     captureRenderSnapshot();
     return true;
 }
@@ -501,6 +727,12 @@ bool SpatialAuthoringWorkspace::DeletePerspectiveLayer(const std::string& layer_
     }
     if (selected_perspective_layer_id_ == layer_id) {
         selected_perspective_layer_id_ = perspective_layers_.empty() ? std::string{} : perspective_layers_.front().id;
+    }
+    selected_perspective_layer_ids_.erase(
+        std::remove(selected_perspective_layer_ids_.begin(), selected_perspective_layer_ids_.end(), layer_id),
+        selected_perspective_layer_ids_.end());
+    if (selected_perspective_layer_ids_.empty() && !selected_perspective_layer_id_.empty()) {
+        selected_perspective_layer_ids_.push_back(selected_perspective_layer_id_);
     }
     markPerspectiveDirty();
     captureRenderSnapshot();
@@ -580,6 +812,22 @@ void SpatialAuthoringWorkspace::SetPerspectiveTilePaletteOptions(std::vector<Per
     if (selected == perspective_tile_palette_options_.end()) {
         selected_palette_option_id_.clear();
     }
+    captureRenderSnapshot();
+}
+
+void SpatialAuthoringWorkspace::SetPerspectiveTilePaletteFilter(const std::string& search_text,
+                                                                const std::string& tileset_id,
+                                                                const std::string& category_id) {
+    palette_search_text_ = search_text;
+    palette_filter_tileset_id_ = tileset_id;
+    palette_filter_category_id_ = category_id;
+    captureRenderSnapshot();
+}
+
+void SpatialAuthoringWorkspace::ClearPerspectiveTilePaletteFilter() {
+    palette_search_text_.clear();
+    palette_filter_tileset_id_.clear();
+    palette_filter_category_id_.clear();
     captureRenderSnapshot();
 }
 
@@ -790,8 +1038,415 @@ bool SpatialAuthoringWorkspace::AddPerspectiveEventCommand(const std::string& ev
     if (event == perspective_events_.end()) {
         return false;
     }
+    if (!event->selected_page_id.empty()) {
+        auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                                 [&](const PerspectiveEvent::Page& candidate) {
+                                     return candidate.page_id == event->selected_page_id;
+                                 });
+        if (page != event->pages.end()) {
+            page->commands.push_back({command_code, argument});
+            markPerspectiveDirty();
+            captureRenderSnapshot();
+            return true;
+        }
+    }
     event->commands.push_back({command_code, argument});
     markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::AddPerspectiveEventPage(const std::string& event_id,
+                                                        const std::string& page_id,
+                                                        const std::string& label,
+                                                        const std::string& trigger_id) {
+    if (event_id.empty() || page_id.empty() || label.empty() || trigger_id.empty()) {
+        return false;
+    }
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    const auto duplicate = std::find_if(event->pages.begin(), event->pages.end(),
+                                        [&](const PerspectiveEvent::Page& candidate) {
+                                            return candidate.page_id == page_id;
+                                        });
+    if (duplicate != event->pages.end()) {
+        return false;
+    }
+
+    PerspectiveEvent::Page page;
+    page.page_id = page_id;
+    page.label = label;
+    page.trigger_id = trigger_id;
+    page.order = static_cast<int>(event->pages.size());
+    event->pages.push_back(std::move(page));
+    if (event->selected_page_id.empty()) {
+        event->selected_page_id = page_id;
+    }
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::SelectPerspectiveEventPage(const std::string& event_id,
+                                                           const std::string& page_id) {
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    const auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                                   [&](const PerspectiveEvent::Page& candidate) {
+                                       return candidate.page_id == page_id;
+                                   });
+    if (page == event->pages.end()) {
+        return false;
+    }
+    event->selected_page_id = page_id;
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::MovePerspectiveEventPage(const std::string& event_id,
+                                                         const std::string& page_id,
+                                                         int new_order) {
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end() || new_order < 0 ||
+        new_order >= static_cast<int>(event->pages.size())) {
+        return false;
+    }
+    auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                             [&](const PerspectiveEvent::Page& candidate) {
+                                 return candidate.page_id == page_id;
+                             });
+    if (page == event->pages.end()) {
+        return false;
+    }
+    PerspectiveEvent::Page moved_page = std::move(*page);
+    event->pages.erase(page);
+    event->pages.insert(event->pages.begin() + new_order, std::move(moved_page));
+    for (size_t i = 0; i < event->pages.size(); ++i) {
+        event->pages[i].order = static_cast<int>(i);
+    }
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::DuplicatePerspectiveEventPage(const std::string& event_id,
+                                                              const std::string& source_page_id,
+                                                              const std::string& new_page_id,
+                                                              const std::string& new_label) {
+    if (event_id.empty() || source_page_id.empty() || new_page_id.empty() || new_label.empty()) {
+        return false;
+    }
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    const auto source_page = std::find_if(event->pages.begin(), event->pages.end(),
+                                          [&](const PerspectiveEvent::Page& candidate) {
+                                              return candidate.page_id == source_page_id;
+                                          });
+    const auto duplicate = std::find_if(event->pages.begin(), event->pages.end(),
+                                        [&](const PerspectiveEvent::Page& candidate) {
+                                            return candidate.page_id == new_page_id;
+                                        });
+    if (source_page == event->pages.end() || duplicate != event->pages.end()) {
+        return false;
+    }
+    PerspectiveEvent::Page copied_page = *source_page;
+    copied_page.page_id = new_page_id;
+    copied_page.label = new_label;
+    copied_page.order = static_cast<int>(event->pages.size());
+    event->pages.push_back(std::move(copied_page));
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::DeletePerspectiveEventPage(const std::string& event_id,
+                                                           const std::string& page_id) {
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                             [&](const PerspectiveEvent::Page& candidate) {
+                                 return candidate.page_id == page_id;
+                             });
+    if (page == event->pages.end()) {
+        return false;
+    }
+    const bool removed_selected_page = event->selected_page_id == page_id;
+    event->pages.erase(page);
+    for (size_t i = 0; i < event->pages.size(); ++i) {
+        event->pages[i].order = static_cast<int>(i);
+    }
+    if (removed_selected_page) {
+        event->selected_page_id = event->pages.empty() ? std::string{} : event->pages.front().page_id;
+    }
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::AddPerspectiveEventPageCondition(const std::string& event_id,
+                                                                 const std::string& page_id,
+                                                                 const std::string& condition_type,
+                                                                 const std::string& key,
+                                                                 const std::string& value) {
+    return AddPerspectiveEventPageConditionRule(event_id, page_id, condition_type, key, "equals", value);
+}
+
+bool SpatialAuthoringWorkspace::AddPerspectiveEventPageConditionRule(const std::string& event_id,
+                                                                     const std::string& page_id,
+                                                                     const std::string& condition_type,
+                                                                     const std::string& key,
+                                                                     const std::string& comparison,
+                                                                     const std::string& value) {
+    if (event_id.empty() || page_id.empty() || condition_type.empty() || key.empty()) {
+        return false;
+    }
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                             [&](const PerspectiveEvent::Page& candidate) {
+                                 return candidate.page_id == page_id;
+                             });
+    if (page == event->pages.end()) {
+        return false;
+    }
+    auto existing = std::find_if(page->conditions.begin(), page->conditions.end(),
+                                 [&](const PerspectiveEvent::Condition& condition) {
+                                     return condition.type == condition_type && condition.key == key &&
+                                            condition.comparison == comparison;
+                                 });
+    if (existing == page->conditions.end()) {
+        page->conditions.push_back({condition_type, key, comparison.empty() ? "equals" : comparison, value});
+    } else {
+        existing->value = value;
+    }
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::UpdatePerspectiveEventPageCondition(const std::string& event_id,
+                                                                    const std::string& page_id,
+                                                                    size_t condition_index,
+                                                                    const std::string& condition_type,
+                                                                    const std::string& key,
+                                                                    const std::string& value) {
+    if (condition_type.empty() || key.empty()) {
+        return false;
+    }
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                             [&](const PerspectiveEvent::Page& candidate) {
+                                 return candidate.page_id == page_id;
+                             });
+    if (page == event->pages.end() || condition_index >= page->conditions.size()) {
+        return false;
+    }
+    page->conditions[condition_index] = {condition_type, key, "equals", value};
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::RemovePerspectiveEventPageCondition(const std::string& event_id,
+                                                                    const std::string& page_id,
+                                                                    size_t condition_index) {
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                             [&](const PerspectiveEvent::Page& candidate) {
+                                 return candidate.page_id == page_id;
+                             });
+    if (page == event->pages.end() || condition_index >= page->conditions.size()) {
+        return false;
+    }
+    page->conditions.erase(page->conditions.begin() + static_cast<std::ptrdiff_t>(condition_index));
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::AddPerspectiveEventPageCommand(const std::string& event_id,
+                                                               const std::string& page_id,
+                                                               const std::string& command_code,
+                                                               const std::string& argument) {
+    if (event_id.empty() || page_id.empty() || command_code.empty()) {
+        return false;
+    }
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                             [&](const PerspectiveEvent::Page& candidate) {
+                                 return candidate.page_id == page_id;
+                             });
+    if (page == event->pages.end()) {
+        return false;
+    }
+    page->commands.push_back({command_code, argument});
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::AddPerspectiveEventPageConditionalBranch(const std::string& event_id,
+                                                                         const std::string& page_id,
+                                                                         const std::string& condition_type,
+                                                                         const std::string& key,
+                                                                         const std::string& comparison,
+                                                                         const std::string& value) {
+    if (event_id.empty() || page_id.empty() || condition_type.empty() || key.empty() || comparison.empty()) {
+        return false;
+    }
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                             [&](const PerspectiveEvent::Page& candidate) {
+                                 return candidate.page_id == page_id;
+                             });
+    if (page == event->pages.end()) {
+        return false;
+    }
+    PerspectiveEvent::Command command;
+    command.code = "conditional_branch";
+    command.condition_type = condition_type;
+    command.condition_key = key;
+    command.condition_comparison = comparison;
+    command.condition_value = value;
+    page->commands.push_back(std::move(command));
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::AddPerspectiveEventPageBranchCommand(const std::string& event_id,
+                                                                     const std::string& page_id,
+                                                                     size_t branch_command_index,
+                                                                     bool when_true,
+                                                                     const std::string& command_code,
+                                                                     const std::string& argument) {
+    if (event_id.empty() || page_id.empty() || command_code.empty()) {
+        return false;
+    }
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                             [&](const PerspectiveEvent::Page& candidate) {
+                                 return candidate.page_id == page_id;
+                             });
+    if (page == event->pages.end() || branch_command_index >= page->commands.size()) {
+        return false;
+    }
+    auto& branch = page->commands[branch_command_index];
+    if (branch.code != "conditional_branch") {
+        return false;
+    }
+    PerspectiveEvent::Command child;
+    child.code = command_code;
+    child.argument = argument;
+    if (when_true) {
+        branch.true_commands.push_back(std::move(child));
+    } else {
+        branch.false_commands.push_back(std::move(child));
+    }
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::UpdatePerspectiveEventPageCommand(const std::string& event_id,
+                                                                  const std::string& page_id,
+                                                                  size_t command_index,
+                                                                  const std::string& command_code,
+                                                                  const std::string& argument) {
+    if (command_code.empty()) {
+        return false;
+    }
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                             [&](const PerspectiveEvent::Page& candidate) {
+                                 return candidate.page_id == page_id;
+                             });
+    if (page == event->pages.end() || command_index >= page->commands.size()) {
+        return false;
+    }
+    page->commands[command_index] = {command_code, argument};
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::RemovePerspectiveEventPageCommand(const std::string& event_id,
+                                                                  const std::string& page_id,
+                                                                  size_t command_index) {
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                             [&](const PerspectiveEvent::Page& candidate) {
+                                 return candidate.page_id == page_id;
+                             });
+    if (page == event->pages.end() || command_index >= page->commands.size()) {
+        return false;
+    }
+    page->commands.erase(page->commands.begin() + static_cast<std::ptrdiff_t>(command_index));
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::SetPerspectiveEventConditionValue(const std::string& condition_type,
+                                                                  const std::string& key,
+                                                                  const std::string& value) {
+    if (condition_type.empty() || key.empty()) {
+        return false;
+    }
+    auto existing = std::find_if(perspective_event_condition_values_.begin(),
+                                 perspective_event_condition_values_.end(),
+                                 [&](const PerspectiveEventConditionValue& condition_value) {
+                                     return condition_value.type == condition_type && condition_value.key == key;
+                                 });
+    if (existing == perspective_event_condition_values_.end()) {
+        perspective_event_condition_values_.push_back({condition_type, key, value});
+    } else {
+        existing->value = value;
+    }
     captureRenderSnapshot();
     return true;
 }
@@ -806,6 +1461,18 @@ bool SpatialAuthoringWorkspace::UpdatePerspectiveEventCommand(const std::string&
     auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
                               [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
     if (event == perspective_events_.end() || command_index >= event->commands.size()) {
+        if (event != perspective_events_.end() && !event->selected_page_id.empty()) {
+            auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                                     [&](const PerspectiveEvent::Page& candidate) {
+                                         return candidate.page_id == event->selected_page_id;
+                                     });
+            if (page != event->pages.end() && command_index < page->commands.size()) {
+                page->commands[command_index] = {command_code, argument};
+                markPerspectiveDirty();
+                captureRenderSnapshot();
+                return true;
+            }
+        }
         return false;
     }
     event->commands[command_index] = {command_code, argument};
@@ -818,6 +1485,18 @@ bool SpatialAuthoringWorkspace::RemovePerspectiveEventCommand(const std::string&
     auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
                               [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
     if (event == perspective_events_.end() || command_index >= event->commands.size()) {
+        if (event != perspective_events_.end() && !event->selected_page_id.empty()) {
+            auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                                     [&](const PerspectiveEvent::Page& candidate) {
+                                         return candidate.page_id == event->selected_page_id;
+                                     });
+            if (page != event->pages.end() && command_index < page->commands.size()) {
+                page->commands.erase(page->commands.begin() + static_cast<std::ptrdiff_t>(command_index));
+                markPerspectiveDirty();
+                captureRenderSnapshot();
+                return true;
+            }
+        }
         return false;
     }
     event->commands.erase(event->commands.begin() + static_cast<std::ptrdiff_t>(command_index));
@@ -841,6 +1520,24 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
     json["tiles"] = nlohmann::json::array();
     json["events"] = nlohmann::json::array();
 
+    const std::function<nlohmann::json(const std::vector<PerspectiveEvent::Command>&)> serialize_commands =
+        [&](const std::vector<PerspectiveEvent::Command>& commands) {
+            nlohmann::json command_json = nlohmann::json::array();
+            for (const auto& command : commands) {
+                nlohmann::json item = {{"code", command.code}, {"argument", command.argument}};
+                if (command.code == "conditional_branch") {
+                    item["condition"] = {{"type", command.condition_type},
+                                         {"key", command.condition_key},
+                                         {"comparison", command.condition_comparison},
+                                         {"value", command.condition_value}};
+                    item["true_commands"] = serialize_commands(command.true_commands);
+                    item["false_commands"] = serialize_commands(command.false_commands);
+                }
+                command_json.push_back(std::move(item));
+            }
+            return command_json;
+        };
+
     for (const auto& layer : perspective_layers_) {
         json["layers"].push_back({{"id", layer.id},
                                   {"label", layer.label},
@@ -857,9 +1554,21 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
                                  {"y", tile.tile_y}});
     }
     for (const auto& event : perspective_events_) {
-        nlohmann::json commands = nlohmann::json::array();
-        for (const auto& command : event.commands) {
-            commands.push_back({{"code", command.code}, {"argument", command.argument}});
+        nlohmann::json pages = nlohmann::json::array();
+        for (const auto& page : event.pages) {
+            nlohmann::json conditions = nlohmann::json::array();
+            for (const auto& condition : page.conditions) {
+                conditions.push_back({{"type", condition.type},
+                                      {"key", condition.key},
+                                      {"comparison", condition.comparison},
+                                      {"value", condition.value}});
+            }
+            pages.push_back({{"page_id", page.page_id},
+                             {"label", page.label},
+                             {"trigger_id", page.trigger_id},
+                             {"order", page.order},
+                             {"conditions", std::move(conditions)},
+                             {"commands", serialize_commands(page.commands)}});
         }
         json["events"].push_back({{"event_id", event.event_id},
                                   {"label", event.label},
@@ -867,9 +1576,135 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
                                   {"layer_id", event.layer_id},
                                   {"x", event.tile_x},
                                   {"y", event.tile_y},
-                                  {"commands", std::move(commands)}});
+                                  {"selected_page_id", event.selected_page_id},
+                                  {"commands", serialize_commands(event.commands)},
+                                  {"pages", std::move(pages)}});
     }
 
+    return json.dump(2);
+}
+
+std::string SpatialAuthoringWorkspace::serializePerspectiveRuntimeManifest(size_t& out_layer_count,
+                                                                           size_t& out_tile_count,
+                                                                           size_t& out_event_count) const {
+    out_layer_count = 0;
+    out_tile_count = 0;
+    out_event_count = 0;
+
+    const auto layer_by_id = [&](const std::string& layer_id) -> const PerspectiveLayer* {
+        const auto found = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                        [&](const PerspectiveLayer& layer) { return layer.id == layer_id; });
+        return found == perspective_layers_.end() ? nullptr : &(*found);
+    };
+    const auto condition_matches = [&](const PerspectiveEvent::Condition& condition) {
+        const auto value = std::find_if(perspective_event_condition_values_.begin(),
+                                        perspective_event_condition_values_.end(),
+                                        [&](const PerspectiveEventConditionValue& condition_value) {
+                                            return condition_value.type == condition.type &&
+                                                   condition_value.key == condition.key;
+                                        });
+        return value != perspective_event_condition_values_.end() &&
+               conditionValueMatches(value->value, condition.comparison, condition.value);
+    };
+    const auto page_matches = [&](const PerspectiveEvent::Page& page) {
+        return std::all_of(page.conditions.begin(), page.conditions.end(), condition_matches);
+    };
+    const auto active_page_for_event = [&](const PerspectiveEvent& event) -> const PerspectiveEvent::Page* {
+        const PerspectiveEvent::Page* active_page = nullptr;
+        for (const auto& page : event.pages) {
+            if (page_matches(page)) {
+                active_page = &page;
+            }
+        }
+        if (active_page == nullptr && !event.pages.empty()) {
+            active_page = &event.pages.front();
+        }
+        return active_page;
+    };
+    const std::function<nlohmann::json(const std::vector<PerspectiveEvent::Command>&)> serialize_commands =
+        [&](const std::vector<PerspectiveEvent::Command>& commands) {
+            nlohmann::json command_json = nlohmann::json::array();
+            for (const auto& command : commands) {
+                nlohmann::json item = {{"code", command.code}, {"argument", command.argument}};
+                if (command.code == "conditional_branch") {
+                    item["condition"] = {{"type", command.condition_type},
+                                         {"key", command.condition_key},
+                                         {"comparison", command.condition_comparison},
+                                         {"value", command.condition_value}};
+                    item["true_commands"] = serialize_commands(command.true_commands);
+                    item["false_commands"] = serialize_commands(command.false_commands);
+                }
+                command_json.push_back(std::move(item));
+            }
+            return command_json;
+        };
+
+    nlohmann::json json;
+    json["document_kind"] = "urpg.perspective_2d.runtime_manifest";
+    json["version"] = 1;
+    json["map_id"] = m_target_overlay != nullptr ? m_target_overlay->mapId : std::string{};
+    json["width"] = m_target_overlay != nullptr ? m_target_overlay->elevation.width : 0;
+    json["height"] = m_target_overlay != nullptr ? m_target_overlay->elevation.height : 0;
+    json["layers"] = nlohmann::json::array();
+    json["tiles"] = nlohmann::json::array();
+    json["events"] = nlohmann::json::array();
+
+    for (const auto& layer : perspective_layers_) {
+        if (!layer.visible || layer.locked) {
+            continue;
+        }
+        json["layers"].push_back({{"id", layer.id},
+                                  {"label", layer.label},
+                                  {"kind", layer.kind},
+                                  {"order", layer.order}});
+    }
+    out_layer_count = json["layers"].size();
+
+    for (const auto& tile : perspective_tiles_) {
+        const PerspectiveLayer* layer = layer_by_id(tile.layer_id);
+        if (layer == nullptr || layer->kind != "tile" || !layer->visible || layer->locked) {
+            continue;
+        }
+        json["tiles"].push_back({{"layer_id", tile.layer_id},
+                                 {"tileset_id", tile.tileset_id},
+                                 {"tile_id", tile.tile_id},
+                                 {"x", tile.tile_x},
+                                 {"y", tile.tile_y}});
+    }
+    out_tile_count = json["tiles"].size();
+
+    for (const auto& event : perspective_events_) {
+        const PerspectiveLayer* layer = layer_by_id(event.layer_id);
+        if (layer == nullptr || !layer->visible || layer->locked) {
+            continue;
+        }
+        const PerspectiveEvent::Page* active_page = active_page_for_event(event);
+        const auto& commands = active_page != nullptr ? active_page->commands : event.commands;
+        json["events"].push_back({{"event_id", event.event_id},
+                                  {"label", event.label},
+                                  {"layer_id", event.layer_id},
+                                  {"x", event.tile_x},
+                                  {"y", event.tile_y},
+                                  {"trigger_id", active_page != nullptr ? active_page->trigger_id : event.trigger_id},
+                                  {"active_page_id", active_page != nullptr ? active_page->page_id : std::string{}},
+                                  {"commands", serialize_commands(commands)}});
+    }
+    out_event_count = json["events"].size();
+
+    return json.dump(2);
+}
+
+std::string
+SpatialAuthoringWorkspace::serializePerspectiveExportPackageManifest(const Perspective2DExportResult& export_result) const {
+    nlohmann::json json;
+    json["document_kind"] = "urpg.perspective_2d.export_package";
+    json["version"] = 1;
+    json["map_id"] = export_result.map_id;
+    json["draft_document_kind"] = "urpg.perspective_2d.map";
+    json["runtime_manifest_kind"] = "urpg.perspective_2d.runtime_manifest";
+    json["runtime_layer_count"] = export_result.runtime_layer_count;
+    json["runtime_tile_count"] = export_result.runtime_tile_count;
+    json["runtime_event_count"] = export_result.runtime_event_count;
     return json.dump(2);
 }
 
@@ -949,6 +1784,10 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
     if (selected_perspective_layer_id_.empty() && !perspective_layers_.empty()) {
         selected_perspective_layer_id_ = perspective_layers_.front().id;
     }
+    selected_perspective_layer_ids_.clear();
+    if (!selected_perspective_layer_id_.empty()) {
+        selected_perspective_layer_ids_.push_back(selected_perspective_layer_id_);
+    }
 
     for (const auto& tile_json : json.value("tiles", nlohmann::json::array())) {
         PerspectiveTilePaint tile;
@@ -961,6 +1800,26 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
             perspective_tiles_.push_back(std::move(tile));
         }
     }
+    const std::function<std::vector<PerspectiveEvent::Command>(const nlohmann::json&)> load_commands =
+        [&](const nlohmann::json& commands_json) {
+            std::vector<PerspectiveEvent::Command> commands;
+            for (const auto& command_json : commands_json) {
+                PerspectiveEvent::Command command;
+                command.code = command_json.value("code", "");
+                command.argument = command_json.value("argument", "");
+                const auto condition_json = command_json.value("condition", nlohmann::json::object());
+                command.condition_type = condition_json.value("type", "");
+                command.condition_key = condition_json.value("key", "");
+                command.condition_comparison = condition_json.value("comparison", "");
+                command.condition_value = condition_json.value("value", "");
+                command.true_commands = load_commands(command_json.value("true_commands", nlohmann::json::array()));
+                command.false_commands = load_commands(command_json.value("false_commands", nlohmann::json::array()));
+                if (!command.code.empty()) {
+                    commands.push_back(std::move(command));
+                }
+            }
+            return commands;
+        };
     for (const auto& event_json : json.value("events", nlohmann::json::array())) {
         PerspectiveEvent event;
         event.event_id = event_json.value("event_id", "");
@@ -969,13 +1828,38 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
         event.layer_id = event_json.value("layer_id", "");
         event.tile_x = event_json.value("x", 0);
         event.tile_y = event_json.value("y", 0);
-        for (const auto& command_json : event_json.value("commands", nlohmann::json::array())) {
-            PerspectiveEvent::Command command;
-            command.code = command_json.value("code", "");
-            command.argument = command_json.value("argument", "");
-            if (!command.code.empty()) {
-                event.commands.push_back(std::move(command));
+        event.selected_page_id = event_json.value("selected_page_id", "");
+        event.commands = load_commands(event_json.value("commands", nlohmann::json::array()));
+        for (const auto& page_json : event_json.value("pages", nlohmann::json::array())) {
+            PerspectiveEvent::Page page;
+            page.page_id = page_json.value("page_id", "");
+            page.label = page_json.value("label", page.page_id);
+            page.trigger_id = page_json.value("trigger_id", event.trigger_id);
+            page.order = page_json.value("order", static_cast<int>(event.pages.size()));
+            for (const auto& condition_json : page_json.value("conditions", nlohmann::json::array())) {
+                PerspectiveEvent::Condition condition;
+                condition.type = condition_json.value("type", "");
+                condition.key = condition_json.value("key", "");
+                condition.comparison = condition_json.value("comparison", "equals");
+                condition.value = condition_json.value("value", "");
+                if (!condition.type.empty() && !condition.key.empty()) {
+                    page.conditions.push_back(std::move(condition));
+                }
             }
+            page.commands = load_commands(page_json.value("commands", nlohmann::json::array()));
+            if (!page.page_id.empty()) {
+                event.pages.push_back(std::move(page));
+            }
+        }
+        std::stable_sort(event.pages.begin(), event.pages.end(),
+                         [](const PerspectiveEvent::Page& lhs, const PerspectiveEvent::Page& rhs) {
+                             return lhs.order < rhs.order;
+                         });
+        for (size_t i = 0; i < event.pages.size(); ++i) {
+            event.pages[i].order = static_cast<int>(i);
+        }
+        if (event.selected_page_id.empty() && !event.pages.empty()) {
+            event.selected_page_id = event.pages.front().page_id;
         }
         if (!event.event_id.empty() && !event.layer_id.empty()) {
             perspective_events_.push_back(std::move(event));
@@ -1078,6 +1962,8 @@ SpatialAuthoringWorkspace::Perspective2DPlaytestResult SpatialAuthoringWorkspace
 
     result.success = true;
     result.message = "Perspective 2D map playtest readiness passed.";
+    result.serialized_runtime_manifest_json =
+        serializePerspectiveRuntimeManifest(result.runtime_layer_count, result.runtime_tile_count, result.runtime_event_count);
     perspective_playtest_ready_ = true;
     last_perspective_playtest_result_ = result;
     captureRenderSnapshot();
@@ -1103,6 +1989,9 @@ SpatialAuthoringWorkspace::Perspective2DExportResult SpatialAuthoringWorkspace::
     result.success = true;
     result.message = "Perspective 2D map is exportable.";
     result.serialized_document_json = serializePerspectiveMapDraft();
+    result.serialized_runtime_manifest_json =
+        serializePerspectiveRuntimeManifest(result.runtime_layer_count, result.runtime_tile_count, result.runtime_event_count);
+    result.serialized_package_manifest_json = serializePerspectiveExportPackageManifest(result);
     last_perspective_export_result_ = result;
     captureRenderSnapshot();
     return last_perspective_export_result_;
@@ -1142,11 +2031,31 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     last_render_snapshot_.perspective_2d_palette.selected_option_id = selected_palette_option_id_;
     last_render_snapshot_.perspective_2d_palette.selected_tileset_id = selected_tileset_id_;
     last_render_snapshot_.perspective_2d_palette.selected_tile_id = selected_tile_id_;
+    last_render_snapshot_.perspective_2d_palette.search_text = palette_search_text_;
+    last_render_snapshot_.perspective_2d_palette.filtered_tileset_id = palette_filter_tileset_id_;
+    last_render_snapshot_.perspective_2d_palette.filtered_category_id = palette_filter_category_id_;
     last_render_snapshot_.perspective_2d_palette.brush_size = perspective_brush_size_;
     last_render_snapshot_.perspective_2d_palette.has_selected_tile =
         !selected_tileset_id_.empty() && !selected_tile_id_.empty();
     last_render_snapshot_.perspective_2d_palette.tile_options.clear();
+    last_render_snapshot_.perspective_2d_palette.tile_option_count = perspective_tile_palette_options_.size();
+    last_render_snapshot_.perspective_2d_palette.selected_option_visible = selected_palette_option_id_.empty();
     for (const auto& option : perspective_tile_palette_options_) {
+        const bool matches_search = palette_search_text_.empty() ||
+                                    containsCaseInsensitive(option.option_id, palette_search_text_) ||
+                                    containsCaseInsensitive(option.label, palette_search_text_) ||
+                                    containsCaseInsensitive(option.tileset_id, palette_search_text_) ||
+                                    containsCaseInsensitive(option.tile_id, palette_search_text_) ||
+                                    containsCaseInsensitive(option.asset_id, palette_search_text_) ||
+                                    containsCaseInsensitive(option.project_path, palette_search_text_) ||
+                                    containsCaseInsensitive(option.category_id, palette_search_text_);
+        const bool matches_tileset =
+            palette_filter_tileset_id_.empty() || option.tileset_id == palette_filter_tileset_id_;
+        const bool matches_category =
+            palette_filter_category_id_.empty() || option.category_id == palette_filter_category_id_;
+        if (!matches_search || !matches_tileset || !matches_category) {
+            continue;
+        }
         Perspective2DPaletteOptionSnapshot option_snapshot;
         option_snapshot.option_id = option.option_id;
         option_snapshot.label = option.label;
@@ -1154,10 +2063,15 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
         option_snapshot.tile_id = option.tile_id;
         option_snapshot.asset_id = option.asset_id;
         option_snapshot.project_path = option.project_path;
+        option_snapshot.category_id = option.category_id;
+        option_snapshot.thumbnail_path = option.thumbnail_path;
         option_snapshot.selected = option.option_id == selected_palette_option_id_;
+        if (option_snapshot.selected) {
+            last_render_snapshot_.perspective_2d_palette.selected_option_visible = true;
+        }
         last_render_snapshot_.perspective_2d_palette.tile_options.push_back(std::move(option_snapshot));
     }
-    last_render_snapshot_.perspective_2d_palette.tile_option_count =
+    last_render_snapshot_.perspective_2d_palette.visible_tile_option_count =
         last_render_snapshot_.perspective_2d_palette.tile_options.size();
     last_render_snapshot_.perspective_2d_layers.clear();
     for (const auto& layer : perspective_layers_) {
@@ -1169,6 +2083,7 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
         layer_snapshot.locked = layer.locked;
         layer_snapshot.order = layer.order;
         layer_snapshot.selected = layer.id == selected_perspective_layer_id_;
+        layer_snapshot.selected_for_bulk_edit = containsString(selected_perspective_layer_ids_, layer.id);
         layer_snapshot.tile_count = static_cast<size_t>(std::count_if(
             perspective_tiles_.begin(), perspective_tiles_.end(),
             [&](const PerspectiveTilePaint& tile) { return tile.layer_id == layer.id; }));
@@ -1178,6 +2093,51 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
         last_render_snapshot_.perspective_2d_layers.push_back(std::move(layer_snapshot));
     }
     last_render_snapshot_.perspective_2d_events.clear();
+    const auto condition_matches = [&](const PerspectiveEvent::Condition& condition) {
+        const auto value = std::find_if(perspective_event_condition_values_.begin(),
+                                        perspective_event_condition_values_.end(),
+                                        [&](const PerspectiveEventConditionValue& condition_value) {
+                                            return condition_value.type == condition.type &&
+                                                   condition_value.key == condition.key;
+                                        });
+        return value != perspective_event_condition_values_.end() &&
+               conditionValueMatches(value->value, condition.comparison, condition.value);
+    };
+    const auto page_matches = [&](const PerspectiveEvent::Page& page) {
+        return std::all_of(page.conditions.begin(), page.conditions.end(), condition_matches);
+    };
+    const auto active_page_for_event = [&](const PerspectiveEvent& event) -> const PerspectiveEvent::Page* {
+        const PerspectiveEvent::Page* active_page = nullptr;
+        for (const auto& page : event.pages) {
+            if (page_matches(page)) {
+                active_page = &page;
+            }
+        }
+        if (active_page == nullptr && !event.pages.empty()) {
+            active_page = &event.pages.front();
+        }
+        return active_page;
+    };
+    const std::function<std::vector<Perspective2DEventSnapshot::CommandSnapshot>(
+        const std::vector<PerspectiveEvent::Command>&)> command_snapshots =
+        [&](const std::vector<PerspectiveEvent::Command>& commands) {
+            std::vector<Perspective2DEventSnapshot::CommandSnapshot> snapshots;
+            for (const auto& command : commands) {
+                Perspective2DEventSnapshot::CommandSnapshot command_snapshot;
+                command_snapshot.code = command.code;
+                command_snapshot.argument = command.argument;
+                command_snapshot.condition_type = command.condition_type;
+                command_snapshot.condition_key = command.condition_key;
+                command_snapshot.condition_comparison = command.condition_comparison;
+                command_snapshot.condition_value = command.condition_value;
+                command_snapshot.true_commands = command_snapshots(command.true_commands);
+                command_snapshot.false_commands = command_snapshots(command.false_commands);
+                command_snapshot.true_command_count = command_snapshot.true_commands.size();
+                command_snapshot.false_command_count = command_snapshot.false_commands.size();
+                snapshots.push_back(std::move(command_snapshot));
+            }
+            return snapshots;
+        };
     for (const auto& event : perspective_events_) {
         Perspective2DEventSnapshot event_snapshot;
         event_snapshot.event_id = event.event_id;
@@ -1186,10 +2146,33 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
         event_snapshot.layer_id = event.layer_id;
         event_snapshot.tile_x = event.tile_x;
         event_snapshot.tile_y = event.tile_y;
-        for (const auto& command : event.commands) {
-            event_snapshot.commands.push_back({command.code, command.argument});
+        event_snapshot.selected_page_id = event.selected_page_id;
+        const PerspectiveEvent::Page* active_page = active_page_for_event(event);
+        if (active_page != nullptr) {
+            event_snapshot.active_page_id = active_page->page_id;
+            event_snapshot.trigger_id = active_page->trigger_id;
         }
+        const auto& active_commands = active_page != nullptr ? active_page->commands : event.commands;
+        event_snapshot.commands = command_snapshots(active_commands);
         event_snapshot.command_count = event_snapshot.commands.size();
+        for (const auto& page : event.pages) {
+            Perspective2DEventSnapshot::PageSnapshot page_snapshot;
+            page_snapshot.page_id = page.page_id;
+            page_snapshot.label = page.label;
+            page_snapshot.trigger_id = page.trigger_id;
+            page_snapshot.order = page.order;
+            page_snapshot.selected = page.page_id == event.selected_page_id;
+            page_snapshot.active_in_playtest = active_page != nullptr && active_page->page_id == page.page_id;
+            for (const auto& condition : page.conditions) {
+                page_snapshot.conditions.push_back(
+                    {condition.type, condition.key, condition.comparison, condition.value});
+            }
+            page_snapshot.condition_count = page_snapshot.conditions.size();
+            page_snapshot.commands = command_snapshots(page.commands);
+            page_snapshot.command_count = page_snapshot.commands.size();
+            event_snapshot.pages.push_back(std::move(page_snapshot));
+        }
+        event_snapshot.page_count = event_snapshot.pages.size();
         const auto layer = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
                                         [&](const PerspectiveLayer& candidate) {
                                             return candidate.id == event.layer_id;
@@ -1205,6 +2188,7 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     last_render_snapshot_.perspective_2d_project.height =
         m_target_overlay != nullptr ? m_target_overlay->elevation.height : 0;
     last_render_snapshot_.perspective_2d_project.selected_layer_id = selected_perspective_layer_id_;
+    last_render_snapshot_.perspective_2d_project.selected_layer_count = selected_perspective_layer_ids_.size();
     last_render_snapshot_.perspective_2d_project.layer_count = perspective_layers_.size();
     last_render_snapshot_.perspective_2d_project.painted_tile_count = perspective_tiles_.size();
     last_render_snapshot_.perspective_2d_project.event_count = perspective_events_.size();

@@ -65,6 +65,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         size_t tile_count = 0;
         size_t event_count = 0;
         bool selected = false;
+        bool selected_for_bulk_edit = false;
     };
 
     struct Perspective2DPaletteOptionSnapshot {
@@ -74,6 +75,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string tile_id;
         std::string asset_id;
         std::string project_path;
+        std::string category_id = "";
+        std::string thumbnail_path = "";
         bool selected = false;
     };
 
@@ -81,10 +84,15 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string selected_option_id;
         std::string selected_tileset_id;
         std::string selected_tile_id;
+        std::string search_text;
+        std::string filtered_tileset_id;
+        std::string filtered_category_id;
         std::string brush_shape = "rectangle";
         int brush_size = 1;
         bool has_selected_tile = false;
+        bool selected_option_visible = false;
         size_t tile_option_count = 0;
+        size_t visible_tile_option_count = 0;
         std::vector<Perspective2DPaletteOptionSnapshot> tile_options;
     };
 
@@ -92,6 +100,34 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         struct CommandSnapshot {
             std::string code;
             std::string argument;
+            std::string condition_type;
+            std::string condition_key;
+            std::string condition_comparison;
+            std::string condition_value;
+            size_t true_command_count = 0;
+            size_t false_command_count = 0;
+            std::vector<CommandSnapshot> true_commands;
+            std::vector<CommandSnapshot> false_commands;
+        };
+
+        struct ConditionSnapshot {
+            std::string type;
+            std::string key;
+            std::string comparison = "equals";
+            std::string value;
+        };
+
+        struct PageSnapshot {
+            std::string page_id;
+            std::string label;
+            std::string trigger_id;
+            int order = 0;
+            bool selected = false;
+            bool active_in_playtest = false;
+            size_t condition_count = 0;
+            size_t command_count = 0;
+            std::vector<ConditionSnapshot> conditions;
+            std::vector<CommandSnapshot> commands;
         };
 
         std::string event_id;
@@ -102,7 +138,11 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         int32_t tile_y = 0;
         bool visible_in_playtest = true;
         size_t command_count = 0;
+        size_t page_count = 0;
+        std::string selected_page_id;
+        std::string active_page_id;
         std::vector<CommandSnapshot> commands;
+        std::vector<PageSnapshot> pages;
     };
 
     struct Perspective2DProjectSnapshot {
@@ -110,6 +150,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         uint32_t width = 0;
         uint32_t height = 0;
         std::string selected_layer_id;
+        size_t selected_layer_count = 0;
         size_t layer_count = 0;
         size_t painted_tile_count = 0;
         size_t event_count = 0;
@@ -140,6 +181,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string tile_id;
         std::string asset_id;
         std::string project_path;
+        std::string category_id = "";
+        std::string thumbnail_path = "";
     };
 
     struct Perspective2DPlaytestResult {
@@ -149,6 +192,10 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string map_id;
         size_t playtest_tile_count = 0;
         size_t playtest_event_count = 0;
+        std::string serialized_runtime_manifest_json;
+        size_t runtime_layer_count = 0;
+        size_t runtime_tile_count = 0;
+        size_t runtime_event_count = 0;
         std::vector<std::string> blocker_codes;
     };
 
@@ -158,8 +205,13 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string message = "Perspective 2D map export has not run.";
         std::string map_id;
         std::string serialized_document_json;
+        std::string serialized_runtime_manifest_json;
+        std::string serialized_package_manifest_json;
         size_t exported_tile_count = 0;
         size_t exported_event_count = 0;
+        size_t runtime_layer_count = 0;
+        size_t runtime_tile_count = 0;
+        size_t runtime_event_count = 0;
         std::vector<std::string> blocker_codes;
     };
 
@@ -214,6 +266,11 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     bool SelectGridPart(const std::string& part_id);
     bool AddPerspectiveLayer(const std::string& layer_id, const std::string& label, const std::string& kind);
     bool SelectPerspectiveLayer(const std::string& layer_id);
+    bool SelectPerspectiveLayers(const std::vector<std::string>& layer_ids);
+    bool SetSelectedPerspectiveLayersVisible(bool visible);
+    bool SetSelectedPerspectiveLayersLocked(bool locked);
+    bool DuplicateSelectedPerspectiveLayers(const std::string& id_suffix);
+    bool DeleteSelectedPerspectiveLayers();
     bool SetPerspectiveLayerVisible(const std::string& layer_id, bool visible);
     bool SetPerspectiveLayerLocked(const std::string& layer_id, bool locked);
     bool MovePerspectiveLayer(const std::string& layer_id, int new_order);
@@ -223,6 +280,10 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                    const std::string& new_label);
     bool ClearPerspectiveLayer(const std::string& layer_id);
     void SetPerspectiveTilePaletteOptions(std::vector<Perspective2DPaletteOption> options);
+    void SetPerspectiveTilePaletteFilter(const std::string& search_text,
+                                         const std::string& tileset_id,
+                                         const std::string& category_id);
+    void ClearPerspectiveTilePaletteFilter();
     bool SelectPerspectiveTilePaletteOption(const std::string& option_id);
     bool SelectPerspectiveTile(const std::string& tileset_id, const std::string& tile_id);
     bool SetPerspectiveBrushSize(int brush_size);
@@ -237,6 +298,64 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     bool AddPerspectiveEventCommand(const std::string& event_id,
                                     const std::string& command_code,
                                     const std::string& argument);
+    bool AddPerspectiveEventPage(const std::string& event_id,
+                                 const std::string& page_id,
+                                 const std::string& label,
+                                 const std::string& trigger_id);
+    bool SelectPerspectiveEventPage(const std::string& event_id, const std::string& page_id);
+    bool MovePerspectiveEventPage(const std::string& event_id, const std::string& page_id, int new_order);
+    bool DuplicatePerspectiveEventPage(const std::string& event_id,
+                                       const std::string& source_page_id,
+                                       const std::string& new_page_id,
+                                       const std::string& new_label);
+    bool DeletePerspectiveEventPage(const std::string& event_id, const std::string& page_id);
+    bool AddPerspectiveEventPageCondition(const std::string& event_id,
+                                          const std::string& page_id,
+                                          const std::string& condition_type,
+                                          const std::string& key,
+                                          const std::string& value);
+    bool AddPerspectiveEventPageConditionRule(const std::string& event_id,
+                                              const std::string& page_id,
+                                              const std::string& condition_type,
+                                              const std::string& key,
+                                              const std::string& comparison,
+                                              const std::string& value);
+    bool UpdatePerspectiveEventPageCondition(const std::string& event_id,
+                                             const std::string& page_id,
+                                             size_t condition_index,
+                                             const std::string& condition_type,
+                                             const std::string& key,
+                                             const std::string& value);
+    bool RemovePerspectiveEventPageCondition(const std::string& event_id,
+                                             const std::string& page_id,
+                                             size_t condition_index);
+    bool AddPerspectiveEventPageCommand(const std::string& event_id,
+                                        const std::string& page_id,
+                                        const std::string& command_code,
+                                        const std::string& argument);
+    bool AddPerspectiveEventPageConditionalBranch(const std::string& event_id,
+                                                  const std::string& page_id,
+                                                  const std::string& condition_type,
+                                                  const std::string& key,
+                                                  const std::string& comparison,
+                                                  const std::string& value);
+    bool AddPerspectiveEventPageBranchCommand(const std::string& event_id,
+                                              const std::string& page_id,
+                                              size_t branch_command_index,
+                                              bool when_true,
+                                              const std::string& command_code,
+                                              const std::string& argument);
+    bool UpdatePerspectiveEventPageCommand(const std::string& event_id,
+                                           const std::string& page_id,
+                                           size_t command_index,
+                                           const std::string& command_code,
+                                           const std::string& argument);
+    bool RemovePerspectiveEventPageCommand(const std::string& event_id,
+                                           const std::string& page_id,
+                                           size_t command_index);
+    bool SetPerspectiveEventConditionValue(const std::string& condition_type,
+                                           const std::string& key,
+                                           const std::string& value);
     bool UpdatePerspectiveEventCommand(const std::string& event_id,
                                        size_t command_index,
                                        const std::string& command_code,
@@ -269,6 +388,10 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     bool projectScreenToTile(float screen_x, float screen_y, int32_t& out_tile_x, int32_t& out_tile_y) const;
     std::vector<std::string> validatePerspectiveMapForPlaytest() const;
     std::string serializePerspectiveMapDraft() const;
+    std::string serializePerspectiveRuntimeManifest(size_t& out_layer_count,
+                                                    size_t& out_tile_count,
+                                                    size_t& out_event_count) const;
+    std::string serializePerspectiveExportPackageManifest(const Perspective2DExportResult& export_result) const;
     static const char* modeName(ToolMode mode);
 
     struct PerspectiveLayer {
@@ -292,6 +415,28 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         struct Command {
             std::string code;
             std::string argument;
+            std::string condition_type;
+            std::string condition_key;
+            std::string condition_comparison;
+            std::string condition_value;
+            std::vector<Command> true_commands;
+            std::vector<Command> false_commands;
+        };
+
+        struct Condition {
+            std::string type;
+            std::string key;
+            std::string comparison = "equals";
+            std::string value;
+        };
+
+        struct Page {
+            std::string page_id;
+            std::string label;
+            std::string trigger_id;
+            int order = 0;
+            std::vector<Condition> conditions;
+            std::vector<Command> commands;
         };
 
         std::string event_id;
@@ -300,7 +445,15 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string layer_id;
         int32_t tile_x = 0;
         int32_t tile_y = 0;
+        std::string selected_page_id;
         std::vector<Command> commands;
+        std::vector<Page> pages;
+    };
+
+    struct PerspectiveEventConditionValue {
+        std::string type;
+        std::string key;
+        std::string value;
     };
 
     urpg::scene::MapScene* m_target_scene = nullptr;
@@ -323,9 +476,14 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     std::vector<PerspectiveLayer> perspective_layers_;
     std::vector<PerspectiveTilePaint> perspective_tiles_;
     std::vector<PerspectiveEvent> perspective_events_;
+    std::vector<PerspectiveEventConditionValue> perspective_event_condition_values_;
     std::vector<Perspective2DPaletteOption> perspective_tile_palette_options_;
     std::string selected_perspective_layer_id_;
+    std::vector<std::string> selected_perspective_layer_ids_;
     std::string selected_palette_option_id_;
+    std::string palette_search_text_;
+    std::string palette_filter_tileset_id_;
+    std::string palette_filter_category_id_;
     std::string selected_tileset_id_;
     std::string selected_tile_id_;
     int perspective_brush_size_ = 1;

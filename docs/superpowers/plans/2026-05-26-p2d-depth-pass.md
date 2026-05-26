@@ -211,8 +211,281 @@ Ran:
 
 Expected green: all P2D depth tests pass.
 
+## Task 6: RPG Maker-Style Event Pages And Conditions
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing event-page tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage for event page rows, selected page state, page conditions, page command rows, active page preview, and JSON draft save/load.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile fails or the new test fails because event page snapshots/APIs and JSON persistence are not present yet.
+
+- [x] **Step 3: Implement event page authoring**
+
+Add P2D event page structs, page condition structs, page command rows, selected-page editing APIs, condition preview state, active-page resolution, and JSON serialization/load while preserving the existing single-command-row event API.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
+## Task 7: Event Page Editing Ergonomics
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing event-page editing tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage for page reorder, duplicate, delete, page command update/remove, page condition update/remove, selected page preservation, and JSON draft save.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile fails or the new test fails because page editing APIs are not present yet.
+
+- [x] **Step 3: Implement event page editing APIs**
+
+Add explicit page reorder/duplicate/delete commands and page command/condition update/remove APIs, keeping existing event page JSON ordering and selected page behavior deterministic.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
+## Task 8: Promoted Tile Palette Search, Filter, And Preview Metadata
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing palette UX tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage for promoted tile option preview metadata, search text filtering, tileset filtering, category filtering, selected option visibility, empty filtered-state counts, and clearing filters.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile fails or the new test fails because palette filter state and preview metadata are not present yet.
+
+- [x] **Step 3: Implement palette filter and preview state**
+
+Add thumbnail/category metadata to promoted tile palette options, persistent filter snapshot state, visible option counts, and filter APIs that preserve direct selection while reporting whether the selected option is visible in the current filter.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
+## Task 9: Multi-Layer Editing Ergonomics
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing multi-layer tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage for bulk layer selection, selected-layer counts, selected row flags, bulk visible/locked toggles, duplicate-selected layers, delete-selected layers, and deterministic active-layer fallback.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile fails or the new test fails because multi-layer editing APIs and snapshot fields are not present yet.
+
+- [x] **Step 3: Implement multi-layer editing**
+
+Add bulk layer selection state, selected-layer snapshot counts, bulk visible/locked operations, selected-layer duplication with copied tiles/events, selected-layer deletion, order renumbering, and active-layer fallback.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
+## Task 10: Runtime Playtest And Export Manifest Proof
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing runtime manifest tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage proving playtest/export produce runtime-facing manifests that include visible unlocked tile layers, painted tiles, active event pages, active page commands, and package metadata.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile fails or the test fails because playtest/export runtime manifest fields are not present yet.
+
+- [x] **Step 3: Implement runtime manifest serialization**
+
+Add a runtime manifest serializer used by playtest and export results. Keep draft JSON unchanged, but add explicit playtest/export manifest fields that filter hidden/locked layers and resolve active event pages from condition preview state.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
+## Task 11: Richer Event Page Condition Rules
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing comparison-condition tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage for event page conditions with explicit comparison operators, including variable threshold checks, active-page switching, snapshots, draft JSON, and runtime manifest output.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile fails or the test fails because comparison condition APIs and JSON fields are not present yet.
+
+- [x] **Step 3: Implement comparison condition rules**
+
+Add a comparison field to P2D event page conditions, keep the existing equality condition API as a compatibility wrapper, evaluate string equality/inequality and numeric greater/less comparisons, and serialize comparison metadata through draft/runtime snapshots.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
+## Task 12: Conditional Branch Event Commands
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing branch-command tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage for authoring conditional branch commands inside event pages, adding true/false child commands, snapshot counts, draft JSON, and runtime manifest JSON.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile fails or the test fails because branch command APIs and nested command JSON are not present yet.
+
+- [x] **Step 3: Implement branch command support**
+
+Add branch condition metadata and true/false child command lists to P2D event commands, expose page branch authoring APIs, and serialize nested branch commands through snapshots, draft JSON, and runtime manifests.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
 ## Self-Review
 
-- Spec coverage: This plan covers tile/layer ergonomics, promoted asset palette rows, palette selection, event/object rows, editable event command rows, persistence, live playtest readiness, export readiness, and docs truth for the first P2D depth slice. It does not claim full RPG Maker parity.
+- Spec coverage: This plan covers tile/layer ergonomics, multi-layer editing, promoted asset palette rows, palette search/filter/preview metadata, palette selection, event/object rows, editable event command rows, RPG Maker-style event pages/conditions, richer comparison condition rules, conditional branch commands, page editing ergonomics, persistence, live playtest readiness, runtime manifest proof, export readiness, and docs truth for the first P2D depth slice. It does not claim full RPG Maker parity.
 - Placeholder scan: No TBD/TODO placeholders are used.
 - Type consistency: All new APIs are named on `SpatialAuthoringWorkspace` and are referenced consistently across test and implementation tasks.
