@@ -101,6 +101,16 @@ The chatbot exposes the current `task_plan`, `approval` manifest, and `last_appl
 
 `buildAssetActionRows()` turns the current asset library snapshot into shared WYSIWYG/chatbot action rows. The chatbot exposes them under `asset_action_rows`, including status badges, preview metadata, usage references, promote/archive button state, disabled reasons, and the recommended next action for each asset.
 
+### 2c. Local IDE MCP
+`tools/urpg_mcp/server.py` exposes a local-only MCP-style stdio JSON-RPC server for IDE agents. The first supported tools are:
+
+- `urpg.project_status`
+- `urpg.p2d_capabilities`
+- `urpg.focused_gate`
+- `urpg.release_guardrails`
+
+The server returns structured project status, the current Perspective 2D capability surface, allowlisted focused gate commands, and release guardrails. It has no arbitrary shell tool, does not perform destructive git operations, and does not bypass release, LFS, or asset-license gates. A client configuration sample lives at `.urpg-mcp/mcp.server.sample.json`.
+
 ### 3. Knowledge Bridges
 - **WorldKnowledgeBridge**: Serializes NPC locations, item names, and plot flags into a "World Context" digest.
 - **BattleKnowledgeBridge**: Provides tactical context (HP, Mana, Elemental weaknesses) for real-time combat advice.

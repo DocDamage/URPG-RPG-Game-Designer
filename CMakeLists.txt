@@ -1800,6 +1800,10 @@ if(Python3_FOUND)
         urpg_global_asset_import_tool_test
         tools/assets/tests/test_global_asset_import.py
     )
+    urpg_add_python_tool_test(
+        urpg_local_mcp_tool_test
+        tools/urpg_mcp/tests/test_server.py
+    )
 else()
     message(STATUS
         "Skipping Python tool CTest registrations because Python3 interpreter was not found: "
