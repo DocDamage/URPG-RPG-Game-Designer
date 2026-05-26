@@ -15,6 +15,7 @@
 #include "engine/core/scene/map_scene.h"
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <nlohmann/json.hpp>
 
 #include <algorithm>
 #include <filesystem>
@@ -478,7 +479,7 @@ TEST_CASE("Spatial Editor Tooling Integration - SpatialAuthoringWorkspace compos
     REQUIRE(snapshot.canvas.hover_affordance_count >= 2);
     REQUIRE(snapshot.toolbar.active_mode == "abilities");
     REQUIRE(snapshot.toolbar.has_conflicts == snapshot.canvas.has_conflicts);
-    REQUIRE(snapshot.toolbar.actions.size() == 7);
+    REQUIRE(snapshot.toolbar.actions.size() == 8);
     REQUIRE(snapshot.toolbar.actions[0].label == "Compose");
     const auto partsAction = std::find_if(snapshot.toolbar.actions.begin(), snapshot.toolbar.actions.end(),
                                           [](const auto& action) { return action.id == "parts"; });
@@ -645,4 +646,368 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D workspace compose
     REQUIRE(worldbuildingAction != snapshot.toolbar.actions.end());
     REQUIRE(worldbuildingAction->label == "Worldbuilding");
     REQUIRE(worldbuildingAction->active);
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D supports tile layers palette events and draft IO",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_depth_map";
+    overlay.elevation.width = 10;
+    overlay.elevation.height = 10;
+    overlay.elevation.levels.resize(100, 0);
+
+    urpg::scene::MapScene map("p2d_depth_map", 10, 10);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 200.0f;
+    projection.viewportHeight = 100.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 5.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTile("tileset_overworld", "grass_a"));
+    REQUIRE(workspace.ActivateToolbarAction("tiles"));
+    REQUIRE(workspace.RouteCanvasPrimaryAction(100.0f, 50.0f));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(110.0f, 50.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_intro", "Intro NPC", "confirm_interact", 120.0f, 60.0f));
+
+    workspace.Render({0.016f, 4});
+    auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.toolbar.active_mode == "tiles");
+    REQUIRE(snapshot.perspective_2d_project.layer_count == 2);
+    REQUIRE(snapshot.perspective_2d_project.painted_tile_count == 2);
+    REQUIRE(snapshot.perspective_2d_project.event_count == 1);
+    REQUIRE(snapshot.perspective_2d_project.has_unsaved_changes);
+    REQUIRE(snapshot.perspective_2d_palette.selected_tileset_id == "tileset_overworld");
+    REQUIRE(snapshot.perspective_2d_palette.selected_tile_id == "grass_a");
+    REQUIRE(snapshot.perspective_2d_layers[0].id == "ground");
+    REQUIRE(snapshot.perspective_2d_layers[0].tile_count == 2);
+    REQUIRE(snapshot.perspective_2d_layers[1].id == "events");
+    REQUIRE(snapshot.perspective_2d_layers[1].event_count == 1);
+    REQUIRE(snapshot.perspective_2d_events[0].event_id == "ev_intro");
+    REQUIRE(snapshot.perspective_2d_events[0].tile_x == 6);
+    REQUIRE(snapshot.perspective_2d_events[0].tile_y == 6);
+
+    const auto save = workspace.SavePerspectiveMapDraft();
+    REQUIRE(save.success);
+    REQUIRE(save.message == "Perspective 2D map draft saved.");
+    REQUIRE(save.layer_count == 2);
+    REQUIRE(save.painted_tile_count == 2);
+    REQUIRE(save.event_count == 1);
+    const auto savedJson = nlohmann::json::parse(save.serialized_document_json);
+    REQUIRE(savedJson["document_kind"] == "urpg.perspective_2d.map");
+    REQUIRE(savedJson["selected_layer_id"] == "events");
+    REQUIRE(savedJson["selected_tileset_id"] == "tileset_overworld");
+    REQUIRE(savedJson["selected_tile_id"] == "grass_a");
+    REQUIRE(savedJson["tiles"].size() == 2);
+    REQUIRE(savedJson["events"].size() == 1);
+
+    SpatialMapOverlay loadedOverlay;
+    loadedOverlay.mapId = "p2d_depth_map";
+    loadedOverlay.elevation.width = 10;
+    loadedOverlay.elevation.height = 10;
+    loadedOverlay.elevation.levels.resize(100, 0);
+    urpg::scene::MapScene loadedMap("p2d_depth_map", 10, 10);
+    SpatialAuthoringWorkspace loadedWorkspace;
+    loadedWorkspace.SetTargets(&loadedMap, &loadedOverlay);
+    loadedWorkspace.SetProjectionSettings(projection);
+    const auto load = loadedWorkspace.LoadPerspectiveMapDraft(save.serialized_document_json);
+    REQUIRE(load.success);
+    REQUIRE(load.message == "Perspective 2D map draft loaded.");
+    REQUIRE(load.layer_count == 2);
+    REQUIRE(load.painted_tile_count == 2);
+    REQUIRE(load.event_count == 1);
+
+    loadedWorkspace.Render({0.016f, 5});
+    const auto loadedSnapshot = loadedWorkspace.lastRenderSnapshot();
+    REQUIRE_FALSE(loadedSnapshot.perspective_2d_project.has_unsaved_changes);
+    REQUIRE(loadedSnapshot.perspective_2d_project.selected_layer_id == "events");
+    REQUIRE(loadedSnapshot.perspective_2d_palette.selected_tile_id == "grass_a");
+    REQUIRE(loadedSnapshot.perspective_2d_layers[0].tile_count == 2);
+    REQUIRE(loadedSnapshot.perspective_2d_events[0].label == "Intro NPC");
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D gates playtest and export readiness",
+          "[editor][spatial][p2d_depth]") {
+    SpatialAuthoringWorkspace unbound;
+    auto unboundPlaytest = unbound.RunPerspectiveMapPlaytest();
+    REQUIRE_FALSE(unboundPlaytest.success);
+    REQUIRE(unboundPlaytest.blocker_codes[0] == "p2d_targets_unbound");
+
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_ready_map";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_ready_map", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    auto emptyPlaytest = workspace.RunPerspectiveMapPlaytest();
+    REQUIRE_FALSE(emptyPlaytest.success);
+    REQUIRE(emptyPlaytest.blocker_codes[0] == "p2d_no_tile_layer");
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTile("dungeon", "floor"));
+    auto noTilesPlaytest = workspace.RunPerspectiveMapPlaytest();
+    REQUIRE_FALSE(noTilesPlaytest.success);
+    REQUIRE(noTilesPlaytest.blocker_codes[0] == "p2d_no_painted_tiles");
+
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_door", "Door", "confirm_interact", 90.0f, 90.0f));
+    REQUIRE(workspace.SetPerspectiveLayerLocked("events", true));
+    auto lockedEventPlaytest = workspace.RunPerspectiveMapPlaytest();
+    REQUIRE_FALSE(lockedEventPlaytest.success);
+    REQUIRE(lockedEventPlaytest.blocker_codes[0] == "p2d_event_layer_locked");
+
+    REQUIRE(workspace.SetPerspectiveLayerLocked("events", false));
+    auto playtest = workspace.RunPerspectiveMapPlaytest();
+    REQUIRE(playtest.success);
+    REQUIRE(playtest.message == "Perspective 2D map playtest readiness passed.");
+    REQUIRE(playtest.playtest_tile_count == 1);
+    REQUIRE(playtest.playtest_event_count == 1);
+
+    auto exportResult = workspace.ExportPerspectiveMap();
+    REQUIRE(exportResult.success);
+    REQUIRE(exportResult.message == "Perspective 2D map is exportable.");
+    REQUIRE(exportResult.exported_tile_count == 1);
+    REQUIRE(exportResult.exported_event_count == 1);
+    const auto exportedJson = nlohmann::json::parse(exportResult.serialized_document_json);
+    REQUIRE(exportedJson["map_id"] == "p2d_ready_map");
+    REQUIRE(exportedJson["tiles"].size() == 1);
+    REQUIRE(exportedJson["events"].size() == 1);
+
+    workspace.Render({0.016f, 6});
+    const auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_project.can_playtest);
+    REQUIRE(snapshot.perspective_2d_project.can_export);
+    REQUIRE(snapshot.last_perspective_2d_playtest.success);
+    REQUIRE(snapshot.last_perspective_2d_export.success);
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D supports brush erase and layer ergonomics",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_brush_map";
+    overlay.elevation.width = 10;
+    overlay.elevation.height = 10;
+    overlay.elevation.levels.resize(100, 0);
+    urpg::scene::MapScene map("p2d_brush_map", 10, 10);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 200.0f;
+    projection.viewportHeight = 100.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 5.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTile("overworld", "grass"));
+    REQUIRE(workspace.SetPerspectiveBrushSize(2));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(100.0f, 50.0f));
+    workspace.Render({0.016f, 7});
+    REQUIRE(workspace.lastRenderSnapshot().perspective_2d_project.painted_tile_count == 4);
+    REQUIRE(workspace.lastRenderSnapshot().perspective_2d_palette.brush_size == 2);
+
+    REQUIRE(workspace.ErasePerspectiveTileFromScreen(100.0f, 50.0f));
+    workspace.Render({0.016f, 8});
+    REQUIRE(workspace.lastRenderSnapshot().perspective_2d_project.painted_tile_count == 0);
+
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(100.0f, 50.0f));
+    REQUIRE(workspace.DuplicatePerspectiveLayer("ground", "ground_copy", "Ground Copy"));
+    workspace.Render({0.016f, 9});
+    REQUIRE(workspace.lastRenderSnapshot().perspective_2d_project.layer_count == 2);
+    REQUIRE(workspace.lastRenderSnapshot().perspective_2d_project.painted_tile_count == 8);
+
+    REQUIRE(workspace.ClearPerspectiveLayer("ground_copy"));
+    workspace.Render({0.016f, 10});
+    REQUIRE(workspace.lastRenderSnapshot().perspective_2d_project.painted_tile_count == 4);
+
+    REQUIRE(workspace.SetPerspectiveLayerLocked("ground", true));
+    REQUIRE_FALSE(workspace.PaintPerspectiveTileFromScreen(120.0f, 50.0f));
+    REQUIRE_FALSE(workspace.ErasePerspectiveTileFromScreen(100.0f, 50.0f));
+    REQUIRE(workspace.SetPerspectiveLayerLocked("ground", false));
+    REQUIRE(workspace.DeletePerspectiveLayer("ground_copy"));
+    workspace.Render({0.016f, 11});
+    REQUIRE(workspace.lastRenderSnapshot().perspective_2d_project.layer_count == 1);
+    REQUIRE(workspace.lastRenderSnapshot().perspective_2d_project.painted_tile_count == 4);
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D supports event command editing and movement",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_event_commands";
+    overlay.elevation.width = 10;
+    overlay.elevation.height = 10;
+    overlay.elevation.levels.resize(100, 0);
+    urpg::scene::MapScene map("p2d_event_commands", 10, 10);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 200.0f;
+    projection.viewportHeight = 100.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 5.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTile("town", "floor"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(100.0f, 50.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_intro", "Intro NPC", "confirm_interact", 110.0f, 60.0f));
+    REQUIRE(workspace.AddPerspectiveEventCommand("ev_intro", "show_text", "Welcome to town."));
+    REQUIRE(workspace.AddPerspectiveEventCommand("ev_intro", "transfer_player", "map002:4,6"));
+    REQUIRE(workspace.MovePerspectiveEventFromScreen("ev_intro", 130.0f, 70.0f));
+
+    workspace.Render({0.016f, 12});
+    auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_events[0].tile_x == 7);
+    REQUIRE(snapshot.perspective_2d_events[0].tile_y == 7);
+    REQUIRE(snapshot.perspective_2d_events[0].command_count == 2);
+    REQUIRE(snapshot.perspective_2d_events[0].commands[0].code == "show_text");
+    REQUIRE(snapshot.perspective_2d_events[0].commands[1].argument == "map002:4,6");
+
+    const auto save = workspace.SavePerspectiveMapDraft();
+    REQUIRE(save.success);
+    const auto savedJson = nlohmann::json::parse(save.serialized_document_json);
+    REQUIRE(savedJson["events"][0]["commands"].size() == 2);
+    REQUIRE(savedJson["events"][0]["commands"][0]["code"] == "show_text");
+
+    SpatialMapOverlay loadedOverlay;
+    loadedOverlay.mapId = "p2d_event_commands";
+    loadedOverlay.elevation.width = 10;
+    loadedOverlay.elevation.height = 10;
+    loadedOverlay.elevation.levels.resize(100, 0);
+    urpg::scene::MapScene loadedMap("p2d_event_commands", 10, 10);
+    SpatialAuthoringWorkspace loadedWorkspace;
+    loadedWorkspace.SetTargets(&loadedMap, &loadedOverlay);
+    REQUIRE(loadedWorkspace.LoadPerspectiveMapDraft(save.serialized_document_json).success);
+    loadedWorkspace.Render({0.016f, 13});
+    const auto loadedSnapshot = loadedWorkspace.lastRenderSnapshot();
+    REQUIRE(loadedSnapshot.perspective_2d_events[0].command_count == 2);
+    REQUIRE(loadedSnapshot.perspective_2d_events[0].commands[0].argument == "Welcome to town.");
+    REQUIRE(loadedSnapshot.perspective_2d_events[0].tile_x == 7);
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D exposes promoted asset palette rows",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_palette_assets";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_palette_assets", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    workspace.SetPerspectiveTilePaletteOptions({
+        {"grass_01", "Grass A", "overworld", "grass_a", "asset.overworld.grass_a", "content/tiles/grass_a.png"},
+        {"stone_01", "Stone Floor", "dungeon", "stone_floor", "asset.dungeon.stone_floor",
+         "content/tiles/stone_floor.png"},
+    });
+
+    workspace.Render({0.016f, 14});
+    auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_palette.tile_option_count == 2);
+    REQUIRE(snapshot.perspective_2d_palette.tile_options[0].option_id == "grass_01");
+    REQUIRE(snapshot.perspective_2d_palette.tile_options[0].label == "Grass A");
+    REQUIRE(snapshot.perspective_2d_palette.tile_options[0].asset_id == "asset.overworld.grass_a");
+    REQUIRE_FALSE(snapshot.perspective_2d_palette.tile_options[0].selected);
+
+    REQUIRE(workspace.SelectPerspectiveTilePaletteOption("stone_01"));
+    REQUIRE_FALSE(workspace.SelectPerspectiveTilePaletteOption("missing"));
+
+    workspace.Render({0.016f, 15});
+    snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_palette.selected_option_id == "stone_01");
+    REQUIRE(snapshot.perspective_2d_palette.selected_tileset_id == "dungeon");
+    REQUIRE(snapshot.perspective_2d_palette.selected_tile_id == "stone_floor");
+    REQUIRE(snapshot.perspective_2d_palette.tile_options[1].selected);
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+    const auto save = workspace.SavePerspectiveMapDraft();
+    REQUIRE(save.success);
+    const auto savedJson = nlohmann::json::parse(save.serialized_document_json);
+    REQUIRE(savedJson["selected_palette_option_id"] == "stone_01");
+    REQUIRE(savedJson["tiles"][0]["tileset_id"] == "dungeon");
+    REQUIRE(savedJson["tiles"][0]["tile_id"] == "stone_floor");
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D updates and removes event command rows",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_event_command_rows";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_event_command_rows", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_cutscene", "Cutscene", "autorun", 80.0f, 80.0f));
+    REQUIRE(workspace.AddPerspectiveEventCommand("ev_cutscene", "show_text", "Old line"));
+    REQUIRE(workspace.AddPerspectiveEventCommand("ev_cutscene", "wait", "30"));
+
+    REQUIRE(workspace.UpdatePerspectiveEventCommand("ev_cutscene", 0, "show_text", "New line"));
+    REQUIRE(workspace.RemovePerspectiveEventCommand("ev_cutscene", 1));
+    REQUIRE_FALSE(workspace.UpdatePerspectiveEventCommand("ev_cutscene", 1, "wait", "60"));
+    REQUIRE_FALSE(workspace.RemovePerspectiveEventCommand("ev_missing", 0));
+
+    workspace.Render({0.016f, 16});
+    auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_events[0].command_count == 1);
+    REQUIRE(snapshot.perspective_2d_events[0].commands[0].code == "show_text");
+    REQUIRE(snapshot.perspective_2d_events[0].commands[0].argument == "New line");
+
+    const auto save = workspace.SavePerspectiveMapDraft();
+    REQUIRE(save.success);
+    const auto savedJson = nlohmann::json::parse(save.serialized_document_json);
+    REQUIRE(savedJson["events"][0]["commands"].size() == 1);
+    REQUIRE(savedJson["events"][0]["commands"][0]["argument"] == "New line");
 }

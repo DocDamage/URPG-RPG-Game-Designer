@@ -19,6 +19,11 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - LFS wording remains bounded: `git lfs ls-files --name-only` reports 32,229 LFS-tracked normalized asset paths in this checkout. Release-required app assets are verified separately by `check_lfs_release_scope.ps1` and `check_release_required_assets.ps1`, but the branch must not be described as zero-LFS.
 - Sanitizer evidence is blocked by this local Windows standalone LLVM configuration missing MSVC CRT libraries during `URPG_SANITIZERS=address,undefined`; rerun on a configured sanitizer-capable toolchain before making sanitizer-backed safety claims.
 
+2026-05-26 Perspective 2D depth-pass checkpoint:
+- `SpatialAuthoringWorkspace` now has a durable P2D map-authoring slice: `tiles` toolbar mode, promoted asset tile palette option rows, selected palette option and tileset/tile state, brush-size painting and erasing, named visible/locked layer rows, layer duplicate/clear/delete operations, canvas tile painting, event/object placement rows, event movement, editable/removable event command rows, JSON draft save/load results, playtest readiness diagnostics, and export readiness results.
+- The P2D depth slice is covered by focused `[editor][spatial][p2d_depth]` tests and the broader focused `[editor][spatial]` regression lane in `urpg_spatial_unit_tests.exe`.
+- This improves the first-class P2D route from composed preview tooling to persistent authoring workflow scaffolding, but it is not yet a full RPG Maker parity claim. Remaining product-depth work includes richer tile palette thumbnails/search/filtering, bulk multi-layer editing ergonomics, RPG Maker-style event command branching/pages/conditions, runtime playtest execution parity, package integration, and visual polish.
+
 2026-05-01 100-percent completion phase-one checkpoint:
 - Active remaining-work inventory for the 100-percent completion push: [`docs/release/100_PERCENT_COMPLETION_INVENTORY.md`](release/100_PERCENT_COMPLETION_INVENTORY.md).
 - Phase 1 visual/presentation completion is landed for the claimed scope. `VisualRegressionHarness` now exposes deterministic `Headless` and `software_reference` capture alongside OpenGL, returns backend id, command count, dimensions, and stable hash metadata, and supports non-OpenGL scene and `EngineShell::tick()` capture through recorded command streams.

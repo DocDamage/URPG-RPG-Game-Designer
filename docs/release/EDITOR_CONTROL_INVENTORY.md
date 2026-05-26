@@ -30,6 +30,7 @@ Exhaustive compiled-panel ownership is enforced by `tests/unit/test_editor_panel
 - Diagnostic rows with focus support through `FocusDiagnostic`.
 - Perspective 2D pass-through actions: `perspective_elevation`, `perspective_props`, `perspective_abilities`, `perspective_parts`, and `perspective_composite`. Legacy `supporting_*` action IDs remain accepted as aliases for saved automation and older callers.
 - The top-level `spatial_authoring` route presents the Perspective 2D Map Editor workspace with elevation, prop placement, parts, ability bindings, worldbuilding terrain preview, region rules, procedural map preview, and map environment/runtime preview snapshots.
+- Perspective 2D depth controls now include a durable tile/layer/event authoring slice: `tiles` toolbar mode, promoted asset tile palette option rows, selected palette option and tileset/tile state, brush-size painting and erasing, named visible/locked layer rows, layer duplicate/clear/delete operations, event/object rows, event movement, editable/removable event command rows, JSON draft save/load results, playtest readiness diagnostics, and export readiness results. This is a bounded product-depth slice, not a full RPG Maker parity claim.
 
 Regression evidence: `tests/unit/test_grid_part_editor.cpp` and the CTest `grid_part` label lane.
 
