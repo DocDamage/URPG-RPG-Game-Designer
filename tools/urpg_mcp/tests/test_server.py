@@ -27,6 +27,7 @@ class UrpgMcpServerTests(unittest.TestCase):
                 "urpg.project_summary",
                 "urpg.project_validate",
                 "urpg.project_patch",
+                "urpg.asset_catalog_summary",
                 "urpg.p2d_capabilities",
                 "urpg.focused_gate",
                 "urpg.release_guardrails",
@@ -102,7 +103,7 @@ class UrpgMcpServerTests(unittest.TestCase):
             {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
             repo_root=REPO_ROOT,
         )
-        self.assertEqual(len(listed["result"]["tools"]), 7)
+        self.assertEqual(len(listed["result"]["tools"]), 8)
 
         called = server.handle_json_rpc(
             {
@@ -283,6 +284,31 @@ class UrpgMcpServerTests(unittest.TestCase):
         self.assertTrue(result["valid"])
         self.assertEqual(result["diagnostics"], [])
 
+    def test_project_validate_reports_missing_startup_asset_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.json").write_text(
+                json.dumps(
+                    {
+                        "name": "Invalid Asset Project",
+                        "startup": {
+                            "map": "Town",
+                            "map_assets": {
+                                "tileset": {"id": "asset.tiles.missing"},
+                            },
+                        },
+                        "maps": [{"id": "Town"}],
+                        "assets": [{"id": "asset.tiles.grass"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool("urpg.project_validate", {"project_path": "project.json"}, repo_root=root)
+
+        self.assertFalse(result["valid"])
+        self.assertIn("startup_asset_missing:asset.tiles.missing", result["diagnostics"])
+
     def test_project_patch_sets_map_asset(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -344,6 +370,112 @@ class UrpgMcpServerTests(unittest.TestCase):
         self.assertEqual(loaded["p2d"]["maps"][0]["id"], "Town")
         self.assertEqual(loaded["p2d"]["events"][0]["id"], "ev_intro")
         self.assertEqual(loaded["p2d"]["events"][0]["map_id"], "Town")
+
+    def test_project_patch_adds_database_records_and_asset_references(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project_path = root / "project.json"
+            project_path.write_text(json.dumps({"name": "Database Project"}), encoding="utf-8")
+
+            patches = [
+                {"patch_kind": "add_actor", "value": "actor.hero", "label": "Hero"},
+                {"patch_kind": "add_item", "value": "item.potion", "label": "Potion"},
+                {"patch_kind": "add_switch", "value": "switch.door_open", "label": "Door Open"},
+                {"patch_kind": "add_variable", "value": "variable.rank", "label": "Rank"},
+                {"patch_kind": "add_common_event", "value": "common.unlock", "label": "Unlock Door"},
+                {
+                    "patch_kind": "add_asset_reference",
+                    "value": "asset.overworld.tiles",
+                    "label": "Overworld Tiles",
+                    "path": "content/tiles/overworld.png",
+                },
+            ]
+            for patch in patches:
+                result = server.call_tool(
+                    "urpg.project_patch",
+                    {"project_path": "project.json", "apply": True, **patch},
+                    repo_root=root,
+                )
+                self.assertTrue(result["applied"])
+
+            duplicate = server.call_tool(
+                "urpg.project_patch",
+                {
+                    "project_path": "project.json",
+                    "patch_kind": "add_actor",
+                    "value": "actor.hero",
+                    "label": "Hero",
+                    "apply": True,
+                },
+                repo_root=root,
+            )
+            loaded = json.loads(project_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(duplicate["patch"][0]["op"], "test")
+        self.assertEqual(loaded["database"]["actors"], [{"id": "actor.hero", "name": "Hero"}])
+        self.assertEqual(loaded["database"]["items"], [{"id": "item.potion", "name": "Potion"}])
+        self.assertEqual(loaded["database"]["switches"], [{"id": "switch.door_open", "name": "Door Open"}])
+        self.assertEqual(loaded["database"]["variables"], [{"id": "variable.rank", "name": "Rank"}])
+        self.assertEqual(loaded["database"]["common_events"], [{"id": "common.unlock", "name": "Unlock Door"}])
+        self.assertEqual(
+            loaded["assets"],
+            [{"id": "asset.overworld.tiles", "name": "Overworld Tiles", "path": "content/tiles/overworld.png"}],
+        )
+
+    def test_asset_catalog_summary_counts_media_license_and_release_status(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "catalog.json").write_text(
+                json.dumps(
+                    {
+                        "records": [
+                            {
+                                "id": "asset.tiles.grass",
+                                "mediaKind": "tileset",
+                                "licenseStatus": "cleared",
+                                "releaseReady": True,
+                            },
+                            {
+                                "asset_id": "asset.music.theme",
+                                "media_kind": "audio",
+                                "license_status": "verified",
+                            },
+                            {
+                                "id": "asset.sketch.local",
+                                "mediaKind": "concept",
+                                "licenseStatus": "dev_only",
+                            },
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool(
+                "urpg.asset_catalog_summary",
+                {"catalog_path": "catalog.json"},
+                repo_root=root,
+            )
+
+        self.assertEqual(result["asset_count"], 3)
+        self.assertEqual(result["media_kind_counts"], {"audio": 1, "concept": 1, "tileset": 1})
+        self.assertEqual(result["license_status_counts"], {"cleared": 1, "dev_only": 1, "verified": 1})
+        self.assertEqual(result["release_ready_count"], 2)
+        self.assertEqual(
+            result["asset_ids"],
+            ["asset.music.theme", "asset.sketch.local", "asset.tiles.grass"],
+        )
+
+    def test_asset_catalog_summary_rejects_path_escape(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(server.ToolError) as context:
+                server.call_tool(
+                    "urpg.asset_catalog_summary",
+                    {"catalog_path": "../catalog.json"},
+                    repo_root=Path(tmp),
+                )
+
+        self.assertEqual(context.exception.code, "path_outside_repo")
 
 
 if __name__ == "__main__":

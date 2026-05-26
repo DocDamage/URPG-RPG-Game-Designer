@@ -37,6 +37,27 @@ GUARDRAILS = [
     "no_asset_license_bypass",
 ]
 
+PROJECT_PATCH_KINDS = [
+    "set_startup_map",
+    "set_map_asset",
+    "add_p2d_map",
+    "add_p2d_event",
+    "add_actor",
+    "add_item",
+    "add_switch",
+    "add_variable",
+    "add_common_event",
+    "add_asset_reference",
+]
+
+DATABASE_PATCH_TARGETS = {
+    "add_actor": ("actors", "/database/actors"),
+    "add_item": ("items", "/database/items"),
+    "add_switch": ("switches", "/database/switches"),
+    "add_variable": ("variables", "/database/variables"),
+    "add_common_event": ("common_events", "/database/common_events"),
+}
+
 
 @dataclass(frozen=True)
 class CompletedProcessLike:
@@ -92,15 +113,23 @@ def list_tools() -> list[dict[str, Any]]:
                     "project_path": {"type": "string", "default": "project.json"},
                     "patch_kind": {
                         "type": "string",
-                        "enum": ["set_startup_map", "set_map_asset", "add_p2d_map", "add_p2d_event"],
+                        "enum": PROJECT_PATCH_KINDS,
                     },
                     "value": {"type": "string"},
                     "key": {"type": "string"},
                     "map_id": {"type": "string"},
                     "label": {"type": "string"},
+                    "path": {"type": "string"},
                     "apply": {"type": "boolean", "default": False},
                 },
                 ["patch_kind", "value"],
+            ),
+        },
+        {
+            "name": "urpg.asset_catalog_summary",
+            "description": "Read a bounded URPG asset catalog JSON file and summarize media, license, and release readiness.",
+            "inputSchema": _object_schema(
+                {"catalog_path": {"type": "string", "default": "asset_catalog.json"}},
             ),
         },
         {
@@ -212,6 +241,19 @@ def _read_project_json(repo_root: Path, project_path: str) -> tuple[Path, dict[s
     return resolved, loaded
 
 
+def _read_json_file(repo_root: Path, json_path: str) -> tuple[Path, dict[str, Any]]:
+    resolved = _resolve_repo_file(repo_root, json_path)
+    if not resolved.is_file():
+        raise ToolError("json_file_missing", f"JSON file does not exist: {json_path}")
+    try:
+        loaded = json.loads(resolved.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ToolError("json_invalid", str(exc)) from exc
+    if not isinstance(loaded, dict):
+        raise ToolError("json_invalid", "URPG MCP JSON root must be an object.")
+    return resolved, loaded
+
+
 def _project_summary(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]:
     project_path = str(arguments.get("project_path", "project.json"))
     resolved, project = _read_project_json(repo_root, project_path)
@@ -256,6 +298,22 @@ def _project_validate(arguments: dict[str, Any], repo_root: Path) -> dict[str, A
     startup_map = startup.get("map") if isinstance(startup, dict) else None
     if startup_map and map_ids and startup_map not in map_ids:
         diagnostics.append("startup_map_missing")
+
+    assets = project.get("assets", [])
+    asset_ids = {
+        row.get("id")
+        for row in assets
+        if isinstance(assets, list) and isinstance(row, dict) and isinstance(row.get("id"), str)
+    }
+    if asset_ids and isinstance(startup, dict):
+        map_assets = startup.get("map_assets", {})
+        if isinstance(map_assets, dict):
+            for map_asset in map_assets.values():
+                if not isinstance(map_asset, dict):
+                    continue
+                asset_id = map_asset.get("id", "")
+                if isinstance(asset_id, str) and asset_id and asset_id not in asset_ids:
+                    diagnostics.append(f"startup_asset_missing:{asset_id}")
 
     p2d = project.get("p2d", {})
     if isinstance(p2d, dict):
@@ -308,6 +366,14 @@ def _write_backup(resolved: Path, project: dict[str, Any]) -> Path:
     return backup_path
 
 
+def _add_unique_record(records: list[Any], row: dict[str, str], path: str) -> list[dict[str, Any]]:
+    record_id = row["id"]
+    if any(isinstance(record, dict) and record.get("id") == record_id for record in records):
+        return [{"op": "test", "path": path, "value": record_id}]
+    records.append(row)
+    return [{"op": "add", "path": f"{path}/-", "value": row}]
+
+
 def _project_patch(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]:
     project_path = str(arguments.get("project_path", "project.json"))
     patch_kind = str(arguments.get("patch_kind", ""))
@@ -350,6 +416,20 @@ def _project_patch(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]
         if not any(isinstance(event, dict) and event.get("id") == value for event in events):
             events.append(row)
         patch = [{"op": "add", "path": "/p2d/events/-", "value": row}]
+    elif patch_kind in DATABASE_PATCH_TARGETS:
+        collection, path = DATABASE_PATCH_TARGETS[patch_kind]
+        label = str(arguments.get("label", value))
+        database = _ensure_object(preview, "database")
+        records = _ensure_array(database, collection)
+        patch = _add_unique_record(records, {"id": value, "name": label}, path)
+    elif patch_kind == "add_asset_reference":
+        label = str(arguments.get("label", value))
+        asset_path = str(arguments.get("path", ""))
+        assets = _ensure_array(preview, "assets")
+        row = {"id": value, "name": label}
+        if asset_path:
+            row["path"] = asset_path
+        patch = _add_unique_record(assets, row, "/assets")
     else:
         raise ToolError("unknown_patch_kind", f"Unknown allowlisted patch kind: {patch_kind}")
 
@@ -368,6 +448,50 @@ def _project_patch(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]
     if backup_path:
         result["backup_path"] = backup_path
     return result
+
+
+def _record_field(record: dict[str, Any], *names: str) -> str:
+    for name in names:
+        value = record.get(name)
+        if isinstance(value, str) and value:
+            return value
+    return ""
+
+
+def _asset_catalog_summary(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    catalog_path = str(arguments.get("catalog_path", "asset_catalog.json"))
+    resolved, catalog = _read_json_file(repo_root, catalog_path)
+    raw_records = catalog.get("records", catalog.get("assets", []))
+    records = raw_records if isinstance(raw_records, list) else []
+    media_kind_counts: dict[str, int] = {}
+    license_status_counts: dict[str, int] = {}
+    asset_ids: list[str] = []
+    release_ready_count = 0
+    release_ready_license_statuses = {"cc0", "cleared", "verified"}
+
+    for raw_record in records:
+        if not isinstance(raw_record, dict):
+            continue
+        asset_id = _record_field(raw_record, "id", "asset_id")
+        if asset_id:
+            asset_ids.append(asset_id)
+        media_kind = _record_field(raw_record, "mediaKind", "media_kind") or "unknown"
+        license_status = _record_field(raw_record, "licenseStatus", "license_status") or "unknown"
+        media_kind_counts[media_kind] = media_kind_counts.get(media_kind, 0) + 1
+        license_status_counts[license_status] = license_status_counts.get(license_status, 0) + 1
+        release_ready = raw_record.get("releaseReady", raw_record.get("release_ready", False))
+        if release_ready is True or license_status.lower() in release_ready_license_statuses:
+            release_ready_count += 1
+
+    return {
+        "catalog_path": str(resolved),
+        "asset_count": len([record for record in records if isinstance(record, dict)]),
+        "media_kind_counts": dict(sorted(media_kind_counts.items())),
+        "license_status_counts": dict(sorted(license_status_counts.items())),
+        "release_ready_count": release_ready_count,
+        "asset_ids": sorted(asset_ids),
+        "guardrails": ["read_only_summary", "bounded_repo_path", "no_license_bypass"],
+    }
 
 
 def _p2d_capabilities() -> dict[str, Any]:
@@ -460,6 +584,8 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, repo_root: Pat
         return _project_validate(args, root)
     if name == "urpg.project_patch":
         return _project_patch(args, root)
+    if name == "urpg.asset_catalog_summary":
+        return _asset_catalog_summary(args, root)
     if name == "urpg.p2d_capabilities":
         return _p2d_capabilities()
     if name == "urpg.focused_gate":

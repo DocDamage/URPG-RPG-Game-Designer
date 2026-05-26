@@ -144,8 +144,44 @@ python tools/urpg_mcp/tests/test_server.py
 
 Expected green: all MCP tests pass.
 
+## Task 5: Content Database And Asset Catalog Controls
+
+**Files:**
+- Modify: `tools/urpg_mcp/tests/test_server.py`
+- Modify: `tools/urpg_mcp/server.py`
+- Modify: `tools/urpg_mcp/README.md`
+- Modify: `docs/integrations/AI_COPILOT_GUIDE.md`
+
+- [x] **Step 1: Write failing content-control tests**
+
+Add tests for project database patch kinds `add_actor`, `add_item`, `add_switch`, `add_variable`, `add_common_event`, and `add_asset_reference`. Add tests for read-only `urpg.asset_catalog_summary` and for startup asset reference validation against project assets.
+
+- [x] **Step 2: Verify red**
+
+Run:
+
+```powershell
+python tools/urpg_mcp/tests/test_server.py
+```
+
+Expected red: `urpg.asset_catalog_summary`, startup asset validation, and the new database patch kinds are not implemented.
+
+- [x] **Step 3: Implement content controls**
+
+Add read-only bounded asset catalog summaries, database record patch helpers, idempotent asset reference insertion, and startup asset validation while preserving explicit-apply backups and no arbitrary file writes.
+
+- [x] **Step 4: Verify green**
+
+Run:
+
+```powershell
+python tools/urpg_mcp/tests/test_server.py
+```
+
+Expected green: all MCP tests pass.
+
 ## Self-Review
 
-- Spec coverage: The MCP slices expose safe IDE control over URPG status, bounded project JSON summaries, startup/P2D validation, explicit-apply project patching with backups, P2D capabilities, focused gates, and guardrails. It intentionally does not bypass git, asset licensing, release gates, or arbitrary shell execution.
+- Spec coverage: The MCP slices expose safe IDE control over URPG status, bounded project JSON summaries, startup/P2D/asset validation, explicit-apply project patching with backups, project database records, read-only asset catalog summaries, P2D capabilities, focused gates, and guardrails. It intentionally does not bypass git, asset licensing, release gates, or arbitrary shell execution.
 - Placeholder scan: No TBD/TODO placeholders are used.
 - Type consistency: Tool names and gate ids are shared by tests, server, README, and sample config.
