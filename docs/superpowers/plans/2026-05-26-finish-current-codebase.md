@@ -393,7 +393,7 @@ Expected: infinite-loop tests fail closed with CPU-budget diagnostics instead of
 
 - [ ] **Step 1: Rename lightweight mode**
 
-Keep `rle_xor` only as `lightweight_obfuscation`, or preserve the serialized value while every user-facing diagnostic says "lightweight, not encrypted".
+Keep `rle_xor` only as `lightweight_obfuscation`, or preserve the serialized value while every user-facing diagnostic says "lightweight obfuscation, not advanced content protection".
 
 - [ ] **Step 2: Fail closed for script obfuscation**
 
@@ -413,7 +413,7 @@ Run:
 
 ```powershell
 ctest --preset dev-export --output-on-failure
-rg -n "Script Logic Obfuscator \\(Stub\\)|shipping-hardened|encrypted" engine docs
+rg -n "Script Logic Obfuscator \\(Stub\\)|obfuscateScript|rle_xor" engine docs
 ```
 
 Expected: docs and diagnostics no longer imply unsupported protection.
@@ -436,7 +436,7 @@ If keeping hidden, add release UI tests that scan editor release surfaces and as
 
 - [ ] **Step 2B: Real provider path**
 
-If implementing a provider, add `LocalFilesystemCloudService` and `FakeRemoteCloudService` with credentials, encrypted cache, sync journal, tombstones, conflict detection, retries, quota/auth diagnostics, and two-client merge tests.
+If implementing a provider, add `LocalFilesystemCloudService` and `FakeRemoteCloudService` with credentials, protected cache, sync journal, tombstones, conflict detection, retries, quota/auth diagnostics, and two-client merge tests.
 
 - [ ] **Step 3: Verify**
 

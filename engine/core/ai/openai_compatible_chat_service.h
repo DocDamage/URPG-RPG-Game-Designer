@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/message/chatbot_component.h"
+#include "engine/core/net/http_client.h"
 
 #include <nlohmann/json.hpp>
 
@@ -60,15 +61,17 @@ std::pair<std::string, std::string> parseOpenAiCompatibleChatResponse(const nloh
 std::pair<std::string, std::string> parseOpenAiCompatibleChatStreamResponse(std::string_view responseText);
 nlohmann::json buildOpenAiCompatibleStreamDiagnostics(std::string_view responseText);
 OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector<ChatMessage>& history,
-                                                               const OpenAiCompatibleChatConfig& config);
+                                                               const OpenAiCompatibleChatConfig& config,
+                                                               urpg::net::IHttpClient* httpClient = nullptr);
 
 class OpenAiCompatibleChatService : public IChatService {
   public:
     explicit OpenAiCompatibleChatService(OpenAiCompatibleChatConfig config);
 
-    void requestResponse(const std::vector<ChatMessage>& history, ChatCallback callback) override;
-    void requestStream(const std::vector<ChatMessage>& history, StreamCallback onChunk,
-                       ChatCallback onComplete) override;
+    std::shared_ptr<ChatRequestHandle> requestResponse(const std::vector<ChatMessage>& history,
+                                                       ChatCallback callback) override;
+    std::shared_ptr<ChatRequestHandle> requestStream(const std::vector<ChatMessage>& history, StreamCallback onChunk,
+                                                     ChatCallback onComplete) override;
     const OpenAiCompatibleChatTransportResult& lastTransportResult() const { return last_result_; }
 
   private:

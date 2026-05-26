@@ -20,7 +20,7 @@ bool ContainsId(const std::vector<std::string>& ids, const std::string& id) {
 
 const std::vector<std::string>& CanonicalReleasePanelIds() {
     static const std::vector<std::string> ids = {
-        "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder",
+        "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder", "spatial_authoring",
     };
     return ids;
 }
@@ -191,6 +191,7 @@ TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][
     REQUIRE(ContainsId(ids, "mod"));
     REQUIRE(ContainsId(ids, "analytics"));
     REQUIRE(ContainsId(ids, "level_builder"));
+    REQUIRE(ContainsId(ids, "spatial_authoring"));
 
     const auto* patterns = urpg::editor::findEditorPanelRegistryEntry("patterns");
     REQUIRE(patterns != nullptr);
@@ -332,7 +333,8 @@ TEST_CASE("Editor panel registry classifies diagnostics and incubating workspace
 
     const auto* spatialAuthoring = urpg::editor::findEditorPanelRegistryEntry("spatial_authoring");
     REQUIRE(spatialAuthoring != nullptr);
-    REQUIRE(spatialAuthoring->exposure == urpg::editor::EditorPanelExposure::Nested);
+    REQUIRE(spatialAuthoring->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
+    REQUIRE(spatialAuthoring->title == "Perspective 2D Map Editor");
 
     const auto* modSdk = urpg::editor::findEditorPanelRegistryEntry("mod_sdk");
     REQUIRE(modSdk != nullptr);

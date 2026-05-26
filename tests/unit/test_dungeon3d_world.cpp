@@ -600,7 +600,8 @@ TEST_CASE("3D dungeon world is release registered with native level building", "
 
     const auto* spatial = urpg::editor::findEditorPanelRegistryEntry("spatial_authoring");
     REQUIRE(spatial != nullptr);
-    REQUIRE(spatial->exposure == urpg::editor::EditorPanelExposure::Nested);
+    REQUIRE(spatial->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
+    REQUIRE(spatial->title == "Perspective 2D Map Editor");
 }
 
 TEST_CASE("3D dungeon world reports broken authoring diagnostics", "[dungeon3d][wysiwyg]") {

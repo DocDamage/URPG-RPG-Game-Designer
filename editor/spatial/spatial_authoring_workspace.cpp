@@ -17,6 +17,8 @@ const char* SpatialAuthoringWorkspace::modeName(ToolMode mode) {
         return "abilities";
     case ToolMode::Parts:
         return "parts";
+    case ToolMode::Worldbuilding:
+        return "worldbuilding";
     }
 
     return "composite";
@@ -44,6 +46,12 @@ void SpatialAuthoringWorkspace::Render(const urpg::FrameContext& context) {
     grid_part_palette_panel_.Render(context);
     grid_part_placement_panel_.Render(context);
     grid_part_inspector_panel_.Render(context);
+    if (active_mode_ == ToolMode::Composite || active_mode_ == ToolMode::Worldbuilding) {
+        terrain_brush_panel_.render();
+        region_rules_panel_.render();
+        procedural_map_panel_.render();
+        environment_preview_panel_.render();
+    }
     binding_panel_.Render(context);
     canvas_panel_.Render(context);
     captureRenderSnapshot();
@@ -94,6 +102,34 @@ void SpatialAuthoringWorkspace::SetAvailableTriggers(std::vector<std::string> tr
     captureRenderSnapshot();
 }
 
+void SpatialAuthoringWorkspace::PreviewTerrainBrush(const urpg::map::TerrainBrush& brush,
+                                                    int32_t x,
+                                                    int32_t y,
+                                                    uint32_t seed) {
+    terrain_brush_panel_.preview(brush, x, y, seed);
+    captureRenderSnapshot();
+}
+
+void SpatialAuthoringWorkspace::LoadRegionRules(std::vector<urpg::map::MapRegionRule> rules) {
+    region_rules_panel_.loadRules(std::move(rules));
+    captureRenderSnapshot();
+}
+
+void SpatialAuthoringWorkspace::GenerateProceduralMap(const urpg::map::ProceduralMapProfile& profile) {
+    procedural_map_panel_.generate(profile);
+    captureRenderSnapshot();
+}
+
+void SpatialAuthoringWorkspace::LoadEnvironmentPreview(urpg::map::MapEnvironmentPreviewDocument document) {
+    environment_preview_panel_.loadDocument(std::move(document));
+    captureRenderSnapshot();
+}
+
+void SpatialAuthoringWorkspace::SelectEnvironmentTile(int32_t x, int32_t y) {
+    environment_preview_panel_.selectTile(x, y);
+    captureRenderSnapshot();
+}
+
 void SpatialAuthoringWorkspace::SetActiveMode(ToolMode mode) {
     if (active_mode_ == mode) {
         return;
@@ -124,6 +160,10 @@ bool SpatialAuthoringWorkspace::ActivateToolbarAction(const std::string& action_
     }
     if (action_id == "parts") {
         SetActiveMode(ToolMode::Parts);
+        return true;
+    }
+    if (action_id == "worldbuilding") {
+        SetActiveMode(ToolMode::Worldbuilding);
         return true;
     }
     if (action_id == "resolve_conflict") {
@@ -230,6 +270,23 @@ bool SpatialAuthoringWorkspace::RouteCanvasPrimaryAction(float screen_x, float s
         captureRenderSnapshot();
         return placed;
     }
+    case ToolMode::Worldbuilding: {
+        if (m_target_overlay == nullptr) {
+            return false;
+        }
+        float world_x = 0.0f;
+        float world_y = 0.0f;
+        float world_z = 0.0f;
+        if (!PropPlacementPanel::TryProjectScreenToGround(*m_target_overlay, screen_x, screen_y, projection_settings_,
+                                                          world_x, world_y, world_z)) {
+            return false;
+        }
+        (void)world_y;
+        environment_preview_panel_.selectTile(static_cast<int32_t>(std::floor(world_x)),
+                                              static_cast<int32_t>(std::floor(world_z)));
+        captureRenderSnapshot();
+        return true;
+    }
     }
 
     return false;
@@ -255,6 +312,9 @@ bool SpatialAuthoringWorkspace::RouteCanvasSecondaryAction(float screen_x, float
         captureRenderSnapshot();
         return undone;
     }
+    case ToolMode::Worldbuilding:
+        captureRenderSnapshot();
+        return false;
     }
 
     return false;
@@ -279,6 +339,8 @@ bool SpatialAuthoringWorkspace::RouteCanvasHover(float screen_x, float screen_y)
         captureRenderSnapshot();
         return handled;
     }
+    case ToolMode::Worldbuilding:
+        return RouteCanvasPrimaryAction(screen_x, screen_y);
     }
 
     return false;
@@ -298,17 +360,17 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     last_render_snapshot_.has_target_overlay = (m_target_overlay != nullptr);
     if (!last_render_snapshot_.has_target_scene && !last_render_snapshot_.has_target_overlay) {
         last_render_snapshot_.status = "disabled";
-        last_render_snapshot_.message = "No spatial authoring targets are bound.";
+        last_render_snapshot_.message = "No Perspective 2D map targets are bound.";
         last_render_snapshot_.remediation =
-            "Bind a MapScene and SpatialMapOverlay before using spatial authoring tools.";
+            "Bind a MapScene and SpatialMapOverlay before using Perspective 2D tools.";
     } else if (!last_render_snapshot_.has_target_scene || !last_render_snapshot_.has_target_overlay) {
         last_render_snapshot_.status = "error";
-        last_render_snapshot_.message = "Spatial authoring is partially bound.";
+        last_render_snapshot_.message = "Perspective 2D map editor is partially bound.";
         last_render_snapshot_.remediation =
             "Bind both MapScene and SpatialMapOverlay so ability, elevation, and prop tools can operate together.";
     } else {
         last_render_snapshot_.status = "ready";
-        last_render_snapshot_.message = "Spatial authoring targets are ready.";
+        last_render_snapshot_.message = "Perspective 2D map editor is ready.";
         last_render_snapshot_.remediation = "";
     }
     last_render_snapshot_.elevation = elevation_panel_.lastRenderSnapshot();
@@ -316,6 +378,10 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     last_render_snapshot_.parts_palette = grid_part_palette_panel_.lastRenderSnapshot();
     last_render_snapshot_.parts_placement = grid_part_placement_panel_.lastRenderSnapshot();
     last_render_snapshot_.parts_inspector = grid_part_inspector_panel_.lastRenderSnapshot();
+    last_render_snapshot_.worldbuilding_terrain = terrain_brush_panel_.snapshot();
+    last_render_snapshot_.worldbuilding_regions = region_rules_panel_.snapshot();
+    last_render_snapshot_.worldbuilding_procedural = procedural_map_panel_.snapshot();
+    last_render_snapshot_.worldbuilding_environment = environment_preview_panel_.snapshot();
     last_render_snapshot_.bindings = binding_panel_.lastRenderSnapshot();
     last_render_snapshot_.canvas = canvas_panel_.lastRenderSnapshot();
     last_render_snapshot_.toolbar.active_mode = modeName(active_mode_);
@@ -328,13 +394,15 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     last_render_snapshot_.toolbar.conflict_count = last_render_snapshot_.canvas.conflict_count;
     last_render_snapshot_.toolbar.can_apply_suggested_conflict_resolution = last_render_snapshot_.canvas.has_conflicts;
     last_render_snapshot_.toolbar.actions = {
-        {"composite", "Composite", active_mode_ == ToolMode::Composite, true},
+        {"composite", "Compose", active_mode_ == ToolMode::Composite, true},
         {"elevation", "Elevation", active_mode_ == ToolMode::Elevation, last_render_snapshot_.has_target_overlay},
         {"props", "Props", active_mode_ == ToolMode::Props, last_render_snapshot_.has_target_overlay},
         {"abilities", "Abilities", active_mode_ == ToolMode::Abilities, last_render_snapshot_.has_target_scene},
         {"parts", "Parts", active_mode_ == ToolMode::Parts,
          last_render_snapshot_.parts_placement.has_document && last_render_snapshot_.parts_placement.has_catalog &&
              last_render_snapshot_.parts_placement.has_spatial_overlay},
+        {"worldbuilding", "Worldbuilding", active_mode_ == ToolMode::Worldbuilding,
+         last_render_snapshot_.has_target_overlay},
         {"resolve_conflict", "Resolve Conflict", false, last_render_snapshot_.canvas.has_conflicts},
     };
     canvas_panel_.SetActiveMode(last_render_snapshot_.toolbar.active_mode);

@@ -241,7 +241,7 @@ TEST_CASE("ExportValidator: directory report JSON surfaces bundle discovery summ
     REQUIRE(report["passed"] == true);
     REQUIRE(report.contains("bundleSummary"));
     REQUIRE(report["bundleSummary"]["format"] == "URPG_BOUNDED_EXPORT_BUNDLE_V1");
-    REQUIRE(report["bundleSummary"]["signatureMode"] == "sha256_keyed_bundle_v1");
+    REQUIRE(report["bundleSummary"]["signatureMode"] == "hmac_sha256_bundle_v1");
     REQUIRE(report["bundleSummary"]["assetDiscoveryManifest"]["format"] == "URPG_PROJECT_ASSET_DISCOVERY_V1");
 
     std::filesystem::remove_all(base);
@@ -529,7 +529,7 @@ TEST_CASE("ExportValidator: bundle with only an empty asset discovery manifest p
     manifest["entries"] = nlohmann::json::array({entry});
     manifest["payloadOffset"] = 0u;
     manifest["integrityMode"] = "fnv1a64_keyed";
-    manifest["signatureMode"] = "sha256_keyed_bundle_v1";
+    manifest["signatureMode"] = "hmac_sha256_bundle_v1";
     manifest["bundleSignature"] = std::string(64, '0');
     std::string manifestText = manifest.dump();
     for (int i = 0; i < 2; ++i) {

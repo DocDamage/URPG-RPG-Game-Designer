@@ -4,9 +4,13 @@
 #include "editor/spatial/grid_part_inspector_panel.h"
 #include "editor/spatial/grid_part_palette_panel.h"
 #include "editor/spatial/grid_part_placement_panel.h"
+#include "editor/spatial/map_environment_preview_panel.h"
 #include "editor/spatial/map_ability_binding_panel.h"
+#include "editor/spatial/procedural_map_panel.h"
 #include "editor/spatial/prop_placement_panel.h"
+#include "editor/spatial/region_rules_panel.h"
 #include "editor/spatial/spatial_ability_canvas_panel.h"
+#include "editor/spatial/terrain_brush_panel.h"
 #include "editor/ui/editor_panel.h"
 
 #include <string>
@@ -26,6 +30,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         Props = 2,
         Abilities = 3,
         Parts = 4,
+        Worldbuilding = 5,
     };
 
     struct ToolbarAction {
@@ -50,8 +55,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
 
     struct RenderSnapshot {
         std::string status = "disabled";
-        std::string message = "No spatial authoring targets are bound.";
-        std::string remediation = "Bind a MapScene and SpatialMapOverlay before using spatial authoring tools.";
+        std::string message = "No Perspective 2D map targets are bound.";
+        std::string remediation = "Bind a MapScene and SpatialMapOverlay before using Perspective 2D tools.";
         bool visible = true;
         bool has_target_scene = false;
         bool has_target_overlay = false;
@@ -61,11 +66,15 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         GridPartPalettePanel::RenderSnapshot parts_palette;
         GridPartPlacementPanel::RenderSnapshot parts_placement;
         GridPartInspectorPanel::RenderSnapshot parts_inspector;
+        TerrainBrushPanelSnapshot worldbuilding_terrain;
+        RegionRulesPanelSnapshot worldbuilding_regions;
+        ProceduralMapPanelSnapshot worldbuilding_procedural;
+        MapEnvironmentPreviewPanelSnapshot worldbuilding_environment;
         MapAbilityBindingPanel::RenderSnapshot bindings;
         SpatialAbilityCanvasPanel::RenderSnapshot canvas;
     };
 
-    SpatialAuthoringWorkspace() : EditorPanel("Spatial Authoring Workspace") {}
+    SpatialAuthoringWorkspace() : EditorPanel("Perspective 2D Map Editor") {}
 
     void Render(const urpg::FrameContext& context) override;
     void SetTargets(urpg::scene::MapScene* scene, urpg::presentation::SpatialMapOverlay* overlay);
@@ -73,6 +82,11 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     bool SetProjectRoot(const std::string& root_path);
     void SetProjectionSettings(const PropPlacementPanel::ScreenProjectionSettings& settings);
     void SetAvailableTriggers(std::vector<std::string> trigger_ids);
+    void PreviewTerrainBrush(const urpg::map::TerrainBrush& brush, int32_t x, int32_t y, uint32_t seed);
+    void LoadRegionRules(std::vector<urpg::map::MapRegionRule> rules);
+    void GenerateProceduralMap(const urpg::map::ProceduralMapProfile& profile);
+    void LoadEnvironmentPreview(urpg::map::MapEnvironmentPreviewDocument document);
+    void SelectEnvironmentTile(int32_t x, int32_t y);
     void SetActiveMode(ToolMode mode);
     bool ActivateToolbarAction(const std::string& action_id);
     bool ActivateCanvasAction(const std::string& action_id);
@@ -87,6 +101,10 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     GridPartPalettePanel& gridPartPalettePanel() { return grid_part_palette_panel_; }
     GridPartPlacementPanel& gridPartPlacementPanel() { return grid_part_placement_panel_; }
     GridPartInspectorPanel& gridPartInspectorPanel() { return grid_part_inspector_panel_; }
+    TerrainBrushPanel& terrainBrushPanel() { return terrain_brush_panel_; }
+    RegionRulesPanel& regionRulesPanel() { return region_rules_panel_; }
+    ProceduralMapPanel& proceduralMapPanel() { return procedural_map_panel_; }
+    MapEnvironmentPreviewPanel& environmentPreviewPanel() { return environment_preview_panel_; }
     MapAbilityBindingPanel& bindingPanel() { return binding_panel_; }
     SpatialAbilityCanvasPanel& canvasPanel() { return canvas_panel_; }
 
@@ -107,6 +125,10 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     GridPartPalettePanel grid_part_palette_panel_;
     GridPartPlacementPanel grid_part_placement_panel_;
     GridPartInspectorPanel grid_part_inspector_panel_;
+    TerrainBrushPanel terrain_brush_panel_;
+    RegionRulesPanel region_rules_panel_;
+    ProceduralMapPanel procedural_map_panel_;
+    MapEnvironmentPreviewPanel environment_preview_panel_;
     MapAbilityBindingPanel binding_panel_;
     SpatialAbilityCanvasPanel canvas_panel_;
     PropPlacementPanel::ScreenProjectionSettings projection_settings_;

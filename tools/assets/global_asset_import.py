@@ -9,8 +9,10 @@ import os
 import re
 import shlex
 import shutil
+import stat
 import struct
 import subprocess
+import tempfile
 import wave
 import zipfile
 from pathlib import Path
@@ -24,14 +26,34 @@ ARCHIVE_EXTS = {"zip", "rar", "7z"}
 JUNK_NAMES = {".DS_Store", "Thumbs.db", "Desktop.ini"}
 FRAME_SEQUENCE_RE = re.compile(r"^(?P<stem>.+?)(?:[_\-. ]?)(?P<index>\d{2,5})$")
 EXTERNAL_EXTRACTOR_ENV = "URPG_ASSET_ARCHIVE_EXTRACTOR"
+ALLOWED_EXTERNAL_EXTRACTOR_BASENAMES = {
+    "7z",
+    "7z.exe",
+    "7zz",
+    "7zz.exe",
+    "bsdtar",
+    "bsdtar.exe",
+}
+TEST_PYTHON_EXTRACTOR_BASENAMES = {
+    "python",
+    "python.exe",
+    "python3",
+    "python3.exe",
+    Path(os.path.basename(os.sys.executable)).name.lower(),
+}
 FATAL_IMPORT_DIAGNOSTICS = {
     "unsafe_archive_path",
     "archive_read_failed",
     "import_file_count_limit_exceeded",
     "import_byte_limit_exceeded",
+    "external_extractor_not_allowed",
     "external_extractor_missing",
     "external_extractor_timeout",
     "external_extractor_failed",
+    "external_extractor_output_escape",
+    "external_extractor_symlink",
+    "external_extractor_hardlink",
+    "external_extractor_special_file",
 }
 
 
@@ -173,6 +195,76 @@ def validate_tree_limits(root: Path, max_files: int, max_bytes: int) -> None:
             raise ValueError("import_byte_limit_exceeded")
 
 
+def path_is_within(path: Path, root: Path) -> bool:
+    try:
+        resolved_path = path.resolve()
+        resolved_root = root.resolve()
+    except OSError:
+        return False
+    return resolved_path == resolved_root or resolved_root in resolved_path.parents
+
+
+def external_extractor_allowed(command: list[str]) -> bool:
+    if not command:
+        return False
+
+    executable_name = Path(command[0]).name.lower()
+    if executable_name in ALLOWED_EXTERNAL_EXTRACTOR_BASENAMES:
+        return True
+
+    if executable_name in TEST_PYTHON_EXTRACTOR_BASENAMES and len(command) >= 2:
+        script = Path(command[1])
+        if script.suffix.lower() != ".py":
+            return False
+        return path_is_within(script, Path(tempfile.gettempdir()))
+
+    return False
+
+
+def audit_external_extraction_output(
+    target_root: Path,
+    session_root: Path,
+    max_files: int,
+    max_bytes: int,
+) -> None:
+    target_root_resolved = target_root.resolve()
+    session_root_resolved = session_root.resolve()
+
+    for path in sorted(session_root.rglob("*")):
+        if path == target_root:
+            continue
+        if not path_is_within(path, session_root_resolved):
+            raise ValueError("external_extractor_output_escape")
+        if path.is_symlink():
+            raise ValueError("external_extractor_symlink")
+        if not (path == target_root or target_root in path.parents):
+            raise ValueError("external_extractor_output_escape")
+
+        try:
+            metadata = path.lstat()
+        except OSError:
+            raise ValueError("external_extractor_output_escape") from None
+
+        if stat.S_ISDIR(metadata.st_mode):
+            continue
+        if not stat.S_ISREG(metadata.st_mode):
+            raise ValueError("external_extractor_special_file")
+        if getattr(metadata, "st_nlink", 1) > 1:
+            raise ValueError("external_extractor_hardlink")
+        if not path_is_within(path, target_root_resolved):
+            raise ValueError("external_extractor_output_escape")
+
+    validate_tree_limits(target_root, max_files, max_bytes)
+
+
+def extraction_failure_diagnostic(code: str, source: Path) -> dict:
+    return {
+        "code": code,
+        "message": "External archive extraction produced unsafe output.",
+        "path": str(source),
+    }
+
+
 def run_external_archive_extractor(
     source: Path,
     session_root: Path,
@@ -206,6 +298,15 @@ def run_external_archive_extractor(
         command.append(expanded)
     if not uses_template:
         command.extend([str(source), str(target_root)])
+    if not external_extractor_allowed(command):
+        diagnostics.append(
+            {
+                "code": "external_extractor_not_allowed",
+                "message": "Configured archive extractor is not on the import allowlist.",
+                "path": str(source),
+            }
+        )
+        return target_root, diagnostics
     try:
         result = subprocess.run(
             command, check=False, capture_output=True, text=True, timeout=120
@@ -239,15 +340,9 @@ def run_external_archive_extractor(
         )
         return target_root, diagnostics
     try:
-        validate_tree_limits(target_root, max_files, max_bytes)
+        audit_external_extraction_output(target_root, session_root, max_files, max_bytes)
     except ValueError as exc:
-        diagnostics.append(
-            {
-                "code": str(exc),
-                "message": "External archive extraction exceeded configured safety limits.",
-                "path": str(source),
-            }
-        )
+        diagnostics.append(extraction_failure_diagnostic(str(exc), source))
         return target_root, diagnostics
     diagnostics.append(
         {

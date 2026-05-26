@@ -7,6 +7,7 @@
 #include <functional>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace urpg::editor {
@@ -33,6 +34,13 @@ class AssetLibraryPanel {
         bool path_entry_available = true;
         std::string code;
         std::string message;
+    };
+
+    enum class NativeImportSourcePickerPlatform {
+        Windows,
+        MacOS,
+        Linux,
+        Unsupported,
     };
 
     struct ImportWizardStepSnapshot {
@@ -68,6 +76,10 @@ class AssetLibraryPanel {
     const AssetLibraryModel& model() const { return model_; }
 
     static ImportSourcePickerAvailability nativeImportSourcePickerAvailability();
+    static ImportSourcePickerAvailability
+    nativeImportSourcePickerAvailabilityForDiagnostics(NativeImportSourcePickerPlatform platform,
+                                                       bool desktop_portal_available,
+                                                       bool desktop_helper_available);
     void setImportSourcePicker(ImportSourcePicker picker);
     void render();
     nlohmann::json requestImportSource(const std::filesystem::path& source, const std::filesystem::path& library_root,

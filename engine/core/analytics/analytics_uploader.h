@@ -1,10 +1,12 @@
 #pragma once
 
 #include "engine/core/analytics/analytics_event.h"
+#include "engine/core/net/http_client.h"
 
 #include <cstdint>
 #include <filesystem>
 #include <functional>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
@@ -71,6 +73,7 @@ class AnalyticsUploader {
      */
     void setUploadHandler(UploadHandler handler);
     bool hasUploadHandler() const;
+    void setHttpClient(std::shared_ptr<urpg::net::IHttpClient> client);
     void setLocalJsonlExportPath(std::filesystem::path path);
     void setHttpJsonEndpoint(AnalyticsUploadEndpoint endpoint);
     std::string uploadMode() const { return m_uploadMode; }
@@ -107,6 +110,7 @@ class AnalyticsUploader {
 
   private:
     UploadHandler m_handler;
+    std::shared_ptr<urpg::net::IHttpClient> m_httpClient;
     std::optional<std::filesystem::path> m_localJsonlExportPath;
     std::optional<AnalyticsUploadEndpoint> m_httpEndpoint;
     std::string m_uploadMode = "disabled";

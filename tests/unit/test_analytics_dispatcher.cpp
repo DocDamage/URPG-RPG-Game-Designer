@@ -158,6 +158,22 @@ TEST_CASE("AnalyticsDispatcher governance script validates artifacts", "[analyti
 
 using namespace urpg::analytics;
 
+namespace {
+
+class FakeAnalyticsHttpClient final : public urpg::net::IHttpClient {
+  public:
+    urpg::net::HttpResponse postJson(const urpg::net::HttpRequest& request) override {
+        lastRequest = request;
+        ++postCount;
+        return {204, "", ""};
+    }
+
+    int postCount = 0;
+    urpg::net::HttpRequest lastRequest;
+};
+
+} // namespace
+
 TEST_CASE("AnalyticsUploader: flush empty events succeeds with zero flushed",
           "[analytics][upload][s28t07]") {
     AnalyticsUploader uploader;
@@ -230,6 +246,8 @@ TEST_CASE("AnalyticsUploader: local JSONL export writes consent-gated batches",
 TEST_CASE("AnalyticsUploader: HTTP endpoint config exposes concrete remote upload mode",
           "[analytics][upload][remote]") {
     AnalyticsUploader uploader;
+    auto http = std::make_shared<FakeAnalyticsHttpClient>();
+    uploader.setHttpClient(http);
     AnalyticsUploadEndpoint endpoint;
     endpoint.url = "https://telemetry.example.invalid/collect";
     endpoint.headers["X-URPG-Build"] = "test";
@@ -242,6 +260,12 @@ TEST_CASE("AnalyticsUploader: HTTP endpoint config exposes concrete remote uploa
     REQUIRE(uploader.httpEndpoint().has_value());
     REQUIRE(uploader.httpEndpoint()->url == endpoint.url);
     REQUIRE(uploader.httpEndpoint()->headers.at("X-URPG-Build") == "test");
+
+    const auto flush = uploader.flush({{"editor.open", "ui", 1, {}}}, "session");
+    REQUIRE(flush.success);
+    REQUIRE(http->postCount == 1);
+    REQUIRE(http->lastRequest.url == endpoint.url);
+    REQUIRE(http->lastRequest.headers.at("Authorization").find("redacted-token") != std::string::npos);
 }
 
 TEST_CASE("AnalyticsEndpointProfile applies reviewed HTTP endpoint to uploader",

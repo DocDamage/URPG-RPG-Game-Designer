@@ -53,7 +53,7 @@ public:
     static RPGMakerSaveFormat detectFormat(const std::vector<uint8_t>& bytes);
 
     /**
-     * @brief Apply XOR decryption to encrypted save data.
+     * @brief Apply XOR decoding to protected save data.
      */
     static std::vector<uint8_t> decryptXOR(const std::vector<uint8_t>& data,
                                            const std::string& key);

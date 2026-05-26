@@ -4,6 +4,7 @@
 #include "quickjs_runtime.h"
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <exception>
 #include <nlohmann/json.hpp>
@@ -254,6 +255,11 @@ std::string exceptionToString(JSContext* ctx) {
     return out;
 }
 
+void discardException(JSContext* ctx) {
+    JSValue exception = JS_GetException(ctx);
+    JS_FreeValue(ctx, exception);
+}
+
 Value jsValueToBridgeValue(JSContext* ctx, JSValueConst value) {
     if (JS_IsUndefined(value) || JS_IsNull(value)) {
         return Value::Nil();
@@ -369,6 +375,9 @@ class QuickJSContextImpl {
     std::unordered_map<std::string, Value> globals;
     size_t heapSize = 0;
     uint64_t cpuUsedUs = 0;
+    bool cpuBudgetActive = false;
+    bool cpuBudgetInterrupted = false;
+    std::chrono::steady_clock::time_point cpuDeadline{};
     JSRuntime* runtime = nullptr;
     JSContext* context = nullptr;
     std::vector<QuickJSDiagnostic> diagnostics;
@@ -385,6 +394,30 @@ class QuickJSContextImpl {
         }
     }
 };
+
+int interruptHandler(JSRuntime*, void* opaque) {
+    auto* impl = static_cast<QuickJSContextImpl*>(opaque);
+    if (!impl || !impl->cpuBudgetActive) {
+        return 0;
+    }
+    if (std::chrono::steady_clock::now() <= impl->cpuDeadline) {
+        return 0;
+    }
+    impl->cpuBudgetInterrupted = true;
+    return 1;
+}
+
+void beginCpuBudget(QuickJSContextImpl& impl, const QuickJSConfig& config) {
+    impl.cpuBudgetInterrupted = false;
+    impl.cpuBudgetActive = config.enableCPUBudget;
+    if (impl.cpuBudgetActive) {
+        impl.cpuDeadline = std::chrono::steady_clock::now() + std::chrono::microseconds(config.cpuBudgetUs);
+    }
+}
+
+void endCpuBudget(QuickJSContextImpl& impl) {
+    impl.cpuBudgetActive = false;
+}
 
 void promiseRejectionTracker(JSContext* ctx, JSValueConst, JSValueConst reason, bool isHandled, void* opaque) {
     auto* impl = static_cast<QuickJSContextImpl*>(opaque);
@@ -477,6 +510,7 @@ bool QuickJSContext::initialize(const QuickJSConfig& config) {
     if (config.enableMemoryLimit) {
         JS_SetMemoryLimit(impl_->runtime, static_cast<size_t>(config.memoryLimitMB) * 1024 * 1024);
     }
+    JS_SetInterruptHandler(impl_->runtime, interruptHandler, impl_.get());
     JS_SetHostPromiseRejectionTracker(impl_->runtime, promiseRejectionTracker, impl_.get());
 
     impl_->context = JS_NewContext(impl_->runtime);
@@ -504,6 +538,8 @@ bool QuickJSContext::initialize(const QuickJSConfig& config) {
 
     impl_->initialized = true;
     impl_->config = config;
+    impl_->cpuBudgetActive = false;
+    impl_->cpuBudgetInterrupted = false;
     return true;
 }
 
@@ -626,10 +662,18 @@ ScriptResult QuickJSContext::eval(const std::string& code, const std::string& fi
         return result;
     }
 
+    beginCpuBudget(*impl_, config_);
     JSValue evaluated = JS_Eval(impl_->context, code.c_str(), code.size(), filename.c_str(), JS_EVAL_TYPE_GLOBAL);
+    endCpuBudget(*impl_);
     if (JS_IsException(evaluated)) {
         result.success = false;
-        result.error = exceptionToString(impl_->context);
+        if (impl_->cpuBudgetInterrupted) {
+            budget_.exceeded_cpu = true;
+            discardException(impl_->context);
+            result.error = "CPU budget exceeded";
+        } else {
+            result.error = exceptionToString(impl_->context);
+        }
         result.severity = CompatSeverity::HARD_FAIL;
         result.sourceLocation = filename;
         lastError_ = result.error;
@@ -739,7 +783,9 @@ ScriptResult QuickJSContext::call(const std::string& functionName, const std::ve
         jsArgs.push_back(bridgeValueToJS(impl_->context, arg));
     }
 
+    beginCpuBudget(*impl_, config_);
     JSValue callValue = JS_Call(impl_->context, fn, JS_UNDEFINED, static_cast<int>(jsArgs.size()), jsArgs.data());
+    endCpuBudget(*impl_);
     for (auto& arg : jsArgs) {
         JS_FreeValue(impl_->context, arg);
     }
@@ -748,7 +794,13 @@ ScriptResult QuickJSContext::call(const std::string& functionName, const std::ve
 
     if (JS_IsException(callValue)) {
         result.success = false;
-        result.error = exceptionToString(impl_->context);
+        if (impl_->cpuBudgetInterrupted) {
+            budget_.exceeded_cpu = true;
+            discardException(impl_->context);
+            result.error = "CPU budget exceeded";
+        } else {
+            result.error = exceptionToString(impl_->context);
+        }
         result.severity =
             result.error == "Unknown host function error" ? CompatSeverity::CRASH_PREVENTED : CompatSeverity::HARD_FAIL;
         lastError_ = result.error;
@@ -814,13 +866,21 @@ ScriptResult QuickJSContext::callMethod(const std::string& objectName, const std
         for (const auto& arg : args) {
             jsArgs.push_back(bridgeValueToJS(impl_->context, arg));
         }
+        beginCpuBudget(*impl_, config_);
         JSValue callValue = JS_Call(impl_->context, method, object, static_cast<int>(jsArgs.size()), jsArgs.data());
+        endCpuBudget(*impl_);
         for (auto& arg : jsArgs) {
             JS_FreeValue(impl_->context, arg);
         }
         if (JS_IsException(callValue)) {
             result.success = false;
-            result.error = exceptionToString(impl_->context);
+            if (impl_->cpuBudgetInterrupted) {
+                budget_.exceeded_cpu = true;
+                discardException(impl_->context);
+                result.error = "CPU budget exceeded";
+            } else {
+                result.error = exceptionToString(impl_->context);
+            }
             result.severity = result.error == "Unknown host function error" ? CompatSeverity::CRASH_PREVENTED
                                                                             : CompatSeverity::HARD_FAIL;
             lastError_ = result.error;
@@ -946,6 +1006,8 @@ void QuickJSContext::resetBudgetCounters() {
     budget_.exceeded_memory = false;
     if (impl_) {
         impl_->cpuUsedUs = 0;
+        impl_->cpuBudgetInterrupted = false;
+        impl_->cpuBudgetActive = false;
     }
 }
 
@@ -960,7 +1022,7 @@ bool QuickJSContext::isCPUExceeded() const {
     if (!config_.enableCPUBudget) {
         return false;
     }
-    return impl_ && impl_->cpuUsedUs > budget_.cpu_slice_us;
+    return budget_.exceeded_cpu || (impl_ && (impl_->cpuBudgetInterrupted || impl_->cpuUsedUs > budget_.cpu_slice_us));
 }
 
 void QuickJSContext::runGC() {
@@ -1006,12 +1068,20 @@ uint32_t QuickJSContext::drainPendingJobs(uint32_t maxJobs) {
     uint32_t executed = 0;
     while (executed < maxJobs && JS_IsJobPending(impl_->runtime)) {
         JSContext* jobContext = nullptr;
+        beginCpuBudget(*impl_, config_);
         const int rc = JS_ExecutePendingJob(impl_->runtime, &jobContext);
+        endCpuBudget(*impl_);
         if (rc <= 0) {
             if (rc < 0 && jobContext != nullptr) {
                 QuickJSDiagnostic diagnostic;
                 diagnostic.operation = "quickjs_pending_job_failure";
-                diagnostic.message = exceptionToString(jobContext);
+                if (impl_->cpuBudgetInterrupted) {
+                    budget_.exceeded_cpu = true;
+                    discardException(jobContext);
+                    diagnostic.message = "CPU budget exceeded";
+                } else {
+                    diagnostic.message = exceptionToString(jobContext);
+                }
                 diagnostic.severity = CompatSeverity::HARD_FAIL;
                 diagnostic.sourceLocation = impl_->activeSourceLocation;
                 impl_->diagnostics.push_back(std::move(diagnostic));
@@ -1019,6 +1089,14 @@ uint32_t QuickJSContext::drainPendingJobs(uint32_t maxJobs) {
             break;
         }
         ++executed;
+    }
+    if (executed >= maxJobs && JS_IsJobPending(impl_->runtime)) {
+        QuickJSDiagnostic diagnostic;
+        diagnostic.operation = "quickjs_pending_job_limit_exceeded";
+        diagnostic.message = "Pending job drain limit reached";
+        diagnostic.severity = CompatSeverity::SOFT_FAIL;
+        diagnostic.sourceLocation = impl_->activeSourceLocation;
+        impl_->diagnostics.push_back(std::move(diagnostic));
     }
     return executed;
 }

@@ -16,8 +16,8 @@ This file is a pointer map, not the debt database.
 - Treat the current branch as post-`v0.1.0` and not ready for a broader all-features or follow-up public release claim until fresh final gates pass and the current blocker list is closed.
 - Highest-priority blocker classes are: production-adjacent `std::system` command execution and argv credential exposure; compat audio raw-pointer lifetime; chatbot async callback lifetime/cancellation; QuickJS CPU interruption; release-grade bundle/script protection truth; local-only cloud sync; Windows-only native source picking; tracked generated/local directories; root asset-folder drift; and current LFS footprint reconciliation.
 - Treat Phase 6 release-surface remediation as historical release evidence for the bounded `v0.1.0` lineage, not as proof that the current `development` branch is broadly clean. Keep `.\tools\ci\run_local_gates.ps1` passing before widening release claims.
-- Treat `level_builder` as the native shippable map editor. Keep grid-part document editing, save/load/export, playtest, package readiness, diagnostics, and supporting spatial handoff coherent before adding parallel map-authoring surfaces.
-- Keep `spatial_authoring` nested/supporting unless a release owner explicitly changes the product hierarchy.
+- Treat `level_builder` as the native shippable grid-part map editor. Keep grid-part document editing, save/load/export, playtest, package readiness, diagnostics, and Perspective 2D handoff coherent.
+- The release owner promoted `spatial_authoring` to a first-class Perspective 2D map editor surface on 2026-05-26. Keep its top-level registry/app-shell exposure aligned with Level Builder and the spatial child tools.
 - Enforce the WYSIWYG done rule: a subsystem is not done without visual authoring, live preview, saved project data, runtime execution, diagnostics, and tests.
 - Keep the AI assistant workflow visibly review-gated: approve/reject/approve-all/apply/revert controls, result diffs, and reverse patches must stay exposed in editor snapshots when AI tooling changes.
 - Treat live chatbot provider integration as future work unless a concrete provider service lands behind `IChatService`; creator-command transport profiles are not the same as shipped live chatbot providers.
@@ -36,7 +36,7 @@ This file is a pointer map, not the debt database.
 ## What Not To Do
 
 - Do not promote `PARTIAL` lanes to ready/full based only on fixture coverage.
-- Do not re-promote Spatial Authoring as the primary map editor while Level Builder owns grid-part map authoring.
+- Do not demote Perspective 2D / `spatial_authoring` back to nested tooling without an explicit release-owner reversal.
 - Do not mark a system done when it only has deterministic contracts, schemas, or headless tests; it also needs the WYSIWYG completion evidence in `content/readiness/wysiwyg_done_rule.json`.
 - Do not call the repository LFS-free, generated-artifact-free, shell-execution-free, or production cloud-sync-ready unless fresh commands prove those exact claims.
 - Do not introduce hidden fallback behavior for missing assets, scripts, saves, or runtime binaries.

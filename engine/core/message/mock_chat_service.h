@@ -10,7 +10,9 @@ namespace urpg::ai {
  */
 class MockChatService : public IChatService {
   public:
-    void requestResponse(const std::vector<ChatMessage>& history, ChatCallback callback) override {
+    std::shared_ptr<ChatRequestHandle> requestResponse(const std::vector<ChatMessage>& history,
+                                                       ChatCallback callback) override {
+        auto handle = std::make_shared<ChatRequestHandle>();
         const std::string& lastUserMsg = history.back().content;
 
         std::string response = "I hear you say: '" + lastUserMsg + "'. Truly fascinating.";
@@ -26,7 +28,10 @@ class MockChatService : public IChatService {
         }
 
         // Simulate async delay
-        callback(response, command);
+        if (!handle->cancelled()) {
+            callback(response, command);
+        }
+        return handle;
     }
 };
 

@@ -32,6 +32,7 @@ public:
         std::string picker_kind;
         std::vector<std::string> picker_targets;
         bool targeted_for_level_builder = false;
+        bool targeted_for_perspective_2d = false;
     };
 
     struct RenderSnapshot {
@@ -47,7 +48,7 @@ public:
         std::optional<float> last_added_z;
     };
 
-    PropPlacementPanel() : EditorPanel("Prop Placement") {}
+    PropPlacementPanel() : EditorPanel("Perspective 2D Prop Placement") {}
 
     void Render(const urpg::FrameContext& context) override;
 

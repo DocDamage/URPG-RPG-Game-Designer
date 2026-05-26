@@ -464,8 +464,10 @@ TEST_CASE("Spatial Editor Tooling Integration - SpatialAuthoringWorkspace compos
     urpg::FrameContext frameContext{0.016f, 1};
     workspace.Render(frameContext);
     const auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(workspace.GetTitle() == "Perspective 2D Map Editor");
     REQUIRE(snapshot.has_target_scene);
     REQUIRE(snapshot.has_target_overlay);
+    REQUIRE(snapshot.message == "Perspective 2D map editor is ready.");
     REQUIRE(snapshot.elevation.has_target);
     REQUIRE(snapshot.props.has_target);
     REQUIRE(snapshot.bindings.has_target_scene);
@@ -476,7 +478,8 @@ TEST_CASE("Spatial Editor Tooling Integration - SpatialAuthoringWorkspace compos
     REQUIRE(snapshot.canvas.hover_affordance_count >= 2);
     REQUIRE(snapshot.toolbar.active_mode == "abilities");
     REQUIRE(snapshot.toolbar.has_conflicts == snapshot.canvas.has_conflicts);
-    REQUIRE(snapshot.toolbar.actions.size() == 6);
+    REQUIRE(snapshot.toolbar.actions.size() == 7);
+    REQUIRE(snapshot.toolbar.actions[0].label == "Compose");
     const auto partsAction = std::find_if(snapshot.toolbar.actions.begin(), snapshot.toolbar.actions.end(),
                                           [](const auto& action) { return action.id == "parts"; });
     REQUIRE(partsAction != snapshot.toolbar.actions.end());
@@ -589,4 +592,57 @@ TEST_CASE("Spatial Editor Tooling Integration - SpatialAuthoringWorkspace toolba
     }
 
     std::filesystem::remove_all(projectRoot);
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D workspace composes worldbuilding tools",
+          "[editor][spatial][worldbuilding]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "perspective_world";
+    overlay.elevation.width = 12;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(96, 0);
+
+    urpg::scene::MapScene map("perspective_world", 12, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    urpg::map::TerrainBrush brush;
+    brush.mode = urpg::map::TerrainBrushMode::Rectangle;
+    brush.width = 2;
+    brush.height = 2;
+    brush.tile_id = 7;
+    workspace.PreviewTerrainBrush(brush, 3, 4, 11);
+    workspace.LoadRegionRules({
+        {"rain_path", 2, 1, 4, 3, "", "rain_loop", "rain", "", "normal", ""},
+    });
+    workspace.GenerateProceduralMap({"perspective_seed", "dungeon", 12, 8, 19, false, false, false});
+    workspace.LoadEnvironmentPreview(urpg::map::MapEnvironmentPreviewDocument::fromRegionRules(
+        "perspective_world",
+        12,
+        8,
+        {
+            {"rain_path", 2, 1, 4, 3, "", "rain_loop", "rain", "", "normal", ""},
+        }));
+    workspace.SelectEnvironmentTile(3, 2);
+
+    REQUIRE(workspace.ActivateToolbarAction("worldbuilding"));
+    urpg::FrameContext frameContext{0.016f, 3};
+    workspace.Render(frameContext);
+
+    const auto& snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.toolbar.active_mode == "worldbuilding");
+    REQUIRE(snapshot.worldbuilding_terrain.preview_point_count == 4);
+    REQUIRE(snapshot.worldbuilding_regions.rule_count == 1);
+    REQUIRE_FALSE(snapshot.worldbuilding_regions.disabled);
+    REQUIRE(snapshot.worldbuilding_procedural.has_result);
+    REQUIRE(snapshot.worldbuilding_procedural.width == 12);
+    REQUIRE(snapshot.worldbuilding_environment.map_id == "perspective_world");
+    REQUIRE(snapshot.worldbuilding_environment.region_id == "rain_path");
+    REQUIRE(snapshot.worldbuilding_environment.status_message == "Map environment preview is ready.");
+
+    const auto worldbuildingAction = std::find_if(snapshot.toolbar.actions.begin(), snapshot.toolbar.actions.end(),
+                                                  [](const auto& action) { return action.id == "worldbuilding"; });
+    REQUIRE(worldbuildingAction != snapshot.toolbar.actions.end());
+    REQUIRE(worldbuildingAction->label == "Worldbuilding");
+    REQUIRE(worldbuildingAction->active);
 }

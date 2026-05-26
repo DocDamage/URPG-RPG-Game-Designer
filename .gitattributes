@@ -48,6 +48,8 @@ content/assets/gameplay/human_rpg_portraits/00000_10_human_barbarian_0_0.png -fi
 content/assets/gameplay/human_rpg_portraits/00001_10_human_barbarian_0_1.png -filter -diff -merge -text
 imports/normalized/src010_cc0_starter_pack/**/*.png -filter -diff -merge -text
 imports/normalized/src012_cc0_tiles_vfx/**/*.png -filter -diff -merge -text
+imports/manifests/asset_bundles/*.json filter=lfs diff=lfs merge=lfs -text
+imports/reports/asset_intake/release_required_asset_report.json filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
 *.jpeg filter=lfs diff=lfs merge=lfs -text
 *.gif filter=lfs diff=lfs merge=lfs -text

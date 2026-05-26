@@ -8,29 +8,30 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/a
 Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](../APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. The bounded `v0.1.0` public release tag exists at `1d3debb95b6df1d09996e723cc616369cfca99c6`; current `development` is post-tag and needs fresh gates plus a release-owner decision before any follow-up public distribution or broader completion claim.
 
 2026-05-26 current-codebase truth checkpoint:
-- The current `development` checkout is a bounded post-`v0.1.0` work branch, not a clean mandatory all-features product. Broader production claims are blocked until the finish plan in `docs/superpowers/plans/2026-05-26-finish-current-codebase.md` is implemented and verified.
-- Production-adjacent shell execution remains in AI provider transports, creator-command transport, analytics HTTP upload, command achievement submission, and non-Windows asset conversion. These paths must move to native HTTP and a no-shell process runner before security closure.
-- The compat audio manager still stores raw role/channel pointers beside owning `unique_ptr` channel storage, so destroy-after-use scenarios remain a lifetime risk until role references are converted to stable IDs or handles.
-- `ChatbotComponent` still captures raw `this` in service callbacks. Async-capable services need cancellation tokens and weak lifetime guards before live providers can be treated as production-safe.
-- QuickJS memory limits are wired, but CPU budget enforcement still lacks a QuickJS interrupt handler. Infinite-loop and runaway-job coverage remains mandatory.
-- `ResourceProtector` is truthfully lightweight RLE/XOR plus keyed digest support, not release-grade encryption or public-key signing; `obfuscateScript()` remains a stub helper and export paths that request script obfuscation must continue failing closed until a real transform exists.
-- Cloud sync remains local-only in-tree through `LocalInMemoryCloudService`, and native import source picking remains Windows-only outside injectable test hooks.
-- Repository hygiene is open: tracked generated/local or retired-root paths include `build-local/`, `Testing/Temporary/`, root `third_party/`, and root `itch/loose/`.
-- LFS wording is open: `git lfs ls-files --name-only` reports 32,229 LFS-tracked normalized asset paths in this checkout. Release-required app assets may still be verified separately, but the branch must not be described as zero-LFS.
+- The current `development` checkout is a bounded post-`v0.1.0` work branch, not a clean mandatory all-features product. The finish plan in `docs/superpowers/plans/2026-05-26-finish-current-codebase.md` is implemented for the focused scope, with external constraints still recorded below.
+- Production-adjacent shell execution has been removed from the listed AI provider, creator-command, analytics HTTP upload, command achievement, and asset conversion paths. Native HTTP seams and a no-shell `ProcessRunner` are covered by focused tests and `check_no_production_system_calls.ps1`.
+- The compat audio manager now stores active role channel IDs instead of raw pointers, and destruction clears role IDs before owner erasure.
+- `ChatbotComponent` now uses request cancellation and owner-token guards so delayed service callbacks do not mutate destroyed or cancelled owners.
+- QuickJS CPU budgets now use `JS_SetInterruptHandler`, and pending-job/callback floods are capped with diagnostics.
+- `ResourceProtector` is truthfully lightweight bundle obfuscation plus keyed HMAC-SHA256 bundle authenticity support, not release-grade content protection or public-key signing; export paths that request script obfuscation continue failing closed until a real transform exists.
+- Cloud sync remains local-only in-tree through `LocalInMemoryCloudService` and is hidden from release UI unless a reviewed remote provider reports release visibility. Native import source picking has Windows COM, guarded macOS `NSOpenPanel`, Linux desktop-helper fallback, and deterministic diagnostics for portal/helper availability; macOS/Linux UI still needs platform-runner verification.
+- Repository hygiene is closed for tracked generated/local or retired-root paths: `build-local/`, `Testing/Temporary/`, root `third_party/`, and root `itch/loose/` now return no `git ls-files` hits, and `check_no_generated_tracked_files.ps1` passes.
+- LFS wording remains bounded: `git lfs ls-files --name-only` reports 32,229 LFS-tracked normalized asset paths in this checkout. Release-required app assets are verified separately by `check_lfs_release_scope.ps1` and `check_release_required_assets.ps1`, but the branch must not be described as zero-LFS.
+- Sanitizer evidence is blocked by this local Windows standalone LLVM configuration missing MSVC CRT libraries during `URPG_SANITIZERS=address,undefined`; rerun on a configured sanitizer-capable toolchain before making sanitizer-backed safety claims.
 
 2026-04-30 native Level Builder checkpoint:
-- `level_builder` is now the release top-level native map editor surface; `spatial_authoring` is nested/supporting tooling.
+- `level_builder` is now the release top-level native grid-part map editor surface; `spatial_authoring` is promoted to the release top-level Perspective 2D map editor surface.
 - `GridPartDocument` is the canonical editable map document for native grid-part level authoring.
-- `LevelBuilderWorkspace` now coordinates build, validate, playtest, package, and supporting-spatial modes.
+- `LevelBuilderWorkspace` now coordinates build, validate, playtest, package, and first-class Perspective 2D modes.
 - The workspace exposes shell-bindable save/load/export commands, top-level undo/redo, diagnostic summaries, diagnostic focus, spawn/objective authoring commands, readiness evidence commands, package readiness, and certified export preflight.
 - Successful native playtests promote reachability readiness evidence when the objective completes without softlock.
-- Supporting spatial tools for elevation, props, ability bindings, and composite routing are available through Level Builder without becoming the primary map editor.
+- Perspective 2D tools for elevation, props, parts, ability bindings, terrain brush preview, region rules, procedural map preview, map environment/runtime preview, and composite routing are available through Level Builder and the top-level `spatial_authoring` route.
 - Grid-part editor, registry, dungeon/WYSIWYG, and CTest grid-part lanes passed during the checkpoint: `urpg_tests.exe "[grid_part][editor]"`, `urpg_tests.exe "[editor][panel][registry]"`, `urpg_tests.exe "[dungeon3d][wysiwyg]"`, and `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure`.
 - `docs/release/RELEASE_READINESS_MATRIX.md` now tracks `native_level_builder` as `READY` for the bounded native grid-part editor scope.
 - The README was overhauled to describe current product positioning, feature scope, competitor tradeoffs, Level Builder capabilities, validation commands, and release boundaries.
 
 2026-04-29 asset-root reorganization and README refresh:
-- Root-level `third_party/` and `itch/` asset folders were intended to be retired after indexing, but the current checkout still tracks root `third_party/` and root `itch/loose/` payloads. Treat this as open docs/tree drift until the tracked roots are removed or explicitly reclassified.
+- Root-level `third_party/` and `itch/` asset folders were retired from Git tracking on 2026-05-26 after indexing; current drift reports live under `imports/reports/asset_intake/`, and `check_no_generated_tracked_files.ps1` guards against re-tracking.
 - The local asset DB moved to the ignored `.urpg/asset-index/asset_catalog.db`; `imports/reports/asset_intake/third_party_itch_ingest_summary.json` is the tracked audit report.
 - Third-party/itch indexing currently records 34,651 files, 28,995 images, 3,014 audio records, and 3,233 exact duplicate groups for future curation.
 - `SRC-007` remains deduped and catalog-normalized under `imports/raw/urpg_stuff`; existing OGG context was preserved and tracked MP3/WAV files remain excluded.

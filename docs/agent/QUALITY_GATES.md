@@ -24,6 +24,7 @@ Use anchored label presets for common lanes. Raw `ctest -L pr` is regex-based an
 | Grid-part runtime/compiler/package governance | `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure` |
 | Release authoring persistence / save-load paths | `ctest --preset dev-all -R "settings|persistence|save|load|grid_part|Ability" --output-on-failure` |
 | Release-required assets | `.\tools\ci\check_release_required_assets.ps1`; then `ctest --preset dev-all -R "AssetLibrary|Runtime map asset|preflight|asset" --output-on-failure` |
+| Repository truth guards | `.\tools\ci\check_no_generated_tracked_files.ps1`; `.\tools\ci\check_no_production_system_calls.ps1`; `.\tools\ci\check_lfs_release_scope.ps1` |
 | Release-surface regression tests | `ctest --test-dir build\dev-ninja-debug -R "Editor panel registry|editor app panels|Community WYSIWYG|curated save-data lifecycle" --output-on-failure` |
 | WYSIWYG readiness/done-rule changes | `ctest --preset dev-all -R "WYSIWYG|readiness_status" --output-on-failure` |
 | Native version metadata | `.\build\dev-ninja-release\urpg_runtime.exe --version`; then `.\build\dev-ninja-release\urpg_editor.exe --version` |

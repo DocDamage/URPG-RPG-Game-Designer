@@ -83,10 +83,12 @@ struct EditorPanelRuntime {
     urpg::editor::ModManagerPanel mod_manager_panel;
     urpg::editor::AnalyticsPanel analytics_panel;
     urpg::editor::LevelBuilderWorkspace level_builder_workspace;
+    urpg::editor::SpatialAuthoringWorkspace perspective_2d_workspace;
     urpg::ability::AbilitySystemComponent ability_runtime;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
     urpg::map::GridPartCatalog level_builder_catalog;
     urpg::presentation::SpatialMapOverlay level_builder_overlay;
+    urpg::scene::MapScene perspective_2d_scene{"EditorPreview", 16, 12};
     urpg::mod::ModRegistry mod_registry;
     std::unique_ptr<urpg::mod::ModLoader> mod_loader;
     urpg::analytics::AnalyticsDispatcher analytics_dispatcher;
@@ -251,6 +253,23 @@ bool loadGridPartCatalog(const std::filesystem::path& projectRoot, urpg::map::Gr
     return catalog.size() > 0;
 }
 
+urpg::editor::PropPlacementPanel::ScreenProjectionSettings
+makeEditorPreviewProjection(const urpg::map::GridPartDocument& document) {
+    urpg::editor::PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 1280.0f;
+    projection.viewportHeight = 720.0f;
+    projection.cameraCenterX = static_cast<float>(document.width()) * 0.5f;
+    projection.cameraCenterZ = static_cast<float>(document.height()) * 0.5f;
+    projection.worldUnitsPerPixel = 1.0f / 48.0f;
+    return projection;
+}
+
+std::vector<urpg::map::MapRegionRule> makeEditorPreviewRegionRules() {
+    return {
+        {"editor_rain_path", 2, 1, 5, 4, "", "rain_loop", "rain", "", "normal", ""},
+    };
+}
+
 void bindLevelBuilder(EditorPanelRuntime& runtime) {
     runtime.level_builder_overlay.mapId = runtime.level_builder_document.mapId();
     runtime.level_builder_overlay.elevation.width = static_cast<uint32_t>(runtime.level_builder_document.width());
@@ -263,7 +282,41 @@ void bindLevelBuilder(EditorPanelRuntime& runtime) {
     const bool catalogLoaded = loadGridPartCatalog(runtime.project_root, runtime.level_builder_catalog);
     runtime.level_builder_workspace.SetTargets(&runtime.level_builder_document,
                                                catalogLoaded ? &runtime.level_builder_catalog : nullptr,
-                                               &runtime.level_builder_overlay);
+                                               &runtime.level_builder_overlay,
+                                               &runtime.perspective_2d_scene);
+    runtime.perspective_2d_workspace.SetTargets(&runtime.perspective_2d_scene, &runtime.level_builder_overlay);
+    runtime.perspective_2d_workspace.SetGridPartTargets(
+        &runtime.level_builder_document, catalogLoaded ? &runtime.level_builder_catalog : nullptr);
+    const auto projection = makeEditorPreviewProjection(runtime.level_builder_document);
+    runtime.level_builder_workspace.SetProjectionSettings(projection);
+    runtime.perspective_2d_workspace.SetProjectionSettings(projection);
+    const auto previewRules = makeEditorPreviewRegionRules();
+    runtime.perspective_2d_workspace.LoadRegionRules(previewRules);
+    runtime.perspective_2d_workspace.LoadEnvironmentPreview(
+        urpg::map::MapEnvironmentPreviewDocument::fromRegionRules(
+            runtime.level_builder_document.mapId(),
+            runtime.level_builder_document.width(),
+            runtime.level_builder_document.height(),
+            previewRules));
+    runtime.perspective_2d_workspace.SelectEnvironmentTile(3, 2);
+    urpg::map::TerrainBrush previewBrush;
+    previewBrush.mode = urpg::map::TerrainBrushMode::Rectangle;
+    previewBrush.width = 2;
+    previewBrush.height = 2;
+    previewBrush.tile_id = 1;
+    runtime.perspective_2d_workspace.PreviewTerrainBrush(previewBrush, 3, 2, 1);
+    runtime.perspective_2d_workspace.GenerateProceduralMap(
+        {"editor_preview_seed",
+         "dungeon",
+         runtime.level_builder_document.width(),
+         runtime.level_builder_document.height(),
+         1,
+         false,
+         false,
+         false});
+    if (!runtime.project_root.empty()) {
+        (void)runtime.perspective_2d_workspace.SetProjectRoot(runtime.project_root.string());
+    }
 }
 
 bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRuntime& runtime) {
@@ -399,6 +452,14 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
          [](EditorPanelRuntime& panelRuntime) {
              return [&panelRuntime](const urpg::editor::EditorFrameContext& context) {
                  panelRuntime.level_builder_workspace.Render(
+                     urpg::FrameContext{static_cast<float>(context.delta_seconds),
+                                        static_cast<uint32_t>(context.frame_index)});
+             };
+         }},
+        {"spatial_authoring",
+         [](EditorPanelRuntime& panelRuntime) {
+             return [&panelRuntime](const urpg::editor::EditorFrameContext& context) {
+                 panelRuntime.perspective_2d_workspace.Render(
                      urpg::FrameContext{static_cast<float>(context.delta_seconds),
                                         static_cast<uint32_t>(context.frame_index)});
              };

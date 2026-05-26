@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.23)
 project(urpg VERSION 0.1.0 LANGUAGES C CXX)
 
+if(APPLE)
+    enable_language(OBJCXX)
+endif()
+
 include(CheckCXXSourceCompiles)
 include(GNUInstallDirs)
 
@@ -248,6 +252,8 @@ set(URPG_CORE_SOURCES
     engine/core/input/input_remap_store.cpp
     engine/core/input/input_remap_profile.cpp
     engine/core/platform/device_profile.cpp
+    engine/core/platform/process_runner.cpp
+    engine/core/net/http_client.cpp
     engine/core/capture/capture_session.cpp
     engine/core/capture/trailer_capture_manifest.cpp
     engine/core/platform/sdl_surface.cpp
@@ -623,6 +629,9 @@ list(FILTER URPG_EDITOR_CORE_SOURCES INCLUDE REGEX "^engine/core/editor/")
 
 set(URPG_EDITOR_PANELS_SOURCES ${URPG_CORE_SOURCES})
 list(FILTER URPG_EDITOR_PANELS_SOURCES INCLUDE REGEX "^editor/")
+if(APPLE)
+    list(APPEND URPG_EDITOR_PANELS_SOURCES editor/assets/native_import_source_picker_macos.mm)
+endif()
 
 set(URPG_COMPAT_MZ_SOURCES ${URPG_CORE_SOURCES})
 list(FILTER URPG_COMPAT_MZ_SOURCES INCLUDE REGEX "^runtimes/compat_js/")
@@ -946,6 +955,10 @@ target_link_libraries(urpg_editor_panels PUBLIC
     urpg_export
     urpg_project_tools
 )
+if(APPLE)
+    find_library(URPG_APPKIT_FRAMEWORK AppKit REQUIRED)
+    target_link_libraries(urpg_editor_panels PUBLIC ${URPG_APPKIT_FRAMEWORK})
+endif()
 target_link_libraries(urpg_testing_support PUBLIC urpg_runtime_core urpg_rendering)
 
 add_library(urpg_core INTERFACE)
@@ -1249,7 +1262,9 @@ add_executable(urpg_tests
     tests/unit/test_semver.cpp
     tests/unit/test_fixed32.cpp
     tests/unit/test_frame_budget.cpp
+    tests/unit/test_process_runner.cpp
     tests/unit/test_future_feature_16.cpp
+    tests/unit/test_chatbot_component.cpp
     tests/unit/test_ai_knowledge_base.cpp
     tests/unit/test_creator_command_planner.cpp
     tests/unit/test_openai_compatible_chat_service.cpp

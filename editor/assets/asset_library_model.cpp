@@ -4,6 +4,7 @@
 #include "engine/core/assets/global_asset_library_store.h"
 #include "engine/core/assets/global_asset_promotion_service.h"
 #include "engine/core/assets/project_asset_attachment_service.h"
+#include "engine/core/platform/process_runner.h"
 
 #include <algorithm>
 #include <cctype>
@@ -12,13 +13,6 @@
 #include <sstream>
 #include <utility>
 #include <vector>
-
-#ifdef _WIN32
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <windows.h>
-#endif
 
 namespace urpg::editor {
 
@@ -569,70 +563,6 @@ void eraseDiagnostic(std::vector<std::string>& diagnostics, std::string_view cod
     diagnostics.erase(std::remove(diagnostics.begin(), diagnostics.end(), code), diagnostics.end());
 }
 
-#ifndef _WIN32
-std::string quoteShellArg(const std::string& value) {
-    std::string out = "\"";
-    for (const char ch : value) {
-        if (ch == '"') {
-            out += "\\\"";
-        } else {
-            out += ch;
-        }
-    }
-    out += "\"";
-    return out;
-}
-#endif
-
-#ifdef _WIN32
-std::wstring quoteWindowsArg(const std::string& value) {
-    if (value.empty()) {
-        return L"\"\"";
-    }
-    const bool needsQuotes = value.find_first_of(" \t\"") != std::string::npos;
-    std::wstring out;
-    if (needsQuotes) {
-        out.push_back(L'"');
-    }
-    size_t backslashes = 0;
-    for (const char ch : value) {
-        if (ch == '\\') {
-            ++backslashes;
-            continue;
-        }
-        if (ch == '"') {
-            out.append(backslashes * 2 + 1, L'\\');
-            out.push_back(L'"');
-            backslashes = 0;
-            continue;
-        }
-        out.append(backslashes, L'\\');
-        backslashes = 0;
-        out.push_back(static_cast<wchar_t>(static_cast<unsigned char>(ch)));
-    }
-    if (needsQuotes) {
-        out.append(backslashes * 2, L'\\');
-        out.push_back(L'"');
-    } else {
-        out.append(backslashes, L'\\');
-    }
-    return out;
-}
-
-std::wstring joinWindowsCommandLine(const std::vector<std::string>& arguments) {
-    std::wstring commandLine;
-    bool first = true;
-    for (const auto& arg : arguments) {
-        if (!first) {
-            commandLine.push_back(L' ');
-        }
-        commandLine += quoteWindowsArg(arg);
-        first = false;
-    }
-    return commandLine;
-}
-#endif
-
 std::string projectAttachmentManifestPath(const urpg::assets::AssetRecord& asset) {
     constexpr std::string_view prefix = "project_asset_attachment:";
     for (const auto& owner : asset.used_by) {
@@ -679,6 +609,7 @@ nlohmann::json pickerTargetsForKind(const std::string& pickerKind) {
         targets.push_back("ui_theme_selector");
     } else if (pickerKind == "tileset" || pickerKind == "background" || pickerKind == "sprite") {
         targets.push_back("level_builder");
+        targets.push_back("spatial_authoring");
         targets.push_back("sprite_selector");
     } else if (pickerKind == "portrait" || pickerKind == "vfx") {
         targets.push_back("sprite_selector");
@@ -741,41 +672,13 @@ AssetLibraryModel::ConversionCommandResult AssetLibraryModel::runConversionComma
         return {1, "", "conversion command is empty"};
     }
 
-#ifdef _WIN32
-    auto commandLine = joinWindowsCommandLine(command.arguments);
-    auto workingDirectory = command.working_directory.empty() ? std::wstring{} : command.working_directory.wstring();
-
-    STARTUPINFOW startup{};
-    startup.cb = sizeof(startup);
-    PROCESS_INFORMATION process{};
-    const BOOL launched =
-        CreateProcessW(nullptr, commandLine.data(), nullptr, nullptr, FALSE, CREATE_NO_WINDOW, nullptr,
-                       workingDirectory.empty() ? nullptr : workingDirectory.c_str(), &startup, &process);
-    if (!launched) {
-        return {1, "", "conversion command could not be started: " + std::to_string(GetLastError())};
-    }
-    WaitForSingleObject(process.hProcess, INFINITE);
-    DWORD exitCode = 1;
-    GetExitCodeProcess(process.hProcess, &exitCode);
-    CloseHandle(process.hThread);
-    CloseHandle(process.hProcess);
-    return {static_cast<int>(exitCode), "", ""};
-#else
-    std::ostringstream shell;
-    if (!command.working_directory.empty()) {
-        shell << "cd " << quoteShellArg(command.working_directory.string()) << " && ";
-    }
-    bool first = true;
-    for (const auto& arg : command.arguments) {
-        if (!first) {
-            shell << ' ';
-        }
-        shell << quoteShellArg(arg);
-        first = false;
-    }
-    const int exitCode = std::system(shell.str().c_str());
-    return {exitCode, "", ""};
-#endif
+    urpg::platform::ProcessCommand processCommand;
+    processCommand.executable = command.arguments.front();
+    processCommand.arguments.assign(command.arguments.begin() + 1, command.arguments.end());
+    processCommand.workingDirectory = command.working_directory;
+    const auto result = urpg::platform::runProcess(processCommand);
+    return {result.exitCode, result.stdoutText,
+            result.error.empty() ? result.stderrText : result.stderrText + result.error};
 }
 
 bool AssetLibraryModel::loadImportSessionManifest(const std::filesystem::path& manifest_path,

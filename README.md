@@ -10,7 +10,7 @@ Status date: 2026-05-26
 
 The bounded public `v0.1.0` release tag exists as an annotated tag targeting commit `1d3debb95b6df1d09996e723cc616369cfca99c6`. The current `development` workspace is post-`v0.1.0` and must pass the final gates again before any follow-up public release or broader completion claim.
 
-Current checkout truth: this branch is not clean as a mandatory all-features product. It remains a bounded release/work-in-progress with real follow-up blockers: production-adjacent `std::system` command execution in AI, analytics, achievement, and asset conversion paths; raw-pointer lifetime risks in the compat audio manager; async chatbot callbacks that can outlive their owner; QuickJS CPU budgets without an interrupt handler; lightweight RLE/XOR bundle protection rather than release-grade encryption/signing; a script obfuscation helper that remains a stub; local-only cloud sync; Windows-only native asset source picking; tracked generated/local trees; and tracked root `third_party/` / `itch/loose` payload drift. `git lfs ls-files --name-only` currently reports 32,229 LFS-tracked normalized asset paths in this checkout, so older zero-LFS wording is no longer true for `development`.
+Current checkout truth: this branch has closed the 2026-05-26 security/lifetime/resource-limit/repository-hygiene hardening lane for the implemented scope: production `std::system` use has a CI guard, AI/analytics transports use native HTTP seams with redacted diagnostics, compat audio roles use stable IDs, chatbot callbacks have cancellation/lifetime guards, QuickJS uses an interrupt handler and pending-job caps, bundle authenticity uses keyed HMAC-SHA256 while unsupported script obfuscation fails closed, cloud sync remains hidden/local-only by release tests, native picker diagnostics cover Windows/macOS/Linux/unsupported branches, root generated/retired trees are removed from the Git index, and external archive extraction is allowlisted and containment-audited. This is still not a mandatory all-features product claim: legal/privacy review is owner-waived, platform signing/notarization is external, sanitizer verification is blocked by the local standalone LLVM/MSVC CRT configuration, macOS/Linux native picker builds need platform runners, and `git lfs ls-files --name-only` still reports 32,229 optional normalized asset paths outside release-required claims.
 
 For active development, use the full local gate:
 
@@ -56,8 +56,8 @@ Within the bounded internal/private release-candidate scope:
 - New public distribution approval and release tagging for post-`v0.1.0` commits.
 - Platform signing/notarization credentials for final release artifacts.
 - Repository-wide source/vendor LFS budget/access if future release work depends on full vendor/source asset hydration. Current release-required app assets are normal Git blobs and are checked separately.
-- Repository hygiene cleanup for currently tracked generated/local paths such as `build-local/`, `Testing/Temporary/`, root `third_party/`, and root `itch/loose/`.
-- Security and lifetime hardening before any broader production claim: remove production `std::system`, stop leaking bearer tokens through argv, replace raw compat audio role pointers, add chatbot cancellation/lifetime safety, install real QuickJS interrupt limits, and either implement or remove unsupported security-feature claims.
+- Local sanitizer proof remains blocked by the current Windows standalone LLVM configuration missing MSVC CRT libraries during `URPG_SANITIZERS=address,undefined` configure. Re-run sanitizer evidence on a configured LLVM/MSVC or supported POSIX toolchain before making stronger runtime-safety claims.
+- macOS/Linux native source picker implementations are guarded in the build graph but must be compiled and exercised on those platform runners before release-owner cross-platform UI signoff.
 
 ## Product Pillars
 
@@ -159,7 +159,7 @@ AI-assisted editing is review-gated:
 | `docs/` | Architecture, release, governance, signoff, ADRs, status, and templates. |
 | `.urpg/` | Ignored local cache/archive/state. |
 
-The old root-level `third_party/` and `itch/` folders are intended to be retired, and ingested content belongs under `imports/raw/third_party_assets/` and `imports/raw/itch_assets/`. Current `development` still tracks root `third_party/` and `itch/loose/` payloads, so that cleanup remains open.
+The old root-level `third_party/` and `itch/` folders are retired from Git tracking. Ingested content belongs under `imports/raw/third_party_assets/` and `imports/raw/itch_assets/`; current guard evidence is `.\tools\ci\check_no_generated_tracked_files.ps1`.
 
 ## Build
 

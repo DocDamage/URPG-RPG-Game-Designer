@@ -77,8 +77,8 @@ const char* LevelBuilderWorkspace::modeName(WorkflowMode mode) {
         return "playtest";
     case WorkflowMode::Package:
         return "package";
-    case WorkflowMode::SupportingSpatial:
-        return "supporting_spatial";
+    case WorkflowMode::Perspective2D:
+        return "perspective_2d";
     }
     return "build";
 }
@@ -108,7 +108,7 @@ void LevelBuilderWorkspace::syncPanelVisibility() {
     inspector_panel_.SetVisible(show_build || active_mode_ == WorkflowMode::Validate ||
                                 active_mode_ == WorkflowMode::Package);
     playtest_panel_.SetVisible(active_mode_ == WorkflowMode::Playtest);
-    supporting_spatial_workspace_.SetVisible(active_mode_ == WorkflowMode::SupportingSpatial);
+    supporting_spatial_workspace_.SetVisible(active_mode_ == WorkflowMode::Perspective2D);
 }
 
 void LevelBuilderWorkspace::Render(const urpg::FrameContext& context) {
@@ -229,24 +229,28 @@ bool LevelBuilderWorkspace::ActivateToolbarAction(const std::string& action_id) 
     if (action_id == "export_current_level") {
         return ExportCurrentLevel().success;
     }
-    if (action_id == "supporting_spatial") {
-        SetActiveMode(WorkflowMode::SupportingSpatial);
+    if (action_id == "perspective_2d" || action_id == "supporting_spatial") {
+        SetActiveMode(WorkflowMode::Perspective2D);
         return true;
     }
-    if (action_id == "supporting_elevation") {
-        SetActiveMode(WorkflowMode::SupportingSpatial);
+    if (action_id == "perspective_elevation" || action_id == "supporting_elevation") {
+        SetActiveMode(WorkflowMode::Perspective2D);
         return supporting_spatial_workspace_.ActivateToolbarAction("elevation");
     }
-    if (action_id == "supporting_props") {
-        SetActiveMode(WorkflowMode::SupportingSpatial);
+    if (action_id == "perspective_props" || action_id == "supporting_props") {
+        SetActiveMode(WorkflowMode::Perspective2D);
         return supporting_spatial_workspace_.ActivateToolbarAction("props");
     }
-    if (action_id == "supporting_abilities") {
-        SetActiveMode(WorkflowMode::SupportingSpatial);
+    if (action_id == "perspective_abilities" || action_id == "supporting_abilities") {
+        SetActiveMode(WorkflowMode::Perspective2D);
         return supporting_spatial_workspace_.ActivateToolbarAction("abilities");
     }
-    if (action_id == "supporting_composite") {
-        SetActiveMode(WorkflowMode::SupportingSpatial);
+    if (action_id == "perspective_parts") {
+        SetActiveMode(WorkflowMode::Perspective2D);
+        return supporting_spatial_workspace_.ActivateToolbarAction("parts");
+    }
+    if (action_id == "perspective_composite" || action_id == "supporting_composite") {
+        SetActiveMode(WorkflowMode::Perspective2D);
         return supporting_spatial_workspace_.ActivateToolbarAction("composite");
     }
     if (action_id == "playtest_start") {
@@ -610,7 +614,7 @@ bool LevelBuilderWorkspace::SelectGridPart(const std::string& part_id) {
 }
 
 bool LevelBuilderWorkspace::RouteCanvasHover(float screen_x, float screen_y) {
-    if (active_mode_ == WorkflowMode::SupportingSpatial) {
+    if (active_mode_ == WorkflowMode::Perspective2D) {
         const bool handled = supporting_spatial_workspace_.RouteCanvasHover(screen_x, screen_y);
         captureRenderSnapshot();
         return handled;
@@ -625,7 +629,7 @@ bool LevelBuilderWorkspace::RouteCanvasHover(float screen_x, float screen_y) {
 }
 
 bool LevelBuilderWorkspace::RouteCanvasPrimaryAction(float screen_x, float screen_y) {
-    if (active_mode_ == WorkflowMode::SupportingSpatial) {
+    if (active_mode_ == WorkflowMode::Perspective2D) {
         const bool handled = supporting_spatial_workspace_.RouteCanvasPrimaryAction(screen_x, screen_y);
         captureRenderSnapshot();
         return handled;
@@ -646,7 +650,7 @@ bool LevelBuilderWorkspace::RouteCanvasPrimaryAction(float screen_x, float scree
 }
 
 bool LevelBuilderWorkspace::RouteCanvasSecondaryAction(float screen_x, float screen_y) {
-    if (active_mode_ == WorkflowMode::SupportingSpatial) {
+    if (active_mode_ == WorkflowMode::Perspective2D) {
         const bool handled = supporting_spatial_workspace_.RouteCanvasSecondaryAction(screen_x, screen_y);
         captureRenderSnapshot();
         return handled;
@@ -698,8 +702,9 @@ void LevelBuilderWorkspace::captureRenderSnapshot() {
     last_render_snapshot_.placement = placement_panel_.lastRenderSnapshot();
     last_render_snapshot_.inspector = inspector_panel_.lastRenderSnapshot();
     last_render_snapshot_.playtest = playtest_panel_.lastRenderSnapshot();
-    last_render_snapshot_.supporting_spatial = supporting_spatial_workspace_.lastRenderSnapshot();
-    last_render_snapshot_.supporting_spatial.visible = active_mode_ == WorkflowMode::SupportingSpatial;
+    last_render_snapshot_.perspective_2d = supporting_spatial_workspace_.lastRenderSnapshot();
+    last_render_snapshot_.perspective_2d.visible = active_mode_ == WorkflowMode::Perspective2D;
+    last_render_snapshot_.supporting_spatial = last_render_snapshot_.perspective_2d;
     last_render_snapshot_.readiness_evidence.has_player_spawn = readiness_evidence_.has_player_spawn;
     last_render_snapshot_.readiness_evidence.has_objective = readiness_evidence_.has_objective;
     last_render_snapshot_.readiness_evidence.reachability_passed = readiness_evidence_.reachability_passed;
@@ -763,20 +768,24 @@ void LevelBuilderWorkspace::captureRenderSnapshot() {
         {"package", "Package", active_mode_ == WorkflowMode::Package, last_render_snapshot_.has_document},
         {"save_level_draft", "Save", false, last_render_snapshot_.has_document},
         {"export_current_level", "Export", false, last_render_snapshot_.can_export_current_level},
-        {"supporting_spatial", "Supporting Spatial", active_mode_ == WorkflowMode::SupportingSpatial,
+        {"perspective_2d", "Perspective 2D", active_mode_ == WorkflowMode::Perspective2D,
          last_render_snapshot_.has_spatial_overlay || last_render_snapshot_.has_target_scene},
-        {"supporting_elevation", "Elevation", active_mode_ == WorkflowMode::SupportingSpatial &&
+        {"perspective_elevation", "Elevation", active_mode_ == WorkflowMode::Perspective2D &&
                                                supporting_spatial_workspace_.activeMode() ==
                                                    SpatialAuthoringWorkspace::ToolMode::Elevation,
          last_render_snapshot_.has_spatial_overlay},
-        {"supporting_props", "Props", active_mode_ == WorkflowMode::SupportingSpatial &&
+        {"perspective_props", "Props", active_mode_ == WorkflowMode::Perspective2D &&
                                       supporting_spatial_workspace_.activeMode() ==
                                           SpatialAuthoringWorkspace::ToolMode::Props,
          last_render_snapshot_.has_spatial_overlay},
-        {"supporting_abilities", "Abilities", active_mode_ == WorkflowMode::SupportingSpatial &&
+        {"perspective_abilities", "Abilities", active_mode_ == WorkflowMode::Perspective2D &&
                                               supporting_spatial_workspace_.activeMode() ==
                                                   SpatialAuthoringWorkspace::ToolMode::Abilities,
          last_render_snapshot_.has_spatial_overlay || last_render_snapshot_.has_target_scene},
+        {"perspective_parts", "Parts", active_mode_ == WorkflowMode::Perspective2D &&
+                                          supporting_spatial_workspace_.activeMode() ==
+                                              SpatialAuthoringWorkspace::ToolMode::Parts,
+         last_render_snapshot_.has_document && last_render_snapshot_.has_catalog},
     };
 }
 

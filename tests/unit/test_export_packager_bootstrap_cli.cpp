@@ -266,7 +266,7 @@ TEST_CASE("urpg_pack_cli runs preflight, export, and post-export validation as J
     REQUIRE(report["export"]["success"] == true);
     REQUIRE(report["postExportValidation"]["passed"] == true);
     REQUIRE(report["postExportValidation"]["errors"].empty());
-    REQUIRE(report["postExportValidation"]["bundleSummary"]["signatureMode"] == "sha256_keyed_bundle_v1");
+    REQUIRE(report["postExportValidation"]["bundleSummary"]["signatureMode"] == "hmac_sha256_bundle_v1");
     REQUIRE(report["postExportValidation"]["bundleSummary"]["bundleSignaturePresent"] == true);
 
     REQUIRE(std::filesystem::exists(outputDir / "data.pck"));
@@ -275,7 +275,7 @@ TEST_CASE("urpg_pack_cli runs preflight, export, and post-export validation as J
     REQUIRE(std::filesystem::exists(outputDir / "game.wasm"));
 
     const auto manifest = ReadBundleManifest(outputDir / "data.pck");
-    REQUIRE(manifest["signatureMode"] == "sha256_keyed_bundle_v1");
+    REQUIRE(manifest["signatureMode"] == "hmac_sha256_bundle_v1");
     REQUIRE(manifest["bundleSignature"] ==
             ComputeBundleSignature(outputDir / "data.pck", manifest, ExportTarget::Web_WASM));
 

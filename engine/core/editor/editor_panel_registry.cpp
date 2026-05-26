@@ -7,8 +7,8 @@ namespace urpg::editor {
 
 namespace {
 
-constexpr std::array<std::string_view, 7> kReleaseTopLevelPanelIds = {
-    "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder",
+constexpr std::array<std::string_view, 8> kReleaseTopLevelPanelIds = {
+    "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder", "spatial_authoring",
 };
 
 constexpr std::array<std::string_view, 181> kShowcaseRoutablePanelIds = {
@@ -902,22 +902,23 @@ std::vector<EditorPanelRegistryEntry> buildRegistry() {
      "Deferred diagnostics panel; performance triage remains outside release navigation."},
     {"level_builder", "Level Builder", "Spatial", EditorPanelExposure::ReleaseTopLevel, "editor/spatial",
      "Native grid-part level authoring workspace for build, validate, playtest, and package readiness."},
-    {"spatial_authoring", "Spatial Authoring", "Spatial", EditorPanelExposure::Nested, "editor/spatial",
-     "Supporting spatial tools rendered through the native Level Builder or direct spatial tests."},
+    {"spatial_authoring", "Perspective 2D Map Editor", "Spatial", EditorPanelExposure::ReleaseTopLevel,
+     "editor/spatial",
+     "First-class Perspective 2D map authoring surface for elevation, props, parts, abilities, and live spatial preview."},
     {"elevation_brush", "Elevation Brush", "Spatial", EditorPanelExposure::Nested, "editor/spatial",
-     "Rendered through SpatialAuthoringWorkspace when spatial authoring is wired."},
+     "Rendered through the Perspective 2D Map Editor workspace."},
     {"terrain_brush", "Terrain Brush", "Spatial", EditorPanelExposure::Nested, "editor/spatial",
-     "Rendered through SpatialAuthoringWorkspace when spatial authoring is wired."},
+     "Rendered through the Perspective 2D Map Editor workspace."},
     {"region_rules", "Region Rules", "Spatial", EditorPanelExposure::Nested, "editor/spatial",
-     "Rendered through SpatialAuthoringWorkspace when spatial authoring is wired."},
+     "Rendered through the Perspective 2D Map Editor workspace."},
     {"procedural_map", "Procedural Map", "Spatial", EditorPanelExposure::Nested, "editor/spatial",
-     "Rendered through SpatialAuthoringWorkspace when spatial authoring is wired."},
+     "Rendered through the Perspective 2D Map Editor workspace."},
     {"prop_placement", "Prop Placement", "Spatial", EditorPanelExposure::Nested, "editor/spatial",
-     "Rendered through SpatialAuthoringWorkspace when spatial authoring is wired."},
+     "Rendered through the Perspective 2D Map Editor workspace."},
     {"map_ability_binding", "Map Ability Binding", "Spatial", EditorPanelExposure::Nested,
-     "editor/spatial", "Rendered through SpatialAuthoringWorkspace when spatial authoring is wired."},
+     "editor/spatial", "Rendered through the Perspective 2D Map Editor workspace."},
     {"spatial_ability_canvas", "Spatial Ability Canvas", "Spatial", EditorPanelExposure::Nested,
-     "editor/spatial", "Rendered through SpatialAuthoringWorkspace when spatial authoring is wired."},
+     "editor/spatial", "Rendered through the Perspective 2D Map Editor workspace."},
     {"sprite_animation_preview", "Sprite Animation Preview", "Content", EditorPanelExposure::Deferred,
      "editor/sprite", "Deferred until sprite animation preview is selected for release shell registration."},
     {"accessibility", "Accessibility", "Quality", EditorPanelExposure::Deferred, "editor/accessibility",

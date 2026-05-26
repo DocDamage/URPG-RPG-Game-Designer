@@ -355,6 +355,43 @@ TEST_CASE("AssetLibraryPanel exposes native import picker availability",
     REQUIRE(availability.path_entry_available == true);
 }
 
+TEST_CASE("AssetLibraryPanel reports platform-specific native picker diagnostics",
+          "[assets][asset_library][editor][asset_import][wizard][picker][native_import_source_picker]") {
+    using Panel = urpg::editor::AssetLibraryPanel;
+
+    const auto windows = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::Windows, false, false);
+    REQUIRE(windows.available == true);
+    REQUIRE(windows.code == "native_import_source_picker_available");
+    REQUIRE(windows.path_entry_available == true);
+
+    const auto macos = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::MacOS, false, false);
+    REQUIRE(macos.available == true);
+    REQUIRE(macos.code == "native_import_source_picker_available");
+
+    const auto linuxPortal = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::Linux, true, false);
+    REQUIRE(linuxPortal.available == true);
+    REQUIRE(linuxPortal.code == "native_import_source_picker_available");
+
+    const auto linuxFallback = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::Linux, false, true);
+    REQUIRE(linuxFallback.available == true);
+    REQUIRE(linuxFallback.code == "native_import_source_picker_available");
+
+    const auto linuxMissing = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::Linux, false, false);
+    REQUIRE(linuxMissing.available == false);
+    REQUIRE(linuxMissing.code == "native_import_source_picker_portal_missing");
+    REQUIRE(linuxMissing.path_entry_available == true);
+
+    const auto unsupported = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::Unsupported, false, false);
+    REQUIRE(unsupported.available == false);
+    REQUIRE(unsupported.code == "native_import_source_picker_unsupported");
+}
+
 TEST_CASE("AssetLibraryModel requests add-source import command handoff",
           "[assets][asset_library][editor][asset_import][wizard]") {
     const auto root = uniqueTempRoot("urpg_asset_library_add_source_request");

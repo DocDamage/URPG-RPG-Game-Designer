@@ -15,9 +15,12 @@ class ToolCommandChatService : public urpg::ai::IChatService {
   public:
     explicit ToolCommandChatService(std::string command) : command_(std::move(command)) {}
 
-    void requestResponse(const std::vector<urpg::ai::ChatMessage>& history, ChatCallback callback) override {
+    std::shared_ptr<urpg::ai::ChatRequestHandle>
+    requestResponse(const std::vector<urpg::ai::ChatMessage>& history, ChatCallback callback) override {
         (void)history;
+        auto handle = std::make_shared<urpg::ai::ChatRequestHandle>();
         callback("I prepared a tool plan.", command_);
+        return handle;
     }
 
   private:

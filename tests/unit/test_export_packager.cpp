@@ -169,9 +169,9 @@ TEST_CASE("ExportPackager::runExport result contains correct file list from a fr
     REQUIRE(manifest["bundleMode"] == "project_content_bundle_v1");
     REQUIRE(manifest["target"] == "Windows (x64)");
     REQUIRE(manifest["assetDiscoveryMode"] == "project_root_scan_v1");
-    REQUIRE(manifest["protectionMode"] == "rle_xor");
+    REQUIRE(manifest["protectionMode"] == "lightweight_obfuscation");
     REQUIRE(manifest["integrityMode"] == "fnv1a64_keyed");
-    REQUIRE(manifest["signatureMode"] == "sha256_keyed_bundle_v1");
+    REQUIRE(manifest["signatureMode"] == "hmac_sha256_bundle_v1");
     REQUIRE(manifest["bundleSignature"] ==
             ComputeBundleSignature(base / "data.pck", manifest, ExportTarget::Windows_x64));
     REQUIRE(manifest["entries"].is_array());

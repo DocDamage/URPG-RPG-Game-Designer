@@ -2,9 +2,9 @@
 
 #include <algorithm>
 #include <cctype>
-#include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <map>
 #include <optional>
 #include <sstream>
 
@@ -134,19 +134,6 @@ bool hasAnyLogicKind(const urpg::ai::CreatorCommandPlan& plan, std::initializer_
     return std::any_of(kinds.begin(), kinds.end(), [&](const char* kind) {
         return hasLogicKind(plan, kind);
     });
-}
-
-std::string quoteCommandArg(const std::string& value) {
-    std::string out = "\"";
-    for (const char ch : value) {
-        if (ch == '"') {
-            out += "\\\"";
-        } else {
-            out += ch;
-        }
-    }
-    out += "\"";
-    return out;
 }
 
 std::string authHeader(const urpg::ai::CreatorAiProviderProfile& profile, const std::string& apiKey) {
@@ -416,23 +403,19 @@ std::string buildCreatorProviderCurlCommand(const CreatorCommandRequest& request
     const std::string responsePath = config.response_path.empty() ? "creator_command_response.json" : config.response_path;
 
     std::ostringstream command;
-    command << quoteCommandArg(config.curl_executable.empty() ? "curl" : config.curl_executable)
-            << " --fail --silent --show-error"
-            << " --max-time " << std::max(1, config.timeout_seconds)
-            << " -X POST"
-            << " -H " << quoteCommandArg("Content-Type: application/json");
+    command << "native_http_post"
+            << " endpoint=" << payload.value("endpoint", profile.endpoint)
+            << " timeout_seconds=" << std::max(1, config.timeout_seconds)
+            << " request_path=" << requestPath
+            << " response_path=" << responsePath;
     const auto header = authHeader(profile, config.api_key);
-    if (!header.empty()) {
-        command << " -H " << quoteCommandArg(header);
-    }
-    command << " --data-binary @" << quoteCommandArg(requestPath)
-            << " -o " << quoteCommandArg(responsePath)
-            << " " << quoteCommandArg(payload.value("endpoint", profile.endpoint));
+    command << " auth=" << (header.empty() ? "none" : "[redacted]");
     return command.str();
 }
 
 CreatorProviderTransportResult invokeCreatorProvider(const CreatorCommandRequest& request,
-                                                     const CreatorProviderTransportConfig& config) {
+                                                     const CreatorProviderTransportConfig& config,
+                                                     urpg::net::IHttpClient* httpClient) {
     CreatorProviderTransportResult result;
     const auto payload = buildCreatorProviderRequest(request);
     const std::string requestPath = config.request_path.empty() ? "creator_command_request.json" : config.request_path;
@@ -444,6 +427,11 @@ CreatorProviderTransportResult invokeCreatorProvider(const CreatorCommandRequest
         return result;
     }
 
+    std::error_code requestDirError;
+    const auto requestParent = std::filesystem::path(requestPath).parent_path();
+    if (!requestParent.empty()) {
+        std::filesystem::create_directories(requestParent, requestDirError);
+    }
     std::ofstream requestFile(requestPath);
     if (!requestFile.is_open()) {
         result.message = "request_file_open_failed";
@@ -453,9 +441,40 @@ CreatorProviderTransportResult invokeCreatorProvider(const CreatorCommandRequest
     requestFile.close();
 
     result.attempted = true;
-    result.exit_code = std::system(result.command.c_str());
-    result.success = result.exit_code == 0 && std::filesystem::exists(result.response_path);
-    result.message = result.success ? "provider_response_written" : "provider_command_failed";
+    const auto profile = creatorAiProviderProfile(request.provider);
+    urpg::net::HttpRequest httpRequest;
+    httpRequest.url = payload.value("endpoint", profile.endpoint);
+    httpRequest.headers = {{"Content-Type", "application/json"}};
+    const auto header = authHeader(profile, config.api_key);
+    if (!header.empty()) {
+        const auto separator = header.find(':');
+        if (separator != std::string::npos) {
+            httpRequest.headers[header.substr(0, separator)] = header.substr(separator + 2);
+        }
+    }
+    httpRequest.jsonBody = payload["body"];
+    httpRequest.timeout = std::chrono::seconds(std::max(1, config.timeout_seconds));
+    auto& client = httpClient == nullptr ? urpg::net::defaultHttpClient() : *httpClient;
+    const auto response = client.postJson(httpRequest);
+    result.exit_code = response.success() ? 0 : response.statusCode;
+    if (response.success()) {
+        std::error_code responseDirError;
+        const auto responseParent = std::filesystem::path(result.response_path).parent_path();
+        if (!responseParent.empty()) {
+            std::filesystem::create_directories(responseParent, responseDirError);
+        }
+        std::ofstream responseFile(result.response_path, std::ios::binary | std::ios::trunc);
+        if (!responseFile.is_open()) {
+            result.message = "response_file_open_failed";
+            return result;
+        }
+        responseFile << response.body;
+        result.success = responseFile.good() && std::filesystem::exists(result.response_path);
+        result.message = result.success ? "provider_response_written" : "provider_response_write_failed";
+    } else {
+        result.success = false;
+        result.message = response.error.empty() ? "provider_http_failed" : response.error;
+    }
     return result;
 }
 

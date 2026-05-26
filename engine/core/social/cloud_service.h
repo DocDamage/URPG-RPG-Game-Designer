@@ -92,6 +92,11 @@ class ICloudService {
     }
 };
 
+inline bool isCloudSyncReleaseVisible(const ICloudService& service) {
+    const auto visibility = service.releaseVisibility();
+    return visibility.release_visible && visibility.remote_transport;
+}
+
 /**
  * @brief Process-local cloud-service double for tests and harness scenarios only.
  * This implementation does not perform any network transport, account
