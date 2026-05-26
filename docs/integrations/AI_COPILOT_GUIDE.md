@@ -107,13 +107,28 @@ The chatbot exposes the current `task_plan`, `approval` manifest, and `last_appl
 - `urpg.project_status`
 - `urpg.project_summary`
 - `urpg.project_validate`
+- `urpg.project_list_maps`
+- `urpg.project_list_events`
+- `urpg.project_list_assets`
+- `urpg.project_list_database`
+- `urpg.p2d_map_summary`
 - `urpg.project_patch`
+- `urpg.project_set_startup`
+- `urpg.p2d_add_map`
+- `urpg.p2d_add_event`
+- `urpg.p2d_add_event_command`
+- `urpg.database_add_record`
+- `urpg.project_add_asset_reference`
+- `urpg.playable_add_transfer`
+- `urpg.project_restore_backup`
 - `urpg.asset_catalog_summary`
 - `urpg.p2d_capabilities`
 - `urpg.focused_gate`
+- `urpg.gate_status`
+- `urpg.mcp_manifest`
 - `urpg.release_guardrails`
 
-The server returns structured project status, bounded project JSON summaries, startup/P2D/asset reference validation, explicit-apply project patch previews, bounded asset-catalog summaries, the current Perspective 2D capability surface, allowlisted focused gate commands, and release guardrails. Project patching is limited to named operations such as startup-map changes, startup map assets, P2D maps, P2D events, P2D tilesets, tile metadata, P2D event commands, project database records for actors/items/switches/variables/common events, project asset references, starting party actors, map transfers, encounters, and save profiles. It writes a local backup before explicit apply. P2D event command validation is limited to the first-class runtime command set surfaced by Perspective 2D, and command insertion preserves typed parameters for text, transfers, switches, variables, self-switches, gold, items, common events, movement routes, and conditional branches. Playable project validation checks starting party actors, transfer maps, encounter maps, and encounter enemy ids when the referenced collections exist. Asset-catalog inspection is read-only and reports media-kind counts, license-status counts, release-ready counts, and asset ids without changing release eligibility. The server has no arbitrary shell or file-write tool, does not perform destructive git operations, and does not bypass release, LFS, or asset-license gates. A client configuration sample lives at `.urpg-mcp/mcp.server.sample.json`.
+The server returns structured project status, bounded project JSON summaries, read-only map/event/asset/database inspection, startup/P2D/asset reference validation, explicit-apply project patch previews, bounded asset-catalog summaries, the current Perspective 2D capability surface, allowlisted focused gate commands, gate readiness, an MCP manifest, and release guardrails. Project patching is limited to named operations such as startup-map changes, startup map assets, P2D maps, P2D events, P2D tilesets, tile metadata, P2D event commands, project database records for actors/items/switches/variables/common events, project asset references, starting party actors, map transfers, encounters, and save profiles. Narrow tools are provided for common patch kinds so schema-aware clients can avoid the larger compatibility `urpg.project_patch` schema. Patch previews include JSON Patch, a human-readable summary, changed top-level sections, changed subtrees, and the full preview. Explicit apply writes a timestamped local backup and records it in a backup manifest before replacing project JSON; bounded backup restore is available only through `urpg.project_restore_backup` with `apply=true`. P2D event command validation is limited to the first-class runtime command set surfaced by Perspective 2D, and command insertion preserves typed parameters for text, transfers, switches, variables, self-switches, gold, items, common events, movement routes, and conditional branches. Playable project validation checks duplicate ids, malformed references, starting party actors, transfer maps and coordinates, encounter maps, encounter enemy ids, asset paths, tileset pages, tile metadata, and required event-command fields when the referenced collections exist. Asset-catalog inspection is read-only and reports media-kind counts, license-status counts, release-ready counts, and asset ids without changing release eligibility. The server has no arbitrary shell or file-write tool, does not perform destructive git operations, and does not bypass release, LFS, or asset-license gates. A client configuration sample lives at `.urpg-mcp/mcp.server.sample.json`.
 
 ### 3. Knowledge Bridges
 - **WorldKnowledgeBridge**: Serializes NPC locations, item names, and plot flags into a "World Context" digest.

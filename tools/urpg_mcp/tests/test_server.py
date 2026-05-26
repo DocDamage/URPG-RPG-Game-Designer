@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -23,10 +24,25 @@ class UrpgMcpServerTests(unittest.TestCase):
         self.assertEqual(
             names,
             {
+                "urpg.database_add_record",
+                "urpg.gate_status",
+                "urpg.mcp_manifest",
+                "urpg.p2d_add_event",
+                "urpg.p2d_add_event_command",
+                "urpg.p2d_add_map",
+                "urpg.p2d_map_summary",
+                "urpg.playable_add_transfer",
+                "urpg.project_add_asset_reference",
+                "urpg.project_list_assets",
+                "urpg.project_list_database",
+                "urpg.project_list_events",
+                "urpg.project_list_maps",
                 "urpg.project_status",
                 "urpg.project_summary",
                 "urpg.project_validate",
                 "urpg.project_patch",
+                "urpg.project_restore_backup",
+                "urpg.project_set_startup",
                 "urpg.asset_catalog_summary",
                 "urpg.p2d_capabilities",
                 "urpg.focused_gate",
@@ -36,6 +52,39 @@ class UrpgMcpServerTests(unittest.TestCase):
         for tool in tools:
             self.assertIn("inputSchema", tool)
             self.assertEqual(tool["inputSchema"]["type"], "object")
+
+    def test_manifest_reports_versions_tools_and_guardrails(self) -> None:
+        result = server.call_tool("urpg.mcp_manifest", {}, repo_root=REPO_ROOT)
+
+        self.assertEqual(result["server_name"], "urpg-local-mcp")
+        self.assertEqual(result["protocol_version"], "2024-11-05")
+        self.assertEqual(result["project_schema_version"], "urpg.project.v1")
+        self.assertIn("urpg.project_patch", result["tools"])
+        self.assertIn("tool_list_checksum", result)
+        self.assertIn("local_only", result["guardrails"])
+
+    def test_project_patch_schema_includes_parameterized_command_fields(self) -> None:
+        tools = {tool["name"]: tool for tool in server.list_tools()}
+        schema = tools["urpg.project_patch"]["inputSchema"]
+
+        properties = schema["properties"]
+        for field in (
+            "amount",
+            "common_event_id",
+            "condition",
+            "item_id",
+            "map_id",
+            "operation",
+            "route",
+            "self_switch",
+            "state",
+            "switch_id",
+            "text",
+            "variable_id",
+            "x",
+            "y",
+        ):
+            self.assertIn(field, properties)
 
     def test_focused_gate_returns_command_without_running_by_default(self) -> None:
         result = server.call_tool(
@@ -103,7 +152,7 @@ class UrpgMcpServerTests(unittest.TestCase):
             {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
             repo_root=REPO_ROOT,
         )
-        self.assertEqual(len(listed["result"]["tools"]), 8)
+        self.assertEqual(len(listed["result"]["tools"]), len(server.list_tools()))
 
         called = server.handle_json_rpc(
             {
@@ -130,6 +179,30 @@ class UrpgMcpServerTests(unittest.TestCase):
 
         self.assertEqual(response["error"]["code"], -32000)
         self.assertEqual(response["error"]["data"]["code"], "unknown_tool")
+
+    def test_stdio_json_rpc_subprocess_contract(self) -> None:
+        request = {
+            "jsonrpc": "2.0",
+            "id": 77,
+            "method": "tools/call",
+            "params": {"name": "urpg.mcp_manifest", "arguments": {}},
+        }
+        completed = subprocess.run(
+            [sys.executable, "tools/urpg_mcp/server.py"],
+            cwd=REPO_ROOT,
+            input=json.dumps(request) + "\n",
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+            timeout=10,
+        )
+
+        self.assertEqual(completed.returncode, 0)
+        response = json.loads(completed.stdout)
+        payload = json.loads(response["result"]["content"][0]["text"])
+        self.assertEqual(response["id"], 77)
+        self.assertEqual(payload["server_name"], "urpg-local-mcp")
 
     def test_project_summary_reads_bounded_project_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -204,6 +277,10 @@ class UrpgMcpServerTests(unittest.TestCase):
         self.assertFalse(result["applied"])
         self.assertEqual(result["patch"], [{"op": "replace", "path": "/startup/map", "value": "Castle"}])
         self.assertEqual(result["preview"]["startup"]["map"], "Castle")
+        self.assertEqual(result["summary"], "set_startup_map: /startup/map -> Castle")
+        self.assertEqual(result["changed_sections"], ["startup"])
+        self.assertEqual(result["changed_subtrees"]["startup"]["before"], {"map": "Town"})
+        self.assertEqual(result["changed_subtrees"]["startup"]["after"], {"map": "Castle"})
         self.assertEqual(loaded["startup"]["map"], "Town")
 
     def test_project_patch_applies_when_explicit(self) -> None:
@@ -229,10 +306,45 @@ class UrpgMcpServerTests(unittest.TestCase):
             backup_path = Path(result["backup_path"])
             self.assertTrue(backup_path.is_file())
             backup = json.loads(backup_path.read_text(encoding="utf-8"))
+            manifest_path = project_path.with_suffix(project_path.suffix + ".urpg_mcp_backups.json")
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
         self.assertTrue(result["applied"])
         self.assertEqual(loaded["startup"]["map"], "Castle")
         self.assertEqual(backup["startup"]["map"], "Town")
+        self.assertIn(".urpg_mcp_backup.", backup_path.name)
+        self.assertEqual(manifest["backups"][-1]["patch_kind"], "set_startup_map")
+        self.assertEqual(manifest["backups"][-1]["backup_path"], str(backup_path))
+
+    def test_project_restore_backup_restores_bounded_backup(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project_path = root / "project.json"
+            project_path.write_text(
+                json.dumps({"name": "Restore Project", "startup": {"map": "Town"}}),
+                encoding="utf-8",
+            )
+            patch_result = server.call_tool(
+                "urpg.project_patch",
+                {
+                    "project_path": "project.json",
+                    "patch_kind": "set_startup_map",
+                    "value": "Castle",
+                    "apply": True,
+                },
+                repo_root=root,
+            )
+
+            restore_result = server.call_tool(
+                "urpg.project_restore_backup",
+                {"project_path": "project.json", "backup_path": patch_result["backup_path"], "apply": True},
+                repo_root=root,
+            )
+            loaded = json.loads(project_path.read_text(encoding="utf-8"))
+
+        self.assertTrue(restore_result["applied"])
+        self.assertEqual(restore_result["summary"], "restore_backup: project.json")
+        self.assertEqual(loaded["startup"]["map"], "Town")
 
     def test_project_patch_rejects_unknown_patch_kind(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -247,6 +359,60 @@ class UrpgMcpServerTests(unittest.TestCase):
 
         self.assertEqual(context.exception.code, "unknown_patch_kind")
 
+    def test_narrow_tools_delegate_to_allowlisted_project_patches(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project_path = root / "project.json"
+            project_path.write_text(
+                json.dumps(
+                    {
+                        "name": "Narrow Tool Project",
+                        "p2d": {"events": [{"id": "ev_intro", "map_id": "Town"}]},
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            calls = [
+                ("urpg.project_set_startup", {"map_id": "Town"}),
+                ("urpg.p2d_add_map", {"map_id": "Town"}),
+                ("urpg.p2d_add_event", {"event_id": "ev_shop", "map_id": "Town", "label": "Shop"}),
+                (
+                    "urpg.p2d_add_event_command",
+                    {"event_id": "ev_intro", "command_type": "show_text", "text": "Welcome"},
+                ),
+                (
+                    "urpg.database_add_record",
+                    {"collection": "actors", "record_id": "actor.hero", "label": "Hero"},
+                ),
+                (
+                    "urpg.playable_add_transfer",
+                    {"transfer_id": "transfer.town.castle", "from_map": "Town", "to_map": "Castle"},
+                ),
+                (
+                    "urpg.project_add_asset_reference",
+                    {"asset_id": "asset.tiles.town", "label": "Town Tiles", "path": "content/tiles/town.png"},
+                ),
+            ]
+            results = [
+                server.call_tool(name, {"project_path": "project.json", **arguments}, repo_root=root)
+                for name, arguments in calls
+            ]
+
+        self.assertEqual(
+            [result["patch_kind"] for result in results],
+            [
+                "set_startup_map",
+                "add_p2d_map",
+                "add_p2d_event",
+                "add_p2d_event_command",
+                "add_actor",
+                "add_transfer",
+                "add_asset_reference",
+            ],
+        )
+        self.assertTrue(all(result["summary"] for result in results))
+
     def test_project_validate_reports_missing_startup_map_reference(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -259,6 +425,52 @@ class UrpgMcpServerTests(unittest.TestCase):
 
         self.assertFalse(result["valid"])
         self.assertIn("startup_map_missing", result["diagnostics"])
+
+    def test_project_validate_reports_structural_and_field_diagnostics(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "content").mkdir()
+            (root / "project.json").write_text(
+                json.dumps(
+                    {
+                        "name": "Broken Structure Project",
+                        "maps": [{"id": "Town"}, {"id": "Town"}],
+                        "assets": [{"id": "asset.missing", "path": "content/missing.png"}],
+                        "transfers": [{"id": "transfer.bad", "from_map": "Town", "to_map": "Town", "x": "bad"}],
+                        "p2d": {
+                            "tilesets": [
+                                {
+                                    "id": "tileset.bad",
+                                    "pages": ["AA"],
+                                    "tiles": [
+                                        {
+                                            "id": "tile.bad",
+                                            "page": "AA",
+                                            "passability": "maybe",
+                                            "collision": "opaque",
+                                            "priority": 99,
+                                        }
+                                    ],
+                                }
+                            ],
+                            "events": [{"id": "ev_bad", "commands": [{"type": "change_gold"}]}],
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool("urpg.project_validate", {"project_path": "project.json"}, repo_root=root)
+
+        self.assertFalse(result["valid"])
+        self.assertIn("duplicate_map_id:Town", result["diagnostics"])
+        self.assertIn("asset_path_missing:asset.missing:content/missing.png", result["diagnostics"])
+        self.assertIn("transfer_x_invalid:transfer.bad", result["diagnostics"])
+        self.assertIn("p2d_tileset_page_invalid:tileset.bad:AA", result["diagnostics"])
+        self.assertIn("p2d_tile_passability_invalid:tileset.bad:tile.bad:maybe", result["diagnostics"])
+        self.assertIn("p2d_tile_collision_invalid:tileset.bad:tile.bad:opaque", result["diagnostics"])
+        self.assertIn("p2d_tile_priority_invalid:tileset.bad:tile.bad:99", result["diagnostics"])
+        self.assertIn("p2d_event_command_missing_field:ev_bad:change_gold:operation", result["diagnostics"])
 
     def test_project_validate_accepts_p2d_references(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -283,6 +495,47 @@ class UrpgMcpServerTests(unittest.TestCase):
 
         self.assertTrue(result["valid"])
         self.assertEqual(result["diagnostics"], [])
+
+    def test_project_inspection_tools_return_read_only_summaries(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.json").write_text(
+                json.dumps(
+                    {
+                        "name": "Inspect Project",
+                        "maps": [{"id": "Town", "name": "Town"}, {"id": "Castle"}],
+                        "assets": [{"id": "asset.tiles.town", "media_kind": "tileset"}],
+                        "database": {"actors": [{"id": "actor.hero"}], "items": [{"id": "item.potion"}]},
+                        "p2d": {
+                            "maps": [{"id": "Town", "tileset_id": "tileset.town"}],
+                            "events": [{"id": "ev_intro", "map_id": "Town"}],
+                            "tilesets": [{"id": "tileset.town"}],
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            maps = server.call_tool("urpg.project_list_maps", {"project_path": "project.json"}, repo_root=root)
+            events = server.call_tool("urpg.project_list_events", {"project_path": "project.json"}, repo_root=root)
+            assets = server.call_tool("urpg.project_list_assets", {"project_path": "project.json"}, repo_root=root)
+            database = server.call_tool(
+                "urpg.project_list_database",
+                {"project_path": "project.json"},
+                repo_root=root,
+            )
+            p2d_map = server.call_tool(
+                "urpg.p2d_map_summary",
+                {"project_path": "project.json", "map_id": "Town"},
+                repo_root=root,
+            )
+
+        self.assertEqual(maps["maps"][0]["id"], "Town")
+        self.assertEqual(events["events"][0]["id"], "ev_intro")
+        self.assertEqual(assets["assets"][0]["id"], "asset.tiles.town")
+        self.assertEqual(database["collections"]["actors"][0]["id"], "actor.hero")
+        self.assertEqual(p2d_map["event_count"], 1)
+        self.assertEqual(p2d_map["tileset_id"], "tileset.town")
 
     def test_project_validate_reports_missing_startup_asset_reference(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -805,6 +1058,21 @@ class UrpgMcpServerTests(unittest.TestCase):
                 )
 
         self.assertEqual(context.exception.code, "path_outside_repo")
+
+    def test_gate_status_reports_readiness_without_running_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "build" / "dev-ninja-debug").mkdir(parents=True)
+            (root / "build" / "dev-ninja-debug" / "urpg_spatial_unit_tests.exe").write_text("", encoding="utf-8")
+
+            ready = server.call_tool("urpg.gate_status", {"gate_id": "p2d_depth"}, repo_root=root)
+            missing = server.call_tool("urpg.gate_status", {"gate_id": "build_spatial"}, repo_root=root)
+
+        self.assertEqual(ready["gate_id"], "p2d_depth")
+        self.assertTrue(ready["ready"])
+        self.assertFalse(ready["ran"])
+        self.assertFalse(missing["ready"])
+        self.assertIn("cmake_unavailable", missing["diagnostics"])
 
 
 if __name__ == "__main__":
