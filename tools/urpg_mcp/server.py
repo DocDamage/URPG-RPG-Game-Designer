@@ -78,13 +78,26 @@ def list_tools() -> list[dict[str, Any]]:
             ),
         },
         {
+            "name": "urpg.project_validate",
+            "description": "Validate bounded URPG project JSON references for startup and P2D records.",
+            "inputSchema": _object_schema(
+                {"project_path": {"type": "string", "default": "project.json"}},
+            ),
+        },
+        {
             "name": "urpg.project_patch",
             "description": "Preview or explicitly apply an allowlisted URPG project JSON patch.",
             "inputSchema": _object_schema(
                 {
                     "project_path": {"type": "string", "default": "project.json"},
-                    "patch_kind": {"type": "string", "enum": ["set_startup_map"]},
+                    "patch_kind": {
+                        "type": "string",
+                        "enum": ["set_startup_map", "set_map_asset", "add_p2d_map", "add_p2d_event"],
+                    },
                     "value": {"type": "string"},
+                    "key": {"type": "string"},
+                    "map_id": {"type": "string"},
+                    "label": {"type": "string"},
                     "apply": {"type": "boolean", "default": False},
                 },
                 ["patch_kind", "value"],
@@ -229,28 +242,122 @@ def _project_summary(arguments: dict[str, Any], repo_root: Path) -> dict[str, An
     }
 
 
+def _project_validate(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    project_path = str(arguments.get("project_path", "project.json"))
+    resolved, project = _read_project_json(repo_root, project_path)
+    diagnostics: list[str] = []
+    maps = project.get("maps", [])
+    map_ids = {
+        row.get("id")
+        for row in maps
+        if isinstance(maps, list) and isinstance(row, dict) and isinstance(row.get("id"), str)
+    }
+    startup = project.get("startup", {})
+    startup_map = startup.get("map") if isinstance(startup, dict) else None
+    if startup_map and map_ids and startup_map not in map_ids:
+        diagnostics.append("startup_map_missing")
+
+    p2d = project.get("p2d", {})
+    if isinstance(p2d, dict):
+        p2d_maps = p2d.get("maps", [])
+        p2d_map_ids = {
+            row.get("id")
+            for row in p2d_maps
+            if isinstance(p2d_maps, list) and isinstance(row, dict) and isinstance(row.get("id"), str)
+        }
+        for p2d_map_id in sorted(p2d_map_ids):
+            if map_ids and p2d_map_id not in map_ids:
+                diagnostics.append(f"p2d_map_missing_project_map:{p2d_map_id}")
+        p2d_events = p2d.get("events", [])
+        if isinstance(p2d_events, list):
+            for event in p2d_events:
+                if not isinstance(event, dict):
+                    diagnostics.append("p2d_event_invalid")
+                    continue
+                event_id = event.get("id", "")
+                map_id = event.get("map_id", "")
+                if not event_id:
+                    diagnostics.append("p2d_event_missing_id")
+                if map_id and p2d_map_ids and map_id not in p2d_map_ids:
+                    diagnostics.append(f"p2d_event_map_missing:{event_id}")
+    return {
+        "project_path": str(resolved),
+        "valid": not diagnostics,
+        "diagnostics": diagnostics,
+        "guardrails": ["read_only_validation", "bounded_repo_path"],
+    }
+
+
+def _ensure_object(parent: dict[str, Any], key: str) -> dict[str, Any]:
+    value = parent.setdefault(key, {})
+    if not isinstance(value, dict):
+        parent[key] = {}
+    return parent[key]
+
+
+def _ensure_array(parent: dict[str, Any], key: str) -> list[Any]:
+    value = parent.setdefault(key, [])
+    if not isinstance(value, list):
+        parent[key] = []
+    return parent[key]
+
+
+def _write_backup(resolved: Path, project: dict[str, Any]) -> Path:
+    backup_path = resolved.with_suffix(resolved.suffix + ".urpg_mcp_backup")
+    backup_path.write_text(json.dumps(project, indent=2) + "\n", encoding="utf-8")
+    return backup_path
+
+
 def _project_patch(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]:
     project_path = str(arguments.get("project_path", "project.json"))
     patch_kind = str(arguments.get("patch_kind", ""))
     value = str(arguments.get("value", ""))
     apply_patch = bool(arguments.get("apply", False))
     resolved, project = _read_project_json(repo_root, project_path)
-    if patch_kind != "set_startup_map":
-        raise ToolError("unknown_patch_kind", f"Unknown allowlisted patch kind: {patch_kind}")
     if not value:
-        raise ToolError("invalid_patch_value", "set_startup_map requires a non-empty map id.")
+        raise ToolError("invalid_patch_value", f"{patch_kind} requires a non-empty value.")
 
     preview = json.loads(json.dumps(project))
-    startup = preview.setdefault("startup", {})
-    if not isinstance(startup, dict):
-        preview["startup"] = {}
-        startup = preview["startup"]
-    op = "replace" if "map" in startup else "add"
-    startup["map"] = value
-    patch = [{"op": op, "path": "/startup/map", "value": value}]
+    patch: list[dict[str, Any]]
+    if patch_kind == "set_startup_map":
+        startup = _ensure_object(preview, "startup")
+        op = "replace" if "map" in startup else "add"
+        startup["map"] = value
+        patch = [{"op": op, "path": "/startup/map", "value": value}]
+    elif patch_kind == "set_map_asset":
+        key = str(arguments.get("key", ""))
+        if not key:
+            raise ToolError("invalid_patch_value", "set_map_asset requires key.")
+        startup = _ensure_object(preview, "startup")
+        map_assets = _ensure_object(startup, "map_assets")
+        op = "replace" if key in map_assets else "add"
+        map_assets[key] = {"id": value}
+        patch = [{"op": op, "path": f"/startup/map_assets/{key}", "value": {"id": value}}]
+    elif patch_kind == "add_p2d_map":
+        p2d = _ensure_object(preview, "p2d")
+        maps = _ensure_array(p2d, "maps")
+        if not any(isinstance(row, dict) and row.get("id") == value for row in maps):
+            maps.append({"id": value})
+        patch = [{"op": "add", "path": "/p2d/maps/-", "value": {"id": value}}]
+    elif patch_kind == "add_p2d_event":
+        map_id = str(arguments.get("map_id", ""))
+        label = str(arguments.get("label", value))
+        if not map_id:
+            raise ToolError("invalid_patch_value", "add_p2d_event requires map_id.")
+        p2d = _ensure_object(preview, "p2d")
+        events = _ensure_array(p2d, "events")
+        row = {"id": value, "map_id": map_id, "label": label}
+        if not any(isinstance(event, dict) and event.get("id") == value for event in events):
+            events.append(row)
+        patch = [{"op": "add", "path": "/p2d/events/-", "value": row}]
+    else:
+        raise ToolError("unknown_patch_kind", f"Unknown allowlisted patch kind: {patch_kind}")
+
+    backup_path = ""
     if apply_patch:
+        backup_path = str(_write_backup(resolved, project))
         resolved.write_text(json.dumps(preview, indent=2) + "\n", encoding="utf-8")
-    return {
+    result = {
         "project_path": str(resolved),
         "patch_kind": patch_kind,
         "patch": patch,
@@ -258,6 +365,9 @@ def _project_patch(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]
         "applied": apply_patch,
         "guardrails": ["allowlisted_patch_kind", "explicit_apply_required", "bounded_repo_path"],
     }
+    if backup_path:
+        result["backup_path"] = backup_path
+    return result
 
 
 def _p2d_capabilities() -> dict[str, Any]:
@@ -346,6 +456,8 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, repo_root: Pat
         return _project_status(root)
     if name == "urpg.project_summary":
         return _project_summary(args, root)
+    if name == "urpg.project_validate":
+        return _project_validate(args, root)
     if name == "urpg.project_patch":
         return _project_patch(args, root)
     if name == "urpg.p2d_capabilities":

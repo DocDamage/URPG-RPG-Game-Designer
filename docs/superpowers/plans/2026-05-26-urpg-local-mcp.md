@@ -108,8 +108,44 @@ python tools/urpg_mcp/tests/test_server.py
 
 Expected green: all MCP tests pass.
 
+## Task 4: Robust Project Validation And Mutations
+
+**Files:**
+- Modify: `tools/urpg_mcp/tests/test_server.py`
+- Modify: `tools/urpg_mcp/server.py`
+- Modify: `tools/urpg_mcp/README.md`
+- Modify: `docs/integrations/AI_COPILOT_GUIDE.md`
+
+- [x] **Step 1: Write failing robust project-operation tests**
+
+Add tests for `urpg.project_validate`, backup creation on apply, and allowlisted patch kinds `set_map_asset`, `add_p2d_map`, and `add_p2d_event`.
+
+- [x] **Step 2: Verify red**
+
+Run:
+
+```powershell
+python tools/urpg_mcp/tests/test_server.py
+```
+
+Expected red: `urpg.project_validate`, backup creation, and the new patch kinds are not implemented.
+
+- [x] **Step 3: Implement validation, backups, and additional patch kinds**
+
+Add startup/P2D reference validation, `.urpg_mcp_backup` writes before explicit apply, and named patch operations for map assets, P2D maps, and P2D events.
+
+- [x] **Step 4: Verify green**
+
+Run:
+
+```powershell
+python tools/urpg_mcp/tests/test_server.py
+```
+
+Expected green: all MCP tests pass.
+
 ## Self-Review
 
-- Spec coverage: The first MCP slice exposes safe IDE control over URPG status, bounded project JSON summaries, explicit-apply startup-map patching, P2D capabilities, focused gates, and guardrails. It intentionally does not bypass git, asset licensing, release gates, or arbitrary shell execution.
+- Spec coverage: The MCP slices expose safe IDE control over URPG status, bounded project JSON summaries, startup/P2D validation, explicit-apply project patching with backups, P2D capabilities, focused gates, and guardrails. It intentionally does not bypass git, asset licensing, release gates, or arbitrary shell execution.
 - Placeholder scan: No TBD/TODO placeholders are used.
 - Type consistency: Tool names and gate ids are shared by tests, server, README, and sample config.

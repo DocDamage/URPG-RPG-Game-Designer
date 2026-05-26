@@ -106,12 +106,13 @@ The chatbot exposes the current `task_plan`, `approval` manifest, and `last_appl
 
 - `urpg.project_status`
 - `urpg.project_summary`
+- `urpg.project_validate`
 - `urpg.project_patch`
 - `urpg.p2d_capabilities`
 - `urpg.focused_gate`
 - `urpg.release_guardrails`
 
-The server returns structured project status, bounded project JSON summaries, explicit-apply project patch previews, the current Perspective 2D capability surface, allowlisted focused gate commands, and release guardrails. It has no arbitrary shell or file-write tool, does not perform destructive git operations, and does not bypass release, LFS, or asset-license gates. A client configuration sample lives at `.urpg-mcp/mcp.server.sample.json`.
+The server returns structured project status, bounded project JSON summaries, startup/P2D reference validation, explicit-apply project patch previews, the current Perspective 2D capability surface, allowlisted focused gate commands, and release guardrails. Project patching is limited to named operations such as startup-map changes, startup map assets, P2D maps, and P2D events, and it writes a local backup before explicit apply. It has no arbitrary shell or file-write tool, does not perform destructive git operations, and does not bypass release, LFS, or asset-license gates. A client configuration sample lives at `.urpg-mcp/mcp.server.sample.json`.
 
 ### 3. Knowledge Bridges
 - **WorldKnowledgeBridge**: Serializes NPC locations, item names, and plot flags into a "World Context" digest.

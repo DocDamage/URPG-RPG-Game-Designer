@@ -25,6 +25,7 @@ class UrpgMcpServerTests(unittest.TestCase):
             {
                 "urpg.project_status",
                 "urpg.project_summary",
+                "urpg.project_validate",
                 "urpg.project_patch",
                 "urpg.p2d_capabilities",
                 "urpg.focused_gate",
@@ -101,7 +102,7 @@ class UrpgMcpServerTests(unittest.TestCase):
             {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
             repo_root=REPO_ROOT,
         )
-        self.assertEqual(len(listed["result"]["tools"]), 6)
+        self.assertEqual(len(listed["result"]["tools"]), 7)
 
         called = server.handle_json_rpc(
             {
@@ -224,9 +225,13 @@ class UrpgMcpServerTests(unittest.TestCase):
                 repo_root=root,
             )
             loaded = json.loads(project_path.read_text(encoding="utf-8"))
+            backup_path = Path(result["backup_path"])
+            self.assertTrue(backup_path.is_file())
+            backup = json.loads(backup_path.read_text(encoding="utf-8"))
 
         self.assertTrue(result["applied"])
         self.assertEqual(loaded["startup"]["map"], "Castle")
+        self.assertEqual(backup["startup"]["map"], "Town")
 
     def test_project_patch_rejects_unknown_patch_kind(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -240,6 +245,105 @@ class UrpgMcpServerTests(unittest.TestCase):
                 )
 
         self.assertEqual(context.exception.code, "unknown_patch_kind")
+
+    def test_project_validate_reports_missing_startup_map_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.json").write_text(
+                json.dumps({"name": "Invalid Project", "startup": {"map": "Missing"}, "maps": [{"id": "Town"}]}),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool("urpg.project_validate", {"project_path": "project.json"}, repo_root=root)
+
+        self.assertFalse(result["valid"])
+        self.assertIn("startup_map_missing", result["diagnostics"])
+
+    def test_project_validate_accepts_p2d_references(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.json").write_text(
+                json.dumps(
+                    {
+                        "name": "Valid Project",
+                        "startup": {"map": "Town"},
+                        "maps": [{"id": "Town"}],
+                        "p2d": {
+                            "maps": [{"id": "Town"}],
+                            "events": [{"id": "ev_001", "map_id": "Town"}],
+                            "tilesets": [{"id": "overworld"}],
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool("urpg.project_validate", {"project_path": "project.json"}, repo_root=root)
+
+        self.assertTrue(result["valid"])
+        self.assertEqual(result["diagnostics"], [])
+
+    def test_project_patch_sets_map_asset(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.json").write_text(
+                json.dumps({"name": "Asset Project", "startup": {"map_assets": {}}}),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool(
+                "urpg.project_patch",
+                {
+                    "project_path": "project.json",
+                    "patch_kind": "set_map_asset",
+                    "key": "tileset",
+                    "value": "overworld",
+                },
+                repo_root=root,
+            )
+
+        self.assertFalse(result["applied"])
+        self.assertEqual(result["preview"]["startup"]["map_assets"]["tileset"]["id"], "overworld")
+        self.assertEqual(
+            result["patch"],
+            [{"op": "add", "path": "/startup/map_assets/tileset", "value": {"id": "overworld"}}],
+        )
+
+    def test_project_patch_adds_p2d_map_and_event(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project_path = root / "project.json"
+            project_path.write_text(json.dumps({"name": "P2D Project"}), encoding="utf-8")
+
+            map_result = server.call_tool(
+                "urpg.project_patch",
+                {
+                    "project_path": "project.json",
+                    "patch_kind": "add_p2d_map",
+                    "value": "Town",
+                    "apply": True,
+                },
+                repo_root=root,
+            )
+            event_result = server.call_tool(
+                "urpg.project_patch",
+                {
+                    "project_path": "project.json",
+                    "patch_kind": "add_p2d_event",
+                    "value": "ev_intro",
+                    "map_id": "Town",
+                    "label": "Intro",
+                    "apply": True,
+                },
+                repo_root=root,
+            )
+            loaded = json.loads(project_path.read_text(encoding="utf-8"))
+
+        self.assertTrue(map_result["applied"])
+        self.assertTrue(event_result["applied"])
+        self.assertEqual(loaded["p2d"]["maps"][0]["id"], "Town")
+        self.assertEqual(loaded["p2d"]["events"][0]["id"], "ev_intro")
+        self.assertEqual(loaded["p2d"]["events"][0]["map_id"], "Town")
 
 
 if __name__ == "__main__":
