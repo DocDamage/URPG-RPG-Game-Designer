@@ -484,8 +484,204 @@ Ran:
 
 Expected green: all P2D depth tests pass.
 
+## Task 13: Runtime Event Execution Preview Trace
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing event execution preview tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage for previewing a Perspective 2D event execution trace that resolves the active page, evaluates conditional branch command values, flattens the chosen true/false command path, reports missing-event blockers, and serializes a runtime-facing trace JSON document.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile failed because the event execution preview API and render snapshot result were not present yet.
+
+- [x] **Step 3: Implement execution preview handoff**
+
+Add `PreviewPerspectiveEventExecution`, execution-step/result snapshots, active-page resolution, branch condition evaluation, chosen-branch command flattening, JSON trace serialization, and render snapshot surfacing.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass with clean build output.
+
+## Task 14: Playtest Event Execution Handoff
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing playtest handoff tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage proving `RunPerspectiveMapPlaytest` emits runtime event execution traces for active events, with selected branch paths resolved from current event condition values.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile fails or the test fails because playtest does not yet expose event execution handoff traces.
+
+- [x] **Step 3: Implement playtest execution handoff**
+
+Promote event execution traces from one-off preview output into playtest results, runtime manifest metadata, and render snapshots so playtest has a concrete runtime-facing command stream for each active event.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
+## Task 15: Package Inventory And Signature Proof
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing package inventory tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage proving export returns a deterministic package file inventory with draft, runtime manifest, execution trace bundle, package manifest, and a stable package signature.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile fails or the test fails because export does not yet expose package file inventory/signature metadata.
+
+- [x] **Step 3: Implement package inventory and signature**
+
+Add deterministic package file rows, byte counts, content hashes, and a package signature to the P2D export result and package manifest.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
+## Task 16: Creator UX Readiness Summary
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing creator UX summary tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage proving render snapshots expose creator-facing workflow readiness: layer, palette, event page, branch, playtest, export, and release-asset gate states with actionable next steps.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile fails or the test fails because there is no consolidated creator UX readiness summary.
+
+- [x] **Step 3: Implement creator readiness summary**
+
+Add compact workflow summary fields to the P2D project snapshot, sourced from existing authoring state and latest playtest/export/release-gate results.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
+## Task 17: Current-Checkout Release Asset Gate
+
+**Files:**
+- Modify: `tests/unit/test_spatial_editor_canvas_workspace.cpp`
+- Modify: `editor/spatial/spatial_authoring_workspace.h`
+- Modify: `editor/spatial/spatial_authoring_workspace.cpp`
+- Modify: `docs/release/EDITOR_CONTROL_INVENTORY.md`
+- Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modify: `docs/status/PROGRAM_COMPLETION_STATUS.md`
+
+- [x] **Step 1: Write failing release asset gate tests**
+
+Add focused `[editor][spatial][p2d_depth]` coverage proving P2D can record the current release asset/LFS policy state, distinguish release-required assets from optional deferred LFS payloads, and carry that decision into playtest/export readiness snapshots.
+
+- [x] **Step 2: Run focused build and verify red**
+
+Ran:
+
+```powershell
+cmake --build --preset dev-debug --target urpg_spatial_unit_tests
+```
+
+Expected red: compile fails or the test fails because P2D has no release asset gate result.
+
+- [x] **Step 3: Implement release asset gate result**
+
+Add a P2D release asset gate API/result that marks release-required assets as verified, optional LFS payloads as deferred, blocks only release-required failures, and serializes this policy into export package metadata.
+
+- [x] **Step 4: Run focused test and verify green**
+
+Ran:
+
+```powershell
+.\build\dev-ninja-debug\urpg_spatial_unit_tests.exe "[editor][spatial][p2d_depth]" --reporter compact
+```
+
+Expected green: all P2D depth tests pass.
+
 ## Self-Review
 
-- Spec coverage: This plan covers tile/layer ergonomics, multi-layer editing, promoted asset palette rows, palette search/filter/preview metadata, palette selection, event/object rows, editable event command rows, RPG Maker-style event pages/conditions, richer comparison condition rules, conditional branch commands, page editing ergonomics, persistence, live playtest readiness, runtime manifest proof, export readiness, and docs truth for the first P2D depth slice. It does not claim full RPG Maker parity.
+- Spec coverage: This plan covers tile/layer ergonomics, multi-layer editing, promoted asset palette rows, palette search/filter/preview metadata, palette selection, event/object rows, editable event command rows, RPG Maker-style event pages/conditions, richer comparison condition rules, conditional branch commands, page editing ergonomics, persistence, live playtest readiness, runtime manifest proof, event execution preview traces, playtest execution handoff traces, deterministic package inventory/signature proof, creator UX readiness summaries, release asset/LFS policy gating, export readiness, and docs truth for the first P2D depth slice. It does not claim full RPG Maker parity.
 - Placeholder scan: No TBD/TODO placeholders are used.
 - Type consistency: All new APIs are named on `SpatialAuthoringWorkspace` and are referenced consistently across test and implementation tasks.

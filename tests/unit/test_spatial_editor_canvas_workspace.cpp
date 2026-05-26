@@ -1418,6 +1418,163 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D supports conditio
     REQUIRE(manifestBranch["false_commands"][0]["code"] == "show_text");
 }
 
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D previews active event execution traces",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_event_execution";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_event_execution", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTile("town", "floor"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_guard", "Guard", "confirm_interact", 80.0f, 80.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_guard", "main", "Main", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_guard", "main", "show_text", "Guard stops you."));
+    REQUIRE(workspace.AddPerspectiveEventPageConditionalBranch("ev_guard", "main", "switch", "guard_bribed", "equals", "true"));
+    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_guard", "main", 1, true, "transfer_player", "town:4,1"));
+    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_guard", "main", 1, false, "show_text", "Bring a pass first."));
+
+    auto blockedTrace = workspace.PreviewPerspectiveEventExecution("missing_event");
+    REQUIRE_FALSE(blockedTrace.success);
+    REQUIRE(blockedTrace.blocker_codes[0] == "p2d_event_missing");
+
+    auto falseTrace = workspace.PreviewPerspectiveEventExecution("ev_guard");
+    REQUIRE(falseTrace.success);
+    REQUIRE(falseTrace.active_page_id == "main");
+    REQUIRE(falseTrace.trigger_id == "confirm_interact");
+    REQUIRE(falseTrace.executed_command_count == 3);
+    REQUIRE(falseTrace.executed_commands[0].code == "show_text");
+    REQUIRE(falseTrace.executed_commands[1].code == "conditional_branch");
+    REQUIRE_FALSE(falseTrace.executed_commands[1].condition_matched);
+    REQUIRE(falseTrace.executed_commands[2].branch_path == "false");
+    REQUIRE(falseTrace.executed_commands[2].argument == "Bring a pass first.");
+
+    REQUIRE(workspace.SetPerspectiveEventConditionValue("switch", "guard_bribed", "true"));
+    auto trueTrace = workspace.PreviewPerspectiveEventExecution("ev_guard");
+    REQUIRE(trueTrace.success);
+    REQUIRE(trueTrace.executed_command_count == 3);
+    REQUIRE(trueTrace.executed_commands[1].condition_matched);
+    REQUIRE(trueTrace.executed_commands[2].branch_path == "true");
+    REQUIRE(trueTrace.executed_commands[2].code == "transfer_player");
+    REQUIRE(trueTrace.executed_commands[2].argument == "town:4,1");
+
+    const auto traceJson = nlohmann::json::parse(trueTrace.serialized_execution_trace_json);
+    REQUIRE(traceJson["document_kind"] == "urpg.perspective_2d.event_execution_trace");
+    REQUIRE(traceJson["map_id"] == "p2d_event_execution");
+    REQUIRE(traceJson["event_id"] == "ev_guard");
+    REQUIRE(traceJson["active_page_id"] == "main");
+    REQUIRE(traceJson["executed_commands"][1]["condition"]["matched"] == true);
+    REQUIRE(traceJson["executed_commands"][2]["branch_path"] == "true");
+
+    workspace.Render({0.016f, 34});
+    const auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.last_perspective_2d_event_execution.success);
+    REQUIRE(snapshot.last_perspective_2d_event_execution.executed_command_count == 3);
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D completes playtest package UX and release gate",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_completion";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_completion", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    workspace.SetPerspectiveTilePaletteOptions({
+        {"grass_01", "Grass A", "overworld", "grass_a", "asset.overworld.grass_a",
+         "content/tiles/grass_a.png", "field", "content/tiles/grass_a.preview.png"},
+    });
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTilePaletteOption("grass_01"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_guard", "Guard", "confirm_interact", 80.0f, 80.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_guard", "main", "Main", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_guard", "main", "show_text", "Guard stops you."));
+    REQUIRE(workspace.AddPerspectiveEventPageConditionalBranch("ev_guard", "main", "switch", "guard_bribed", "equals", "true"));
+    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_guard", "main", 1, true, "transfer_player", "town:4,1"));
+    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_guard", "main", 1, false, "show_text", "Bring a pass first."));
+    REQUIRE(workspace.SetPerspectiveEventConditionValue("switch", "guard_bribed", "true"));
+
+    const auto releaseGate = workspace.RecordPerspectiveReleaseAssetGate(2, 2, 32229, 32229);
+    REQUIRE(releaseGate.success);
+    REQUIRE(releaseGate.release_required_asset_count == 2);
+    REQUIRE(releaseGate.verified_release_required_asset_count == 2);
+    REQUIRE(releaseGate.optional_lfs_asset_count == 32229);
+    REQUIRE(releaseGate.optional_lfs_deferred_count == 32229);
+    REQUIRE(releaseGate.policy_state == "bounded_release_required_verified_optional_lfs_deferred");
+
+    const auto playtest = workspace.RunPerspectiveMapPlaytest();
+    REQUIRE(playtest.success);
+    REQUIRE(playtest.runtime_event_execution_trace_count == 1);
+    const auto traceBundle = nlohmann::json::parse(playtest.serialized_event_execution_traces_json);
+    REQUIRE(traceBundle["document_kind"] == "urpg.perspective_2d.event_execution_trace_bundle");
+    REQUIRE(traceBundle["traces"][0]["event_id"] == "ev_guard");
+    REQUIRE(traceBundle["traces"][0]["executed_commands"][2]["branch_path"] == "true");
+    REQUIRE(traceBundle["traces"][0]["executed_commands"][2]["code"] == "transfer_player");
+
+    const auto exportResult = workspace.ExportPerspectiveMap();
+    REQUIRE(exportResult.success);
+    REQUIRE(exportResult.runtime_event_execution_trace_count == 1);
+    REQUIRE_FALSE(exportResult.package_signature.empty());
+    REQUIRE(exportResult.package_files.size() == 4);
+    REQUIRE(exportResult.package_files[0].path == "maps/p2d_completion.p2d.json");
+    REQUIRE(exportResult.package_files[1].path == "maps/p2d_completion.runtime.json");
+    REQUIRE(exportResult.package_files[2].path == "maps/p2d_completion.event_traces.json");
+    REQUIRE(exportResult.package_files[3].path == "package/p2d_completion.package.json");
+    REQUIRE(exportResult.package_files[2].kind == "event_execution_traces");
+    REQUIRE(exportResult.package_files[2].byte_count > 0);
+    REQUIRE_FALSE(exportResult.package_files[2].content_hash.empty());
+
+    const auto packageManifest = nlohmann::json::parse(exportResult.serialized_package_manifest_json);
+    REQUIRE(packageManifest["package_signature"] == exportResult.package_signature);
+    REQUIRE(packageManifest["files"].size() == 4);
+    REQUIRE(packageManifest["release_asset_gate"]["policy_state"] ==
+            "bounded_release_required_verified_optional_lfs_deferred");
+    REQUIRE(packageManifest["release_asset_gate"]["optional_lfs_asset_count"] == 32229);
+
+    workspace.Render({0.016f, 35});
+    const auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_project.creator_workflow_ready);
+    REQUIRE(snapshot.perspective_2d_project.creator_next_step == "Ready to playtest and export.");
+    REQUIRE(snapshot.perspective_2d_project.layer_workflow_ready);
+    REQUIRE(snapshot.perspective_2d_project.palette_workflow_ready);
+    REQUIRE(snapshot.perspective_2d_project.event_workflow_ready);
+    REQUIRE(snapshot.perspective_2d_project.playtest_workflow_ready);
+    REQUIRE(snapshot.perspective_2d_project.export_workflow_ready);
+    REQUIRE(snapshot.perspective_2d_project.release_asset_gate_ready);
+    REQUIRE(snapshot.last_perspective_2d_release_asset_gate.success);
+}
+
 TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D edits event pages conditions and commands",
           "[editor][spatial][p2d_depth]") {
     SpatialMapOverlay overlay;

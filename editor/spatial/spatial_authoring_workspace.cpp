@@ -4,9 +4,12 @@
 #include <cctype>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <functional>
+#include <iomanip>
 #include <nlohmann/json.hpp>
+#include <sstream>
 
 namespace urpg::editor {
 
@@ -64,6 +67,17 @@ bool conditionValueMatches(const std::string& actual_value,
         return actual_number < expected_number;
     }
     return false;
+}
+
+std::string stableContentHash(const std::string& content) {
+    uint64_t hash = 14695981039346656037ull;
+    for (const unsigned char character : content) {
+        hash ^= static_cast<uint64_t>(character);
+        hash *= 1099511628211ull;
+    }
+    std::ostringstream stream;
+    stream << std::hex << std::setfill('0') << std::setw(16) << hash;
+    return stream.str();
 }
 
 } // namespace
@@ -1702,9 +1716,156 @@ SpatialAuthoringWorkspace::serializePerspectiveExportPackageManifest(const Persp
     json["map_id"] = export_result.map_id;
     json["draft_document_kind"] = "urpg.perspective_2d.map";
     json["runtime_manifest_kind"] = "urpg.perspective_2d.runtime_manifest";
+    json["event_execution_trace_bundle_kind"] = "urpg.perspective_2d.event_execution_trace_bundle";
     json["runtime_layer_count"] = export_result.runtime_layer_count;
     json["runtime_tile_count"] = export_result.runtime_tile_count;
     json["runtime_event_count"] = export_result.runtime_event_count;
+    json["runtime_event_execution_trace_count"] = export_result.runtime_event_execution_trace_count;
+    json["package_signature"] = export_result.package_signature;
+    json["files"] = nlohmann::json::array();
+    for (const auto& file : export_result.package_files) {
+        json["files"].push_back({{"path", file.path},
+                                 {"kind", file.kind},
+                                 {"byte_count", file.byte_count},
+                                 {"content_hash", file.content_hash}});
+    }
+    json["release_asset_gate"] = {{"policy_state", last_perspective_release_asset_gate_result_.policy_state},
+                                  {"success", last_perspective_release_asset_gate_result_.success},
+                                  {"release_required_asset_count",
+                                   last_perspective_release_asset_gate_result_.release_required_asset_count},
+                                  {"verified_release_required_asset_count",
+                                   last_perspective_release_asset_gate_result_.verified_release_required_asset_count},
+                                  {"optional_lfs_asset_count",
+                                   last_perspective_release_asset_gate_result_.optional_lfs_asset_count},
+                                  {"optional_lfs_deferred_count",
+                                   last_perspective_release_asset_gate_result_.optional_lfs_deferred_count}};
+    return json.dump(2);
+}
+
+SpatialAuthoringWorkspace::Perspective2DEventExecutionResult
+SpatialAuthoringWorkspace::buildPerspectiveEventExecutionTrace(const PerspectiveEvent& event) const {
+    Perspective2DEventExecutionResult result;
+    result.success = true;
+    result.message = "Perspective 2D event execution preview is ready.";
+    result.map_id = m_target_overlay != nullptr ? m_target_overlay->mapId : std::string{};
+    result.event_id = event.event_id;
+
+    const auto condition_matches = [&](const PerspectiveEvent::Condition& condition) {
+        const auto value = std::find_if(perspective_event_condition_values_.begin(),
+                                        perspective_event_condition_values_.end(),
+                                        [&](const PerspectiveEventConditionValue& condition_value) {
+                                            return condition_value.type == condition.type &&
+                                                   condition_value.key == condition.key;
+                                        });
+        return value != perspective_event_condition_values_.end() &&
+               conditionValueMatches(value->value, condition.comparison, condition.value);
+    };
+    const auto command_condition_matches = [&](const PerspectiveEvent::Command& command) {
+        const auto value = std::find_if(perspective_event_condition_values_.begin(),
+                                        perspective_event_condition_values_.end(),
+                                        [&](const PerspectiveEventConditionValue& condition_value) {
+                                            return condition_value.type == command.condition_type &&
+                                                   condition_value.key == command.condition_key;
+                                        });
+        return value != perspective_event_condition_values_.end() &&
+               conditionValueMatches(value->value, command.condition_comparison, command.condition_value);
+    };
+    const auto page_matches = [&](const PerspectiveEvent::Page& page) {
+        return std::all_of(page.conditions.begin(), page.conditions.end(), condition_matches);
+    };
+    const auto active_page_for_event = [&](const PerspectiveEvent& candidate) -> const PerspectiveEvent::Page* {
+        const PerspectiveEvent::Page* active_page = nullptr;
+        for (const auto& page : candidate.pages) {
+            if (page_matches(page)) {
+                active_page = &page;
+            }
+        }
+        if (active_page == nullptr && !candidate.pages.empty()) {
+            active_page = &candidate.pages.front();
+        }
+        return active_page;
+    };
+    const std::function<void(const std::vector<PerspectiveEvent::Command>&, const std::string&)>
+        append_execution_steps = [&](const std::vector<PerspectiveEvent::Command>& commands,
+                                     const std::string& branch_path) {
+            for (const auto& command : commands) {
+                Perspective2DEventExecutionStep step;
+                step.code = command.code;
+                step.argument = command.argument;
+                step.branch_path = branch_path;
+                step.condition_type = command.condition_type;
+                step.condition_key = command.condition_key;
+                step.condition_comparison = command.condition_comparison;
+                step.condition_value = command.condition_value;
+                if (command.code == "conditional_branch") {
+                    step.condition_matched = command_condition_matches(command);
+                    result.executed_commands.push_back(std::move(step));
+                    const bool matched = result.executed_commands.back().condition_matched;
+                    const std::string child_path = branch_path == "root"
+                                                       ? (matched ? "true" : "false")
+                                                       : branch_path + (matched ? ".true" : ".false");
+                    append_execution_steps(matched ? command.true_commands : command.false_commands, child_path);
+                } else {
+                    result.executed_commands.push_back(std::move(step));
+                }
+            }
+        };
+
+    const PerspectiveEvent::Page* active_page = active_page_for_event(event);
+    if (active_page != nullptr) {
+        result.active_page_id = active_page->page_id;
+        result.trigger_id = active_page->trigger_id;
+        append_execution_steps(active_page->commands, "root");
+    } else {
+        result.trigger_id = event.trigger_id;
+        append_execution_steps(event.commands, "root");
+    }
+    result.executed_command_count = result.executed_commands.size();
+
+    nlohmann::json trace_json;
+    trace_json["document_kind"] = "urpg.perspective_2d.event_execution_trace";
+    trace_json["version"] = 1;
+    trace_json["map_id"] = result.map_id;
+    trace_json["event_id"] = result.event_id;
+    trace_json["active_page_id"] = result.active_page_id;
+    trace_json["trigger_id"] = result.trigger_id;
+    trace_json["executed_commands"] = nlohmann::json::array();
+    for (const auto& step : result.executed_commands) {
+        nlohmann::json step_json = {{"code", step.code},
+                                    {"argument", step.argument},
+                                    {"branch_path", step.branch_path}};
+        if (step.code == "conditional_branch") {
+            step_json["condition"] = {{"type", step.condition_type},
+                                      {"key", step.condition_key},
+                                      {"comparison", step.condition_comparison},
+                                      {"value", step.condition_value},
+                                      {"matched", step.condition_matched}};
+        }
+        trace_json["executed_commands"].push_back(std::move(step_json));
+    }
+    result.serialized_execution_trace_json = trace_json.dump(2);
+    return result;
+}
+
+std::string SpatialAuthoringWorkspace::serializePerspectiveEventExecutionTraceBundle(size_t& out_trace_count) const {
+    out_trace_count = 0;
+    nlohmann::json json;
+    json["document_kind"] = "urpg.perspective_2d.event_execution_trace_bundle";
+    json["version"] = 1;
+    json["map_id"] = m_target_overlay != nullptr ? m_target_overlay->mapId : std::string{};
+    json["traces"] = nlohmann::json::array();
+    for (const auto& event : perspective_events_) {
+        const auto layer = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                        [&](const PerspectiveLayer& candidate) {
+                                            return candidate.id == event.layer_id;
+                                        });
+        if (layer == perspective_layers_.end() || !layer->visible || layer->locked) {
+            continue;
+        }
+        const auto trace = buildPerspectiveEventExecutionTrace(event);
+        json["traces"].push_back(nlohmann::json::parse(trace.serialized_execution_trace_json));
+    }
+    out_trace_count = json["traces"].size();
     return json.dump(2);
 }
 
@@ -1964,6 +2125,8 @@ SpatialAuthoringWorkspace::Perspective2DPlaytestResult SpatialAuthoringWorkspace
     result.message = "Perspective 2D map playtest readiness passed.";
     result.serialized_runtime_manifest_json =
         serializePerspectiveRuntimeManifest(result.runtime_layer_count, result.runtime_tile_count, result.runtime_event_count);
+    result.serialized_event_execution_traces_json =
+        serializePerspectiveEventExecutionTraceBundle(result.runtime_event_execution_trace_count);
     perspective_playtest_ready_ = true;
     last_perspective_playtest_result_ = result;
     captureRenderSnapshot();
@@ -1991,10 +2154,88 @@ SpatialAuthoringWorkspace::Perspective2DExportResult SpatialAuthoringWorkspace::
     result.serialized_document_json = serializePerspectiveMapDraft();
     result.serialized_runtime_manifest_json =
         serializePerspectiveRuntimeManifest(result.runtime_layer_count, result.runtime_tile_count, result.runtime_event_count);
+    result.serialized_event_execution_traces_json =
+        serializePerspectiveEventExecutionTraceBundle(result.runtime_event_execution_trace_count);
+    const std::string map_id = result.map_id.empty() ? "perspective_2d_map" : result.map_id;
+    const auto make_file = [](const std::string& path,
+                              const std::string& kind,
+                              const std::string& content) {
+        Perspective2DPackageFile file;
+        file.path = path;
+        file.kind = kind;
+        file.byte_count = content.size();
+        file.content_hash = stableContentHash(content);
+        return file;
+    };
+    result.package_files.push_back(
+        make_file("maps/" + map_id + ".p2d.json", "draft_document", result.serialized_document_json));
+    result.package_files.push_back(
+        make_file("maps/" + map_id + ".runtime.json", "runtime_manifest", result.serialized_runtime_manifest_json));
+    result.package_files.push_back(make_file("maps/" + map_id + ".event_traces.json",
+                                             "event_execution_traces",
+                                             result.serialized_event_execution_traces_json));
+    result.package_signature = stableContentHash(result.package_files[0].content_hash + ":" +
+                                                result.package_files[1].content_hash + ":" +
+                                                result.package_files[2].content_hash + ":" +
+                                                last_perspective_release_asset_gate_result_.policy_state);
+    result.package_files.push_back({"package/" + map_id + ".package.json", "package_manifest", 0, "self"});
     result.serialized_package_manifest_json = serializePerspectiveExportPackageManifest(result);
     last_perspective_export_result_ = result;
     captureRenderSnapshot();
     return last_perspective_export_result_;
+}
+
+SpatialAuthoringWorkspace::Perspective2DEventExecutionResult
+SpatialAuthoringWorkspace::PreviewPerspectiveEventExecution(const std::string& event_id) {
+    Perspective2DEventExecutionResult result;
+    result.map_id = m_target_overlay != nullptr ? m_target_overlay->mapId : std::string{};
+    result.event_id = event_id;
+    result.blocker_codes = validatePerspectiveMapForPlaytest();
+
+    const auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                                    [&](const PerspectiveEvent& candidate) {
+                                        return candidate.event_id == event_id;
+                                    });
+    if (event == perspective_events_.end()) {
+        result.blocker_codes.push_back("p2d_event_missing");
+    }
+    if (!result.blocker_codes.empty()) {
+        result.message = "Perspective 2D event execution preview is blocked.";
+        last_perspective_event_execution_result_ = result;
+        captureRenderSnapshot();
+        return last_perspective_event_execution_result_;
+    }
+
+    result = buildPerspectiveEventExecutionTrace(*event);
+    last_perspective_event_execution_result_ = result;
+    captureRenderSnapshot();
+    return last_perspective_event_execution_result_;
+}
+
+SpatialAuthoringWorkspace::Perspective2DReleaseAssetGateResult
+SpatialAuthoringWorkspace::RecordPerspectiveReleaseAssetGate(size_t release_required_asset_count,
+                                                             size_t verified_release_required_asset_count,
+                                                             size_t optional_lfs_asset_count,
+                                                             size_t optional_lfs_deferred_count) {
+    Perspective2DReleaseAssetGateResult result;
+    result.release_required_asset_count = release_required_asset_count;
+    result.verified_release_required_asset_count = verified_release_required_asset_count;
+    result.optional_lfs_asset_count = optional_lfs_asset_count;
+    result.optional_lfs_deferred_count = optional_lfs_deferred_count;
+    if (verified_release_required_asset_count < release_required_asset_count) {
+        result.blocker_codes.push_back("p2d_release_required_assets_unverified");
+        result.policy_state = "release_required_assets_blocked";
+        result.message = "Perspective 2D release-required assets are not verified.";
+    } else {
+        result.success = true;
+        result.policy_state = optional_lfs_asset_count > 0
+                                  ? "bounded_release_required_verified_optional_lfs_deferred"
+                                  : "bounded_release_required_verified";
+        result.message = "Perspective 2D release-required assets are verified.";
+    }
+    last_perspective_release_asset_gate_result_ = result;
+    captureRenderSnapshot();
+    return last_perspective_release_asset_gate_result_;
 }
 
 void SpatialAuthoringWorkspace::captureRenderSnapshot() {
@@ -2200,10 +2441,53 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     last_render_snapshot_.perspective_2d_project.can_export =
         last_perspective_playtest_result_.success && perspective_playtest_ready_ &&
         last_render_snapshot_.perspective_2d_project.diagnostics.empty();
+    last_render_snapshot_.perspective_2d_project.layer_workflow_ready =
+        std::any_of(perspective_layers_.begin(), perspective_layers_.end(), [](const PerspectiveLayer& layer) {
+            return layer.kind == "tile" && layer.visible && !layer.locked;
+        }) && std::any_of(perspective_layers_.begin(), perspective_layers_.end(), [](const PerspectiveLayer& layer) {
+            return layer.kind == "event" && layer.visible && !layer.locked;
+        });
+    last_render_snapshot_.perspective_2d_project.palette_workflow_ready =
+        !selected_tileset_id_.empty() && !selected_tile_id_.empty();
+    last_render_snapshot_.perspective_2d_project.event_workflow_ready =
+        std::any_of(perspective_events_.begin(), perspective_events_.end(), [](const PerspectiveEvent& event) {
+            return !event.pages.empty();
+        });
+    last_render_snapshot_.perspective_2d_project.playtest_workflow_ready =
+        last_perspective_playtest_result_.success && last_perspective_playtest_result_.runtime_event_execution_trace_count ==
+                                                       perspective_events_.size();
+    last_render_snapshot_.perspective_2d_project.export_workflow_ready =
+        last_perspective_export_result_.success && !last_perspective_export_result_.package_signature.empty();
+    last_render_snapshot_.perspective_2d_project.release_asset_gate_ready =
+        last_perspective_release_asset_gate_result_.success;
+    last_render_snapshot_.perspective_2d_project.creator_workflow_ready =
+        last_render_snapshot_.perspective_2d_project.layer_workflow_ready &&
+        last_render_snapshot_.perspective_2d_project.palette_workflow_ready &&
+        last_render_snapshot_.perspective_2d_project.event_workflow_ready &&
+        last_render_snapshot_.perspective_2d_project.playtest_workflow_ready &&
+        last_render_snapshot_.perspective_2d_project.export_workflow_ready &&
+        last_render_snapshot_.perspective_2d_project.release_asset_gate_ready;
+    if (last_render_snapshot_.perspective_2d_project.creator_workflow_ready) {
+        last_render_snapshot_.perspective_2d_project.creator_next_step = "Ready to playtest and export.";
+    } else if (!last_render_snapshot_.perspective_2d_project.layer_workflow_ready) {
+        last_render_snapshot_.perspective_2d_project.creator_next_step = "Create visible unlocked tile and event layers.";
+    } else if (!last_render_snapshot_.perspective_2d_project.palette_workflow_ready) {
+        last_render_snapshot_.perspective_2d_project.creator_next_step = "Select a tile palette option.";
+    } else if (!last_render_snapshot_.perspective_2d_project.event_workflow_ready) {
+        last_render_snapshot_.perspective_2d_project.creator_next_step = "Add an event page.";
+    } else if (!last_render_snapshot_.perspective_2d_project.release_asset_gate_ready) {
+        last_render_snapshot_.perspective_2d_project.creator_next_step = "Record release asset gate evidence.";
+    } else if (!last_render_snapshot_.perspective_2d_project.playtest_workflow_ready) {
+        last_render_snapshot_.perspective_2d_project.creator_next_step = "Run Perspective 2D playtest.";
+    } else {
+        last_render_snapshot_.perspective_2d_project.creator_next_step = "Export Perspective 2D package.";
+    }
     last_render_snapshot_.last_perspective_2d_save = last_perspective_save_result_;
     last_render_snapshot_.last_perspective_2d_load = last_perspective_load_result_;
     last_render_snapshot_.last_perspective_2d_playtest = last_perspective_playtest_result_;
     last_render_snapshot_.last_perspective_2d_export = last_perspective_export_result_;
+    last_render_snapshot_.last_perspective_2d_event_execution = last_perspective_event_execution_result_;
+    last_render_snapshot_.last_perspective_2d_release_asset_gate = last_perspective_release_asset_gate_result_;
     last_render_snapshot_.toolbar.active_mode = modeName(active_mode_);
     last_render_snapshot_.toolbar.selected_trigger_id = last_render_snapshot_.canvas.selection.trigger_id;
     last_render_snapshot_.toolbar.selected_ability_id = last_render_snapshot_.bindings.selected_ability_id;

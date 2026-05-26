@@ -159,6 +159,14 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         bool can_load = true;
         bool can_playtest = false;
         bool can_export = false;
+        bool layer_workflow_ready = false;
+        bool palette_workflow_ready = false;
+        bool event_workflow_ready = false;
+        bool playtest_workflow_ready = false;
+        bool export_workflow_ready = false;
+        bool release_asset_gate_ready = false;
+        bool creator_workflow_ready = false;
+        std::string creator_next_step;
         std::vector<std::string> diagnostics;
     };
 
@@ -193,10 +201,19 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         size_t playtest_tile_count = 0;
         size_t playtest_event_count = 0;
         std::string serialized_runtime_manifest_json;
+        std::string serialized_event_execution_traces_json;
         size_t runtime_layer_count = 0;
         size_t runtime_tile_count = 0;
         size_t runtime_event_count = 0;
+        size_t runtime_event_execution_trace_count = 0;
         std::vector<std::string> blocker_codes;
+    };
+
+    struct Perspective2DPackageFile {
+        std::string path;
+        std::string kind;
+        size_t byte_count = 0;
+        std::string content_hash;
     };
 
     struct Perspective2DExportResult {
@@ -206,12 +223,53 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string map_id;
         std::string serialized_document_json;
         std::string serialized_runtime_manifest_json;
+        std::string serialized_event_execution_traces_json;
         std::string serialized_package_manifest_json;
+        std::string package_signature;
         size_t exported_tile_count = 0;
         size_t exported_event_count = 0;
         size_t runtime_layer_count = 0;
         size_t runtime_tile_count = 0;
         size_t runtime_event_count = 0;
+        size_t runtime_event_execution_trace_count = 0;
+        std::vector<Perspective2DPackageFile> package_files;
+        std::vector<std::string> blocker_codes;
+    };
+
+    struct Perspective2DEventExecutionStep {
+        std::string code;
+        std::string argument;
+        std::string branch_path = "root";
+        std::string condition_type;
+        std::string condition_key;
+        std::string condition_comparison;
+        std::string condition_value;
+        bool condition_matched = true;
+    };
+
+    struct Perspective2DEventExecutionResult {
+        bool success = false;
+        std::string command_id = "preview_perspective_2d_event_execution";
+        std::string message = "Perspective 2D event execution preview has not run.";
+        std::string map_id;
+        std::string event_id;
+        std::string active_page_id;
+        std::string trigger_id;
+        size_t executed_command_count = 0;
+        std::vector<Perspective2DEventExecutionStep> executed_commands;
+        std::string serialized_execution_trace_json;
+        std::vector<std::string> blocker_codes;
+    };
+
+    struct Perspective2DReleaseAssetGateResult {
+        bool success = false;
+        std::string command_id = "gate_perspective_2d_release_assets";
+        std::string message = "Perspective 2D release asset gate has not run.";
+        std::string policy_state = "not_run";
+        size_t release_required_asset_count = 0;
+        size_t verified_release_required_asset_count = 0;
+        size_t optional_lfs_asset_count = 0;
+        size_t optional_lfs_deferred_count = 0;
         std::vector<std::string> blocker_codes;
     };
 
@@ -242,6 +300,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         Perspective2DDraftResult last_perspective_2d_load;
         Perspective2DPlaytestResult last_perspective_2d_playtest;
         Perspective2DExportResult last_perspective_2d_export;
+        Perspective2DEventExecutionResult last_perspective_2d_event_execution;
+        Perspective2DReleaseAssetGateResult last_perspective_2d_release_asset_gate;
     };
 
     SpatialAuthoringWorkspace() : EditorPanel("Perspective 2D Map Editor") {}
@@ -365,6 +425,12 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     Perspective2DDraftResult LoadPerspectiveMapDraft(const std::string& serialized_document_json);
     Perspective2DPlaytestResult RunPerspectiveMapPlaytest();
     Perspective2DExportResult ExportPerspectiveMap();
+    Perspective2DEventExecutionResult PreviewPerspectiveEventExecution(const std::string& event_id);
+    Perspective2DReleaseAssetGateResult RecordPerspectiveReleaseAssetGate(
+        size_t release_required_asset_count,
+        size_t verified_release_required_asset_count,
+        size_t optional_lfs_asset_count,
+        size_t optional_lfs_deferred_count);
     ToolMode activeMode() const { return active_mode_; }
 
     ElevationBrushPanel& elevationPanel() { return elevation_panel_; }
@@ -392,6 +458,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                                     size_t& out_tile_count,
                                                     size_t& out_event_count) const;
     std::string serializePerspectiveExportPackageManifest(const Perspective2DExportResult& export_result) const;
+    std::string serializePerspectiveEventExecutionTraceBundle(size_t& out_trace_count) const;
     static const char* modeName(ToolMode mode);
 
     struct PerspectiveLayer {
@@ -415,12 +482,12 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         struct Command {
             std::string code;
             std::string argument;
-            std::string condition_type;
-            std::string condition_key;
-            std::string condition_comparison;
-            std::string condition_value;
-            std::vector<Command> true_commands;
-            std::vector<Command> false_commands;
+            std::string condition_type = "";
+            std::string condition_key = "";
+            std::string condition_comparison = "";
+            std::string condition_value = "";
+            std::vector<Command> true_commands = {};
+            std::vector<Command> false_commands = {};
         };
 
         struct Condition {
@@ -455,6 +522,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string key;
         std::string value;
     };
+
+    Perspective2DEventExecutionResult buildPerspectiveEventExecutionTrace(const PerspectiveEvent& event) const;
 
     urpg::scene::MapScene* m_target_scene = nullptr;
     urpg::presentation::SpatialMapOverlay* m_target_overlay = nullptr;
@@ -493,6 +562,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     Perspective2DDraftResult last_perspective_load_result_;
     Perspective2DPlaytestResult last_perspective_playtest_result_;
     Perspective2DExportResult last_perspective_export_result_;
+    Perspective2DEventExecutionResult last_perspective_event_execution_result_;
+    Perspective2DReleaseAssetGateResult last_perspective_release_asset_gate_result_;
     RenderSnapshot last_render_snapshot_;
 };
 
