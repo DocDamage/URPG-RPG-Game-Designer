@@ -1,11 +1,22 @@
 # URPG Program Completion Status
 
-Status Date: 2026-05-25
+Status Date: 2026-05-26
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`.
 
 Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. The bounded `v0.1.0` public release tag now exists at `1d3debb95b6df1d09996e723cc616369cfca99c6`. Public release legal/privacy review is owner-waived in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; post-tag commits require fresh final gates and a new release-owner decision before another public distribution claim.
+
+2026-05-26 current-codebase truth checkpoint:
+- The current `development` checkout is a bounded post-`v0.1.0` work branch, not a clean mandatory all-features product. Broader production claims are blocked until the finish plan in `docs/superpowers/plans/2026-05-26-finish-current-codebase.md` is implemented and verified.
+- Production-adjacent shell execution remains in AI provider transports, creator-command transport, analytics HTTP upload, command achievement submission, and non-Windows asset conversion. These paths must move to native HTTP and a no-shell process runner before security closure.
+- The compat audio manager still stores raw role/channel pointers beside owning `unique_ptr` channel storage, so destroy-after-use scenarios remain a lifetime risk until role references are converted to stable IDs or handles.
+- `ChatbotComponent` still captures raw `this` in service callbacks. Async-capable services need cancellation tokens and weak lifetime guards before live providers can be treated as production-safe.
+- QuickJS memory limits are wired, but CPU budget enforcement still lacks a QuickJS interrupt handler. Infinite-loop and runaway-job coverage remains mandatory.
+- `ResourceProtector` is truthfully lightweight RLE/XOR plus keyed digest support, not release-grade encryption or public-key signing; `obfuscateScript()` remains a stub helper and export paths that request script obfuscation must continue failing closed until a real transform exists.
+- Cloud sync remains local-only in-tree through `LocalInMemoryCloudService`, and native import source picking remains Windows-only outside injectable test hooks.
+- Repository hygiene is open: tracked generated/local or retired-root paths include `build-local/`, `Testing/Temporary/`, root `third_party/`, and root `itch/loose/`.
+- LFS wording is open: `git lfs ls-files --name-only` reports 32,229 LFS-tracked normalized asset paths in this checkout. Release-required app assets may still be verified separately, but the branch must not be described as zero-LFS.
 
 2026-05-01 100-percent completion phase-one checkpoint:
 - Active remaining-work inventory for the 100-percent completion push: [`docs/release/100_PERCENT_COMPLETION_INVENTORY.md`](release/100_PERCENT_COMPLETION_INVENTORY.md).
@@ -41,7 +52,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - The README was overhauled to describe current product positioning, feature scope, competitor tradeoffs, Level Builder capabilities, validation commands, and release boundaries.
 
 2026-04-29 asset-root reorganization and README refresh:
-- Root-level `third_party/` and `itch/` asset folders were retired after indexing; tracked payloads now live under `imports/raw/third_party_assets/` and `imports/raw/itch_assets/`.
+- Root-level `third_party/` and `itch/` asset folders were intended to be retired after indexing, but the current checkout still tracks root `third_party/` and root `itch/loose/` payloads. Treat this as open docs/tree drift until the tracked roots are removed or explicitly reclassified.
 - The local asset DB moved to the ignored `.urpg/asset-index/asset_catalog.db`; `imports/reports/asset_intake/third_party_itch_ingest_summary.json` is the tracked audit report.
 - Third-party/itch indexing currently records 34,651 files, 28,995 images, 3,014 audio records, and 3,233 exact duplicate groups for future curation.
 - `SRC-007` remains deduped and catalog-normalized under `imports/raw/urpg_stuff`; existing OGG context was preserved and tracked MP3/WAV files remain excluded.

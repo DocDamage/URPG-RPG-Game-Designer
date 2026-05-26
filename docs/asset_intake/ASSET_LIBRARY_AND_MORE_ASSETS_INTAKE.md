@@ -4,6 +4,8 @@ Status Date: 2026-05-02
 
 This document records the current asset-library vertical slice and the local `more assets/` intake that was unpacked, cleaned, indexed, and kept as non-release raw quarantine.
 
+Current checkout note (2026-05-26): the raw/quarantine policy below remains the intended release boundary, but the repository still tracks root `third_party/`, root `itch/loose/`, and 32,229 LFS-tracked normalized asset paths. Do not describe the current branch as zero-LFS or retired-root-clean until those paths are removed, reclassified, or covered by fresh release-scope evidence.
+
 ## Current Scope
 
 The asset-library slice is a conservative intake and inspection lane. It does not promote any template or subsystem to `READY`, and it does not delete duplicate production assets automatically.

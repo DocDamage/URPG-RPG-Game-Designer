@@ -6,9 +6,11 @@ The project is built for creators who want RPG Maker-style production speed with
 
 ## Current Status
 
-Status date: 2026-05-25
+Status date: 2026-05-26
 
 The bounded public `v0.1.0` release tag exists as an annotated tag targeting commit `1d3debb95b6df1d09996e723cc616369cfca99c6`. The current `development` workspace is post-`v0.1.0` and must pass the final gates again before any follow-up public release or broader completion claim.
+
+Current checkout truth: this branch is not clean as a mandatory all-features product. It remains a bounded release/work-in-progress with real follow-up blockers: production-adjacent `std::system` command execution in AI, analytics, achievement, and asset conversion paths; raw-pointer lifetime risks in the compat audio manager; async chatbot callbacks that can outlive their owner; QuickJS CPU budgets without an interrupt handler; lightweight RLE/XOR bundle protection rather than release-grade encryption/signing; a script obfuscation helper that remains a stub; local-only cloud sync; Windows-only native asset source picking; tracked generated/local trees; and tracked root `third_party/` / `itch/loose` payload drift. `git lfs ls-files --name-only` currently reports 32,229 LFS-tracked normalized asset paths in this checkout, so older zero-LFS wording is no longer true for `development`.
 
 For active development, use the full local gate:
 
@@ -39,7 +41,7 @@ Within the bounded internal/private release-candidate scope:
 - Native runtime startup, title/menu input, scene stack pause/resume, settings, save/load, audio startup diagnostics, localization startup diagnostics, and runtime asset preflight have focused coverage.
 - Editor release navigation starts headlessly, lists panels, and opens `level_builder`.
 - Ability draft save/load/apply, ability project-content save, pattern editing, Level Builder save/load/export/playtest/package, analytics consent/local JSONL export, and app settings persistence are covered by deterministic tests.
-- Release-required assets are validated by `tools/ci/check_release_required_assets.ps1`; raw/vendor intake paths are not eligible release payloads.
+- Release-required assets are validated by `tools/ci/check_release_required_assets.ps1`; raw/vendor intake paths are not eligible release payloads. This does not mean the whole checkout is LFS-free: broad promoted asset payloads are currently LFS-tracked and must stay outside release-required claims unless hydrated and gated.
 - Current release visuals are bounded starter/proof assets, not final AAA art direction. The release asset gate requires this scope to be declared before prototype actor, starter UI skin/chrome, or VFX proof rows can satisfy release coverage.
 - Cloud sync is not a production-visible release feature in the shipped tree. `LocalInMemoryCloudService` is process-local
   test/dev storage only, and release UI must keep cloud/cross-device sync hidden unless an out-of-tree provider reports a
@@ -54,6 +56,8 @@ Within the bounded internal/private release-candidate scope:
 - New public distribution approval and release tagging for post-`v0.1.0` commits.
 - Platform signing/notarization credentials for final release artifacts.
 - Repository-wide source/vendor LFS budget/access if future release work depends on full vendor/source asset hydration. Current release-required app assets are normal Git blobs and are checked separately.
+- Repository hygiene cleanup for currently tracked generated/local paths such as `build-local/`, `Testing/Temporary/`, root `third_party/`, and root `itch/loose/`.
+- Security and lifetime hardening before any broader production claim: remove production `std::system`, stop leaking bearer tokens through argv, replace raw compat audio role pointers, add chatbot cancellation/lifetime safety, install real QuickJS interrupt limits, and either implement or remove unsupported security-feature claims.
 
 ## Product Pillars
 
@@ -155,7 +159,7 @@ AI-assisted editing is review-gated:
 | `docs/` | Architecture, release, governance, signoff, ADRs, status, and templates. |
 | `.urpg/` | Ignored local cache/archive/state. |
 
-The old root-level `third_party/` and `itch/` folders are retired. Ingested content belongs under `imports/raw/third_party_assets/` and `imports/raw/itch_assets/`.
+The old root-level `third_party/` and `itch/` folders are intended to be retired, and ingested content belongs under `imports/raw/third_party_assets/` and `imports/raw/itch_assets/`. Current `development` still tracks root `third_party/` and `itch/loose/` payloads, so that cleanup remains open.
 
 ## Build
 

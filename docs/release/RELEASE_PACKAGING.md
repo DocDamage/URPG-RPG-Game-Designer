@@ -1,8 +1,10 @@
 # Release Packaging
 
-Status Date: 2026-05-04
+Status Date: 2026-05-26
 
 This document records the native release packaging contract for URPG exports. It does not claim that production signing credentials are present in the repository.
+
+Current checkout note: package smoke evidence is package-scope evidence, not whole-repository hygiene evidence. As of 2026-05-26, tracked generated/local and retired-root paths still include `build-local/`, `Testing/Temporary/`, root `third_party/`, and root `itch/loose/`; `git lfs ls-files --name-only` reports 32,229 LFS-tracked normalized asset paths. Do not use package success to claim the checkout is generated-artifact-free or LFS-free.
 
 Native CPack package identity is finalized in `cmake/packaging.cmake` with vendor `URPG Project`, homepage
 `https://github.com/DocDamage/URPG-RPG-Game-Designer`, and support contact

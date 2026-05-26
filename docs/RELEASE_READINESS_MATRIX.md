@@ -86,7 +86,7 @@ If any of those conditions fail, the row must remain below `READY`.
 
 ## Legal And Notices Snapshot
 
-Status Date: 2026-04-26
+Status Date: 2026-05-26
 
 | Area | Status | Evidence | Remaining Gate |
 | --- | --- | --- | --- |
@@ -98,9 +98,10 @@ Status Date: 2026-04-26
 
 ## LFS Hydration Snapshot
 
-Status Date: 2026-04-26
+Status Date: 2026-05-26
 
 | Area | Status | Evidence | Remaining Gate |
 | --- | --- | --- | --- |
-| Fresh clone LFS hydration | `VERIFIED` | A no-smudge fresh clone of `codex/release-surface-p0` on 2026-04-30 reported `git lfs ls-files` count `0`; release-required asset validation, package dry run, configure, audit build, and release-readiness checks passed in that clone. | Do not reintroduce release-required LFS pointers; keep raw/source intake ignored unless a curated asset is promoted through manifests. |
-| Current checkout LFS footprint | `VERIFIED` | The 2026-04-30 baggage passes removed current Git tracking for `imports/raw/more_assets/`, `imports/raw/itch_assets/loose/`, broad `imports/raw/third_party_assets/itch-assets/`, source-only RPG Maker/Aseprite intake, `imports/root-drop/archives/`, and the remaining root-drop archive pointers while preserving local working files as ignored raw quarantine. Curated RPG Maker plugin drop-ins, plugin release reports, and Hugging Face fixtures remain tracked because gates/tests reference them. Current branch `git lfs ls-files` count is `0`. | Prior branch history may still contain old LFS objects; avoid depending on old source/vendor history for release work. |
+| Fresh clone release-required asset hydration | `VERIFIED_FOR_V0.1.0` | A no-smudge fresh clone of the bounded release lineage on 2026-04-30 reported no release-required LFS blocker and passed release-required asset validation, package dry run, configure, audit build, and release-readiness checks. | Re-run for the current target commit before any follow-up release. |
+| Current checkout LFS footprint | `OPEN` | On 2026-05-26, `git lfs ls-files --name-only` reports 32,229 LFS-tracked normalized asset paths in this checkout. Older zero-LFS wording is stale for current `development`. | Do not claim current-branch zero-LFS. Either hydrate and gate these assets for the intended scope or remove/reclassify tracked LFS payloads before broader release claims. |
+| Current checkout generated/root path hygiene | `OPEN` | `git ls-files build-local Testing/Temporary third_party "itch/loose"` reports tracked generated/local and retired-root payloads. | Remove or explicitly reclassify these tracked paths before claiming repository hygiene closure. |
