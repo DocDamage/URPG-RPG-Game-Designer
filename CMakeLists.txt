@@ -71,6 +71,30 @@ option(
 )
 option(URPG_FETCH_QUICKJS_NG "Fetch QuickJS-NG via CMake" ON)
 
+if(MINGW)
+    execute_process(
+        COMMAND ${CMAKE_C_COMPILER} -print-file-name=liboldnames.a
+        OUTPUT_VARIABLE URPG_MINGW_OLDNAMES_PATH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+    if(URPG_MINGW_OLDNAMES_PATH STREQUAL "liboldnames.a" OR URPG_MINGW_OLDNAMES_PATH STREQUAL "liboldnames")
+        set(URPG_MINGW_SHIM_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}/mingw-shims")
+        file(MAKE_DIRECTORY "${URPG_MINGW_SHIM_LIB_DIR}")
+        execute_process(
+            COMMAND ${CMAKE_AR} qc "${URPG_MINGW_SHIM_LIB_DIR}/liboldnames.a"
+            RESULT_VARIABLE URPG_MINGW_OLDNAMES_SHIM_RESULT
+            ERROR_QUIET
+        )
+        if(URPG_MINGW_OLDNAMES_SHIM_RESULT EQUAL 0)
+            link_directories(BEFORE "${URPG_MINGW_SHIM_LIB_DIR}")
+            message(STATUS
+                "URPG: active MinGW toolchain does not ship liboldnames.a; "
+                "using an empty build-local compatibility archive for targets that request -loldnames.")
+        endif()
+    endif()
+endif()
+
 function(urpg_resolve_tool_path out_var tool_path)
     if(NOT tool_path)
         set(${out_var} "" PARENT_SCOPE)
@@ -520,6 +544,7 @@ set(URPG_CORE_SOURCES
     editor/spatial/grid_part_playtest_panel.cpp
     editor/spatial/level_builder_workspace.cpp
     editor/spatial/map_ability_binding_panel.cpp
+    editor/spatial/perspective_2d_product_workflow.cpp
     editor/spatial/spatial_ability_canvas_panel.cpp
     editor/spatial/spatial_authoring_workspace.cpp
     editor/sprite/sprite_animation_preview_panel.cpp

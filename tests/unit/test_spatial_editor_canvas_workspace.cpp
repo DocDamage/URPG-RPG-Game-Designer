@@ -1,5 +1,6 @@
 #include "editor/spatial/elevation_brush_panel.h"
 #include "editor/spatial/map_ability_binding_panel.h"
+#include "editor/spatial/perspective_2d_product_workflow.h"
 #include "editor/spatial/prop_placement_panel.h"
 #include "editor/spatial/spatial_ability_canvas_panel.h"
 #include "editor/spatial/spatial_authoring_workspace.h"
@@ -1760,6 +1761,96 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D exposes RPG Maker
     REQUIRE(snapshot.perspective_2d_tiles.collision_tile_count == 1);
     REQUIRE(snapshot.perspective_2d_tiles.star_passability_tile_count == 1);
     REQUIRE(snapshot.perspective_2d_tiles.latest_preview.success);
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D product workflow analyzes playable package proof",
+          "[editor][spatial][p2d_product]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_product_town";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_product_town", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.SetPerspectiveProjectDatabaseReferences({
+        {"actor", "hero", "Hero", "", 0, 0},
+        {"item", "potion", "Potion", "", 0, 0},
+        {"switch", "door_open", "Door Open", "", 0, 0},
+        {"variable", "rank", "Rank", "", 0, 0},
+        {"common_event", "common_unlock", "Unlock Door", "", 0, 0},
+        {"map", "p2d_product_town", "Town", "", 0, 0},
+        {"map", "castle", "Castle", "", 0, 0},
+        {"transfer", "town_to_castle", "Town To Castle", "castle", 2, 7},
+        {"asset", "asset.overworld.grass", "Grass", "", 0, 0},
+    }));
+    REQUIRE(workspace.SetPerspectiveProjectStartingParty({"hero"}));
+    REQUIRE(workspace.SetPerspectiveProjectSaveLoadState(true, "slot_1"));
+
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    workspace.SetPerspectiveTilePaletteOptions({
+        {"grass", "Grass", "overworld", "grass", "asset.overworld.grass",
+         "content/tiles/grass.png", "field", "content/tiles/grass.preview.png"},
+    });
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTilePaletteOption("grass"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_gate", "Gate", "confirm_interact", 80.0f, 80.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("ev_gate", "main", "Main", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "main", "show_text", "Welcome."));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "main", "change_switch", "door_open=true"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "main", "change_variable", "rank+=1"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "main", "change_gold", "+25"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "main", "change_item", "potion:+1"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_gate", "main", "call_common_event", "common_unlock"));
+    REQUIRE(workspace.AddPerspectiveEventPageConditionalBranch("ev_gate", "main", "switch", "door_open", "equals", "true"));
+    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_gate", "main", 6, true, "transfer_player", "castle:2,7"));
+
+    REQUIRE(workspace.RecordPerspectiveReleaseAssetGate(1, 1, 2, 2).success);
+    const auto save = workspace.SavePerspectiveMapDraft();
+    REQUIRE(save.success);
+    const auto runtime = workspace.ExecutePerspectiveRuntimeEvent("ev_gate");
+    REQUIRE(runtime.success);
+    const auto playtest = workspace.RunPerspectiveMapPlaytest();
+    REQUIRE(playtest.success);
+    const auto export_result = workspace.ExportPerspectiveMap();
+    REQUIRE(export_result.success);
+
+    const auto report = Perspective2DProductWorkflow::Analyze(save.serialized_document_json,
+                                                              playtest.serialized_runtime_manifest_json,
+                                                              export_result.serialized_package_manifest_json);
+    REQUIRE(report.ready);
+    REQUIRE(report.map_id == "p2d_product_town");
+    REQUIRE(report.draft_layer_count == 2);
+    REQUIRE(report.draft_tile_count == 1);
+    REQUIRE(report.draft_event_count == 1);
+    REQUIRE(report.runtime_layer_count == 2);
+    REQUIRE(report.runtime_tile_count == 1);
+    REQUIRE(report.runtime_event_count == 1);
+    REQUIRE(report.export_package_file_count >= 4);
+    REQUIRE(report.package_signature_present);
+    REQUIRE(report.transfer_edge_count == 1);
+    REQUIRE(report.supported_command_count >= 8);
+    REQUIRE(report.unsupported_command_count == 0);
+    REQUIRE(report.blockers.empty());
+
+    workspace.Render({0.016f, 39});
+    const auto snapshot = workspace.lastRenderSnapshot();
+    REQUIRE(snapshot.perspective_2d_product.ready);
+    REQUIRE(snapshot.perspective_2d_product.map_id == "p2d_product_town");
+    REQUIRE(snapshot.perspective_2d_product.transfer_edge_count == 1);
+    REQUIRE(snapshot.perspective_2d_product.export_package_file_count >= 4);
 }
 
 TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D connects maps to project database references",

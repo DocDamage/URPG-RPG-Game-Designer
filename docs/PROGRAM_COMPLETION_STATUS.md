@@ -24,6 +24,12 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - The P2D depth slice is covered by focused `[editor][spatial][p2d_depth]` tests and the broader focused `[editor][spatial]` regression lane in `urpg_spatial_unit_tests.exe`.
 - This improves the first-class P2D route from composed preview tooling to persistent authoring workflow scaffolding plus live execution for the implemented command set. The P2D depth-pass tasks tracked in `docs/superpowers/plans/2026-05-26-p2d-depth-pass.md` are complete for the bounded first-class authoring/runtime slice; this remains bounded product depth rather than a blanket full RPG Maker parity claim.
 
+2026-05-26 Perspective 2D product-workflow checkpoint:
+- Added `Perspective2DProductWorkflow`, a focused analyzer boundary that consumes the existing P2D draft, runtime manifest, and export package JSON contracts and reports map/tile/event counts, supported command coverage, transfer edges, package file coverage, package signature presence, and product blockers.
+- `SpatialAuthoringWorkspace::RenderSnapshot` now exposes `perspective_2d_product`, so editor callers can inspect the product workflow report without manually stitching save/playtest/export JSON together.
+- Focused `[editor][spatial][p2d_product]` coverage now builds a tiny playable P2D proof with tiles, event pages, switch/variable/gold/item/common-event commands, conditional transfer, project database references, starting party, save profile, release asset gate, runtime execution, playtest, export, and analyzer-backed product readiness.
+- The local MinGW fallback build now creates a build-local empty `liboldnames.a` compatibility archive when the active WinLibs package does not ship that GCC runtime archive, unblocking the vendored SDL2 link step without modifying the global toolchain installation.
+
 2026-05-01 100-percent completion phase-one checkpoint:
 - Active remaining-work inventory for the 100-percent completion push: [`docs/release/100_PERCENT_COMPLETION_INVENTORY.md`](release/100_PERCENT_COMPLETION_INVENTORY.md).
 - Phase 1 visual/presentation completion is landed for the claimed scope. `VisualRegressionHarness` now exposes deterministic `Headless` and `software_reference` capture alongside OpenGL, returns backend id, command count, dimensions, and stable hash metadata, and supports non-OpenGL scene and `EngineShell::tick()` capture through recorded command streams.

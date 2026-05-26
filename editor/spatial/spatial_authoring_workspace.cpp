@@ -3425,6 +3425,10 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     last_render_snapshot_.last_perspective_2d_event_execution = last_perspective_event_execution_result_;
     last_render_snapshot_.last_perspective_2d_runtime = last_perspective_runtime_result_;
     last_render_snapshot_.last_perspective_2d_release_asset_gate = last_perspective_release_asset_gate_result_;
+    last_render_snapshot_.perspective_2d_product =
+        Perspective2DProductWorkflow::Analyze(last_perspective_save_result_.serialized_document_json,
+                                              last_perspective_playtest_result_.serialized_runtime_manifest_json,
+                                              last_perspective_export_result_.serialized_package_manifest_json);
     last_render_snapshot_.toolbar.active_mode = modeName(active_mode_);
     last_render_snapshot_.toolbar.selected_trigger_id = last_render_snapshot_.canvas.selection.trigger_id;
     last_render_snapshot_.toolbar.selected_ability_id = last_render_snapshot_.bindings.selected_ability_id;

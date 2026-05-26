@@ -6,6 +6,7 @@
 #include "editor/spatial/grid_part_placement_panel.h"
 #include "editor/spatial/map_environment_preview_panel.h"
 #include "editor/spatial/map_ability_binding_panel.h"
+#include "editor/spatial/perspective_2d_product_workflow.h"
 #include "editor/spatial/procedural_map_panel.h"
 #include "editor/spatial/prop_placement_panel.h"
 #include "editor/spatial/region_rules_panel.h"
@@ -458,6 +459,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         Perspective2DRuntimeResult last_perspective_2d_runtime;
         Perspective2DReleaseAssetGateResult last_perspective_2d_release_asset_gate;
         Perspective2DModelUiSnapshot perspective_2d_ui;
+        Perspective2DProductWorkflowReport perspective_2d_product;
     };
 
     SpatialAuthoringWorkspace() : EditorPanel("Perspective 2D Map Editor") {}
