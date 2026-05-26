@@ -216,8 +216,44 @@ python tools/urpg_mcp/tests/test_server.py
 
 Expected green: all MCP tests pass.
 
+## Task 7: Playable Project Integration Controls
+
+**Files:**
+- Modify: `tools/urpg_mcp/tests/test_server.py`
+- Modify: `tools/urpg_mcp/server.py`
+- Modify: `tools/urpg_mcp/README.md`
+- Modify: `docs/integrations/AI_COPILOT_GUIDE.md`
+
+- [x] **Step 1: Write failing playable-project tests**
+
+Add tests for allowlisted starting party, transfer, encounter, and save-profile patch kinds. Add validation coverage for missing starting party actors, missing transfer maps, missing encounter maps, and missing encounter enemy ids.
+
+- [x] **Step 2: Verify red**
+
+Run:
+
+```powershell
+python tools/urpg_mcp/tests/test_server.py
+```
+
+Expected red: `add_starting_party_actor`, `add_transfer`, `add_encounter`, `add_save_profile`, and playable-project validation are not implemented.
+
+- [x] **Step 3: Implement playable-project controls**
+
+Add named patch operations for starting party, transfers, encounters, and save profiles. Keep all mutations explicit-apply only, bounded to project JSON, and backed up before write.
+
+- [x] **Step 4: Verify green**
+
+Run:
+
+```powershell
+python tools/urpg_mcp/tests/test_server.py
+```
+
+Expected green: all MCP tests pass.
+
 ## Self-Review
 
-- Spec coverage: The MCP slices expose safe IDE control over URPG status, bounded project JSON summaries, startup/P2D/asset validation, explicit-apply project patching with backups, structured P2D map/event/tileset/tile-command authoring, project database records, read-only asset catalog summaries, P2D capabilities, focused gates, and guardrails. It intentionally does not bypass git, asset licensing, release gates, or arbitrary shell execution.
+- Spec coverage: The MCP slices expose safe IDE control over URPG status, bounded project JSON summaries, startup/P2D/asset validation, explicit-apply project patching with backups, structured P2D map/event/tileset/tile-command authoring, project database records, starting party, transfers, encounters, save profiles, read-only asset catalog summaries, P2D capabilities, focused gates, and guardrails. It intentionally does not bypass git, asset licensing, release gates, or arbitrary shell execution.
 - Placeholder scan: No TBD/TODO placeholders are used.
 - Type consistency: Tool names and gate ids are shared by tests, server, README, and sample config.

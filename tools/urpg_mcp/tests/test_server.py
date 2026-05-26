@@ -517,6 +517,109 @@ class UrpgMcpServerTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertIn("p2d_event_command_unsupported:ev_intro:launch_rocket", result["diagnostics"])
 
+    def test_project_patch_adds_starting_party_transfer_encounter_and_save_profile(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project_path = root / "project.json"
+            project_path.write_text(
+                json.dumps(
+                    {
+                        "name": "Playable Project",
+                        "maps": [{"id": "Town"}, {"id": "Castle"}],
+                        "database": {
+                            "actors": [{"id": "actor.hero", "name": "Hero"}],
+                            "items": [{"id": "enemy.slime", "name": "Slime"}],
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            patches = [
+                {"patch_kind": "add_starting_party_actor", "value": "actor.hero"},
+                {
+                    "patch_kind": "add_transfer",
+                    "value": "transfer.town.castle",
+                    "from_map": "Town",
+                    "to_map": "Castle",
+                    "x": "12",
+                    "y": "4",
+                },
+                {
+                    "patch_kind": "add_encounter",
+                    "value": "encounter.town.slime",
+                    "map_id": "Town",
+                    "enemy_id": "enemy.slime",
+                    "weight": "8",
+                },
+                {
+                    "patch_kind": "add_save_profile",
+                    "value": "save.quick",
+                    "label": "Quick Save",
+                    "slot": "1",
+                },
+            ]
+            for patch in patches:
+                result = server.call_tool(
+                    "urpg.project_patch",
+                    {"project_path": "project.json", "apply": True, **patch},
+                    repo_root=root,
+                )
+                self.assertTrue(result["applied"])
+
+            duplicate = server.call_tool(
+                "urpg.project_patch",
+                {
+                    "project_path": "project.json",
+                    "patch_kind": "add_starting_party_actor",
+                    "value": "actor.hero",
+                    "apply": True,
+                },
+                repo_root=root,
+            )
+            loaded = json.loads(project_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(duplicate["patch"][0]["op"], "test")
+        self.assertEqual(loaded["startup"]["starting_party"], [{"id": "actor.hero"}])
+        self.assertEqual(
+            loaded["transfers"],
+            [{"id": "transfer.town.castle", "from_map": "Town", "to_map": "Castle", "x": 12, "y": 4}],
+        )
+        self.assertEqual(
+            loaded["encounters"],
+            [{"id": "encounter.town.slime", "map_id": "Town", "enemy_id": "enemy.slime", "weight": 8}],
+        )
+        self.assertEqual(loaded["save_profiles"], [{"id": "save.quick", "name": "Quick Save", "slot": 1}])
+
+    def test_project_validate_reports_playable_project_reference_errors(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.json").write_text(
+                json.dumps(
+                    {
+                        "name": "Broken Playable Project",
+                        "maps": [{"id": "Town"}],
+                        "startup": {"starting_party": [{"id": "actor.missing"}]},
+                        "database": {"actors": [{"id": "actor.hero"}], "items": [{"id": "enemy.slime"}]},
+                        "transfers": [
+                            {"id": "transfer.bad", "from_map": "Town", "to_map": "Castle"},
+                        ],
+                        "encounters": [
+                            {"id": "encounter.bad", "map_id": "Castle", "enemy_id": "enemy.missing"},
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool("urpg.project_validate", {"project_path": "project.json"}, repo_root=root)
+
+        self.assertFalse(result["valid"])
+        self.assertIn("starting_party_actor_missing:actor.missing", result["diagnostics"])
+        self.assertIn("transfer_to_map_missing:transfer.bad:Castle", result["diagnostics"])
+        self.assertIn("encounter_map_missing:encounter.bad:Castle", result["diagnostics"])
+        self.assertIn("encounter_enemy_missing:encounter.bad:enemy.missing", result["diagnostics"])
+
     def test_project_patch_adds_database_records_and_asset_references(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

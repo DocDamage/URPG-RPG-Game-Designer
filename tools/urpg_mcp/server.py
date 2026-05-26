@@ -51,6 +51,10 @@ PROJECT_PATCH_KINDS = [
     "add_variable",
     "add_common_event",
     "add_asset_reference",
+    "add_starting_party_actor",
+    "add_transfer",
+    "add_encounter",
+    "add_save_profile",
 ]
 
 DATABASE_PATCH_TARGETS = {
@@ -137,12 +141,19 @@ def list_tools() -> list[dict[str, Any]]:
                     "event_id": {"type": "string"},
                     "tileset_id": {"type": "string"},
                     "asset_id": {"type": "string"},
+                    "from_map": {"type": "string"},
+                    "to_map": {"type": "string"},
+                    "enemy_id": {"type": "string"},
                     "page": {"type": "string"},
                     "passability": {"type": "string"},
                     "collision": {"type": "string"},
                     "terrain_tag": {"type": "string"},
                     "region_id": {"type": "string"},
                     "priority": {"type": "string"},
+                    "x": {"type": "string"},
+                    "y": {"type": "string"},
+                    "weight": {"type": "string"},
+                    "slot": {"type": "string"},
                     "label": {"type": "string"},
                     "path": {"type": "string"},
                     "text": {"type": "string"},
@@ -321,10 +332,35 @@ def _project_validate(arguments: dict[str, Any], repo_root: Path) -> dict[str, A
         for row in maps
         if isinstance(maps, list) and isinstance(row, dict) and isinstance(row.get("id"), str)
     }
+    database = project.get("database", {})
+    if not isinstance(database, dict):
+        database = {}
+    actors = database.get("actors", [])
+    actor_ids = {
+        row.get("id")
+        for row in actors
+        if isinstance(actors, list) and isinstance(row, dict) and isinstance(row.get("id"), str)
+    }
+    items = database.get("items", [])
+    item_ids = {
+        row.get("id")
+        for row in items
+        if isinstance(items, list) and isinstance(row, dict) and isinstance(row.get("id"), str)
+    }
     startup = project.get("startup", {})
     startup_map = startup.get("map") if isinstance(startup, dict) else None
     if startup_map and map_ids and startup_map not in map_ids:
         diagnostics.append("startup_map_missing")
+    if isinstance(startup, dict) and actor_ids:
+        starting_party = startup.get("starting_party", [])
+        if isinstance(starting_party, list):
+            for actor in starting_party:
+                if not isinstance(actor, dict):
+                    diagnostics.append("starting_party_actor_invalid")
+                    continue
+                actor_id = actor.get("id", "")
+                if isinstance(actor_id, str) and actor_id and actor_id not in actor_ids:
+                    diagnostics.append(f"starting_party_actor_missing:{actor_id}")
 
     assets = project.get("assets", [])
     asset_ids = {
@@ -341,6 +377,34 @@ def _project_validate(arguments: dict[str, Any], repo_root: Path) -> dict[str, A
                 asset_id = map_asset.get("id", "")
                 if isinstance(asset_id, str) and asset_id and asset_id not in asset_ids:
                     diagnostics.append(f"startup_asset_missing:{asset_id}")
+
+    transfers = project.get("transfers", [])
+    if isinstance(transfers, list):
+        for transfer in transfers:
+            if not isinstance(transfer, dict):
+                diagnostics.append("transfer_invalid")
+                continue
+            transfer_id = transfer.get("id", "")
+            from_map = transfer.get("from_map", "")
+            to_map = transfer.get("to_map", "")
+            if isinstance(from_map, str) and from_map and map_ids and from_map not in map_ids:
+                diagnostics.append(f"transfer_from_map_missing:{transfer_id}:{from_map}")
+            if isinstance(to_map, str) and to_map and map_ids and to_map not in map_ids:
+                diagnostics.append(f"transfer_to_map_missing:{transfer_id}:{to_map}")
+
+    encounters = project.get("encounters", [])
+    if isinstance(encounters, list):
+        for encounter in encounters:
+            if not isinstance(encounter, dict):
+                diagnostics.append("encounter_invalid")
+                continue
+            encounter_id = encounter.get("id", "")
+            map_id = encounter.get("map_id", "")
+            enemy_id = encounter.get("enemy_id", "")
+            if isinstance(map_id, str) and map_id and map_ids and map_id not in map_ids:
+                diagnostics.append(f"encounter_map_missing:{encounter_id}:{map_id}")
+            if isinstance(enemy_id, str) and enemy_id and item_ids and enemy_id not in item_ids:
+                diagnostics.append(f"encounter_enemy_missing:{encounter_id}:{enemy_id}")
 
     p2d = project.get("p2d", {})
     if isinstance(p2d, dict):
@@ -544,6 +608,43 @@ def _project_patch(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]
         if asset_path:
             row["path"] = asset_path
         patch = _add_unique_record(assets, row, "/assets")
+    elif patch_kind == "add_starting_party_actor":
+        startup = _ensure_object(preview, "startup")
+        starting_party = _ensure_array(startup, "starting_party")
+        patch = _add_unique_record(starting_party, {"id": value}, "/startup/starting_party")
+    elif patch_kind == "add_transfer":
+        from_map = str(arguments.get("from_map", ""))
+        to_map = str(arguments.get("to_map", ""))
+        if not from_map or not to_map:
+            raise ToolError("invalid_patch_value", "add_transfer requires from_map and to_map.")
+        x = _to_optional_int(arguments, "x")
+        y = _to_optional_int(arguments, "y")
+        transfers = _ensure_array(preview, "transfers")
+        row = {"id": value, "from_map": from_map, "to_map": to_map}
+        if x is not None:
+            row["x"] = x
+        if y is not None:
+            row["y"] = y
+        patch = _add_unique_record(transfers, row, "/transfers")
+    elif patch_kind == "add_encounter":
+        map_id = str(arguments.get("map_id", ""))
+        enemy_id = str(arguments.get("enemy_id", ""))
+        if not map_id or not enemy_id:
+            raise ToolError("invalid_patch_value", "add_encounter requires map_id and enemy_id.")
+        weight = _to_optional_int(arguments, "weight")
+        encounters = _ensure_array(preview, "encounters")
+        row = {"id": value, "map_id": map_id, "enemy_id": enemy_id}
+        if weight is not None:
+            row["weight"] = weight
+        patch = _add_unique_record(encounters, row, "/encounters")
+    elif patch_kind == "add_save_profile":
+        label = str(arguments.get("label", value))
+        slot = _to_optional_int(arguments, "slot")
+        save_profiles = _ensure_array(preview, "save_profiles")
+        row = {"id": value, "name": label}
+        if slot is not None:
+            row["slot"] = slot
+        patch = _add_unique_record(save_profiles, row, "/save_profiles")
     else:
         raise ToolError("unknown_patch_kind", f"Unknown allowlisted patch kind: {patch_kind}")
 
