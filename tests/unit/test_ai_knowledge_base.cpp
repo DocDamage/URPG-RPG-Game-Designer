@@ -2,6 +2,7 @@
 #include "engine/core/ai/ai_knowledge_base.h"
 #include "engine/core/ai/wysiwyg_chatbot_coverage.h"
 #include "engine/core/assets/asset_library.h"
+#include "engine/core/editor/editor_panel_registry.h"
 #include "engine/core/message/chatbot_component.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -230,12 +231,96 @@ TEST_CASE("AI chatbot knowledge covers release WYSIWYG panels features and asset
     REQUIRE(report.passed);
     REQUIRE(report.release_panel_count > 0);
     REQUIRE(report.release_panel_count == report.searchable_panel_count);
+    REQUIRE(report.editor_panel_count == report.searchable_editor_panel_count);
+    REQUIRE(report.release_panel_count == report.release_panel_with_chatbot_coverage_count);
+    REQUIRE(report.non_release_panel_count == report.non_release_panel_discoverable_count);
     REQUIRE(report.capability_count == report.capability_with_tool_count);
     REQUIRE(report.capability_count == report.capability_with_wysiwyg_surface_count);
+    REQUIRE(report.unsafe_mutating_tool_count == 0);
     REQUIRE(report.asset_panel_registered);
     REQUIRE(report.asset_chatbot_tool_registered);
     REQUIRE(report.asset_library_actions_available);
     REQUIRE(report.toJson()["missing"].empty());
+}
+
+TEST_CASE("AI knowledge metadata distinguishes actionable release tools from discoverable panels",
+          "[ai_knowledge][ai_assistant][metadata]") {
+    const auto snapshot = urpg::ai::buildDefaultAiKnowledgeSnapshot();
+
+    const auto* ability = snapshot.capabilities.find("ability_authoring");
+    REQUIRE(ability != nullptr);
+    const auto abilityJson = ability->toJson();
+    REQUIRE(abilityJson["editor_exposure"] == "release_top_level");
+    REQUIRE(abilityJson["access_level"] == "release_actionable");
+    REQUIRE(abilityJson["panel_id"] == "ability");
+    REQUIRE_FALSE(abilityJson["promotion_gate"].get<std::string>().empty());
+
+    const auto* panelNavigation = snapshot.capabilities.find("editor_panel_navigation");
+    REQUIRE(panelNavigation != nullptr);
+    REQUIRE(panelNavigation->toJson()["access_level"] == "dev_discoverable");
+    REQUIRE(panelNavigation->toJson()["panel_id"] == "*");
+
+    for (const auto& tool : snapshot.tools.tools()) {
+        const auto toolJson = tool.toJson();
+        REQUIRE(toolJson.contains("editor_exposure"));
+        REQUIRE(toolJson.contains("access_level"));
+        REQUIRE(toolJson.contains("panel_id"));
+        REQUIRE(toolJson.contains("promotion_gate"));
+        if (tool.mutates_project) {
+            REQUIRE(tool.requires_approval);
+        }
+    }
+}
+
+TEST_CASE("AI documentation knowledge indexes every editor panel with access metadata",
+          "[ai_knowledge][ai_assistant][editor_panel_index]") {
+    const auto snapshot = urpg::ai::buildDefaultAiKnowledgeSnapshot();
+
+    for (const auto& panel : urpg::editor::editorPanelRegistry()) {
+        INFO(panel.id);
+        const auto matches = snapshot.docs_index.search(panel.id + " " + panel.title);
+        const auto it = std::find_if(matches.begin(), matches.end(), [&](const auto& entry) {
+            return entry.id == "editor_panel:" + panel.id;
+        });
+        REQUIRE(it != matches.end());
+        REQUIRE(it->metadata["panel_id"] == panel.id);
+        REQUIRE(it->metadata.contains("exposure"));
+        REQUIRE(it->metadata.contains("access_level"));
+        REQUIRE(it->metadata.contains("promotion_gate"));
+        if (panel.exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel) {
+            REQUIRE(it->metadata["access_level"] == "release_readonly");
+        } else {
+            REQUIRE(it->metadata["access_level"] == "dev_discoverable");
+        }
+    }
+}
+
+TEST_CASE("AI readonly panel tools plan safe previews for dev and deferred panels",
+          "[ai_knowledge][ai_assistant][editor_panel_tools]") {
+    const auto snapshot = urpg::ai::buildDefaultAiKnowledgeSnapshot();
+    REQUIRE(snapshot.tools.find("describe_panel") != nullptr);
+    REQUIRE(snapshot.tools.find("list_panel_actions") != nullptr);
+    REQUIRE(snapshot.tools.find("route_to_panel") != nullptr);
+    REQUIRE_FALSE(snapshot.tools.find("route_to_panel")->mutates_project);
+    REQUIRE_FALSE(snapshot.tools.find("route_to_panel")->requires_approval);
+
+    urpg::ai::AiTaskPlanner planner;
+    const auto plan = planner.planTask("route me to the AI Assistant panel", snapshot.capabilities,
+                                       snapshot.project_index, snapshot.docs_index, snapshot.tools);
+
+    REQUIRE(plan.ready_for_approval);
+    REQUIRE(plan.steps.size() == 1);
+    REQUIRE(plan.steps[0].tool_id == "route_to_panel");
+    REQUIRE(plan.steps[0].arguments["panel_id"] == "ai_assistant");
+    REQUIRE(snapshot.tools.approvalManifest(plan, snapshot.capabilities)["pending_count"] == 0);
+
+    const auto applied = snapshot.tools.applyApprovedPlan(plan, {{"project_id", "p1"}});
+    REQUIRE(applied.applied);
+    REQUIRE(applied.project_data["ai_tool_previews"].size() == 1);
+    REQUIRE(applied.project_data["ai_tool_previews"][0]["kind"] == "route_to_panel");
+    REQUIRE(applied.project_data["ai_tool_previews"][0]["payload"]["panel_id"] == "ai_assistant");
+    REQUIRE(applied.project_data["ai_tool_previews"][0]["payload"]["access_level"] == "dev_discoverable");
+    REQUIRE(applied.project_data["ai_tool_previews"][0]["payload"]["mutating_actions_enabled"] == false);
 }
 
 TEST_CASE("AI task planner creates safe reviewable tool plans for creator tasks",
@@ -932,4 +1017,28 @@ TEST_CASE("Chatbot component rejects AI tool commands before apply", "[ai_knowle
     const auto applied = chatbot.executeTool("AI_APPLY");
     REQUIRE(applied["last_apply"]["applied"] == false);
     REQUIRE(applied["last_apply"]["diagnostics"][0]["code"] == "ai_tool_rejected");
+}
+
+TEST_CASE("Chatbot component routes non-release panel requests as readonly previews",
+          "[ai_knowledge][ai_assistant][chatbot][editor_panel_tools]") {
+    auto service = std::make_shared<ToolCommandChatService>("AI_TASK:route me to the AI Assistant panel");
+    urpg::ai::ChatbotComponent chatbot(service);
+    chatbot.setProjectData({{"project_id", "p1"}});
+
+    bool callbackCalled = false;
+    chatbot.getResponse("open the AI Assistant panel", [&](urpg::message::DialoguePage page) {
+        callbackCalled = true;
+        REQUIRE(page.command == "AI_TASK:route me to the AI Assistant panel");
+    });
+
+    REQUIRE(callbackCalled);
+    REQUIRE(chatbot.lastAiToolSnapshot()["task_plan"]["steps"][0]["tool_id"] == "route_to_panel");
+    REQUIRE(chatbot.lastAiToolSnapshot()["approval"]["pending_count"] == 0);
+
+    const auto applied = chatbot.executeTool("AI_APPLY");
+    REQUIRE(applied["last_apply"]["applied"] == true);
+    REQUIRE(applied["last_apply"]["project_data"]["ai_tool_previews"][0]["kind"] == "route_to_panel");
+    REQUIRE(applied["last_apply"]["project_data"]["ai_tool_previews"][0]["payload"]["panel_id"] == "ai_assistant");
+    REQUIRE(applied["last_apply"]["project_data"]["ai_tool_previews"][0]["payload"]["access_level"] ==
+            "dev_discoverable");
 }

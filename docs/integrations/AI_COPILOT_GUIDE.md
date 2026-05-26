@@ -87,6 +87,17 @@ The mutating tools that require approval are `create_map`, `place_tile`, `paint_
 
 Editor approval is handled by `AiAssistantPanel::approveStep(stepId)` or `AiAssistantPanel::approveAllPendingSteps()`. Rejection is handled by `AiAssistantPanel::rejectStep(stepId)`. After approval, `AiAssistantPanel::applyApprovedPlan()` applies the validated tool plan to project JSON and records the result in the panel snapshot under `last_apply`.
 
+### 2c. Capability Access Levels
+
+Chatbot capability parity is intentionally access-scoped rather than a blanket mutation claim:
+
+- `release_actionable`: shipped release workflows with review-gated mutating tools and revert patches.
+- `release_readonly`: shipped release workflows the chatbot can explain, route to, validate, or preview before a reviewed mutating tool exists.
+- `dev_discoverable`: nested, dev-only, or deferred editor panels that are searchable and routable but do not expose chatbot mutation.
+- `unsupported`: known workflow gaps that need a promotion gate before chatbot support can become actionable.
+
+Every editor panel registry entry is indexed as chatbot knowledge with `panel_id`, `exposure`, `access_level`, owner, category, and promotion-gate metadata. The readonly panel tools `describe_panel`, `list_panel_actions`, and `route_to_panel` are non-mutating and require no approval because they only produce editor-facing previews. Mutating tools must still require explicit approval.
+
 `ChatbotComponent` is wired to the same tool registry through explicit tool commands:
 
 - `AI_TASK:<creator request>` builds a reviewable `urpg.ai_task_plan.v1`.
@@ -101,7 +112,7 @@ The chatbot exposes the current `task_plan`, `approval` manifest, and `last_appl
 
 `buildAssetActionRows()` turns the current asset library snapshot into shared WYSIWYG/chatbot action rows. The chatbot exposes them under `asset_action_rows`, including status badges, preview metadata, usage references, promote/archive button state, disabled reasons, and the recommended next action for each asset.
 
-### 2c. Local IDE MCP
+### 2d. Local IDE MCP
 `tools/urpg_mcp/server.py` exposes a local-only MCP-style stdio JSON-RPC server for IDE agents. The first supported tools are:
 
 - `urpg.project_status`

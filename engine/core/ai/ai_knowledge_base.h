@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace urpg::ai {
@@ -15,6 +16,19 @@ struct AiKnowledgeDiagnostic {
 };
 
 struct AppCapability {
+    AppCapability() = default;
+    AppCapability(std::string idValue, std::string titleValue, std::string categoryValue,
+                  std::string wysiwygSurfaceValue, std::vector<std::string> actionsValue,
+                  std::vector<std::string> projectPathsValue, std::vector<std::string> keywordsValue,
+                  std::string editorExposureValue = "release_top_level",
+                  std::string accessLevelValue = "release_actionable", std::string panelIdValue = {},
+                  std::string promotionGateValue = "review_gated_ai_tool")
+        : id(std::move(idValue)), title(std::move(titleValue)), category(std::move(categoryValue)),
+          wysiwyg_surface(std::move(wysiwygSurfaceValue)), actions(std::move(actionsValue)),
+          project_paths(std::move(projectPathsValue)), keywords(std::move(keywordsValue)),
+          editor_exposure(std::move(editorExposureValue)), access_level(std::move(accessLevelValue)),
+          panel_id(std::move(panelIdValue)), promotion_gate(std::move(promotionGateValue)) {}
+
     std::string id;
     std::string title;
     std::string category;
@@ -22,6 +36,10 @@ struct AppCapability {
     std::vector<std::string> actions;
     std::vector<std::string> project_paths;
     std::vector<std::string> keywords;
+    std::string editor_exposure = "release_top_level";
+    std::string access_level = "release_actionable";
+    std::string panel_id;
+    std::string promotion_gate = "review_gated_ai_tool";
     nlohmann::json toJson() const;
 };
 
@@ -77,12 +95,29 @@ class DocumentationKnowledgeIndex {
 };
 
 struct AiToolDefinition {
+    AiToolDefinition() = default;
+    AiToolDefinition(std::string idValue, std::string titleValue, std::string capabilityIdValue,
+                     bool mutatesProjectValue, bool requiresApprovalValue,
+                     std::vector<std::string> requiredFieldsValue,
+                     std::string editorExposureValue = "release_top_level",
+                     std::string accessLevelValue = "release_actionable", std::string panelIdValue = {},
+                     std::string promotionGateValue = "review_gated_ai_tool")
+        : id(std::move(idValue)), title(std::move(titleValue)), capability_id(std::move(capabilityIdValue)),
+          mutates_project(mutatesProjectValue), requires_approval(requiresApprovalValue),
+          required_fields(std::move(requiredFieldsValue)), editor_exposure(std::move(editorExposureValue)),
+          access_level(std::move(accessLevelValue)), panel_id(std::move(panelIdValue)),
+          promotion_gate(std::move(promotionGateValue)) {}
+
     std::string id;
     std::string title;
     std::string capability_id;
     bool mutates_project = false;
     bool requires_approval = true;
     std::vector<std::string> required_fields;
+    std::string editor_exposure = "release_top_level";
+    std::string access_level = "release_actionable";
+    std::string panel_id;
+    std::string promotion_gate = "review_gated_ai_tool";
     nlohmann::json toJson() const;
 };
 
