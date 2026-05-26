@@ -72,8 +72,44 @@ git diff --check
 
 Expected green: tests pass and no whitespace errors.
 
+## Task 3: Bounded Project JSON Control
+
+**Files:**
+- Modify: `tools/urpg_mcp/tests/test_server.py`
+- Modify: `tools/urpg_mcp/server.py`
+- Modify: `tools/urpg_mcp/README.md`
+- Modify: `docs/integrations/AI_COPILOT_GUIDE.md`
+
+- [x] **Step 1: Write failing project-control tests**
+
+Add tests for `urpg.project_summary` and `urpg.project_patch`. Summary must read only JSON files inside the repository. Patch must preview `set_startup_map` without writing by default, apply only with `apply=true`, and reject unknown patch kinds.
+
+- [x] **Step 2: Verify red**
+
+Run:
+
+```powershell
+python tools/urpg_mcp/tests/test_server.py
+```
+
+Expected red: `urpg.project_summary` and `urpg.project_patch` are unknown tools.
+
+- [x] **Step 3: Implement bounded project JSON tools**
+
+Add bounded path resolution, project JSON loading, project summary output, allowlisted `set_startup_map` JSON Patch preview, and explicit apply behavior.
+
+- [x] **Step 4: Verify green**
+
+Run:
+
+```powershell
+python tools/urpg_mcp/tests/test_server.py
+```
+
+Expected green: all MCP tests pass.
+
 ## Self-Review
 
-- Spec coverage: The first MCP slice exposes safe IDE control over URPG status, P2D capabilities, focused gates, and guardrails. It intentionally does not bypass git, asset licensing, release gates, or arbitrary shell execution.
+- Spec coverage: The first MCP slice exposes safe IDE control over URPG status, bounded project JSON summaries, explicit-apply startup-map patching, P2D capabilities, focused gates, and guardrails. It intentionally does not bypass git, asset licensing, release gates, or arbitrary shell execution.
 - Placeholder scan: No TBD/TODO placeholders are used.
 - Type consistency: Tool names and gate ids are shared by tests, server, README, and sample config.

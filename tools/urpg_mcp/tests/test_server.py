@@ -24,6 +24,8 @@ class UrpgMcpServerTests(unittest.TestCase):
             names,
             {
                 "urpg.project_status",
+                "urpg.project_summary",
+                "urpg.project_patch",
                 "urpg.p2d_capabilities",
                 "urpg.focused_gate",
                 "urpg.release_guardrails",
@@ -99,7 +101,7 @@ class UrpgMcpServerTests(unittest.TestCase):
             {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
             repo_root=REPO_ROOT,
         )
-        self.assertEqual(len(listed["result"]["tools"]), 4)
+        self.assertEqual(len(listed["result"]["tools"]), 6)
 
         called = server.handle_json_rpc(
             {
@@ -126,6 +128,118 @@ class UrpgMcpServerTests(unittest.TestCase):
 
         self.assertEqual(response["error"]["code"], -32000)
         self.assertEqual(response["error"]["data"]["code"], "unknown_tool")
+
+    def test_project_summary_reads_bounded_project_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project_path = root / "project.json"
+            project_path.write_text(
+                json.dumps(
+                    {
+                        "name": "MCP Project",
+                        "startup": {
+                            "map": "Town",
+                            "map_assets": {
+                                "player_sprite": {"id": "hero"},
+                                "tileset": {"id": "overworld"},
+                            },
+                        },
+                        "maps": [{"id": "Town"}, {"id": "Castle"}],
+                        "p2d": {
+                            "maps": [{"id": "Town"}],
+                            "events": [{"id": "ev_001"}],
+                            "tilesets": [{"id": "overworld"}],
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool(
+                "urpg.project_summary",
+                {"project_path": "project.json"},
+                repo_root=root,
+            )
+
+        self.assertEqual(result["name"], "MCP Project")
+        self.assertEqual(result["startup_map"], "Town")
+        self.assertEqual(result["map_count"], 2)
+        self.assertEqual(result["p2d_map_count"], 1)
+        self.assertEqual(result["p2d_event_count"], 1)
+        self.assertEqual(result["asset_ids"], ["hero", "overworld"])
+
+    def test_project_summary_rejects_path_escape(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(server.ToolError) as context:
+                server.call_tool(
+                    "urpg.project_summary",
+                    {"project_path": "../outside.json"},
+                    repo_root=Path(tmp),
+                )
+
+        self.assertEqual(context.exception.code, "path_outside_repo")
+
+    def test_project_patch_previews_startup_map_without_writing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project_path = root / "project.json"
+            project_path.write_text(
+                json.dumps({"name": "Patch Project", "startup": {"map": "Town"}}),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool(
+                "urpg.project_patch",
+                {
+                    "project_path": "project.json",
+                    "patch_kind": "set_startup_map",
+                    "value": "Castle",
+                },
+                repo_root=root,
+            )
+            loaded = json.loads(project_path.read_text(encoding="utf-8"))
+
+        self.assertFalse(result["applied"])
+        self.assertEqual(result["patch"], [{"op": "replace", "path": "/startup/map", "value": "Castle"}])
+        self.assertEqual(result["preview"]["startup"]["map"], "Castle")
+        self.assertEqual(loaded["startup"]["map"], "Town")
+
+    def test_project_patch_applies_when_explicit(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project_path = root / "project.json"
+            project_path.write_text(
+                json.dumps({"name": "Patch Project", "startup": {"map": "Town"}}),
+                encoding="utf-8",
+            )
+
+            result = server.call_tool(
+                "urpg.project_patch",
+                {
+                    "project_path": "project.json",
+                    "patch_kind": "set_startup_map",
+                    "value": "Castle",
+                    "apply": True,
+                },
+                repo_root=root,
+            )
+            loaded = json.loads(project_path.read_text(encoding="utf-8"))
+
+        self.assertTrue(result["applied"])
+        self.assertEqual(loaded["startup"]["map"], "Castle")
+
+    def test_project_patch_rejects_unknown_patch_kind(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.json").write_text("{}", encoding="utf-8")
+            with self.assertRaises(server.ToolError) as context:
+                server.call_tool(
+                    "urpg.project_patch",
+                    {"project_path": "project.json", "patch_kind": "arbitrary_write", "value": "x"},
+                    repo_root=root,
+                )
+
+        self.assertEqual(context.exception.code, "unknown_patch_kind")
 
 
 if __name__ == "__main__":

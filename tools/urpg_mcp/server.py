@@ -71,6 +71,26 @@ def list_tools() -> list[dict[str, Any]]:
             "inputSchema": _object_schema(),
         },
         {
+            "name": "urpg.project_summary",
+            "description": "Read a bounded URPG project JSON file and return maps, P2D counts, startup, and assets.",
+            "inputSchema": _object_schema(
+                {"project_path": {"type": "string", "default": "project.json"}},
+            ),
+        },
+        {
+            "name": "urpg.project_patch",
+            "description": "Preview or explicitly apply an allowlisted URPG project JSON patch.",
+            "inputSchema": _object_schema(
+                {
+                    "project_path": {"type": "string", "default": "project.json"},
+                    "patch_kind": {"type": "string", "enum": ["set_startup_map"]},
+                    "value": {"type": "string"},
+                    "apply": {"type": "boolean", "default": False},
+                },
+                ["patch_kind", "value"],
+            ),
+        },
+        {
             "name": "urpg.p2d_capabilities",
             "description": "List the current Perspective 2D authoring/runtime surfaces exposed to IDE agents.",
             "inputSchema": _object_schema(),
@@ -151,6 +171,92 @@ def _project_status(repo_root: Path) -> dict[str, Any]:
         "dirty_files": dirty_files,
         "guardrails": GUARDRAILS,
         "diagnostics": diagnostics,
+    }
+
+
+def _resolve_repo_file(repo_root: Path, project_path: str) -> Path:
+    root = repo_root.resolve()
+    candidate = (root / project_path).resolve()
+    try:
+        candidate.relative_to(root)
+    except ValueError as exc:
+        raise ToolError("path_outside_repo", f"Path is outside the repository: {project_path}") from exc
+    if candidate.suffix.lower() != ".json":
+        raise ToolError("unsupported_project_file", "URPG MCP project tools only accept JSON files.")
+    return candidate
+
+
+def _read_project_json(repo_root: Path, project_path: str) -> tuple[Path, dict[str, Any]]:
+    resolved = _resolve_repo_file(repo_root, project_path)
+    if not resolved.is_file():
+        raise ToolError("project_file_missing", f"Project file does not exist: {project_path}")
+    try:
+        loaded = json.loads(resolved.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ToolError("project_json_invalid", str(exc)) from exc
+    if not isinstance(loaded, dict):
+        raise ToolError("project_json_invalid", "URPG project JSON root must be an object.")
+    return resolved, loaded
+
+
+def _project_summary(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    project_path = str(arguments.get("project_path", "project.json"))
+    resolved, project = _read_project_json(repo_root, project_path)
+    startup = project.get("startup", {})
+    if not isinstance(startup, dict):
+        startup = {}
+    map_assets = startup.get("map_assets", {})
+    asset_ids: list[str] = []
+    if isinstance(map_assets, dict):
+        for value in map_assets.values():
+            if isinstance(value, dict) and isinstance(value.get("id"), str):
+                asset_ids.append(value["id"])
+
+    maps = project.get("maps", [])
+    p2d = project.get("p2d", {})
+    if not isinstance(p2d, dict):
+        p2d = {}
+    return {
+        "project_path": str(resolved),
+        "name": project.get("name", ""),
+        "startup_map": startup.get("map", ""),
+        "map_count": len(maps) if isinstance(maps, list) else 0,
+        "asset_ids": sorted(asset_ids),
+        "p2d_map_count": len(p2d.get("maps", [])) if isinstance(p2d.get("maps", []), list) else 0,
+        "p2d_event_count": len(p2d.get("events", [])) if isinstance(p2d.get("events", []), list) else 0,
+        "p2d_tileset_count": len(p2d.get("tilesets", [])) if isinstance(p2d.get("tilesets", []), list) else 0,
+        "guardrails": ["read_only_summary", "bounded_repo_path"],
+    }
+
+
+def _project_patch(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    project_path = str(arguments.get("project_path", "project.json"))
+    patch_kind = str(arguments.get("patch_kind", ""))
+    value = str(arguments.get("value", ""))
+    apply_patch = bool(arguments.get("apply", False))
+    resolved, project = _read_project_json(repo_root, project_path)
+    if patch_kind != "set_startup_map":
+        raise ToolError("unknown_patch_kind", f"Unknown allowlisted patch kind: {patch_kind}")
+    if not value:
+        raise ToolError("invalid_patch_value", "set_startup_map requires a non-empty map id.")
+
+    preview = json.loads(json.dumps(project))
+    startup = preview.setdefault("startup", {})
+    if not isinstance(startup, dict):
+        preview["startup"] = {}
+        startup = preview["startup"]
+    op = "replace" if "map" in startup else "add"
+    startup["map"] = value
+    patch = [{"op": op, "path": "/startup/map", "value": value}]
+    if apply_patch:
+        resolved.write_text(json.dumps(preview, indent=2) + "\n", encoding="utf-8")
+    return {
+        "project_path": str(resolved),
+        "patch_kind": patch_kind,
+        "patch": patch,
+        "preview": preview,
+        "applied": apply_patch,
+        "guardrails": ["allowlisted_patch_kind", "explicit_apply_required", "bounded_repo_path"],
     }
 
 
@@ -238,6 +344,10 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, repo_root: Pat
     root = repo_root or Path.cwd()
     if name == "urpg.project_status":
         return _project_status(root)
+    if name == "urpg.project_summary":
+        return _project_summary(args, root)
+    if name == "urpg.project_patch":
+        return _project_patch(args, root)
     if name == "urpg.p2d_capabilities":
         return _p2d_capabilities()
     if name == "urpg.focused_gate":

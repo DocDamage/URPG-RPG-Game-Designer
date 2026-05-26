@@ -5,6 +5,8 @@
 ## Tools
 
 - `urpg.project_status`: reports local branch, head, dirty files, diagnostics, and guardrails.
+- `urpg.project_summary`: reads a bounded project JSON file and reports startup map, map counts, P2D counts, and asset ids.
+- `urpg.project_patch`: previews or explicitly applies an allowlisted project JSON patch.
 - `urpg.p2d_capabilities`: reports the current Perspective 2D tile, event runtime, and project/database capability surface.
 - `urpg.focused_gate`: returns an allowlisted validation command and runs it only when `run=true`.
 - `urpg.release_guardrails`: reports safety rules the server refuses to bypass.
@@ -22,6 +24,8 @@ The server reads one JSON-RPC request per line from stdin and writes one respons
 - Local filesystem only.
 - Allowlisted commands only.
 - No arbitrary shell command tool.
+- No arbitrary file write tool.
+- Project writes require an allowlisted `patch_kind` and `apply=true`.
 - No destructive git operations.
 - No release, LFS, or asset-license gate bypass.
 
