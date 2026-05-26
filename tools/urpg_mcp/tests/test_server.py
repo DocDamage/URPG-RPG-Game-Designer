@@ -471,6 +471,86 @@ class UrpgMcpServerTests(unittest.TestCase):
         self.assertTrue(result["applied"])
         self.assertEqual(loaded["p2d"]["events"][0]["commands"], [{"type": "show_text", "text": "Welcome home."}])
 
+    def test_project_patch_adds_parameterized_p2d_event_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project_path = root / "project.json"
+            project_path.write_text(
+                json.dumps(
+                    {
+                        "name": "Parameterized Event Command Project",
+                        "p2d": {"events": [{"id": "ev_intro", "map_id": "Town"}]},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            commands = [
+                {"value": "transfer_player", "map_id": "Castle", "x": "8", "y": "3"},
+                {"value": "change_switch", "switch_id": "switch.door_open", "state": True},
+                {"value": "change_variable", "variable_id": "variable.rank", "operation": "set", "amount": "5"},
+                {"value": "change_self_switch", "self_switch": "A", "state": False},
+                {"value": "change_gold", "operation": "add", "amount": "25"},
+                {"value": "change_item", "item_id": "item.potion", "operation": "add", "amount": "2"},
+                {"value": "call_common_event", "common_event_id": "common.unlock"},
+                {"value": "move_route", "route": "left,up,wait"},
+                {"value": "conditional_branch", "condition": "switch.door_open == true"},
+            ]
+
+            for command in commands:
+                result = server.call_tool(
+                    "urpg.project_patch",
+                    {
+                        "project_path": "project.json",
+                        "patch_kind": "add_p2d_event_command",
+                        "event_id": "ev_intro",
+                        "apply": True,
+                        **command,
+                    },
+                    repo_root=root,
+                )
+                self.assertTrue(result["applied"])
+            loaded = json.loads(project_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(
+            loaded["p2d"]["events"][0]["commands"],
+            [
+                {"type": "transfer_player", "map_id": "Castle", "x": 8, "y": 3},
+                {"type": "change_switch", "switch_id": "switch.door_open", "state": True},
+                {"type": "change_variable", "variable_id": "variable.rank", "operation": "set", "amount": 5},
+                {"type": "change_self_switch", "self_switch": "A", "state": False},
+                {"type": "change_gold", "operation": "add", "amount": 25},
+                {"type": "change_item", "item_id": "item.potion", "operation": "add", "amount": 2},
+                {"type": "call_common_event", "common_event_id": "common.unlock"},
+                {"type": "move_route", "route": "left,up,wait"},
+                {"type": "conditional_branch", "condition": "switch.door_open == true"},
+            ],
+        )
+
+    def test_project_patch_rejects_parameterized_event_command_missing_required_field(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "project.json").write_text(
+                json.dumps({"name": "Invalid Command Project", "p2d": {"events": [{"id": "ev_intro"}]}}),
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(server.ToolError) as context:
+                server.call_tool(
+                    "urpg.project_patch",
+                    {
+                        "project_path": "project.json",
+                        "patch_kind": "add_p2d_event_command",
+                        "event_id": "ev_intro",
+                        "value": "transfer_player",
+                        "x": "8",
+                        "y": "3",
+                        "apply": True,
+                    },
+                    repo_root=root,
+                )
+
+        self.assertEqual(context.exception.code, "invalid_patch_value")
+
     def test_project_patch_rejects_event_command_for_missing_p2d_event(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

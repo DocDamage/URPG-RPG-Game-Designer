@@ -144,6 +144,11 @@ def list_tools() -> list[dict[str, Any]]:
                     "from_map": {"type": "string"},
                     "to_map": {"type": "string"},
                     "enemy_id": {"type": "string"},
+                    "switch_id": {"type": "string"},
+                    "variable_id": {"type": "string"},
+                    "self_switch": {"type": "string"},
+                    "item_id": {"type": "string"},
+                    "common_event_id": {"type": "string"},
                     "page": {"type": "string"},
                     "passability": {"type": "string"},
                     "collision": {"type": "string"},
@@ -154,9 +159,13 @@ def list_tools() -> list[dict[str, Any]]:
                     "y": {"type": "string"},
                     "weight": {"type": "string"},
                     "slot": {"type": "string"},
+                    "operation": {"type": "string"},
                     "label": {"type": "string"},
                     "path": {"type": "string"},
                     "text": {"type": "string"},
+                    "route": {"type": "string"},
+                    "condition": {"type": "string"},
+                    "state": {"type": "boolean"},
                     "animated": {"type": "boolean"},
                     "apply": {"type": "boolean", "default": False},
                 },
@@ -484,11 +493,69 @@ def _to_optional_int(arguments: dict[str, Any], key: str) -> int | None:
         raise ToolError("invalid_patch_value", f"{key} must be an integer.") from exc
 
 
+def _require_int(arguments: dict[str, Any], key: str) -> int:
+    value = _to_optional_int(arguments, key)
+    if value is None:
+        raise ToolError("invalid_patch_value", f"{key} is required.")
+    return value
+
+
+def _require_string(arguments: dict[str, Any], key: str) -> str:
+    value = str(arguments.get(key, ""))
+    if not value:
+        raise ToolError("invalid_patch_value", f"{key} is required.")
+    return value
+
+
+def _require_bool(arguments: dict[str, Any], key: str) -> bool:
+    if key not in arguments:
+        raise ToolError("invalid_patch_value", f"{key} is required.")
+    return bool(arguments.get(key, False))
+
+
 def _find_record(records: list[Any], record_id: str) -> dict[str, Any] | None:
     for record in records:
         if isinstance(record, dict) and record.get("id") == record_id:
             return record
     return None
+
+
+def _build_p2d_event_command(command_type: str, arguments: dict[str, Any]) -> dict[str, Any]:
+    command: dict[str, Any] = {"type": command_type}
+    if command_type == "show_text":
+        text = str(arguments.get("text", ""))
+        if text:
+            command["text"] = text
+    elif command_type == "transfer_player":
+        command["map_id"] = _require_string(arguments, "map_id")
+        command["x"] = _require_int(arguments, "x")
+        command["y"] = _require_int(arguments, "y")
+    elif command_type == "change_switch":
+        command["switch_id"] = _require_string(arguments, "switch_id")
+        command["state"] = _require_bool(arguments, "state")
+    elif command_type == "change_variable":
+        command["variable_id"] = _require_string(arguments, "variable_id")
+        command["operation"] = _require_string(arguments, "operation")
+        command["amount"] = _require_int(arguments, "amount")
+    elif command_type == "change_self_switch":
+        command["self_switch"] = _require_string(arguments, "self_switch")
+        command["state"] = _require_bool(arguments, "state")
+    elif command_type == "change_gold":
+        command["operation"] = _require_string(arguments, "operation")
+        command["amount"] = _require_int(arguments, "amount")
+    elif command_type == "change_item":
+        command["item_id"] = _require_string(arguments, "item_id")
+        command["operation"] = _require_string(arguments, "operation")
+        command["amount"] = _require_int(arguments, "amount")
+    elif command_type == "call_common_event":
+        command["common_event_id"] = _require_string(arguments, "common_event_id")
+    elif command_type == "move_route":
+        command["route"] = _require_string(arguments, "route")
+    elif command_type == "conditional_branch":
+        command["condition"] = _require_string(arguments, "condition")
+    else:
+        raise ToolError("unsupported_p2d_event_command", f"Unsupported P2D event command: {command_type}")
+    return command
 
 
 def _project_patch(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]:
@@ -588,10 +655,7 @@ def _project_patch(arguments: dict[str, Any], repo_root: Path) -> dict[str, Any]
         if event is None:
             raise ToolError("p2d_event_missing", f"P2D event does not exist: {event_id}")
         commands = _ensure_array(event, "commands")
-        command: dict[str, Any] = {"type": value}
-        text = str(arguments.get("text", ""))
-        if text:
-            command["text"] = text
+        command = _build_p2d_event_command(value, arguments)
         commands.append(command)
         patch = [{"op": "add", "path": f"/p2d/events/{event_id}/commands/-", "value": command}]
     elif patch_kind in DATABASE_PATCH_TARGETS:
