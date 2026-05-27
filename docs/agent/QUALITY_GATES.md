@@ -26,7 +26,7 @@ On Windows, configure the default Ninja debug tree with `.\tools\ci\configure_de
 | Native Level Builder / grid-part editor | `.\build\dev-ninja-debug\urpg_tests.exe "[grid_part][editor]"`; then `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure` |
 | Grid-part runtime/compiler/package governance | `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure` |
 | Release authoring persistence / save-load paths | `ctest --preset dev-all -R "settings|persistence|save|load|grid_part|Ability" --output-on-failure` |
-| Release-required assets | `.\tools\ci\check_release_required_assets.ps1`; then `ctest --preset dev-all -R "AssetLibrary|Runtime map asset|preflight|asset" --output-on-failure` |
+| Release-required assets and LFS scope | `.\tools\ci\check_release_required_assets.ps1`; `.\tools\ci\check_lfs_release_scope.ps1`; then `ctest --preset dev-all -R "AssetLibrary|Runtime map asset|preflight|asset" --output-on-failure` |
 | Repository truth guards | `.\tools\ci\check_no_generated_tracked_files.ps1`; `.\tools\ci\check_no_production_system_calls.ps1`; `.\tools\ci\check_lfs_release_scope.ps1` |
 | Release-surface regression tests | `ctest --test-dir build\dev-ninja-debug -R "Editor panel registry|editor app panels|Community WYSIWYG|curated save-data lifecycle" --output-on-failure` |
 | WYSIWYG readiness/done-rule changes | `ctest --preset dev-all -R "WYSIWYG|readiness_status" --output-on-failure` |

@@ -4,7 +4,7 @@ Status Date: 2026-05-02
 
 This document records the current asset-library vertical slice and the local `more assets/` intake that was unpacked, cleaned, indexed, and kept as non-release raw quarantine.
 
-Current checkout note (2026-05-26): the raw/quarantine policy below remains the intended release boundary, but the repository still tracks root `third_party/`, root `itch/loose/`, and 32,229 LFS-tracked normalized asset paths. Do not describe the current branch as zero-LFS or retired-root-clean until those paths are removed, reclassified, or covered by fresh release-scope evidence.
+Current checkout note (2026-05-27): the raw/quarantine policy below remains the intended release boundary. The current 307,388-path LFS footprint is reconciled by `.\tools\ci\check_lfs_release_scope.ps1` as deferred curated-library payloads or governance evidence with zero release-required LFS paths and zero unknown LFS paths. Do not describe the current branch as zero-LFS or final-art/content-complete based on deferred library inventory.
 
 ## Current Scope
 

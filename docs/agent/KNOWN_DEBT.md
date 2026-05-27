@@ -14,7 +14,7 @@ This file is a pointer map, not the debt database.
 
 - Prefer closing release-plan tasks over broad refactors.
 - Treat the current branch as post-`v0.1.0` and not ready for a broader all-features or follow-up public release claim until fresh final gates pass and the current blocker list is closed.
-- Highest-priority blocker classes are: production-adjacent `std::system` command execution and argv credential exposure; compat audio raw-pointer lifetime; chatbot async callback lifetime/cancellation; QuickJS CPU interruption; release-grade bundle/script protection truth; local-only cloud sync; Windows-only native source picking; tracked generated/local directories; root asset-folder drift; and current LFS footprint reconciliation.
+- Highest-priority blocker classes are: production-adjacent `std::system` command execution and argv credential exposure; compat audio raw-pointer lifetime; chatbot async callback lifetime/cancellation; QuickJS CPU interruption; release-grade bundle/script protection truth; local-only cloud sync; Windows-only native source picking; tracked generated/local directories; and root asset-folder drift. Current LFS footprint reconciliation is closed for the bounded release scope by `tools/ci/check_lfs_release_scope.ps1` and `docs/asset_intake/LFS_SCOPE_RECONCILIATION.md`, but the branch remains non-zero-LFS.
 - Treat Phase 6 release-surface remediation as historical release evidence for the bounded `v0.1.0` lineage, not as proof that the current `development` branch is broadly clean. Keep `.\tools\ci\run_local_gates.ps1` passing before widening release claims.
 - Treat `level_builder` as the native shippable grid-part map editor. Keep grid-part document editing, save/load/export, playtest, package readiness, diagnostics, and Perspective 2D handoff coherent.
 - The release owner promoted `spatial_authoring` to a first-class Perspective 2D map editor surface on 2026-05-26. Keep its top-level registry/app-shell exposure aligned with Level Builder and the spatial child tools.
@@ -26,7 +26,7 @@ This file is a pointer map, not the debt database.
 - Keep any future compat and migration limitations diagnostic-rich and documented; current public compat manager registries are closed for the claimed bridge scope.
 - Keep editor release navigation aligned with `docs/release/EDITOR_CONTROL_INVENTORY.md`.
 - Keep release-required asset checks, install smoke, package smoke, and native version metadata aligned with `README.md`, `docs/APP_RELEASE_READINESS_MATRIX.md`, and `docs/release/RELEASE_PACKAGING.md`.
-- Keep LFS wording precise: this checkout currently has LFS-tracked normalized asset payloads, so only release-required app assets may be described as independently verified by the release asset gate.
+- Keep LFS wording precise: this checkout currently has 307,388 LFS-tracked paths reconciled as deferred curated-library or governance evidence, so only release-required app assets may be described as independently verified by the release asset gate. Deferred library inventory is not final-art/content-complete evidence.
 - Treat release authoring persistence as a guarded surface: ability draft IO must
   keep path-specific `last_io` diagnostics, failed loads must preserve the last
   valid draft, and Level Builder load/export safeguards must keep rejecting

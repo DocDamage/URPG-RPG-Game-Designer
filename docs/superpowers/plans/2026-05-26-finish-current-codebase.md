@@ -21,7 +21,7 @@
 - Cloud sync is local-only in-tree.
 - Native import source picker is Windows-only outside injectable tests.
 - The checkout tracks generated/local and retired-root paths: `build-local/`, `Testing/Temporary/`, root `third_party/`, and root `itch/loose/`.
-- `git lfs ls-files --name-only` reports 32,229 LFS-tracked normalized asset paths in current `development`.
+- `.\tools\ci\check_lfs_release_scope.ps1` now reports 307,388 LFS-tracked paths in current `development`, with zero release-required LFS paths and zero unknown LFS roots outside the governed allowlist.
 
 ## File Map
 
