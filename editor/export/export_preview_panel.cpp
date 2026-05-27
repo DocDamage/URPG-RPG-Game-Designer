@@ -21,42 +21,32 @@ void ExportPreviewPanel::loadDocument(urpg::exporting::ExportPreviewDocument doc
     document_ = std::move(document);
     workspace_root_ = std::move(workspace_root);
     loaded_ = true;
-    refreshPreview();
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::setMode(urpg::tools::ExportMode mode) {
     document_.mode = mode;
-    if (loaded_) {
-        refreshPreview();
-    }
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::setTarget(urpg::tools::ExportTarget target) {
     document_.target = target;
-    if (loaded_) {
-        refreshPreview();
-    }
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::setRuntimeBinaryPath(std::string runtime_binary_path) {
     document_.runtime_binary_path = std::move(runtime_binary_path);
-    if (loaded_) {
-        refreshPreview();
-    }
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::setOutputDir(std::string output_dir) {
     document_.output_dir = std::move(output_dir);
-    if (loaded_) {
-        refreshPreview();
-    }
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::setExpectedArtifacts(std::vector<std::string> expected_artifacts) {
     document_.expected_artifacts = std::move(expected_artifacts);
-    if (loaded_) {
-        refreshPreview();
-    }
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::render() {
@@ -67,11 +57,14 @@ void ExportPreviewPanel::render() {
         snapshot_.status_message = "Load an export preview before rendering this panel.";
         return;
     }
-    refreshPreview();
+    if (dirty_) {
+        refreshPreview();
+    }
 }
 
 void ExportPreviewPanel::refreshPreview() {
     result_ = urpg::exporting::RunExportPreview(document_, workspace_root_);
+    dirty_ = false;
     snapshot_.disabled = false;
     snapshot_.preview_id = document_.id;
     snapshot_.target = urpg::exporting::ExportPreviewTargetLabel(document_.target);

@@ -76,6 +76,7 @@ docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.docx
 .env
 .env.*
 .aider*
+.superpowers/
 .worktrees/
 
 # Retired root third-party asset drops stay local unless reclassified under imports/.

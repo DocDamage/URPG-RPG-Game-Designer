@@ -70,6 +70,7 @@ private:
     urpg::wysiwyg::WysiwygPreviewSession preview_session_;
     ExportPreviewPanelSnapshot snapshot_{};
     bool loaded_ = false;
+    bool dirty_ = false;
 };
 
 } // namespace urpg::editor

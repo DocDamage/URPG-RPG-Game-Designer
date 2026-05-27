@@ -96,6 +96,10 @@ Status Date: 2026-05-26
 | Project license | `VERIFIED` | Root `LICENSE` is present, installed by the native app layout, and accepted under release-owner waiver. | None for current owner-waived distribution scope. |
 | Third-party notices | `VERIFIED` | Root `THIRD_PARTY_NOTICES.md` inventories shipped install components, fetched dependencies, governed manifests, and repository-only intake/reference paths; release owner accepts notice sufficiency under waiver. | Do not add raw/vendor/source asset packs without source-specific license and attribution review. |
 | Credits | `VERIFIED` | Root `CREDITS.md` records URPG project credits, dependency credits, and promoted proof-lane attribution status; release owner certifies shipped paid/licensed assets are usable in distributed games. | Keep attribution updated when adding shipped assets or plugins. |
+
+## Expansion Lanes
+
+The high-end MZ compatibility workbench is an experimental expansion lane around `compat_bridge_exit`, not a new READY subsystem claim. Current evidence includes legal corpus descriptors, project-level scoring, event-command coverage, plugin repair estimates, a visual-diff report contract, an opt-in runtime parity mode with `release_authoritative=false`, and a creator workbench snapshot. Runtime parity and visual parity must remain non-release-authoritative until captured RPG Maker MZ references and backend parity evidence exist.
 | EULA | `VERIFIED` | Root `EULA.md` exists and is accepted for public distribution by release-owner waiver. | Qualified legal counsel has not approved this text; waiver remains owner-risk acceptance. |
 | Privacy policy | `VERIFIED` | Root `PRIVACY_POLICY.md` matches the opt-in analytics implementation and no-default-upload behavior and is accepted by release-owner waiver. | Keep public contact/support routing current before tagging a final release. |
 

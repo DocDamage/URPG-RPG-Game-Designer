@@ -1,4 +1,76 @@
 cmake_minimum_required(VERSION 3.23)
+
+if(CMAKE_HOST_WIN32
+   AND DEFINED CMAKE_C_COMPILER
+   AND CMAKE_C_COMPILER MATCHES "(^|[/\\\\])gcc(\\.exe)?$|mingw|winlibs")
+    find_program(URPG_EARLY_PYTHON_EXE NAMES python py)
+    get_filename_component(URPG_EARLY_COMPILER_BIN_DIR "${CMAKE_C_COMPILER}" DIRECTORY)
+    if(URPG_EARLY_COMPILER_BIN_DIR)
+        find_program(
+            URPG_EARLY_WINDRES_EXE
+            NAMES windres
+            HINTS "${URPG_EARLY_COMPILER_BIN_DIR}"
+            NO_CACHE
+        )
+    else()
+        find_program(URPG_EARLY_WINDRES_EXE NAMES windres NO_CACHE)
+    endif()
+
+    if(URPG_EARLY_PYTHON_EXE AND URPG_EARLY_WINDRES_EXE)
+        set(URPG_EARLY_WINDRES_WRAPPER_CMD
+            "${CMAKE_BINARY_DIR}/urpg-windres-wrapper.cmd"
+        )
+        string(CONCAT URPG_EARLY_WINDRES_WRAPPER_CONTENT
+            "@echo off\r\n"
+            "\"${URPG_EARLY_PYTHON_EXE}\" "
+            "\"${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/windres_wrapper.py\" "
+            "\"${URPG_EARLY_WINDRES_EXE}\" %*\r\n"
+        )
+        if(EXISTS "${URPG_EARLY_WINDRES_WRAPPER_CMD}")
+            file(READ "${URPG_EARLY_WINDRES_WRAPPER_CMD}" URPG_EARLY_EXISTING_WINDRES_WRAPPER)
+        else()
+            set(URPG_EARLY_EXISTING_WINDRES_WRAPPER "")
+        endif()
+        if(NOT URPG_EARLY_EXISTING_WINDRES_WRAPPER STREQUAL URPG_EARLY_WINDRES_WRAPPER_CONTENT)
+            file(WRITE "${URPG_EARLY_WINDRES_WRAPPER_CMD}" "${URPG_EARLY_WINDRES_WRAPPER_CONTENT}")
+        endif()
+
+        execute_process(
+            COMMAND
+                "${URPG_EARLY_PYTHON_EXE}"
+                -c
+                "import ctypes, sys; p = sys.argv[1]; n = ctypes.windll.kernel32.GetShortPathNameW(p, None, 0); b = ctypes.create_unicode_buffer(n) if n else None; r = ctypes.windll.kernel32.GetShortPathNameW(p, b, n) if n else 0; print(b.value if r else p)"
+                "${URPG_EARLY_WINDRES_WRAPPER_CMD}"
+            OUTPUT_VARIABLE URPG_EARLY_WINDRES_WRAPPER_COMPILER
+            ERROR_QUIET
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        if(NOT URPG_EARLY_WINDRES_WRAPPER_COMPILER)
+            set(URPG_EARLY_WINDRES_WRAPPER_COMPILER "${URPG_EARLY_WINDRES_WRAPPER_CMD}")
+        endif()
+
+        set(ENV{RC} "${URPG_EARLY_WINDRES_WRAPPER_COMPILER}")
+        set(CMAKE_RC_COMPILER_INIT "${URPG_EARLY_WINDRES_WRAPPER_COMPILER}")
+        set(CMAKE_RC_COMPILER "${URPG_EARLY_WINDRES_WRAPPER_COMPILER}" CACHE FILEPATH
+            "MinGW RC compiler wrapper for path-safe windres invocations"
+        )
+        set(WINDRES "${URPG_EARLY_WINDRES_WRAPPER_COMPILER}" CACHE FILEPATH
+            "MinGW windres wrapper for dependencies that use WINDRES directly"
+        )
+        set(CMAKE_RC_COMPILE_OBJECT
+            "\"${URPG_EARLY_PYTHON_EXE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/windres_wrapper.py\" \"${URPG_EARLY_WINDRES_EXE}\" -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>"
+            CACHE STRING
+            "MinGW RC compile rule with path-safe windres wrapper"
+        )
+        set(URPG_EARLY_WINDRES_WRAPPER_CONFIGURED ON CACHE INTERNAL
+            "Whether the MinGW windres wrapper was initialized before project languages loaded"
+        )
+        set(URPG_REAL_WINDRES_COMPILER "${URPG_EARLY_WINDRES_EXE}" CACHE INTERNAL
+            "Underlying MinGW windres compiler path"
+        )
+    endif()
+endif()
+
 project(urpg VERSION 0.1.0 LANGUAGES C CXX)
 
 if(APPLE)
@@ -168,6 +240,49 @@ function(urpg_resolve_tool_path out_var tool_path)
     set(${out_var} "${_resolved_tool_path}" PARENT_SCOPE)
 endfunction()
 
+function(urpg_paths_refer_to_same_file out_var left_path right_path)
+    if(NOT left_path OR NOT right_path)
+        set(${out_var} OFF PARENT_SCOPE)
+        return()
+    endif()
+
+    if(EXISTS "${left_path}")
+        file(REAL_PATH "${left_path}" _left_real)
+    else()
+        set(_left_real "${left_path}")
+    endif()
+    if(EXISTS "${right_path}")
+        file(REAL_PATH "${right_path}" _right_real)
+    else()
+        set(_right_real "${right_path}")
+    endif()
+
+    urpg_normalize_path(_left_normalized "${_left_real}")
+    urpg_normalize_path(_right_normalized "${_right_real}")
+    if(_left_normalized STREQUAL _right_normalized)
+        set(${out_var} ON PARENT_SCOPE)
+    else()
+        set(${out_var} OFF PARENT_SCOPE)
+    endif()
+endfunction()
+
+function(urpg_set_cache_file_if_changed var_name value description)
+    if(DEFINED ${var_name})
+        urpg_paths_refer_to_same_file(_urpg_same_path "${${var_name}}" "${value}")
+        if(_urpg_same_path)
+            return()
+        endif()
+    endif()
+    set(${var_name} "${value}" CACHE FILEPATH "${description}" FORCE)
+endfunction()
+
+function(urpg_set_cache_string_if_changed var_name value description)
+    if(DEFINED ${var_name} AND "${${var_name}}" STREQUAL "${value}")
+        return()
+    endif()
+    set(${var_name} "${value}" CACHE STRING "${description}" FORCE)
+endfunction()
+
 function(urpg_set_sccache_launcher launcher_var launcher_path)
     if(NOT DEFINED ${launcher_var} OR "${${launcher_var}}" STREQUAL "")
         set(${launcher_var} "${launcher_path}" CACHE STRING "${launcher_var}" FORCE)
@@ -237,7 +352,14 @@ if(MINGW)
             "\"${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/windres_wrapper.py\" "
             "\"${URPG_REAL_WINDRES_COMPILER}\" %*\r\n"
         )
-        file(WRITE "${URPG_WINDRES_WRAPPER_CMD}" "${URPG_WINDRES_WRAPPER_CONTENT}")
+        if(EXISTS "${URPG_WINDRES_WRAPPER_CMD}")
+            file(READ "${URPG_WINDRES_WRAPPER_CMD}" _urpg_existing_windres_wrapper)
+        else()
+            set(_urpg_existing_windres_wrapper "")
+        endif()
+        if(NOT _urpg_existing_windres_wrapper STREQUAL URPG_WINDRES_WRAPPER_CONTENT)
+            file(WRITE "${URPG_WINDRES_WRAPPER_CMD}" "${URPG_WINDRES_WRAPPER_CONTENT}")
+        endif()
         execute_process(
             COMMAND
                 "${Python3_EXECUTABLE}"
@@ -251,24 +373,32 @@ if(MINGW)
         if(NOT URPG_WINDRES_WRAPPER_COMPILER)
             set(URPG_WINDRES_WRAPPER_COMPILER "${URPG_WINDRES_WRAPPER_CMD}")
         endif()
-        set(ENV{RC} "${URPG_WINDRES_WRAPPER_COMPILER}")
-        set(CMAKE_RC_COMPILER_INIT "${URPG_WINDRES_WRAPPER_COMPILER}")
-        set(CMAKE_RC_COMPILER "${URPG_WINDRES_WRAPPER_COMPILER}" CACHE FILEPATH
-            "MinGW RC compiler wrapper for path-safe windres invocations"
-            FORCE
-        )
-        set(WINDRES "${URPG_WINDRES_WRAPPER_COMPILER}" CACHE FILEPATH
-            "MinGW windres wrapper for dependencies that use WINDRES directly"
-            FORCE
-        )
-        set(CMAKE_RC_COMPILE_OBJECT
-            "\"${Python3_EXECUTABLE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/windres_wrapper.py\" \"${URPG_REAL_WINDRES_COMPILER}\" -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>"
-            CACHE STRING
-            "MinGW RC compile rule with path-safe windres wrapper"
-            FORCE
-        )
-        unset(CMAKE_RC_COMPILER_ARG1 CACHE)
-        unset(CMAKE_RC_COMPILER_LAUNCHER CACHE)
+        if(NOT CMAKE_RC_COMPILER_LOADED)
+            set(ENV{RC} "${URPG_WINDRES_WRAPPER_COMPILER}")
+            set(CMAKE_RC_COMPILER_INIT "${URPG_WINDRES_WRAPPER_COMPILER}")
+            urpg_set_cache_file_if_changed(CMAKE_RC_COMPILER "${URPG_WINDRES_WRAPPER_COMPILER}"
+                "MinGW RC compiler wrapper for path-safe windres invocations"
+            )
+            urpg_set_cache_file_if_changed(WINDRES "${URPG_WINDRES_WRAPPER_COMPILER}"
+                "MinGW windres wrapper for dependencies that use WINDRES directly"
+            )
+            set(_urpg_rc_compile_object
+                "\"${Python3_EXECUTABLE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/windres_wrapper.py\" \"${URPG_REAL_WINDRES_COMPILER}\" -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>")
+            urpg_set_cache_string_if_changed(CMAKE_RC_COMPILE_OBJECT "${_urpg_rc_compile_object}"
+                "MinGW RC compile rule with path-safe windres wrapper"
+            )
+            unset(CMAKE_RC_COMPILER_ARG1 CACHE)
+            unset(CMAKE_RC_COMPILER_LAUNCHER CACHE)
+        elseif(DEFINED CMAKE_RC_COMPILER)
+            urpg_paths_refer_to_same_file(_urpg_rc_compiler_is_wrapper
+                "${CMAKE_RC_COMPILER}"
+                "${URPG_WINDRES_WRAPPER_COMPILER}")
+            if(NOT _urpg_rc_compiler_is_wrapper)
+                message(WARNING
+                    "URPG: RC compiler is already loaded as '${CMAKE_RC_COMPILER}', "
+                    "so the MinGW windres wrapper cannot be applied without a fresh configure.")
+            endif()
+        endif()
         message(STATUS
             "URPG: wrapping windres so MinGW resource builds remain path-safe in workspaces with spaces.")
     endif()
@@ -316,6 +446,9 @@ set(URPG_CORE_SOURCES
     engine/core/ai/openai_compatible_chat_service.cpp
     engine/core/ai/wysiwyg_chatbot_coverage.cpp
     engine/core/collaboration/local_review_bundle.cpp
+    engine/core/compat/mz_event_command_coverage.cpp
+    engine/core/compat/mz_project_compatibility_report.cpp
+    engine/core/compat/mz_visual_diff_report.cpp
     engine/core/diagnostics/diagnostics_bundle_exporter.cpp
     engine/core/debug/debug_session.cpp
     engine/core/debug/debug_ai_bridge.cpp
@@ -552,6 +685,7 @@ set(URPG_CORE_SOURCES
     editor/export/export_diagnostics_panel.cpp
     editor/export/export_preview_panel.cpp
     editor/compat/compat_report_panel.cpp
+    editor/compat/mz_migration_workbench_model.cpp
     editor/character/character_creator_model.cpp
     editor/character/character_creator_panel.cpp
     editor/achievement/achievement_panel.cpp
@@ -693,6 +827,7 @@ set(URPG_CORE_SOURCES
     runtimes/compat_js/data_manager_visual_loading.cpp
     runtimes/compat_js/audio_manager.cpp
     runtimes/compat_js/input_manager.cpp
+    runtimes/compat_js/mz_runtime_parity_mode.cpp
     runtimes/compat_js/plugin_manager.cpp
     runtimes/compat_js/plugin_manager_directory_scan.cpp
     runtimes/compat_js/plugin_manager_fixture_script.cpp
@@ -1400,6 +1535,12 @@ add_executable(urpg_tests
     tests/unit/test_new_project_wizard_panel.cpp
     tests/unit/test_plugin_compatibility_score.cpp
     tests/unit/test_plugin_inspector_panel.cpp
+    tests/unit/test_mz_project_corpus_schema.cpp
+    tests/unit/test_mz_project_compatibility_report.cpp
+    tests/unit/test_mz_event_command_coverage.cpp
+    tests/unit/test_mz_visual_diff_report.cpp
+    tests/unit/test_mz_runtime_parity_mode.cpp
+    tests/unit/test_mz_migration_workbench_model.cpp
     tests/unit/test_asset_library.cpp
     tests/unit/test_asset_cleanup_planner.cpp
     tests/unit/test_asset_library_panel.cpp
@@ -2030,7 +2171,7 @@ set_tests_properties(
     urpg_export_unit_lane
     PROPERTIES
         LABELS "pr;export"
-        TIMEOUT 900
+        TIMEOUT 7200
 )
 
 add_test(

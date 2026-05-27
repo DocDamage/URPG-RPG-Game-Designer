@@ -73,6 +73,21 @@ std::string bundleSignatureKey(urpg::tools::ExportTarget target) {
     }
 }
 
+std::string bundleTargetLabel(urpg::tools::ExportTarget target) {
+    switch (target) {
+    case urpg::tools::ExportTarget::Windows_x64:
+        return "Windows (x64)";
+    case urpg::tools::ExportTarget::Linux_x64:
+        return "Linux (x64)";
+    case urpg::tools::ExportTarget::macOS_Universal:
+        return "macOS (Universal)";
+    case urpg::tools::ExportTarget::Web_WASM:
+        return "Web (WASM/WebGL)";
+    default:
+        return "Other";
+    }
+}
+
 std::string makePayloadIntegrityScope(const nlohmann::json& entry) {
     return entry.value("path", "") + "|" + entry.value("kind", "") + "|" +
            (entry.value("compressed", false) ? "1" : "0") + "|" + (entry.value("obfuscated", false) ? "1" : "0") + "|" +
@@ -171,6 +186,10 @@ BundleValidationResult validateBundleFile(const std::filesystem::path& bundlePat
     if (!result.manifest.contains("bundleSignature") || !result.manifest["bundleSignature"].is_string() ||
         result.manifest["bundleSignature"].get<std::string>().empty()) {
         result.errors.emplace_back("missing_bundle_signature");
+        return result;
+    }
+    if (result.manifest.contains("target") && result.manifest.value("target", "") != bundleTargetLabel(target)) {
+        result.errors.emplace_back("bundle_signature_mismatch");
         return result;
     }
 

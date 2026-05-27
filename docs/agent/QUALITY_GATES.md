@@ -18,6 +18,7 @@ On Windows, configure the default Ninja debug tree with `.\tools\ci\configure_de
 | Map scene/render assets | `ctest --preset dev-all -R "MapScene|AssetLibrary|Runtime map asset" --output-on-failure` |
 | Battle assets/authoring | `ctest --preset dev-all -R "battle.*assets|battle.*authoring" --output-on-failure` |
 | Compat JS / WindowCompat / plugin fixtures | `ctest -L weekly --output-on-failure` |
+| High-end MZ compatibility expansion | `.\build\dev-ninja-debug\urpg_tests.exe "[compat][mz_project_report],[compat][mz_event_commands],[compat][mz_visual_diff],[compat][mz_runtime_parity]" --reporter compact`; `.\build\dev-ninja-debug\urpg_tests.exe "[plugin][compatibility][mz_high_end],[editor][compat][mz_workbench]" --reporter compact`; `.\tools\ci\check_mz_project_corpus.ps1` |
 | Export packager/validator | `ctest --preset dev-export --output-on-failure` |
 | AI assistant/tool review surface | `ctest --preset dev-all -R "AI (knowledge|task|tool|assistant)|Chatbot component" --output-on-failure` |
 | Snapshot/golden visual baselines | `ctest --preset dev-snapshot --output-on-failure` |
