@@ -19,38 +19,38 @@ if ($releaseLfs.Count -gt 0) {
 $knownScopes = @(
     @{
         Root = "imports/normalized/sibling_bulk_assets/"
-        Scope = "deferred_curated_library"
+        Scope = "governed_promoted_library"
         SourceId = "SRC-015"
         BundleId = "BND-011"
-        ClaimBoundary = "release-eligible library payload; not release-required; exported only when a project selects the asset"
+        ClaimBoundary = "governed promoted library payload; exported when a project selects the asset"
     },
     @{
         Root = "imports/normalized/present_raw_local_bulk/"
-        Scope = "deferred_curated_library"
+        Scope = "governed_promoted_library"
         SourceId = "SRC-014"
         BundleId = "BND-010"
-        ClaimBoundary = "release-eligible library payload; not release-required; exported only when a project selects the asset"
+        ClaimBoundary = "governed promoted library payload; exported when a project selects the asset"
     },
     @{
         Root = "imports/normalized/src010_cc0_release_bulk/"
-        Scope = "deferred_curated_library"
+        Scope = "governed_promoted_library"
         SourceId = "SRC-010"
         BundleId = "BND-006"
-        ClaimBoundary = "release-eligible library payload; not release-required; exported only when a project selects the asset"
+        ClaimBoundary = "governed promoted library payload; exported when a project selects the asset"
     },
     @{
         Root = "imports/normalized/src010_newly_licensed_bulk/"
-        Scope = "deferred_curated_library"
+        Scope = "governed_promoted_library"
         SourceId = "SRC-010"
         BundleId = "BND-007"
-        ClaimBoundary = "release-eligible library payload; not release-required; exported only when a project selects the asset"
+        ClaimBoundary = "governed promoted library payload; exported when a project selects the asset"
     },
     @{
         Root = "imports/normalized/itch_loose_cc0/"
-        Scope = "deferred_curated_library"
+        Scope = "governed_promoted_library"
         SourceId = "SRC-013"
         BundleId = "BND-008"
-        ClaimBoundary = "release-eligible library payload; not release-required; exported only when a project selects the asset"
+        ClaimBoundary = "governed promoted library payload; exported when a project selects the asset"
     },
     @{
         Root = "imports/manifests/asset_bundles/"
@@ -104,7 +104,7 @@ $report = [ordered]@{
     unknown_lfs_count = $unknown.Count
     unknown_lfs_sample = @($unknown | Select-Object -First 50)
     scopes = $scopeRows
-    claim_boundary = "Only release-required app assets are independently verified by the release asset gate. Deferred curated-library LFS payloads are governed inventory, not proof of final art/content completeness or zero-LFS repository status."
+    claim_boundary = "Release-required app assets are independently verified by the release asset gate. Broader LFS payloads are governed promoted-library inventory validated by check_promoted_asset_library.ps1, not a zero-LFS repository claim."
 }
 
 $reportDir = Split-Path $ReportPath -Parent

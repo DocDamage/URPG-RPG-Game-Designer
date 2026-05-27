@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-05-27T13:23:18Z",
+  "generated_at_utc": "2026-05-27T13:55:30Z",
   "total_lfs_paths": 307388,
   "release_required_lfs_paths": [],
   "release_required_lfs_count": 0,
@@ -8,43 +8,43 @@
   "scopes": [
     {
       "root": "imports/normalized/sibling_bulk_assets/",
-      "scope": "deferred_curated_library",
+      "scope": "governed_promoted_library",
       "source_id": "SRC-015",
       "bundle_id": "BND-011",
       "count": 275963,
-      "claim_boundary": "release-eligible library payload; not release-required; exported only when a project selects the asset"
+      "claim_boundary": "governed promoted library payload; exported when a project selects the asset"
     },
     {
       "root": "imports/normalized/present_raw_local_bulk/",
-      "scope": "deferred_curated_library",
+      "scope": "governed_promoted_library",
       "source_id": "SRC-014",
       "bundle_id": "BND-010",
       "count": 14114,
-      "claim_boundary": "release-eligible library payload; not release-required; exported only when a project selects the asset"
+      "claim_boundary": "governed promoted library payload; exported when a project selects the asset"
     },
     {
       "root": "imports/normalized/src010_cc0_release_bulk/",
-      "scope": "deferred_curated_library",
+      "scope": "governed_promoted_library",
       "source_id": "SRC-010",
       "bundle_id": "BND-006",
       "count": 12218,
-      "claim_boundary": "release-eligible library payload; not release-required; exported only when a project selects the asset"
+      "claim_boundary": "governed promoted library payload; exported when a project selects the asset"
     },
     {
       "root": "imports/normalized/src010_newly_licensed_bulk/",
-      "scope": "deferred_curated_library",
+      "scope": "governed_promoted_library",
       "source_id": "SRC-010",
       "bundle_id": "BND-007",
       "count": 4697,
-      "claim_boundary": "release-eligible library payload; not release-required; exported only when a project selects the asset"
+      "claim_boundary": "governed promoted library payload; exported when a project selects the asset"
     },
     {
       "root": "imports/normalized/itch_loose_cc0/",
-      "scope": "deferred_curated_library",
+      "scope": "governed_promoted_library",
       "source_id": "SRC-013",
       "bundle_id": "BND-008",
       "count": 394,
-      "claim_boundary": "release-eligible library payload; not release-required; exported only when a project selects the asset"
+      "claim_boundary": "governed promoted library payload; exported when a project selects the asset"
     },
     {
       "root": "imports/manifests/asset_bundles/",
@@ -63,5 +63,5 @@
       "claim_boundary": "large generated report evidence; not runtime asset payload"
     }
   ],
-  "claim_boundary": "Only release-required app assets are independently verified by the release asset gate. Deferred curated-library LFS payloads are governed inventory, not proof of final art/content completeness or zero-LFS repository status."
+  "claim_boundary": "Release-required app assets are independently verified by the release asset gate. Broader LFS payloads are governed promoted-library inventory validated by check_promoted_asset_library.ps1, not a zero-LFS repository claim."
 }

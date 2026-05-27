@@ -4,12 +4,10 @@
 
 ## Decision
 
-The current bounded release claim does **not** require final cohesive art direction.
-It requires governed starter visuals, explicit fallbacks, release-required asset
-hydration, attribution, and package gates.
-
-Final-quality art/content is now tracked as a project-selection and art-direction
-lane, not as unfinished engine code.
+The current bounded release now includes a curated final starter art slice:
+`BND-005` contributes CC0/public-domain title, map, and battle assets from
+`SRC-012`, and the broader promoted asset library is validated as governed
+project-selectable content.
 
 ## Current Evidence
 
@@ -19,8 +17,10 @@ lane, not as unfinished engine code.
 | Starter UI frame/chrome and VFX proof | `BND-003` promoted repo-generated assets | Satisfies bounded starter skin/VFX proof coverage |
 | App icons | Repo resources verified by release asset gates | Satisfies app package icon coverage |
 | UI/audio feedback | Explicit silent/muted fallback | Satisfies bounded release fallback policy |
-| Broad environment/prop/character/UI/VFX/audio library | `BND-006`, `BND-007`, `BND-008`, `BND-010`, and `BND-011` deferred curated-library inventory | Not release-required; eligible only when a project selects and hydrates exact assets |
-| Cohesive final art direction | Not selected for the bounded release | Must not be claimed as complete without a project art-direction pass |
+| Curated environment/title/map art | `BND-005` promoted CC0/public-domain cavern background and tilesets | Satisfies curated final starter title/map coverage |
+| Curated battle/map VFX | `BND-005` promoted CC0/public-domain hit effect sheet and torch frame | Satisfies curated final starter battle/map VFX coverage |
+| Broad environment/prop/character/UI/VFX/audio library | `BND-006`, `BND-007`, `BND-008`, `BND-010`, and `BND-011` governed promoted-library inventory | Validated project-selectable content; exports still select exact assets |
+| Cohesive final art direction | Bounded to release starter scope | Broader template-specific art direction requires project selection |
 
 ## Definition Of Done For Future Final-Art Claims
 
@@ -43,14 +43,13 @@ true:
 The current branch can say:
 
 - release-required starter assets are governed and verified;
-- broad normalized LFS libraries are reconciled as deferred curated inventory;
-- final cohesive art/content is outside the bounded app release claim unless a
-  future project selection promotes exact assets.
+- `BND-005` provides curated final starter title/map/battle visual content;
+- broad normalized LFS libraries are governed promoted-library inventory;
+- broader template-specific final art direction requires exact project selection.
 
 The current branch must not say:
 
 - the repository is zero-LFS;
-- deferred library inventory is final art;
 - every template has final-quality cohesive content;
 - broad asset libraries are automatically shipped by default.
 

@@ -26,7 +26,7 @@ This file is a pointer map, not the debt database.
 - Keep any future compat and migration limitations diagnostic-rich and documented; current public compat manager registries are closed for the claimed bridge scope.
 - Keep editor release navigation aligned with `docs/release/EDITOR_CONTROL_INVENTORY.md`.
 - Keep release-required asset checks, install smoke, package smoke, and native version metadata aligned with `README.md`, `docs/APP_RELEASE_READINESS_MATRIX.md`, and `docs/release/RELEASE_PACKAGING.md`.
-- Keep LFS wording precise: this checkout currently has 307,388 LFS-tracked paths reconciled as deferred curated-library or governance evidence, so only release-required app assets may be described as independently verified by the release asset gate. Deferred library inventory is not final-art/content-complete evidence.
+- Keep LFS wording precise: this checkout currently has 307,388 LFS-tracked paths reconciled as governed promoted-library payloads or governance evidence, and `tools/ci/check_promoted_asset_library.ps1` validates promoted bundle rows without removing GitHub payloads. Release-required app assets are verified by the release asset gate; broader shipped-game claims still need exact project selection and hydration evidence.
 - Treat release authoring persistence as a guarded surface: ability draft IO must
   keep path-specific `last_io` diagnostics, failed loads must preserve the last
   valid draft, and Level Builder load/export safeguards must keep rejecting
