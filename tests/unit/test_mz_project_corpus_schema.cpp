@@ -77,3 +77,49 @@ TEST_CASE("MZ project corpus schema and minimal descriptor expose legal compatib
     REQUIRE(fixture.at("plugins").at("fixtureManifestDirectory") == "tests/compat/fixtures/plugins");
     REQUIRE(fixture.at("expectedCoverage").at("runtimeParityClaim") == false);
 }
+
+TEST_CASE("MZ reference capture descriptors expose legal non-authoritative parity evidence",
+          "[compat][mz_project_corpus]") {
+    const auto root = repoRoot();
+    REQUIRE_FALSE(root.empty());
+
+    const auto schema = loadJson(root / "content" / "compat" / "mz_reference_captures.schema.json");
+    REQUIRE(schema.at("$id") == "https://urpg.dev/schemas/mz_reference_captures.schema.json");
+    REQUIRE(schema.at("title") == "URPG RPG Maker MZ Reference Capture Descriptor");
+
+    for (const std::string field : {
+             "schemaVersion",
+             "captureId",
+             "projectId",
+             "sceneId",
+             "backend",
+             "frameHash",
+             "dimensions",
+             "legalUse",
+             "source",
+             "releaseAuthoritative",
+         }) {
+        requireRequiredField(schema, field);
+    }
+
+    const auto twoMapProject =
+        loadJson(root / "imports" / "fixtures" / "compat" / "mz_projects" / "two_map_event_project.json");
+    REQUIRE(twoMapProject.at("schemaVersion") == "1.0.0");
+    REQUIRE(twoMapProject.at("projectId") == "two_map_event_project");
+    REQUIRE(twoMapProject.at("fixtureScope").at("copyrightedRpgMakerPayloadsIncluded") == false);
+    REQUIRE(twoMapProject.at("maps").at("count") == 2);
+    REQUIRE(twoMapProject.at("events").at("supportedCommandCount") >= 16);
+    REQUIRE(twoMapProject.at("expectedCoverage").at("runtimeParityClaim") == false);
+    REQUIRE(twoMapProject.at("expectedCoverage").at("visualParityClaim") == false);
+
+    for (const auto& name : {"minimal_jrpg_title_capture.json", "two_map_event_capture.json"}) {
+        const auto capture = loadJson(root / "imports" / "fixtures" / "compat" / "mz_references" / name);
+        REQUIRE(capture.at("schemaVersion") == "1.0.0");
+        REQUIRE(capture.at("backend") == "mz_reference_headless");
+        REQUIRE(capture.at("legalUse") == "repo_owned");
+        REQUIRE(capture.at("releaseAuthoritative") == false);
+        REQUIRE(capture.at("source").at("copyrightedRpgMakerPayloadsIncluded") == false);
+        REQUIRE(capture.at("dimensions").at("width") == 816);
+        REQUIRE(capture.at("dimensions").at("height") == 624);
+    }
+}

@@ -11,6 +11,7 @@
 #include "engine/core/analytics/analytics_privacy_controller.h"
 #include "engine/core/analytics/analytics_uploader.h"
 #include "engine/core/app_cli.h"
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/diagnostics/startup_diagnostics.h"
 #include "engine/core/editor/editor_panel_registry.h"
 #include "engine/core/editor/editor_shell.h"
@@ -33,10 +34,13 @@
 #ifndef URPG_HEADLESS
 #include "engine/core/platform/opengl_renderer.h"
 #include "engine/core/platform/sdl_surface.h"
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_sdl2.h>
 #endif
 
 #ifdef URPG_IMGUI_ENABLED
 #include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 #endif
 
 #include <algorithm>
@@ -511,6 +515,12 @@ void printStartupFailure(const urpg::diagnostics::StartupDiagnosticRecord& recor
     }
 }
 
+void printRuntimeDiagnostics() {
+    for (const auto& diagnostic : urpg::diagnostics::RuntimeDiagnostics::snapshot()) {
+        std::cerr << "URPG editor runtime diagnostic [" << diagnostic.code << "]: " << diagnostic.message << "\n";
+    }
+}
+
 urpg::analytics::ConsentState analyticsConsentFromSettings(const std::string& state) {
     if (state == "granted") {
         return urpg::analytics::ConsentState::Granted;
@@ -520,6 +530,939 @@ urpg::analytics::ConsentState analyticsConsentFromSettings(const std::string& st
     }
     return urpg::analytics::ConsentState::Unknown;
 }
+
+#ifdef URPG_IMGUI_ENABLED
+void renderEditorChrome(urpg::editor::EditorShell& editorShell) {
+    ImGui::SetNextWindowPos(ImVec2(12.0f, 12.0f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(340.0f, 520.0f), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("URPG Editor")) {
+        ImGui::End();
+        return;
+    }
+
+    const auto snapshot = editorShell.snapshot();
+    ImGui::Text("Project");
+    ImGui::TextWrapped("%s", snapshot.project_root.string().c_str());
+    ImGui::Separator();
+    ImGui::Text("Active Panel");
+    ImGui::TextWrapped("%s", snapshot.active_panel_id.c_str());
+    ImGui::Separator();
+    ImGui::Text("Release Panels");
+
+    for (const auto& panel : snapshot.panels) {
+        ImGui::BeginDisabled(!panel.enabled);
+        const bool selected = panel.id == snapshot.active_panel_id;
+        if (ImGui::Selectable((panel.title + "##" + panel.id).c_str(), selected)) {
+            editorShell.openPanel(panel.id);
+        }
+        ImGui::EndDisabled();
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("%s/%s", panel.category.c_str(), panel.id.c_str());
+        }
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Preview");
+    ImGui::TextWrapped("The map preview is rendered behind this editor shell.");
+    ImGui::End();
+}
+
+const char* diagnosticsTabName(urpg::editor::DiagnosticsTab tab) {
+    switch (tab) {
+    case urpg::editor::DiagnosticsTab::Compat:
+        return "Compat";
+    case urpg::editor::DiagnosticsTab::Save:
+        return "Save";
+    case urpg::editor::DiagnosticsTab::EventAuthority:
+        return "Events";
+    case urpg::editor::DiagnosticsTab::MessageText:
+        return "Messages";
+    case urpg::editor::DiagnosticsTab::Battle:
+        return "Battle";
+    case urpg::editor::DiagnosticsTab::Menu:
+        return "Menu";
+    case urpg::editor::DiagnosticsTab::Audio:
+        return "Audio";
+    case urpg::editor::DiagnosticsTab::MigrationWizard:
+        return "Migration";
+    case urpg::editor::DiagnosticsTab::Abilities:
+        return "Abilities";
+    case urpg::editor::DiagnosticsTab::ProjectAudit:
+        return "Audit";
+    case urpg::editor::DiagnosticsTab::ProjectHealth:
+        return "Health";
+    }
+    return "Diagnostics";
+}
+
+void renderDisabledReason(const std::string& reason) {
+    if (!reason.empty() && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+        ImGui::SetTooltip("%s", reason.c_str());
+    }
+}
+
+void renderJsonLines(const nlohmann::json& value, int maxRows = 8) {
+    if (value.is_null()) {
+        ImGui::TextDisabled("None");
+        return;
+    }
+    if (value.is_array()) {
+        int row = 0;
+        for (const auto& item : value) {
+            if (row++ >= maxRows) {
+                ImGui::TextDisabled("...");
+                break;
+            }
+            ImGui::BulletText("%s", item.is_string() ? item.get<std::string>().c_str() : item.dump().c_str());
+        }
+        if (row == 0) {
+            ImGui::TextDisabled("None");
+        }
+        return;
+    }
+    if (value.is_object()) {
+        int row = 0;
+        for (auto it = value.begin(); it != value.end(); ++it) {
+            if (row++ >= maxRows) {
+                ImGui::TextDisabled("...");
+                break;
+            }
+            const auto rendered = it.value().is_string() ? it.value().get<std::string>() : it.value().dump();
+            ImGui::BulletText("%s: %s", it.key().c_str(), rendered.c_str());
+        }
+        if (row == 0) {
+            ImGui::TextDisabled("None");
+        }
+        return;
+    }
+    ImGui::TextWrapped("%s", value.dump().c_str());
+}
+
+void renderCompatDiagnostics(urpg::editor::CompatReportPanel& panel) {
+    auto& model = panel.getModel();
+    ImGui::Text("Project Compatibility Score: %d%%", model.getProjectCompatibilityScore());
+    ImGui::Separator();
+
+    std::string selected = panel.getSelectedPlugin();
+    if (!selected.empty()) {
+        if (ImGui::Button("< Back to Summary")) {
+            panel.clearSelection();
+        }
+        ImGui::SameLine();
+        ImGui::Text("Selected Plugin: %s", selected.c_str());
+        ImGui::Separator();
+
+        ImGui::Text("API Calls:");
+        auto calls = model.getPluginCalls(selected);
+        if (calls.empty()) {
+            ImGui::TextDisabled("No calls logged.");
+        } else {
+            if (ImGui::BeginTable("CompatCallsTable", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+                ImGui::TableSetupColumn("Class");
+                ImGui::TableSetupColumn("Method");
+                ImGui::TableSetupColumn("Status");
+                ImGui::TableSetupColumn("Calls");
+                ImGui::TableHeadersRow();
+                for (const auto& call : calls) {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn(); ImGui::TextUnformatted(call.className.c_str());
+                    ImGui::TableNextColumn(); ImGui::TextUnformatted(call.methodName.c_str());
+                    ImGui::TableNextColumn(); ImGui::TextUnformatted(call.status == urpg::compat::CompatStatus::FULL ? "FULL" : (call.status == urpg::compat::CompatStatus::PARTIAL ? "PARTIAL" : (call.status == urpg::compat::CompatStatus::STUB ? "STUB" : "UNSUPPORTED")));
+                    ImGui::TableNextColumn(); ImGui::Text("%u", call.callCount);
+                }
+                ImGui::EndTable();
+            }
+        }
+    } else {
+        ImGui::Text("Plugins:");
+        auto summaries = model.getAllPluginSummaries();
+        if (summaries.empty()) {
+            ImGui::TextDisabled("No plugin summaries found.");
+        } else {
+            if (ImGui::BeginTable("CompatPluginsTable", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+                ImGui::TableSetupColumn("Plugin ID");
+                ImGui::TableSetupColumn("Score");
+                ImGui::TableSetupColumn("Calls");
+                ImGui::TableSetupColumn("Action");
+                ImGui::TableHeadersRow();
+                for (const auto& summary : summaries) {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn(); ImGui::TextUnformatted(summary.pluginId.c_str());
+                    ImGui::TableNextColumn(); ImGui::Text("%d%%", summary.compatibilityScore);
+                    ImGui::TableNextColumn(); ImGui::Text("%u", summary.totalCalls);
+                    ImGui::TableNextColumn();
+                    ImGui::PushID(summary.pluginId.c_str());
+                    if (ImGui::Button("Inspect")) {
+                        panel.selectPlugin(summary.pluginId);
+                    }
+                    ImGui::PopID();
+                }
+                ImGui::EndTable();
+            }
+        }
+    }
+}
+
+void renderSaveDiagnostics(urpg::editor::SaveInspectorPanel& panel) {
+    const auto& snapshot = panel.lastRenderSnapshot();
+    ImGui::Text("Status: %s", snapshot.status.c_str());
+    if (!snapshot.message.empty()) {
+        ImGui::TextWrapped("%s", snapshot.message.c_str());
+    }
+    if (!snapshot.remediation.empty()) {
+        ImGui::TextWrapped("%s", snapshot.remediation.c_str());
+    }
+
+    if (!snapshot.runtime_bound) {
+        return;
+    }
+
+    auto& model = panel.getModel();
+
+    bool problemOnly = panel.showProblemSlotsOnly();
+    if (ImGui::Checkbox("Show Problem Slots Only", &problemOnly)) {
+        panel.setShowProblemSlotsOnly(problemOnly);
+        panel.refresh();
+    }
+    ImGui::SameLine();
+    bool includeAutosave = panel.includeAutosave();
+    if (ImGui::Checkbox("Include Autosave", &includeAutosave)) {
+        panel.setIncludeAutosave(includeAutosave);
+        panel.refresh();
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Save Slots:");
+    auto rows = model.VisibleRows();
+    if (rows.empty()) {
+        ImGui::TextDisabled("No visible save slots.");
+    } else {
+        if (ImGui::BeginTable("SaveSlotsTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+            ImGui::TableSetupColumn("Slot ID");
+            ImGui::TableSetupColumn("Category");
+            ImGui::TableSetupColumn("Label");
+            ImGui::TableSetupColumn("Map");
+            ImGui::TableSetupColumn("Diagnostics");
+            ImGui::TableHeadersRow();
+            for (const auto& row : rows) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn(); ImGui::Text("%d", row.slot_id);
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.category_label.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.slot_label.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.map_display_name.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.diagnostic.empty() ? "-" : row.diagnostic.c_str());
+            }
+            ImGui::EndTable();
+        }
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Save Policy Draft:");
+    auto draft = model.PolicyDraft();
+    bool autosaveEnabled = draft.autosave_enabled;
+    if (ImGui::Checkbox("Autosave Enabled", &autosaveEnabled)) {
+        panel.setPolicyAutosaveEnabled(autosaveEnabled);
+    }
+    int autosaveSlot = draft.autosave_slot_id;
+    if (ImGui::InputInt("Autosave Slot ID", &autosaveSlot)) {
+        panel.setPolicyAutosaveSlotId(autosaveSlot);
+    }
+
+    int maxAutosave = static_cast<int>(draft.max_autosave_slots);
+    int maxQuicksave = static_cast<int>(draft.max_quicksave_slots);
+    int maxManual = static_cast<int>(draft.max_manual_slots);
+    bool prune = draft.prune_excess_on_save;
+
+    bool limitChanged = false;
+    if (ImGui::SliderInt("Max Autosave Slots", &maxAutosave, 1, 10)) limitChanged = true;
+    if (ImGui::SliderInt("Max Quicksave Slots", &maxQuicksave, 1, 10)) limitChanged = true;
+    if (ImGui::SliderInt("Max Manual Slots", &maxManual, 1, 100)) limitChanged = true;
+    if (ImGui::Checkbox("Prune Excess on Save", &prune)) limitChanged = true;
+
+    if (limitChanged) {
+        panel.setPolicyRetentionLimits(maxAutosave, maxQuicksave, maxManual, prune);
+    }
+
+    if (snapshot.can_apply_policy) {
+        if (ImGui::Button("Apply Policy")) {
+            panel.applyPolicyToRuntime();
+        }
+    }
+}
+
+void renderEventAuthorityDiagnostics(urpg::EventAuthorityPanel& panel) {
+    const auto& snapshot = panel.lastRenderSnapshot();
+    ImGui::Text("Visible Logs: %zu (Warnings: %zu, Errors: %zu)", snapshot.visible_rows, snapshot.warning_count, snapshot.error_count);
+
+    char eventFilter[64];
+    strncpy(eventFilter, snapshot.event_id_filter.c_str(), sizeof(eventFilter));
+    eventFilter[sizeof(eventFilter)-1] = '\0';
+    if (ImGui::InputText("Event ID Filter", eventFilter, sizeof(eventFilter))) {
+        panel.setFilter(eventFilter);
+        panel.refresh();
+    }
+
+    char levelFilter[64];
+    strncpy(levelFilter, snapshot.level_filter.c_str(), sizeof(levelFilter));
+    levelFilter[sizeof(levelFilter)-1] = '\0';
+    if (ImGui::InputText("Level Filter", levelFilter, sizeof(levelFilter))) {
+        panel.setLevelFilter(levelFilter);
+        panel.refresh();
+    }
+
+    char modeFilter[64];
+    strncpy(modeFilter, snapshot.mode_filter.c_str(), sizeof(modeFilter));
+    modeFilter[sizeof(modeFilter)-1] = '\0';
+    if (ImGui::InputText("Mode Filter", modeFilter, sizeof(modeFilter))) {
+        panel.setModeFilter(modeFilter);
+        panel.refresh();
+    }
+
+    if (ImGui::Button("Clear Filters")) {
+        panel.clearFilters();
+        panel.refresh();
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Event Blocks:");
+
+    if (snapshot.visible_row_entries.empty()) {
+        ImGui::TextDisabled("No event authority rows found matching criteria.");
+    } else {
+        if (ImGui::BeginTable("EventAuthorityTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+            ImGui::TableSetupColumn("Time");
+            ImGui::TableSetupColumn("Level");
+            ImGui::TableSetupColumn("Event ID");
+            ImGui::TableSetupColumn("Block ID");
+            ImGui::TableSetupColumn("Message");
+            ImGui::TableHeadersRow();
+            for (const auto& row : snapshot.visible_row_entries) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.ts.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.level.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.event_id.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.block_id.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.message.c_str());
+            }
+            ImGui::EndTable();
+        }
+    }
+}
+
+void renderMessageDiagnostics(urpg::editor::MessageInspectorPanel& panel) {
+    const auto& snapshot = panel.lastRenderSnapshot();
+    ImGui::Text("Total Pages: %zu (Issues: %zu)", snapshot.total_pages, snapshot.issue_count);
+
+    bool showIssues = snapshot.show_issues_only;
+    if (ImGui::Checkbox("Show Issues Only", &showIssues)) {
+        panel.setShowIssuesOnly(showIssues);
+        panel.refresh();
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Dialogue Pages:");
+    if (snapshot.visible_rows.empty()) {
+        ImGui::TextDisabled("No dialogue pages visible.");
+    } else {
+        if (ImGui::BeginTable("MessagePagesTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+            ImGui::TableSetupColumn("Index");
+            ImGui::TableSetupColumn("Speaker");
+            ImGui::TableSetupColumn("Route");
+            ImGui::TableSetupColumn("Body Preview");
+            ImGui::TableSetupColumn("Issues");
+            ImGui::TableHeadersRow();
+            for (const auto& row : snapshot.visible_rows) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn(); ImGui::Text("%zu", row.page_index);
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.speaker.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.route.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.body_preview.c_str());
+                ImGui::TableNextColumn(); ImGui::Text("%zu", row.issue_count);
+            }
+            ImGui::EndTable();
+        }
+    }
+}
+
+void renderBattleDiagnostics(urpg::editor::BattleInspectorPanel& panel) {
+    const auto& snapshot = panel.lastRenderSnapshot();
+    ImGui::Text("Status: %s (Phase: %s, Issues: %zu)", snapshot.status.c_str(), snapshot.phase.c_str(), snapshot.issue_count);
+    if (!snapshot.message.empty()) {
+        ImGui::TextWrapped("%s", snapshot.message.c_str());
+    }
+    if (!snapshot.remediation.empty()) {
+        ImGui::TextWrapped("%s", snapshot.remediation.c_str());
+    }
+
+    if (!snapshot.runtime_bound) {
+        return;
+    }
+
+    auto& model = panel.getModel();
+    ImGui::Separator();
+    ImGui::Text("Battle Turn Queue:");
+    auto rows = model.VisibleRows();
+    if (rows.empty()) {
+        ImGui::TextDisabled("No active action rows in queue.");
+    } else {
+        if (ImGui::BeginTable("BattleActionQueueTable", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+            ImGui::TableSetupColumn("Order");
+            ImGui::TableSetupColumn("Subject");
+            ImGui::TableSetupColumn("Target");
+            ImGui::TableSetupColumn("Command");
+            ImGui::TableSetupColumn("Speed");
+            ImGui::TableSetupColumn("Summary");
+            ImGui::TableHeadersRow();
+            for (const auto& row : rows) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn(); ImGui::Text("%zu", row.action_order);
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.subject_id.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.target_id.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.command.c_str());
+                ImGui::TableNextColumn(); ImGui::Text("%d", row.speed);
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.summary.c_str());
+            }
+            ImGui::EndTable();
+        }
+    }
+}
+
+void renderAudioDiagnostics(urpg::editor::AudioInspectorPanel& panel) {
+    const auto& snapshot = panel.lastRenderSnapshot();
+    ImGui::Text("Active Audio Sources: %zu (Issues: %zu)", snapshot.active_count, snapshot.issue_count);
+    if (!snapshot.status_message.empty()) {
+        ImGui::TextWrapped("%s", snapshot.status_message.c_str());
+    }
+
+    ImGui::Text("Master Volume: %.2f", snapshot.master_volume);
+
+    ImGui::Separator();
+    ImGui::Text("Live Audio Channels:");
+    if (snapshot.live_rows.empty()) {
+        ImGui::TextDisabled("No active audio channels.");
+    } else {
+        if (ImGui::BeginTable("AudioChannelsTable", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+            ImGui::TableSetupColumn("Asset ID");
+            ImGui::TableSetupColumn("Category");
+            ImGui::TableSetupColumn("Volume");
+            ImGui::TableSetupColumn("Pitch");
+            ImGui::TableSetupColumn("Looping");
+            ImGui::TableSetupColumn("Active");
+            ImGui::TableHeadersRow();
+            for (const auto& row : snapshot.live_rows) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.assetId.c_str());
+                ImGui::TableNextColumn(); ImGui::Text("%d", static_cast<int>(row.category));
+                ImGui::TableNextColumn(); ImGui::Text("%.2f", row.volume);
+                ImGui::TableNextColumn(); ImGui::Text("%.2f", row.pitch);
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.isLooping ? "Yes" : "No");
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(row.isActive ? "Yes" : "No");
+            }
+            ImGui::EndTable();
+        }
+    }
+}
+
+void renderMigrationWizardDiagnostics(urpg::editor::MigrationWizardPanel& panel) {
+    const auto& snapshot = panel.lastRenderSnapshot();
+    ImGui::Text("Migration Status: %s", snapshot.headline.empty() ? "Idle" : snapshot.headline.c_str());
+    ImGui::Text("Files Processed: %zu (Warnings: %zu, Errors: %zu)", snapshot.total_files_processed, snapshot.warning_count, snapshot.error_count);
+
+    const auto buttonHelper = [&](const urpg::editor::MigrationWizardPanel::WorkflowActionState& action, const std::function<void()>& onClick) {
+        if (!action.visible) return;
+        if (!action.enabled) ImGui::BeginDisabled();
+        if (ImGui::Button(action.label.c_str())) {
+            onClick();
+        }
+        if (!action.enabled) ImGui::EndDisabled();
+    };
+
+    buttonHelper(snapshot.primary_actions.run_migration, [&]() {
+        panel.rerunBoundProject();
+    });
+    ImGui::SameLine();
+    buttonHelper(snapshot.primary_actions.rerun_selected_subsystem, [&]() {
+        panel.rerunBoundSelectedSubsystem();
+    });
+    ImGui::SameLine();
+    buttonHelper(snapshot.primary_actions.clear_selected_subsystem, [&]() {
+        panel.clearSelectedSubsystemResult();
+    });
+
+    ImGui::NewLine();
+    buttonHelper(snapshot.primary_actions.previous_subsystem, [&]() {
+        panel.selectPreviousSubsystemResult();
+    });
+    ImGui::SameLine();
+    buttonHelper(snapshot.primary_actions.next_subsystem, [&]() {
+        panel.selectNextSubsystemResult();
+    });
+    ImGui::SameLine();
+    buttonHelper(snapshot.primary_actions.previous_issue_subsystem, [&]() {
+        panel.selectPreviousIssueSubsystemResult();
+    });
+    ImGui::SameLine();
+    buttonHelper(snapshot.primary_actions.next_issue_subsystem, [&]() {
+        panel.selectNextIssueSubsystemResult();
+    });
+
+    ImGui::Separator();
+    ImGui::Text("Subsystems:");
+    if (snapshot.subsystem_cards.empty()) {
+        ImGui::TextDisabled("No subsystem migration cards.");
+    } else {
+        if (ImGui::BeginTable("MigrationSubsystemsTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+            ImGui::TableSetupColumn("Subsystem");
+            ImGui::TableSetupColumn("Completed");
+            ImGui::TableSetupColumn("Processed");
+            ImGui::TableSetupColumn("Warnings");
+            ImGui::TableSetupColumn("Errors");
+            ImGui::TableHeadersRow();
+            for (const auto& card : snapshot.subsystem_cards) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                const bool is_selected = card.is_selected;
+                if (ImGui::Selectable(card.display_name.c_str(), is_selected, ImGuiSelectableFlags_SpanAllColumns)) {
+                    panel.selectSubsystemResult(card.subsystem_id);
+                }
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(card.completed ? "Yes" : "No");
+                ImGui::TableNextColumn(); ImGui::Text("%zu", card.processed_count);
+                ImGui::TableNextColumn(); ImGui::Text("%zu", card.warning_count);
+                ImGui::TableNextColumn(); ImGui::Text("%zu", card.error_count);
+            }
+            ImGui::EndTable();
+        }
+    }
+
+    if (!snapshot.summary_logs.empty()) {
+        ImGui::Separator();
+        ImGui::Text("Logs:");
+        for (const auto& log : snapshot.summary_logs) {
+            ImGui::TextWrapped("%s", log.c_str());
+        }
+    }
+}
+
+void renderProjectAuditDiagnostics(const urpg::editor::ProjectAuditPanel& panel) {
+    const auto& snapshot = panel.lastRenderSnapshot();
+    ImGui::Text("Project Completeness Audit: %s", snapshot.headline.empty() ? "No Report Data" : snapshot.headline.c_str());
+    ImGui::Text("Issues found: %zu (Release Blockers: %zu, Export Blockers: %zu)", snapshot.issue_count, snapshot.release_blocker_count, snapshot.export_blocker_count);
+    if (!snapshot.summary.empty()) {
+        ImGui::TextWrapped("%s", snapshot.summary.c_str());
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Audit Issues:");
+    if (snapshot.issues.empty()) {
+        ImGui::TextDisabled("All checks passed! No issues found.");
+    } else {
+        if (ImGui::BeginTable("AuditIssuesTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+            ImGui::TableSetupColumn("Code");
+            ImGui::TableSetupColumn("Severity");
+            ImGui::TableSetupColumn("Title");
+            ImGui::TableSetupColumn("Blocks Release");
+            ImGui::TableSetupColumn("Blocks Export");
+            ImGui::TableHeadersRow();
+            for (const auto& issue : snapshot.issues) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(issue.code.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(issue.severity == urpg::editor::ProjectAuditSeverity::Error ? "Error" : (issue.severity == urpg::editor::ProjectAuditSeverity::Warning ? "Warning" : "Info"));
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(issue.title.c_str());
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(issue.blocks_release ? "Yes" : "No");
+                ImGui::TableNextColumn(); ImGui::TextUnformatted(issue.blocks_export ? "Yes" : "No");
+            }
+            ImGui::EndTable();
+        }
+    }
+}
+
+void renderProjectHealthDiagnostics(const urpg::editor::ProjectHealthPanel& panel) {
+    const auto& snapshot = panel.lastRenderSnapshot();
+    ImGui::Text("Project Health Status: %s", snapshot.headline.empty() ? "No Health Data" : snapshot.headline.c_str());
+    ImGui::Text("Total Issues: %zu (Blockers: %zu)", snapshot.issue_count, snapshot.release_blocker_count);
+    if (!snapshot.summary.empty()) {
+        ImGui::TextWrapped("%s", snapshot.summary.c_str());
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Health Groups:");
+    if (snapshot.groups.empty()) {
+        ImGui::TextDisabled("No health groups available.");
+    } else {
+        for (const auto& group : snapshot.groups) {
+            if (ImGui::CollapsingHeader(group.title.c_str())) {
+                ImGui::Text("Issues: %zu (Blockers: %zu)", group.issue_count, group.blocker_count);
+                if (group.fixes.empty()) {
+                    ImGui::TextDisabled("No issues in this group.");
+                } else {
+                    for (const auto& fix : group.fixes) {
+                        ImGui::BulletText("[%s] %s: %s", fix.code.c_str(), fix.title.c_str(), fix.detail.c_str());
+                    }
+                }
+            }
+        }
+    }
+}
+
+void renderDiagnosticsWorkspace(EditorPanelRuntime& runtime) {
+    auto& diagnostics = runtime.diagnostics_workspace;
+    diagnostics.update();
+    for (const auto& summary : diagnostics.allTabSummaries()) {
+        ImGui::PushID(static_cast<int>(summary.tab));
+        if (ImGui::Selectable(diagnosticsTabName(summary.tab), summary.active)) {
+            diagnostics.setActiveTab(summary.tab);
+        }
+        ImGui::SameLine(150.0f);
+        ImGui::Text("items %zu", summary.item_count);
+        ImGui::SameLine(235.0f);
+        ImGui::Text("issues %zu", summary.issue_count);
+        ImGui::PopID();
+    }
+    ImGui::Separator();
+    ImGui::TextWrapped("Active diagnostics tab: %s", diagnosticsTabName(diagnostics.activeTab()));
+    ImGui::Separator();
+
+    auto activeTab = diagnostics.activeTab();
+    if (activeTab == urpg::editor::DiagnosticsTab::Compat) {
+        renderCompatDiagnostics(diagnostics.compatPanel());
+    } else if (activeTab == urpg::editor::DiagnosticsTab::Save) {
+        renderSaveDiagnostics(diagnostics.savePanel());
+    } else if (activeTab == urpg::editor::DiagnosticsTab::EventAuthority) {
+        renderEventAuthorityDiagnostics(diagnostics.eventAuthorityPanel());
+    } else if (activeTab == urpg::editor::DiagnosticsTab::MessageText) {
+        renderMessageDiagnostics(diagnostics.messagePanel());
+    } else if (activeTab == urpg::editor::DiagnosticsTab::Battle) {
+        renderBattleDiagnostics(diagnostics.battlePanel());
+    } else if (activeTab == urpg::editor::DiagnosticsTab::Audio) {
+        renderAudioDiagnostics(diagnostics.audioPanel());
+    } else if (activeTab == urpg::editor::DiagnosticsTab::MigrationWizard) {
+        renderMigrationWizardDiagnostics(diagnostics.migrationWizardPanel());
+    } else if (activeTab == urpg::editor::DiagnosticsTab::ProjectAudit) {
+        renderProjectAuditDiagnostics(diagnostics.projectAuditPanel());
+    } else if (activeTab == urpg::editor::DiagnosticsTab::ProjectHealth) {
+        renderProjectHealthDiagnostics(diagnostics.projectHealthPanel());
+    }
+}
+
+void renderAssetWorkspace(EditorPanelRuntime& runtime) {
+    auto& panel = runtime.asset_library_panel;
+    const auto& snapshot = panel.lastRenderSnapshot();
+    ImGui::Text("Status: %s", snapshot.status.c_str());
+    if (!snapshot.status_message.empty()) {
+        ImGui::TextWrapped("%s", snapshot.status_message.c_str());
+    }
+    if (!snapshot.error_message.empty()) {
+        ImGui::TextWrapped("%s", snapshot.error_message.c_str());
+    }
+    if (ImGui::Button("Load Reports")) {
+        std::string error;
+        (void)panel.model().loadReportsFromDirectory(runtime.project_root / "imports" / "reports", &error);
+        panel.render();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Clear Filters")) {
+        (void)panel.model().applyQuickFilter("all_assets");
+        panel.render();
+    }
+    ImGui::Separator();
+    ImGui::Text("Assets: %zu", snapshot.asset_count);
+    ImGui::Text("Runtime ready: %zu", snapshot.runtime_ready_count);
+    ImGui::Text("Previewable: %zu", snapshot.previewable_count);
+    ImGui::Text("Duplicates: %zu groups / %zu assets", snapshot.duplicate_group_count, snapshot.duplicate_asset_count);
+    ImGui::Text("Import rows: %zu", snapshot.import_review_row_count);
+    ImGui::Text("Project attached: %zu", snapshot.project_attached_count);
+    ImGui::Separator();
+    ImGui::Text("Last Action");
+    renderJsonLines(snapshot.last_action, 6);
+}
+
+void renderModWorkspace(EditorPanelRuntime& runtime) {
+    const auto snapshot = runtime.mod_manager_panel.lastRenderSnapshot();
+    ImGui::Text("Status: %s", snapshot.value("status", "unknown").c_str());
+    ImGui::Text("Registered: %zu", snapshot.value("registered_count", size_t{0}));
+    ImGui::Text("Active: %zu", snapshot.value("active_count", size_t{0}));
+    if (ImGui::Button("Clear Last Action")) {
+        runtime.mod_manager_panel.clearLastAction();
+        runtime.mod_manager_panel.render();
+    }
+    ImGui::Separator();
+    ImGui::Text("Messages");
+    renderJsonLines(snapshot.value("status_messages", nlohmann::json::array()), 6);
+    ImGui::Separator();
+    ImGui::Text("Mods");
+    renderJsonLines(snapshot.value("mods", nlohmann::json::array()), 6);
+}
+
+void renderLevelBuilderWorkspace(EditorPanelRuntime& runtime) {
+    auto& workspace = runtime.level_builder_workspace;
+    const auto& snapshot = workspace.lastRenderSnapshot();
+    ImGui::Text("Status: %s", snapshot.status.c_str());
+    ImGui::TextWrapped("%s", snapshot.message.c_str());
+    ImGui::Text("Mode: %s", snapshot.active_mode.c_str());
+    ImGui::Text("Placed parts: %zu", snapshot.placement.placed_count);
+    ImGui::Text("Palette parts: %zu", snapshot.palette.part_count);
+    ImGui::Text("Diagnostics: %zu (%zu blocking)", snapshot.validation.diagnostic_count,
+                snapshot.validation.blocking_count);
+    ImGui::Separator();
+    ImGui::Text("Actions");
+    for (const auto& action : snapshot.actions) {
+        ImGui::PushID(action.id.c_str());
+        if (!action.enabled) {
+            ImGui::BeginDisabled();
+        }
+        if (ImGui::Button(action.label.c_str(), ImVec2(118.0f, 0.0f))) {
+            (void)workspace.ActivateToolbarAction(action.id);
+        }
+        if (!action.enabled) {
+            ImGui::EndDisabled();
+        }
+        if (!action.enabled) {
+            renderDisabledReason("Action is unavailable in the current level state.");
+        }
+        ImGui::SameLine();
+        ImGui::PopID();
+    }
+    ImGui::NewLine();
+    ImGui::Separator();
+    ImGui::Text("Palette");
+    int shown = 0;
+    for (const auto& entry : snapshot.palette.entries) {
+        if (shown++ >= 10) {
+            ImGui::TextDisabled("...");
+            break;
+        }
+        ImGui::PushID(entry.part_id.c_str());
+        if (ImGui::Selectable(entry.display_name.c_str(), entry.selected)) {
+            (void)workspace.SelectGridPart(entry.part_id);
+        }
+        ImGui::SameLine(220.0f);
+        ImGui::TextDisabled("%s", entry.category.c_str());
+        ImGui::PopID();
+    }
+}
+
+void renderPerspectiveWorkspace(EditorPanelRuntime& runtime) {
+    auto& workspace = runtime.perspective_2d_workspace;
+    const auto& snapshot = workspace.lastRenderSnapshot();
+    ImGui::Text("Status: %s", snapshot.status.c_str());
+    ImGui::TextWrapped("%s", snapshot.message.c_str());
+    ImGui::Text("Mode: %s", snapshot.toolbar.active_mode.c_str());
+    ImGui::Text("Layers: %zu", snapshot.perspective_2d_layers.size());
+    ImGui::Text("Events: %zu", snapshot.perspective_2d_events.size());
+    ImGui::Text("Visible tile options: %zu", snapshot.perspective_2d_palette.visible_tile_option_count);
+    ImGui::Separator();
+    ImGui::Text("Tools");
+    for (const auto& action : snapshot.toolbar.actions) {
+        ImGui::PushID(action.id.c_str());
+        if (!action.enabled) {
+            ImGui::BeginDisabled();
+        }
+        if (ImGui::Button(action.label.c_str(), ImVec2(118.0f, 0.0f))) {
+            (void)workspace.ActivateToolbarAction(action.id);
+        }
+        if (!action.enabled) {
+            ImGui::EndDisabled();
+        }
+        ImGui::SameLine();
+        ImGui::PopID();
+    }
+    ImGui::NewLine();
+    ImGui::Separator();
+    ImGui::Text("Layers");
+    int shown = 0;
+    for (const auto& layer : snapshot.perspective_2d_layers) {
+        if (shown++ >= 10) {
+            ImGui::TextDisabled("...");
+            break;
+        }
+        ImGui::PushID(layer.id.c_str());
+        if (ImGui::Selectable(layer.label.c_str(), layer.selected)) {
+            (void)workspace.SelectPerspectiveLayer(layer.id);
+        }
+        ImGui::SameLine(220.0f);
+        ImGui::TextDisabled("%s", layer.kind.c_str());
+        ImGui::PopID();
+    }
+}
+
+void renderAbilityWorkspaceInline(EditorPanelRuntime& runtime) {
+    auto& panel = runtime.ability_inspector_panel;
+    panel.update(runtime.ability_runtime);
+    const auto& snapshot = panel.getRenderSnapshot();
+
+    ImGui::Text("Active Tags");
+    const auto& tags = panel.getModel().getActiveTags();
+    if (tags.empty()) {
+        ImGui::TextDisabled("None");
+    } else {
+        for (const auto& tagInfo : tags) {
+            ImGui::BulletText("%s (%d stack%s)", tagInfo.tag.c_str(), tagInfo.count, tagInfo.count == 1 ? "" : "s");
+        }
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Abilities");
+    const auto& abilities = panel.getModel().getAbilities();
+    if (abilities.empty()) {
+        ImGui::TextDisabled("No abilities are bound to this runtime.");
+    } else {
+        if (ImGui::BeginTable("AbilityInspectorAbilitiesInline", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+            ImGui::TableSetupColumn("Ability");
+            ImGui::TableSetupColumn("Status");
+            ImGui::TableSetupColumn("Cooldown");
+            ImGui::TableSetupColumn("Blocking Reason");
+            ImGui::TableHeadersRow();
+
+            const auto selected_index = panel.getModel().selectedAbilityIndex();
+            for (size_t index = 0; index < abilities.size(); ++index) {
+                const auto& info = abilities[index];
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                const bool selected = selected_index.has_value() && *selected_index == index;
+                if (ImGui::Selectable(info.name.c_str(), selected, ImGuiSelectableFlags_SpanAllColumns)) {
+                    panel.selectAbility(index, runtime.ability_runtime);
+                }
+                ImGui::TableNextColumn();
+                ImGui::TextUnformatted(info.can_activate ? "Ready" : "Blocked");
+                ImGui::TableNextColumn();
+                ImGui::Text("%.2fs", info.cooldown_remaining);
+                ImGui::TableNextColumn();
+                ImGui::TextUnformatted(info.blocking_reason.empty() ? "-" : info.blocking_reason.c_str());
+            }
+            ImGui::EndTable();
+        }
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Actions");
+    if (ImGui::Button("Preview Selected")) {
+        panel.previewSelectedAbility(runtime.ability_runtime);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Apply Draft")) {
+        panel.applyDraftToRuntime(runtime.ability_runtime);
+        panel.update(runtime.ability_runtime);
+    }
+
+    if (!snapshot.diagnostic_lines.empty()) {
+        ImGui::Separator();
+        ImGui::Text("Diagnostics");
+        for (const auto& line : snapshot.diagnostic_lines) {
+            ImGui::BulletText("%s", line.c_str());
+        }
+    }
+}
+void renderPatternsWorkspaceInline(EditorPanelRuntime& runtime) {
+    auto& panel = runtime.pattern_field_panel;
+    auto& currentModel = runtime.pattern_field_model;
+    const auto& snapshot = panel.getRenderSnapshot();
+
+    std::string name = snapshot.name;
+    if (ImGui::InputText("Name", &name)) {
+        panel.setPatternName(name);
+    }
+
+    int viewport = snapshot.viewport_size;
+    if (ImGui::InputInt("Viewport", &viewport)) {
+        panel.resizeViewport(viewport);
+    }
+
+    if (ImGui::Button("Clear")) {
+        panel.clearPattern();
+    }
+
+    const auto presets = currentModel.availablePresets();
+    if (!presets.empty()) {
+        ImGui::Separator();
+        ImGui::Text("Presets");
+        for (const auto& preset : presets) {
+            ImGui::PushID(preset.id.c_str());
+            if (ImGui::Button(preset.display_name.c_str())) {
+                panel.applyPreset(preset.id);
+            }
+            ImGui::PopID();
+            ImGui::SameLine();
+        }
+        ImGui::NewLine();
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Grid");
+    const auto bounds = currentModel.getViewportBounds();
+    for (int32_t y = bounds.minY; y <= bounds.maxY; ++y) {
+        for (int32_t x = bounds.minX; x <= bounds.maxX; ++x) {
+            ImGui::PushID(static_cast<int>((y - bounds.minY) * snapshot.viewport_size + (x - bounds.minX)));
+            const bool selected = currentModel.isPointSelected(x, y);
+            const char* label = (x == 0 && y == 0) ? (selected ? "[O]" : "[.]") : (selected ? "[X]" : "[ ]");
+            if (ImGui::Button(label, ImVec2(36.0f, 28.0f))) {
+                panel.togglePoint(x, y);
+            }
+            ImGui::PopID();
+            if (x < bounds.maxX) {
+                ImGui::SameLine();
+            }
+        }
+    }
+}
+
+void renderAnalyticsWorkspaceInline(urpg::editor::AnalyticsPanel& panel) {
+    const auto snapshot = panel.lastRenderSnapshot();
+    ImGui::Text("Session ID: %s", snapshot.value("session_id", "unknown").c_str());
+    ImGui::Text("Consent State: %s", snapshot.value("consent_state", "unknown").c_str());
+
+    bool optIn = snapshot.value("opt_in_checked", false);
+    if (ImGui::Checkbox("Opt In", &optIn)) {
+        panel.setOptIn(optIn);
+        panel.render();
+    }
+
+    ImGui::Text("Queue size: %zu", snapshot.value("queue_size", size_t{0}));
+    if (ImGui::Button("Clear Queue")) {
+        panel.clearQueuedEvents();
+        panel.render();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Flush Upload")) {
+        panel.flushQueuedEvents();
+        panel.render();
+    }
+}
+
+void renderEditorWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRuntime& runtime) {
+    const auto snapshot = editorShell.snapshot();
+    ImGui::SetNextWindowPos(ImVec2(370.0f, 12.0f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(520.0f, 520.0f), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("URPG Workspace")) {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Panel: %s", snapshot.active_panel_id.c_str());
+    ImGui::Separator();
+
+    if (snapshot.active_panel_id == "diagnostics") {
+        renderDiagnosticsWorkspace(runtime);
+    } else if (snapshot.active_panel_id == "assets") {
+        renderAssetWorkspace(runtime);
+    } else if (snapshot.active_panel_id == "mod") {
+        renderModWorkspace(runtime);
+    } else if (snapshot.active_panel_id == "level_builder") {
+        renderLevelBuilderWorkspace(runtime);
+    } else if (snapshot.active_panel_id == "spatial_authoring") {
+        renderPerspectiveWorkspace(runtime);
+    } else if (snapshot.active_panel_id == "ability") {
+        renderAbilityWorkspaceInline(runtime);
+    } else if (snapshot.active_panel_id == "patterns") {
+        renderPatternsWorkspaceInline(runtime);
+    } else if (snapshot.active_panel_id == "analytics") {
+        renderAnalyticsWorkspaceInline(runtime.analytics_panel);
+    } else {
+        ImGui::TextWrapped("This panel opens in its own tool window.");
+    }
+
+    ImGui::End();
+}
+#endif
 
 std::string analyticsConsentToSettings(urpg::analytics::ConsentState state) {
     switch (state) {
@@ -534,22 +1477,46 @@ std::string analyticsConsentToSettings(urpg::analytics::ConsentState state) {
 }
 
 bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell, bool renderAllPanels,
-                    double deltaSeconds = 1.0 / 60.0) {
+                    EditorPanelRuntime* panelRuntime = nullptr, double deltaSeconds = 1.0 / 60.0) {
     engineShell.tick();
 #ifdef URPG_IMGUI_ENABLED
+#ifndef URPG_HEADLESS
+    if (!editorShell.snapshot().headless) {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+    }
+#endif
     ImGui::NewFrame();
 #endif
     bool rendered = false;
     if (editorShell.beginFrame(deltaSeconds)) {
+#ifdef URPG_IMGUI_ENABLED
+        if (!editorShell.snapshot().headless) {
+            renderEditorChrome(editorShell);
+        }
+#endif
         if (renderAllPanels) {
             rendered = editorShell.renderVisiblePanels() > 0;
         } else {
             rendered = editorShell.renderActivePanel();
         }
+#ifdef URPG_IMGUI_ENABLED
+        if (panelRuntime != nullptr && !editorShell.snapshot().headless) {
+            renderEditorWorkspace(editorShell, *panelRuntime);
+        }
+#endif
         rendered = editorShell.endFrame() && rendered;
     }
 #ifdef URPG_IMGUI_ENABLED
     ImGui::Render();
+#ifndef URPG_HEADLESS
+    if (!editorShell.snapshot().headless) {
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        if (auto* platform = engineShell.getPlatform()) {
+            platform->present();
+        }
+    }
+#endif
 #endif
     return rendered;
 }
@@ -705,6 +1672,7 @@ int main(int argc, char** argv) {
 
         if (!surface->initialize(config)) {
             std::cerr << "URPG editor failed to initialize platform surface.\n";
+            printRuntimeDiagnostics();
             return 1;
         }
 
@@ -713,6 +1681,9 @@ int main(int argc, char** argv) {
                                  urpg::EngineShell::StartupOptions(options.project_root))) {
             std::cerr << "URPG editor startup failed.\n";
             return 1;
+        }
+        if (!options.headless) {
+            engineShell.getRenderer()->setAutoPresent(false);
         }
 
         clearSceneStack();
@@ -736,10 +1707,38 @@ int main(int argc, char** argv) {
         const std::string imguiIniFilename = settingsLoad.settings.imgui_ini_path.string();
         ImGui::GetIO().IniFilename = imguiIniFilename.c_str();
         ImGui::GetIO().LogFilename = nullptr;
-        unsigned char* fontPixels = nullptr;
-        int fontWidth = 0;
-        int fontHeight = 0;
-        ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&fontPixels, &fontWidth, &fontHeight);
+        if (options.headless) {
+            unsigned char* fontPixels = nullptr;
+            int fontWidth = 0;
+            int fontHeight = 0;
+            ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&fontPixels, &fontWidth, &fontHeight);
+        }
+#ifndef URPG_HEADLESS
+        if (!options.headless && !ImGui_ImplOpenGL3_Init("#version 330")) {
+            std::cerr << "URPG editor failed to initialize ImGui OpenGL renderer.\n";
+            ImGui::DestroyContext();
+            editorShell.shutdown();
+            engineShell.shutdown();
+            clearSceneStack();
+            return 1;
+        }
+        if (!options.headless) {
+            auto* sdlSurface = dynamic_cast<urpg::SDLSurface*>(engineShell.getPlatform());
+            if (!sdlSurface || !ImGui_ImplSDL2_InitForOpenGL(sdlSurface->getNativeWindow(),
+                                                             sdlSurface->getNativeGlContext())) {
+                std::cerr << "URPG editor failed to initialize ImGui SDL renderer.\n";
+                ImGui_ImplOpenGL3_Shutdown();
+                ImGui::DestroyContext();
+                editorShell.shutdown();
+                engineShell.shutdown();
+                clearSceneStack();
+                return 1;
+            }
+            sdlSurface->setEventCallback([](const void* event) {
+                ImGui_ImplSDL2_ProcessEvent(static_cast<const SDL_Event*>(event));
+            });
+        }
+#endif
 #endif
 
         EditorPanelRuntime panelRuntime;
@@ -751,6 +1750,15 @@ int main(int argc, char** argv) {
         if (!registerEditorPanels(editorShell, panelRuntime)) {
             std::cerr << "URPG editor failed to register required panels.\n";
 #ifdef URPG_IMGUI_ENABLED
+#ifndef URPG_HEADLESS
+            if (!options.headless) {
+                if (auto* sdlSurface = dynamic_cast<urpg::SDLSurface*>(engineShell.getPlatform())) {
+                    sdlSurface->setEventCallback(nullptr);
+                }
+                ImGui_ImplSDL2_Shutdown();
+                ImGui_ImplOpenGL3_Shutdown();
+            }
+#endif
             ImGui::DestroyContext();
 #endif
             editorShell.shutdown();
@@ -762,6 +1770,15 @@ int main(int argc, char** argv) {
         if (options.open_panel_id.has_value() && !editorShell.openPanel(*options.open_panel_id)) {
             std::cerr << "URPG editor has no reachable panel with id '" << *options.open_panel_id << "'.\n";
 #ifdef URPG_IMGUI_ENABLED
+#ifndef URPG_HEADLESS
+            if (!options.headless) {
+                if (auto* sdlSurface = dynamic_cast<urpg::SDLSurface*>(engineShell.getPlatform())) {
+                    sdlSurface->setEventCallback(nullptr);
+                }
+                ImGui_ImplSDL2_Shutdown();
+                ImGui_ImplOpenGL3_Shutdown();
+            }
+#endif
             ImGui::DestroyContext();
 #endif
             editorShell.shutdown();
@@ -787,7 +1804,7 @@ int main(int argc, char** argv) {
 
         int frame = 0;
         while (engineShell.isRunning() && editorShell.isRunning() && (options.frames < 0 || frame < options.frames)) {
-            (void)runEditorFrame(engineShell, editorShell, options.render_all_panels);
+            (void)runEditorFrame(engineShell, editorShell, options.render_all_panels, &panelRuntime);
             ++frame;
             if (options.headless) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -796,6 +1813,15 @@ int main(int argc, char** argv) {
 
         editorShell.shutdown();
 #ifdef URPG_IMGUI_ENABLED
+#ifndef URPG_HEADLESS
+        if (!options.headless) {
+            if (auto* sdlSurface = dynamic_cast<urpg::SDLSurface*>(engineShell.getPlatform())) {
+                sdlSurface->setEventCallback(nullptr);
+            }
+            ImGui_ImplSDL2_Shutdown();
+            ImGui_ImplOpenGL3_Shutdown();
+        }
+#endif
         ImGui::DestroyContext();
 #endif
         engineShell.shutdown();

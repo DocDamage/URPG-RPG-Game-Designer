@@ -126,6 +126,31 @@ TEST_CASE("Event authority panel controller ingests diagnostics and applies filt
     REQUIRE(panel.getModel().VisibleRows().empty());
 }
 
+TEST_CASE("Event authority panel clears filters without clearing diagnostics", "[events][panel][filter]") {
+    const std::string jsonl =
+        "{\"ts\":\"2026-03-04T00:00:00Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_a\",\"block_id\":\"block_1\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"ast is read-only\"}\n"
+        "{\"ts\":\"2026-03-04T00:00:01Z\",\"level\":\"error\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_b\",\"block_id\":\"block_2\",\"mode\":\"mixed\",\"operation\":\"edit_raw_command_list\",\"error_code\":\"invalid_for_mode\",\"message\":\"raw rejected\"}";
+
+    urpg::EventAuthorityPanel panel;
+    panel.ingestDiagnosticsJsonl(jsonl);
+    panel.refresh();
+
+    panel.setFilter("evt_b");
+    panel.setLevelFilter("error");
+    panel.setModeFilter("mixed");
+    panel.update();
+    REQUIRE(panel.getModel().VisibleRows().size() == 1);
+
+    panel.clearFilters();
+    panel.refresh();
+    panel.render();
+
+    REQUIRE(panel.getModel().VisibleRows().size() == 2);
+    REQUIRE(panel.lastRenderSnapshot().event_id_filter.empty());
+    REQUIRE(panel.lastRenderSnapshot().level_filter.empty());
+    REQUIRE(panel.lastRenderSnapshot().mode_filter.empty());
+}
+
 TEST_CASE("Event authority panel visible render records snapshot", "[events][panel][render]") {
     const std::string jsonl =
         "{\"ts\":\"2026-03-04T00:00:00Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_a\",\"block_id\":\"block_1\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"ast is read-only\"}\n"

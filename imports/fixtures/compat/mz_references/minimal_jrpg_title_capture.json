@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0.0",
+  "captureId": "minimal_jrpg_title_capture",
+  "projectId": "minimal_jrpg_project",
+  "sceneId": "title_screen",
+  "backend": "mz_reference_headless",
+  "frameHash": "7c6e2a5b9f1d4c30",
+  "dimensions": {
+    "width": 816,
+    "height": 624
+  },
+  "legalUse": "repo_owned",
+  "source": {
+    "kind": "synthetic_reference_capture",
+    "copyrightedRpgMakerPayloadsIncluded": false,
+    "notes": "Repo-owned descriptor for title-screen parity plumbing; no RPG Maker runtime, RTP, or captured bitmap is stored."
+  },
+  "releaseAuthoritative": false
+}

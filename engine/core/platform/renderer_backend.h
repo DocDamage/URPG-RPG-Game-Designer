@@ -46,6 +46,11 @@ public:
     virtual void endFrame() = 0;
 
     /**
+     * @brief Controls whether endFrame presents the platform surface.
+     */
+    virtual void setAutoPresent(bool /*enabled*/) {}
+
+    /**
      * @brief Processes frame-owned render commands while preserving legacy backend overrides.
      */
     virtual void processFrameCommands(const std::vector<FrameRenderCommand>& commands) {

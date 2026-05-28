@@ -241,7 +241,7 @@ TEST_CASE("ExportValidator: directory report JSON surfaces bundle discovery summ
     REQUIRE(report["passed"] == true);
     REQUIRE(report.contains("bundleSummary"));
     REQUIRE(report["bundleSummary"]["format"] == "URPG_BOUNDED_EXPORT_BUNDLE_V1");
-    REQUIRE(report["bundleSummary"]["signatureMode"] == "hmac_sha256_bundle_v1");
+    REQUIRE(report["bundleSummary"]["signatureMode"] == "hmac_sha256_bundle_v2");
     REQUIRE(report["bundleSummary"]["assetDiscoveryManifest"]["format"] == "URPG_PROJECT_ASSET_DISCOVERY_V1");
 
     std::filesystem::remove_all(base);

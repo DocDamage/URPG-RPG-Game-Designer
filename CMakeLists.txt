@@ -447,6 +447,7 @@ set(URPG_CORE_SOURCES
     engine/core/ai/wysiwyg_chatbot_coverage.cpp
     engine/core/collaboration/local_review_bundle.cpp
     engine/core/compat/mz_event_command_coverage.cpp
+    engine/core/compat/mz_parity_evidence.cpp
     engine/core/compat/mz_project_compatibility_report.cpp
     engine/core/compat/mz_visual_diff_report.cpp
     engine/core/diagnostics/diagnostics_bundle_exporter.cpp
@@ -485,6 +486,7 @@ set(URPG_CORE_SOURCES
     engine/core/analytics/analytics_endpoint_profile.cpp
     engine/core/analytics/analytics_uploader.cpp
     engine/core/analytics/analytics_privacy_controller.cpp
+    engine/core/security/script_transform.cpp
     engine/core/semver.cpp
     engine/core/asset_compressor.cpp
     engine/core/threading/thread_roles.cpp
@@ -1090,9 +1092,10 @@ add_library(imgui STATIC
     ${imgui_SOURCE_DIR}/imgui_draw.cpp
     ${imgui_SOURCE_DIR}/imgui_tables.cpp
     ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
     ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
 )
-target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
+target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
 target_compile_features(imgui PUBLIC cxx_std_20)
 
 if(NOT URPG_SKIP_OPENGL)
@@ -1107,6 +1110,11 @@ elseif(TARGET SDL2::SDL2-static)
     set(URPG_SDL_TARGET SDL2::SDL2-static)
 elseif(TARGET SDL2-static)
     set(URPG_SDL_TARGET SDL2-static)
+endif()
+
+if(URPG_SDL_TARGET)
+    target_sources(imgui PRIVATE ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp)
+    target_link_libraries(imgui PUBLIC ${URPG_SDL_TARGET})
 endif()
 
 foreach(_urpg_sdl_vendor_target IN ITEMS SDL2 SDL2-static)
@@ -1226,6 +1234,9 @@ target_link_libraries(urpg_editor PRIVATE
     urpg_testing_support
 )
 target_include_directories(urpg_editor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+if(MINGW)
+    target_compile_options(urpg_editor PRIVATE -Wa,-mbig-obj)
+endif()
 
 add_executable(urpg_audio_smoke
     apps/audio_smoke/main.cpp
@@ -1536,6 +1547,7 @@ add_executable(urpg_tests
     tests/unit/test_plugin_compatibility_score.cpp
     tests/unit/test_plugin_inspector_panel.cpp
     tests/unit/test_mz_project_corpus_schema.cpp
+    tests/unit/test_mz_parity_evidence.cpp
     tests/unit/test_mz_project_compatibility_report.cpp
     tests/unit/test_mz_event_command_coverage.cpp
     tests/unit/test_mz_visual_diff_report.cpp

@@ -111,7 +111,9 @@ TEST_CASE("runtime bundle loader accepts signed bundles", "[export][runtime_bund
 
     REQUIRE(result.loaded);
     REQUIRE(result.errors.empty());
-    REQUIRE(result.manifest.value("signatureMode", "") == "hmac_sha256_bundle_v1");
+    REQUIRE(result.manifest.value("protectionMode", "") == "authenticated_release_bundle_v1");
+    REQUIRE(result.manifest.value("signatureMode", "") == "hmac_sha256_bundle_v2");
+    REQUIRE(result.manifest.value("bundleSignatureScope", "") == "manifest_payload_target_v2");
 }
 
 TEST_CASE("runtime bundle loader rejects tampered bundles before content load", "[export][runtime_bundle][ffs07]") {

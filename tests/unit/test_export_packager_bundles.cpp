@@ -533,9 +533,10 @@ TEST_CASE("ExportPackager stores bundle payloads as reversible RLE+XOR entries",
 
     const auto bundlePath = base / "data.pck";
     const auto manifest = ReadBundleManifest(bundlePath);
-    REQUIRE(manifest["protectionMode"] == "lightweight_obfuscation");
+    REQUIRE(manifest["protectionMode"] == "authenticated_release_bundle_v1");
     REQUIRE(manifest["integrityMode"] == "fnv1a64_keyed");
-    REQUIRE(manifest["signatureMode"] == "hmac_sha256_bundle_v1");
+    REQUIRE(manifest["signatureMode"] == "hmac_sha256_bundle_v2");
+    REQUIRE(manifest["bundleSignatureScope"] == "manifest_payload_target_v2");
     REQUIRE(manifest["bundleSignature"] == ComputeBundleSignature(bundlePath, manifest, ExportTarget::Windows_x64));
 
     const auto& firstEntry = manifest["entries"][0];

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/compat/mz_event_command_coverage.h"
+#include "engine/core/compat/mz_parity_evidence.h"
 #include "engine/core/compat/mz_project_compatibility_report.h"
 #include "engine/core/compat/mz_visual_diff_report.h"
 #include "engine/core/plugin/plugin_compatibility_score.h"
@@ -17,6 +18,7 @@ struct MzMigrationWorkbenchInput {
     compat::MzProjectCompatibilityReport project_report;
     compat::MzEventCommandCoverageReport command_report;
     compat::MzVisualDiffReport visual_report;
+    compat::MzParityEvidenceReport parity_report;
 };
 
 struct MzMigrationWorkbenchSnapshot {
@@ -27,6 +29,9 @@ struct MzMigrationWorkbenchSnapshot {
     size_t unsupported_event_command_count = 0;
     size_t visual_diff_scene_count = 0;
     size_t visual_diff_failed_scene_count = 0;
+    size_t parity_reference_count = 0;
+    size_t parity_backend_count = 0;
+    size_t parity_failed_comparison_count = 0;
     std::string visual_diff_status = "passed";
     bool can_auto_migrate = false;
     bool release_authoritative = false;
