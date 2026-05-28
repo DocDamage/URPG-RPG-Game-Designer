@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -119,6 +120,14 @@ void AssetLibraryModel::setImportToolCommand(std::vector<std::string> command_pr
         import_tool_command_ = std::move(command_prefix);
     }
     refreshSnapshot();
+}
+
+void AssetLibraryModel::setDuplicateCsvDetailLimitBytes(std::uintmax_t limit_bytes) {
+    duplicate_csv_detail_limit_bytes_ = limit_bytes;
+}
+
+void AssetLibraryModel::setPromotionCatalogDetailLimitBytes(std::uintmax_t limit_bytes) {
+    promotion_catalog_detail_limit_bytes_ = limit_bytes;
 }
 
 void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
@@ -261,14 +270,39 @@ void AssetLibraryModel::clearImportSessions() {
 
 namespace {
 
-void ingestCatalogWithShards(urpg::assets::AssetLibrary& library, const std::filesystem::path& reports_root,
-                             const nlohmann::json& promotion_catalog) {
+std::filesystem::path companionPromotionSummaryPath(const std::filesystem::path& catalog_path) {
+    const std::string suffix = "_promotion_catalog.json";
+    const std::string filename = catalog_path.filename().string();
+    if (filename.size() < suffix.size() || !filename.ends_with(suffix)) {
+        return {};
+    }
+    return catalog_path.parent_path() /
+           (filename.substr(0, filename.size() - suffix.size()) + "_promotion_summary.json");
+}
+
+nlohmann::json summaryCatalogFromSummaryFile(const std::filesystem::path& summary_path) {
+    std::ifstream summary_stream(summary_path);
+    const auto summary = nlohmann::json::parse(summary_stream);
+    return {
+        {"source_id", summary.value("source_id", "")},
+        {"source_root", summary.value("source_root", "")},
+        {"promotion_status", summary.value("promotion_status", "")},
+        {"export_eligible", summary.value("export_eligible", false)},
+        {"summary", summary},
+    };
+}
+
+size_t ingestCatalogWithShards(urpg::assets::AssetLibrary& library,
+                               const std::filesystem::path& reports_root,
+                               const nlohmann::json& promotion_catalog,
+                               std::uintmax_t shard_detail_limit_bytes) {
     library.ingestPromotionCatalog(promotion_catalog);
     const auto shards = promotion_catalog.find("shards");
     if (shards == promotion_catalog.end() || !shards->is_array()) {
-        return;
+        return 0;
     }
     const auto repo_root = reports_root.parent_path();
+    size_t skipped_shards = 0;
     for (const auto& shard : *shards) {
         if (!shard.is_object()) {
             continue;
@@ -294,9 +328,16 @@ void ingestCatalogWithShards(urpg::assets::AssetLibrary& library, const std::fil
         if (!std::filesystem::is_regular_file(shard_path)) {
             continue;
         }
+        std::error_code shard_size_error;
+        const auto shard_size = std::filesystem::file_size(shard_path, shard_size_error);
+        if (!shard_size_error && shard_size > shard_detail_limit_bytes) {
+            ++skipped_shards;
+            continue;
+        }
         std::ifstream shard_stream(shard_path);
         library.ingestPromotionCatalog(nlohmann::json::parse(shard_stream));
     }
+    return skipped_shards;
 }
 
 nlohmann::json filterControls(const urpg::assets::AssetLibraryFilter& filter,
@@ -1192,9 +1233,17 @@ bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& re
     try {
         std::ifstream hygiene_stream(hygiene_path);
         std::ifstream intake_stream(intake_path);
-        std::ifstream duplicate_stream(duplicates_path);
-        std::stringstream duplicate_buffer;
-        duplicate_buffer << duplicate_stream.rdbuf();
+        std::error_code duplicate_size_error;
+        const auto duplicate_csv_size = std::filesystem::file_size(duplicates_path, duplicate_size_error);
+        const bool skip_duplicate_details =
+            !duplicate_size_error && duplicate_csv_size > duplicate_csv_detail_limit_bytes_;
+        std::string duplicate_csv;
+        if (!skip_duplicate_details) {
+            std::ifstream duplicate_stream(duplicates_path);
+            std::stringstream duplicate_buffer;
+            duplicate_buffer << duplicate_stream.rdbuf();
+            duplicate_csv = duplicate_buffer.str();
+        }
 
         const auto hygiene_summary = nlohmann::json::parse(hygiene_stream);
         const auto intake_report = nlohmann::json::parse(intake_stream);
@@ -1220,17 +1269,70 @@ bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& re
         action_history_ = nlohmann::json::array();
         library_.ingestHygieneSummary(hygiene_summary);
         library_.ingestIntakeReport(intake_report);
+        size_t skipped_promotion_catalog_details = 0;
+        size_t skipped_promotion_shards = 0;
         for (const auto& path : promotion_catalog_paths) {
+            std::error_code catalog_size_error;
+            const auto catalog_size = std::filesystem::file_size(path, catalog_size_error);
+            if (!catalog_size_error && catalog_size > promotion_catalog_detail_limit_bytes_) {
+                const auto summary_path = companionPromotionSummaryPath(path);
+                if (!summary_path.empty() && std::filesystem::is_regular_file(summary_path)) {
+                    library_.ingestPromotionCatalog(summaryCatalogFromSummaryFile(summary_path));
+                    ++skipped_promotion_catalog_details;
+                    continue;
+                }
+            }
             std::ifstream promotion_stream(path);
-            ingestCatalogWithShards(library_, reports_root, nlohmann::json::parse(promotion_stream));
+            skipped_promotion_shards +=
+                ingestCatalogWithShards(library_, reports_root, nlohmann::json::parse(promotion_stream),
+                                        promotion_catalog_detail_limit_bytes_);
         }
-        library_.ingestDuplicateCsv(duplicate_buffer.str());
+        if (!skip_duplicate_details) {
+            library_.ingestDuplicateCsv(duplicate_csv);
+        }
         library_.detectCaseCollisions();
         rebuildCleanupPreview();
         snapshot_.reports_loaded = true;
         snapshot_.status = "ready";
-        snapshot_.status_message = "";
+        std::vector<std::string> detail_skip_messages;
+        if (skip_duplicate_details) {
+            detail_skip_messages.push_back("detailed duplicate rows");
+        }
+        if (skipped_promotion_catalog_details > 0 || skipped_promotion_shards > 0) {
+            detail_skip_messages.push_back("detailed promotion catalog records");
+        }
+        if (!detail_skip_messages.empty()) {
+            snapshot_.status_message =
+                "Skipped oversized " + detail_skip_messages.front() +
+                (detail_skip_messages.size() > 1 ? " and " + detail_skip_messages.back() : "") +
+                "; summary counts are loaded.";
+        } else {
+            snapshot_.status_message = "";
+        }
         snapshot_.error_message = "";
+        if (skip_duplicate_details || skipped_promotion_catalog_details > 0 || skipped_promotion_shards > 0) {
+            std::string code = "asset_report_details_skipped";
+            if (skip_duplicate_details && skipped_promotion_catalog_details == 0 && skipped_promotion_shards == 0) {
+                code = "duplicate_details_skipped";
+            } else if (!skip_duplicate_details &&
+                       (skipped_promotion_catalog_details > 0 || skipped_promotion_shards > 0)) {
+                code = "promotion_catalog_details_skipped";
+            }
+            nlohmann::json action = {
+                {"action", "load_asset_reports"},
+                {"success", true},
+                {"code", code},
+                {"message", "Loaded asset report summaries without expanding oversized report details."},
+                {"duplicate_csv_bytes", duplicate_csv_size},
+                {"duplicate_detail_limit_bytes", duplicate_csv_detail_limit_bytes_},
+                {"skipped_promotion_catalogs", skipped_promotion_catalog_details},
+                {"skipped_promotion_shards", skipped_promotion_shards},
+                {"promotion_catalog_detail_limit_bytes", promotion_catalog_detail_limit_bytes_},
+            };
+            action_history_.push_back(action);
+            snapshot_.last_action = action;
+            snapshot_.action_history = action_history_;
+        }
     } catch (const std::exception& ex) {
         if (error_message != nullptr) {
             *error_message = ex.what();
@@ -1646,6 +1748,7 @@ void AssetLibraryModel::refreshSnapshot() {
     snapshot_.kind_counts = asset_snapshot.kind_counts;
     snapshot_.source_bundle_counts = asset_snapshot.source_bundle_counts;
     snapshot_.reports_loaded = asset_snapshot.assets.size() > 0 || asset_snapshot.duplicate_groups.size() > 0 ||
+                               asset_snapshot.file_count > 0 || asset_snapshot.duplicate_group_count > 0 ||
                                asset_snapshot.catalog_asset_count > 0 || asset_snapshot.catalog_shard_count > 0 ||
                                cleanup_plan_.allowed_count > 0 || cleanup_plan_.refused_count > 0 ||
                                !import_sessions_.empty();

@@ -6,6 +6,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include <cstdint>
 #include <filesystem>
 #include <functional>
 #include <map>
@@ -121,6 +122,8 @@ class AssetLibraryModel {
                                                        std::string license_id,
                                                        const std::filesystem::path& promoted_root);
     bool loadReportsFromDirectory(const std::filesystem::path& reports_root, std::string* error_message = nullptr);
+    void setDuplicateCsvDetailLimitBytes(std::uintmax_t limit_bytes);
+    void setPromotionCatalogDetailLimitBytes(std::uintmax_t limit_bytes);
     bool loadAssetBundleManifestsFromDirectory(const std::filesystem::path& bundle_root,
                                                std::string* error_message = nullptr);
     void addReferencedAsset(std::string path);
@@ -153,6 +156,8 @@ class AssetLibraryModel {
     nlohmann::json action_history_ = nlohmann::json::array();
     nlohmann::json pending_import_request_ = nlohmann::json::object();
     std::vector<std::string> import_tool_command_ = {"python", "tools/assets/global_asset_import.py"};
+    std::uintmax_t duplicate_csv_detail_limit_bytes_ = 8ull * 1024ull * 1024ull;
+    std::uintmax_t promotion_catalog_detail_limit_bytes_ = 4ull * 1024ull * 1024ull;
 };
 
 } // namespace urpg::editor

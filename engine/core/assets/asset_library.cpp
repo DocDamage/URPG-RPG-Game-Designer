@@ -421,6 +421,9 @@ void AssetLibrary::ingestHygieneSummary(const nlohmann::json& summary) {
     }
     snapshot_.file_count = readCount(summary, "file_count").value_or(snapshot_.file_count);
     snapshot_.duplicate_group_count = readCount(summary, "duplicate_groups").value_or(snapshot_.duplicate_group_count);
+    snapshot_.duplicate_asset_count =
+        readCount(summary, "duplicate_asset_count")
+            .value_or(readCount(summary, "duplicate_file_count").value_or(snapshot_.duplicate_asset_count));
     snapshot_.oversize_count = readCount(summary, "oversize_count").value_or(snapshot_.oversize_count);
 }
 
@@ -719,6 +722,7 @@ void AssetLibrary::ingestDuplicateCsv(std::string_view csv_text) {
     std::string line;
     bool first_line = true;
     std::map<std::string, AssetDuplicateGroup> groups;
+    const auto summary_duplicate_group_count = snapshot_.duplicate_group_count;
 
     while (std::getline(stream, line)) {
         if (!line.empty() && line.back() == '\r') {
@@ -766,7 +770,8 @@ void AssetLibrary::ingestDuplicateCsv(std::string_view csv_text) {
     }
     std::sort(snapshot_.duplicate_groups.begin(), snapshot_.duplicate_groups.end(),
               [](const auto& lhs, const auto& rhs) { return lhs.sha256 < rhs.sha256; });
-    snapshot_.duplicate_group_count = snapshot_.duplicate_groups.size();
+    snapshot_.duplicate_group_count =
+        snapshot_.duplicate_groups.empty() ? summary_duplicate_group_count : snapshot_.duplicate_groups.size();
     refreshDerivedCounts();
     sortSnapshot();
 }

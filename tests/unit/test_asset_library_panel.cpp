@@ -80,6 +80,107 @@ TEST_CASE("AssetLibraryModel loads canonical report directory shape", "[assets][
     REQUIRE(model.snapshot().duplicate_group_count == 1);
 }
 
+TEST_CASE("AssetLibraryModel skips oversized duplicate CSV details", "[assets][asset_library][editor]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_model_large_duplicate_report");
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root / "asset_intake");
+
+    {
+        std::ofstream out(root / "asset_hygiene_summary.json");
+        out << R"({"file_count":4,"duplicate_groups":2,"duplicate_file_count":4,"oversize_count":0})";
+    }
+    {
+        std::ofstream out(root / "asset_hygiene_duplicates.csv");
+        out << "sha256,size_bytes,path_rel,recommended_keep,recommended_remove\n";
+        out << "aaa,10,content/hero.png,imports/hero.png,yes\n";
+        out << "aaa,10,imports/hero.png,imports/hero.png,no\n";
+    }
+    {
+        std::ofstream out(root / "asset_intake" / "source_capture_status.json");
+        out << R"({"sources":[]})";
+    }
+
+    urpg::editor::AssetLibraryModel model;
+    model.setDuplicateCsvDetailLimitBytes(32);
+    std::string error;
+    REQUIRE(model.loadReportsFromDirectory(root, &error));
+    REQUIRE(error.empty());
+    REQUIRE(model.snapshot().status == "ready");
+    REQUIRE(model.snapshot().reports_loaded);
+    REQUIRE(model.snapshot().asset_count == 0);
+    REQUIRE(model.snapshot().duplicate_group_count == 2);
+    REQUIRE(model.snapshot().duplicate_asset_count == 4);
+    REQUIRE(model.library().snapshot().duplicate_groups.empty());
+    REQUIRE(model.snapshot().last_action["code"] == "duplicate_details_skipped");
+    REQUIRE(model.snapshot().status_message.find("duplicate rows") != std::string::npos);
+
+    REQUIRE(model.applyQuickFilter("all_assets"));
+    REQUIRE(model.snapshot().reports_loaded);
+    REQUIRE(model.snapshot().status == "ready");
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel skips oversized promotion catalog details", "[assets][asset_library][editor]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_model_large_promotion_catalog");
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root / "asset_intake");
+
+    {
+        std::ofstream out(root / "asset_hygiene_summary.json");
+        out << R"({"file_count":1,"duplicate_groups":0,"oversize_count":0})";
+    }
+    {
+        std::ofstream out(root / "asset_hygiene_duplicates.csv");
+        out << "sha256,size_bytes,path_rel,recommended_keep,recommended_remove\n";
+    }
+    {
+        std::ofstream out(root / "asset_intake" / "source_capture_status.json");
+        out << R"({"sources":[]})";
+    }
+    {
+        std::ofstream out(root / "asset_intake" / "big_assets_promotion_catalog.json");
+        out << "{ this oversized catalog body is intentionally not parsed ";
+        out << std::string(128, 'x');
+    }
+    {
+        std::ofstream out(root / "asset_intake" / "big_assets_promotion_summary.json");
+        out << R"({
+          "source_id": "SRC-BIG",
+          "source_root": "imports/raw/big",
+          "promotion_status": "cataloged_local_available",
+          "export_eligible": false,
+          "asset_count": 9000,
+          "canonical_asset_count": 8000,
+          "duplicate_group_count": 3,
+          "duplicate_asset_count": 7,
+          "unsupported_count": 2,
+          "category_counts": {"ui": 9000},
+          "kind_counts": {"image": 9000}
+        })";
+    }
+
+    urpg::editor::AssetLibraryModel model;
+    model.setPromotionCatalogDetailLimitBytes(8);
+    std::string error;
+    REQUIRE(model.loadReportsFromDirectory(root, &error));
+    REQUIRE(error.empty());
+    REQUIRE(model.snapshot().status == "ready");
+    REQUIRE(model.snapshot().reports_loaded);
+    REQUIRE(model.snapshot().asset_count == 0);
+    REQUIRE(model.snapshot().catalog_asset_count == 9000);
+    REQUIRE(model.snapshot().canonical_asset_count == 8000);
+    REQUIRE(model.snapshot().duplicate_group_count == 3);
+    REQUIRE(model.snapshot().duplicate_asset_count == 7);
+    REQUIRE(model.snapshot().unsupported_count == 2);
+    REQUIRE(model.snapshot().category_counts.at("ui") == 9000);
+    REQUIRE(model.snapshot().kind_counts.at("image") == 9000);
+    REQUIRE(model.snapshot().last_action["code"] == "promotion_catalog_details_skipped");
+    REQUIRE(model.snapshot().status_message.find("promotion catalog") != std::string::npos);
+
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][asset_library][editor][asset_intake]") {
     const auto root = uniqueTempRoot("urpg_asset_library_model_promotion_reports");
     std::filesystem::remove_all(root);

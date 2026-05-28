@@ -99,6 +99,8 @@ struct EditorPanelRuntime {
     urpg::analytics::AnalyticsUploader analytics_uploader;
     urpg::analytics::AnalyticsPrivacyController analytics_privacy_controller;
     std::filesystem::path project_root;
+    bool focus_workspace_next_frame = true;
+    std::string last_workspace_panel_id;
 };
 
 std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asset) {
@@ -532,10 +534,18 @@ urpg::analytics::ConsentState analyticsConsentFromSettings(const std::string& st
 }
 
 #ifdef URPG_IMGUI_ENABLED
-void renderEditorChrome(urpg::editor::EditorShell& editorShell) {
-    ImGui::SetNextWindowPos(ImVec2(12.0f, 12.0f), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(340.0f, 520.0f), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("URPG Editor")) {
+const char* workspaceTitleForPanelId(const urpg::editor::EditorShellSnapshot& snapshot) {
+    const auto active = std::find_if(snapshot.panels.begin(), snapshot.panels.end(), [&snapshot](const auto& panel) {
+        return panel.id == snapshot.active_panel_id;
+    });
+    return active == snapshot.panels.end() ? "Workspace" : active->title.c_str();
+}
+
+void renderEditorChrome(urpg::editor::EditorShell& editorShell, EditorPanelRuntime* runtime) {
+    ImGui::SetNextWindowBgAlpha(1.0f);
+    ImGui::SetNextWindowPos(ImVec2(12.0f, 12.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(340.0f, 520.0f), ImGuiCond_Always);
+    if (!ImGui::Begin("URPG Editor", nullptr, ImGuiWindowFlags_NoCollapse)) {
         ImGui::End();
         return;
     }
@@ -554,6 +564,9 @@ void renderEditorChrome(urpg::editor::EditorShell& editorShell) {
         const bool selected = panel.id == snapshot.active_panel_id;
         if (ImGui::Selectable((panel.title + "##" + panel.id).c_str(), selected)) {
             editorShell.openPanel(panel.id);
+            if (runtime != nullptr) {
+                runtime->focus_workspace_next_frame = true;
+            }
         }
         ImGui::EndDisabled();
         if (ImGui::IsItemHovered()) {
@@ -561,9 +574,6 @@ void renderEditorChrome(urpg::editor::EditorShell& editorShell) {
         }
     }
 
-    ImGui::Separator();
-    ImGui::Text("Preview");
-    ImGui::TextWrapped("The map preview is rendered behind this editor shell.");
     ImGui::End();
 }
 
@@ -1146,14 +1156,6 @@ void renderDiagnosticsWorkspace(EditorPanelRuntime& runtime) {
 
 void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     auto& panel = runtime.asset_library_panel;
-    const auto& snapshot = panel.lastRenderSnapshot();
-    ImGui::Text("Status: %s", snapshot.status.c_str());
-    if (!snapshot.status_message.empty()) {
-        ImGui::TextWrapped("%s", snapshot.status_message.c_str());
-    }
-    if (!snapshot.error_message.empty()) {
-        ImGui::TextWrapped("%s", snapshot.error_message.c_str());
-    }
     if (ImGui::Button("Load Reports")) {
         std::string error;
         (void)panel.model().loadReportsFromDirectory(runtime.project_root / "imports" / "reports", &error);
@@ -1163,6 +1165,15 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     if (ImGui::Button("Clear Filters")) {
         (void)panel.model().applyQuickFilter("all_assets");
         panel.render();
+    }
+    const auto& snapshot = panel.lastRenderSnapshot();
+    ImGui::Separator();
+    ImGui::Text("Status: %s", snapshot.status.c_str());
+    if (!snapshot.status_message.empty()) {
+        ImGui::TextWrapped("%s", snapshot.status_message.c_str());
+    }
+    if (!snapshot.error_message.empty()) {
+        ImGui::TextWrapped("%s", snapshot.error_message.c_str());
     }
     ImGui::Separator();
     ImGui::Text("Assets: %zu", snapshot.asset_count);
@@ -1431,9 +1442,20 @@ void renderAnalyticsWorkspaceInline(urpg::editor::AnalyticsPanel& panel) {
 
 void renderEditorWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRuntime& runtime) {
     const auto snapshot = editorShell.snapshot();
-    ImGui::SetNextWindowPos(ImVec2(370.0f, 12.0f), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(520.0f, 520.0f), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("URPG Workspace")) {
+    if (runtime.last_workspace_panel_id != snapshot.active_panel_id) {
+        runtime.last_workspace_panel_id = snapshot.active_panel_id;
+        runtime.focus_workspace_next_frame = true;
+    }
+    ImGui::SetNextWindowBgAlpha(1.0f);
+    ImGui::SetNextWindowPos(ImVec2(370.0f, 12.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(560.0f, 580.0f), ImGuiCond_Always);
+    if (runtime.focus_workspace_next_frame) {
+        ImGui::SetNextWindowFocus();
+        runtime.focus_workspace_next_frame = false;
+    }
+    const std::string title = std::string("URPG Workspace - ") + workspaceTitleForPanelId(snapshot) +
+                              "###URPG Workspace";
+    if (!ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_NoCollapse)) {
         ImGui::End();
         return;
     }
@@ -1483,15 +1505,20 @@ bool useWorkspaceOnlyRenderer(const urpg::editor::EditorShell& editorShell, cons
     }
 
     const auto& activePanelId = editorShell.activePanelId();
-    return activePanelId == "diagnostics" || activePanelId == "ability" || activePanelId == "patterns" ||
-           activePanelId == "analytics";
+    return activePanelId == "diagnostics" || activePanelId == "assets" || activePanelId == "ability" ||
+           activePanelId == "patterns" || activePanelId == "mod" || activePanelId == "analytics" ||
+           activePanelId == "level_builder" || activePanelId == "spatial_authoring";
 }
 
 void refreshWorkspaceOnlyPanel(EditorPanelRuntime& runtime, const std::string& activePanelId) {
     if (activePanelId == "diagnostics") {
         runtime.diagnostics_workspace.update();
+    } else if (activePanelId == "assets") {
+        runtime.asset_library_panel.render();
     } else if (activePanelId == "ability") {
         runtime.ability_inspector_panel.update(runtime.ability_runtime);
+    } else if (activePanelId == "mod") {
+        runtime.mod_manager_panel.render();
     } else if (activePanelId == "analytics") {
         runtime.analytics_panel.refreshSnapshot();
     }
@@ -1513,7 +1540,7 @@ bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& e
     if (editorShell.beginFrame(deltaSeconds)) {
 #ifdef URPG_IMGUI_ENABLED
         if (!editorShell.snapshot().headless) {
-            renderEditorChrome(editorShell);
+            renderEditorChrome(editorShell, panelRuntime);
         }
 #endif
         const bool workspaceOnly = !renderAllPanels && useWorkspaceOnlyRenderer(editorShell, panelRuntime);
@@ -1712,10 +1739,12 @@ int main(int argc, char** argv) {
         }
 
         clearSceneStack();
-        auto editorPreview = std::make_shared<urpg::scene::MapScene>("EditorPreview", 16, 12);
-        editorPreview->setAssetReferences(
-            urpg::scene::loadRuntimeMapAssetReferences(options.project_root, "EditorPreview"));
-        urpg::scene::SceneManager::getInstance().gotoScene(editorPreview);
+        if (options.headless) {
+            auto editorPreview = std::make_shared<urpg::scene::MapScene>("EditorPreview", 16, 12);
+            editorPreview->setAssetReferences(
+                urpg::scene::loadRuntimeMapAssetReferences(options.project_root, "EditorPreview"));
+            urpg::scene::SceneManager::getInstance().gotoScene(editorPreview);
+        }
 
         urpg::editor::EditorShell editorShell;
         editorShell.setProjectRoot(options.project_root);
