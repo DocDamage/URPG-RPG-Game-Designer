@@ -1406,25 +1406,26 @@ void renderPatternsWorkspaceInline(EditorPanelRuntime& runtime) {
 }
 
 void renderAnalyticsWorkspaceInline(urpg::editor::AnalyticsPanel& panel) {
+    panel.refreshSnapshot();
     const auto snapshot = panel.lastRenderSnapshot();
-    ImGui::Text("Session ID: %s", snapshot.value("session_id", "unknown").c_str());
-    ImGui::Text("Consent State: %s", snapshot.value("consent_state", "unknown").c_str());
+    ImGui::Text("Session ID: %s", snapshot.value("sessionId", "unknown").c_str());
+    ImGui::Text("Consent State: %s", snapshot.value("privacyStatus", "unknown").c_str());
 
-    bool optIn = snapshot.value("opt_in_checked", false);
+    bool optIn = snapshot.value("optIn", false);
     if (ImGui::Checkbox("Opt In", &optIn)) {
         panel.setOptIn(optIn);
-        panel.render();
+        panel.refreshSnapshot();
     }
 
-    ImGui::Text("Queue size: %zu", snapshot.value("queue_size", size_t{0}));
+    ImGui::Text("Queue size: %zu", snapshot.value("queuedEventCount", size_t{0}));
     if (ImGui::Button("Clear Queue")) {
         panel.clearQueuedEvents();
-        panel.render();
+        panel.refreshSnapshot();
     }
     ImGui::SameLine();
     if (ImGui::Button("Flush Upload")) {
         panel.flushQueuedEvents();
-        panel.render();
+        panel.refreshSnapshot();
     }
 }
 
@@ -1476,6 +1477,26 @@ std::string analyticsConsentToSettings(urpg::analytics::ConsentState state) {
     return "unknown";
 }
 
+bool useWorkspaceOnlyRenderer(const urpg::editor::EditorShell& editorShell, const EditorPanelRuntime* panelRuntime) {
+    if (panelRuntime == nullptr || editorShell.snapshot().headless) {
+        return false;
+    }
+
+    const auto& activePanelId = editorShell.activePanelId();
+    return activePanelId == "diagnostics" || activePanelId == "ability" || activePanelId == "patterns" ||
+           activePanelId == "analytics";
+}
+
+void refreshWorkspaceOnlyPanel(EditorPanelRuntime& runtime, const std::string& activePanelId) {
+    if (activePanelId == "diagnostics") {
+        runtime.diagnostics_workspace.update();
+    } else if (activePanelId == "ability") {
+        runtime.ability_inspector_panel.update(runtime.ability_runtime);
+    } else if (activePanelId == "analytics") {
+        runtime.analytics_panel.refreshSnapshot();
+    }
+}
+
 bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell, bool renderAllPanels,
                     EditorPanelRuntime* panelRuntime = nullptr, double deltaSeconds = 1.0 / 60.0) {
     engineShell.tick();
@@ -1495,8 +1516,12 @@ bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& e
             renderEditorChrome(editorShell);
         }
 #endif
+        const bool workspaceOnly = !renderAllPanels && useWorkspaceOnlyRenderer(editorShell, panelRuntime);
         if (renderAllPanels) {
             rendered = editorShell.renderVisiblePanels() > 0;
+        } else if (workspaceOnly) {
+            refreshWorkspaceOnlyPanel(*panelRuntime, editorShell.activePanelId());
+            rendered = true;
         } else {
             rendered = editorShell.renderActivePanel();
         }
