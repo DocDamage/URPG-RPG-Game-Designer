@@ -3,6 +3,7 @@
 #include "engine/core/audio/audio_ai_bridge.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
+#include "engine/core/platform/process_runner.h"
 #include "engine/core/render/asset_loader.h"
 #include "engine/core/save/runtime_save_startup.h"
 #include "engine/core/save/save_runtime.h"
@@ -72,9 +73,9 @@ bool BindingKeyMatches(const MapScene::InteractionAbilityBinding& binding, MapSc
 
 std::filesystem::path resolveProjectPath(const std::filesystem::path& project_root, const std::filesystem::path& path) {
     if (path.empty() || path.is_absolute()) {
-        return path;
+        return urpg::platform::resolvePlaytestPath(path);
     }
-    return project_root / path;
+    return urpg::platform::resolvePlaytestPath(project_root / path);
 }
 
 MapAssetReference readAssetReference(const nlohmann::json& root, const char* key) {
@@ -209,6 +210,7 @@ urpg::RuntimeSaveLoadRequest makeMapSceneSaveRequest(const std::filesystem::path
 
 MapScene::MapScene(const std::string& mapId, int width, int height)
     : m_mapId(mapId), m_width(std::max(0, width)), m_height(std::max(0, height)) {
+    urpg::diagnostics::g_ActiveMapId = m_mapId;
     m_tiles.resize(static_cast<size_t>(m_width * m_height), {0, true});
     m_renderer = std::make_unique<TilemapRenderer>(m_width, m_height);
 
@@ -224,6 +226,7 @@ MapScene::MapScene(const std::string& mapId, int width, int height)
 }
 
 void MapScene::onUpdate(float deltaTime) {
+    urpg::diagnostics::g_ActiveMapId = m_mapId;
     validateRenderAssetReferences();
 
     // Keep RenderLayer in sync for scene/engine tests and headless render pipelines.
@@ -977,7 +980,7 @@ bool MapScene::hasInteractionAbilityBinding(const std::string& trigger_id) const
 
 MapAssetReferences loadRuntimeMapAssetReferences(const std::filesystem::path& project_root, const std::string& map_id) {
     MapAssetReferences references;
-    const auto project_path = project_root / "project.json";
+    const auto project_path = urpg::platform::resolvePlaytestPath(project_root / "project.json");
     std::ifstream in(project_path, std::ios::binary);
     if (!in) {
         urpg::diagnostics::RuntimeDiagnostics::warning(

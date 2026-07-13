@@ -1,6 +1,8 @@
 #include "editor/spatial/grid_part_playtest_panel.h"
+#include "editor/playtest/playtest_session_controller.h"
 
 #include "engine/core/map/grid_part_validator.h"
+#include "engine/core/map/grid_part_serializer.h"
 
 #include <algorithm>
 #include <utility>
@@ -96,9 +98,18 @@ bool GridPartPlaytestPanel::PlaytestObjectivePath() {
 }
 
 bool GridPartPlaytestPanel::ReturnToEditor() {
-    if (!running_) {
+    if (playtest_controller_ != nullptr) {
+        const auto state = playtest_controller_->state();
+        if (state != PlaytestSessionState::Starting && state != PlaytestSessionState::Running &&
+            state != PlaytestSessionState::Stopping) {
+            captureRenderSnapshot();
+            return false;
+        }
+        playtest_controller_->stopSession();
+        running_ = false;
+        returned_to_editor_ = true;
         captureRenderSnapshot();
-        return false;
+        return true;
     }
 
     running_ = false;
@@ -163,7 +174,21 @@ bool GridPartPlaytestPanel::launchPlaytest(int32_t start_x, int32_t start_y, boo
         static_cast<float>(
             std::max<int32_t>(1, std::abs(latest_result_.end_x - start_x) + std::abs(latest_result_.end_y - start_y))) *
         0.25f;
-    running_ = !latest_result_.softlocked;
+    if (latest_result_.softlocked) {
+        captureRenderSnapshot();
+        return false;
+    }
+
+    if (playtest_controller_ != nullptr) {
+        const std::string gridJson = urpg::map::GridPartDocumentToJson(*document_).dump(2) + "\n";
+        const std::string spawn = std::to_string(start_x) + "," + std::to_string(start_y);
+        running_ = playtest_controller_->startSession(project_root_, document_->mapId(), spawn, false, gridJson, "");
+        latest_result_.softlocked = !running_;
+        captureRenderSnapshot();
+        return running_;
+    }
+
+    running_ = true;
     captureRenderSnapshot();
     return running_;
 }
@@ -210,6 +235,12 @@ GridPartPlaytestPanel::collectVisitedInstanceIds(const std::vector<std::pair<int
 }
 
 void GridPartPlaytestPanel::captureRenderSnapshot() {
+    if (playtest_controller_ != nullptr) {
+        running_ = (playtest_controller_->state() == PlaytestSessionState::Starting ||
+                    playtest_controller_->state() == PlaytestSessionState::Running ||
+                    playtest_controller_->state() == PlaytestSessionState::Stopping);
+        returned_to_editor_ = (playtest_controller_->state() == PlaytestSessionState::Returned);
+    }
     last_render_snapshot_ = {};
     last_render_snapshot_.visible = m_visible;
     last_render_snapshot_.has_document = document_ != nullptr;
@@ -218,7 +249,7 @@ void GridPartPlaytestPanel::captureRenderSnapshot() {
         document_ != nullptr && catalog_ != nullptr && latest_result_.diagnostics.empty();
     last_render_snapshot_.running = running_;
     last_render_snapshot_.returned_to_editor = returned_to_editor_;
-    last_render_snapshot_.has_runtime = compiled_runtime_.has_value() && compiled_runtime_->ok;
+    last_render_snapshot_.has_runtime = (playtest_controller_ != nullptr) ? running_ : (compiled_runtime_.has_value() && compiled_runtime_->ok);
     last_render_snapshot_.diagnostic_count = latest_result_.diagnostics.size();
     last_render_snapshot_.latest_result = latest_result_;
 }

@@ -1,4 +1,5 @@
 #include "runtimes/compat_js/data_manager_support.h"
+#include "engine/core/platform/process_runner.h"
 
 #include <algorithm>
 #include <fstream>
@@ -40,7 +41,7 @@ Value jsonToValue(const json& j) {
 }
 
 std::optional<json> loadJsonFile(const std::string& path) {
-    std::ifstream file(path);
+    std::ifstream file(urpg::platform::resolvePlaytestPath(path));
     if (!file.is_open()) {
         return std::nullopt;
     }

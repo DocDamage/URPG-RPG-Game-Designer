@@ -40,11 +40,18 @@ TEST_CASE("Runtime CLI rejects unknown flags and missing required values", "[cli
     const auto missingProject = urpg::cli::parseRuntimeCli(args({"--project-root"}), false);
     REQUIRE_FALSE(missingProject.ok());
     REQUIRE(missingProject.error == "missing value after --project-root");
+
+    for (const auto option : {"--map", "--spawn", "--session-manifest"}) {
+        const auto missingPlaytestOption = urpg::cli::parseRuntimeCli(args({option}), false);
+        REQUIRE_FALSE(missingPlaytestOption.ok());
+        REQUIRE(missingPlaytestOption.error == "missing value after " + std::string(option));
+    }
 }
 
 TEST_CASE("Runtime CLI preserves valid option parsing", "[cli][runtime]") {
     const auto parsed = urpg::cli::parseRuntimeCli(
-        args({"--headless", "--frames", "3", "--width", "800", "--height", "600", "--project-root", "demo"}), false);
+        args({"--headless", "--frames", "3", "--width", "800", "--height", "600", "--project-root", "demo",
+              "--map", "Map001", "--spawn", "2,3", "--session-manifest", "session.json"}), false);
 
     REQUIRE(parsed.ok());
     REQUIRE(parsed.action == urpg::cli::CliAction::Run);
@@ -55,6 +62,9 @@ TEST_CASE("Runtime CLI preserves valid option parsing", "[cli][runtime]") {
     REQUIRE(parsed.options.width_provided);
     REQUIRE(parsed.options.height_provided);
     REQUIRE(parsed.options.project_root == "demo");
+    REQUIRE(parsed.options.map == "Map001");
+    REQUIRE(parsed.options.spawn == "2,3");
+    REQUIRE(parsed.options.session_manifest == "session.json");
 
     const auto defaults = urpg::cli::parseRuntimeCli(args({}), false);
     REQUIRE(defaults.ok());

@@ -10,11 +10,14 @@
 #include "editor/project/new_project_wizard_model.h"
 #include "editor/project/editor_project_session.h"
 #include "editor/project/editor_dirty_state_registry.h"
+#include "editor/project/editor_recovery_service.h"
+#include "editor/assets/asset_relink_panel.h"
 #include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/mod/mod_manager_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/map_authoring_workspace.h"
 #include "editor/spatial/map_authoring_persistence.h"
+#include "editor/playtest/playtest_session_controller.h"
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/analytics/analytics_dispatcher.h"
 #include "engine/core/analytics/analytics_privacy_controller.h"
@@ -37,6 +40,7 @@
 #include "engine/core/platform/headless_surface.h"
 #include "engine/core/presentation/presentation_schema.h"
 #include "engine/core/project/project_snapshot_store.h"
+#include "engine/core/save/save_journal.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/settings/app_settings_store.h"
@@ -137,6 +141,15 @@ struct EditorPanelRuntime {
     std::string map_asset_drop_status;
     std::string project_session_status;
     bool map_dirty_surface_registered = false;
+    urpg::editor::PlaytestSessionController playtest_session_controller;
+    urpg::editor::AssetRelinkPanel asset_relink_panel;
+    urpg::editor::EditorRecoveryService recovery_service;
+    bool show_recovery_dialog = false;
+    std::vector<urpg::editor::RecoverySnapshotMeta> recovery_snapshots;
+    int selected_recovery_snapshot = 0;
+    std::string recovery_status;
+    std::filesystem::path recovery_marker_project_root;
+    std::chrono::steady_clock::time_point last_recovery_snapshot_at = std::chrono::steady_clock::now();
 };
 
 std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asset) {
@@ -326,6 +339,8 @@ void bindLevelBuilder(EditorPanelRuntime& runtime) {
                                                catalogLoaded ? &runtime.level_builder_catalog : nullptr,
                                                &runtime.level_builder_overlay,
                                                runtime.perspective_2d_scene.get());
+    runtime.level_builder_workspace.SetProjectRoot(runtime.project_root);
+    runtime.level_builder_workspace.bindPlaytestController(&runtime.playtest_session_controller);
     runtime.perspective_2d_workspace.SetTargets(runtime.perspective_2d_scene.get(), &runtime.level_builder_overlay);
     runtime.perspective_2d_workspace.SetGridPartTargets(
         &runtime.level_builder_document, catalogLoaded ? &runtime.level_builder_catalog : nullptr);
@@ -723,6 +738,9 @@ void renderEditorChrome(urpg::editor::EditorShell& editorShell, EditorPanelRunti
 
     if (runtime != nullptr) {
         ImGui::Separator();
+        if (ImGui::Button("Asset Relink Manager", ImVec2(-1.0f, 0.0f))) {
+            runtime->asset_relink_panel.SetVisible(true);
+        }
         if (ImGui::Button("Help: Creator Checklist", ImVec2(-1.0f, 0.0f))) {
             runtime->creator_checklist_panel.setVisible(true);
         }
@@ -2007,10 +2025,17 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
         const auto result = workspace.redo();
         runtime.map_save_status = result.success ? "Redo applied to " + result.owner + "." : result.message;
     }
-    if (!io.WantTextInput && ImGui::IsKeyPressed(ImGuiKey_F5, false)) {
-        (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Playtest);
-        const bool launched = runtime.level_builder_workspace.ActivateToolbarAction("playtest_start");
-        runtime.map_save_status = launched ? "Map playtest started." : "Map playtest could not start; resolve the visible blockers.";
+    if (!io.WantTextInput) {
+        if (ImGui::IsKeyPressed(ImGuiKey_F5, false)) {
+            if (io.KeyShift) {
+                runtime.playtest_session_controller.stopSession();
+                runtime.map_save_status = "Map playtest stopped.";
+            } else {
+                (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Playtest);
+                const bool launched = runtime.level_builder_workspace.ActivateToolbarAction("playtest_start");
+                runtime.map_save_status = launched ? "Map playtest started." : "Map playtest could not start; resolve the visible blockers.";
+            }
+        }
     }
     if (ImGui::Button("Save Map")) {
         saveMap();
@@ -2020,8 +2045,94 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
         saveAll();
     }
     ImGui::SameLine();
-    ImGui::TextDisabled("Ctrl+S Save  |  Ctrl+Shift+S Save All  |  Ctrl+Z/Y Undo/Redo  |  F5 Playtest");
+    ImGui::TextDisabled("Ctrl+S Save  |  Ctrl+Shift+S Save All  |  Ctrl+Z/Y Undo/Redo  |  F5 Playtest (Shift+F5 Stop)");
     if (!runtime.map_save_status.empty()) ImGui::TextWrapped("%s", runtime.map_save_status.c_str());
+
+    if (snapshot.activeMode == "playtest") {
+        ImGui::Separator();
+        ImGui::Text("Playtest Session Controls");
+
+        auto ptState = runtime.playtest_session_controller.state();
+        std::string ptStateStr = "Inactive";
+        if (ptState == urpg::editor::PlaytestSessionState::Starting) ptStateStr = "Starting";
+        else if (ptState == urpg::editor::PlaytestSessionState::Running) ptStateStr = "Running";
+        else if (ptState == urpg::editor::PlaytestSessionState::Stopping) ptStateStr = "Stopping";
+        else if (ptState == urpg::editor::PlaytestSessionState::Exited) ptStateStr = "Exited";
+        else if (ptState == urpg::editor::PlaytestSessionState::Crashed) ptStateStr = "Crashed";
+        else if (ptState == urpg::editor::PlaytestSessionState::Returned) ptStateStr = "Returned";
+
+        ImGui::Text("Session ID: %s", runtime.playtest_session_controller.sessionId().c_str());
+        ImGui::Text("Status: %s", ptStateStr.c_str());
+        ImGui::Text("Overlay: %s", runtime.playtest_session_controller.sessionDir().generic_string().c_str());
+        ImGui::Text("Runtime: %s", urpg::versionString());
+        ImGui::Text("Target: %s @ %s", runtime.playtest_session_controller.targetMapId().c_str(),
+                    runtime.playtest_session_controller.targetSpawn().c_str());
+        ImGui::Text("Elapsed: %.2f s", runtime.playtest_session_controller.elapsed().count() / 1000.0);
+        if (!runtime.playtest_session_controller.isActive()) {
+            ImGui::Text("Last exit code: %d", runtime.playtest_session_controller.exitCode());
+        }
+
+        if (ptState == urpg::editor::PlaytestSessionState::Running) {
+            if (ImGui::Button("Stop Playtest (Shift+F5)")) {
+                runtime.playtest_session_controller.stopSession();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Restart Playtest")) {
+                const bool launched = runtime.level_builder_workspace.ActivateToolbarAction("playtest_start");
+                runtime.map_save_status = launched ? "Playtest session restarted." : "Playtest session restart failed.";
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Hot Reload Modified Resources")) {
+                std::vector<urpg::editor::PlaytestReloadResource> resources;
+                std::string map_id = runtime.level_builder_document.mapId();
+
+                std::string grid_json = urpg::map::GridPartDocumentToJson(runtime.level_builder_document).dump(2) + "\n";
+                std::string writeError;
+                const auto overlayPath = runtime.playtest_session_controller.sessionDir() /
+                    "content" / "maps" / (map_id + ".grid.json");
+                if (urpg::SaveJournal::WriteAtomically(overlayPath, grid_json, &writeError)) {
+                    resources.push_back({map_id, "map", "content/maps/" + map_id + ".grid.json"});
+                    runtime.playtest_session_controller.triggerReload(resources);
+                } else {
+                    runtime.map_save_status = "Hot reload staging failed: " + writeError;
+                }
+            }
+        } else {
+            if (ImGui::Button("Start Playtest (F5)")) {
+                const bool launched = runtime.level_builder_workspace.ActivateToolbarAction("playtest_start");
+                runtime.map_save_status = launched ? "Playtest session started." : "Playtest session launch failed.";
+            }
+        }
+
+        if (ImGui::CollapsingHeader("Playtest Runtime Log/Diagnostics", ImGuiTreeNodeFlags_DefaultOpen)) {
+            const auto& diags = runtime.playtest_session_controller.diagnostics();
+            if (diags.empty()) {
+                ImGui::TextDisabled("No runtime diagnostics logged yet.");
+            }
+            for (size_t index = 0; index < diags.size(); ++index) {
+                const auto& d = diags[index];
+                std::string label = "[" + d.subsystem + "] " + d.code + ": " + d.message;
+                if (d.severity == urpg::diagnostics::DiagnosticSeverity::Error || d.severity == urpg::diagnostics::DiagnosticSeverity::Fatal) {
+                    ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "%s", label.c_str());
+                } else if (d.severity == urpg::diagnostics::DiagnosticSeverity::Warning) {
+                    ImGui::TextColored(ImVec4(1.0f, 0.9f, 0.4f, 1.0f), "%s", label.c_str());
+                } else {
+                    ImGui::Text("%s", label.c_str());
+                }
+                if (!d.object_id.empty() && ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
+                    runtime.level_builder_workspace.SelectGridPart(d.object_id);
+                    runtime.map_save_status = "Focused target object ID: " + d.object_id;
+                }
+            }
+            if (ImGui::TreeNode("Bounded stdout/stderr")) {
+                const auto& stdoutText = runtime.playtest_session_controller.capturedStdout();
+                const auto& stderrText = runtime.playtest_session_controller.capturedStderr();
+                ImGui::TextWrapped("stdout:\n%s", stdoutText.empty() ? "(empty)" : stdoutText.c_str());
+                ImGui::TextWrapped("stderr:\n%s", stderrText.empty() ? "(empty)" : stderrText.c_str());
+                ImGui::TreePop();
+            }
+        }
+    }
 
     const auto renderMapDiagnostics = [&] {
         if (!snapshot.layout.diagnosticsVisible ||
@@ -2316,6 +2427,10 @@ void renderEditorWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRu
         if (runtime.dirty_state_registry.dirtyDocumentIds().empty()) {
             const auto closed = runtime.project_session.closeProject();
             runtime.project_session_status = closed.message;
+            if (closed.success && !runtime.recovery_marker_project_root.empty()) {
+                runtime.recovery_service.clearSessionMarker(runtime.recovery_marker_project_root);
+                runtime.recovery_marker_project_root.clear();
+            }
             runtime.creator_mode = closed.success;
             runtime.main_menu_model.returnToMainMenu();
             runtime.creator_checklist_panel.setVisible(false);
@@ -2334,6 +2449,10 @@ void renderEditorWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRu
             const auto closed = runtime.project_session.closeProject();
             runtime.project_session_status = closed.success ? closed.message : "Project close failed: " + closed.message;
             if (closed.success) {
+                if (!runtime.recovery_marker_project_root.empty()) {
+                    runtime.recovery_service.clearSessionMarker(runtime.recovery_marker_project_root);
+                    runtime.recovery_marker_project_root.clear();
+                }
                 runtime.creator_mode = true;
                 runtime.main_menu_model.returnToMainMenu();
                 runtime.creator_checklist_panel.setVisible(false);
@@ -2378,6 +2497,108 @@ void renderEditorWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRu
     } else {
         ImGui::TextWrapped("This panel opens in its own tool window.");
     }
+
+    // Unclean Session Recovery Popup
+    if (runtime.show_recovery_dialog) {
+        ImGui::OpenPopup("Unclean Session Recovery");
+    }
+
+    if (ImGui::BeginPopupModal("Unclean Session Recovery", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::TextWrapped("URPG Editor detected that the previous session exited uncleanly.");
+        ImGui::Text("Available recovery snapshots: %zu", runtime.recovery_snapshots.size());
+
+        if (runtime.recovery_snapshots.empty()) {
+            ImGui::TextDisabled("No valid recovery snapshots found.");
+            if (ImGui::Button("Close")) {
+                runtime.show_recovery_dialog = false;
+                runtime.recovery_service.writeSessionMarker(runtime.project_root);
+                ImGui::CloseCurrentPopup();
+            }
+        } else {
+            if (runtime.selected_recovery_snapshot >= static_cast<int>(runtime.recovery_snapshots.size())) {
+                runtime.selected_recovery_snapshot = 0;
+            }
+            const auto& active_snap = runtime.recovery_snapshots[runtime.selected_recovery_snapshot];
+
+            std::vector<std::string> combo_items;
+            for (size_t i = 0; i < runtime.recovery_snapshots.size(); ++i) {
+                const auto& snap = runtime.recovery_snapshots[i];
+                combo_items.push_back("Snapshot #" + std::to_string(i + 1) + " (Timestamp: " + std::to_string(snap.timestamp) + ")");
+            }
+
+            std::string current_item = combo_items[runtime.selected_recovery_snapshot];
+            if (ImGui::BeginCombo("Select Snapshot", current_item.c_str())) {
+                for (int n = 0; n < static_cast<int>(combo_items.size()); ++n) {
+                    bool is_selected = (runtime.selected_recovery_snapshot == n);
+                    if (ImGui::Selectable(combo_items[n].c_str(), is_selected)) {
+                        runtime.selected_recovery_snapshot = n;
+                    }
+                    if (is_selected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+
+            ImGui::Text("Dirty Documents in Snapshot:");
+            for (const auto& doc_id : active_snap.dirty_document_ids) {
+                ImGui::BulletText("%s", doc_id.c_str());
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::Button("Preview")) {
+                runtime.recovery_status = "Preview: Recoverable files are located under:\n" + active_snap.path.generic_string();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Restore Copy")) {
+                std::filesystem::path dest = runtime.project_root.parent_path() / (runtime.project_root.filename().string() + "_recovered");
+                if (runtime.recovery_service.restoreRecoverySnapshot(active_snap.path, dest)) {
+                    runtime.recovery_status = "Restored to copy: " + dest.generic_string();
+                } else {
+                    runtime.recovery_status = "Restore copy failed.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Replace Current")) {
+                const auto projectRoot = runtime.project_root;
+                runtime.recovery_service.clearSessionMarker(projectRoot);
+                runtime.project_session.closeProject();
+                if (runtime.recovery_service.restoreRecoverySnapshot(active_snap.path, projectRoot, true)) {
+                    runtime.show_recovery_dialog = false;
+                    const auto reopened = runtime.project_session.openProject(projectRoot);
+                    runtime.recovery_status = reopened.success
+                        ? "Replaced current project and reopened the recovered state."
+                        : "Recovery replaced the project, but reopening failed: " + reopened.message;
+                    ImGui::CloseCurrentPopup();
+                } else {
+                    runtime.recovery_status = "Replace current failed.";
+                    (void)runtime.project_session.openProject(projectRoot);
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Discard")) {
+                std::error_code ec;
+                std::filesystem::remove_all(runtime.project_root / ".urpg" / "recovery", ec);
+                runtime.recovery_service.clearSessionMarker(runtime.project_root);
+                runtime.show_recovery_dialog = false;
+                runtime.recovery_service.writeSessionMarker(runtime.project_root);
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Later")) {
+                runtime.show_recovery_dialog = false;
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (!runtime.recovery_status.empty()) {
+                ImGui::TextWrapped("%s", runtime.recovery_status.c_str());
+            }
+        }
+        ImGui::EndPopup();
+    }
+
+    runtime.asset_relink_panel.Render(urpg::FrameContext{0.0f, 0});
 
     ImGui::End();
 }
@@ -2749,18 +2970,40 @@ int main(int argc, char** argv) {
         panelRuntime.main_menu_panel.bindModel(&panelRuntime.main_menu_model);
         panelRuntime.main_menu_panel.bindWizard(&panelRuntime.new_project_wizard);
         panelRuntime.project_session.addSwitchListener([&panelRuntime](const urpg::editor::EditorProjectIdentity& identity) {
+            if (!panelRuntime.recovery_marker_project_root.empty() &&
+                panelRuntime.recovery_marker_project_root != identity.root) {
+                panelRuntime.recovery_service.clearSessionMarker(panelRuntime.recovery_marker_project_root);
+            }
+            if (panelRuntime.recovery_service.hasUncleanSessionMarker(identity.root)) {
+                panelRuntime.show_recovery_dialog = true;
+                panelRuntime.recovery_snapshots = panelRuntime.recovery_service.listSnapshots(identity.root);
+            }
             bindMapAuthoringProject(panelRuntime, identity.root);
             panelRuntime.creator_checklist_panel.setProjectRoot(identity.root);
+            panelRuntime.asset_relink_panel.setProjectRoot(identity.root);
+            if (!panelRuntime.show_recovery_dialog) {
+                panelRuntime.recovery_service.writeSessionMarker(identity.root);
+            }
+            panelRuntime.recovery_marker_project_root = identity.root;
+            panelRuntime.last_recovery_snapshot_at = std::chrono::steady_clock::now();
         });
         // A supplied/recent path is not editor state until the session accepts
         // its manifest. This prevents a stale directory from becoming an
         // implicit global project merely because the engine shell could start.
         if (!panelRuntime.creator_mode && !options.smoke) {
+            if (panelRuntime.recovery_service.hasUncleanSessionMarker(activeProjectRoot)) {
+                panelRuntime.show_recovery_dialog = true;
+                panelRuntime.recovery_snapshots = panelRuntime.recovery_service.listSnapshots(activeProjectRoot);
+            }
             const auto opened = panelRuntime.project_session.openProject(activeProjectRoot);
             if (opened.success) {
                 panelRuntime.main_menu_model.setLastProject(panelRuntime.project_session.activeProject().root.generic_string());
                 panelRuntime.main_menu_model.addRecentProject(panelRuntime.project_session.activeProject().root.generic_string());
                 editorShell.setProjectRoot(panelRuntime.project_session.activeProject().root);
+                panelRuntime.asset_relink_panel.setProjectRoot(panelRuntime.project_root);
+                if (!panelRuntime.show_recovery_dialog) {
+                    panelRuntime.recovery_service.writeSessionMarker(panelRuntime.project_root);
+                }
             } else {
                 panelRuntime.creator_mode = true;
                 panelRuntime.project_root = settingsPaths.root;
@@ -2769,6 +3012,7 @@ int main(int argc, char** argv) {
             }
         }
         panelRuntime.creator_checklist_panel.setProjectRoot(panelRuntime.project_root);
+        panelRuntime.asset_relink_panel.setProjectRoot(panelRuntime.project_root);
         panelRuntime.creator_checklist_panel.setVisible(false);
         const auto analyticsConsent = analyticsConsentFromSettings(settingsLoad.settings.analytics_consent_state);
         panelRuntime.analytics_privacy_controller.recordConsentDecision(analyticsConsent);
@@ -2831,11 +3075,45 @@ int main(int argc, char** argv) {
 
         int frame = 0;
         while (engineShell.isRunning() && editorShell.isRunning() && (options.frames < 0 || frame < options.frames)) {
+            panelRuntime.playtest_session_controller.update();
+
+            // Background Autosaver check
+            if (panelRuntime.project_session.isOpen()) {
+                auto now = std::chrono::steady_clock::now();
+                auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(
+                    now - panelRuntime.last_recovery_snapshot_at).count();
+                const bool playtestActive = panelRuntime.playtest_session_controller.isActive();
+                if (elapsed >= 300 && !playtestActive) {
+                    panelRuntime.last_recovery_snapshot_at = now;
+                    auto dirty_ids = panelRuntime.dirty_state_registry.dirtyDocumentIds();
+                    if (!dirty_ids.empty()) {
+                        const bool recovered = panelRuntime.recovery_service.createRecoverySnapshot(
+                            panelRuntime.project_root,
+                            panelRuntime.project_session.activeProject().project_id,
+                            dirty_ids
+                        );
+                        if (recovered) {
+                            panelRuntime.recovery_service.pruneSnapshots(
+                                panelRuntime.project_root, 5, 50LL * 1024LL * 1024LL);
+                            panelRuntime.project_session_status =
+                                "Recovery snapshot captured separately from manual project files.";
+                        } else {
+                            panelRuntime.project_session_status =
+                                "Recovery snapshot failed; dirty project documents remain open and unchanged.";
+                        }
+                    }
+                }
+            }
+
             (void)runEditorFrame(engineShell, editorShell, options.render_all_panels, &panelRuntime);
             ++frame;
             if (options.headless) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
+        }
+
+        if (!panelRuntime.recovery_marker_project_root.empty()) {
+            panelRuntime.recovery_service.clearSessionMarker(panelRuntime.recovery_marker_project_root);
         }
 
         editorShell.shutdown();

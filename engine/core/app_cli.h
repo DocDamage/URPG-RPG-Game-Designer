@@ -22,6 +22,9 @@ struct RuntimeCliOptions {
     std::uint32_t height = 720;
     bool width_provided = false;
     bool height_provided = false;
+    std::string map;
+    std::string spawn;
+    std::filesystem::path session_manifest;
     std::filesystem::path project_root = std::filesystem::current_path();
 };
 

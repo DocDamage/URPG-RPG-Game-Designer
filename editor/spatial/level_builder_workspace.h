@@ -182,6 +182,13 @@ class LevelBuilderWorkspace : public EditorPanel {
     void SetTargets(urpg::map::GridPartDocument* document, const urpg::map::GridPartCatalog* catalog,
                     urpg::presentation::SpatialMapOverlay* overlay = nullptr,
                     urpg::scene::MapScene* scene = nullptr);
+    void SetProjectRoot(std::filesystem::path root) {
+        project_root_ = root;
+        playtest_panel_.SetProjectRoot(root);
+    }
+    void bindPlaytestController(PlaytestSessionController* controller) {
+        playtest_panel_.bindPlaytestController(controller);
+    }
     void SetProjectionSettings(const PropPlacementPanel::ScreenProjectionSettings& settings);
     void SetRulesetProfile(urpg::map::GridRulesetProfile ruleset);
     void SetObjective(urpg::map::MapObjective objective);
@@ -255,6 +262,7 @@ class LevelBuilderWorkspace : public EditorPanel {
     SaveDraftResult last_save_result_;
     ExportResult last_export_result_;
     RenderSnapshot last_render_snapshot_;
+    std::filesystem::path project_root_;
 };
 
 } // namespace urpg::editor

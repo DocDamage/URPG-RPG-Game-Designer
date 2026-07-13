@@ -26,6 +26,7 @@ TEST_CASE("project snapshot store round trips project files", "[project][snapsho
     std::filesystem::remove_all(base);
     writeText(base / "project" / "project.json", R"({"name":"Demo"})");
     writeText(base / "project" / "data" / "Map001.json", R"({"id":1})");
+    writeText(base / "project" / ".urpg" / "recovery" / "ignored.json", R"({"ignored":true})");
 
     const urpg::project::ProjectSnapshotStore store;
     const auto snapshot = store.createSnapshot(base / "project", base / "snapshots", "before_migration");
@@ -36,6 +37,7 @@ TEST_CASE("project snapshot store round trips project files", "[project][snapsho
     REQUIRE(restored.success);
     REQUIRE(readText(base / "restored" / "project.json") == R"({"name":"Demo"})");
     REQUIRE(readText(base / "restored" / "data" / "Map001.json") == R"({"id":1})");
+    REQUIRE_FALSE(std::filesystem::exists(base / "restored" / ".urpg"));
 
     std::filesystem::remove_all(base);
 }
@@ -54,5 +56,17 @@ TEST_CASE("project snapshot store rejects restore target that already exists", "
     REQUIRE_FALSE(restored.success);
     REQUIRE(restored.errors == std::vector<std::string>{"restore_target_exists"});
 
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("project snapshot store rejects traversal snapshot identifiers", "[project][snapshot]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_snapshot_traversal";
+    std::filesystem::remove_all(base);
+    writeText(base / "project" / "project.json", R"({"name":"Demo"})");
+
+    const urpg::project::ProjectSnapshotStore store;
+    const auto snapshot = store.createSnapshot(base / "project", base / "snapshots", "../escaped");
+    REQUIRE_FALSE(snapshot.success);
+    REQUIRE_FALSE(std::filesystem::exists(base / "escaped"));
     std::filesystem::remove_all(base);
 }

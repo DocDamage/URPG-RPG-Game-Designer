@@ -740,6 +740,10 @@ set(URPG_CORE_SOURCES
     editor/spatial/grid_part_placement_panel.cpp
     editor/spatial/grid_part_inspector_panel.cpp
     editor/spatial/grid_part_playtest_panel.cpp
+    editor/project/editor_recovery_service.cpp
+    engine/core/assets/asset_relink_service.cpp
+    editor/assets/asset_relink_panel.cpp
+    editor/playtest/playtest_session_controller.cpp
     editor/spatial/level_builder_workspace.cpp
     editor/spatial/map_authoring_context.cpp
     editor/spatial/map_authoring_persistence.cpp
@@ -1500,6 +1504,8 @@ add_executable(urpg_tests
     tests/unit/test_fixed32.cpp
     tests/unit/test_frame_budget.cpp
     tests/unit/test_process_runner.cpp
+    tests/unit/test_playtest_session_controller.cpp
+    tests/unit/test_runtime_diagnostics.cpp
     tests/unit/test_future_feature_16.cpp
     tests/unit/test_chatbot_component.cpp
     tests/unit/test_ai_knowledge_base.cpp
@@ -1543,6 +1549,8 @@ add_executable(urpg_tests
     tests/unit/test_relationship_registry.cpp
     tests/unit/test_render_tier.cpp
     tests/unit/test_project_snapshot_store.cpp
+    tests/unit/test_editor_recovery_service.cpp
+    tests/unit/test_asset_relink_service.cpp
     tests/unit/test_save_compatibility_preview.cpp
     tests/unit/test_save_corruption_lab.cpp
     tests/unit/test_save_debugger.cpp
