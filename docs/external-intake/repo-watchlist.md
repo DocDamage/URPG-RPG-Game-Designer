@@ -42,6 +42,7 @@
 |---|------|------------|--------------|---------------------|-------|-------------|
 | 11 | SnowSzn/rgss-script-editor | `https://github.com/SnowSzn/rgss-script-editor` | Editor workflow reference; script extraction UX ideas | `reference_only` | Editor | Document 3+ UX ideas as backlog tickets; no code reuse |
 | 12 | AsPJT/AsLib | `https://github.com/AsPJT/AsLib` | Map-authoring/editor UX reference; procedural terrain inspiration | `reference_only` | Editor/spatial | Document 2+ concrete editor backlog items; no code reuse |
+| 13 | DocDamage/capybara_2d_engine | `https://github.com/DocDamage/capybara_2d_engine` | Public-facade, feet-anchor ordering, bounded NPC, and stateful-prop design reference | `reference_only` | Gameplay/spatial | Preserve fork/upstream provenance; independently reimplement only approved concepts behind native URPG owners; do not ingest TypeScript, MCP, SDK, browser, or asset-generation dependencies |
 
 ---
 
@@ -50,3 +51,4 @@
 | Date | Change |
 |------|--------|
 | 2026-04-17 | Initial watchlist created from `docs/external-intake/URPG_repo_intake_plan.md` |
+| 2026-07-13 | Added Capybara 2.5D Engine as a reference-only concept source for the native M8 facade; no source, assets, SDK, or dependency intake authorized. |

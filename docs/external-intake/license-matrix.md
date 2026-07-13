@@ -32,6 +32,7 @@
 | DrillUp/drill_plugins | DrillUp | Per-plugin terms expected; canonical record remains unverified | Unknown | Unknown | Blocked until verified | Blocked until verified | Unknown | Possible | `fixture_only`; use only for quarantined compat coverage if cleared per plugin | Disposition recorded; blocked from direct adoption |
 | SnowSzn/rgss-script-editor | SnowSzn | GPL-family expectation recorded in intake notes | No (provisional) | Yes (provisional) | Conditional | Conditional | Yes | No | `reference_only`; no code absorption | Disposition recorded; reference-only |
 | AsPJT/AsLib | AsPJT | Upstream terms not re-verified in canonical record | Unknown | Unknown | Blocked until verified | Blocked until verified | Unknown | No | `reference_only`; extract editor/spatial ideas only | Disposition recorded; blocked from direct adoption |
+| DocDamage/capybara_2d_engine | DocDamage (fork of d-liya/capybara_2d_engine) | MIT recorded by the repository's LICENSE page on 2026-07-13 | Yes (observed) | No (observed) | Yes, subject to upstream/fork verification | Yes, subject to upstream/fork verification | Preserve provenance if any expression-level reuse is proposed | Yes; generated assets and hosted/MCP services are separate | `reference_only`; independently reimplement approved concepts through URPG-owned native facades | No code, assets, npm packages, browser runtime, SDK, cloud service, or MCP dependency adopted |
 
 ---
 
@@ -49,3 +50,4 @@
 |------|--------|
 | 2026-04-17 | Initial template created from `docs/external-intake/URPG_repo_intake_plan.md` |
 | 2026-04-19 | Replaced placeholder audit rows with explicit recorded dispositions, blocking rules for unverified upstream terms, and Phase 4 closure-ready policy language. |
+| 2026-07-13 | Recorded Capybara 2.5D Engine's observed MIT license as reference-only; the M8 work independently implements native concepts and excludes its browser, SDK, MCP, and generated-asset lanes. |
