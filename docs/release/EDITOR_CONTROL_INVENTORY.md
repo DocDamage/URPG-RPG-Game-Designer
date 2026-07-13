@@ -1,8 +1,8 @@
 # Editor Control Inventory
 
-Status Date: 2026-04-30
+Status Date: 2026-07-13
 
-This inventory records the P2-002 sweep of user-facing ImGui controls under `editor/`, plus the current AI assistant review controls and native Level Builder controls exposed through deterministic render snapshots.
+This inventory records the P2-002 sweep of user-facing ImGui controls under `editor/`, plus the current AI assistant review controls, creator shell, and unified native Map controls exposed through deterministic render snapshots.
 
 ## Production Panel Exposure Map
 
@@ -10,13 +10,19 @@ This inventory records the P2-002 sweep of user-facing ImGui controls under `edi
 
 | Exposure | Panel IDs | Release rationale |
 | --- | --- | --- |
-| `ReleaseTopLevel` | `diagnostics`, `assets`, `ability`, `patterns`, `mod`, `analytics`, `level_builder`, `spatial_authoring` | Registered production navigation surfaces currently wired through the editor app shell and smoke workflow. `level_builder` is the native grid-part map editor surface, and `spatial_authoring` is the first-class Perspective 2D map editor surface. |
+| `ReleaseTopLevel` | `diagnostics`, `assets`, `ability`, `patterns`, `mod`, `analytics`, `level_builder`, `spatial_authoring` | Registered production navigation surfaces currently wired through the editor app shell and smoke workflow. `level_builder` and `spatial_authoring` remain stable release IDs but now deep-link into the Parts/Build and Canvas/Tiles modes of one `MapAuthoringWorkspace`; their Grid Parts and Perspective 2D documents remain explicit owners. |
 | `Nested` | `compat_report`, `save_inspector`, `event_authority`, `message_inspector`, `battle_inspector`, `menu_inspector`, `menu_preview`, `audio_inspector`, `migration_wizard`, `project_audit`, `project_health` | Rendered as tabs or child surfaces inside the Diagnostics workspace. |
 | `Nested` | `elevation_brush`, `terrain_brush`, `region_rules`, `procedural_map`, `prop_placement`, `map_ability_binding`, `spatial_ability_canvas` | Rendered as Perspective 2D child tools through `spatial_authoring`, Level Builder, or direct subsystem tests rather than separate shell navigation entries. |
 | `DevOnly` | `diagnostics_bundle`, `developer_debug_overlay`, `ai_assistant`, `local_review`, `mod_sdk`, `core_asset_browser`, `core_hierarchy`, `core_property_inspector` | Support, collaboration, debug, SDK, or legacy core-editor tooling; compiled for developer workflows and excluded from release navigation. |
 | `Deferred` | Implemented panels not wired into release navigation, plus feature-family records under `editor/gameplay`, `editor/community`, and `editor/maker` that are retained for direct tests, snapshots, or roadmap work. Examples include `event_authoring`, `plugin_inspector`, `new_project_wizard`, `quest`, `dialogue_graph`, `narrative_continuity`, `relationship`, `localization_workspace`, `timeline`, `replay`, `capture`, `photo_mode`, `database`, `balance`, `vendor`, `world`, `crafting`, `codex`, `calendar`, `npc`, `puzzle`, `export_diagnostics`, `character_creator`, `achievement`, `controller_binding`, `save_debugger`, `save_migration_preview`, `battle_presentation`, `boss_designer`, `formula_debugger`, `battle_preview`, `perf_diagnostics`, `sprite_animation_preview`, `accessibility`, `accessibility_assistant`, `audio_mix`, `input_remap`, `device_profile`, and `theme_builder`. | Compiled panels retained for direct tests, snapshots, or roadmap work; each registry entry documents the workflow or promotion gate required before release navigation. Feature-family entries are automatically demoted unless they are listed in the canonical release top-level set. |
 
 Exhaustive compiled-panel ownership is enforced by `tests/unit/test_editor_panel_registry.cpp`. The test scans every `editor/**/*_panel.cpp` and `editor/**/*_workspace.cpp` file and requires exactly one registry exposure owner for each compiled user-facing surface. Shared implementation panels, such as gameplay/community/maker WYSIWYG families, grid-part child panels, save preview labs, and message/dialogue previews, are classified under their owning registry surfaces rather than release navigation.
+
+The Main Menu and New Project Wizard are nested creator-shell routes, not additional top-level panel IDs. The shell is shown when no valid project is open; successful creation/open commits through `EditorProjectSession` before Map bindings are updated.
+
+## Unified Map Controls
+
+`editor/spatial/map_authoring_workspace.*` composes the existing Level Builder and Perspective 2D child workspaces. It exposes Canvas, Tiles, Parts, Props, Events, Abilities, World, Validate, Playtest, and Package modes; a persisted palette/canvas/inspector/diagnostics layout; shared selection and validation summaries; owner-aware undo/redo; Save/Save All; focused Grid Parts diagnostics; package next-action guidance; and typed attached-asset drop targets for Tiles and Props. Event/character/UI/animation drop consumers, complete drop-history integration, and the full shortcut set remain open roadmap breadth.
 
 ## Native Level Builder Snapshot Controls
 

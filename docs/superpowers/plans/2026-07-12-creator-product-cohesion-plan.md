@@ -39,6 +39,9 @@ Performance targets are budgets, not reasons to hide an error. When a target is 
 - Do not replace deterministic native behavior with hidden AI-generated content or an online-only dependency.
 - Do not claim full RPG Maker parity, final art direction, public legal approval, platform signing, or cross-platform verification from this program alone.
 - Do not add a second persistence format when an existing project contract can be extended compatibly.
+- Treat `https://github.com/DocDamage/capybara_2d_engine` as an MIT-licensed design reference, initially `reference_only`, not as a vendored runtime or architectural replacement.
+- Any Capybara-derived production code must enter through URPG-owned native facades, preserve required fork/upstream provenance and license notices, and pass the existing external-intake governance gate.
+- Do not import Capybara's TypeScript/browser runtime, npm pathfinding dependency, DOM widgets/loading gate, cloud SDK, or external asset-generation service. URPG's native pathfinding, save/recovery, input, UI, deterministic runtime, and governed asset pipeline remain authoritative.
 
 ## Dependency Order
 
@@ -69,12 +72,28 @@ M0 Evidence baseline
 | M5 | First-run playable project | 2-3 weeks | Wizard creates and opens a valid starter project that immediately playtests. |
 | M6 | Fast edit/playtest/return loop | 2-4 weeks | Unsaved current-map state can be tested and diagnostics return to the editor. |
 | M7 | Autosave, crash recovery, and relinking | 2-3 weeks | Forced-termination recovery and missing-asset repair are proven. |
-| M8 | Contextual gameplay authoring | 5-8 weeks | Required deep editors open in context and satisfy the WYSIWYG done rule. |
+| M8 | Contextual gameplay authoring and stable gameplay primitives | 5-8 weeks | Required deep editors open in context, share bounded runtime primitives, and satisfy the WYSIWYG done rule. |
 | M9 | Governed vertical slice | 3-5 weeks | The example completes and packages through creator-facing controls. |
 | M10 | Visual, accessibility, and performance polish | 3-5 weeks | Manual graphical review and automated budgets pass. |
 | M11 | Release qualification | 1-3 weeks plus external approvals | Fresh gates pass; external blockers remain explicitly reported. |
 
 The estimates are planning ranges for one focused engineer and exclude platform certificates, legal review turnaround, and creation of bespoke final art.
+
+## Current Implementation Checkpoint (2026-07-13)
+
+The current `development` implementation has completed the bounded M0-M5 foundation at commit `d607eecc`, but the milestone exit conditions are not all release-qualified. Checked task boxes below mean the named code/test contract exists; they do not substitute for M10 graphical review, M11 release qualification, or an unchecked breadth item.
+
+| Milestone | Current state | Remaining qualification or breadth |
+| --- | --- | --- |
+| M0 | Implemented baseline/report gate | The smoke remains a mixed passed/partial/deferred baseline; it is not an end-to-end playable journey. |
+| M1 | Implemented creator shell, project session, settings, and Grid Parts-triggered Map Save All guard | Aggregate Perspective 2D-only dirty state and register the remaining durable non-Map authoring surfaces with the shared owner. |
+| M2 | Implemented metadata-only virtual catalog and 100,000-row performance coverage | Re-run against the creator's configured live library when qualifying a release machine. |
+| M3 | Implemented preview, archive selection, promotion/attachment, and typed drag payloads | Durable drops are currently accepted by Map Tiles and Props; the other contextual consumers and complete drop-history integration remain open. |
+| M4 | Implemented unified Map routing, shared context/history, layout, diagnostics, and paired atomic save | Complete the remaining shortcut breadth and record graphical route/layout equivalence. |
+| M5 | Implemented atomic starter-project wizard and durable creator checklist | Immediate editor-owned playtest is still M6, so the original M5 milestone wording is only partially satisfied. |
+| M6-M11 | Planned | Playtest/return, recovery/relinking, contextual deep authoring/gameplay primitives, vertical slice, polish, and release qualification remain open. |
+
+Focused evidence recorded for this checkpoint includes the creator-journey gate, 25 passing Python asset-import/catalog tests with one platform skip, thumbnail and Map-history tests, all three `dev-spatial` tests, 73 selected M1/M5 CTests, a successful editor headless frame, and successful `urpg_editor`/`urpg_tests` builds. Re-run the milestone commands before using that evidence for a new release target.
 
 ---
 
@@ -104,7 +123,7 @@ The estimates are planning ranges for one focused engineer and exclude platform 
 - `CMakeLists.txt`
 - `docs/agent/QUALITY_GATES.md`
 
-- [ ] Drive existing headless shell, asset, map, playtest, snapshot, and package seams in journey order.
+- [x] Drive existing headless shell, asset, map, playtest, snapshot, and package seams in journey order, recording deferred seams honestly.
 - [x] Emit a JSON report containing step ID, status, duration, diagnostic codes, and artifact paths.
 - [ ] Fail on missing steps, hidden fallbacks, or release-ineligible asset selection.
 - [x] Keep visual-layout judgment in the manual checklist rather than fabricating headless proof.
@@ -133,11 +152,11 @@ ctest --test-dir build/dev-ninja-debug -R "creator journey" --output-on-failure
 - `apps/editor/main.cpp`
 - `CMakeLists.txt`
 
-- [ ] Own the active project root, project ID, display name, schema version, open state, dirty-surface summaries, and last project diagnostic in one session object.
-- [ ] Validate a project before switching the app shell to editor mode.
-- [ ] Make project open/switch/close explicit commands with structured success and failure results.
-- [ ] Reject malformed or missing project roots without discarding the currently open valid project.
-- [ ] Notify bound panels of a committed project switch through existing bind/set-root seams.
+- [x] Own the active project root, project ID, display name, schema version, open state, dirty-surface summaries, and last project diagnostic in one session object.
+- [x] Validate a project before switching the app shell to editor mode.
+- [x] Make project open/switch/close explicit commands with structured success and failure results.
+- [x] Reject malformed or missing project roots without discarding the currently open valid project.
+- [x] Notify bound panels of a committed project switch through existing bind/set-root seams.
 
 **Acceptance:** `apps/editor/main.cpp` no longer independently distributes an unchecked path as implicit global project state.
 
@@ -153,10 +172,10 @@ ctest --test-dir build/dev-ninja-debug -R "creator journey" --output-on-failure
 - `tests/unit/test_new_project_wizard.cpp`
 - `tests/unit/test_editor_app_panels.cpp`
 
-- [ ] Show the creator shell when no project is supplied or the configured project cannot be opened.
-- [ ] Support Continue, New Project, Open Project, Settings, locate missing project, and return to main menu.
-- [ ] Keep the wizard nested in the startup flow; do not add it as unrelated top-level workspace navigation.
-- [ ] Provide visible disabled/error/remediation states for unavailable native pickers and invalid destinations.
+- [x] Show the creator shell when no project is supplied or the configured project cannot be opened.
+- [x] Support Continue, New Project, Open Project, Settings, locate missing project, and return to main menu.
+- [x] Keep the wizard nested in the startup flow; do not add it as unrelated top-level workspace navigation.
+- [x] Provide visible disabled/error/remediation states for unavailable native pickers and invalid destinations.
 
 ### Task M1.3 - Persist recent projects and creator preferences
 
@@ -167,10 +186,10 @@ ctest --test-dir build/dev-ninja-debug -R "creator journey" --output-on-failure
 - `tests/unit/test_app_settings_store.cpp`
 - `tests/unit/test_main_menu_panel.cpp`
 
-- [ ] Persist the last project, up to ten recent projects, pinned projects, hidden missing projects, onboarding preference, help-tip preference, and asset-browser layout.
-- [ ] Normalize paths for duplicate detection without breaking display casing.
-- [ ] Prune neither missing nor moved projects silently; offer Locate or Hide.
-- [ ] Write settings atomically and preserve the last valid settings document after malformed loads.
+- [x] Persist the last project, up to ten recent projects, pinned projects, hidden missing projects, onboarding preference, help-tip preference, and asset-browser layout.
+- [x] Normalize paths for duplicate detection without breaking display casing.
+- [x] Prune neither missing nor moved projects silently; offer Locate or Hide.
+- [x] Write settings atomically and preserve the last valid settings document after malformed loads.
 
 ### Task M1.4 - Add shared Save All, dirty-state, and navigation guard behavior
 
@@ -184,9 +203,9 @@ ctest --test-dir build/dev-ninja-debug -R "creator journey" --output-on-failure
 - map, ability, character, and other already-persistent authoring binders as needed
 
 - [ ] Register each durable authoring surface with stable document ID, dirty state, save command, and focus route.
-- [ ] Add Save, Save All, and close/switch guards with explicit Save, Discard, and Cancel outcomes.
-- [ ] Do not report a surface clean until its atomic write succeeds.
-- [ ] Preserve per-surface failure diagnostics and focus the failing editor.
+- [x] Add Save, Save All, and close/switch guards with explicit Save, Discard, and Cancel outcomes.
+- [x] Do not report a surface clean until its atomic write succeeds.
+- [x] Preserve per-surface failure diagnostics and focus the failing editor.
 
 **Verification:**
 
@@ -207,11 +226,11 @@ ctest --preset dev-all -R "main menu|new project|project session|dirty state|set
 - `tools/assets/tests/test_asset_db.py`
 - `tools/assets/README.md`
 
-- [ ] Complete image/archive discovery for absolute external roots, including PNG, JPG/JPEG, GIF, BMP, SVG, ASE/ASEPRITE, ZIP, RAR, and 7z classification.
-- [ ] Resume interrupted scans from committed checkpoints without hiding records from other roots or media kinds.
-- [ ] Store source-root identity, relative virtual path, size, timestamp, media kind, archive kind, and optional hash.
-- [ ] Keep discovery mode fast with deferred hashing; expose a separate integrity/deduplication pass.
-- [ ] Emit clear unreadable-file, inaccessible-directory, malformed-archive, and extractor-unavailable diagnostics.
+- [x] Complete image/archive discovery for absolute external roots, including PNG, JPG/JPEG, GIF, BMP, SVG, ASE/ASEPRITE, ZIP, RAR, and 7z classification.
+- [x] Resume interrupted scans from committed checkpoints without hiding records from other roots or media kinds.
+- [x] Store source-root identity, relative virtual path, size, timestamp, media kind, archive kind, and optional hash.
+- [x] Keep discovery mode fast with deferred hashing; expose a separate integrity/deduplication pass.
+- [x] Emit clear unreadable-file, inaccessible-directory, malformed-archive, and extractor-unavailable diagnostics.
 
 ### Task M2.2 - Export a stable, bounded catalog interchange
 
@@ -225,12 +244,12 @@ ctest --preset dev-all -R "main menu|new project|project session|dirty state|set
 **Modify:**
 - `CMakeLists.txt`
 
-- [ ] Atomically export `.urpg/asset-index/catalog_meta.json` plus capped JSONL metadata shards from the local SQLite database.
-- [ ] Version the interchange schema and include scan completeness, root states, counts, and generation timestamp.
-- [ ] Never include file payloads in the interchange.
-- [ ] Load shards lazily or incrementally in C++; index normalized filename, virtual path, extension, pack, category, and tags.
-- [ ] Page results so the UI never materializes every row as ImGui widgets.
-- [ ] Reject incompatible schema versions with remediation that names the regeneration command.
+- [x] Atomically export `.urpg/asset-index/catalog_meta.json` plus capped JSONL metadata shards from the local SQLite database.
+- [x] Version the interchange schema and include scan completeness, root states, counts, and generation timestamp.
+- [x] Never include file payloads in the interchange.
+- [x] Load shards lazily or incrementally in C++; index normalized filename, virtual path, extension, pack, category, and tags.
+- [x] Page results so the UI never materializes every row as ImGui widgets.
+- [x] Reject incompatible schema versions with remediation that names the regeneration command.
 
 ### Task M2.3 - Bind virtual-catalog query state into AssetLibraryModel
 
@@ -241,21 +260,21 @@ ctest --preset dev-all -R "main menu|new project|project session|dirty state|set
 - `tests/unit/test_asset_library_model.cpp`
 - `tests/unit/test_asset_library_panel.cpp`
 
-- [ ] Add configured catalog roots, scan status, text search, media-kind filter, extension filter, pack/category filter, archive-only filter, sort, page, and page-size state.
-- [ ] Keep virtual external records distinct from promoted global-library records and project attachments.
-- [ ] Show counts for discovered, hash-pending, duplicate-candidate, archived, promoted, attached, and release eligible states.
-- [ ] Add Refresh Index and Open Source Location actions with no-shell execution and truthful disabled states.
-- [ ] Persist the external library root in local app settings, not project or release manifests.
+- [x] Add configured catalog roots, scan status, text search, media-kind filter, extension filter, pack/category filter, archive-only filter, sort, page, and page-size state.
+- [x] Keep virtual external records distinct from promoted global-library records and project attachments.
+- [x] Show counts for discovered, hash-pending, duplicate-candidate, archived, promoted, attached, and release eligible states.
+- [x] Add Refresh Index and Open Source Location actions with no-shell execution and truthful disabled states.
+- [x] Persist the external library root in local app settings, not project or release manifests.
 
 ### Task M2.4 - Prove scale and cancellation behavior
 
 **Create:**
 - `tests/perf/test_local_asset_catalog_perf.cpp`
 
-- [ ] Generate a deterministic 100,000-row metadata fixture without checking payloads into Git.
-- [ ] Measure load, query, filter, sort, and page latency.
-- [ ] Ensure rescan/export cancellation leaves the prior valid interchange readable.
-- [ ] Bound query result and diagnostic sizes.
+- [x] Generate a deterministic 100,000-row metadata fixture without checking payloads into Git.
+- [x] Measure load, query, filter, sort, and page latency.
+- [x] Ensure rescan/export cancellation leaves the prior valid interchange readable.
+- [x] Bound query result and diagnostic sizes.
 
 **Verification:**
 
@@ -283,11 +302,11 @@ python .\tools\assets\asset_db.py stats
 - `apps/editor/main.cpp`
 - `CMakeLists.txt`
 
-- [ ] Decode only visible PNG/JPEG/BMP/GIF-static-frame thumbnails through the existing image stack.
-- [ ] Cache by canonical path, size, timestamp, and requested preview dimensions.
-- [ ] Use an LRU memory budget and release OpenGL textures on eviction and shutdown.
-- [ ] Render a deterministic fallback card for unsupported, corrupt, missing, or hash-pending assets.
-- [ ] Keep decode work off the render-critical path and cancel requests for rows that leave the viewport.
+- [x] Decode only visible PNG/JPEG/BMP/GIF-static-frame thumbnails through the existing image stack.
+- [x] Cache by canonical path, size, timestamp, and requested preview dimensions.
+- [x] Use an LRU memory budget and release OpenGL textures on eviction and shutdown.
+- [x] Render a deterministic fallback card for unsupported, corrupt, missing, or hash-pending assets.
+- [x] Keep decode work off the render-critical path and cancel requests for rows that leave the viewport.
 
 ### Task M3.2 - Integrate animation and spritesheet inspection
 
@@ -297,11 +316,11 @@ python .\tools\assets\asset_db.py stats
 - `engine/core/editor/editor_panel_registry.cpp`
 - related sprite preview tests
 
-- [ ] Open Sprite Animation Preview contextually from a selected asset rather than promoting it to top-level navigation.
-- [ ] Preview GIF animation and recognized frame/atlas metadata.
-- [ ] Offer explicit grid slicing for loose spritesheets with frame width, height, rows, columns, direction, loop, and frame-duration controls.
-- [ ] Save slicing metadata only to an import/promotion manifest or project attachment, never beside an untouched external source file.
-- [ ] Route ASE/ASEPRITE assets through an explicit conversion workflow when a supported converter is configured.
+- [x] Open Sprite Animation Preview contextually from a selected asset rather than promoting it to top-level navigation.
+- [x] Preview GIF animation and recognized frame/atlas metadata.
+- [x] Offer explicit grid slicing for loose spritesheets with frame width, height, rows, columns, direction, loop, and frame-duration controls.
+- [x] Save slicing metadata only to an import/promotion manifest or project attachment, never beside an untouched external source file.
+- [x] Route ASE/ASEPRITE assets through an explicit conversion workflow when a supported converter is configured.
 
 ### Task M3.3 - Browse archives without bulk extraction
 
@@ -315,11 +334,11 @@ python .\tools\assets\asset_db.py stats
 - `editor/assets/asset_library_model.*`
 - `editor/assets/asset_library_panel.*`
 
-- [ ] List ZIP entries natively where supported and use the configured 7z-compatible extractor for RAR/7z listing.
-- [ ] Cache an archive-entry manifest keyed by archive size, timestamp, and hash when available.
-- [ ] Reject absolute paths, traversal, links, device names, excessive entry counts, excessive expansion, and unsupported encryption.
-- [ ] Extract only user-selected entries to isolated staging before preview or import.
-- [ ] Make archive browse status different from promotion and release eligibility.
+- [x] List ZIP entries natively where supported and use the configured 7z-compatible extractor for RAR/7z listing.
+- [x] Cache an archive-entry manifest keyed by archive size, timestamp, and hash when available.
+- [x] Reject absolute paths, traversal, links, device names, excessive entry counts, excessive expansion, and unsupported encryption.
+- [x] Extract only user-selected entries to isolated staging before preview or import.
+- [x] Make archive browse status different from promotion and release eligibility.
 
 ### Task M3.4 - Deliver one governed Attach To Project workflow
 
@@ -331,12 +350,12 @@ python .\tools\assets\asset_db.py stats
 - `engine/core/assets/project_asset_attachment_service.*`
 - corresponding asset tests
 
-- [ ] For an external asset, guide the creator through source review, license selection, optional conversion/slicing, promotion, and project attachment in one resumable workflow.
-- [ ] Require explicit license/attribution fields or a documented private-project-only classification before promotion.
-- [ ] Copy only the selected normalized payload and its manifest.
-- [ ] Reuse hashes to detect already-promoted and already-attached assets.
-- [ ] Provide Replace, Keep Both, Relink Existing, and Cancel conflict outcomes.
-- [ ] Verify package policy still rejects raw external paths and unpromoted staging paths.
+- [x] For an external asset, guide the creator through source review, license selection, optional conversion/slicing, promotion, and project attachment in one resumable workflow.
+- [x] Require explicit license/attribution fields or a documented private-project-only classification before promotion.
+- [x] Copy only the selected normalized payload and its manifest.
+- [x] Reuse hashes to detect already-promoted and already-attached assets.
+- [x] Provide Replace, Keep Both, Relink Existing, and Cancel conflict outcomes.
+- [x] Verify package policy still rejects raw external paths and unpromoted staging paths.
 
 ### Task M3.5 - Add typed editor drag/drop payloads
 
@@ -351,8 +370,8 @@ python .\tools\assets\asset_db.py stats
 - `editor/spatial/grid_part_palette_panel.*`
 - `editor/character/character_creator_panel.*`
 
-- [ ] Drag promoted/attached assets with stable asset ID, project path, kind, dimensions, and provenance state.
-- [ ] Refuse raw external payload drops into durable project documents and offer Attach To Project as remediation.
+- [x] Drag promoted/attached assets with stable asset ID, project path, kind, dimensions, and provenance state.
+- [x] Refuse raw external payload drops into durable project documents and offer Attach To Project as remediation.
 - [ ] Accept appropriate payloads in tile palette, prop placement, event sprite, character appearance, UI skin, and animation contexts.
 - [ ] Record each accepted drop in undo/redo history and dirty-state tracking.
 
@@ -381,10 +400,10 @@ ctest --preset dev-all -R "thumbnail|sprite animation|archive catalog|AssetLibra
 - `editor/spatial/spatial_authoring_workspace.*`
 - `apps/editor/main.cpp`
 
-- [ ] Own project root, active map ID, selected layer/object/event/part, viewport focus, active tool, validation summary, and playtest/package state.
-- [ ] Keep grid-part and Perspective 2D documents explicit; bridge related selections and lifecycle commands without silently converting or discarding either representation.
-- [ ] Route undo/redo through one visible history while preserving the responsible document owner.
-- [ ] Mark all affected documents dirty for cross-document commands.
+- [x] Own project root, active map ID, selected layer/object/event/part, viewport focus, active tool, validation summary, and playtest/package state.
+- [x] Keep grid-part and Perspective 2D documents explicit; bridge related selections and lifecycle commands without silently converting or discarding either representation.
+- [x] Route undo/redo through one visible history while preserving the responsible document owner.
+- [x] Mark all affected documents dirty for cross-document commands.
 
 ### Task M4.2 - Compose one MapAuthoringWorkspace
 
@@ -400,11 +419,11 @@ ctest --preset dev-all -R "thumbnail|sprite animation|archive catalog|AssetLibra
 - `tests/unit/test_editor_app_panels.cpp`
 - `docs/release/EDITOR_CONTROL_INVENTORY.md`
 
-- [ ] Provide Canvas, Tiles, Parts, Props, Events, Abilities, World, Validate, Playtest, and Package modes inside one workspace.
-- [ ] Use the existing child panels rather than duplicating their models.
-- [ ] Route `level_builder` to the Parts/Build perspective and `spatial_authoring` to the Canvas/Tiles perspective of the same workspace.
-- [ ] Keep both registry IDs release-valid and add a visible mode switch instead of separate state islands.
-- [ ] Share palette search, selection, inspector, diagnostics, project references, save/load, and readiness state.
+- [x] Provide Canvas, Tiles, Parts, Props, Events, Abilities, World, Validate, Playtest, and Package modes inside one workspace.
+- [x] Use the existing child panels rather than duplicating their models.
+- [x] Route `level_builder` to the Parts/Build perspective and `spatial_authoring` to the Canvas/Tiles perspective of the same workspace.
+- [x] Keep both registry IDs release-valid and add a visible mode switch instead of separate state islands.
+- [x] Share palette search, selection, inspector, diagnostics, project references, save/load, and readiness state.
 
 ### Task M4.3 - Make the layout creator-oriented
 
@@ -412,18 +431,18 @@ ctest --preset dev-all -R "thumbnail|sprite animation|archive catalog|AssetLibra
 - `apps/editor/main.cpp`
 - `editor/spatial/map_authoring_workspace.*`
 
-- [ ] Implement a stable layout: tool strip, left palette/library, central canvas, right inspector, bottom diagnostics/timeline.
-- [ ] Allow panels to collapse and persist proportions per project/user settings.
-- [ ] Keep the canvas usable at 1280x720 and scale cleanly at high DPI.
+- [x] Implement a stable layout: tool strip, left palette/library, central canvas, right inspector, bottom diagnostics/timeline.
+- [x] Allow panels to collapse and persist proportions per project/user settings.
+- [x] Keep the canvas usable at 1280x720 and scale cleanly at high DPI in the bounded layout model; graphical DPI review remains M10.
 - [ ] Add keyboard shortcuts for Save, Save All, Undo, Redo, Playtest, palette search, delete, duplicate, focus selection, and command palette.
-- [ ] Display the current map, tool, layer, dirty state, validation state, and playtest target at all times.
+- [x] Display the current map, tool, layer, dirty state, validation state, and playtest target at all times.
 
 ### Task M4.4 - Unify save, validation, and package readiness
 
-- [ ] Save all map-owned documents atomically or leave the previous valid versions intact.
-- [ ] Aggregate diagnostics with stable focus targets that switch mode and select the offending object.
-- [ ] Make package readiness explain the next creator action rather than expose only raw counters.
-- [ ] Keep release-asset, accessibility, performance, and human-review evidence separate and truthful.
+- [x] Save all map-owned documents atomically or leave the previous valid versions intact.
+- [x] Aggregate diagnostics with stable focus targets that switch mode and select the offending object.
+- [x] Make package readiness explain the next creator action rather than expose only raw counters.
+- [x] Keep release-asset, accessibility, performance, and human-review evidence separate and truthful.
 
 **Verification:**
 
@@ -451,11 +470,11 @@ ctest --test-dir build/dev-ninja-debug -R "MapAuthoring|Level Builder|Spatial Au
 - `engine/core/project/project_template_generator.*`
 - `editor/project/new_project_wizard_model.*`
 
-- [ ] Accept template, project ID/name, destination, display settings, input preset, starter-map choice, and optional external library root.
-- [ ] Validate destination and project ID before writing.
-- [ ] Write to a temporary sibling directory, run project audit, then atomically publish or roll back.
-- [ ] Generate the minimum runtime, map, database, input, save-profile, and project manifest data required by preflight.
-- [ ] Never leave a half-created project after failure or cancellation.
+- [x] Accept template, project ID/name, destination, display settings, input preset, starter-map choice, and optional external library root.
+- [x] Validate destination and project ID before writing.
+- [x] Write to a temporary sibling directory, run project audit, then atomically publish or roll back.
+- [x] Generate the minimum runtime, map, database, input, save-profile, and project manifest data required by preflight.
+- [x] Never leave a half-created project after failure or cancellation.
 
 ### Task M5.2 - Turn the wizard into a guided creator flow
 
@@ -465,11 +484,11 @@ ctest --test-dir build/dev-ninja-debug -R "MapAuthoring|Level Builder|Spatial Au
 - `apps/editor/main.cpp`
 - wizard tests and snapshots
 
-- [ ] Steps: Project, Template, Visual Style, Asset Library, Starter Map, Review, Create.
-- [ ] Provide JRPG, action RPG, tactics, visual novel, and blank/native presets only where current template certification supports them.
-- [ ] Preview what each template creates and report unsupported/deferred capabilities honestly.
-- [ ] Detect the already-indexed external library and allow Skip/Configure Later.
-- [ ] After success, open the new project directly in the unified Map workspace with a highlighted next action.
+- [x] Steps: Project, Template, Visual Style, Asset Library, Starter Map, Review, Create.
+- [x] Provide JRPG, action RPG, tactics, visual novel, and blank/native presets only where current template certification supports them.
+- [x] Preview what each template creates and report unsupported/deferred capabilities honestly.
+- [x] Detect the already-indexed external library and allow Skip/Configure Later.
+- [x] After success, open the new project directly in the unified Map workspace with a highlighted next action.
 
 ### Task M5.3 - Add an optional first-project checklist
 
@@ -478,10 +497,10 @@ ctest --test-dir build/dev-ninja-debug -R "MapAuthoring|Level Builder|Spatial Au
 - `editor/project/creator_checklist.cpp`
 - `tests/unit/test_creator_checklist.cpp`
 
-- [ ] Guide: choose hero art, paint/edit map, place player start, create NPC event, preview dialogue, playtest, save, and validate.
-- [ ] Derive completion from durable project state rather than button-click flags.
-- [ ] Allow dismissal and restoration from Help.
-- [ ] Persist per-project completion without affecting runtime or release payloads.
+- [x] Guide: choose hero art, paint/edit map, place player start, create NPC event, preview dialogue, playtest, save, and validate.
+- [x] Derive completion from durable project state rather than button-click flags.
+- [x] Allow dismissal and restoration from Help.
+- [x] Persist per-project completion without affecting runtime or release payloads.
 
 **Verification:**
 
@@ -671,7 +690,60 @@ ctest --preset dev-all -R "snapshot|recovery|autosave|dirty state|asset relink|p
 - [ ] Preview keyboard/controller bindings from the current project profile.
 - [ ] Open exact-ship export preview and package blockers from the Map Package mode.
 
-### Task M8.5 - Promotion review for each deferred surface
+### Task M8.5 - Add stable gameplay facade, Perspective 2D ordering, and bounded NPC/prop primitives
+
+**Reference:**
+- `https://github.com/DocDamage/capybara_2d_engine`
+- Review concepts from its single `src/Game.ts` public facade, feet-anchor/Y-sort contract, NPC primitives, stateful map overlays, and focused gameplay recipes.
+- Reimplement only approved behavior in native URPG code; do not copy the browser runtime wholesale.
+
+**Create:**
+- `engine/core/gameplay/gameplay_runtime_facade.h`
+- `engine/core/gameplay/gameplay_runtime_facade.cpp`
+- `engine/core/presentation/perspective2d_render_order.h`
+- `engine/core/presentation/perspective2d_render_order.cpp`
+- `engine/core/npc/npc_runtime_primitives.h`
+- `engine/core/npc/npc_runtime_primitives.cpp`
+- `engine/core/map/map_prop_state_set.h`
+- `engine/core/map/map_prop_state_set.cpp`
+- `tests/unit/test_gameplay_runtime_facade.cpp`
+- `tests/unit/test_perspective2d_render_order.cpp`
+- `tests/unit/test_npc_runtime_primitives.cpp`
+- `tests/unit/test_map_prop_state_set.cpp`
+- bounded creator recipes under `docs/product/recipes/`
+
+**Modify:**
+- `engine/core/scene/map_scene.*`
+- `engine/core/events/event_runtime.*`
+- `engine/core/level/path_request_router.*`
+- `editor/spatial/spatial_authoring_workspace.*`
+- `editor/spatial/map_authoring_workspace.*`
+- `tools/urpg_mcp/server.py` and its tool manifests/tests as warranted
+- `docs/external-intake/repo-watchlist.md`
+- `docs/external-intake/license-matrix.md`
+
+- [ ] Expose one compact, thread-documented URPG gameplay facade for stable spawn, query, event, input, navigation, resource, and contextual-authoring operations; delegate to existing subsystem owners rather than duplicating their models.
+- [ ] Keep agent/MCP access bounded: read-only inspection by default, structured preview for durable changes, explicit apply where already authorized, stable diagnostics, and no arbitrary runtime or filesystem mutation.
+- [ ] Define one Perspective 2D ground-anchor contract used consistently by spawn placement, collision footprints, navigation destinations, interaction distance, and render ordering; prevent callers from repeatedly converting between sprite top-left and feet coordinates.
+- [ ] Add deterministic `ground`, `occluder`, and `prop` render layers, ordered by authored layer semantics, feet/render Y, and stable entity/object ID as the final tie-breaker.
+- [ ] Add typed NPC operations for move-to point/location, stop, face player, proximity observation, bounded thought/bark display, and current activity; return structured success/failure codes and reuse the existing path router/event runtime.
+- [ ] Keep NPC behavior deterministic and authored. Do not introduce hidden model calls, autonomous online simulation, or unbounded generated dialogue into the runtime loop.
+- [ ] Add stateful map-prop sets for doors, gates, chests, crops, switches, and similar objects, where each state can select an attached sprite, collision footprint, render layer, interaction metadata, and emitted event.
+- [ ] Make prop-state authoring contextual from the Map inspector, participate in shared undo/redo and dirty tracking, validate asset/event references, and round-trip through project data into runtime behavior.
+- [ ] Add concise recipes for NPC patrol/proximity, stateful doors/containers, map placement, quest/inventory hookups, HUD visibility, and save-safe stable IDs using only public URPG facades.
+- [ ] Record Capybara's fork/upstream provenance and MIT disposition before copying any expression-level implementation; prefer independent URPG-native implementations of the concepts.
+- [ ] Prove that the adoption adds no npm, browser DOM, Capybara cloud SDK, online-only asset generation, or second save/pathfinding/runtime stack to shipping URPG targets.
+
+**Acceptance:** A creator can place a Perspective 2D NPC and stateful door through the Map workspace, preview correct feet-based occlusion and collision, trigger deterministic movement/state changes, and playtest the result through the same native project contracts. The local MCP/AI surface can inspect and invoke only the bounded approved facade operations with truthful diagnostics.
+
+**Verification:**
+
+```powershell
+ctest --preset dev-all -R "gameplay runtime facade|Perspective.*render order|NPC runtime primitive|map prop state|pathfinding|event runtime" --output-on-failure
+.\tools\ci\check_phase4_intake_governance.ps1
+```
+
+### Task M8.6 - Promotion review for each deferred surface
 
 - [ ] Record owner, creator entry point, saved contract, runtime consumer, preview, diagnostics, tests, and empty/error/disabled evidence.
 - [ ] Update registry exposure only after those fields are complete.
@@ -685,7 +757,7 @@ ctest --preset dev-all -R "event|dialogue|character|database|quest|battle|abilit
 .\tools\ci\truth_reconciler.ps1
 ```
 
-**Milestone gate:** The vertical-slice-required gameplay data can be created from project/map context without JSON editing or a maze of unrelated top-level panels.
+**Milestone gate:** The vertical-slice-required gameplay data can be created from project/map context without JSON editing or a maze of unrelated top-level panels, and NPC/prop behavior reaches runtime through one deterministic native facade and shared Perspective 2D anchor/order contract.
 
 ---
 
@@ -870,6 +942,13 @@ ctest --preset dev-project-audit --output-on-failure
 - Promotion requires provenance and license state; project attachment requires a promoted payload.
 - Export accepts project-selected governed paths only and rejects external absolute paths, raw intake, staging, local DB, recovery, and playtest files.
 
+### External implementation references
+
+- Classify external repositories before adoption and keep the repo watchlist/license matrix synchronized with the implementation plan.
+- Default Capybara 2D Engine to `reference_only`; elevate an individual concept to `production_candidate` only with a named URPG-owned facade, bounded scope, provenance, license disposition, tests, and removal/rollback path.
+- Prefer native reimplementation of small contracts and algorithms. If source is copied or adapted, retain all required MIT notices and identify the exact upstream/fork revision in the intake record.
+- Never allow a reference implementation to create a parallel runtime, persistence, pathfinding, input, UI, asset-governance, or online-service authority.
+
 ### Testing
 
 - Add unit tests for every new model/service state transition.
@@ -887,7 +966,7 @@ Do not begin with visual re-skinning or broad panel promotion. Execute in this o
 3. Complete M2 and M3 to turn the user's sprite library into a safe authoring advantage.
 4. Complete M4 before expanding map-adjacent panels.
 5. Complete M5, M6, and M7 to make the core creator loop fast and safe.
-6. Promote only the M8 contextual integrations required by the vertical slice.
+6. Promote only the M8 contextual integrations and bounded gameplay primitives required by the vertical slice; complete the Capybara-reference disposition before implementation-level reuse.
 7. Use M9 to expose remaining workflow defects.
 8. Perform M10 polish after the workflow stabilizes.
 9. Run M11 qualification and make a fresh release-owner decision.

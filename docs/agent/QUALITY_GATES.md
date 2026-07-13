@@ -14,6 +14,10 @@ On Windows, configure the default Ninja debug tree with `.\tools\ci\configure_de
 | --- | --- |
 | General PR-level changes | `ctest --preset dev-pr --output-on-failure` |
 | Creator-journey baseline | `ctest --test-dir build/dev-ninja-debug -R "creator journey" --output-on-failure`; then `.\tools\ci\check_creator_journey.ps1 -BuildDirectory build/dev-ninja-debug` |
+| Creator shell, session, project creation, wizard, and checklist (M1/M5) | `ctest --preset dev-all -R "ProjectCreationService|NewProjectWizard|project template generator|CreatorChecklist|Runtime project preflight|Startup|MainMenu|EditorProjectSession|EditorDirtyStateRegistry|settings|editor app panels" --output-on-failure` |
+| Virtual external asset catalog (M2) | `python -m unittest tools.assets.tests.test_asset_db tools.assets.tests.test_catalog_interchange -v`; then `.\build\dev-ninja-debug\urpg_tests.exe "[assets][local_catalog]" --reporter compact` and the focused catalog performance target when catalog query/index code changes |
+| Governed asset preview/archive/attachment/drag workflow (M3) | `python -m unittest tools.assets.tests.test_global_asset_import -v`; then `.\build\dev-ninja-debug\urpg_tests.exe "[assets][thumbnail],[assets][archive],[assets][drag_drop],[assets][promotion],[assets][attachment]" --reporter compact` |
+| Unified Map context/history/persistence/layout (M4) | `ctest --preset dev-spatial --output-on-failure`; then run `.\build\dev-ninja-debug\urpg_tests.exe "[spatial][map_authoring]" --reporter compact` and record manual `level_builder`/`spatial_authoring` route equivalence when changing visible layout or routing |
 | Runtime startup/settings/input | `ctest --preset dev-all -R "startup|settings|input" --output-on-failure` |
 | Runtime input, pause/resume, and title/menu navigation | `ctest --preset dev-all -R "startup|settings|input|SceneManager|RuntimeTitleScene" --output-on-failure` |
 | Map scene/render assets | `ctest --preset dev-all -R "MapScene|AssetLibrary|Runtime map asset" --output-on-failure` |

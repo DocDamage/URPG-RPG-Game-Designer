@@ -1,11 +1,22 @@
 # URPG Program Completion Status
 
-Status Date: 2026-05-27
-Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
+Status Date: 2026-07-13
+Program Scope: native-first roadmap rewire, compatibility/governance hardening, and the active creator-product cohesion program
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`.
 
 Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. The bounded `v0.1.0` public release tag now exists at `1d3debb95b6df1d09996e723cc616369cfca99c6`. Public release legal/privacy review is owner-waived in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; post-tag commits require fresh final gates and a new release-owner decision before another public distribution claim.
+
+2026-07-13 creator-product cohesion checkpoint:
+
+- The active implementation plan is [`docs/superpowers/plans/2026-07-12-creator-product-cohesion-plan.md`](superpowers/plans/2026-07-12-creator-product-cohesion-plan.md). Its bounded M0-M5 foundation is implemented through commit `d607eecc`; checked task boxes record implemented contracts, not manual or release signoff.
+- The editor has one validated `EditorProjectSession`, a no-project creator shell, recent/pinned/missing-project settings, nested New Project Wizard, and a dirty-state registry with Save/Save All/navigation outcomes. The current app integration registers one shared Map save surface whose callback publishes the Grid Parts and Perspective 2D files together; its dirty trigger currently follows Grid Parts, so Perspective 2D-only changes and durable non-Map authoring surfaces still need shared aggregation/registration.
+- External asset discovery now uses a user-local SQLite index plus versioned metadata-only JSONL interchange, paged native queries, filters/sorts, bounded results, and a deterministic 100,000-row performance fixture. Payloads are not copied by discovery.
+- Asset authoring includes bounded thumbnails, GIF/spritesheet inspection, ASE conversion routing, ZIP/RAR/7z entry browsing, selected-entry staging, source/license review, promotion, attachment, conflict handling, package-policy enforcement, and typed provenance-aware drag payloads. Durable Map drops currently target Tiles and Props; other contextual consumers and full drop-history breadth remain open.
+- `level_builder` and `spatial_authoring` now deep-link into one creator-facing `MapAuthoringWorkspace`. It retains explicit Grid Parts/Perspective 2D documents while sharing project/map context, selection, owner-aware history, diagnostics, readiness guidance, persisted layout, and rollback-capable paired save.
+- Project creation is atomic and preflighted, the seven-step wizard opens the new project into Map with a next-action hint, and the creator checklist derives its state from project data and persists only under project-local `.urpg` metadata.
+- The automated checkpoint includes a passing creator-journey guard, passing focused asset/catalog, thumbnail, Map-history, spatial, session/settings/wizard/checklist tests, successful editor/test builds, and a successful headless editor frame. Those results do not record M10 graphical review.
+- M6-M11 remain open: editor-owned unsaved playtest/return; autosave recovery and asset relinking; contextual event/dialogue/character/database/quest/battle/audio authoring and bounded native gameplay primitives; the governed vertical slice; visual/accessibility/performance review; and fresh release qualification.
 
 2026-05-26 current-codebase truth checkpoint:
 - The current `development` checkout is a bounded post-`v0.1.0` work branch, not a clean mandatory all-features product. The finish plan in `docs/superpowers/plans/2026-05-26-finish-current-codebase.md` is implemented for the focused scope, with external constraints still recorded below.

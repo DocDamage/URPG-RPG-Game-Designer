@@ -6,11 +6,15 @@ The project is built for creators who want RPG Maker-style production speed with
 
 ## Current Status
 
-Status date: 2026-05-26
+Status date: 2026-07-13
 
 The bounded public `v0.1.0` release tag exists as an annotated tag targeting commit `1d3debb95b6df1d09996e723cc616369cfca99c6`. The current `development` workspace is post-`v0.1.0` and must pass the final gates again before any follow-up public release or broader completion claim.
 
-Current checkout truth: this branch has closed the 2026-05-26 security/lifetime/resource-limit/repository-hygiene hardening lane for the implemented scope: production `std::system` use has a CI guard, AI/analytics transports use native HTTP seams with redacted diagnostics, compat audio roles use stable IDs, chatbot callbacks have cancellation/lifetime guards, QuickJS uses an interrupt handler and pending-job caps, bundle authenticity uses keyed HMAC-SHA256 while unsupported script obfuscation fails closed, cloud sync remains hidden/local-only by release tests, native picker diagnostics cover Windows/macOS/Linux/unsupported branches, root generated/retired trees are removed from the Git index, and external archive extraction is allowlisted and containment-audited. This is still not a mandatory all-features product claim: legal/privacy review is owner-waived, platform signing/notarization is external, sanitizer verification is blocked by the local standalone LLVM/MSVC CRT configuration, macOS/Linux native picker builds need platform runners, and `git lfs ls-files --name-only` still reports 32,229 optional normalized asset paths outside release-required claims.
+Current creator-product checkpoint: the bounded M0-M5 foundation in `docs/superpowers/plans/2026-07-12-creator-product-cohesion-plan.md` is implemented through commit `d607eecc`. The editor now owns a persistent startup/project session, user-local creator settings, a shared dirty-state/Save All registry with a Grid Parts-triggered Map surface, a metadata-only paged external asset catalog, bounded thumbnails and archive-entry staging, governed promotion/attachment and typed asset drag payloads, one Map workspace over the Level Builder and Perspective 2D routes, rollback-capable paired Map saves, atomic starter-project creation, and a durable creator checklist. Automated evidence is recorded in the plan; it is not a substitute for graphical release review.
+
+The creator loop is not complete. M6-M11 remain active: editor-owned unsaved playtest/return, autosave recovery and relinking, contextual gameplay authoring and bounded native gameplay primitives, a governed vertical slice, visual/accessibility/performance review, and fresh release qualification. A few breadth items also remain in M1/M3/M4: aggregating Perspective 2D-only changes and all durable non-Map editors into the shared dirty-state owner, adding asset-drop consumers beyond Map Tiles/Props, completing shortcut coverage, and recording manual route/layout equivalence.
+
+Earlier hardening remains in place for the implemented scope: production `std::system` use has a CI guard, AI/analytics transports use native HTTP seams with redacted diagnostics, compat audio roles use stable IDs, chatbot callbacks have cancellation/lifetime guards, QuickJS uses an interrupt handler and pending-job caps, bundle authenticity uses keyed HMAC-SHA256 while unsupported script obfuscation fails closed, cloud sync remains hidden/local-only by release tests, native picker diagnostics cover Windows/macOS/Linux/unsupported branches, root generated/retired trees are removed from the Git index, and external archive extraction is allowlisted and containment-audited. This is still not a mandatory all-features product claim: legal/privacy review is owner-waived, platform signing/notarization is external, sanitizer verification is blocked by the local standalone LLVM/MSVC CRT configuration, and macOS/Linux native picker builds need platform runners. The latest checked-in LFS reconciliation reports 307,388 governed LFS-tracked paths, zero release-required LFS paths, and zero unknown paths; use `tools/ci/check_lfs_release_scope.ps1` for fresh counts rather than treating README numbers as permanent.
 
 For active development, use the full local gate:
 
@@ -61,6 +65,12 @@ Within the bounded internal/private release-candidate scope:
 - macOS/Linux native source picker implementations are guarded in the build graph but must be compiled and exercised on those platform runners before release-owner cross-platform UI signoff.
 
 ## Product Pillars
+
+### Creator Shell And Unified Map Workflow
+
+When no valid project is open, the editor presents the creator shell rather than relying on a CLI project path. Project creation is a nested seven-step wizard backed by an atomic project-creation service and runtime preflight. Once opened, both `level_builder` and `spatial_authoring` route into one creator-facing Map workspace while retaining their explicit Grid Parts and Perspective 2D document owners.
+
+The shared Map surface exposes Canvas, Tiles, Parts, Props, Events, Abilities, World, Validate, Playtest, and Package modes; shared selection and validation state; owner-aware undo/redo routing; persisted palette/inspector/diagnostics layout; focused diagnostics; next-action package guidance; Save/Save All; and attached-asset drops into Tiles and Props. The deeper contextual editors, unsaved playtest session, and full vertical slice remain roadmap work and are not implied by the presence of those mode buttons.
 
 ### Native Level Builder
 
