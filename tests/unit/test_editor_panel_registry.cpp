@@ -228,6 +228,31 @@ TEST_CASE("Editor panel registry matches release control inventory canonical row
     REQUIRE(urpg::editor::requiredTopLevelPanelIds() == CanonicalReleasePanelIds());
 }
 
+TEST_CASE("Editor panel registry matches README verified release surface",
+          "[editor][panel][registry][release]") {
+    const auto readmePath = std::filesystem::path(URPG_SOURCE_DIR) / "README.md";
+    const auto readme = readTextFile(readmePath);
+
+    const auto releaseLineStart = readme.find("- Release top-level editor panels are intentionally limited to");
+    REQUIRE(releaseLineStart != std::string::npos);
+    const auto releaseLineEnd = readme.find('\n', releaseLineStart);
+    const auto releaseLine = readme.substr(releaseLineStart, releaseLineEnd - releaseLineStart);
+
+    for (const auto& id : CanonicalReleasePanelIds()) {
+        INFO(id);
+        REQUIRE(releaseLine.find("`" + id + "`") != std::string::npos);
+    }
+
+    for (const auto& entry : urpg::editor::editorPanelRegistry()) {
+        if (ContainsId(CanonicalReleasePanelIds(), entry.id)) {
+            continue;
+        }
+
+        INFO(entry.id);
+        REQUIRE(releaseLine.find("`" + entry.id + "`") == std::string::npos);
+    }
+}
+
 TEST_CASE("Editor panel registry documents every hidden compiled panel", "[editor][panel][registry]") {
     REQUIRE(urpg::editor::hiddenEditorPanelEntriesHaveReasons());
 

@@ -656,6 +656,7 @@ set(URPG_CORE_SOURCES
     editor/plugin/plugin_inspector_panel.cpp
     editor/project/new_project_wizard_model.cpp
     editor/project/new_project_wizard_panel.cpp
+    editor/project/editor_project_session.cpp
     editor/quest/quest_panel.cpp
     editor/progression/skill_tree_panel.cpp
     editor/dialogue/dialogue_graph_panel.cpp
@@ -1544,6 +1545,7 @@ add_executable(urpg_tests
     tests/unit/test_project_health_panel.cpp
     tests/unit/test_project_template_generator.cpp
     tests/unit/test_new_project_wizard_panel.cpp
+    tests/unit/test_editor_project_session.cpp
     tests/unit/test_plugin_compatibility_score.cpp
     tests/unit/test_plugin_inspector_panel.cpp
     tests/unit/test_mz_project_corpus_schema.cpp
@@ -1833,6 +1835,7 @@ endif()
 urpg_enable_windows_test_binary_unlock(urpg_render_tests)
 
 add_executable(urpg_integration_tests
+    tests/integration/test_creator_journey.cpp
     tests/integration/test_grid_part_map_scene_integration.cpp
     tests/integration/test_integration_runtime_recovery.cpp
     tests/integration/test_runtime_startup_save_flow.cpp
@@ -1848,7 +1851,10 @@ add_executable(urpg_integration_tests
 
 target_link_libraries(urpg_integration_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_integration_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_definitions(urpg_integration_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(urpg_integration_tests PRIVATE
+    URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+    URPG_BINARY_DIR="${CMAKE_BINARY_DIR}"
+)
 add_dependencies(urpg_integration_tests urpg_export_smoke_app)
 add_dependencies(urpg_integration_tests urpg_pack_cli)
 target_compile_definitions(urpg_integration_tests PRIVATE URPG_EXPORT_SMOKE_APP_PATH="$<TARGET_FILE:urpg_export_smoke_app>")
@@ -2033,6 +2039,10 @@ if(Python3_FOUND)
         tools/assets/tests/test_global_asset_import.py
     )
     urpg_add_python_tool_test(
+        urpg_asset_db_tool_test
+        tools/assets/tests/test_asset_db.py
+    )
+    urpg_add_python_tool_test(
         urpg_local_mcp_tool_test
         tools/urpg_mcp/tests/test_server.py
     )
@@ -2043,7 +2053,9 @@ else()
         "tools/retrieval/tests/test_artifact_contracts.py; "
         "tools/retrieval/tests/test_build_retrieval_bundle.py; "
         "tools/retrieval/tests/test_retrieval_acceptance.py; "
-        "tools/vision/tests/test_segmentation_acceptance.py")
+        "tools/vision/tests/test_segmentation_acceptance.py; "
+        "tools/assets/tests/test_global_asset_import.py; "
+        "tools/assets/tests/test_asset_db.py")
 endif()
 
 add_test(

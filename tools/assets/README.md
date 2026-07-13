@@ -42,6 +42,14 @@ python .\tools\assets\report_third_party_itch_ingest.py
 python .\tools\assets\asset_db.py index --roots imports/raw/third_party_assets/itch-assets/packs imports/raw/third_party_assets/huggingface imports/root-drop/archives
 ```
 
+Absolute local roots outside the repository are supported without copying their payloads into Git. External records use a stable `external/<drive>-<root-name>/...` catalog path, remain local-only, and do not disturb records from other roots during an incremental scan. For example:
+
+```powershell
+python .\tools\assets\asset_db.py index --roots "G:\All 2D Assets Stay Here" --kinds image archive --skip-hash
+```
+
+Loose PNG/JPEG/WebP/GIF/BMP/SVG/Aseprite files are indexed as images. ZIP/RAR/7z files are indexed as archive records; use `global_asset_import.py` with the reviewed external extractor option when an archive needs to be safely unpacked into managed quarantine for browsing or promotion. Large scans checkpoint every 1,000 visited files by default, so an interrupted first pass can reuse completed records on its next run. `--skip-hash` is intended for fast first-time discovery; re-run with `--force` and without `--skip-hash` when complete SHA-256 duplicate evidence is required.
+
 `imports/raw/urpg_stuff` is included in the default roots when the local drop exists.
 `imports/raw/more_assets_to_ingest` is included for the SRC-010 zip/RAR/loose-file drop when that local quarantine exists.
 `imports/raw/assets_for_my_game` and `imports/raw/godogenui_assets` are included for the SRC-011/SRC-012 local quarantine drops when present.

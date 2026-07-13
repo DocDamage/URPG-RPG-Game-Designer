@@ -13,6 +13,7 @@ On Windows, configure the default Ninja debug tree with `.\tools\ci\configure_de
 | Change Area | Command |
 | --- | --- |
 | General PR-level changes | `ctest --preset dev-pr --output-on-failure` |
+| Creator-journey baseline | `ctest --test-dir build/dev-ninja-debug -R "creator journey" --output-on-failure`; then `.\tools\ci\check_creator_journey.ps1 -BuildDirectory build/dev-ninja-debug` |
 | Runtime startup/settings/input | `ctest --preset dev-all -R "startup|settings|input" --output-on-failure` |
 | Runtime input, pause/resume, and title/menu navigation | `ctest --preset dev-all -R "startup|settings|input|SceneManager|RuntimeTitleScene" --output-on-failure` |
 | Map scene/render assets | `ctest --preset dev-all -R "MapScene|AssetLibrary|Runtime map asset" --output-on-failure` |

@@ -222,7 +222,7 @@ Phase 9 also requires selected promoted bundle categories to carry release eligi
 - `cohesive_ui_skin` through `BND-003`
 - `tileset`, `background`, `vfx_frame`, and additional `vfx_sheet` coverage through `BND-005`
 
-Environmental SFX, BGM, final portrait roster art, final music identity, and any broader shipped-game visual canon remain project-selection work. They are not bundled by the current package gate without attribution evidence, checksums, package destinations, promoted payloads, and exact export selection.
+Environmental SFX, BGM, final portrait roster art, final music identity, and any broader shipped-game visual canon remain project-selection work. They are part of the mandatory content backlog for a full-product completion claim, even though the bounded current package does not select them. They are not bundled by the current package gate without attribution evidence, checksums, package destinations, promoted payloads, and exact export selection.
 
 Phase 12 local curated bulk promotions add three release-eligible, non-release-required deferred bundles:
 

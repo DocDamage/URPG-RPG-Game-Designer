@@ -27,11 +27,12 @@ any platform-specific signing/notarization credentials required for final distri
 
 ## Verified Release Surface
 
-- Release top-level editor panels are intentionally limited to `diagnostics`, `assets`, `ability`, `patterns`, `mod`, `analytics`, and `level_builder`.
+- Release top-level editor panels are intentionally limited to `diagnostics`, `assets`, `ability`, `patterns`, `mod`, `analytics`, `level_builder`, and `spatial_authoring`.
 - Every release top-level panel has an app-shell factory and is covered by registry/app panel regression tests.
 - `developer_debug_overlay` and other debug/dev surfaces are `DevOnly`, excluded from release navigation, and tested as such.
 - Deferred editor panels remain compiled for direct tests, snapshots, or roadmap work, but are not advertised as release navigation.
 - The native `level_builder` panel is wired into the editor shell and uses the real grid-part Level Builder workspace.
+- The native `spatial_authoring` panel is wired into the editor shell as the first-class Perspective 2D Map Editor.
 - The release inventory, app readiness matrix, and editor panel registry are now cross-checked by tests instead of maintained only by convention.
 
 ## What Is Release-Ready In This Branch
@@ -39,7 +40,7 @@ any platform-specific signing/notarization credentials required for final distri
 Within the bounded internal/private release-candidate scope:
 
 - Native runtime startup, title/menu input, scene stack pause/resume, settings, save/load, audio startup diagnostics, localization startup diagnostics, and runtime asset preflight have focused coverage.
-- Editor release navigation starts headlessly, lists panels, and opens `level_builder`.
+- Editor release navigation starts headlessly, lists panels, and opens both `level_builder` and `spatial_authoring`.
 - Ability draft save/load/apply, ability project-content save, pattern editing, Level Builder save/load/export/playtest/package, analytics consent/local JSONL export, and app settings persistence are covered by deterministic tests.
 - Release-required assets are validated by `tools/ci/check_release_required_assets.ps1`; raw/vendor intake paths are not eligible release payloads. This does not mean the whole checkout is LFS-free: broad promoted asset payloads are currently LFS-tracked and must stay outside release-required claims unless hydrated and gated.
 - Current release visuals are bounded starter/proof assets, not final AAA art direction. The release asset gate requires this scope to be declared before prototype actor, starter UI skin/chrome, or VFX proof rows can satisfy release coverage.
