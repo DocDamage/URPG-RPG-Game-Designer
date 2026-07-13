@@ -49,6 +49,7 @@ public:
     std::string exportItemsCsv() const;
     std::vector<DatabaseDiagnostic> validate() const;
     nlohmann::json toJson() const;
+    static RpgDatabase fromJson(const nlohmann::json& json);
 
     static RpgDatabase fromItemsCsv(const std::string& csv);
     static RpgDatabase autofill(const AutofillProfile& profile, uint64_t seed);

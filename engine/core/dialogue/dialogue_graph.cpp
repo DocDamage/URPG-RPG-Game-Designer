@@ -1,6 +1,7 @@
 #include "engine/core/dialogue/dialogue_graph.h"
 
 #include <set>
+#include <stdexcept>
 #include <utility>
 
 namespace urpg::dialogue {
@@ -96,6 +97,48 @@ nlohmann::json DialogueGraph::serialize() const {
     result["start_node_id"] = start_node_id_;
     result["nodes"] = serialized_nodes;
     return result;
+}
+
+DialogueGraph DialogueGraph::fromJson(const nlohmann::json& json) {
+    if (!json.is_object() || json.value("schema_version", "") != "urpg.dialogue_graph.v1" ||
+        !json.contains("nodes") || !json.at("nodes").is_array()) {
+        throw std::invalid_argument("DialogueGraph JSON has an unsupported schema or missing nodes.");
+    }
+    DialogueGraph graph;
+    for (const auto& source_node : json.at("nodes")) {
+        if (!source_node.is_object()) {
+            throw std::invalid_argument("DialogueGraph node must be an object.");
+        }
+        DialogueNode node;
+        node.id = source_node.value("id", "");
+        node.speaker_id = source_node.value("speaker_id", "");
+        node.speaker_name = source_node.value("speaker_name", "");
+        node.localization_key = source_node.value("localization_key", "");
+        node.text_preview = source_node.value("text_preview", "");
+        node.ending = source_node.value("ending", false);
+        for (const auto& source_choice : source_node.value("choices", nlohmann::json::array())) {
+            DialogueChoice choice;
+            choice.id = source_choice.value("id", "");
+            choice.label = source_choice.value("label", "");
+            choice.target_node_id = source_choice.value("target_node_id", "");
+            for (const auto& source_condition : source_choice.value("conditions", nlohmann::json::array())) {
+                choice.conditions.push_back({source_condition.value("key", ""), source_condition.value("op", ""),
+                                             source_condition.value("value", 0)});
+            }
+            for (const auto& source_effect : source_choice.value("effects", nlohmann::json::array())) {
+                choice.effects.push_back({source_effect.value("key", ""), source_effect.value("delta", 0)});
+            }
+            node.choices.push_back(std::move(choice));
+        }
+        if (!graph.addNode(std::move(node))) {
+            throw std::invalid_argument("DialogueGraph contains an empty or duplicate node id.");
+        }
+    }
+    graph.setStartNode(json.value("start_node_id", ""));
+    if (!graph.startNode().empty() && graph.findNode(graph.startNode()) == nullptr) {
+        throw std::invalid_argument("DialogueGraph start node does not exist.");
+    }
+    return graph;
 }
 
 } // namespace urpg::dialogue

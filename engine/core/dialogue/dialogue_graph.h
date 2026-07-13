@@ -47,6 +47,7 @@ public:
     const std::string& startNode() const;
     std::vector<std::string> previewRoute(std::size_t max_steps = 16) const;
     nlohmann::json serialize() const;
+    static DialogueGraph fromJson(const nlohmann::json& json);
 
 private:
     std::string start_node_id_;

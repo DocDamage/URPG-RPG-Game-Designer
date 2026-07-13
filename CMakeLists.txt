@@ -807,6 +807,7 @@ set(URPG_CORE_SOURCES
     engine/core/project/project_snapshot_store.cpp
     engine/core/project/project_template_generator.cpp
     engine/core/project/project_creation_service.cpp
+    engine/core/project/contextual_creator_project.cpp
     engine/core/project/template_runtime_profile.cpp
     engine/core/project/template_certification.cpp
     engine/core/tutorial/tutorial_lesson.cpp
@@ -1570,6 +1571,7 @@ add_executable(urpg_tests
     tests/unit/test_project_health_panel.cpp
     tests/unit/test_project_template_generator.cpp
     tests/unit/test_project_creation_service.cpp
+    tests/unit/test_contextual_creator_project.cpp
     tests/unit/test_new_project_wizard_panel.cpp
     tests/unit/test_main_menu_panel.cpp
     tests/unit/test_editor_project_session.cpp
