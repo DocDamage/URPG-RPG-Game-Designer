@@ -27,10 +27,12 @@ class EditorProjectSession {
     EditorProjectSessionResult openProject(const std::filesystem::path& project_root);
     EditorProjectSessionResult closeProject();
     void addSwitchListener(SwitchListener listener);
+    void setDirtySurfaceSummaries(std::vector<std::string> summaries);
 
     bool isOpen() const { return open_; }
     const EditorProjectIdentity& activeProject() const { return active_project_; }
     const EditorProjectSessionResult& lastDiagnostic() const { return last_diagnostic_; }
+    const std::vector<std::string>& dirtySurfaceSummaries() const { return dirty_surface_summaries_; }
 
   private:
     EditorProjectSessionResult validateProject(const std::filesystem::path& project_root,
@@ -39,6 +41,7 @@ class EditorProjectSession {
     bool open_ = false;
     EditorProjectIdentity active_project_;
     EditorProjectSessionResult last_diagnostic_;
+    std::vector<std::string> dirty_surface_summaries_;
     std::vector<SwitchListener> switch_listeners_;
 };
 

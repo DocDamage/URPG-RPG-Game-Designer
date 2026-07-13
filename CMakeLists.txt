@@ -605,6 +605,8 @@ set(URPG_CORE_SOURCES
     engine/core/assets/asset_import_session.cpp
     engine/core/assets/asset_library.cpp
     engine/core/assets/asset_promotion_manifest.cpp
+    engine/core/assets/local_asset_catalog.cpp
+    engine/core/assets/archive_catalog.cpp
     engine/core/assets/project_asset_attachment_service.cpp
     engine/core/assets/asset_action_view.cpp
     engine/core/assets/asset_cleanup_planner.cpp
@@ -656,7 +658,11 @@ set(URPG_CORE_SOURCES
     editor/plugin/plugin_inspector_panel.cpp
     editor/project/new_project_wizard_model.cpp
     editor/project/new_project_wizard_panel.cpp
+    editor/project/main_menu_panel.cpp
     editor/project/editor_project_session.cpp
+    editor/project/editor_dirty_state_registry.cpp
+    editor/project/creator_checklist.cpp
+    editor/project/creator_checklist_panel.cpp
     editor/quest/quest_panel.cpp
     editor/progression/skill_tree_panel.cpp
     editor/dialogue/dialogue_graph_panel.cpp
@@ -685,6 +691,8 @@ set(URPG_CORE_SOURCES
     editor/puzzle/puzzle_panel.cpp
     editor/assets/asset_library_model.cpp
     editor/assets/asset_library_panel.cpp
+    editor/assets/editor_asset_drag_payload.cpp
+    editor/assets/editor_thumbnail_cache.cpp
     editor/export/export_diagnostics_panel.cpp
     editor/export/export_preview_panel.cpp
     editor/compat/compat_report_panel.cpp
@@ -733,6 +741,9 @@ set(URPG_CORE_SOURCES
     editor/spatial/grid_part_inspector_panel.cpp
     editor/spatial/grid_part_playtest_panel.cpp
     editor/spatial/level_builder_workspace.cpp
+    editor/spatial/map_authoring_context.cpp
+    editor/spatial/map_authoring_persistence.cpp
+    editor/spatial/map_authoring_workspace.cpp
     editor/spatial/map_ability_binding_panel.cpp
     editor/spatial/perspective_2d_product_workflow.cpp
     editor/spatial/spatial_ability_canvas_panel.cpp
@@ -786,6 +797,7 @@ set(URPG_CORE_SOURCES
     engine/core/project/dev_room_generator.cpp
     engine/core/project/project_snapshot_store.cpp
     engine/core/project/project_template_generator.cpp
+    engine/core/project/project_creation_service.cpp
     engine/core/project/template_runtime_profile.cpp
     engine/core/project/template_certification.cpp
     engine/core/tutorial/tutorial_lesson.cpp
@@ -1544,8 +1556,13 @@ add_executable(urpg_tests
     tests/unit/test_project_health_model.cpp
     tests/unit/test_project_health_panel.cpp
     tests/unit/test_project_template_generator.cpp
+    tests/unit/test_project_creation_service.cpp
     tests/unit/test_new_project_wizard_panel.cpp
+    tests/unit/test_main_menu_panel.cpp
     tests/unit/test_editor_project_session.cpp
+    tests/unit/test_editor_dirty_state_registry.cpp
+    tests/unit/test_creator_checklist.cpp
+    tests/unit/test_creator_checklist_panel.cpp
     tests/unit/test_plugin_compatibility_score.cpp
     tests/unit/test_plugin_inspector_panel.cpp
     tests/unit/test_mz_project_corpus_schema.cpp
@@ -1556,6 +1573,11 @@ add_executable(urpg_tests
     tests/unit/test_mz_runtime_parity_mode.cpp
     tests/unit/test_mz_migration_workbench_model.cpp
     tests/unit/test_asset_library.cpp
+    tests/unit/test_editor_asset_drag_payload.cpp
+    tests/unit/test_editor_thumbnail_cache.cpp
+    tests/unit/test_local_asset_catalog.cpp
+    tests/unit/test_archive_catalog.cpp
+    tests/perf/test_local_asset_catalog_perf.cpp
     tests/unit/test_asset_cleanup_planner.cpp
     tests/unit/test_asset_library_panel.cpp
     tests/unit/test_asset_library_import_wizard.cpp
@@ -1819,6 +1841,9 @@ add_executable(urpg_spatial_unit_tests
     tests/unit/test_spatial_editor_canvas_workspace.cpp
     tests/unit/test_spatial_editor_projection.cpp
     tests/unit/test_spatial_presentation.cpp
+    tests/unit/test_map_authoring_context.cpp
+    tests/unit/test_map_authoring_persistence.cpp
+    tests/unit/test_map_authoring_workspace.cpp
 )
 urpg_configure_unit_test_target(urpg_spatial_unit_tests)
 
@@ -1836,6 +1861,7 @@ urpg_enable_windows_test_binary_unlock(urpg_render_tests)
 
 add_executable(urpg_integration_tests
     tests/integration/test_creator_journey.cpp
+    tests/integration/test_creator_project_runtime.cpp
     tests/integration/test_grid_part_map_scene_integration.cpp
     tests/integration/test_integration_runtime_recovery.cpp
     tests/integration/test_runtime_startup_save_flow.cpp
@@ -1857,8 +1883,10 @@ target_compile_definitions(urpg_integration_tests PRIVATE
 )
 add_dependencies(urpg_integration_tests urpg_export_smoke_app)
 add_dependencies(urpg_integration_tests urpg_pack_cli)
+add_dependencies(urpg_integration_tests urpg_runtime)
 target_compile_definitions(urpg_integration_tests PRIVATE URPG_EXPORT_SMOKE_APP_PATH="$<TARGET_FILE:urpg_export_smoke_app>")
 target_compile_definitions(urpg_integration_tests PRIVATE URPG_PACK_CLI_PATH="$<TARGET_FILE:urpg_pack_cli>")
+target_compile_definitions(urpg_integration_tests PRIVATE URPG_RUNTIME_PATH="$<TARGET_FILE:urpg_runtime>")
 urpg_enable_windows_test_binary_unlock(urpg_integration_tests)
 
 add_executable(urpg_snapshot_canonical_tests

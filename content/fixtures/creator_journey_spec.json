@@ -4,7 +4,7 @@
   "steps": [
     {"id": "launch_editor", "max_clicks": 1, "max_duration_ms": 30000, "baseline_status": "partial", "evidence": "headless_shell"},
     {"id": "create_project", "max_clicks": 8, "max_duration_ms": 120000, "baseline_status": "partial", "evidence": "project_contract"},
-    {"id": "discover_external_assets", "max_clicks": 4, "max_duration_ms": 30000, "baseline_status": "deferred", "reason": "virtual_catalog_not_integrated", "milestone": "M2"},
+    {"id": "discover_external_assets", "max_clicks": 4, "max_duration_ms": 30000, "baseline_status": "partial", "evidence": "local_asset_catalog_page"},
     {"id": "attach_sprite", "max_clicks": 8, "max_duration_ms": 120000, "baseline_status": "partial", "evidence": "promotion_attachment_contract"},
     {"id": "paint_map", "max_clicks": 5, "max_duration_ms": 60000, "baseline_status": "partial", "evidence": "grid_part_document"},
     {"id": "add_event", "max_clicks": 6, "max_duration_ms": 120000, "baseline_status": "deferred", "reason": "contextual_event_authoring_not_integrated", "milestone": "M8"},

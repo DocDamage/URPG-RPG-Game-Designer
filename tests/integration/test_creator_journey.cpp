@@ -1,7 +1,10 @@
+#include "editor/assets/asset_library_model.h"
+#include "editor/assets/editor_asset_drag_payload.h"
 #include "engine/core/editor/editor_shell.h"
 #include "engine/core/map/grid_part_document.h"
 #include "engine/core/project/project_snapshot_store.h"
 #include "engine/core/project/project_template_generator.h"
+#include "engine/core/tools/export_packager.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
@@ -70,6 +73,31 @@ nlohmann::json deferredStep(const nlohmann::json& specification) {
             {"artifact_paths", nlohmann::json::array()}};
 }
 
+nlohmann::json partialStep(const std::string& id, const std::string& diagnostic, const std::string& artifact) {
+    return {{"id", id},
+            {"status", "partial"},
+            {"duration_ms", 0},
+            {"diagnostic_codes", nlohmann::json::array({diagnostic})},
+            {"artifact_paths", nlohmann::json::array({artifact})}};
+}
+
+void writeExternalCatalogFixture(const std::filesystem::path& catalogRoot) {
+    std::filesystem::create_directories(catalogRoot);
+    const auto shard = catalogRoot / "catalog-creator-00001.jsonl";
+    {
+        std::ofstream output(shard, std::ios::binary);
+        output << R"({"asset_id":"local:creator-hero","virtual_path":"external/creator/hero.png","source_root":"external/creator","filename":"hero.png","extension":"png","media_kind":"image","archive_kind":"","size_bytes":128,"mtime_ns":1,"sha256":"","pack":"creator","category":"characters","tags":["hero"],"normalized_filename":"hero.png","normalized_virtual_path":"external/creator/hero.png","normalized_extension":"png","normalized_pack":"creator","normalized_category":"characters","normalized_tags":["hero"]})" << '\n';
+    }
+    const nlohmann::json metadata = {{"schema_version", "urpg.asset_catalog.v1"},
+                                     {"generated_at", "2026-07-13T00:00:00Z"},
+                                     {"scan_complete", true},
+                                     {"counts", {{"asset_count", 1}, {"hash_pending_count", 1}, {"archive_count", 0}}},
+                                     {"roots", nlohmann::json::array({{{"id", "external/creator"}, {"state", "complete"}, {"asset_count", 1}, {"hash_pending_count", 1}}})},
+                                     {"shards", nlohmann::json::array({{{"path", shard.filename().generic_string()}, {"record_count", 1}}})}};
+    std::ofstream output(catalogRoot / "catalog_meta.json", std::ios::binary);
+    output << metadata.dump(2) << '\n';
+}
+
 } // namespace
 
 TEST_CASE("creator journey baseline emits an honest deterministic smoke report", "[integration][creator journey]") {
@@ -112,9 +140,32 @@ TEST_CASE("creator journey baseline emits an honest deterministic smoke report",
 
     const TempJourneyProject project;
     project.writeProject(created.project);
+
+    writeExternalCatalogFixture(project.root() / ".urpg" / "asset-index");
+    urpg::editor::AssetLibraryModel assetLibrary;
+    std::string catalogError;
+    REQUIRE(assetLibrary.loadExternalCatalog(project.root() / ".urpg" / "asset-index", &catalogError));
+    urpg::assets::LocalAssetCatalogQuery assetQuery;
+    assetQuery.text = "hero";
+    assetLibrary.setExternalCatalogQuery(assetQuery);
+    REQUIRE(assetLibrary.snapshot().external_catalog["page"]["total_matches"] == 1);
+
+    const urpg::editor::EditorAssetDragPayload rawAsset{"local:creator-hero", "", "image", 48, 48,
+                                                        urpg::editor::EditorAssetProvenanceState::RawExternal};
+    const auto rawDrop = urpg::editor::assessEditorAssetDrop(rawAsset, true);
+    REQUIRE_FALSE(rawDrop.accepted);
+    REQUIRE(rawDrop.code == "asset_drop_requires_attachment");
     const urpg::project::ProjectSnapshotStore snapshots;
     const auto snapshot = snapshots.createSnapshot(project.root(), project.snapshotRoot(), "before_playtest");
     REQUIRE(snapshot.success);
+
+    const auto packageOutput = project.root() / "package-preview";
+    std::filesystem::create_directories(packageOutput);
+    urpg::tools::ExportConfig packageConfig{};
+    packageConfig.target = urpg::tools::ExportTarget::Windows_x64;
+    packageConfig.outputDir = packageOutput.generic_string();
+    const auto packageValidation = urpg::tools::ExportPackager{}.validateBeforeExport(packageConfig);
+    REQUIRE(packageValidation.passed);
     shell.shutdown();
 
     nlohmann::json report = {{"schema", kReportSchema},
@@ -133,12 +184,14 @@ TEST_CASE("creator journey baseline emits an honest deterministic smoke report",
             report["steps"].push_back(passedStep(id, "grid_part_document"));
         } else if (id == "save_project") {
             report["steps"].push_back(passedStep(id, snapshot.snapshot_path.generic_string()));
+        } else if (id == "discover_external_assets") {
+            report["steps"].push_back(passedStep(id, "local_asset_catalog_page"));
+        } else if (id == "attach_sprite") {
+            report["steps"].push_back(partialStep(id, rawDrop.code, "editor_asset_drag_payload"));
+        } else if (id == "package_project") {
+            report["steps"].push_back(partialStep(id, "package_preview_validated", packageOutput.generic_string()));
         } else {
-            report["steps"].push_back({{"id", id},
-                                       {"status", "partial"},
-                                       {"duration_ms", 0},
-                                       {"diagnostic_codes", nlohmann::json::array({"workflow_not_integrated"})},
-                                       {"artifact_paths", nlohmann::json::array()}});
+            report["steps"].push_back(partialStep(id, "workflow_not_integrated", ""));
         }
     }
 

@@ -80,6 +80,135 @@ TEST_CASE("AssetLibraryModel loads canonical report directory shape", "[assets][
     REQUIRE(model.snapshot().duplicate_group_count == 1);
 }
 
+TEST_CASE("AssetLibraryModel keeps external catalog records distinct from promoted assets", "[assets][asset_library][editor][external_catalog]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_external_catalog");
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root);
+    {
+        std::ofstream shard(root / "catalog-test-00001.jsonl");
+        shard << R"({"asset_id":"local:1","virtual_path":"external/collection/Hero.PNG","source_root":"external/collection","filename":"Hero.PNG","extension":"png","media_kind":"image","archive_kind":"","size_bytes":12,"pack":"characters","category":"sprites","tags":["name:hero"]})"
+              << '\n';
+        shard << R"({"asset_id":"local:2","virtual_path":"external/collection/pack.7z","source_root":"external/collection","filename":"pack.7z","extension":"7z","media_kind":"archive","archive_kind":"7z","size_bytes":20,"pack":"characters","category":"archives","tags":["kind:archive"]})"
+              << '\n';
+    }
+    {
+        std::ofstream manifest(root / "catalog_meta.json");
+        manifest << R"({"schema_version":"urpg.asset_catalog.v1","generated_at":"2026-07-13T00:00:00+00:00","scan_complete":true,"counts":{"asset_count":2,"hash_pending_count":1,"archive_count":1},"roots":[{"id":"external/collection","state":"complete","asset_count":2,"hash_pending_count":1}],"shards":[{"path":"catalog-test-00001.jsonl","record_count":2}]})";
+    }
+
+    urpg::editor::AssetLibraryModel model;
+    std::string error;
+    REQUIRE(model.loadExternalCatalog(root, &error));
+    REQUIRE(error.empty());
+    REQUIRE(model.snapshot().external_catalog_asset_count == 2);
+    REQUIRE(model.snapshot().asset_count == 0);
+    REQUIRE(model.snapshot().external_catalog["page"]["records"].size() == 2);
+
+    urpg::assets::LocalAssetCatalogQuery query;
+    query.archiveOnly = true;
+    model.setExternalCatalogQuery(query);
+    REQUIRE(model.snapshot().external_catalog["page"]["total_matches"] == 1);
+    REQUIRE(model.snapshot().external_catalog["page"]["records"][0]["asset_id"] == "local:2");
+    REQUIRE_FALSE(model.snapshot().external_catalog["actions"]["refresh_index"]["enabled"]);
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel exposes no-shell external catalog refresh and source actions", "[assets][asset_library][editor][external_catalog]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_external_catalog_actions");
+    const auto sourceRoot = root / "source";
+    const auto catalogRoot = root / "catalog";
+    std::filesystem::create_directories(sourceRoot);
+    std::filesystem::create_directories(catalogRoot);
+    std::ofstream(sourceRoot / "hero.png") << "fixture";
+    std::ofstream(catalogRoot / "asset_catalog.db") << "sqlite-placeholder";
+    {
+        std::ofstream shard(catalogRoot / "catalog-test-00001.jsonl");
+        shard << nlohmann::json({{"asset_id", "local:hero"},
+                                 {"virtual_path", "hero.png"},
+                                 {"source_root", sourceRoot.generic_string()},
+                                 {"filename", "hero.png"},
+                                 {"extension", "png"},
+                                 {"media_kind", "image"},
+                                 {"archive_kind", ""},
+                                 {"size_bytes", 7},
+                                 {"pack", "characters"},
+                                 {"category", "sprites"},
+                                 {"tags", nlohmann::json::array()}})
+                     .dump()
+              << '\n';
+    }
+    {
+        std::ofstream manifest(catalogRoot / "catalog_meta.json");
+        manifest << nlohmann::json({{"schema_version", "urpg.asset_catalog.v1"},
+                                    {"generated_at", "2026-07-13T00:00:00+00:00"},
+                                    {"scan_complete", true},
+                                    {"counts", {{"asset_count", 1}, {"hash_pending_count", 0}, {"archive_count", 0}}},
+                                    {"roots", nlohmann::json::array()},
+                                    {"shards", nlohmann::json::array({{{"path", "catalog-test-00001.jsonl"}, {"record_count", 1}}})}})
+                        .dump();
+    }
+
+    urpg::editor::AssetLibraryModel model;
+    std::string error;
+    REQUIRE(model.loadExternalCatalog(catalogRoot, &error));
+    REQUIRE(model.snapshot().external_catalog["actions"]["refresh_index"]["enabled"] == true);
+    model.selectExternalCatalogAsset("local:hero");
+    REQUIRE(model.snapshot().external_catalog["actions"]["open_source_location"]["enabled"] == true);
+
+    const auto refreshed = model.refreshExternalCatalog([](const auto& command) {
+        REQUIRE(command.arguments.size() == 6);
+        REQUIRE(command.arguments[0] == "python");
+        return urpg::editor::AssetLibraryModel::ConversionCommandResult{0, "refreshed", ""};
+    });
+    REQUIRE(refreshed["success"] == true);
+
+    const auto opened = model.openSelectedExternalCatalogSource([](const auto& command) {
+        REQUIRE_FALSE(command.arguments.empty());
+        return urpg::editor::AssetLibraryModel::ConversionCommandResult{0, "opened", ""};
+    });
+    REQUIRE(opened["success"] == true);
+    REQUIRE(opened["source_path"] == (sourceRoot / "hero.png").generic_string());
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel exposes archive browsing separately from promotion", "[assets][asset_library][editor][archive]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_archive_browser");
+    std::filesystem::create_directories(root);
+    const auto archive = root / "unsupported.rar";
+    std::ofstream output(archive, std::ios::binary);
+    output << "not a RAR";
+    output.close();
+
+    urpg::editor::AssetLibraryModel model;
+    const auto browser = model.browseArchive(archive);
+    REQUIRE(browser["status"] == "blocked");
+    REQUIRE(browser["code"] == "archive_extractor_unavailable");
+    REQUIRE_FALSE(browser["promotion_eligible"]);
+    REQUIRE_FALSE(browser["release_eligible"]);
+    REQUIRE(model.snapshot().archive_browser["next_action"].is_string());
+    REQUIRE_FALSE(browser["cached"]);
+    const auto cached = model.browseArchive(archive);
+    REQUIRE(cached["cached"]);
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryPanel preserves archive inspection as a read-only snapshot", "[assets][asset_library][editor][archive]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_panel_archive_browser");
+    std::filesystem::create_directories(root);
+    const auto archive = root / "unsupported.7z";
+    std::ofstream output(archive, std::ios::binary);
+    output << "not a 7z";
+    output.close();
+
+    urpg::editor::AssetLibraryPanel panel;
+    const auto result = panel.browseArchive(archive);
+    REQUIRE_FALSE(result["promotion_eligible"]);
+    REQUIRE(panel.lastRenderSnapshot().archive_browser["status"] == "blocked");
+    REQUIRE_FALSE(panel.lastRenderSnapshot().archive_browser["release_eligible"]);
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("AssetLibraryModel skips oversized duplicate CSV details", "[assets][asset_library][editor]") {
     const auto root = uniqueTempRoot("urpg_asset_library_model_large_duplicate_report");
     std::filesystem::remove_all(root);

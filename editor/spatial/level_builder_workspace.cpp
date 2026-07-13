@@ -489,12 +489,16 @@ LevelBuilderWorkspace::SaveDraftResult LevelBuilderWorkspace::SaveLevelDraft() {
     }
 
     result.success = true;
-    result.message = "Current level draft saved.";
+    result.message = "Current level draft serialized; publish it atomically before clearing dirty state.";
     result.serialized_document_json = urpg::map::GridPartDocumentToJson(*document_).dump(2);
-    document_->clearDirtyChunks();
     last_save_result_ = std::move(result);
     captureRenderSnapshot();
     return last_save_result_;
+}
+
+void LevelBuilderWorkspace::MarkLevelDraftPersisted() {
+    if (document_ != nullptr) document_->clearDirtyChunks();
+    captureRenderSnapshot();
 }
 
 LevelBuilderWorkspace::LoadDraftResult

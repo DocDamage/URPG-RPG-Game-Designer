@@ -498,6 +498,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                    const std::string& new_label);
     bool ClearPerspectiveLayer(const std::string& layer_id);
     void SetPerspectiveTilePaletteOptions(std::vector<Perspective2DPaletteOption> options);
+    bool AddAttachedAssetToTilePalette(const std::string& asset_id, const std::string& project_path);
+    bool AddAttachedAssetToPropPalette(const std::string& asset_id, const std::string& project_path);
     bool SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages);
     bool SetPerspectiveTileDefinition(Perspective2DTileDefinition definition);
     Perspective2DTilePreviewResult PreviewPerspectiveTileAt(int32_t tile_x, int32_t tile_y);
@@ -510,6 +512,10 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     bool SetPerspectiveBrushSize(int brush_size);
     bool PaintPerspectiveTileFromScreen(float screen_x, float screen_y);
     bool ErasePerspectiveTileFromScreen(float screen_x, float screen_y);
+    bool UndoPerspective2D();
+    bool RedoPerspective2D();
+    bool canUndoPerspective2D() const { return !perspective_undo_drafts_.empty(); }
+    bool canRedoPerspective2D() const { return !perspective_redo_drafts_.empty(); }
     bool AddPerspectiveEventFromScreen(const std::string& event_id,
                                        const std::string& label,
                                        const std::string& trigger_id,
@@ -582,6 +588,10 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                        const std::string& command_code,
                                        const std::string& argument);
     bool RemovePerspectiveEventCommand(const std::string& event_id, size_t command_index);
+    // Produces a validated draft without clearing dirty state. The caller must
+    // publish it, potentially alongside other map documents, before commit.
+    Perspective2DDraftResult PreparePerspectiveMapDraftSave();
+    void MarkPerspectiveMapDraftPersisted();
     Perspective2DDraftResult SavePerspectiveMapDraft();
     Perspective2DDraftResult LoadPerspectiveMapDraft(const std::string& serialized_document_json);
     Perspective2DPlaytestResult RunPerspectiveMapPlaytest();
@@ -730,6 +740,10 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     int perspective_brush_size_ = 1;
     bool perspective_has_unsaved_changes_ = false;
     bool perspective_playtest_ready_ = false;
+    std::string perspective_history_checkpoint_;
+    std::vector<std::string> perspective_undo_drafts_;
+    std::vector<std::string> perspective_redo_drafts_;
+    bool restoring_perspective_history_ = false;
     Perspective2DDraftResult last_perspective_save_result_;
     Perspective2DDraftResult last_perspective_load_result_;
     Perspective2DPlaytestResult last_perspective_playtest_result_;

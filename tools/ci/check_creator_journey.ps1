@@ -24,6 +24,12 @@ if ($actualIds.Count -ne $expectedIds.Count -or @($expectedIds | Where-Object { 
 }
 
 foreach ($step in $report.steps) {
+  if ($step.status -notin @("passed", "partial", "deferred", "failed")) {
+    throw "Creator-journey step '$($step.id)' has unsupported status '$($step.status)'."
+  }
+  if ($step.status -ne "deferred" -and @($step.artifact_paths).Count -eq 0) {
+    throw "Creator-journey step '$($step.id)' is missing deterministic evidence artifacts."
+  }
   if ($step.status -eq "failed") {
     throw "Creator-journey step '$($step.id)' failed: $($step.diagnostic_codes -join ', ')"
   }

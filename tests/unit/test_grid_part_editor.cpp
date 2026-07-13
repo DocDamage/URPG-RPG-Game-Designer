@@ -261,7 +261,7 @@ TEST_CASE("Level Builder routes Perspective 2D canvas tools through the native w
     REQUIRE(workspace.activeMode() == LevelBuilderWorkspace::WorkflowMode::Perspective2D);
 }
 
-TEST_CASE("Level Builder saves canonical grid-part drafts and clears dirty state",
+TEST_CASE("Level Builder serializes canonical grid-part drafts until an atomic commit clears dirty state",
           "[grid_part][editor][level_builder]") {
     GridPartCatalog catalog;
     REQUIRE(catalog.addDefinition(makeDefinition("prop.crate", GridPartCategory::Prop)));
@@ -283,9 +283,13 @@ TEST_CASE("Level Builder saves canonical grid-part drafts and clears dirty state
     REQUIRE(saveResult.saved_part_count == 1);
     REQUIRE(saveResult.blocker_codes.empty());
     REQUIRE(saveResult.serialized_document_json.find("\"partId\": \"prop.crate\"") != std::string::npos);
+    REQUIRE_FALSE(document.dirtyChunks().empty());
+    REQUIRE(workspace.lastRenderSnapshot().has_unsaved_changes);
+    REQUIRE(workspace.lastRenderSnapshot().last_save.success);
+
+    workspace.MarkLevelDraftPersisted();
     REQUIRE(document.dirtyChunks().empty());
     REQUIRE_FALSE(workspace.lastRenderSnapshot().has_unsaved_changes);
-    REQUIRE(workspace.lastRenderSnapshot().last_save.success);
 }
 
 TEST_CASE("Level Builder save command reports document blockers without clearing dirty state",

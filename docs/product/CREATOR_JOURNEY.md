@@ -20,10 +20,13 @@ editor subsystem names. The machine-readable counterpart is
 | `validate_project` | View focused package/map blockers. | 2 | 15 s | Validation report with focus routes. |
 | `package_project` | Package the reviewed project. | 2 | 2 min | Shipping inventory and package validation. |
 
-Automated reports may mark a step `passed`, `failed`, or `deferred`. A deferred
+Automated reports may mark a step `passed`, `partial`, `failed`, or `deferred`. A deferred
 step is acceptable only in the baseline while it is explicitly declared in the
 fixture with a creator-readable reason and remediation milestone. It is never
 evidence that the product promise is met.
+
+A partial step names the exercised native seam and the remaining creator-flow
+gap. It is not a fallback success and cannot be used as release evidence.
 
 Manual graphical verification is required for startup layout, picker behavior,
 asset-card readability, map painting feedback, playtest focus transfer,

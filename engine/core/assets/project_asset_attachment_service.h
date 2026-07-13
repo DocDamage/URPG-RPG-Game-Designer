@@ -8,6 +8,8 @@
 
 namespace urpg::assets {
 
+enum class ProjectAssetAttachmentConflictPolicy { Cancel, Replace, KeepBoth, RelinkExisting };
+
 struct ProjectAssetAttachmentResult {
     bool success = false;
     std::string code;
@@ -20,7 +22,9 @@ struct ProjectAssetAttachmentResult {
 class ProjectAssetAttachmentService {
 public:
     ProjectAssetAttachmentResult attachPromotedAsset(const AssetPromotionManifest& manifest,
-                                                     const std::filesystem::path& projectRoot) const;
+                                                     const std::filesystem::path& projectRoot,
+                                                     ProjectAssetAttachmentConflictPolicy conflictPolicy =
+                                                         ProjectAssetAttachmentConflictPolicy::Cancel) const;
 };
 
 } // namespace urpg::assets

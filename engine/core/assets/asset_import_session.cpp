@@ -116,7 +116,7 @@ std::string reviewState(const AssetImportRecord& record) {
     if (record.duplicate || !record.duplicateOf.empty()) {
         return "duplicate";
     }
-    if (record.toolingOnly || record.sourceOnly) {
+    if (record.toolingOnly || (record.sourceOnly && !record.conversionRequired)) {
         return "source_only";
     }
     if (std::find(record.diagnostics.begin(), record.diagnostics.end(), "unsupported_format") !=
@@ -341,6 +341,7 @@ nlohmann::json serializeAssetImportSession(const AssetImportSession& session) {
             {"previewAvailable", record.previewAvailable},
             {"previewKind", record.previewKind},
             {"noPreviewDiagnostic", record.noPreviewDiagnostic},
+            {"authoredMetadata", record.authoredMetadata},
         });
     }
 
@@ -421,6 +422,10 @@ AssetImportSession deserializeAssetImportSession(const nlohmann::json& value) {
                 record.previewKind = "none";
             }
             record.noPreviewDiagnostic = readString(item, "noPreviewDiagnostic");
+            if (const auto metadata = item.find("authoredMetadata");
+                metadata != item.end() && metadata->is_object()) {
+                record.authoredMetadata = *metadata;
+            }
             session.records.push_back(std::move(record));
         }
     }
@@ -467,6 +472,7 @@ AssetPromotionManifest planAssetPromotionManifest(const AssetImportSession& sess
     AssetPromotionManifest manifest;
     manifest.assetId = record.assetId;
     manifest.sourcePath = joinPath(session.managedSourceRoot, record.relativePath);
+    manifest.sourceSha256 = record.sha256;
     manifest.licenseId = std::move(licenseId);
     manifest.promotedPath =
         joinPath(joinPath(std::move(promotedRoot), sanitizePathSegment(record.assetId)), "payloads/" +
@@ -475,6 +481,7 @@ AssetPromotionManifest planAssetPromotionManifest(const AssetImportSession& sess
     manifest.preview.thumbnailPath = manifest.preview.kind == "none" ? "" : manifest.sourcePath;
     manifest.preview.width = record.width;
     manifest.preview.height = record.height;
+    manifest.authoredMetadata = record.authoredMetadata;
     manifest.package.includeInRuntime = includeInRuntime;
     manifest.package.requiredForRelease = false;
     manifest.diagnostics = record.diagnostics;
@@ -576,6 +583,7 @@ nlohmann::json buildAssetImportReviewRows(const std::vector<AssetImportSession>&
                 {"preview_available", record.previewAvailable},
                 {"preview_kind", record.previewKind},
                 {"no_preview_diagnostic", record.noPreviewDiagnostic},
+                {"authored_metadata", record.authoredMetadata},
             });
         }
     }

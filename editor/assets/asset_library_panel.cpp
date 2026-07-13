@@ -367,9 +367,10 @@ void AssetLibraryPanel::render() {
 nlohmann::json AssetLibraryPanel::requestImportSource(const std::filesystem::path& source,
                                                       const std::filesystem::path& library_root, std::string session_id,
                                                       std::string license_note,
-                                                      std::vector<std::string> external_extractor_command) {
+                                                      std::vector<std::string> external_extractor_command,
+                                                      std::vector<std::string> selected_archive_entries) {
     auto result = model_.requestImportSource(source, library_root, std::move(session_id), std::move(license_note),
-                                             std::move(external_extractor_command));
+                                             std::move(external_extractor_command), std::move(selected_archive_entries));
     refreshRenderSnapshotsFromModel();
     return result;
 }
@@ -430,6 +431,25 @@ nlohmann::json AssetLibraryPanel::requestImportSourceFromPicker(ImportSourcePick
                                std::move(request.license_note), std::move(request.external_extractor_command));
 }
 
+nlohmann::json AssetLibraryPanel::executePendingImportRequest(AssetLibraryModel::ConversionCommandExecutor executor) {
+    auto result = model_.executePendingImportRequest(std::move(executor));
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::refreshExternalCatalog(AssetLibraryModel::ConversionCommandExecutor executor) {
+    auto result = model_.refreshExternalCatalog(std::move(executor));
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json
+AssetLibraryPanel::openSelectedExternalCatalogSource(AssetLibraryModel::ConversionCommandExecutor executor) {
+    auto result = model_.openSelectedExternalCatalogSource(std::move(executor));
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
 nlohmann::json AssetLibraryPanel::convertSelectedImportRecords(std::string session_id,
                                                                std::vector<std::string> asset_ids,
                                                                AssetLibraryModel::ConversionCommandExecutor executor) {
@@ -449,8 +469,15 @@ nlohmann::json AssetLibraryPanel::promoteSelectedImportRecords(std::string sessi
 }
 
 nlohmann::json AssetLibraryPanel::attachSelectedPromotedAssetsToProject(std::vector<std::string> paths,
-                                                                        const std::filesystem::path& project_root) {
-    auto result = model_.attachPromotedAssetsToProject(std::move(paths), project_root);
+                                                                        const std::filesystem::path& project_root,
+                                                                        const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    auto result = model_.attachPromotedAssetsToProject(std::move(paths), project_root, policy);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::browseArchive(const std::filesystem::path& archive_path) {
+    auto result = model_.browseArchive(archive_path);
     refreshRenderSnapshotsFromModel();
     return result;
 }

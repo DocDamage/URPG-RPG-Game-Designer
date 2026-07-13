@@ -52,6 +52,10 @@ TEST_CASE("EditorProjectSession commits validated projects before notifying pane
     REQUIRE(session.activeProject().root == std::filesystem::weakly_canonical(project.root()));
     REQUIRE(session.activeProject().display_name == "Creator Demo");
     REQUIRE(notified_id == "creator_demo");
+    session.setDirtySurfaceSummaries({"map:opening", "ability:fire"});
+    REQUIRE(session.dirtySurfaceSummaries().size() == 2);
+    REQUIRE(session.closeProject().success);
+    REQUIRE(session.dirtySurfaceSummaries().empty());
 }
 
 TEST_CASE("EditorProjectSession preserves the active project after a failed switch", "[project][project session]") {

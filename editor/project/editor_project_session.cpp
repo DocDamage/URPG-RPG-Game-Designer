@@ -62,9 +62,14 @@ EditorProjectSessionResult EditorProjectSession::openProject(const std::filesyst
 
 EditorProjectSessionResult EditorProjectSession::closeProject() {
     active_project_ = {};
+    dirty_surface_summaries_.clear();
     open_ = false;
     last_diagnostic_ = {true, "project_closed", "Project closed."};
     return last_diagnostic_;
+}
+
+void EditorProjectSession::setDirtySurfaceSummaries(std::vector<std::string> summaries) {
+    dirty_surface_summaries_ = std::move(summaries);
 }
 
 void EditorProjectSession::addSwitchListener(SwitchListener listener) {

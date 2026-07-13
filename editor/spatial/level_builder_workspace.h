@@ -204,6 +204,9 @@ class LevelBuilderWorkspace : public EditorPanel {
     AuthoringCommandResult MarkPerformanceBudgetPassed();
     AuthoringCommandResult MarkHumanReviewPassed();
     SaveDraftResult SaveLevelDraft();
+    // Serialization is not a save commit. Call this only after the caller has
+    // atomically published the serialized draft to its durable destination.
+    void MarkLevelDraftPersisted();
     LoadDraftResult LoadLevelDraft(const std::string& serialized_document_json);
     ExportResult ExportCurrentLevel();
 

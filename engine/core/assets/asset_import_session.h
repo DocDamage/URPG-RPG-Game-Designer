@@ -49,7 +49,8 @@ struct AssetImportRecord {
                       int32_t sequenceFrameCount_ = 0,
                       bool previewAvailable_ = false,
                       std::string previewKind_ = "none",
-                      std::string noPreviewDiagnostic_ = {})
+                      std::string noPreviewDiagnostic_ = {},
+                      nlohmann::json authoredMetadata_ = nlohmann::json::object())
         : assetId(std::move(assetId_)),
           relativePath(std::move(relativePath_)),
           normalizedPath(std::move(normalizedPath_)),
@@ -77,7 +78,8 @@ struct AssetImportRecord {
           sequenceFrameCount(sequenceFrameCount_),
           previewAvailable(previewAvailable_),
           previewKind(std::move(previewKind_)),
-          noPreviewDiagnostic(std::move(noPreviewDiagnostic_)) {}
+          noPreviewDiagnostic(std::move(noPreviewDiagnostic_)),
+          authoredMetadata(std::move(authoredMetadata_)) {}
 
     std::string assetId;
     std::string relativePath;
@@ -107,6 +109,9 @@ struct AssetImportRecord {
     bool previewAvailable = false;
     std::string previewKind = "none";
     std::string noPreviewDiagnostic;
+    // Creator-authored import settings (for example a spritesheet slice) live
+    // in governed session/promotion manifests, never beside an external file.
+    nlohmann::json authoredMetadata = nlohmann::json::object();
 };
 
 struct AssetImportSummary {

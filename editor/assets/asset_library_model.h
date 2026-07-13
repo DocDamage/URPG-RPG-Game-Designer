@@ -1,8 +1,11 @@
 #pragma once
 
 #include "engine/core/assets/asset_cleanup_planner.h"
+#include "engine/core/assets/archive_catalog.h"
 #include "engine/core/assets/asset_import_session.h"
 #include "engine/core/assets/asset_library.h"
+#include "engine/core/assets/local_asset_catalog.h"
+#include "engine/core/assets/project_asset_attachment_service.h"
 
 #include <nlohmann/json.hpp>
 
@@ -44,6 +47,9 @@ struct AssetLibraryModelSnapshot {
     size_t import_unsupported_count = 0;
     size_t import_source_only_count = 0;
     size_t import_error_count = 0;
+    size_t external_catalog_asset_count = 0;
+    size_t external_catalog_hash_pending_count = 0;
+    size_t external_catalog_archive_count = 0;
     size_t filtered_asset_count = 0;
     size_t cleanup_allowed_count = 0;
     size_t cleanup_refused_count = 0;
@@ -58,6 +64,8 @@ struct AssetLibraryModelSnapshot {
     nlohmann::json import_review_rows = nlohmann::json::array();
     nlohmann::json import_wizard = nlohmann::json::object();
     nlohmann::json virtual_catalog = nlohmann::json::object();
+    nlohmann::json external_catalog = nlohmann::json::object();
+    nlohmann::json archive_browser = nlohmann::json::object();
     nlohmann::json last_action = nlohmann::json::object();
     nlohmann::json action_history = nlohmann::json::array();
     std::map<std::string, size_t> category_counts;
@@ -97,7 +105,12 @@ class AssetLibraryModel {
     void ingestPromotionManifest(const urpg::assets::AssetPromotionManifest& manifest);
     nlohmann::json requestImportSource(const std::filesystem::path& source, const std::filesystem::path& library_root,
                                        std::string session_id, std::string license_note = {},
-                                       std::vector<std::string> external_extractor_command = {});
+                                       std::vector<std::string> external_extractor_command = {},
+                                       std::vector<std::string> selected_archive_entries = {});
+    // Runs the explicitly requested importer without a shell, then loads the
+    // session manifest it produced. Keeping this handoff here means the
+    // editor never has to infer an import result from a console command.
+    nlohmann::json executePendingImportRequest(ConversionCommandExecutor executor = {});
     void ingestImportSession(urpg::assets::AssetImportSession session);
     void clearImportSessions();
     bool loadImportSessionManifest(const std::filesystem::path& manifest_path, std::string* error_message = nullptr);
@@ -112,6 +125,12 @@ class AssetLibraryModel {
                                              ConversionCommandExecutor executor = {});
     nlohmann::json runImportRecordConversions(std::string session_id, std::vector<std::string> asset_ids,
                                               ConversionCommandExecutor executor = {});
+    // Stores an explicit loose-spritesheet grid in the governed import-session
+    // manifest. The external source file is never modified.
+    nlohmann::json setImportRecordSpriteSheetSlice(std::string session_id, std::string asset_id,
+                                                   int32_t frame_width, int32_t frame_height, int32_t rows,
+                                                   int32_t columns, std::string direction, bool loop,
+                                                   float frame_duration);
     nlohmann::json promoteImportRecords(std::string session_id, std::vector<std::string> asset_ids,
                                         std::string license_id, std::string promoted_root,
                                         bool include_in_runtime = true);
@@ -124,6 +143,13 @@ class AssetLibraryModel {
     bool loadReportsFromDirectory(const std::filesystem::path& reports_root, std::string* error_message = nullptr);
     void setDuplicateCsvDetailLimitBytes(std::uintmax_t limit_bytes);
     void setPromotionCatalogDetailLimitBytes(std::uintmax_t limit_bytes);
+    bool loadExternalCatalog(const std::filesystem::path& catalog_directory, std::string* error_message = nullptr);
+    void setExternalCatalogQuery(urpg::assets::LocalAssetCatalogQuery query);
+    void selectExternalCatalogAsset(std::string asset_id);
+    nlohmann::json refreshExternalCatalog(ConversionCommandExecutor executor = {});
+    nlohmann::json openSelectedExternalCatalogSource(ConversionCommandExecutor executor = {});
+    nlohmann::json browseArchive(const std::filesystem::path& archive_path);
+    const urpg::assets::LocalAssetCatalog& externalCatalog() const { return external_catalog_; }
     bool loadAssetBundleManifestsFromDirectory(const std::filesystem::path& bundle_root,
                                                std::string* error_message = nullptr);
     void addReferencedAsset(std::string path);
@@ -131,9 +157,13 @@ class AssetLibraryModel {
     urpg::assets::AssetLibraryActionResult promoteAsset(std::string path);
     urpg::assets::AssetLibraryActionResult archiveAsset(std::string path, std::string reason = {});
     urpg::assets::AssetLibraryActionResult attachPromotedAssetToProject(std::string path,
-                                                                        const std::filesystem::path& project_root);
+                                                                        const std::filesystem::path& project_root,
+                                                                        urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+                                                                            urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
     nlohmann::json attachPromotedAssetsToProject(std::vector<std::string> paths,
-                                                 const std::filesystem::path& project_root);
+                                                 const std::filesystem::path& project_root,
+                                                 urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+                                                     urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
     bool loadProjectAssetAttachments(const std::filesystem::path& project_root, std::string* error_message = nullptr);
     void setFilter(urpg::assets::AssetLibraryFilter filter);
     bool applyQuickFilter(std::string_view filter_id);
@@ -145,12 +175,24 @@ class AssetLibraryModel {
     const AssetLibraryModelSnapshot& snapshot() const { return snapshot_; }
 
   private:
+    bool persistImportSession(const urpg::assets::AssetImportSession& session, std::string* error_message);
     void refreshSnapshot();
+    void refreshExternalCatalogSnapshot();
 
     urpg::assets::AssetLibrary library_;
     urpg::assets::AssetCleanupPlanner cleanup_planner_;
     urpg::assets::AssetCleanupPlan cleanup_plan_;
+    urpg::assets::LocalAssetCatalog external_catalog_;
+    urpg::assets::LocalAssetCatalogQuery external_catalog_query_;
+    std::filesystem::path external_catalog_directory_;
+    std::string selected_external_catalog_asset_id_;
+    std::vector<std::string> external_catalog_diagnostics_;
+    nlohmann::json archive_browser_ = nlohmann::json::object();
+    std::filesystem::path cached_archive_path_;
+    uintmax_t cached_archive_size_ = 0;
+    std::filesystem::file_time_type cached_archive_write_time_{};
     std::vector<urpg::assets::AssetImportSession> import_sessions_;
+    std::map<std::string, std::filesystem::path> import_session_manifest_paths_;
     urpg::assets::AssetLibraryFilter filter_;
     AssetLibraryModelSnapshot snapshot_{};
     nlohmann::json action_history_ = nlohmann::json::array();

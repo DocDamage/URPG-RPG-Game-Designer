@@ -34,6 +34,7 @@ nlohmann::json serializeAssetPromotionManifest(const AssetPromotionManifest& man
         {"schemaVersion", manifest.schemaVersion},
         {"assetId", manifest.assetId},
         {"sourcePath", manifest.sourcePath},
+        {"sourceSha256", manifest.sourceSha256},
         {"promotedPath", manifest.promotedPath},
         {"licenseId", manifest.licenseId},
         {"status", toString(manifest.status)},
@@ -49,6 +50,7 @@ nlohmann::json serializeAssetPromotionManifest(const AssetPromotionManifest& man
              {"includeInRuntime", manifest.package.includeInRuntime},
              {"requiredForRelease", manifest.package.requiredForRelease},
          }},
+        {"authoredMetadata", manifest.authoredMetadata},
         {"diagnostics", manifest.diagnostics},
     };
 }
@@ -86,6 +88,7 @@ AssetPromotionManifest deserializeAssetPromotionManifest(const nlohmann::json& v
     manifest.schemaVersion = value.value("schemaVersion", manifest.schemaVersion);
     manifest.assetId = value.value("assetId", "");
     manifest.sourcePath = value.value("sourcePath", "");
+    manifest.sourceSha256 = value.value("sourceSha256", "");
     manifest.promotedPath = value.value("promotedPath", "");
     manifest.licenseId = value.value("licenseId", "");
     manifest.status = assetPromotionStatusFromString(value.value("status", "pending"));
@@ -102,6 +105,9 @@ AssetPromotionManifest deserializeAssetPromotionManifest(const nlohmann::json& v
     if (package != value.end() && package->is_object()) {
         manifest.package.includeInRuntime = package->value("includeInRuntime", false);
         manifest.package.requiredForRelease = package->value("requiredForRelease", false);
+    }
+    if (const auto metadata = value.find("authoredMetadata"); metadata != value.end() && metadata->is_object()) {
+        manifest.authoredMetadata = *metadata;
     }
 
     const auto existingDiagnostics = value.find("diagnostics");

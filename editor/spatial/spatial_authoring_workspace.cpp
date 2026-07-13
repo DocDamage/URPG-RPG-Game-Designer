@@ -553,8 +553,50 @@ bool SpatialAuthoringWorkspace::SelectGridPart(const std::string& part_id) {
 }
 
 void SpatialAuthoringWorkspace::markPerspectiveDirty() {
+    if (!restoring_perspective_history_ && !perspective_history_checkpoint_.empty()) {
+        perspective_undo_drafts_.push_back(perspective_history_checkpoint_);
+        perspective_redo_drafts_.clear();
+    }
     perspective_has_unsaved_changes_ = true;
     perspective_playtest_ready_ = false;
+}
+
+bool SpatialAuthoringWorkspace::UndoPerspective2D() {
+    if (perspective_undo_drafts_.empty()) return false;
+    const auto current = serializePerspectiveMapDraft();
+    const auto target = perspective_undo_drafts_.back();
+    perspective_undo_drafts_.pop_back();
+    perspective_redo_drafts_.push_back(current);
+    restoring_perspective_history_ = true;
+    const auto result = LoadPerspectiveMapDraft(target);
+    restoring_perspective_history_ = false;
+    if (!result.success) {
+        perspective_redo_drafts_.pop_back();
+        perspective_undo_drafts_.push_back(target);
+        return false;
+    }
+    perspective_has_unsaved_changes_ = true;
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::RedoPerspective2D() {
+    if (perspective_redo_drafts_.empty()) return false;
+    const auto current = serializePerspectiveMapDraft();
+    const auto target = perspective_redo_drafts_.back();
+    perspective_redo_drafts_.pop_back();
+    perspective_undo_drafts_.push_back(current);
+    restoring_perspective_history_ = true;
+    const auto result = LoadPerspectiveMapDraft(target);
+    restoring_perspective_history_ = false;
+    if (!result.success) {
+        perspective_undo_drafts_.pop_back();
+        perspective_redo_drafts_.push_back(target);
+        return false;
+    }
+    perspective_has_unsaved_changes_ = true;
+    captureRenderSnapshot();
+    return true;
 }
 
 bool SpatialAuthoringWorkspace::projectScreenToTile(float screen_x, float screen_y, int32_t& out_tile_x,
@@ -933,6 +975,47 @@ void SpatialAuthoringWorkspace::SetPerspectiveTilePaletteOptions(std::vector<Per
         selected_palette_option_id_.clear();
     }
     captureRenderSnapshot();
+}
+
+bool SpatialAuthoringWorkspace::AddAttachedAssetToTilePalette(const std::string& asset_id,
+                                                               const std::string& project_path) {
+    if (asset_id.empty() || project_path.empty()) {
+        return false;
+    }
+    const auto existing = std::find_if(perspective_tile_palette_options_.begin(), perspective_tile_palette_options_.end(),
+                                       [&](const auto& option) { return option.asset_id == asset_id; });
+    if (existing != perspective_tile_palette_options_.end()) {
+        selected_palette_option_id_ = existing->option_id;
+        captureRenderSnapshot();
+        return true;
+    }
+    perspective_tile_palette_options_.push_back(
+        {asset_id + ".tile", asset_id, asset_id, "tile", asset_id, project_path, "attached", project_path});
+    selected_palette_option_id_ = perspective_tile_palette_options_.back().option_id;
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::AddAttachedAssetToPropPalette(const std::string& asset_id,
+                                                               const std::string& project_path) {
+    if (asset_id.empty() || project_path.empty()) {
+        return false;
+    }
+    std::vector<PropPlacementPanel::ProjectAssetOption> options;
+    for (const auto& option : prop_panel_.lastRenderSnapshot().project_asset_options) {
+        options.push_back({option.asset_id, option.project_path, option.picker_kind, option.picker_targets,
+                           option.targeted_for_level_builder, option.targeted_for_perspective_2d});
+    }
+    const auto existing = std::find_if(options.begin(), options.end(),
+                                       [&](const auto& option) { return option.asset_id == asset_id; });
+    if (existing == options.end()) {
+        options.push_back({asset_id, project_path, "prop", {"spatial_authoring"}, false, true});
+    }
+    prop_panel_.SetProjectAssetOptions(std::move(options));
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
 }
 
 bool SpatialAuthoringWorkspace::SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages) {
@@ -2134,7 +2217,7 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveEventExecutionTraceBu
     return json.dump(2);
 }
 
-SpatialAuthoringWorkspace::Perspective2DDraftResult SpatialAuthoringWorkspace::SavePerspectiveMapDraft() {
+SpatialAuthoringWorkspace::Perspective2DDraftResult SpatialAuthoringWorkspace::PreparePerspectiveMapDraftSave() {
     Perspective2DDraftResult result;
     result.command_id = "save_perspective_2d_map_draft";
     result.map_id = m_target_overlay != nullptr ? m_target_overlay->mapId : std::string{};
@@ -2150,12 +2233,29 @@ SpatialAuthoringWorkspace::Perspective2DDraftResult SpatialAuthoringWorkspace::S
     }
 
     result.success = true;
-    result.message = "Perspective 2D map draft saved.";
+    result.message = "Perspective 2D map draft serialized; publish it before clearing dirty state.";
     result.serialized_document_json = serializePerspectiveMapDraft();
-    perspective_has_unsaved_changes_ = false;
     last_perspective_save_result_ = result;
     captureRenderSnapshot();
     return last_perspective_save_result_;
+}
+
+void SpatialAuthoringWorkspace::MarkPerspectiveMapDraftPersisted() {
+    perspective_has_unsaved_changes_ = false;
+    last_perspective_save_result_.message = "Perspective 2D map draft published.";
+    captureRenderSnapshot();
+}
+
+SpatialAuthoringWorkspace::Perspective2DDraftResult SpatialAuthoringWorkspace::SavePerspectiveMapDraft() {
+    auto result = PreparePerspectiveMapDraftSave();
+    if (result.success) {
+        MarkPerspectiveMapDraftPersisted();
+        result = last_perspective_save_result_;
+        result.message = "Perspective 2D map draft saved.";
+        last_perspective_save_result_ = result;
+        captureRenderSnapshot();
+    }
+    return result;
 }
 
 SpatialAuthoringWorkspace::Perspective2DDraftResult
@@ -3047,6 +3147,9 @@ SpatialAuthoringWorkspace::RecordPerspectiveReleaseAssetGate(size_t release_requ
 }
 
 void SpatialAuthoringWorkspace::captureRenderSnapshot() {
+    if (!restoring_perspective_history_) {
+        perspective_history_checkpoint_ = serializePerspectiveMapDraft();
+    }
     last_render_snapshot_ = {};
     last_render_snapshot_.visible = m_visible;
     last_render_snapshot_.has_target_scene = (m_target_scene != nullptr);

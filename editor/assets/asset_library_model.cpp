@@ -15,6 +15,10 @@
 #include <utility>
 #include <vector>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 namespace urpg::editor {
 
 namespace {
@@ -80,6 +84,27 @@ std::vector<std::string> configuredExternalExtractorCommand(std::vector<std::str
     return parsed.valid ? parsed.arguments : std::vector<std::string>{};
 }
 
+std::filesystem::path catalogInterchangeToolPath() {
+    std::error_code error;
+    auto directory = std::filesystem::current_path(error);
+    if (error) {
+        return {};
+    }
+    while (!directory.empty()) {
+        const auto candidate = directory / "tools" / "assets" / "catalog_interchange.py";
+        if (std::filesystem::is_regular_file(candidate, error) && !error) {
+            return candidate;
+        }
+        error.clear();
+        const auto parent = directory.parent_path();
+        if (parent == directory) {
+            break;
+        }
+        directory = parent;
+    }
+    return {};
+}
+
 nlohmann::json externalExtractorConfigurationSnapshot() {
     const char* configured = std::getenv(kExternalExtractorEnv);
     if (configured == nullptr || std::string_view(configured).empty()) {
@@ -88,6 +113,7 @@ nlohmann::json externalExtractorConfigurationSnapshot() {
             {"source", "none"},
             {"environment_variable", kExternalExtractorEnv},
             {"supports_rar_7z", false},
+            {"supports_selected_entry_staging", false},
             {"command", nlohmann::json::array()},
             {"diagnostics", nlohmann::json::array()},
         };
@@ -99,14 +125,58 @@ nlohmann::json externalExtractorConfigurationSnapshot() {
             {"source", "environment"},
             {"environment_variable", kExternalExtractorEnv},
             {"supports_rar_7z", false},
+            {"supports_selected_entry_staging", false},
             {"command", nlohmann::json::array()},
             {"diagnostics", nlohmann::json::array({parsed.diagnostic})},
         };
     }
+    const auto hasArgument = [&](std::string_view argument) {
+        return std::any_of(parsed.arguments.begin(), parsed.arguments.end(), [&](const auto& value) {
+            return value.find(argument) != std::string::npos;
+        });
+    };
+    const bool supportsSelectedEntryStaging = hasArgument("{source}") && hasArgument("{destination}") &&
+                                             std::find(parsed.arguments.begin(), parsed.arguments.end(), "{selected_entries}") !=
+                                                 parsed.arguments.end();
     return {
         {"configured", true},      {"source", "environment"},     {"environment_variable", kExternalExtractorEnv},
-        {"supports_rar_7z", true}, {"command", parsed.arguments}, {"diagnostics", nlohmann::json::array()},
+        {"supports_rar_7z", true}, {"supports_selected_entry_staging", supportsSelectedEntryStaging},
+        {"command", parsed.arguments}, {"diagnostics", nlohmann::json::array()},
     };
+}
+
+bool atomicWriteJson(const std::filesystem::path& path, const nlohmann::json& value, std::string* error) {
+    std::error_code filesystemError;
+    std::filesystem::create_directories(path.parent_path(), filesystemError);
+    if (filesystemError) {
+        if (error) *error = filesystemError.message();
+        return false;
+    }
+    const auto temporary = path.parent_path() / ("." + path.filename().string() + ".tmp");
+    {
+        std::ofstream output(temporary, std::ios::binary | std::ios::trunc);
+        output << value.dump(2) << '\n';
+        if (!output) {
+            if (error) *error = "Unable to write the temporary import-session manifest.";
+            std::filesystem::remove(temporary, filesystemError);
+            return false;
+        }
+    }
+#ifdef _WIN32
+    if (!MoveFileExW(temporary.c_str(), path.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        if (error) *error = "Unable to atomically publish the import-session manifest.";
+        std::filesystem::remove(temporary, filesystemError);
+        return false;
+    }
+#else
+    std::filesystem::rename(temporary, path, filesystemError);
+    if (filesystemError) {
+        if (error) *error = "Unable to atomically publish the import-session manifest: " + filesystemError.message();
+        std::filesystem::remove(temporary, filesystemError);
+        return false;
+    }
+#endif
+    return true;
 }
 
 } // namespace
@@ -128,6 +198,256 @@ void AssetLibraryModel::setDuplicateCsvDetailLimitBytes(std::uintmax_t limit_byt
 
 void AssetLibraryModel::setPromotionCatalogDetailLimitBytes(std::uintmax_t limit_bytes) {
     promotion_catalog_detail_limit_bytes_ = limit_bytes;
+}
+
+bool AssetLibraryModel::loadExternalCatalog(const std::filesystem::path& catalog_directory, std::string* error_message) {
+    const auto result = external_catalog_.load(catalog_directory);
+    external_catalog_diagnostics_ = result.diagnostics;
+    if (!result.success) {
+        if (error_message) {
+            std::ostringstream message;
+            for (size_t index = 0; index < result.diagnostics.size(); ++index) {
+                if (index > 0) {
+                    message << '\n';
+                }
+                message << result.diagnostics[index];
+            }
+            *error_message = message.str();
+        }
+        refreshSnapshot();
+        return false;
+    }
+    external_catalog_directory_ = catalog_directory;
+    if (error_message) {
+        error_message->clear();
+    }
+    refreshSnapshot();
+    return true;
+}
+
+void AssetLibraryModel::setExternalCatalogQuery(urpg::assets::LocalAssetCatalogQuery query) {
+    external_catalog_query_ = std::move(query);
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::selectExternalCatalogAsset(std::string asset_id) {
+    selected_external_catalog_asset_id_ = std::move(asset_id);
+    refreshSnapshot();
+}
+
+nlohmann::json AssetLibraryModel::refreshExternalCatalog(ConversionCommandExecutor executor) {
+    const auto database = external_catalog_directory_ / "asset_catalog.db";
+    const auto tool = catalogInterchangeToolPath();
+    if (external_catalog_directory_.empty() || !std::filesystem::is_regular_file(database) ||
+        !std::filesystem::is_regular_file(tool)) {
+        nlohmann::json action = {
+            {"action", "refresh_external_catalog"},
+            {"success", false},
+            {"code", "external_catalog_refresh_unavailable"},
+            {"message", "Refresh requires the local index database and catalog interchange tool."},
+            {"database", database.generic_string()},
+            {"tool", tool.generic_string()},
+        };
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    ConversionCommand command;
+    command.working_directory = std::filesystem::current_path();
+    command.arguments = {"python", tool.generic_string(), "--db", database.generic_string(), "--output",
+                         external_catalog_directory_.generic_string()};
+    const auto result = executor ? executor(command) : runConversionCommand(command);
+    if (result.exit_code != 0) {
+        nlohmann::json action = {
+            {"action", "refresh_external_catalog"},
+            {"success", false},
+            {"code", "external_catalog_refresh_failed"},
+            {"message", "The local asset catalog could not be refreshed."},
+            {"exit_code", result.exit_code},
+            {"stdout", result.stdout_text},
+            {"stderr", result.stderr_text},
+        };
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    std::string error;
+    if (!loadExternalCatalog(external_catalog_directory_, &error)) {
+        nlohmann::json action = {
+            {"action", "refresh_external_catalog"},
+            {"success", false},
+            {"code", "external_catalog_refresh_reload_failed"},
+            {"message", "The catalog export completed but the refreshed interchange could not be loaded."},
+            {"error", error},
+        };
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    nlohmann::json action = {
+        {"action", "refresh_external_catalog"},
+        {"success", true},
+        {"code", "external_catalog_refreshed"},
+        {"message", "The local asset catalog was refreshed."},
+        {"stdout", result.stdout_text},
+        {"stderr", result.stderr_text},
+    };
+    action_history_.push_back(action);
+    refreshSnapshot();
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+nlohmann::json AssetLibraryModel::openSelectedExternalCatalogSource(ConversionCommandExecutor executor) {
+    const auto page = external_catalog_.query(external_catalog_query_);
+    const auto selected = std::find_if(page.records.begin(), page.records.end(), [&](const auto& record) {
+        return record.assetId == selected_external_catalog_asset_id_;
+    });
+    if (selected == page.records.end()) {
+        nlohmann::json action = {{"action", "open_external_catalog_source"},
+                                 {"success", false},
+                                 {"code", "external_catalog_source_not_selected"},
+                                 {"message", "Select a visible external catalog record before opening its source location."}};
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    std::error_code error;
+    const auto root = std::filesystem::weakly_canonical(selected->sourceRoot, error);
+    if (error || root.empty() || !root.is_absolute()) {
+        nlohmann::json action = {{"action", "open_external_catalog_source"},
+                                 {"success", false},
+                                 {"code", "external_catalog_source_root_unavailable"},
+                                 {"message", "The selected record does not provide an accessible absolute source root."}};
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+    const auto candidate = std::filesystem::weakly_canonical(root / selected->virtualPath, error);
+    bool insideRoot = !error;
+    auto rootIt = root.begin();
+    auto candidateIt = candidate.begin();
+    while (insideRoot && rootIt != root.end()) {
+        if (candidateIt == candidate.end() || *rootIt != *candidateIt) {
+            insideRoot = false;
+            break;
+        }
+        ++rootIt;
+        ++candidateIt;
+    }
+    if (!insideRoot || !std::filesystem::exists(candidate, error) || error) {
+        nlohmann::json action = {{"action", "open_external_catalog_source"},
+                                 {"success", false},
+                                 {"code", "external_catalog_source_path_unavailable"},
+                                 {"message", "The selected external source path is missing or escaped its configured root."}};
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    ConversionCommand command;
+#ifdef _WIN32
+    command.arguments = {"explorer.exe", "/select," + candidate.string()};
+#elif defined(__APPLE__)
+    command.arguments = {"open", candidate.string()};
+#elif defined(__linux__)
+    command.arguments = {"xdg-open", candidate.parent_path().string()};
+#else
+    command.arguments = {};
+#endif
+    if (command.arguments.empty()) {
+        nlohmann::json action = {{"action", "open_external_catalog_source"},
+                                 {"success", false},
+                                 {"code", "external_catalog_source_open_unsupported"},
+                                 {"message", "Opening source locations is not supported on this platform."}};
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+    const auto result = executor ? executor(command) : runConversionCommand(command);
+    nlohmann::json action = {{"action", "open_external_catalog_source"},
+                             {"success", result.exit_code == 0},
+                             {"code", result.exit_code == 0 ? "external_catalog_source_opened" : "external_catalog_source_open_failed"},
+                             {"message", result.exit_code == 0 ? "Opened the selected external source location."
+                                                                 : "The selected external source location could not be opened."},
+                             {"source_path", candidate.generic_string()},
+                             {"stderr", result.stderr_text}};
+    action_history_.push_back(action);
+    refreshSnapshot();
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+nlohmann::json AssetLibraryModel::browseArchive(const std::filesystem::path& archive_path) {
+    std::error_code filesystemError;
+    const auto normalizedPath = std::filesystem::weakly_canonical(archive_path, filesystemError);
+    const auto cachePath = filesystemError ? archive_path.lexically_normal() : normalizedPath;
+    filesystemError.clear();
+    const auto discoveredSize = std::filesystem::file_size(cachePath, filesystemError);
+    const bool hasSize = !filesystemError;
+    const auto archiveSize = hasSize ? discoveredSize : uintmax_t{0};
+    filesystemError.clear();
+    const auto archiveWriteTime = std::filesystem::last_write_time(cachePath, filesystemError);
+    const bool hasWriteTime = !filesystemError;
+    const bool cacheable = hasSize && hasWriteTime;
+    if (cacheable && cachePath == cached_archive_path_ && archiveSize == cached_archive_size_ &&
+        archiveWriteTime == cached_archive_write_time_ && !archive_browser_.empty()) {
+        archive_browser_["cached"] = true;
+        refreshSnapshot();
+        return archive_browser_;
+    }
+    const auto result = urpg::assets::ArchiveCatalog{}.list(archive_path, {}, configuredExternalExtractorCommand({}));
+    nlohmann::json entries = nlohmann::json::array();
+    constexpr size_t maxRows = 200;
+    for (size_t index = 0; index < result.entries.size() && index < maxRows; ++index) {
+        const auto& entry = result.entries[index];
+        entries.push_back({{"path", entry.path},
+                           {"compressed_bytes", entry.compressedBytes},
+                           {"expanded_bytes", entry.expandedBytes},
+                           {"directory", entry.directory}});
+    }
+    archive_browser_ = {
+        {"archive_path", archive_path.generic_string()},
+        {"status", result.success ? "listed" : "blocked"},
+        {"code", result.code},
+        {"message", result.message},
+        {"entry_count", result.entries.size()},
+        {"entries", std::move(entries)},
+        {"entries_truncated", result.entries.size() > maxRows},
+        {"diagnostics", result.diagnostics},
+        {"cached", false},
+        {"cache_key", {{"size_bytes", archiveSize}, {"modified_time", archiveWriteTime.time_since_epoch().count()}}},
+        {"promotion_eligible", false},
+        {"release_eligible", false},
+        {"next_action", result.success ? "Select entries for isolated staging before import." : "Resolve archive safety diagnostics."},
+    };
+    if (cacheable) {
+        cached_archive_path_ = cachePath;
+        cached_archive_size_ = archiveSize;
+        cached_archive_write_time_ = archiveWriteTime;
+    }
+    refreshSnapshot();
+    return archive_browser_;
 }
 
 void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
@@ -192,7 +512,8 @@ std::string joinExternalExtractorCommand(const std::vector<std::string>& command
 nlohmann::json AssetLibraryModel::requestImportSource(const std::filesystem::path& source,
                                                       const std::filesystem::path& library_root, std::string session_id,
                                                       std::string license_note,
-                                                      std::vector<std::string> external_extractor_command) {
+                                                      std::vector<std::string> external_extractor_command,
+                                                      std::vector<std::string> selected_archive_entries) {
     external_extractor_command = configuredExternalExtractorCommand(std::move(external_extractor_command));
     const auto sourcePath = source.generic_string();
     const auto libraryRoot = library_root.generic_string();
@@ -216,6 +537,12 @@ nlohmann::json AssetLibraryModel::requestImportSource(const std::filesystem::pat
         command.push_back("--external-extractor-command");
         command.push_back(joinExternalExtractorCommand(external_extractor_command));
     }
+    for (const auto& entry : selected_archive_entries) {
+        if (!entry.empty()) {
+            command.push_back("--selected-archive-entry");
+            command.push_back(entry);
+        }
+    }
 
     pending_import_request_ = {
         {"source_path", sourcePath},
@@ -223,6 +550,7 @@ nlohmann::json AssetLibraryModel::requestImportSource(const std::filesystem::pat
         {"session_id", session_id},
         {"license_note", license_note},
         {"external_extractor_command", external_extractor_command},
+        {"selected_archive_entries", selected_archive_entries},
         {"expected_manifest_path", expectedManifest},
         {"command", command},
     };
@@ -239,8 +567,100 @@ nlohmann::json AssetLibraryModel::requestImportSource(const std::filesystem::pat
         {"library_root", libraryRoot},
         {"session_id", session_id},
         {"external_extractor_command", external_extractor_command},
+        {"selected_archive_entries", selected_archive_entries},
         {"expected_manifest_path", expectedManifest},
         {"command", command},
+    };
+    action_history_.push_back(action);
+    refreshSnapshot();
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+nlohmann::json AssetLibraryModel::executePendingImportRequest(ConversionCommandExecutor executor) {
+    const auto request = pending_import_request_;
+    const auto commandIt = request.find("command");
+    if (!request.is_object() || request.empty() || commandIt == request.end() || !commandIt->is_array() ||
+        commandIt->empty() || !(*commandIt)[0].is_string()) {
+        nlohmann::json action = {
+            {"action", "execute_import_source"},
+            {"success", false},
+            {"code", "import_source_request_missing"},
+            {"message", "Choose an asset source before running the importer."},
+        };
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    ConversionCommand importCommand;
+    for (const auto& part : *commandIt) {
+        if (!part.is_string()) {
+            nlohmann::json action = {
+                {"action", "execute_import_source"},
+                {"success", false},
+                {"code", "import_source_request_invalid"},
+                {"message", "The requested importer command is invalid."},
+            };
+            action_history_.push_back(action);
+            refreshSnapshot();
+            snapshot_.last_action = action;
+            snapshot_.action_history = action_history_;
+            return action;
+        }
+        importCommand.arguments.push_back(part.get<std::string>());
+    }
+
+    const auto processResult = executor ? executor(importCommand) : runConversionCommand(importCommand);
+    const auto expectedManifest = std::filesystem::path(request.value("expected_manifest_path", ""));
+    if (processResult.exit_code != 0) {
+        nlohmann::json action = {
+            {"action", "execute_import_source"},
+            {"success", false},
+            {"code", "import_source_command_failed"},
+            {"message", "The asset importer did not complete."},
+            {"exit_code", processResult.exit_code},
+            {"stdout", processResult.stdout_text},
+            {"stderr", processResult.stderr_text},
+        };
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    std::string loadError;
+    if (expectedManifest.empty() || !loadImportSessionManifest(expectedManifest, &loadError)) {
+        nlohmann::json action = {
+            {"action", "execute_import_source"},
+            {"success", false},
+            {"code", "import_source_manifest_missing"},
+            {"message", "The importer completed but did not produce a readable review manifest."},
+            {"expected_manifest_path", expectedManifest.generic_string()},
+            {"stdout", processResult.stdout_text},
+            {"stderr", processResult.stderr_text},
+            {"error", loadError},
+        };
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    }
+
+    nlohmann::json action = {
+        {"action", "execute_import_source"},
+        {"success", true},
+        {"code", "import_source_loaded_for_review"},
+        {"message", "Asset source was scanned and is ready for review."},
+        {"session_id", request.value("session_id", "")},
+        {"expected_manifest_path", expectedManifest.generic_string()},
+        {"stdout", processResult.stdout_text},
+        {"stderr", processResult.stderr_text},
     };
     action_history_.push_back(action);
     refreshSnapshot();
@@ -264,8 +684,18 @@ void AssetLibraryModel::ingestImportSession(urpg::assets::AssetImportSession ses
 
 void AssetLibraryModel::clearImportSessions() {
     import_sessions_.clear();
+    import_session_manifest_paths_.clear();
     pending_import_request_ = nlohmann::json::object();
     refreshSnapshot();
+}
+
+bool AssetLibraryModel::persistImportSession(const urpg::assets::AssetImportSession& session, std::string* error_message) {
+    const auto path = import_session_manifest_paths_.find(session.sessionId);
+    if (path == import_session_manifest_paths_.end() || path->second.empty()) {
+        if (error_message) *error_message = "No governed import-session manifest is available for this session.";
+        return false;
+    }
+    return atomicWriteJson(path->second, urpg::assets::serializeAssetImportSession(session), error_message);
 }
 
 namespace {
@@ -578,6 +1008,7 @@ urpg::assets::AssetPromotionManifest manifestFromAssetRecord(const urpg::assets:
     urpg::assets::AssetPromotionManifest manifest;
     manifest.assetId = record.asset_id;
     manifest.sourcePath = record.source_path.empty() ? record.path : record.source_path;
+    manifest.sourceSha256 = record.sha256;
     manifest.promotedPath = record.promoted_path;
     manifest.licenseId = record.license_id;
     manifest.status = urpg::assets::assetPromotionStatusFromString(record.promotion_status);
@@ -735,7 +1166,10 @@ bool AssetLibraryModel::loadImportSessionManifest(const std::filesystem::path& m
     }
     try {
         std::ifstream manifest_stream(manifest_path);
-        ingestImportSession(urpg::assets::deserializeAssetImportSession(nlohmann::json::parse(manifest_stream)));
+        auto session = urpg::assets::deserializeAssetImportSession(nlohmann::json::parse(manifest_stream));
+        const auto sessionId = session.sessionId;
+        ingestImportSession(std::move(session));
+        if (!sessionId.empty()) import_session_manifest_paths_[sessionId] = manifest_path;
         snapshot_.status = "ready";
         snapshot_.status_message = "";
         snapshot_.error_message = "";
@@ -767,6 +1201,13 @@ bool AssetLibraryModel::loadImportSessionsFromLibraryRoot(const std::filesystem:
         }
 
         import_sessions_ = std::move(sessions);
+        import_session_manifest_paths_.clear();
+        for (const auto& session : import_sessions_) {
+            if (!session.sessionId.empty()) {
+                import_session_manifest_paths_[session.sessionId] =
+                    library_root / "catalog" / "import_sessions" / (session.sessionId + ".json");
+            }
+        }
         refreshSnapshot();
         if (error_message != nullptr) {
             error_message->clear();
@@ -948,8 +1389,13 @@ nlohmann::json AssetLibraryModel::runImportRecordConversion(std::string session_
     record->conversionRequired = false;
     record->conversionTargetPath.clear();
     record->conversionCommand.clear();
+    const auto extension = record->extension;
+    const bool imageOutput = extension == ".png" || extension == ".jpg" || extension == ".jpeg" ||
+                             extension == ".bmp" || extension == ".gif";
+    record->mediaKind = imageOutput ? "image" : "audio";
+    record->sourceOnly = false;
     record->previewAvailable = true;
-    record->previewKind = "audio";
+    record->previewKind = imageOutput ? "image" : "audio";
     record->noPreviewDiagnostic.clear();
     eraseDiagnostic(record->diagnostics, "conversion_required");
     eraseDiagnostic(record->diagnostics, "source_record_requires_conversion");
@@ -1006,6 +1452,71 @@ nlohmann::json AssetLibraryModel::runImportRecordConversions(std::string session
     snapshot_.last_action = action;
     snapshot_.action_history = action_history_;
     return action;
+}
+
+nlohmann::json AssetLibraryModel::setImportRecordSpriteSheetSlice(std::string session_id, std::string asset_id,
+                                                                   const int32_t frame_width, const int32_t frame_height,
+                                                                   const int32_t rows, const int32_t columns,
+                                                                   std::string direction, const bool loop,
+                                                                   const float frame_duration) {
+    const auto recordAction = [&](const bool success, std::string code, std::string message) {
+        nlohmann::json action = {
+            {"action", "set_import_record_sprite_sheet_slice"},
+            {"success", success},
+            {"code", std::move(code)},
+            {"message", std::move(message)},
+            {"session_id", session_id},
+            {"asset_id", asset_id},
+        };
+        action_history_.push_back(action);
+        refreshSnapshot();
+        snapshot_.last_action = action;
+        snapshot_.action_history = action_history_;
+        return action;
+    };
+
+    const auto session = std::find_if(import_sessions_.begin(), import_sessions_.end(),
+                                      [&](const auto& candidate) { return candidate.sessionId == session_id; });
+    if (session == import_sessions_.end()) {
+        return recordAction(false, "import_session_not_found", "Import session was not found.");
+    }
+    const auto record = std::find_if(session->records.begin(), session->records.end(),
+                                     [&](const auto& candidate) { return candidate.assetId == asset_id; });
+    if (record == session->records.end()) {
+        return recordAction(false, "import_record_not_found", "Import record was not found.");
+    }
+    if (record->mediaKind != "image") {
+        return recordAction(false, "sprite_slice_requires_image", "Grid slicing is available only for image import records.");
+    }
+    if (frame_width <= 0 || frame_height <= 0 || rows <= 0 || columns <= 0 || frame_duration <= 0.0f ||
+        (direction != "down" && direction != "left" && direction != "right" && direction != "up")) {
+        return recordAction(false, "sprite_slice_invalid", "Set positive grid dimensions, a supported direction, and frame duration.");
+    }
+    const auto grid_width = static_cast<int64_t>(frame_width) * columns;
+    const auto grid_height = static_cast<int64_t>(frame_height) * rows;
+    if ((record->width > 0 && grid_width > record->width) || (record->height > 0 && grid_height > record->height)) {
+        return recordAction(false, "sprite_slice_out_of_bounds", "The requested sprite grid exceeds the imported image dimensions.");
+    }
+
+    const auto previousMetadata = record->authoredMetadata;
+    record->authoredMetadata["sprite_sheet_slice"] = {
+        {"schema", "urpg.sprite_sheet_slice.v1"},
+        {"frame_width", frame_width},
+        {"frame_height", frame_height},
+        {"rows", rows},
+        {"columns", columns},
+        {"direction", std::move(direction)},
+        {"loop", loop},
+        {"frame_duration", frame_duration},
+    };
+    std::string persistenceError;
+    if (!persistImportSession(*session, &persistenceError)) {
+        record->authoredMetadata = previousMetadata;
+        return recordAction(false, "sprite_slice_manifest_write_failed",
+                            "Sprite slicing was not saved to the governed import-session manifest: " + persistenceError);
+    }
+    return recordAction(true, "sprite_slice_saved",
+                        "Sprite slicing metadata was saved to the governed import-session manifest.");
 }
 
 nlohmann::json AssetLibraryModel::promoteImportRecords(std::string session_id, std::vector<std::string> asset_ids,
@@ -1421,7 +1932,9 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::archiveAsset(std::stri
 }
 
 urpg::assets::AssetLibraryActionResult
-AssetLibraryModel::attachPromotedAssetToProject(std::string path, const std::filesystem::path& project_root) {
+AssetLibraryModel::attachPromotedAssetToProject(
+    std::string path, const std::filesystem::path& project_root,
+    const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
     std::replace(path.begin(), path.end(), '\\', '/');
     const auto found = library_.findAsset(path);
     if (!found.has_value()) {
@@ -1435,7 +1948,7 @@ AssetLibraryModel::attachPromotedAssetToProject(std::string path, const std::fil
     }
 
     urpg::assets::ProjectAssetAttachmentService service;
-    const auto attachResult = service.attachPromotedAsset(manifestFromAssetRecord(*found), project_root);
+    const auto attachResult = service.attachPromotedAsset(manifestFromAssetRecord(*found), project_root, policy);
     urpg::assets::AssetLibraryActionResult result{"attach_project_asset", path, attachResult.success, attachResult.code,
                                                   attachResult.message};
     if (attachResult.success) {
@@ -1449,7 +1962,8 @@ AssetLibraryModel::attachPromotedAssetToProject(std::string path, const std::fil
 }
 
 nlohmann::json AssetLibraryModel::attachPromotedAssetsToProject(std::vector<std::string> paths,
-                                                                const std::filesystem::path& project_root) {
+                                                                const std::filesystem::path& project_root,
+                                                                const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
     nlohmann::json rows = nlohmann::json::array();
     size_t attachedCount = 0;
     size_t blockedCount = 0;
@@ -1473,7 +1987,7 @@ nlohmann::json AssetLibraryModel::attachPromotedAssetsToProject(std::vector<std:
             continue;
         }
 
-        const auto attachResult = service.attachPromotedAsset(manifestFromAssetRecord(*found), project_root);
+        const auto attachResult = service.attachPromotedAsset(manifestFromAssetRecord(*found), project_root, policy);
         if (attachResult.success) {
             library_.addUsageReference(path, "project_asset_attachment:" + attachResult.manifestPath.generic_string());
             ++attachedCount;
@@ -1653,8 +2167,18 @@ void AssetLibraryModel::clear() {
     library_.clear();
     cleanup_plan_ = {};
     import_sessions_.clear();
+    import_session_manifest_paths_.clear();
     pending_import_request_ = nlohmann::json::object();
     action_history_ = nlohmann::json::array();
+    external_catalog_.clear();
+    external_catalog_query_ = {};
+    external_catalog_directory_.clear();
+    selected_external_catalog_asset_id_.clear();
+    external_catalog_diagnostics_.clear();
+    archive_browser_ = nlohmann::json::object();
+    cached_archive_path_.clear();
+    cached_archive_size_ = 0;
+    cached_archive_write_time_ = {};
     snapshot_ = {};
     snapshot_.status = "empty";
     snapshot_.reports_loaded = false;
@@ -1738,6 +2262,8 @@ void AssetLibraryModel::refreshSnapshot() {
     }
     snapshot_.import_wizard = buildImportWizardSnapshot(snapshot_, pending_import_request_);
     snapshot_.virtual_catalog = buildVirtualCatalogSnapshot(asset_snapshot);
+    refreshExternalCatalogSnapshot();
+    snapshot_.archive_browser = archive_browser_;
     snapshot_.action_history = action_history_;
     if (!action_history_.empty()) {
         snapshot_.last_action = action_history_.back();
@@ -1751,7 +2277,7 @@ void AssetLibraryModel::refreshSnapshot() {
                                asset_snapshot.file_count > 0 || asset_snapshot.duplicate_group_count > 0 ||
                                asset_snapshot.catalog_asset_count > 0 || asset_snapshot.catalog_shard_count > 0 ||
                                cleanup_plan_.allowed_count > 0 || cleanup_plan_.refused_count > 0 ||
-                               !import_sessions_.empty();
+                               !import_sessions_.empty() || external_catalog_.isLoaded();
     snapshot_.status = snapshot_.reports_loaded ? "ready" : "empty";
     snapshot_.status_message = snapshot_.reports_loaded ? "" : "No asset library reports are loaded.";
     if (snapshot_.reports_loaded) {
@@ -1763,6 +2289,91 @@ void AssetLibraryModel::refreshSnapshot() {
             ++snapshot_.issue_count;
         }
     }
+}
+
+void AssetLibraryModel::refreshExternalCatalogSnapshot() {
+    nlohmann::json diagnosticRows = nlohmann::json::array();
+    for (const auto& diagnostic : external_catalog_diagnostics_) {
+        diagnosticRows.push_back(diagnostic);
+    }
+    if (!external_catalog_.isLoaded()) {
+        snapshot_.external_catalog_asset_count = 0;
+        snapshot_.external_catalog_hash_pending_count = 0;
+        snapshot_.external_catalog_archive_count = 0;
+        snapshot_.external_catalog = {
+            {"loaded", false},
+            {"diagnostics", std::move(diagnosticRows)},
+            {"actions",
+             {{"refresh_index", {{"enabled", false}, {"reason", "No compatible catalog interchange is loaded."}}},
+              {"open_source_location", {{"enabled", false}, {"reason", "Select an external catalog record first."}}}}},
+        };
+        return;
+    }
+
+    const auto& metadata = external_catalog_.metadata();
+    const auto page = external_catalog_.query(external_catalog_query_);
+    for (const auto& diagnostic : page.diagnostics) {
+        diagnosticRows.push_back(diagnostic);
+    }
+    nlohmann::json records = nlohmann::json::array();
+    for (const auto& record : page.records) {
+        records.push_back({
+            {"asset_id", record.assetId},
+            {"selected", record.assetId == selected_external_catalog_asset_id_},
+            {"virtual_path", record.virtualPath},
+            {"source_root", record.sourceRoot},
+            {"filename", record.filename},
+            {"extension", record.extension},
+            {"media_kind", record.mediaKind},
+            {"archive_kind", record.archiveKind},
+            {"size_bytes", record.sizeBytes},
+            {"modified_time_ns", record.modifiedTimeNs},
+            {"hash_pending", record.sha256.empty()},
+            {"pack", record.pack},
+            {"category", record.category},
+            {"tags", record.tags},
+        });
+    }
+    nlohmann::json roots = nlohmann::json::array();
+    for (const auto& root : metadata.roots) {
+        roots.push_back({{"id", root.id},
+                         {"state", root.state},
+                         {"asset_count", root.assetCount},
+                         {"hash_pending_count", root.hashPendingCount}});
+    }
+    snapshot_.external_catalog_asset_count = metadata.assetCount;
+    snapshot_.external_catalog_hash_pending_count = metadata.hashPendingCount;
+    snapshot_.external_catalog_archive_count = metadata.archiveCount;
+    snapshot_.external_catalog = {
+        {"loaded", true},
+        {"schema_version", metadata.schemaVersion},
+        {"generated_at", metadata.generatedAt},
+        {"scan_complete", metadata.scanComplete},
+        {"roots", std::move(roots)},
+        {"query",
+         {{"text", external_catalog_query_.text},
+          {"media_kind", external_catalog_query_.mediaKind},
+          {"extension", external_catalog_query_.extension},
+          {"pack", external_catalog_query_.pack},
+          {"category", external_catalog_query_.category},
+          {"archive_only", external_catalog_query_.archiveOnly},
+          {"offset", external_catalog_query_.offset},
+          {"page_size", external_catalog_query_.pageSize}}},
+        {"page",
+         {{"total_matches", page.totalMatches}, {"has_more", page.hasMore}, {"records", std::move(records)}}},
+        {"diagnostics", std::move(diagnosticRows)},
+        {"actions",
+         {{"refresh_index",
+           {{"enabled", std::filesystem::is_regular_file(external_catalog_directory_ / "asset_catalog.db") &&
+                         !catalogInterchangeToolPath().empty()},
+            {"command", urpg::assets::kLocalAssetCatalogRegenerateCommand},
+            {"reason", "Refresh exports metadata only from the configured local index database."}}},
+          {"open_source_location",
+           {{"enabled", std::any_of(page.records.begin(), page.records.end(), [&](const auto& record) {
+                 return record.assetId == selected_external_catalog_asset_id_;
+             })},
+            {"reason", "Select a visible catalog record to open its containing source location."}}}}},
+    };
 }
 
 } // namespace urpg::editor
