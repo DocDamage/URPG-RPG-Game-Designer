@@ -25,6 +25,11 @@ struct EditorContextActionResult {
     std::string code;
     std::string message;
     EditorContextAction action;
+    // When a route is intentionally unavailable, retain the registry's
+    // creator-facing explanation.  Callers can render this beside a disabled
+    // contextual affordance instead of silently falling back to a top-level
+    // panel or a JSON-editing workflow.
+    std::string remediation;
 };
 
 class EditorContextActionStack {

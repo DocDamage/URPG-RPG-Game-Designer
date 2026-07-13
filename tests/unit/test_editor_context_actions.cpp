@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("editor context actions preserve map selection and reject deferred routes", "[editor][context_action]") {
+TEST_CASE("editor context actions preserve map selection and explain deferred routes", "[editor][context_action]") {
     urpg::editor::EditorContextActionStack actions;
     urpg::editor::EditorContextAction valid;
     valid.route = "event_authoring";
@@ -22,4 +22,5 @@ TEST_CASE("editor context actions preserve map selection and reject deferred rou
     const auto deferred = actions.open(valid);
     REQUIRE_FALSE(deferred.success);
     REQUIRE(deferred.code == "context_action_route_unavailable");
+    REQUIRE_FALSE(deferred.remediation.empty());
 }

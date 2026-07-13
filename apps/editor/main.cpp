@@ -2048,6 +2048,45 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
     ImGui::TextDisabled("Ctrl+S Save  |  Ctrl+Shift+S Save All  |  Ctrl+Z/Y Undo/Redo  |  F5 Playtest (Shift+F5 Stop)");
     if (!runtime.map_save_status.empty()) ImGui::TextWrapped("%s", runtime.map_save_status.c_str());
 
+    ImGui::Separator();
+    if (ImGui::CollapsingHeader("Contextual Authoring", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::TextDisabled("Nested workflows retain the selected map object and return focus to this workspace.");
+        const auto objectId = !snapshot.context.selection.eventId.empty()
+                                  ? snapshot.context.selection.eventId
+                                  : (!snapshot.context.selection.objectId.empty()
+                                         ? snapshot.context.selection.objectId
+                                         : (snapshot.context.activeMapId.empty() ? "map" : snapshot.context.activeMapId));
+        const auto openContext = [&](const char* route, const char* label) {
+            ImGui::PushID(route);
+            if (ImGui::Button(label)) {
+                const auto result = workspace.openContextAction({route, "map_selection", objectId, {}, {}, "map"});
+                runtime.map_save_status = result.success ? result.message : result.message + " " + result.remediation;
+            }
+            ImGui::PopID();
+        };
+        openContext("event_authoring", "Event");
+        ImGui::SameLine();
+        openContext("message_inspector", "Dialogue");
+        ImGui::SameLine();
+        openContext("quest", "Quest");
+        ImGui::SameLine();
+        openContext("ability", "Ability");
+        ImGui::SameLine();
+        openContext("export_diagnostics", "Export Diagnostics");
+
+        if (!snapshot.activeContextRoute.empty()) {
+            ImGui::Text("Open contextual route: %s for %s", snapshot.activeContextRoute.c_str(),
+                        snapshot.activeContextObjectId.c_str());
+            ImGui::SameLine();
+            if (ImGui::Button("Return to Map")) {
+                const auto result = workspace.returnFromContextAction();
+                runtime.map_save_status = result.message;
+            }
+        } else {
+            ImGui::TextDisabled("Select a contextual workflow above; unavailable routes remain deferred until their complete integration is ready.");
+        }
+    }
+
     if (snapshot.activeMode == "playtest") {
         ImGui::Separator();
         ImGui::Text("Playtest Session Controls");

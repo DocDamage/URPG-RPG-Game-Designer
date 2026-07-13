@@ -41,6 +41,31 @@ TEST_CASE("MapAuthoringWorkspace routes release entry modes through existing chi
     REQUIRE(workspace.snapshot().nextAction == "Select a map part and set the player spawn before packaging.");
 }
 
+TEST_CASE("MapAuthoringWorkspace retains contextual selection until the creator returns", "[spatial][map_authoring][context_action]") {
+    urpg::editor::LevelBuilderWorkspace levelBuilder;
+    urpg::editor::SpatialAuthoringWorkspace perspective2D;
+    urpg::editor::MapAuthoringWorkspace workspace;
+    workspace.bind(&levelBuilder, &perspective2D);
+    workspace.setProjectRoot("C:/projects/creator-demo");
+    workspace.setActiveMapId("map_intro");
+    auto selection = workspace.context().snapshot().selection;
+    selection.eventId = "elder_mira";
+    selection.viewportFocus = "tile:4,6";
+    workspace.context().setSelection(selection);
+
+    const auto opened = workspace.openContextAction({"event_authoring", "event", "elder_mira", {}, {}, "map"});
+    REQUIRE(opened.success);
+    REQUIRE(workspace.snapshot().activeContextRoute == "event_authoring");
+    REQUIRE(workspace.snapshot().activeContextObjectId == "elder_mira");
+    REQUIRE(workspace.snapshot().activeContextReturnRoute == "map");
+    REQUIRE(workspace.activeContextAction() != nullptr);
+
+    const auto returned = workspace.returnFromContextAction();
+    REQUIRE(returned.success);
+    REQUIRE(workspace.snapshot().activeContextRoute.empty());
+    REQUIRE(workspace.context().snapshot().selection.viewportFocus == "tile:4,6");
+}
+
 TEST_CASE("MapAuthoringWorkspace accepts attached asset drops into durable Map palettes", "[spatial][map_authoring][assets]") {
     urpg::editor::LevelBuilderWorkspace levelBuilder;
     urpg::editor::SpatialAuthoringWorkspace perspective2D;

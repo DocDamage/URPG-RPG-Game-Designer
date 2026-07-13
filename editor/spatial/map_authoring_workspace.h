@@ -40,6 +40,7 @@ struct MapAuthoringWorkspaceSnapshot {
     bool hasPerspective2D = false;
     std::string activeContextRoute;
     std::string activeContextObjectId;
+    std::string activeContextReturnRoute;
     std::string nextAction = "Bind map workspaces to begin authoring.";
 };
 
@@ -68,6 +69,9 @@ class MapAuthoringWorkspace {
     void setActiveMapId(std::string mapId);
     EditorContextActionResult openContextAction(EditorContextAction action);
     EditorContextActionResult returnFromContextAction();
+    // The app shell uses this to render a contextual tab without gaining
+    // ownership of the routing stack or the preserved Map selection.
+    const EditorContextAction* activeContextAction() const;
     void refresh();
 
     MapAuthoringContext& context() { return context_; }

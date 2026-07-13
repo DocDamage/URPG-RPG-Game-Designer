@@ -62,6 +62,10 @@ EditorContextActionResult MapAuthoringWorkspace::returnFromContextAction() {
     return result;
 }
 
+const EditorContextAction* MapAuthoringWorkspace::activeContextAction() const {
+    return context_actions_.active();
+}
+
 bool MapAuthoringWorkspace::activateMode(MapAuthoringMode mode) {
     if (!level_builder_ && !perspective_2d_) return false;
     active_mode_ = mode;
@@ -199,9 +203,11 @@ void MapAuthoringWorkspace::rebuildSnapshot() {
     if (const auto* action = context_actions_.active()) {
         snapshot_.activeContextRoute = action->route;
         snapshot_.activeContextObjectId = action->objectId;
+        snapshot_.activeContextReturnRoute = action->returnRoute;
     } else {
         snapshot_.activeContextRoute.clear();
         snapshot_.activeContextObjectId.clear();
+        snapshot_.activeContextReturnRoute.clear();
     }
     snapshot_.modes.clear();
     snapshot_.layout = layout_;
