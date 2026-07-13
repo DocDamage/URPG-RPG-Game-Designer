@@ -13,6 +13,10 @@
 #include "editor/project/editor_recovery_service.h"
 #include "editor/assets/asset_relink_panel.h"
 #include "editor/diagnostics/diagnostics_workspace.h"
+#include "editor/database/database_panel.h"
+#include "editor/dialogue/dialogue_graph_panel.h"
+#include "editor/events/event_authoring_panel.h"
+#include "editor/character/character_creator_panel.h"
 #include "editor/mod/mod_manager_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/map_authoring_workspace.h"
@@ -125,6 +129,12 @@ struct EditorPanelRuntime {
     // Project-owned contextual data backs the deep-editor handoffs; the Map
     // shell never keeps a second unsaved copy of those authoring documents.
     urpg::project::ContextualCreatorProject contextual_creator_project;
+    urpg::editor::EventAuthoringPanel contextual_event_panel;
+    urpg::editor::DialogueGraphPanel contextual_dialogue_panel;
+    urpg::editor::CharacterCreatorModel contextual_character_model;
+    urpg::editor::CharacterCreatorPanel contextual_character_panel;
+    urpg::editor::DatabasePanel contextual_database_panel;
+    std::string contextual_character_name;
     urpg::ability::AbilitySystemComponent ability_runtime;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
     urpg::map::GridPartCatalog level_builder_catalog;
@@ -2089,6 +2099,92 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
             if (ImGui::Button("Return to Map")) {
                 const auto result = workspace.returnFromContextAction();
                 runtime.map_save_status = result.message;
+            }
+
+            ImGui::Separator();
+            ImGui::TextUnformatted("Contextual editor dock");
+            const auto persistContextual = [&] {
+                const auto result = runtime.contextual_creator_project.save();
+                runtime.map_save_status = result.success ? result.message : result.message + " (" + result.code + ")";
+            };
+            if (snapshot.activeContextRoute == "event_authoring") {
+                auto document = runtime.contextual_creator_project.eventDocument();
+                runtime.contextual_event_panel.model().load(document);
+                runtime.contextual_event_panel.render();
+                const auto panel = runtime.contextual_event_panel.lastRenderSnapshot();
+                ImGui::Text("Events: %zu | Pages: %zu | Commands: %zu | Diagnostics: %zu", panel.event_count,
+                            panel.page_count, panel.command_count, panel.diagnostic_count);
+                if (ImGui::Button("Create Message Event for Selection")) {
+                    const auto eventId = "event_" + objectId;
+                    bool exists = false;
+                    for (const auto& event : document.events()) exists = exists || event.id == eventId;
+                    if (document.maps().find(snapshot.context.activeMapId) == document.maps().end()) {
+                        document.addMap({snapshot.context.activeMapId, runtime.level_builder_document.width(),
+                                         runtime.level_builder_document.height()});
+                    }
+                    if (!exists) {
+                        urpg::events::EventPage page;
+                        page.id = "page_1";
+                        page.commands.push_back({"message", urpg::events::EventCommandKind::Message, objectId,
+                                                 "Authored from the current Map selection."});
+                        document.addEvent({eventId, snapshot.context.activeMapId, 0, 0, {std::move(page)}});
+                        runtime.contextual_creator_project.setEventDocument(std::move(document));
+                        persistContextual();
+                    } else {
+                        runtime.map_save_status = "The selected Map event already has a contextual message page.";
+                    }
+                }
+            } else if (snapshot.activeContextRoute == "message_inspector") {
+                const auto dialogueId = "dialogue_" + objectId;
+                auto graph = runtime.contextual_creator_project.dialogues().contains(dialogueId)
+                                 ? runtime.contextual_creator_project.dialogues().at(dialogueId)
+                                 : urpg::dialogue::DialogueGraph{};
+                runtime.contextual_dialogue_panel.setGraph(graph);
+                runtime.contextual_dialogue_panel.render();
+                const auto panel = runtime.contextual_dialogue_panel.lastRenderSnapshot();
+                ImGui::Text("Dialogue nodes: %zu | Choices: %zu | Endings: %zu", panel.value("node_count", size_t{0}),
+                            panel.value("choice_count", size_t{0}), panel.value("ending_count", size_t{0}));
+                if (ImGui::Button("Create Ending Dialogue for Selection")) {
+                    if (graph.nodes().empty()) {
+                        (void)graph.addNode({"start", objectId, objectId, "dialogue." + objectId + ".start",
+                                             "Authored from the current Map selection.", true, {}});
+                        runtime.contextual_creator_project.setDialogue(dialogueId, std::move(graph));
+                        persistContextual();
+                    } else {
+                        runtime.map_save_status = "The selected Map dialogue already has a contextual graph.";
+                    }
+                }
+            } else if (snapshot.activeContextRoute == "character_creator") {
+                const auto characterId = objectId.empty() ? "map_character" : objectId;
+                const auto found = runtime.contextual_creator_project.characters().find(characterId);
+                runtime.contextual_character_model.loadIdentity(
+                    found == runtime.contextual_creator_project.characters().end() ? urpg::character::CharacterIdentity{}
+                                                                                    : found->second);
+                runtime.contextual_character_panel.bindModel(&runtime.contextual_character_model);
+                runtime.contextual_character_panel.render();
+                if (runtime.contextual_character_name.empty()) {
+                    runtime.contextual_character_name = runtime.contextual_character_model.getIdentity().getName();
+                }
+                ImGui::InputText("Character name", &runtime.contextual_character_name);
+                if (ImGui::Button("Save Character for Selection")) {
+                    runtime.contextual_character_model.setName(runtime.contextual_character_name);
+                    runtime.contextual_creator_project.setCharacter(characterId, runtime.contextual_character_model.getIdentity());
+                    persistContextual();
+                }
+            } else if (snapshot.activeContextRoute == "database") {
+                auto database = runtime.contextual_creator_project.database();
+                runtime.contextual_database_panel.setDatabase(database);
+                runtime.contextual_database_panel.render();
+                const auto panel = runtime.contextual_database_panel.lastRenderSnapshot();
+                ImGui::Text("Actors: %zu | Items: %zu | Diagnostics: %zu", panel.actor_count, panel.item_count,
+                            panel.diagnostic_count);
+                if (ImGui::Button("Add Selected Quest Reward")) {
+                    database.upsertItem({"reward_" + objectId, "Map Selection Reward", 0, {"quest"}});
+                    runtime.contextual_creator_project.setDatabase(std::move(database));
+                    persistContextual();
+                }
+            } else {
+                ImGui::TextDisabled("This contextual route is registered, but its Map dock is not part of Wave A.");
             }
         } else {
             ImGui::TextDisabled("Select a contextual workflow above; unavailable routes remain deferred until their complete integration is ready.");
