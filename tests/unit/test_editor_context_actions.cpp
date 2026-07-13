@@ -19,6 +19,11 @@ TEST_CASE("editor context actions preserve map selection and explain deferred ro
     REQUIRE(actions.depth() == 0);
 
     valid.route = "character_creator";
+    const auto character = actions.open(valid);
+    REQUIRE(character.success);
+    REQUIRE(actions.returnToPrevious().success);
+
+    valid.route = "battle_preview";
     const auto deferred = actions.open(valid);
     REQUIRE_FALSE(deferred.success);
     REQUIRE(deferred.code == "context_action_route_unavailable");

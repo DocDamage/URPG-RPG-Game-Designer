@@ -2086,6 +2086,10 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
         ImGui::SameLine();
         openContext("message_inspector", "Dialogue");
         ImGui::SameLine();
+        openContext("character_creator", "Character");
+        ImGui::SameLine();
+        openContext("database", "Database");
+        ImGui::SameLine();
         openContext("quest", "Quest");
         ImGui::SameLine();
         openContext("ability", "Ability");
