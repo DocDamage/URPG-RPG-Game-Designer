@@ -18,6 +18,7 @@
 #include "editor/spatial/map_authoring_workspace.h"
 #include "editor/spatial/map_authoring_persistence.h"
 #include "editor/playtest/playtest_session_controller.h"
+#include "engine/core/project/contextual_creator_project.h"
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/analytics/analytics_dispatcher.h"
 #include "engine/core/analytics/analytics_privacy_controller.h"
@@ -121,6 +122,9 @@ struct EditorPanelRuntime {
     // The two release routes remain available, but this shared coordinator owns
     // their creator-facing mode, selection, history, and project context.
     urpg::editor::MapAuthoringWorkspace map_authoring_workspace;
+    // Project-owned contextual data backs the deep-editor handoffs; the Map
+    // shell never keeps a second unsaved copy of those authoring documents.
+    urpg::project::ContextualCreatorProject contextual_creator_project;
     urpg::ability::AbilitySystemComponent ability_runtime;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
     urpg::map::GridPartCatalog level_builder_catalog;
@@ -391,6 +395,10 @@ std::string starterMapIdForProject(const std::filesystem::path& projectRoot) {
 
 void bindMapAuthoringProject(EditorPanelRuntime& runtime, const std::filesystem::path& projectRoot) {
     runtime.project_root = projectRoot;
+    const auto contextual = runtime.contextual_creator_project.open(projectRoot);
+    if (!contextual.success) {
+        runtime.map_save_status = "Contextual project data could not be opened: " + contextual.message;
+    }
     const auto mapId = starterMapIdForProject(projectRoot);
     runtime.level_builder_document = urpg::map::GridPartDocument{mapId, 16, 12};
     const auto gridPath = projectRoot / "content" / "maps" / (mapId + ".grid.json");
@@ -2084,6 +2092,15 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
             }
         } else {
             ImGui::TextDisabled("Select a contextual workflow above; unavailable routes remain deferred until their complete integration is ready.");
+        }
+        const auto contextualData = runtime.contextual_creator_project.snapshot();
+        ImGui::TextDisabled("Saved contextual data: %zu events, %zu dialogue graphs, %zu characters, %zu actors, %zu items.",
+                            contextualData.value("event_count", size_t{0}), contextualData.value("dialogue_count", size_t{0}),
+                            contextualData.value("character_count", size_t{0}), contextualData.value("actor_count", size_t{0}),
+                            contextualData.value("item_count", size_t{0}));
+        if (ImGui::Button("Save Contextual Data")) {
+            const auto result = runtime.contextual_creator_project.save();
+            runtime.map_save_status = result.success ? result.message : result.message + " (" + result.code + ")";
         }
     }
 
