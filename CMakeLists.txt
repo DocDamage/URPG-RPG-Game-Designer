@@ -456,6 +456,7 @@ set(URPG_CORE_SOURCES
     engine/core/telemetry/telemetry_event.cpp
     engine/core/telemetry/crash_envelope.cpp
     engine/core/editor/editor_panel_registry.cpp
+    editor/ui/editor_context_action.cpp
     engine/core/engine_shell.cpp
     engine/core/gameplay/gameplay_wysiwyg_system.cpp
     engine/core/community/community_wysiwyg_feature.cpp
@@ -525,6 +526,7 @@ set(URPG_CORE_SOURCES
     engine/core/metroidvania/ability_gate_system.cpp
     engine/core/time/calendar_runtime.cpp
     engine/core/npc/npc_schedule.cpp
+    engine/core/npc/npc_runtime_primitives.cpp
     engine/core/puzzle/puzzle_registry.cpp
     engine/core/tutorial/runtime_hint_system.cpp
     engine/core/balance/economy_simulator.cpp
@@ -748,6 +750,9 @@ set(URPG_CORE_SOURCES
     editor/spatial/map_authoring_context.cpp
     editor/spatial/map_authoring_persistence.cpp
     editor/spatial/map_authoring_workspace.cpp
+    engine/core/map/map_prop_state_set.cpp
+    engine/core/presentation/perspective2d_render_order.cpp
+    engine/core/gameplay/gameplay_runtime_facade.cpp
     editor/spatial/map_ability_binding_panel.cpp
     editor/spatial/perspective_2d_product_workflow.cpp
     editor/spatial/spatial_ability_canvas_panel.cpp
@@ -1619,6 +1624,7 @@ add_executable(urpg_tests
     tests/unit/test_diagnostics_workspace_abilities.cpp
     tests/unit/test_event_runtime.cpp
     tests/unit/test_editor_panel_registry.cpp
+    tests/unit/test_editor_context_actions.cpp
     tests/unit/test_editor_app_panels.cpp
     tests/unit/test_debug_session.cpp
     tests/unit/test_telemetry_event.cpp
@@ -1684,6 +1690,7 @@ add_executable(urpg_tests
     tests/unit/test_wave3_gaf.cpp
     tests/unit/test_pathfinding_debug_panel.cpp
     tests/unit/test_pathfinding_graph.cpp
+    tests/unit/test_perspective2d_render_order.cpp
     tests/unit/test_level_assembly.cpp
     tests/unit/test_grid_part_document.cpp
     tests/unit/test_grid_part_catalog.cpp
@@ -1759,6 +1766,9 @@ add_executable(urpg_tests
     tests/unit/test_bestiary_registry.cpp
     tests/unit/test_calendar_runtime.cpp
     tests/unit/test_npc_schedule.cpp
+    tests/unit/test_npc_runtime_primitives.cpp
+    tests/unit/test_map_prop_state_set.cpp
+    tests/unit/test_gameplay_runtime_facade.cpp
     tests/unit/test_puzzle_registry.cpp
     tests/unit/test_runtime_hint_system.cpp
     tests/unit/test_startup_diagnostics.cpp

@@ -2,6 +2,7 @@
 
 #include "editor/spatial/map_authoring_context.h"
 #include "editor/assets/editor_asset_drag_payload.h"
+#include "editor/ui/editor_context_action.h"
 
 #include <string>
 #include <string_view>
@@ -37,6 +38,8 @@ struct MapAuthoringWorkspaceSnapshot {
     MapAuthoringContextSnapshot context;
     bool hasLevelBuilder = false;
     bool hasPerspective2D = false;
+    std::string activeContextRoute;
+    std::string activeContextObjectId;
     std::string nextAction = "Bind map workspaces to begin authoring.";
 };
 
@@ -63,6 +66,8 @@ class MapAuthoringWorkspace {
     void clearNextActionHint();
     void setProjectRoot(std::filesystem::path projectRoot);
     void setActiveMapId(std::string mapId);
+    EditorContextActionResult openContextAction(EditorContextAction action);
+    EditorContextActionResult returnFromContextAction();
     void refresh();
 
     MapAuthoringContext& context() { return context_; }
@@ -79,6 +84,7 @@ class MapAuthoringWorkspace {
     MapAuthoringMode active_mode_ = MapAuthoringMode::Canvas;
     MapAuthoringLayoutState layout_;
     std::string next_action_hint_;
+    EditorContextActionStack context_actions_;
     MapAuthoringWorkspaceSnapshot snapshot_;
 };
 

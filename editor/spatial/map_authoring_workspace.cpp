@@ -45,6 +45,23 @@ void MapAuthoringWorkspace::setActiveMapId(std::string mapId) {
     rebuildSnapshot();
 }
 
+EditorContextActionResult MapAuthoringWorkspace::openContextAction(EditorContextAction action) {
+    action.projectRoot = context_.snapshot().projectRoot;
+    action.selection = context_.snapshot().selection;
+    const auto result = context_actions_.open(std::move(action));
+    rebuildSnapshot();
+    return result;
+}
+
+EditorContextActionResult MapAuthoringWorkspace::returnFromContextAction() {
+    const auto result = context_actions_.returnToPrevious();
+    if (result.success) {
+        context_.setSelection(result.action.selection);
+    }
+    rebuildSnapshot();
+    return result;
+}
+
 bool MapAuthoringWorkspace::activateMode(MapAuthoringMode mode) {
     if (!level_builder_ && !perspective_2d_) return false;
     active_mode_ = mode;
@@ -179,6 +196,13 @@ void MapAuthoringWorkspace::rebuildSnapshot() {
     snapshot_.context = context_.snapshot();
     snapshot_.hasLevelBuilder = level_builder_ != nullptr;
     snapshot_.hasPerspective2D = perspective_2d_ != nullptr;
+    if (const auto* action = context_actions_.active()) {
+        snapshot_.activeContextRoute = action->route;
+        snapshot_.activeContextObjectId = action->objectId;
+    } else {
+        snapshot_.activeContextRoute.clear();
+        snapshot_.activeContextObjectId.clear();
+    }
     snapshot_.modes.clear();
     snapshot_.layout = layout_;
     for (const auto& definition : kModes) {
