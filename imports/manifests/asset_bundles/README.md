@@ -23,6 +23,8 @@ TD Sprint 04 added the first promoted allowlist records:
 - `BND-006.json` - `SRC-010` bulk CC0/public-domain app-usable promotion; release-eligible but not release-required or default-bundled, with duplicate, source/tool/archive, invalid, and non-reviewed-license payloads still quarantined
 - `BND-007.json` - `SRC-010` newly license-covered app-usable promotion; release-eligible but not release-required or default-bundled
 - `BND-008.json` - `SRC-013` itch loose CC0 PNG promotion; release-eligible but not release-required or default-bundled
+- `BND-010.json` - `SRC-014` present raw local bulk promotion; release-eligible and license-cleared by project-provided CC0/fallback evidence, not release-required or default-bundled
+- `BND-011.json` - `SRC-015` sibling-folder bulk promotion; release-eligible and license-cleared by project-provided CC0/fallback evidence, not release-required or default-bundled
 
 Current UI and audio release surfaces are satisfied by explicit fallback entries in `releaseAssets` until a non-LFS
 bundled audio asset is approved. The release-required asset gate enforces this policy: the audio surface must be covered

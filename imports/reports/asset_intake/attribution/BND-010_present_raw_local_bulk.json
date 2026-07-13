@@ -1,0 +1,15 @@
+{
+  "schema": "urpg.asset_attribution.v1",
+  "bundle_id": "BND-010",
+  "source_id": "SRC-014",
+  "generated_at": "2026-05-26T03:52:56+00:00",
+  "license_status": "project_provided_cc0_public_domain_with_fallback",
+  "distribution": "deferred",
+  "release_eligible": true,
+  "license_cleared": true,
+  "license_evidence": "docs/compliance/asset_licenses/local-bulk-assets-CC0.md",
+  "notes": [
+    "Bulk local/library promotion cleared by project-provided CC0/fallback license evidence.",
+    "Default packaging is deferred until project selection; assets are not release-required."
+  ]
+}

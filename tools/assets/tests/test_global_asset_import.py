@@ -44,6 +44,29 @@ def write_wav(path: Path) -> None:
 
 
 class GlobalAssetImportTests(unittest.TestCase):
+    def test_zip_import_extracts_only_explicitly_selected_entries(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "sprites.zip"
+            with zipfile.ZipFile(archive, "w") as output:
+                output.writestr("sprites/hero.png", PNG_1X1)
+                output.writestr("sprites/villain.png", PNG_1X1)
+
+            session = global_asset_import.build_session(
+                source=archive,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_selected_zip_entry",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+                selected_archive_entries=["sprites/hero.png"],
+            )
+
+            self.assertEqual(session["status"], "review_ready")
+            self.assertEqual(session["selectedArchiveEntries"], ["sprites/hero.png"])
+            self.assertEqual([row["relativePath"] for row in session["records"]], ["sprites/hero.png"])
+            self.assertIn("archive_selected_entries_extracted", [row["code"] for row in session["diagnostics"]])
+
     def test_folder_import_classifies_records_and_duplicates(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -375,6 +398,58 @@ class GlobalAssetImportTests(unittest.TestCase):
             )
             self.assertEqual(session["summary"]["needsConversionCount"], 1)
 
+    def test_aseprite_record_uses_configured_conversion_handoff(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "hero.ase"
+            source.write_bytes(b"aseprite fixture")
+
+            session = global_asset_import.build_session(
+                source=source,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_aseprite_conversion",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+                aseprite_converter_command=["aseprite"],
+            )
+
+            record = session["records"][0]
+            self.assertFalse(record["sourceOnly"])
+            self.assertTrue(record["conversionRequired"])
+            self.assertEqual(record["conversionTargetPath"], "converted/hero.png")
+            self.assertEqual(record["conversionCommand"], ["aseprite", "-b", "hero.ase", "--sheet", "converted/hero.png"])
+
+    def test_external_archive_rejects_unselected_extracted_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "pack.7z"
+            archive.write_bytes(b"not really 7z")
+            extractor = root / "overextracting_extractor.py"
+            extractor.write_text(
+                "import pathlib, sys\n"
+                "out = pathlib.Path(sys.argv[2])\n"
+                "out.mkdir(parents=True, exist_ok=True)\n"
+                "(out / 'selected.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n' + b'0' * 32)\n"
+                "(out / 'unselected.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n' + b'1' * 32)\n",
+                encoding="utf-8",
+            )
+
+            session = global_asset_import.build_session(
+                source=archive,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_7z_overextracting",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+                external_extractor_command=[sys.executable, str(extractor), "{source}", "{destination}", "{selected_entries}"],
+                selected_archive_entries=["selected.png"],
+            )
+
+            self.assertEqual(session["status"], "failed")
+            self.assertEqual(session["diagnostics"][0]["code"], "external_archive_selection_mismatch")
+            self.assertEqual(session["records"], [])
+
     def test_optional_external_archive_extractor_invocation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -396,7 +471,8 @@ class GlobalAssetImportTests(unittest.TestCase):
                 license_note="User-provided test license.",
                 max_files=100,
                 max_bytes=1024 * 1024,
-                external_extractor_command=[sys.executable, str(extractor)],
+                external_extractor_command=[sys.executable, str(extractor), "{source}", "{destination}", "{selected_entries}"],
+                selected_archive_entries=["img/characters/Hero.png"],
             )
 
             self.assertEqual(session["sourceKind"], "external_archive")
@@ -433,13 +509,153 @@ class GlobalAssetImportTests(unittest.TestCase):
                 license_note="User-provided test license.",
                 max_files=100,
                 max_bytes=1024 * 1024,
-                external_extractor_command=[sys.executable, str(extractor)],
+                external_extractor_command=[sys.executable, str(extractor), "{source}", "{destination}", "{selected_entries}"],
+                selected_archive_entries=["img/characters/Partial.png"],
             )
 
             self.assertEqual(session["sourceKind"], "external_archive")
             self.assertEqual(session["status"], "failed")
             self.assertEqual(
                 session["diagnostics"][0]["code"], "external_extractor_failed"
+            )
+            self.assertEqual(session["summary"]["filesScanned"], 0)
+            self.assertEqual(session["records"], [])
+
+    def test_external_archive_extractor_rejects_unallowlisted_executable(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "pack.7z"
+            archive.write_bytes(b"not really 7z")
+
+            session = global_asset_import.build_session(
+                source=archive,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_7z_unallowlisted",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+                external_extractor_command=[str(root / "not_allowed_extractor.exe")],
+            )
+
+            self.assertEqual(session["sourceKind"], "external_archive")
+            self.assertEqual(session["status"], "failed")
+            self.assertEqual(
+                session["diagnostics"][0]["code"], "external_extractor_not_allowed"
+            )
+            self.assertEqual(session["records"], [])
+
+    def test_external_archive_extractor_rejects_output_outside_destination(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "pack.7z"
+            archive.write_bytes(b"not really 7z")
+            extractor = root / "escape_extractor.py"
+            extractor.write_text(
+                "import pathlib, sys\n"
+                "destination = pathlib.Path(sys.argv[2])\n"
+                "(destination / 'img').mkdir(parents=True, exist_ok=True)\n"
+                "(destination / 'img' / 'Inside.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n' + b'0' * 32)\n"
+                "(destination.parent / 'escape.png').write_bytes(b'outside')\n",
+                encoding="utf-8",
+            )
+
+            session = global_asset_import.build_session(
+                source=archive,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_7z_escape",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+                external_extractor_command=[sys.executable, str(extractor), "{source}", "{destination}", "{selected_entries}"],
+                selected_archive_entries=["img/Inside.png"],
+            )
+
+            self.assertEqual(session["sourceKind"], "external_archive")
+            self.assertEqual(session["status"], "failed")
+            self.assertEqual(
+                session["diagnostics"][0]["code"],
+                "external_extractor_output_escape",
+            )
+            self.assertEqual(session["summary"]["filesScanned"], 0)
+            self.assertEqual(session["records"], [])
+
+    def test_external_archive_extractor_rejects_symlink_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            probe_target = root / "probe_target.txt"
+            probe_target.write_text("target", encoding="utf-8")
+            probe_link = root / "probe_link.txt"
+            try:
+                os.symlink(probe_target, probe_link)
+            except (OSError, NotImplementedError):
+                self.skipTest("symlink creation is not available in this environment")
+
+            archive = root / "pack.7z"
+            archive.write_bytes(b"not really 7z")
+            extractor = root / "symlink_extractor.py"
+            extractor.write_text(
+                "import os, pathlib, sys\n"
+                "destination = pathlib.Path(sys.argv[2])\n"
+                "destination.mkdir(parents=True, exist_ok=True)\n"
+                "target = destination / 'target.png'\n"
+                "target.write_bytes(b'\\x89PNG\\r\\n\\x1a\\n' + b'0' * 32)\n"
+                "os.symlink(target, destination / 'linked.png')\n",
+                encoding="utf-8",
+            )
+
+            session = global_asset_import.build_session(
+                source=archive,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_7z_symlink",
+                license_note="User-provided test license.",
+                max_files=100,
+                max_bytes=1024 * 1024,
+                external_extractor_command=[sys.executable, str(extractor), "{source}", "{destination}", "{selected_entries}"],
+                selected_archive_entries=["target.png"],
+            )
+
+            self.assertEqual(session["sourceKind"], "external_archive")
+            self.assertEqual(session["status"], "failed")
+            self.assertEqual(
+                session["diagnostics"][0]["code"], "external_extractor_symlink"
+            )
+            self.assertEqual(session["records"], [])
+
+    def test_external_archive_extractor_rejects_too_many_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "pack.7z"
+            archive.write_bytes(b"not really 7z")
+            extractor = root / "too_many_files_extractor.py"
+            extractor.write_text(
+                "import pathlib, sys\n"
+                "destination = pathlib.Path(sys.argv[2])\n"
+                "destination.mkdir(parents=True, exist_ok=True)\n"
+                "(destination / 'one.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n' + b'0' * 32)\n"
+                "(destination / 'two.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n' + b'1' * 32)\n",
+                encoding="utf-8",
+            )
+
+            session = global_asset_import.build_session(
+                source=archive,
+                library_root=root / ".urpg" / "asset-library",
+                session_id="import_7z_too_many",
+                license_note="User-provided test license.",
+                max_files=1,
+                max_bytes=1024 * 1024,
+                external_extractor_command=[sys.executable, str(extractor), "{source}", "{destination}", "{selected_entries}"],
+                selected_archive_entries=["one.png"],
+            )
+
+            self.assertEqual(session["sourceKind"], "external_archive")
+            self.assertEqual(session["status"], "failed")
+            self.assertEqual(
+                session["diagnostics"][0]["code"],
+                "import_file_count_limit_exceeded",
             )
             self.assertEqual(session["summary"]["filesScanned"], 0)
             self.assertEqual(session["records"], [])
@@ -473,7 +689,9 @@ class GlobalAssetImportTests(unittest.TestCase):
                     str(extractor),
                     "{source}",
                     "{destination}",
+                    "{selected_entries}",
                 ],
+                selected_archive_entries=["audio/se/confirm.wav"],
             )
 
             self.assertEqual(session["sourceKind"], "external_archive")
@@ -516,7 +734,9 @@ class GlobalAssetImportTests(unittest.TestCase):
                     str(extractor),
                     "{source}",
                     "--out={destination}",
+                    "{selected_entries}",
                 ],
+                selected_archive_entries=["img/system/Window.png"],
             )
 
             self.assertEqual(session["sourceKind"], "external_archive")
@@ -541,7 +761,7 @@ class GlobalAssetImportTests(unittest.TestCase):
                 "(out / 'Hero.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n' + b'0' * 32)\n",
                 encoding="utf-8",
             )
-            env_command = f"{shlex.quote(sys.executable)} {shlex.quote(str(extractor))} {{source}} {{destination}}"
+            env_command = f"{shlex.quote(sys.executable)} {shlex.quote(str(extractor))} {{source}} {{destination}} {{selected_entries}}"
 
             with (
                 mock.patch.dict(
@@ -559,6 +779,8 @@ class GlobalAssetImportTests(unittest.TestCase):
                         "import_env_extractor",
                         "--license-note",
                         "User-provided test license.",
+                        "--selected-archive-entry",
+                        "img/faces/Hero.png",
                         "--output",
                         str(output),
                     ]

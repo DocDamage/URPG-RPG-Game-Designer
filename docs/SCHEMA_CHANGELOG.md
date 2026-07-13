@@ -268,6 +268,13 @@ Each governed schema entry should include:
 - Summary: adds choice target pages, choice command hooks, and choice variable writes for WYSIWYG dialogue preview/runtime trace parity
 - Migration Impact: additive optional fields; existing dialogue preview documents continue to load with empty choice targets, commands, and variable writes
 
+### `dialogue_script` (`dialogue_script.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-05-26`
+- Summary: canonical text-first dialogue script schema for importer/exporter round trips, page text payloads, and structured compile diagnostics
+- Migration Impact: none; initial schema for text dialogue script exchange
+
 ### `battle_vfx_timeline` (`battle_vfx_timeline.schema.json`)
 
 - Version: `1.0.0`

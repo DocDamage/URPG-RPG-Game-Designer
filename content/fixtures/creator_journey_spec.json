@@ -1,0 +1,18 @@
+{
+  "schema": "urpg.creator_journey.v1",
+  "journey_id": "creator_product_reference",
+  "steps": [
+    {"id": "launch_editor", "max_clicks": 1, "max_duration_ms": 30000, "baseline_status": "partial", "evidence": "headless_shell"},
+    {"id": "create_project", "max_clicks": 8, "max_duration_ms": 120000, "baseline_status": "partial", "evidence": "project_contract"},
+    {"id": "discover_external_assets", "max_clicks": 4, "max_duration_ms": 30000, "baseline_status": "partial", "evidence": "local_asset_catalog_page"},
+    {"id": "attach_sprite", "max_clicks": 8, "max_duration_ms": 120000, "baseline_status": "partial", "evidence": "promotion_attachment_contract"},
+    {"id": "paint_map", "max_clicks": 5, "max_duration_ms": 60000, "baseline_status": "partial", "evidence": "grid_part_document"},
+    {"id": "add_event", "max_clicks": 6, "max_duration_ms": 120000, "baseline_status": "deferred", "reason": "contextual_event_authoring_not_integrated", "milestone": "M8"},
+    {"id": "choose_spawn", "max_clicks": 3, "max_duration_ms": 30000, "baseline_status": "partial", "evidence": "template_spawn_contract"},
+    {"id": "playtest", "max_clicks": 2, "max_duration_ms": 3000, "baseline_status": "deferred", "reason": "editor_playtest_session_not_implemented", "milestone": "M6"},
+    {"id": "return_to_editor", "max_clicks": 1, "max_duration_ms": 10000, "baseline_status": "deferred", "reason": "editor_playtest_session_not_implemented", "milestone": "M6"},
+    {"id": "save_project", "max_clicks": 1, "max_duration_ms": 10000, "baseline_status": "partial", "evidence": "snapshot_store"},
+    {"id": "validate_project", "max_clicks": 2, "max_duration_ms": 15000, "baseline_status": "partial", "evidence": "project_contract_validation"},
+    {"id": "package_project", "max_clicks": 2, "max_duration_ms": 120000, "baseline_status": "partial", "evidence": "export_packager"}
+  ]
+}

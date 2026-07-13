@@ -87,6 +87,17 @@ The mutating tools that require approval are `create_map`, `place_tile`, `paint_
 
 Editor approval is handled by `AiAssistantPanel::approveStep(stepId)` or `AiAssistantPanel::approveAllPendingSteps()`. Rejection is handled by `AiAssistantPanel::rejectStep(stepId)`. After approval, `AiAssistantPanel::applyApprovedPlan()` applies the validated tool plan to project JSON and records the result in the panel snapshot under `last_apply`.
 
+### 2c. Capability Access Levels
+
+Chatbot capability parity is intentionally access-scoped rather than a blanket mutation claim:
+
+- `release_actionable`: shipped release workflows with review-gated mutating tools and revert patches.
+- `release_readonly`: shipped release workflows the chatbot can explain, route to, validate, or preview before a reviewed mutating tool exists.
+- `dev_discoverable`: nested, dev-only, or deferred editor panels that are searchable and routable but do not expose chatbot mutation.
+- `unsupported`: known workflow gaps that need a promotion gate before chatbot support can become actionable.
+
+Every editor panel registry entry is indexed as chatbot knowledge with `panel_id`, `exposure`, `access_level`, owner, category, and promotion-gate metadata. The readonly panel tools `describe_panel`, `list_panel_actions`, and `route_to_panel` are non-mutating and require no approval because they only produce editor-facing previews. Mutating tools must still require explicit approval.
+
 `ChatbotComponent` is wired to the same tool registry through explicit tool commands:
 
 - `AI_TASK:<creator request>` builds a reviewable `urpg.ai_task_plan.v1`.
@@ -100,6 +111,35 @@ The chatbot exposes the current `task_plan`, `approval` manifest, and `last_appl
 `buildWysiwygChatbotCoverageReport()` verifies the bridge between chatbot and WYSIWYG surfaces. It checks that every release top-level panel is searchable by chatbot knowledge, every registered app capability declares a WYSIWYG surface and has at least one chatbot tool, and the asset lane has both the WYSIWYG panel and asset import/promotion tool registered. `AiAssistantPanel` and `ChatbotComponent` both expose this report under `wysiwyg_chatbot_coverage`; callers can inject the current `AssetLibrarySnapshot` so asset promotion/preview/archive readiness is visible in normal editor and chatbot state.
 
 `buildAssetActionRows()` turns the current asset library snapshot into shared WYSIWYG/chatbot action rows. The chatbot exposes them under `asset_action_rows`, including status badges, preview metadata, usage references, promote/archive button state, disabled reasons, and the recommended next action for each asset.
+
+### 2d. Local IDE MCP
+`tools/urpg_mcp/server.py` exposes a local-only MCP-style stdio JSON-RPC server for IDE agents. The first supported tools are:
+
+- `urpg.project_status`
+- `urpg.project_summary`
+- `urpg.project_validate`
+- `urpg.project_list_maps`
+- `urpg.project_list_events`
+- `urpg.project_list_assets`
+- `urpg.project_list_database`
+- `urpg.p2d_map_summary`
+- `urpg.project_patch`
+- `urpg.project_set_startup`
+- `urpg.p2d_add_map`
+- `urpg.p2d_add_event`
+- `urpg.p2d_add_event_command`
+- `urpg.database_add_record`
+- `urpg.project_add_asset_reference`
+- `urpg.playable_add_transfer`
+- `urpg.project_restore_backup`
+- `urpg.asset_catalog_summary`
+- `urpg.p2d_capabilities`
+- `urpg.focused_gate`
+- `urpg.gate_status`
+- `urpg.mcp_manifest`
+- `urpg.release_guardrails`
+
+The server returns structured project status, bounded project JSON summaries, read-only map/event/asset/database inspection, startup/P2D/asset reference validation, explicit-apply project patch previews, bounded asset-catalog summaries, the current Perspective 2D capability surface, allowlisted focused gate commands, gate readiness, an MCP manifest, and release guardrails. Project patching is limited to named operations such as startup-map changes, startup map assets, P2D maps, P2D events, P2D tilesets, tile metadata, P2D event commands, project database records for actors/items/switches/variables/common events, project asset references, starting party actors, map transfers, encounters, and save profiles. Narrow tools are provided for common patch kinds so schema-aware clients can avoid the larger compatibility `urpg.project_patch` schema. Patch previews include JSON Patch, a human-readable summary, changed top-level sections, changed subtrees, and the full preview. Explicit apply writes a timestamped local backup and records it in a backup manifest before replacing project JSON; bounded backup restore is available only through `urpg.project_restore_backup` with `apply=true`. P2D event command validation is limited to the first-class runtime command set surfaced by Perspective 2D, and command insertion preserves typed parameters for text, transfers, switches, variables, self-switches, gold, items, common events, movement routes, and conditional branches. Playable project validation checks duplicate ids, malformed references, starting party actors, transfer maps and coordinates, encounter maps, encounter enemy ids, asset paths, tileset pages, tile metadata, and required event-command fields when the referenced collections exist. Asset-catalog inspection is read-only and reports media-kind counts, license-status counts, release-ready counts, and asset ids without changing release eligibility. The server has no arbitrary shell or file-write tool, does not perform destructive git operations, and does not bypass release, LFS, or asset-license gates. A client configuration sample lives at `.urpg-mcp/mcp.server.sample.json`.
 
 ### 3. Knowledge Bridges
 - **WorldKnowledgeBridge**: Serializes NPC locations, item names, and plot flags into a "World Context" digest.

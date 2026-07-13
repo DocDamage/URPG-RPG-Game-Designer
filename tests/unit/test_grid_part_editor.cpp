@@ -173,7 +173,8 @@ TEST_CASE("Level Builder is the native grid-part authoring workspace", "[grid_pa
     const auto& initial = workspace.lastRenderSnapshot();
     REQUIRE(initial.native_level_editor);
     REQUIRE(initial.grid_part_document_is_source_of_truth);
-    REQUIRE(initial.legacy_spatial_tools_are_supporting);
+    REQUIRE(initial.perspective_2d_is_first_class);
+    REQUIRE_FALSE(initial.legacy_spatial_tools_are_supporting);
     REQUIRE(initial.status == "ready");
     REQUIRE(initial.active_mode == "build");
     REQUIRE(initial.can_author);
@@ -190,7 +191,7 @@ TEST_CASE("Level Builder is the native grid-part authoring workspace", "[grid_pa
     REQUIRE(document.findPart("map001:prop.crate:5:4") != nullptr);
 }
 
-TEST_CASE("Level Builder embeds supporting spatial tools without making them primary",
+TEST_CASE("Level Builder exposes Perspective 2D as a first-class map workflow",
           "[grid_part][editor][level_builder]") {
     GridPartCatalog catalog;
     REQUIRE(catalog.addDefinition(makeDefinition("prop.crate", GridPartCategory::Prop)));
@@ -202,23 +203,30 @@ TEST_CASE("Level Builder embeds supporting spatial tools without making them pri
     workspace.SetProjectionSettings(makeProjection());
 
     REQUIRE(workspace.SelectGridPart("prop.crate"));
-    REQUIRE(workspace.ActivateToolbarAction("supporting_spatial"));
+    REQUIRE(workspace.ActivateToolbarAction("perspective_2d"));
 
-    const auto& supporting = workspace.lastRenderSnapshot();
-    REQUIRE(workspace.activeMode() == LevelBuilderWorkspace::WorkflowMode::SupportingSpatial);
-    REQUIRE(supporting.active_mode == "supporting_spatial");
-    REQUIRE(supporting.native_level_editor);
-    REQUIRE(supporting.legacy_spatial_tools_are_supporting);
-    REQUIRE(supporting.supporting_spatial.visible);
-    REQUIRE(supporting.supporting_spatial.has_target_overlay);
-    REQUIRE(supporting.supporting_spatial.parts_palette.selected_part_id == "prop.crate");
-    REQUIRE(supporting.supporting_spatial.parts_placement.selected_part_id == "prop.crate");
+    const auto& perspective = workspace.lastRenderSnapshot();
+    REQUIRE(workspace.activeMode() == LevelBuilderWorkspace::WorkflowMode::Perspective2D);
+    REQUIRE(perspective.active_mode == "perspective_2d");
+    REQUIRE(perspective.native_level_editor);
+    REQUIRE(perspective.perspective_2d_is_first_class);
+    REQUIRE_FALSE(perspective.legacy_spatial_tools_are_supporting);
+    REQUIRE(perspective.perspective_2d.visible);
+    REQUIRE(perspective.perspective_2d.has_target_overlay);
+    REQUIRE(perspective.perspective_2d.parts_palette.selected_part_id == "prop.crate");
+    REQUIRE(perspective.perspective_2d.parts_placement.selected_part_id == "prop.crate");
+
+    const auto perspectiveAction = std::find_if(perspective.actions.begin(), perspective.actions.end(),
+                                                [](const auto& action) { return action.id == "perspective_2d"; });
+    REQUIRE(perspectiveAction != perspective.actions.end());
+    REQUIRE(perspectiveAction->label == "Perspective 2D");
+    REQUIRE(perspectiveAction->active);
 
     (void)workspace.RouteCanvasPrimaryAction(500.0f, 400.0f);
     REQUIRE(document.parts().empty());
 }
 
-TEST_CASE("Level Builder routes supporting spatial canvas tools through the native workspace",
+TEST_CASE("Level Builder routes Perspective 2D canvas tools through the native workspace",
           "[grid_part][editor][level_builder]") {
     GridPartCatalog catalog;
     REQUIRE(catalog.addDefinition(makeDefinition("prop.crate", GridPartCategory::Prop)));
@@ -230,27 +238,30 @@ TEST_CASE("Level Builder routes supporting spatial canvas tools through the nati
     workspace.SetProjectionSettings(makeProjection());
 
     workspace.supportingSpatialWorkspace().propPanel().SetSelectedAssetId("oak_01");
-    REQUIRE(workspace.ActivateToolbarAction("supporting_props"));
+    REQUIRE(workspace.ActivateToolbarAction("perspective_props"));
     REQUIRE(workspace.RouteCanvasPrimaryAction(500.0f, 400.0f));
     REQUIRE(overlay.props.size() == 1);
     REQUIRE(overlay.props.back().assetId == "oak_01");
     REQUIRE(document.parts().empty());
 
     workspace.supportingSpatialWorkspace().elevationPanel().SetBrushHeight(3.0f);
-    REQUIRE(workspace.ActivateToolbarAction("supporting_elevation"));
+    REQUIRE(workspace.ActivateToolbarAction("perspective_elevation"));
     REQUIRE(workspace.RouteCanvasPrimaryAction(500.0f, 400.0f));
     REQUIRE(overlay.elevation.levels[4 * 8 + 5] == 3);
 
     const auto& snapshot = workspace.lastRenderSnapshot();
-    REQUIRE(snapshot.active_mode == "supporting_spatial");
-    REQUIRE(snapshot.supporting_spatial.toolbar.active_mode == "elevation");
+    REQUIRE(snapshot.active_mode == "perspective_2d");
+    REQUIRE(snapshot.perspective_2d.toolbar.active_mode == "elevation");
     const auto elevationAction = std::find_if(snapshot.actions.begin(), snapshot.actions.end(),
-                                             [](const auto& action) { return action.id == "supporting_elevation"; });
+                                             [](const auto& action) { return action.id == "perspective_elevation"; });
     REQUIRE(elevationAction != snapshot.actions.end());
     REQUIRE(elevationAction->active);
+
+    REQUIRE(workspace.ActivateToolbarAction("supporting_props"));
+    REQUIRE(workspace.activeMode() == LevelBuilderWorkspace::WorkflowMode::Perspective2D);
 }
 
-TEST_CASE("Level Builder saves canonical grid-part drafts and clears dirty state",
+TEST_CASE("Level Builder serializes canonical grid-part drafts until an atomic commit clears dirty state",
           "[grid_part][editor][level_builder]") {
     GridPartCatalog catalog;
     REQUIRE(catalog.addDefinition(makeDefinition("prop.crate", GridPartCategory::Prop)));
@@ -272,9 +283,13 @@ TEST_CASE("Level Builder saves canonical grid-part drafts and clears dirty state
     REQUIRE(saveResult.saved_part_count == 1);
     REQUIRE(saveResult.blocker_codes.empty());
     REQUIRE(saveResult.serialized_document_json.find("\"partId\": \"prop.crate\"") != std::string::npos);
+    REQUIRE_FALSE(document.dirtyChunks().empty());
+    REQUIRE(workspace.lastRenderSnapshot().has_unsaved_changes);
+    REQUIRE(workspace.lastRenderSnapshot().last_save.success);
+
+    workspace.MarkLevelDraftPersisted();
     REQUIRE(document.dirtyChunks().empty());
     REQUIRE_FALSE(workspace.lastRenderSnapshot().has_unsaved_changes);
-    REQUIRE(workspace.lastRenderSnapshot().last_save.success);
 }
 
 TEST_CASE("Level Builder save command reports document blockers without clearing dirty state",

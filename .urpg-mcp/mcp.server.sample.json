@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "urpg-local": {
+      "command": "python",
+      "args": ["tools/urpg_mcp/server.py"],
+      "cwd": "."
+    }
+  }
+}

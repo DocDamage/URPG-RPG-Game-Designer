@@ -3,7 +3,7 @@
 > **Status:** `READY`
 > **Purpose:** Approved closure artifact for the bounded Phase 4 Character Identity and appearance-part authoring scope.
 > **Date:** 2026-05-01
-> **Rule:** This document records release-owner approval for the claimed character identity engine/editor scope. Final-quality portrait art, cohesive character art direction, and unreviewed raw/source asset packs remain content backlog.
+> **Rule:** This document records release-owner approval for the claimed character identity engine/editor scope. Final-quality portrait art, cohesive character art direction, and unreviewed raw/source asset packs are resolved for bounded release claims by `docs/asset_intake/FINAL_ART_CONTENT_SCOPE.md` and `docs/asset_intake/ASSET_CONTENT_CLOSURE_SIGNOFF.md`; broader final-art claims require future project-selected asset evidence.
 
 ---
 

@@ -31,6 +31,13 @@ TEST_CASE("App settings paths are project-local", "[settings][persistence]") {
     REQUIRE(paths.editor_workspace.filename() == "editor_workspace.json");
 }
 
+TEST_CASE("Editor user settings paths are outside a project manifest", "[settings][persistence]") {
+    const auto paths = urpg::settings::editorUserSettingsPaths();
+    REQUIRE(paths.root.filename() == "settings");
+    REQUIRE(paths.editor_settings.filename() == "editor.json");
+    REQUIRE(paths.root.string().find("demo_project") == std::string::npos);
+}
+
 TEST_CASE("Runtime settings save and reload window audio input and accessibility", "[settings][persistence][runtime]") {
     const auto root = uniqueSettingsRoot("urpg_runtime_settings");
     std::filesystem::remove_all(root);
@@ -78,6 +85,20 @@ TEST_CASE("Editor settings persist ImGui and workspace paths", "[settings][persi
     settings.restore_workspace = false;
     settings.analytics_consent_state = "granted";
     settings.analytics_upload_enabled = true;
+    settings.last_project = "C:/Projects/last";
+    settings.recent_projects = {"C:/Projects/last", "D:/Projects/pinned"};
+    settings.pinned_projects = {"D:/Projects/pinned"};
+    settings.hidden_missing_projects = {"C:/Projects/moved"};
+    settings.onboarding_enabled = false;
+    settings.help_tips_enabled = false;
+    settings.asset_browser_layout = "compact_list";
+    settings.map_workspace_layout.palette_width_fraction = 0.30f;
+    settings.map_workspace_layout.inspector_width_fraction = 0.18f;
+    settings.map_workspace_layout.diagnostics_height_fraction = 0.32f;
+    settings.map_workspace_layout.palette_visible = false;
+    settings.map_workspace_layout.inspector_visible = true;
+    settings.map_workspace_layout.diagnostics_visible = false;
+    settings.external_asset_library_root = "G:/All 2D Assets Stay Here";
 
     REQUIRE(urpg::settings::saveEditorSettings(paths.editor_settings, settings));
 
@@ -90,6 +111,20 @@ TEST_CASE("Editor settings persist ImGui and workspace paths", "[settings][persi
     REQUIRE_FALSE(loaded.settings.restore_workspace);
     REQUIRE(loaded.settings.analytics_consent_state == "granted");
     REQUIRE(loaded.settings.analytics_upload_enabled);
+    REQUIRE(loaded.settings.last_project == "C:/Projects/last");
+    REQUIRE(loaded.settings.recent_projects == settings.recent_projects);
+    REQUIRE(loaded.settings.pinned_projects == settings.pinned_projects);
+    REQUIRE(loaded.settings.hidden_missing_projects == settings.hidden_missing_projects);
+    REQUIRE_FALSE(loaded.settings.onboarding_enabled);
+    REQUIRE_FALSE(loaded.settings.help_tips_enabled);
+    REQUIRE(loaded.settings.asset_browser_layout == "compact_list");
+    REQUIRE(loaded.settings.map_workspace_layout.palette_width_fraction == 0.30f);
+    REQUIRE(loaded.settings.map_workspace_layout.inspector_width_fraction == 0.18f);
+    REQUIRE(loaded.settings.map_workspace_layout.diagnostics_height_fraction == 0.32f);
+    REQUIRE_FALSE(loaded.settings.map_workspace_layout.palette_visible);
+    REQUIRE(loaded.settings.map_workspace_layout.inspector_visible);
+    REQUIRE_FALSE(loaded.settings.map_workspace_layout.diagnostics_visible);
+    REQUIRE(loaded.settings.external_asset_library_root == "G:/All 2D Assets Stay Here");
 
     std::filesystem::remove_all(root);
 }

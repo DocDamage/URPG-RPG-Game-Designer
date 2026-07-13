@@ -38,7 +38,8 @@ ProjectAssetAttachmentResult blocked(std::string code, std::string message, std:
 } // namespace
 
 ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachPromotedAsset(
-    const AssetPromotionManifest& manifest, const std::filesystem::path& projectRoot) const {
+    const AssetPromotionManifest& manifest, const std::filesystem::path& projectRoot,
+    const ProjectAssetAttachmentConflictPolicy conflictPolicy) const {
     auto diagnostics = validateAssetPromotionManifest(manifest);
     diagnostics.insert(diagnostics.end(), manifest.diagnostics.begin(), manifest.diagnostics.end());
     if (!diagnostics.empty()) {
@@ -59,9 +60,9 @@ ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachPromotedAsset(
     const auto projectContent = projectRoot / "content";
     const auto importedRoot = projectContent / "assets" / "imported";
     const auto manifestRoot = projectContent / "assets" / "manifests";
-    const auto assetSegment = sanitizeSegment(manifest.assetId);
-    const auto destinationPayload = importedRoot / assetSegment / sourcePayload.filename();
-    const auto destinationManifest = manifestRoot / (assetSegment + ".json");
+    auto assetSegment = sanitizeSegment(manifest.assetId);
+    auto destinationPayload = importedRoot / assetSegment / sourcePayload.filename();
+    auto destinationManifest = manifestRoot / (assetSegment + ".json");
 
     std::error_code error;
     std::filesystem::create_directories(destinationPayload.parent_path(), error);
@@ -74,6 +75,34 @@ ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachPromotedAsset(
     }
     if (!pathInside(projectContent, destinationPayload) || !pathInside(projectContent, destinationManifest)) {
         return blocked("project_attachment_path_escape", "Project attachment destination escaped the project content root.");
+    }
+
+    const bool collision = std::filesystem::exists(destinationPayload) || std::filesystem::exists(destinationManifest);
+    if (collision && conflictPolicy == ProjectAssetAttachmentConflictPolicy::Cancel) {
+        return blocked("project_attachment_conflict_requires_resolution",
+                       "An attachment with this stable asset ID already exists. Choose Replace, Keep Both, or Relink Existing.");
+    }
+    if (collision && conflictPolicy == ProjectAssetAttachmentConflictPolicy::RelinkExisting) {
+        ProjectAssetAttachmentResult result;
+        result.success = true;
+        result.code = "project_asset_relinked_existing";
+        result.message = "Existing project attachment was retained and relinked.";
+        result.payloadPath = destinationPayload;
+        result.manifestPath = destinationManifest;
+        return result;
+    }
+    if (collision && conflictPolicy == ProjectAssetAttachmentConflictPolicy::KeepBoth) {
+        const auto original = assetSegment;
+        for (size_t suffix = 2; suffix < 10'000; ++suffix) {
+            assetSegment = original + "-" + std::to_string(suffix);
+            destinationPayload = importedRoot / assetSegment / sourcePayload.filename();
+            destinationManifest = manifestRoot / (assetSegment + ".json");
+            if (!std::filesystem::exists(destinationPayload) && !std::filesystem::exists(destinationManifest)) break;
+        }
+    }
+    std::filesystem::create_directories(destinationPayload.parent_path(), error);
+    if (error) {
+        return blocked("project_asset_directory_create_failed", error.message());
     }
 
     std::filesystem::copy_file(sourcePayload, destinationPayload, std::filesystem::copy_options::overwrite_existing,

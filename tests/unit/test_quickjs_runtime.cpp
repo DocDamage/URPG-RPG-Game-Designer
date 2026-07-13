@@ -567,6 +567,74 @@ TEST_CASE("QuickJSContext CPU budget is enforced at harness level", "[compat][qu
     REQUIRE(ctx.isCPUExceeded());
 }
 
+TEST_CASE("QuickJSContext interrupts runaway JavaScript eval", "[compat][quickjs][sandbox]") {
+    QuickJSContext ctx;
+    QuickJSConfig config;
+    config.enableCPUBudget = true;
+    config.cpuBudgetUs = 1000;
+
+    REQUIRE(ctx.initialize(config));
+
+    const auto result = ctx.eval("while (true) {}", "runaway_loop.js");
+
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.error == "CPU budget exceeded");
+    REQUIRE(ctx.isCPUExceeded());
+    REQUIRE(ctx.getBudgetStatus().exceeded_cpu);
+}
+
+TEST_CASE("QuickJSContext caps recursively scheduled promise jobs", "[compat][quickjs][async][sandbox]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    const auto result = ctx.eval(R"JS(
+        globalThis.promiseFloodHits = 0;
+        function scheduleMore() {
+          globalThis.promiseFloodHits += 1;
+          Promise.resolve().then(scheduleMore);
+        }
+        Promise.resolve().then(scheduleMore);
+        "queued";
+    )JS",
+                                 "promise_flood.js");
+    REQUIRE(result.success);
+
+    REQUIRE(ctx.drainPendingJobs(8) == 8);
+
+    const auto diagnostics = ctx.getRuntimeDiagnostics();
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.operation == "quickjs_pending_job_limit_exceeded" &&
+               diagnostic.message == "Pending job drain limit reached" &&
+               diagnostic.sourceLocation == "promise_flood.js";
+    }));
+}
+
+TEST_CASE("QuickJSContext timer floods honor explicit callback caps", "[compat][quickjs][async][sandbox]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    const auto setup = ctx.eval(R"JS(
+        globalThis.timerFloodHits = 0;
+        for (let i = 0; i < 16; ++i) {
+          setTimeout(function() { globalThis.timerFloodHits += 1; }, 0);
+        }
+        __urpgRunDueTimers(3);
+    )JS",
+                                "timer_flood.js");
+    REQUIRE(setup.success);
+    REQUIRE(std::holds_alternative<int64_t>(setup.value.v));
+    REQUIRE(std::get<int64_t>(setup.value.v) == 3);
+
+    const auto hits = ctx.getGlobal("timerFloodHits");
+    REQUIRE(hits.has_value());
+    REQUIRE(std::holds_alternative<int64_t>(hits->v));
+    REQUIRE(std::get<int64_t>(hits->v) == 3);
+
+    const auto remaining = ctx.eval("__urpgPendingTimerCount();", "timer_flood.js");
+    REQUIRE(remaining.success);
+    REQUIRE(std::get<int64_t>(remaining.value.v) == 13);
+}
+
 TEST_CASE("QuickJSContext compat timers are deterministic and clearable", "[compat][quickjs][async]") {
     QuickJSContext ctx;
     REQUIRE(ctx.initialize(QuickJSConfig{}));

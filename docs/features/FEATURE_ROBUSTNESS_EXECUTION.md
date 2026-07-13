@@ -1,12 +1,14 @@
 # Feature Robustness Execution Tracker
 
-Status date: 2026-05-25
+Status date: 2026-05-26
 
 This document turns `docs/features/FEATURE_ROBUSTNESS_PLAN.md` from prose backlog into governed execution work. The canonical machine-readable tracker is `content/readiness/feature_robustness_lanes.json`.
 
 ## Boundary
 
 These ten lanes are URPG product-depth work. They are not bounded `v0.1.0` blockers unless a future scope explicitly promotes a lane into mandatory exit criteria.
+
+Current `development` note: the broader finish blockers are tracked in `docs/superpowers/plans/2026-05-26-finish-current-codebase.md`. Feature robustness lanes must not be used to claim production readiness while security, lifetime, LFS, and repository-hygiene blockers remain open.
 
 ## Execution Rule
 
@@ -152,7 +154,7 @@ This branch completes the governed `FRL-01` scope by adding native imported/plug
 Verification:
 
 ```powershell
-ctest --preset dev-all -R "BattleRuleResolver|battle presentation|Compat fixture import: battle feedback" --output-on-failure
+ctest --preset dev-all -R "BattleRuleResolver|battle presentation|BattleRuleResolver imports broader battle feedback fixture shapes" --output-on-failure
 python tools\ci\check_feature_robustness_lanes.py
 ```
 

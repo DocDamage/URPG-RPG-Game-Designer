@@ -1,8 +1,10 @@
 # Release Packaging
 
-Status Date: 2026-05-04
+Status Date: 2026-05-26
 
 This document records the native release packaging contract for URPG exports. It does not claim that production signing credentials are present in the repository.
+
+Current checkout note: package smoke evidence is package-scope evidence, not whole-repository hygiene evidence. As of 2026-05-27, tracked generated/local and retired-root paths are guarded separately, `.\tools\ci\check_lfs_release_scope.ps1` reconciles 307,388 LFS-tracked paths as governed promoted-library payloads or governance evidence with zero release-required LFS paths, and `.\tools\ci\check_promoted_asset_library.ps1` validates the promoted manifest inventory. Do not use package success to claim the checkout is LFS-free; use project-selected package manifests for exact shipped-game asset claims.
 
 Native CPack package identity is finalized in `cmake/packaging.cmake` with vendor `URPG Project`, homepage
 `https://github.com/DocDamage/URPG-RPG-Game-Designer`, and support contact
@@ -210,7 +212,7 @@ imports/reports/asset_intake/release_required_asset_report.json
 
 That report classifies connected release assets and non-connected bundle rows. Current UI/audio sound surfaces use explicit system fallback entries, while `BND-002` UI SFX remains `deferred` until an approved bundled OGG asset is promoted. The audio release policy is intentionally silent/muted for the current package scope: the release-required asset gate enforces that audio is covered by either an explicit muted/silent `system_fallback` `audio_policy` row or a bundled release-required audio asset. Deferred WAV proof records do not satisfy release audio.
 
-Current release visuals are also bounded starter/proof assets, not final AAA art direction. The governance fixture must declare `releaseAssets.visualClaimScope.tier: bounded_release_starter`, allow the prototype/starter visual categories explicitly, and state that the visuals are not final art direction. The release-required asset gate rejects `prototype_sprite`, starter UI chrome/skin, and VFX proof rows if that bounded scope is missing or if the asset notes do not identify their prototype/starter/proof status.
+Current release visuals are a curated starter art slice with explicit title, map, battle, UI, skin, actor, and VFX coverage. The governance fixture must declare `releaseAssets.visualClaimScope.tier: bounded_release_starter`, allow the prototype/starter/final-starter visual categories explicitly, and state the exact claim boundary. The release-required asset gate rejects `prototype_sprite`, starter UI chrome/skin, tileset, background, VFX frame, and VFX sheet rows if that bounded scope is missing or if the asset notes do not identify their prototype/starter/curated coverage status.
 
 Phase 9 also requires selected promoted bundle categories to carry release eligibility, SHA-256 checksum, attribution record, and package-destination metadata. The current selected release bundle categories are:
 
@@ -218,8 +220,9 @@ Phase 9 also requires selected promoted bundle categories to carry release eligi
 - `ui_frames_chrome` through `BND-003`
 - `vfx_sheet` through `BND-003`
 - `cohesive_ui_skin` through `BND-003`
+- `tileset`, `background`, `vfx_frame`, and additional `vfx_sheet` coverage through `BND-005`
 
-Environmental SFX, BGM, final portrait art, final music identity, and polished VFX identity are mandatory content backlog until cleared bundles are promoted for those categories. They are not bundled by the current package gate without attribution evidence, checksums, package destinations, and promoted payloads.
+Environmental SFX, BGM, final portrait roster art, final music identity, and any broader shipped-game visual canon remain project-selection work. They are part of the mandatory content backlog for a full-product completion claim, even though the bounded current package does not select them. They are not bundled by the current package gate without attribution evidence, checksums, package destinations, promoted payloads, and exact export selection.
 
 Phase 12 local curated bulk promotions add three release-eligible, non-release-required deferred bundles:
 

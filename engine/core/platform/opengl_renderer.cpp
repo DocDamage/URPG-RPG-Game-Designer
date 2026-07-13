@@ -571,7 +571,7 @@ void OpenGLRenderer::renderBatches(const std::vector<SpriteDrawData>& batches) {
 }
 
 void OpenGLRenderer::endFrame() {
-    if (m_surface != nullptr) {
+    if (m_autoPresent && m_surface != nullptr) {
         m_surface->present();
     }
 }

@@ -19,7 +19,7 @@ URPG is a deterministic C++20 RPG engine with a native core, RPG Maker MZ QuickJ
 Configure and build:
 
 ```powershell
-cmake --preset dev-ninja-debug
+.\tools\ci\configure_dev_ninja_debug.ps1
 cmake --build --preset dev-debug
 ```
 

@@ -1,6 +1,7 @@
 #include "engine/core/assets/global_asset_promotion_service.h"
 
 #include <fstream>
+#include <optional>
 
 namespace urpg::assets {
 
@@ -14,6 +15,37 @@ GlobalAssetPromotionResult failed(std::string code, std::string message, AssetPr
     result.manifest = std::move(manifest);
     result.diagnostics = result.manifest.diagnostics;
     return result;
+}
+
+struct ExistingPromotion {
+    AssetPromotionManifest manifest;
+    std::filesystem::path manifestPath;
+};
+
+std::optional<ExistingPromotion> findReusablePromotion(const std::filesystem::path& root,
+                                                        const std::string& sourceSha256) {
+    if (sourceSha256.empty() || !std::filesystem::is_directory(root)) {
+        return std::nullopt;
+    }
+    std::error_code error;
+    for (std::filesystem::recursive_directory_iterator it(root, error), end; !error && it != end;
+         it.increment(error)) {
+        if (!it->is_regular_file() || it->path().filename() != "asset_promotion_manifest.json") {
+            continue;
+        }
+        std::ifstream input(it->path());
+        if (!input) {
+            continue;
+        }
+        const auto manifest = deserializeAssetPromotionManifest(nlohmann::json::parse(input, nullptr, false));
+        if (manifest.sourceSha256 != sourceSha256 || manifest.status != AssetPromotionStatus::RuntimeReady ||
+            !manifest.package.includeInRuntime || manifest.promotedPath.empty() ||
+            !std::filesystem::is_regular_file(manifest.promotedPath)) {
+            continue;
+        }
+        return ExistingPromotion{manifest, it->path()};
+    }
+    return std::nullopt;
 }
 
 } // namespace
@@ -34,6 +66,17 @@ GlobalAssetPromotionResult GlobalAssetPromotionService::promoteImportRecord(
         manifest.promotedPath.clear();
         manifest.diagnostics.push_back("source_payload_missing");
         return failed("source_payload_missing", "Import source payload file does not exist.", manifest);
+    }
+
+    if (const auto existing = findReusablePromotion(promotedRoot, manifest.sourceSha256); existing.has_value()) {
+        GlobalAssetPromotionResult result;
+        result.success = true;
+        result.code = "global_asset_reused_by_hash";
+        result.message = "An identical normalized payload is already promoted and was reused by hash.";
+        result.manifest = existing->manifest;
+        result.payloadPath = existing->manifest.promotedPath;
+        result.manifestPath = existing->manifestPath;
+        return result;
     }
 
     const auto destinationPayload = std::filesystem::path(manifest.promotedPath);

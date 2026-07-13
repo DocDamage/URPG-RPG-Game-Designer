@@ -1,7 +1,10 @@
 #include "editor/assets/asset_library_panel.h"
+#include "engine/core/platform/process_runner.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cstring>
+#include <cstdlib>
 #include <system_error>
 #include <utility>
 
@@ -12,6 +15,10 @@
 #include <objbase.h>
 #include <shobjidl.h>
 #include <windows.h>
+#endif
+
+#ifdef __APPLE__
+extern "C" bool urpgChooseMacOSImportSource(bool folder, char* output, size_t outputSize);
 #endif
 
 namespace urpg::editor {
@@ -155,10 +162,124 @@ chooseWindowsImportSource(const AssetLibraryPanel::ImportSourcePickerRequest& re
 
 #endif
 
+#ifdef __linux__
+
+std::vector<std::filesystem::path> splitLinuxPathList(const char* pathList) {
+    std::vector<std::filesystem::path> paths;
+    if (pathList == nullptr || *pathList == '\0') {
+        return paths;
+    }
+
+    std::string value(pathList);
+    size_t begin = 0;
+    while (begin <= value.size()) {
+        const size_t end = value.find(':', begin);
+        const auto part = value.substr(begin, end == std::string::npos ? std::string::npos : end - begin);
+        if (!part.empty()) {
+            paths.emplace_back(part);
+        }
+        if (end == std::string::npos) {
+            break;
+        }
+        begin = end + 1;
+    }
+    return paths;
+}
+
+bool executableExistsOnPath(const std::string& executable) {
+    std::error_code ec;
+    for (const auto& root : splitLinuxPathList(std::getenv("PATH"))) {
+        const auto candidate = root / executable;
+        if (std::filesystem::exists(candidate, ec) && !ec) {
+            return true;
+        }
+        ec.clear();
+    }
+    return false;
+}
+
+bool linuxDesktopPortalAvailable() {
+    const char* sessionBus = std::getenv("DBUS_SESSION_BUS_ADDRESS");
+    return sessionBus != nullptr && *sessionBus != '\0' && executableExistsOnPath("gdbus");
+}
+
+std::optional<std::string> linuxDesktopHelper() {
+    if (executableExistsOnPath("zenity")) {
+        return "zenity";
+    }
+    if (executableExistsOnPath("kdialog")) {
+        return "kdialog";
+    }
+    return std::nullopt;
+}
+
+std::string trimPickerOutput(std::string value) {
+    while (!value.empty() && (value.back() == '\n' || value.back() == '\r')) {
+        value.pop_back();
+    }
+    return value;
+}
+
+std::optional<std::filesystem::path>
+chooseLinuxDesktopHelperImportSource(const AssetLibraryPanel::ImportSourcePickerRequest& request,
+                                     const std::string& executable) {
+    std::vector<std::string> arguments;
+    const bool folder = request.mode == AssetLibraryPanel::ImportSourcePickerMode::Folder;
+    if (executable == "zenity") {
+        arguments = {"--file-selection",
+                     "--title",
+                     folder ? "Choose Asset Source Folder" : "Choose Asset Source File or Archive"};
+        if (folder) {
+            arguments.push_back("--directory");
+        }
+    } else if (executable == "kdialog") {
+        arguments = {"--title", folder ? "Choose Asset Source Folder" : "Choose Asset Source File or Archive",
+                     folder ? "--getexistingdirectory" : "--getopenfilename", ""};
+    } else {
+        return std::nullopt;
+    }
+
+    urpg::platform::ProcessCommand command;
+    command.executable = executable;
+    command.arguments = std::move(arguments);
+    command.timeout = std::chrono::minutes(60);
+    command.captureStdout = true;
+    command.captureStderr = true;
+    const auto result = urpg::platform::runProcess(command);
+    if (result.exitCode != 0 || result.timedOut) {
+        return std::nullopt;
+    }
+
+    auto selected = trimPickerOutput(result.stdoutText);
+    return selected.empty() ? std::nullopt : std::optional<std::filesystem::path>{std::filesystem::path(selected)};
+}
+
+std::optional<std::filesystem::path>
+chooseLinuxImportSource(const AssetLibraryPanel::ImportSourcePickerRequest& request) {
+    // xdg-desktop-portal is detected first for diagnostics. Dependency-free builds fall through to common
+    // desktop helpers for the synchronous selected path payload used by the import wizard.
+    (void)linuxDesktopPortalAvailable();
+    const auto helper = linuxDesktopHelper();
+    if (!helper.has_value()) {
+        return std::nullopt;
+    }
+    return chooseLinuxDesktopHelperImportSource(request, *helper);
+}
+
+#endif
+
 std::optional<std::filesystem::path>
 chooseNativeImportSource(const AssetLibraryPanel::ImportSourcePickerRequest& request) {
 #ifdef _WIN32
     return chooseWindowsImportSource(request);
+#elif defined(__APPLE__)
+    char selected[4096] = {};
+    const bool folder = request.mode == AssetLibraryPanel::ImportSourcePickerMode::Folder;
+    return urpgChooseMacOSImportSource(folder, selected, sizeof(selected))
+               ? std::optional<std::filesystem::path>{std::filesystem::path(selected)}
+               : std::nullopt;
+#elif defined(__linux__)
+    return chooseLinuxImportSource(request);
 #else
     (void)request;
     return std::nullopt;
@@ -190,11 +311,45 @@ std::string validateSelectedImportSource(const std::filesystem::path& source,
 
 AssetLibraryPanel::ImportSourcePickerAvailability AssetLibraryPanel::nativeImportSourcePickerAvailability() {
 #ifdef _WIN32
-    return {true, true, "native_import_source_picker_available", "Native Windows import source picker is available."};
+    return nativeImportSourcePickerAvailabilityForDiagnostics(NativeImportSourcePickerPlatform::Windows, false, false);
+#elif defined(__APPLE__)
+    return nativeImportSourcePickerAvailabilityForDiagnostics(NativeImportSourcePickerPlatform::MacOS, false, false);
+#elif defined(__linux__)
+    return nativeImportSourcePickerAvailabilityForDiagnostics(NativeImportSourcePickerPlatform::Linux,
+                                                             linuxDesktopPortalAvailable(),
+                                                             linuxDesktopHelper().has_value());
 #else
+    return nativeImportSourcePickerAvailabilityForDiagnostics(NativeImportSourcePickerPlatform::Unsupported, false,
+                                                             false);
+#endif
+}
+
+AssetLibraryPanel::ImportSourcePickerAvailability
+AssetLibraryPanel::nativeImportSourcePickerAvailabilityForDiagnostics(NativeImportSourcePickerPlatform platform,
+                                                                      bool desktop_portal_available,
+                                                                      bool desktop_helper_available) {
+    switch (platform) {
+    case NativeImportSourcePickerPlatform::Windows:
+        return {true, true, "native_import_source_picker_available",
+                "Native Windows import source picker is available."};
+    case NativeImportSourcePickerPlatform::MacOS:
+        return {true, true, "native_import_source_picker_available",
+                "Native macOS import source picker is available."};
+    case NativeImportSourcePickerPlatform::Linux:
+        if (desktop_portal_available || desktop_helper_available) {
+            return {true, true, "native_import_source_picker_available",
+                    desktop_portal_available
+                        ? "Linux desktop portal import source picker is available."
+                        : "Linux desktop helper import source picker is available; xdg-desktop-portal is unavailable."};
+        }
+        return {false, true, "native_import_source_picker_portal_missing",
+                "Linux native import source picker needs xdg-desktop-portal or a supported desktop helper; use path "
+                "entry import instead."};
+    case NativeImportSourcePickerPlatform::Unsupported:
+        break;
+    }
     return {false, true, "native_import_source_picker_unsupported",
             "Native import source picker is not implemented on this platform; use path entry import instead."};
-#endif
 }
 
 void AssetLibraryPanel::setImportSourcePicker(ImportSourcePicker picker) {
@@ -212,9 +367,10 @@ void AssetLibraryPanel::render() {
 nlohmann::json AssetLibraryPanel::requestImportSource(const std::filesystem::path& source,
                                                       const std::filesystem::path& library_root, std::string session_id,
                                                       std::string license_note,
-                                                      std::vector<std::string> external_extractor_command) {
+                                                      std::vector<std::string> external_extractor_command,
+                                                      std::vector<std::string> selected_archive_entries) {
     auto result = model_.requestImportSource(source, library_root, std::move(session_id), std::move(license_note),
-                                             std::move(external_extractor_command));
+                                             std::move(external_extractor_command), std::move(selected_archive_entries));
     refreshRenderSnapshotsFromModel();
     return result;
 }
@@ -275,6 +431,25 @@ nlohmann::json AssetLibraryPanel::requestImportSourceFromPicker(ImportSourcePick
                                std::move(request.license_note), std::move(request.external_extractor_command));
 }
 
+nlohmann::json AssetLibraryPanel::executePendingImportRequest(AssetLibraryModel::ConversionCommandExecutor executor) {
+    auto result = model_.executePendingImportRequest(std::move(executor));
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::refreshExternalCatalog(AssetLibraryModel::ConversionCommandExecutor executor) {
+    auto result = model_.refreshExternalCatalog(std::move(executor));
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json
+AssetLibraryPanel::openSelectedExternalCatalogSource(AssetLibraryModel::ConversionCommandExecutor executor) {
+    auto result = model_.openSelectedExternalCatalogSource(std::move(executor));
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
 nlohmann::json AssetLibraryPanel::convertSelectedImportRecords(std::string session_id,
                                                                std::vector<std::string> asset_ids,
                                                                AssetLibraryModel::ConversionCommandExecutor executor) {
@@ -294,8 +469,15 @@ nlohmann::json AssetLibraryPanel::promoteSelectedImportRecords(std::string sessi
 }
 
 nlohmann::json AssetLibraryPanel::attachSelectedPromotedAssetsToProject(std::vector<std::string> paths,
-                                                                        const std::filesystem::path& project_root) {
-    auto result = model_.attachPromotedAssetsToProject(std::move(paths), project_root);
+                                                                        const std::filesystem::path& project_root,
+                                                                        const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    auto result = model_.attachPromotedAssetsToProject(std::move(paths), project_root, policy);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::browseArchive(const std::filesystem::path& archive_path) {
+    auto result = model_.browseArchive(archive_path);
     refreshRenderSnapshotsFromModel();
     return result;
 }

@@ -6,6 +6,8 @@
 #include "engine/core/assets/asset_library.h"
 #include "engine/core/message/message_core.h"
 #include "engine/core/message/world_knowledge_bridge.h"
+#include <algorithm>
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <nlohmann/json.hpp>
@@ -24,6 +26,15 @@ struct ChatMessage {
     std::string content;
 };
 
+class ChatRequestHandle {
+  public:
+    void cancel() { m_cancelled.store(true, std::memory_order_release); }
+    bool cancelled() const { return m_cancelled.load(std::memory_order_acquire); }
+
+  private:
+    std::atomic_bool m_cancelled{false};
+};
+
 /**
  * @brief Interface for AI Chat Services.
  * This allows the game developer to plug in OpenAI, Anthropic, or a local model.
@@ -40,16 +51,17 @@ class IChatService {
      * @param history The conversation history.
      * @param callback Called when the AI responds.
      */
-    virtual void requestResponse(const std::vector<ChatMessage>& history, ChatCallback callback) = 0;
+    virtual std::shared_ptr<ChatRequestHandle> requestResponse(const std::vector<ChatMessage>& history,
+                                                               ChatCallback callback) = 0;
 
     /**
      * @brief Optional streaming request.
      */
-    virtual void requestStream(const std::vector<ChatMessage>& history, StreamCallback onChunk,
-                               ChatCallback onComplete) {
+    virtual std::shared_ptr<ChatRequestHandle> requestStream(const std::vector<ChatMessage>& history,
+                                                             StreamCallback onChunk, ChatCallback onComplete) {
         (void)onChunk;
         // Fallback to non-streaming if not implemented
-        requestResponse(history, onComplete);
+        return requestResponse(history, std::move(onComplete));
     }
 };
 
@@ -59,6 +71,30 @@ class IChatService {
 class ChatbotComponent {
   public:
     ChatbotComponent(std::shared_ptr<IChatService> service) : m_service(std::move(service)) { rebuildAiKnowledge(); }
+    ChatbotComponent(const ChatbotComponent& other)
+        : m_service(other.m_service), m_history(other.m_history), m_systemPrompt(other.m_systemPrompt),
+          m_projectData(other.m_projectData), m_assetLibrarySnapshot(other.m_assetLibrarySnapshot),
+          m_aiKnowledge(other.m_aiKnowledge), m_currentAiTaskPlan(other.m_currentAiTaskPlan),
+          m_lastAiToolSnapshot(other.m_lastAiToolSnapshot) {}
+    ChatbotComponent& operator=(const ChatbotComponent& other) {
+        if (this == &other) {
+            return *this;
+        }
+        cancelPendingRequests();
+        m_ownerToken = std::make_shared<ChatRequestHandle>();
+        m_service = other.m_service;
+        m_history = other.m_history;
+        m_systemPrompt = other.m_systemPrompt;
+        m_projectData = other.m_projectData;
+        m_assetLibrarySnapshot = other.m_assetLibrarySnapshot;
+        m_aiKnowledge = other.m_aiKnowledge;
+        m_currentAiTaskPlan = other.m_currentAiTaskPlan;
+        m_lastAiToolSnapshot = other.m_lastAiToolSnapshot;
+        return *this;
+    }
+    ChatbotComponent(ChatbotComponent&&) noexcept = default;
+    ChatbotComponent& operator=(ChatbotComponent&&) noexcept = default;
+    ~ChatbotComponent() { cancelPendingRequests(); }
 
     void setSystemPrompt(const std::string& prompt) { m_systemPrompt = prompt; }
     void setProjectData(nlohmann::json projectData) {
@@ -76,10 +112,19 @@ class ChatbotComponent {
      * @param userInput The text typed by the player.
      * @param onReady Callback providing a DialoguePage ready for the MessageFlowRunner.
      */
-    void getResponse(const std::string& userInput, std::function<void(urpg::message::DialoguePage)> onReady) {
+    std::shared_ptr<ChatRequestHandle> getResponse(const std::string& userInput,
+                                                   std::function<void(urpg::message::DialoguePage)> onReady) {
         prepareHistory(userInput);
 
-        m_service->requestResponse(m_history, [this, onReady](const std::string& response, const std::string& command) {
+        auto requestHandle = registerPendingRequest();
+        auto ownerToken = m_ownerToken;
+        auto transportHandle =
+            m_service->requestResponse(m_history, [this, ownerToken, requestHandle,
+                                                   onReady = std::move(onReady)](const std::string& response,
+                                                                                 const std::string& command) {
+            if (ownerToken->cancelled() || requestHandle->cancelled()) {
+                return;
+            }
             m_history.push_back({"assistant", response});
 
             // Process Tool Calling (Function Calling)
@@ -92,8 +137,11 @@ class ChatbotComponent {
             page.command = command; // Pass through to local handlers if needed
             page.variant.speaker = "Mysterious AI";
 
+            completePendingRequest(requestHandle);
             onReady(page);
         });
+        trackTransportHandle(std::move(transportHandle));
+        return requestHandle;
     }
 
     /**
@@ -329,12 +377,26 @@ class ChatbotComponent {
     /**
      * @brief Streams the AI response in real-time.
      */
-    void streamResponse(const std::string& userInput, IChatService::StreamCallback onChunk,
-                        std::function<void(urpg::message::DialoguePage)> onComplete) {
+    std::shared_ptr<ChatRequestHandle> streamResponse(const std::string& userInput, IChatService::StreamCallback onChunk,
+                                                      std::function<void(urpg::message::DialoguePage)> onComplete) {
         prepareHistory(userInput);
 
-        m_service->requestStream(m_history, onChunk,
-                                 [this, onComplete](const std::string& response, const std::string& command) {
+        auto requestHandle = registerPendingRequest();
+        auto ownerToken = m_ownerToken;
+        auto guardedChunk = [ownerToken, requestHandle, onChunk = std::move(onChunk)](const std::string& chunk) {
+            if (ownerToken->cancelled() || requestHandle->cancelled()) {
+                return;
+            }
+            onChunk(chunk);
+        };
+        auto transportHandle =
+            m_service->requestStream(m_history, std::move(guardedChunk),
+                                     [this, ownerToken, requestHandle,
+                                      onComplete = std::move(onComplete)](const std::string& response,
+                                                                          const std::string& command) {
+                                         if (ownerToken->cancelled() || requestHandle->cancelled()) {
+                                             return;
+                                         }
                                      m_history.push_back({"assistant", response});
 
                                      urpg::message::DialoguePage page;
@@ -342,8 +404,11 @@ class ChatbotComponent {
                                      page.command = command;
                                      page.variant.speaker = "Mysterious AI";
 
+                                     completePendingRequest(requestHandle);
                                      onComplete(page);
                                  });
+        trackTransportHandle(std::move(transportHandle));
+        return requestHandle;
     }
 
     void clearHistory() { m_history.clear(); }
@@ -359,8 +424,47 @@ class ChatbotComponent {
      * may also inject histories loaded by out-of-tree persistence backends.
      */
     void restoreHistory(const std::vector<ChatMessage>& history) { m_history = history; }
+    void cancelPendingRequests() {
+        if (m_ownerToken) {
+            m_ownerToken->cancel();
+        }
+        for (const auto& handle : m_pendingRequests) {
+            if (handle) {
+                handle->cancel();
+            }
+        }
+        for (const auto& handle : m_transportRequests) {
+            if (handle) {
+                handle->cancel();
+            }
+        }
+        m_pendingRequests.clear();
+        m_transportRequests.clear();
+        m_ownerToken = std::make_shared<ChatRequestHandle>();
+    }
 
   private:
+    std::shared_ptr<ChatRequestHandle> registerPendingRequest() {
+        auto handle = std::make_shared<ChatRequestHandle>();
+        m_pendingRequests.push_back(handle);
+        return handle;
+    }
+
+    void completePendingRequest(const std::shared_ptr<ChatRequestHandle>& handle) {
+        if (handle) {
+            handle->cancel();
+        }
+        m_pendingRequests.erase(std::remove(m_pendingRequests.begin(), m_pendingRequests.end(), handle),
+                                m_pendingRequests.end());
+    }
+
+    void trackTransportHandle(std::shared_ptr<ChatRequestHandle> handle) {
+        if (!handle || handle->cancelled()) {
+            return;
+        }
+        m_transportRequests.push_back(std::move(handle));
+    }
+
     nlohmann::json makeAiChangeRecord(const AiToolApplyResult& result, std::size_t index) const {
         return {
             {"change_id", "ai_change_" + std::to_string(index + 1)},
@@ -487,6 +591,9 @@ class ChatbotComponent {
     }
 
     std::shared_ptr<IChatService> m_service;
+    std::shared_ptr<ChatRequestHandle> m_ownerToken = std::make_shared<ChatRequestHandle>();
+    std::vector<std::shared_ptr<ChatRequestHandle>> m_pendingRequests;
+    std::vector<std::shared_ptr<ChatRequestHandle>> m_transportRequests;
     std::vector<ChatMessage> m_history;
     std::string m_systemPrompt;
     nlohmann::json m_projectData = nlohmann::json::object();

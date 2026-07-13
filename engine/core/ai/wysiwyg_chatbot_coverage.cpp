@@ -14,6 +14,22 @@ bool hasToolForCapability(const AiToolRegistry& tools, const std::string& capabi
     });
 }
 
+bool hasReadonlyPanelTools(const AiToolRegistry& tools) {
+    const auto* describe = tools.find("describe_panel");
+    const auto* list = tools.find("list_panel_actions");
+    const auto* route = tools.find("route_to_panel");
+    return describe != nullptr && list != nullptr && route != nullptr && !describe->mutates_project &&
+           !list->mutates_project && !route->mutates_project;
+}
+
+bool hasCapabilityForPanel(const AiKnowledgeSnapshot& knowledge, const std::string& panelId) {
+    return std::any_of(knowledge.capabilities.capabilities().begin(), knowledge.capabilities.capabilities().end(),
+                       [&](const auto& capability) {
+                           return (capability.panel_id == panelId || capability.panel_id == "*") &&
+                                  hasToolForCapability(knowledge.tools, capability.id);
+                       });
+}
+
 void addMissing(nlohmann::json& missing, std::string kind, std::string id, std::string message) {
     missing.push_back({{"kind", std::move(kind)}, {"id", std::move(id)}, {"message", std::move(message)}});
 }
@@ -28,6 +44,14 @@ nlohmann::json WysiwygChatbotCoverageReport::toJson() const {
         {"capability_count", capability_count},
         {"capability_with_tool_count", capability_with_tool_count},
         {"capability_with_wysiwyg_surface_count", capability_with_wysiwyg_surface_count},
+        {"editor_panel_count", editor_panel_count},
+        {"searchable_editor_panel_count", searchable_editor_panel_count},
+        {"release_panel_with_chatbot_coverage_count", release_panel_with_chatbot_coverage_count},
+        {"non_release_panel_count", non_release_panel_count},
+        {"non_release_panel_discoverable_count", non_release_panel_discoverable_count},
+        {"mutating_tool_count", mutating_tool_count},
+        {"mutating_tool_requires_approval_count", mutating_tool_requires_approval_count},
+        {"unsafe_mutating_tool_count", unsafe_mutating_tool_count},
         {"asset_panel_registered", asset_panel_registered},
         {"asset_chatbot_tool_registered", asset_chatbot_tool_registered},
         {"asset_library_actions_available", asset_library_actions_available},
@@ -38,17 +62,36 @@ nlohmann::json WysiwygChatbotCoverageReport::toJson() const {
 WysiwygChatbotCoverageReport buildWysiwygChatbotCoverageReport(const AiKnowledgeSnapshot& knowledge,
                                                                const urpg::assets::AssetLibrarySnapshot& assets) {
     WysiwygChatbotCoverageReport report;
+    const bool panelToolsAvailable = hasReadonlyPanelTools(knowledge.tools);
     for (const auto& panel : urpg::editor::editorPanelRegistry()) {
-        if (panel.exposure != urpg::editor::EditorPanelExposure::ReleaseTopLevel) {
-            continue;
-        }
-        ++report.release_panel_count;
+        ++report.editor_panel_count;
         const auto matches = knowledge.docs_index.search(panel.id + " " + panel.title);
-        if (!matches.empty()) {
-            ++report.searchable_panel_count;
+        const bool searchable = !matches.empty();
+        if (searchable) {
+            ++report.searchable_editor_panel_count;
         } else {
             addMissing(report.missing, "editor_panel_chatbot_index", panel.id,
-                       "Release top-level WYSIWYG panel is not searchable by chatbot knowledge.");
+                       "Editor panel is not searchable by chatbot knowledge.");
+        }
+        if (panel.exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel) {
+            ++report.release_panel_count;
+            if (searchable) {
+                ++report.searchable_panel_count;
+            }
+            if (searchable && (hasCapabilityForPanel(knowledge, panel.id) || panelToolsAvailable)) {
+                ++report.release_panel_with_chatbot_coverage_count;
+            } else {
+                addMissing(report.missing, "release_panel_chatbot_coverage", panel.id,
+                           "Release top-level WYSIWYG panel lacks actionable or readonly chatbot coverage.");
+            }
+        } else {
+            ++report.non_release_panel_count;
+            if (searchable && panelToolsAvailable) {
+                ++report.non_release_panel_discoverable_count;
+            } else {
+                addMissing(report.missing, "non_release_panel_discoverability", panel.id,
+                           "Non-release editor panel is not discoverable through readonly chatbot panel tools.");
+            }
         }
     }
 
@@ -68,6 +111,20 @@ WysiwygChatbotCoverageReport buildWysiwygChatbotCoverageReport(const AiKnowledge
         }
     }
 
+    for (const auto& tool : knowledge.tools.tools()) {
+        if (!tool.mutates_project) {
+            continue;
+        }
+        ++report.mutating_tool_count;
+        if (tool.requires_approval) {
+            ++report.mutating_tool_requires_approval_count;
+        } else {
+            ++report.unsafe_mutating_tool_count;
+            addMissing(report.missing, "mutating_tool_approval", tool.id,
+                       "Mutating chatbot tool does not require approval.");
+        }
+    }
+
     report.asset_panel_registered = urpg::editor::findEditorPanelRegistryEntry("assets") != nullptr;
     report.asset_chatbot_tool_registered = knowledge.tools.find("import_asset_record") != nullptr;
     report.asset_library_actions_available = assets.promoted_count > 0 || assets.archived_count > 0 ||
@@ -83,8 +140,12 @@ WysiwygChatbotCoverageReport buildWysiwygChatbotCoverageReport(const AiKnowledge
     report.passed = report.missing.empty() &&
                     report.release_panel_count > 0 &&
                     report.release_panel_count == report.searchable_panel_count &&
+                    report.editor_panel_count == report.searchable_editor_panel_count &&
+                    report.release_panel_count == report.release_panel_with_chatbot_coverage_count &&
+                    report.non_release_panel_count == report.non_release_panel_discoverable_count &&
                     report.capability_count == report.capability_with_tool_count &&
                     report.capability_count == report.capability_with_wysiwyg_surface_count &&
+                    report.unsafe_mutating_tool_count == 0 &&
                     report.asset_panel_registered &&
                     report.asset_chatbot_tool_registered;
     return report;

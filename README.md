@@ -6,9 +6,15 @@ The project is built for creators who want RPG Maker-style production speed with
 
 ## Current Status
 
-Status date: 2026-05-25
+Status date: 2026-07-13
 
 The bounded public `v0.1.0` release tag exists as an annotated tag targeting commit `1d3debb95b6df1d09996e723cc616369cfca99c6`. The current `development` workspace is post-`v0.1.0` and must pass the final gates again before any follow-up public release or broader completion claim.
+
+Current creator-product checkpoint: the bounded M0-M5 foundation in `docs/superpowers/plans/2026-07-12-creator-product-cohesion-plan.md` is implemented through commit `d607eecc`. The editor now owns a persistent startup/project session, user-local creator settings, a shared dirty-state/Save All registry with a Grid Parts-triggered Map surface, a metadata-only paged external asset catalog, bounded thumbnails and archive-entry staging, governed promotion/attachment and typed asset drag payloads, one Map workspace over the Level Builder and Perspective 2D routes, rollback-capable paired Map saves, atomic starter-project creation, and a durable creator checklist. Automated evidence is recorded in the plan; it is not a substitute for graphical release review.
+
+The creator loop is not complete. M6-M11 remain active: editor-owned unsaved playtest/return, autosave recovery and relinking, contextual gameplay authoring and bounded native gameplay primitives, a governed vertical slice, visual/accessibility/performance review, and fresh release qualification. A few breadth items also remain in M1/M3/M4: aggregating Perspective 2D-only changes and all durable non-Map editors into the shared dirty-state owner, adding asset-drop consumers beyond Map Tiles/Props, completing shortcut coverage, and recording manual route/layout equivalence.
+
+Earlier hardening remains in place for the implemented scope: production `std::system` use has a CI guard, AI/analytics transports use native HTTP seams with redacted diagnostics, compat audio roles use stable IDs, chatbot callbacks have cancellation/lifetime guards, QuickJS uses an interrupt handler and pending-job caps, bundle authenticity uses keyed HMAC-SHA256 while unsupported script obfuscation fails closed, cloud sync remains hidden/local-only by release tests, native picker diagnostics cover Windows/macOS/Linux/unsupported branches, root generated/retired trees are removed from the Git index, and external archive extraction is allowlisted and containment-audited. This is still not a mandatory all-features product claim: legal/privacy review is owner-waived, platform signing/notarization is external, sanitizer verification is blocked by the local standalone LLVM/MSVC CRT configuration, and macOS/Linux native picker builds need platform runners. The latest checked-in LFS reconciliation reports 307,388 governed LFS-tracked paths, zero release-required LFS paths, and zero unknown paths; use `tools/ci/check_lfs_release_scope.ps1` for fresh counts rather than treating README numbers as permanent.
 
 For active development, use the full local gate:
 
@@ -25,11 +31,12 @@ any platform-specific signing/notarization credentials required for final distri
 
 ## Verified Release Surface
 
-- Release top-level editor panels are intentionally limited to `diagnostics`, `assets`, `ability`, `patterns`, `mod`, `analytics`, and `level_builder`.
+- Release top-level editor panels are intentionally limited to `diagnostics`, `assets`, `ability`, `patterns`, `mod`, `analytics`, `level_builder`, and `spatial_authoring`.
 - Every release top-level panel has an app-shell factory and is covered by registry/app panel regression tests.
 - `developer_debug_overlay` and other debug/dev surfaces are `DevOnly`, excluded from release navigation, and tested as such.
 - Deferred editor panels remain compiled for direct tests, snapshots, or roadmap work, but are not advertised as release navigation.
 - The native `level_builder` panel is wired into the editor shell and uses the real grid-part Level Builder workspace.
+- The native `spatial_authoring` panel is wired into the editor shell as the first-class Perspective 2D Map Editor.
 - The release inventory, app readiness matrix, and editor panel registry are now cross-checked by tests instead of maintained only by convention.
 
 ## What Is Release-Ready In This Branch
@@ -37,9 +44,9 @@ any platform-specific signing/notarization credentials required for final distri
 Within the bounded internal/private release-candidate scope:
 
 - Native runtime startup, title/menu input, scene stack pause/resume, settings, save/load, audio startup diagnostics, localization startup diagnostics, and runtime asset preflight have focused coverage.
-- Editor release navigation starts headlessly, lists panels, and opens `level_builder`.
+- Editor release navigation starts headlessly, lists panels, and opens both `level_builder` and `spatial_authoring`.
 - Ability draft save/load/apply, ability project-content save, pattern editing, Level Builder save/load/export/playtest/package, analytics consent/local JSONL export, and app settings persistence are covered by deterministic tests.
-- Release-required assets are validated by `tools/ci/check_release_required_assets.ps1`; raw/vendor intake paths are not eligible release payloads.
+- Release-required assets are validated by `tools/ci/check_release_required_assets.ps1`; raw/vendor intake paths are not eligible release payloads. This does not mean the whole checkout is LFS-free: broad promoted asset payloads are currently LFS-tracked and must stay outside release-required claims unless hydrated and gated.
 - Current release visuals are bounded starter/proof assets, not final AAA art direction. The release asset gate requires this scope to be declared before prototype actor, starter UI skin/chrome, or VFX proof rows can satisfy release coverage.
 - Cloud sync is not a production-visible release feature in the shipped tree. `LocalInMemoryCloudService` is process-local
   test/dev storage only, and release UI must keep cloud/cross-device sync hidden unless an out-of-tree provider reports a
@@ -54,8 +61,16 @@ Within the bounded internal/private release-candidate scope:
 - New public distribution approval and release tagging for post-`v0.1.0` commits.
 - Platform signing/notarization credentials for final release artifacts.
 - Repository-wide source/vendor LFS budget/access if future release work depends on full vendor/source asset hydration. Current release-required app assets are normal Git blobs and are checked separately.
+- Local sanitizer proof remains blocked by the current Windows standalone LLVM configuration missing MSVC CRT libraries during `URPG_SANITIZERS=address,undefined` configure. Re-run sanitizer evidence on a configured LLVM/MSVC or supported POSIX toolchain before making stronger runtime-safety claims.
+- macOS/Linux native source picker implementations are guarded in the build graph but must be compiled and exercised on those platform runners before release-owner cross-platform UI signoff.
 
 ## Product Pillars
+
+### Creator Shell And Unified Map Workflow
+
+When no valid project is open, the editor presents the creator shell rather than relying on a CLI project path. Project creation is a nested seven-step wizard backed by an atomic project-creation service and runtime preflight. Once opened, both `level_builder` and `spatial_authoring` route into one creator-facing Map workspace while retaining their explicit Grid Parts and Perspective 2D document owners.
+
+The shared Map surface exposes Canvas, Tiles, Parts, Props, Events, Abilities, World, Validate, Playtest, and Package modes; shared selection and validation state; owner-aware undo/redo routing; persisted palette/inspector/diagnostics layout; focused diagnostics; next-action package guidance; Save/Save All; and attached-asset drops into Tiles and Props. The deeper contextual editors, unsaved playtest session, and full vertical slice remain roadmap work and are not implied by the presence of those mode buttons.
 
 ### Native Level Builder
 
@@ -155,7 +170,7 @@ AI-assisted editing is review-gated:
 | `docs/` | Architecture, release, governance, signoff, ADRs, status, and templates. |
 | `.urpg/` | Ignored local cache/archive/state. |
 
-The old root-level `third_party/` and `itch/` folders are retired. Ingested content belongs under `imports/raw/third_party_assets/` and `imports/raw/itch_assets/`.
+The old root-level `third_party/` and `itch/` folders are retired from Git tracking. Ingested content belongs under `imports/raw/third_party_assets/` and `imports/raw/itch_assets/`; current guard evidence is `.\tools\ci\check_no_generated_tracked_files.ps1`.
 
 ## Build
 

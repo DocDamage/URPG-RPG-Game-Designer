@@ -2,7 +2,21 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("OpenAI-compatible chat service builds request and curl command", "[ai][chat][provider]") {
+namespace {
+
+class FakeHttpClient final : public urpg::net::IHttpClient {
+  public:
+    urpg::net::HttpResponse postJson(const urpg::net::HttpRequest& request) override {
+        lastRequest = request;
+        return {200, R"({"choices":[{"message":{"content":"Done.\nCOMMAND:AI_TASK:test"}}]})", ""};
+    }
+
+    urpg::net::HttpRequest lastRequest;
+};
+
+} // namespace
+
+TEST_CASE("OpenAI-compatible chat service builds request and redacted HTTP diagnostic", "[ai][chat][provider]") {
     urpg::ai::OpenAiCompatibleChatConfig config;
     config.endpoint = "http://127.0.0.1:1234/v1/chat/completions";
     config.model = "local-test";
@@ -23,8 +37,10 @@ TEST_CASE("OpenAI-compatible chat service builds request and curl command", "[ai
     REQUIRE(request["messages"][1]["content"] == "Plan a house.");
 
     const auto command = urpg::ai::buildOpenAiCompatibleChatCurlCommand(config);
+    REQUIRE(command.find("native_http_post") != std::string::npos);
     REQUIRE(command.find("chat/completions") != std::string::npos);
-    REQUIRE(command.find("Authorization: Bearer test-key") != std::string::npos);
+    REQUIRE(command.find("test-key") == std::string::npos);
+    REQUIRE(command.find("[redacted]") != std::string::npos);
     REQUIRE(command.find("tmp/chat-request.json") != std::string::npos);
     REQUIRE(command.find("tmp/chat-response.json") != std::string::npos);
 }
@@ -38,13 +54,35 @@ TEST_CASE("OpenAI-compatible chat service builds streaming requests", "[ai][chat
     REQUIRE(request["stream"] == true);
 
     const auto command = urpg::ai::buildOpenAiCompatibleChatCurlCommand(config);
-    REQUIRE(command.find("--no-buffer") != std::string::npos);
+    REQUIRE(command.find("stream=true") != std::string::npos);
 
     const auto adapter = urpg::ai::buildOpenAiCompatibleStreamAdapterPlan(config);
     REQUIRE(adapter["component"] == "openai_compatible_stream_adapter");
     REQUIRE(adapter["stream_requested"] == true);
     REQUIRE(adapter["transport"] == "fixture_response_replay");
     REQUIRE(adapter["socket_adapter_ready"] == true);
+}
+
+TEST_CASE("OpenAI-compatible chat execution uses injectable native HTTP client",
+          "[ai][chat][provider][OpenAiCompatible]") {
+    FakeHttpClient http;
+    urpg::ai::OpenAiCompatibleChatConfig config;
+    config.execute = true;
+    config.endpoint = "https://provider.example.invalid/v1/chat/completions";
+    config.model = "native-http-test";
+    config.api_key = "secret-value";
+    config.request_path = "build/openai_native_http_request.json";
+    config.response_path = "build/openai_native_http_response.json";
+
+    const auto result = urpg::ai::invokeOpenAiCompatibleChat({{"user", "hello"}}, config, &http);
+
+    REQUIRE(result.attempted);
+    REQUIRE(result.success);
+    REQUIRE(result.command.find("secret-value") == std::string::npos);
+    REQUIRE(http.lastRequest.url == config.endpoint);
+    REQUIRE(http.lastRequest.headers.count("Authorization") == 1);
+    REQUIRE(http.lastRequest.headers.at("Authorization").find("secret-value") != std::string::npos);
+    REQUIRE(http.lastRequest.jsonBody["model"] == "native-http-test");
 }
 
 TEST_CASE("OpenAI-compatible provider profiles cover local and hosted gateways", "[ai][chat][provider][ui]") {

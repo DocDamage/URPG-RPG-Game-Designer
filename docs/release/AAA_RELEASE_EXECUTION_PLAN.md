@@ -72,7 +72,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   4. Keep bounded bootstrap mode only for tests/dev smoke.
   5. Update export logs to state whether output is playable or bootstrap-only.
 - Acceptance criteria: Release export cannot silently produce marker/bootstrap artifacts.
-- Verification command or manual test: `ctest --preset dev-all -R "ExportPackager|ExportValidator" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "export_validator" --output-on-failure`
 
 ## Phase 1 - Unwired UI, Routes, Handlers, And Feature Surfaces
 
@@ -328,7 +328,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   4. Emit startup diagnostics with bundle path and reason.
   5. Add tamper tests through runtime startup.
 - Acceptance criteria: Tampered `data.pck` prevents runtime boot/use.
-- Verification command or manual test: `ctest --preset dev-all -R "runtime bundle|tamper" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "runtime-side signature enforcement|export_validator" --output-on-failure`
 
 ### Task P4-03
 

@@ -37,6 +37,7 @@ class OpenGLRenderer : public RendererBackend {
     void beginFrame() override;
     void renderBatches(const std::vector<SpriteDrawData>& batches) override;
     void endFrame() override;
+    void setAutoPresent(bool enabled) override { m_autoPresent = enabled; }
     void processFrameCommands(const std::vector<FrameRenderCommand>& commands) override;
     void processCommands(const std::vector<std::shared_ptr<RenderCommand>>& commands) override;
     void shutdown() override;
@@ -77,6 +78,7 @@ class OpenGLRenderer : public RendererBackend {
     int m_viewportHeight = 480;
     bool m_immediatePipelineReady = false;
     bool m_texturedPipelineReady = false;
+    bool m_autoPresent = true;
     RuntimeAssetMode m_runtimeAssetMode = RuntimeAssetMode::Development;
 
     std::map<std::string, std::shared_ptr<GLTexture>> m_textures;

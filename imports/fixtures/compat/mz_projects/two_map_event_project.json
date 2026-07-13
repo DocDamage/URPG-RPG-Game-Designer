@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "two_map_event_project",
+  "displayName": "Two Map Event Project Descriptor",
+  "sourceLicense": "repo_owned",
+  "legalUse": "repo_owned",
+  "sourceNotes": "Synthetic descriptor for expanded MZ-style event routing evidence. It includes no RPG Maker project payloads.",
+  "fixtureScope": {
+    "copyrightedRpgMakerPayloadsIncluded": false,
+    "descriptorOnly": true,
+    "nativeReferenceOnly": true
+  },
+  "maps": {
+    "count": 2,
+    "notes": "Town and interior map descriptors exercise transfer and switch-driven event flow."
+  },
+  "events": {
+    "count": 6,
+    "supportedCommandCount": 18,
+    "unsupportedCommandCount": 0,
+    "commandSet": [
+      "change_gold",
+      "change_item",
+      "change_self_switch",
+      "change_switch",
+      "change_variable",
+      "conditional_branch",
+      "control_timer",
+      "fadein_screen",
+      "fadeout_screen",
+      "move_route",
+      "play_bgm",
+      "play_se",
+      "show_choices",
+      "show_text",
+      "transfer_player",
+      "wait"
+    ]
+  },
+  "plugins": {
+    "count": 10,
+    "fixtureManifestDirectory": "tests/compat/fixtures/plugins"
+  },
+  "saves": {
+    "count": 2,
+    "notes": "Descriptor covers pre-transfer and post-transfer save-state comparisons."
+  },
+  "assets": {
+    "count": 0,
+    "notes": "No RTP, storefront, or third-party art/audio assets are included."
+  },
+  "expectedCoverage": {
+    "importConfidence": "high",
+    "migrationConfidence": "medium",
+    "runtimeParityClaim": false,
+    "visualParityClaim": false
+  }
+}

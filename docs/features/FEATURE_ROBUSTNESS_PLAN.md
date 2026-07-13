@@ -25,6 +25,12 @@ Each lane should land as native project data, schema coverage when data-driven, 
 
 The chatbot and WYSIWYG bridge now has a native coverage report. Release top-level editor panels are indexed into chatbot knowledge as searchable `editor_panel` entries, AI capabilities must declare a WYSIWYG surface and at least one tool, and the asset lane is checked for both WYSIWYG panel registration and asset import/promotion tool coverage. The report is surfaced through both `AiAssistantPanel` and `ChatbotComponent`, with `AssetLibrarySnapshot` injection so the editor and chatbot can show asset action readiness alongside feature/tool coverage.
 
+## Runtime-First Preview Spine
+
+The first runtime-first WYSIWYG preview spine slice is landed for dialogue/message preview, event-command graph preview, and export preview. These panels now expose an inspectable `WysiwygPreviewSession` with route id, surface id, saved source id, runtime trace rows, summary rows, diagnostics, evidence bars, and conservative confidence flags. This is a shared proof language for the first three adapters, not a claim that every showcase route has a bespoke runtime adapter.
+
+Confidence remains conservative: runtime-backed status requires saved source data plus runtime trace rows, diagnostics-clean status requires no blocker diagnostics, and exact-ship readiness is only available to export preview sessions with export package evidence and clean diagnostics. Broken saved data keeps diagnostics visible and blocks confidence claims instead of allowing editor-only previews to masquerade as shipping truth.
+
 ## Asset Action Rows
 
 Asset action recommendations are shared by the WYSIWYG asset browser and chatbot snapshots through `buildAssetActionRows()`. Rows expose preview metadata, tags, usage references, status badges, promote/archive button enablement, disabled reasons, aggregate sequence metadata for large animation packs, governed promotion status, promoted path, license id, runtime package inclusion, release-required state, promotion diagnostics, and recommendations such as `promote`, `archive_duplicate`, `add_license_evidence`, `fix_missing_file`, `convert_or_replace`, `ready`, and `archived`.

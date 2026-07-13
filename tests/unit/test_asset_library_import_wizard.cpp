@@ -131,6 +131,59 @@ TEST_CASE("AssetLibraryModel exposes global import sessions and review queues",
     REQUIRE((*ready)["promotable"] == true);
 }
 
+TEST_CASE("AssetLibraryModel persists loose-spritesheet slicing in the governed import manifest",
+          "[assets][asset_library][editor][asset_import][sprite]") {
+    const auto root = std::filesystem::temp_directory_path() / "urpg_sprite_slice_import";
+    std::error_code cleanupError;
+    std::filesystem::remove_all(root, cleanupError);
+    const auto manifestPath = root / "catalog" / "import_sessions" / "sprite-session.json";
+
+    urpg::assets::AssetImportSession session;
+    session.sessionId = "sprite-session";
+    session.managedSourceRoot = (root / "sources" / "sprite-session").generic_string();
+    session.status = urpg::assets::AssetImportStatus::ReviewReady;
+    urpg::assets::AssetImportRecord record;
+    record.assetId = "asset.hero.sheet";
+    record.relativePath = "hero.png";
+    record.extension = ".png";
+    record.mediaKind = "image";
+    record.width = 192;
+    record.height = 128;
+    record.runtimeReady = true;
+    record.licenseRequired = false;
+    session.records.push_back(record);
+    std::filesystem::create_directories(manifestPath.parent_path());
+    {
+        std::ofstream output(manifestPath, std::ios::binary);
+        output << urpg::assets::serializeAssetImportSession(session).dump(2) << '\n';
+    }
+
+    urpg::editor::AssetLibraryModel model;
+    REQUIRE(model.loadImportSessionManifest(manifestPath));
+    const auto saved = model.setImportRecordSpriteSheetSlice("sprite-session", "asset.hero.sheet", 32, 32, 4, 6,
+                                                              "down", true, 0.12f);
+    REQUIRE(saved.value("success", false));
+    REQUIRE(saved.value("code", "") == "sprite_slice_saved");
+
+    std::ifstream input(manifestPath, std::ios::binary);
+    const auto persisted = nlohmann::json::parse(input);
+    const auto slice = persisted["records"][0]["authoredMetadata"]["sprite_sheet_slice"];
+    REQUIRE(slice.value("frame_width", 0) == 32);
+    REQUIRE(slice.value("frame_height", 0) == 32);
+    REQUIRE(slice.value("rows", 0) == 4);
+    REQUIRE(slice.value("columns", 0) == 6);
+    REQUIRE(slice.value("direction", "") == "down");
+    REQUIRE(slice.value("loop", false));
+    REQUIRE(slice.value("frame_duration", 0.0f) == 0.12f);
+    input.close();
+
+    const auto invalid = model.setImportRecordSpriteSheetSlice("sprite-session", "asset.hero.sheet", 64, 64, 3, 6,
+                                                                "down", true, 0.12f);
+    REQUIRE_FALSE(invalid.value("success", true));
+    REQUIRE(invalid.value("code", "") == "sprite_slice_out_of_bounds");
+    std::filesystem::remove_all(root, cleanupError);
+}
+
 TEST_CASE("AssetLibraryPanel renders project import wizard steps and actions",
           "[assets][asset_library][editor][asset_import][wizard]") {
     urpg::editor::AssetLibraryPanel panel;
@@ -355,6 +408,43 @@ TEST_CASE("AssetLibraryPanel exposes native import picker availability",
     REQUIRE(availability.path_entry_available == true);
 }
 
+TEST_CASE("AssetLibraryPanel reports platform-specific native picker diagnostics",
+          "[assets][asset_library][editor][asset_import][wizard][picker][native_import_source_picker]") {
+    using Panel = urpg::editor::AssetLibraryPanel;
+
+    const auto windows = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::Windows, false, false);
+    REQUIRE(windows.available == true);
+    REQUIRE(windows.code == "native_import_source_picker_available");
+    REQUIRE(windows.path_entry_available == true);
+
+    const auto macos = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::MacOS, false, false);
+    REQUIRE(macos.available == true);
+    REQUIRE(macos.code == "native_import_source_picker_available");
+
+    const auto linuxPortal = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::Linux, true, false);
+    REQUIRE(linuxPortal.available == true);
+    REQUIRE(linuxPortal.code == "native_import_source_picker_available");
+
+    const auto linuxFallback = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::Linux, false, true);
+    REQUIRE(linuxFallback.available == true);
+    REQUIRE(linuxFallback.code == "native_import_source_picker_available");
+
+    const auto linuxMissing = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::Linux, false, false);
+    REQUIRE(linuxMissing.available == false);
+    REQUIRE(linuxMissing.code == "native_import_source_picker_portal_missing");
+    REQUIRE(linuxMissing.path_entry_available == true);
+
+    const auto unsupported = Panel::nativeImportSourcePickerAvailabilityForDiagnostics(
+        Panel::NativeImportSourcePickerPlatform::Unsupported, false, false);
+    REQUIRE(unsupported.available == false);
+    REQUIRE(unsupported.code == "native_import_source_picker_unsupported");
+}
+
 TEST_CASE("AssetLibraryModel requests add-source import command handoff",
           "[assets][asset_library][editor][asset_import][wizard]") {
     const auto root = uniqueTempRoot("urpg_asset_library_add_source_request");
@@ -424,6 +514,23 @@ TEST_CASE("AssetLibraryModel requests add-source with external archive extractor
     REQUIRE(std::next(extractorArg) != command.end());
     REQUIRE(*std::next(extractorArg) == "\"C:/Program Files/7-Zip/7z.exe\" x -y");
     REQUIRE(model.snapshot().import_wizard["pending_request"]["external_extractor_command"].size() == 3);
+}
+
+TEST_CASE("AssetLibraryModel carries selected archive entries into the governed importer request",
+          "[assets][asset_library][editor][asset_import][wizard][archive]") {
+    urpg::editor::AssetLibraryModel model;
+    model.setImportToolCommand({"python", "tools/assets/global_asset_import.py"});
+    const auto request = model.requestImportSource("C:/assets/hero_pack.zip", "C:/library", "import_selected_zip_001",
+                                                   "Private-project-only", {},
+                                                   {"sprites/hero.png", "sprites/portrait.png"});
+
+    REQUIRE(request["success"] == true);
+    REQUIRE(request["selected_archive_entries"] ==
+            nlohmann::json::array({"sprites/hero.png", "sprites/portrait.png"}));
+    const auto& command = request["command"];
+    REQUIRE(std::count(command.begin(), command.end(), "--selected-archive-entry") == 2);
+    REQUIRE(std::find(command.begin(), command.end(), "sprites/hero.png") != command.end());
+    REQUIRE(std::find(command.begin(), command.end(), "sprites/portrait.png") != command.end());
 }
 
 TEST_CASE("AssetLibraryModel applies configured external archive extractor to add-source requests",

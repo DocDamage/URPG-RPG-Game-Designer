@@ -42,7 +42,7 @@
       "allowsPrototypeVisuals": true,
       "allowsStarterSkin": true,
       "finalArtDirectionRequired": false,
-      "notes": "Current release visual claim is bounded starter/proof coverage, not final AAA art direction. Prototype actor, starter UI frame/chrome, starter skin metadata, and single-frame VFX proof assets are allowed only under this explicit scope."
+      "notes": "Current release visual claim is bounded starter/proof coverage with a curated final starter environment/VFX slice, not final full-project AAA art direction. Prototype actor, starter UI frame/chrome, starter skin metadata, and selected CC0 environment/VFX assets are allowed only under this explicit scope."
     },
     "assets": [
       {
@@ -80,6 +80,78 @@
         "licenseCleared": true,
         "distribution": "bundled",
         "notes": "Bounded battle actor/enemy placeholder asset."
+      },
+      {
+        "id": "release.title.caverns_background",
+        "surface": "title",
+        "category": "background",
+        "required": true,
+        "source": "asset_bundle",
+        "bundleId": "BND-005",
+        "path": "imports/normalized/src012_cc0_tiles_vfx/backgrounds/caverns_background.png",
+        "licenseCleared": true,
+        "distribution": "bundled",
+        "notes": "Curated final starter title background asset from the SRC-012 CC0/public-domain art slice."
+      },
+      {
+        "id": "release.map.caverns_tiles",
+        "surface": "map",
+        "category": "tileset",
+        "required": true,
+        "source": "asset_bundle",
+        "bundleId": "BND-005",
+        "path": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_tiles.png",
+        "licenseCleared": true,
+        "distribution": "bundled",
+        "notes": "Curated final starter map tileset asset from the SRC-012 CC0/public-domain art slice."
+      },
+      {
+        "id": "release.map.caverns_back_walls",
+        "surface": "map",
+        "category": "tileset",
+        "required": true,
+        "source": "asset_bundle",
+        "bundleId": "BND-005",
+        "path": "imports/normalized/src012_cc0_tiles_vfx/tilesets/caverns_back_walls.png",
+        "licenseCleared": true,
+        "distribution": "bundled",
+        "notes": "Curated final starter map back-wall tileset asset from the SRC-012 CC0/public-domain art slice."
+      },
+      {
+        "id": "release.map.grunge_tileset",
+        "surface": "map",
+        "category": "tileset",
+        "required": true,
+        "source": "asset_bundle",
+        "bundleId": "BND-005",
+        "path": "imports/normalized/src012_cc0_tiles_vfx/tilesets/grunge_tileset.png",
+        "licenseCleared": true,
+        "distribution": "bundled",
+        "notes": "Curated final starter alternate map tileset asset from the SRC-012 CC0/public-domain art slice."
+      },
+      {
+        "id": "release.map.torch_ambience",
+        "surface": "map",
+        "category": "vfx_frame",
+        "required": true,
+        "source": "asset_bundle",
+        "bundleId": "BND-005",
+        "path": "imports/normalized/src012_cc0_tiles_vfx/vfx/torch_a_01.png",
+        "licenseCleared": true,
+        "distribution": "bundled",
+        "notes": "Curated final starter ambience frame from the SRC-012 CC0/public-domain art slice."
+      },
+      {
+        "id": "release.battle.hit_effect_sheet",
+        "surface": "battle",
+        "category": "vfx_sheet",
+        "required": true,
+        "source": "asset_bundle",
+        "bundleId": "BND-005",
+        "path": "imports/normalized/src012_cc0_tiles_vfx/vfx/hit_effect_sheet.png",
+        "licenseCleared": true,
+        "distribution": "bundled",
+        "notes": "Curated final starter battle VFX sheet from the SRC-012 CC0/public-domain art slice."
       },
       {
         "id": "release.ui.silent_feedback_policy",

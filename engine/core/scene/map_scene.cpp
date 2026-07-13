@@ -571,7 +571,7 @@ void MapScene::startDialogue(const std::vector<urpg::message::DialoguePage>& pag
 }
 
 void MapScene::startChatbot(const std::string& systemPrompt, std::shared_ptr<urpg::ai::IChatService> service) {
-    m_activeChatbot = std::make_unique<urpg::ai::ChatbotComponent>(service);
+    m_activeChatbot = std::make_shared<urpg::ai::ChatbotComponent>(service);
     m_activeChatbot->setSystemPrompt(systemPrompt);
 }
 

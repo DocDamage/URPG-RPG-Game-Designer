@@ -12,7 +12,8 @@ namespace {
 
 const std::vector<std::string>& CanonicalReleasePanelIds() {
     static const std::vector<std::string> ids = {"diagnostics", "assets",  "ability", "patterns",
-                                                 "mod",         "analytics", "level_builder"};
+                                                 "mod",         "analytics", "level_builder",
+                                                 "spatial_authoring"};
     return ids;
 }
 
@@ -23,6 +24,7 @@ TEST_CASE("editor app panels have a render factory for every release top-level p
 
     const auto factoryIds = urpg::editor_app::editorAppRegisteredPanelFactoryIds();
     REQUIRE(std::find(factoryIds.begin(), factoryIds.end(), "level_builder") != factoryIds.end());
+    REQUIRE(std::find(factoryIds.begin(), factoryIds.end(), "spatial_authoring") != factoryIds.end());
 }
 
 TEST_CASE("editor app panels expose exactly the canonical release factories", "[editor][app][panel]") {

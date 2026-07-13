@@ -118,6 +118,7 @@ TEST_CASE("Editor CLI preserves valid option parsing and smoke defaults", "[cli]
     REQUIRE(parsed.options.width_provided);
     REQUIRE(parsed.options.height_provided);
     REQUIRE(parsed.options.project_root == "demo");
+    REQUIRE(parsed.options.project_root_provided);
     REQUIRE(parsed.options.list_panels);
     REQUIRE(parsed.options.render_all_panels);
     REQUIRE(parsed.options.open_panel_id.has_value());
@@ -129,6 +130,7 @@ TEST_CASE("Editor CLI preserves valid option parsing and smoke defaults", "[cli]
     REQUIRE(smoke.options.headless);
     REQUIRE(smoke.options.frames == 0);
     REQUIRE_FALSE(smoke.options.width_provided);
+    REQUIRE_FALSE(smoke.options.project_root_provided);
     REQUIRE_FALSE(smoke.options.height_provided);
     REQUIRE_FALSE(smoke.options.smoke_output.empty());
     REQUIRE_FALSE(smoke.options.smoke_snapshot_root.empty());

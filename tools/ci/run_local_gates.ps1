@@ -201,6 +201,15 @@ try {
     Write-Host "== Validate CMake completeness ==" -ForegroundColor Cyan
     & "$PSScriptRoot\check_cmake_completeness.ps1"
 
+    Write-Host "== Validate generated/local paths are untracked ==" -ForegroundColor Cyan
+    & "$PSScriptRoot\check_no_generated_tracked_files.ps1"
+
+    Write-Host "== Validate production code has no shell system calls ==" -ForegroundColor Cyan
+    & "$PSScriptRoot\check_no_production_system_calls.ps1"
+
+    Write-Host "== Validate LFS release-required asset scope ==" -ForegroundColor Cyan
+    & "$PSScriptRoot\check_lfs_release_scope.ps1"
+
     Write-Host "== Configure: $ConfigurePreset ==" -ForegroundColor Cyan
     cmake --fresh --preset $ConfigurePreset
     Assert-LastExitCode "Configure preset '$ConfigurePreset'"

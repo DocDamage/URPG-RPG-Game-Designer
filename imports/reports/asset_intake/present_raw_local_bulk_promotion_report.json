@@ -1,0 +1,41 @@
+{
+  "schema": "urpg.present_raw_local_bulk_promotion.v1",
+  "generated_at": "2026-05-26T03:52:56+00:00",
+  "dry_run": false,
+  "selected_asset_count": 30628,
+  "canonical_payload_count": 14922,
+  "duplicate_payload_row_count": 15706,
+  "selected_size_bytes": 2901820892,
+  "by_root": {
+    "imports/raw/itch_assets": 396,
+    "imports/raw/third_party_assets": 30230,
+    "itch/loose": 2
+  },
+  "by_category": {
+    "background": 16,
+    "character": 7157,
+    "data": 844,
+    "font": 16,
+    "map": 17,
+    "prop": 5563,
+    "tileset": 1578,
+    "ui": 14394,
+    "vfx": 1043
+  },
+  "by_ext": {
+    "csv": 28,
+    "efkefc": 902,
+    "efkmat": 6,
+    "efkmodel": 48,
+    "gif": 36,
+    "json": 816,
+    "png": 28759,
+    "tmx": 15,
+    "tsx": 2,
+    "woff": 16
+  },
+  "bundle": "imports/manifests/asset_bundles/BND-010.json",
+  "source_manifest": "imports/manifests/asset_sources/SRC-014.json",
+  "attribution_record": "imports/reports/asset_intake/attribution/BND-010_present_raw_local_bulk.json",
+  "normalized_root": "imports/normalized/present_raw_local_bulk"
+}

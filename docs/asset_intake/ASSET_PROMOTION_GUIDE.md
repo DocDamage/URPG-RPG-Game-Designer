@@ -193,6 +193,24 @@ The first promoted result from those local drops is `BND-005`:
 
 `BND-005` promotes only six selected `SRC-012` Ansimuz/GoDoGenUI tiles/VFX PNGs whose local license files state CC0/public-domain style terms. The rest of `SRC-011` and `SRC-012` remains local quarantine until per-pack license evidence is reviewed.
 
+### LFS and Final-Art Scope Reconciliation
+
+Current-branch LFS scope is governed by:
+
+```powershell
+.\tools\ci\check_lfs_release_scope.ps1
+```
+
+The gate fails when release-required app assets are LFS-tracked or when any LFS
+path falls outside the known governed roots. It writes the current summary to
+`imports/reports/asset_intake/lfs_release_scope_report.json`; the human-readable
+scope record is `docs/asset_intake/LFS_SCOPE_RECONCILIATION.md`.
+
+Final-quality art/content claims are governed separately by
+`docs/asset_intake/FINAL_ART_CONTENT_SCOPE.md`. Deferred normalized library
+payloads may be browsed and selected, but they are not final art direction and
+are not shipped by default.
+
 ### Promotion Manifest Schema Example
 
 Individual governed asset records use `content/schemas/asset_promotion_manifest.schema.json`:
@@ -322,3 +340,4 @@ Target integrations by priority:
 | 2026-04-29 | Added aggregate animation-frame cataloging for `SRC-008` so very large frame drops become usable editor/library sequence records without committing raw binaries or flattening every PNG into a separate browser asset. |
 | 2026-04-29 | Repointed generator candidate cataloging at the ingested raw refresh path after archiving already-ingested local source-drop folders out of the project root. |
 | 2026-04-30 | Added governed per-asset promotion manifests, schema validation, package/readiness diagnostics, and WYSIWYG asset action row projection. |
+| 2026-05-27 | Added LFS scope reconciliation and final-art/content claim boundaries for deferred normalized library payloads. |

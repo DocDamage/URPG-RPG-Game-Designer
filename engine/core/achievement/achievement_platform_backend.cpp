@@ -1,42 +1,16 @@
 #include "engine/core/achievement/achievement_platform_backend.h"
 
+#include "engine/core/platform/process_runner.h"
+
 #include <chrono>
 #include <algorithm>
-#include <cstdlib>
 #include <filesystem>
 #include <fstream>
-#include <sstream>
 #include <utility>
 
 namespace urpg::achievement {
 
 namespace {
-
-std::string quoteCommandArg(const std::string& value) {
-#ifdef _WIN32
-    std::string quoted = "\"";
-    for (const char ch : value) {
-        if (ch == '"') {
-            quoted += "\\\"";
-        } else {
-            quoted += ch;
-        }
-    }
-    quoted += "\"";
-    return quoted;
-#else
-    std::string quoted = "'";
-    for (const char ch : value) {
-        if (ch == '\'') {
-            quoted += "'\\''";
-        } else {
-            quoted += ch;
-        }
-    }
-    quoted += "'";
-    return quoted;
-#endif
-}
 
 std::filesystem::path writeUpdatePayload(const AchievementPlatformUpdate& update) {
     const auto unique = std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
@@ -124,35 +98,37 @@ AchievementPlatformResult CommandAchievementPlatformBackend::submitProgress(cons
         return result;
     }
 
-    std::ostringstream command;
-    command << quoteCommandArg(m_executable);
+    std::vector<std::string> arguments;
     for (const auto& argument : m_arguments) {
         if (argument == "{payload}") {
-            command << " " << quoteCommandArg(payloadPath.string());
+            arguments.push_back(payloadPath.string());
         } else if (argument == "{achievementId}") {
-            command << " " << quoteCommandArg(addressed.achievementId);
+            arguments.push_back(addressed.achievementId);
         } else if (argument == "{platform}") {
-            command << " " << quoteCommandArg(m_platform);
+            arguments.push_back(m_platform);
         } else {
-            command << " " << quoteCommandArg(argument);
+            arguments.push_back(argument);
         }
     }
     if (std::find(m_arguments.begin(), m_arguments.end(), "{payload}") == m_arguments.end()) {
-        command << " " << quoteCommandArg(payloadPath.string());
+        arguments.push_back(payloadPath.string());
     }
-#ifdef _WIN32
-    command << " >NUL 2>NUL";
-#else
-    command << " >/dev/null 2>/dev/null";
-#endif
 
-    const int exitCode = std::system(command.str().c_str());
+    urpg::platform::ProcessCommand command;
+    command.executable = m_executable;
+    command.arguments = std::move(arguments);
+    command.captureStdout = false;
+    command.captureStderr = false;
+    const auto processResult = urpg::platform::runProcess(command);
     std::error_code ec;
     std::filesystem::remove(payloadPath, ec);
 
-    AchievementPlatformResult result{exitCode == 0, m_platform, update.achievementId,
-                                     exitCode == 0 ? "Achievement progress submitted."
-                                                   : "Platform command backend returned failure."};
+    AchievementPlatformResult result{
+        processResult.exitCode == 0 && !processResult.timedOut && processResult.error.empty(), m_platform,
+        update.achievementId,
+        processResult.exitCode == 0 && !processResult.timedOut && processResult.error.empty()
+            ? "Achievement progress submitted."
+            : "Platform command backend returned failure."};
     m_results.push_back(result);
     return result;
 }

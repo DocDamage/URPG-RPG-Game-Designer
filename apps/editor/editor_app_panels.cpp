@@ -7,7 +7,7 @@
 namespace urpg::editor_app {
 
 std::vector<std::string> editorAppRegisteredPanelFactoryIds() {
-    return {"diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder"};
+    return {"diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder", "spatial_authoring"};
 }
 
 std::vector<std::string> editorAppRegisteredNestedPanelFactoryIds() {
@@ -31,7 +31,6 @@ std::vector<std::string> editorAppRegisteredNestedPanelFactoryIds() {
         "message_inspector",
         "event_authoring",
         "save_inspector",
-        "spatial_authoring",
         "battle_presentation",
         "export_diagnostics",
         "3d_dungeon_world",

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/export/export_preview.h"
+#include "engine/core/wysiwyg/preview_session.h"
 
 #include <filesystem>
 #include <string>
@@ -57,6 +58,7 @@ public:
 
     const ExportPreviewPanelSnapshot& snapshot() const { return snapshot_; }
     const urpg::exporting::ExportPreviewResult& result() const { return result_; }
+    const urpg::wysiwyg::WysiwygPreviewSession& previewSession() const { return preview_session_; }
     bool hasRenderedFrame() const { return snapshot_.rendered; }
 
 private:
@@ -65,8 +67,10 @@ private:
     urpg::exporting::ExportPreviewDocument document_;
     std::filesystem::path workspace_root_;
     urpg::exporting::ExportPreviewResult result_;
+    urpg::wysiwyg::WysiwygPreviewSession preview_session_;
     ExportPreviewPanelSnapshot snapshot_{};
     bool loaded_ = false;
+    bool dirty_ = false;
 };
 
 } // namespace urpg::editor

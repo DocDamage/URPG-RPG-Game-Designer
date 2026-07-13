@@ -318,11 +318,13 @@ bool auditPromotedAssetBundleLicenses(const ExportConfig& config, std::vector<st
             continue;
         }
 
-        bool hasPromotedAsset = false;
+        bool hasPromotedBundledAsset = false;
         for (const auto& asset : manifest["assets"]) {
-            hasPromotedAsset = hasPromotedAsset || (asset.is_object() && asset.value("status", "") == "promoted");
+            hasPromotedBundledAsset = hasPromotedBundledAsset ||
+                                      (asset.is_object() && asset.value("status", "") == "promoted" &&
+                                       asset.value("distribution", "bundled") == "bundled");
         }
-        if (!hasPromotedAsset) {
+        if (!hasPromotedBundledAsset) {
             continue;
         }
 

@@ -4,6 +4,8 @@ Status Date: 2026-05-02
 
 This document records the current asset-library vertical slice and the local `more assets/` intake that was unpacked, cleaned, indexed, and kept as non-release raw quarantine.
 
+Current checkout note (2026-05-27): the raw/quarantine policy below remains the intended release boundary. The current 307,388-path LFS footprint is reconciled by `.\tools\ci\check_lfs_release_scope.ps1` as governed promoted-library payloads or governance evidence with zero release-required LFS paths and zero unknown LFS paths. `.\tools\ci\check_promoted_asset_library.ps1` validates the promoted manifest inventory in place without removing or untracking GitHub payloads. Do not describe the current branch as zero-LFS; shipped-game claims require exact project-selected payloads.
+
 ## Current Scope
 
 The asset-library slice is a conservative intake and inspection lane. It does not promote any template or subsystem to `READY`, and it does not delete duplicate production assets automatically.
@@ -216,7 +218,7 @@ Intake results:
 - A computer-wide read-only scan identified two high-signal additional local asset drops: `C:\Users\Doc\Downloads\AssetsForMyGame` and `C:\Users\Doc\Desktop\Projects\GoDoGenUI\godogenwithui-master\assets`.
 - `SRC-011` mirrors `AssetsForMyGame` into ignored raw quarantine, extracts 58 ZIP/RAR archives with zero failures and 13,313 extracted files present, and catalog-normalizes 12,985 supported local-use records.
 - `SRC-012` mirrors the GoDoGenUI asset folder into ignored raw quarantine, intentionally skips duplicate ProgramData/All Users mirrors, and catalog-normalizes 29,516 supported local-use records from 46,285 mirrored files.
-- `BND-005` promotes 6 selected `SRC-012` CC0/public-domain tiles/VFX assets into `imports/normalized/src012_cc0_tiles_vfx/` with checksums and attribution metadata. The rest of `SRC-011` and `SRC-012` remains quarantine-only.
+- `BND-005` promotes 6 selected `SRC-012` CC0/public-domain tiles/VFX assets into `imports/normalized/src012_cc0_tiles_vfx/` with checksums, attribution metadata, package destinations, and release-required title/map/battle art coverage. The rest of `SRC-011` and `SRC-012` remains quarantine-only until promoted through governed bundle manifests.
 
 The raw source and extracted intake paths are intentionally ignored local quarantine, not repository payload:
 
@@ -246,7 +248,7 @@ The first promoted lane is CC0/public-domain evidence only: Lucifer UI, Screamin
 
 ## SRC-011 / SRC-012 Promotion Plan
 
-`BND-005` is the first governed promotion from the computer-wide scan follow-up, promoting a small Ansimuz/GoDoGenUI CC0/public-domain subset while leaving both new raw drops ignored and quarantined.
+`BND-005` is the first governed release-required promotion from the computer-wide scan follow-up, promoting an Ansimuz/GoDoGenUI CC0/public-domain title/map/battle art slice while leaving both new raw drops ignored and quarantined.
 
 Before any additional `SRC-011` or `SRC-012` bundle can be marked ready:
 

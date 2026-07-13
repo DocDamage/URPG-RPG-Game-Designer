@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/map/tile_layer_document.h"
+#include "engine/core/net/http_client.h"
 
 #include <nlohmann/json.hpp>
 
@@ -128,7 +129,8 @@ nlohmann::json buildCreatorProviderRequest(const CreatorCommandRequest& request)
 std::string buildCreatorProviderCurlCommand(const CreatorCommandRequest& request,
                                             const CreatorProviderTransportConfig& config);
 CreatorProviderTransportResult invokeCreatorProvider(const CreatorCommandRequest& request,
-                                                     const CreatorProviderTransportConfig& config);
+                                                     const CreatorProviderTransportConfig& config,
+                                                     urpg::net::IHttpClient* httpClient = nullptr);
 CreatorCommandPlan parseCreatorCommandPlan(const nlohmann::json& json);
 nlohmann::json extractCreatorPlanJsonFromProviderResponse(const nlohmann::json& response);
 std::vector<urpg::map::MapDiagnostic> validateCreatorCommandPlan(const CreatorCommandRequest& request,

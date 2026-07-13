@@ -58,6 +58,8 @@ imports/raw/more_assets_to_ingest/
 imports/raw/assets_for_my_game/
 imports/raw/godogenui_assets/
 imports/raw/itch_assets/loose/
+itch/loose/
+third_party/
 imports/raw/third_party_assets/aseprite/
 imports/raw/third_party_assets/rpgmaker-mz/cgmz/
 imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/
@@ -74,8 +76,7 @@ docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.docx
 .env
 .env.*
 .aider*
+.superpowers/
 .worktrees/
 
-# Third-party asset packs may include bundled generator executables.
-third_party/itch-assets/**/Elements Character Generator
-third_party/itch-assets/**/Elements Character Generator.app/
+# Retired root third-party asset drops stay local unless reclassified under imports/.

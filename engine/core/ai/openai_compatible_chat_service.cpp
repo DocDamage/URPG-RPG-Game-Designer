@@ -2,27 +2,14 @@
 
 #include <algorithm>
 #include <cctype>
-#include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <map>
 #include <sstream>
 #include <string_view>
 #include <utility>
 
 namespace {
-
-std::string quoteCommandArg(const std::string& value) {
-    std::string escaped = "\"";
-    for (const char ch : value) {
-        if (ch == '"') {
-            escaped += "\\\"";
-        } else {
-            escaped += ch;
-        }
-    }
-    escaped += "\"";
-    return escaped;
-}
 
 std::string trim(std::string value) {
     const auto notSpace = [](unsigned char ch) { return !std::isspace(ch); };
@@ -167,32 +154,26 @@ nlohmann::json buildOpenAiCompatibleChatRequest(const std::vector<ChatMessage>& 
 
 std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfig& config) {
     std::ostringstream command;
-    command << quoteCommandArg(config.curl_executable.empty() ? "curl" : config.curl_executable);
-    command << " --fail --silent --show-error";
-    command << " --max-time " << std::max(1, config.timeout_seconds) << " -X POST";
-    command << " -H " << quoteCommandArg("Content-Type: application/json");
-    if (config.stream) {
-        command << " --no-buffer";
-    }
-    if (!config.api_key.empty()) {
-        command << " -H " << quoteCommandArg("Authorization: Bearer " + config.api_key);
-    }
-    command << " --data-binary @"
-            << quoteCommandArg(config.request_path.empty() ? "chat_request.json" : config.request_path) << " -o "
-            << quoteCommandArg(config.response_path.empty() ? "chat_response.json" : config.response_path) << " "
-            << quoteCommandArg(config.endpoint.empty() ? "http://127.0.0.1:11434/v1/chat/completions"
-                                                       : config.endpoint);
+    command << "native_http_post";
+    command << " endpoint=" << (config.endpoint.empty() ? "http://127.0.0.1:11434/v1/chat/completions"
+                                                        : config.endpoint);
+    command << " timeout_seconds=" << std::max(1, config.timeout_seconds);
+    command << " request_path=" << (config.request_path.empty() ? "chat_request.json" : config.request_path);
+    command << " response_path=" << (config.response_path.empty() ? "chat_response.json" : config.response_path);
+    command << " stream=" << (config.stream ? "true" : "false");
+    command << " auth=" << (config.api_key.empty() ? "none" : "[redacted]");
     return command.str();
 }
 
 nlohmann::json buildOpenAiCompatibleStreamAdapterPlan(const OpenAiCompatibleChatConfig& config) {
     const bool fixtureReplay = !config.execute && !config.response_path.empty();
-    const bool liveCurl = config.execute && config.stream;
+    const bool liveHttpStream = config.execute && config.stream;
     return {
         {"component", "openai_compatible_stream_adapter"},
         {"stream_requested", config.stream},
-        {"transport", fixtureReplay ? "fixture_response_replay" : (liveCurl ? "curl_no_buffer" : "buffered_request")},
-        {"live_delivery", liveCurl},
+        {"transport", fixtureReplay ? "fixture_response_replay"
+                                     : (liveHttpStream ? "native_http_stream" : "native_http_buffered_request")},
+        {"live_delivery", liveHttpStream},
         {"deterministic_replay", fixtureReplay},
         {"socket_adapter_ready", true},
         {"chunk_callback", "IChatService::StreamCallback"},
@@ -329,7 +310,8 @@ nlohmann::json buildOpenAiCompatibleStreamDiagnostics(std::string_view responseT
 }
 
 OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector<ChatMessage>& history,
-                                                               const OpenAiCompatibleChatConfig& config) {
+                                                               const OpenAiCompatibleChatConfig& config,
+                                                               urpg::net::IHttpClient* httpClient) {
     OpenAiCompatibleChatTransportResult result;
     result.streaming_requested = config.stream;
     result.request_path = config.request_path.empty() ? "chat_request.json" : config.request_path;
@@ -342,6 +324,11 @@ OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector
         return result;
     }
 
+    std::error_code requestDirError;
+    const auto requestParent = std::filesystem::path(result.request_path).parent_path();
+    if (!requestParent.empty()) {
+        std::filesystem::create_directories(requestParent, requestDirError);
+    }
     std::ofstream requestFile(result.request_path);
     if (!requestFile.is_open()) {
         result.message = "request_file_open_failed";
@@ -351,52 +338,96 @@ OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector
     requestFile.close();
 
     result.attempted = true;
-    result.exit_code = std::system(result.command.c_str());
-    result.success = result.exit_code == 0 && std::filesystem::exists(result.response_path);
-    result.message = result.success ? "provider_response_written" : "provider_command_failed";
+    urpg::net::HttpRequest request;
+    request.url = config.endpoint.empty() ? "http://127.0.0.1:11434/v1/chat/completions" : config.endpoint;
+    request.headers = {{"Content-Type", "application/json"}};
+    if (!config.api_key.empty()) {
+        request.headers["Authorization"] = "Bearer " + config.api_key;
+    }
+    request.jsonBody = result.request_body;
+    request.timeout = std::chrono::seconds(std::max(1, config.timeout_seconds));
+
+    auto& client = httpClient == nullptr ? urpg::net::defaultHttpClient() : *httpClient;
+    const auto response = client.postJson(request);
+    result.exit_code = response.success() ? 0 : response.statusCode;
+    if (response.success()) {
+        std::error_code responseDirError;
+        const auto responseParent = std::filesystem::path(result.response_path).parent_path();
+        if (!responseParent.empty()) {
+            std::filesystem::create_directories(responseParent, responseDirError);
+        }
+        std::ofstream responseFile(result.response_path, std::ios::binary | std::ios::trunc);
+        if (!responseFile.is_open()) {
+            result.message = "response_file_open_failed";
+            return result;
+        }
+        responseFile << response.body;
+        result.success = responseFile.good() && std::filesystem::exists(result.response_path);
+        result.message = result.success ? "provider_response_written" : "provider_response_write_failed";
+    } else {
+        result.success = false;
+        result.message = response.error.empty() ? "provider_http_failed" : response.error;
+    }
     return result;
 }
 
 OpenAiCompatibleChatService::OpenAiCompatibleChatService(OpenAiCompatibleChatConfig config)
     : config_(std::move(config)) {}
 
-void OpenAiCompatibleChatService::requestResponse(const std::vector<ChatMessage>& history, ChatCallback callback) {
+std::shared_ptr<ChatRequestHandle>
+OpenAiCompatibleChatService::requestResponse(const std::vector<ChatMessage>& history, ChatCallback callback) {
+    auto handle = std::make_shared<ChatRequestHandle>();
     last_result_ = invokeOpenAiCompatibleChat(history, config_);
     if (!last_result_.success) {
-        callback(last_result_.message, "");
-        return;
+        if (!handle->cancelled()) {
+            callback(last_result_.message, "");
+        }
+        return handle;
     }
 
     std::ifstream responseFile(last_result_.response_path);
     if (!responseFile.is_open()) {
-        callback("provider_response_open_failed", "");
-        return;
+        if (!handle->cancelled()) {
+            callback("provider_response_open_failed", "");
+        }
+        return handle;
     }
     nlohmann::json response;
     try {
         responseFile >> response;
     } catch (const nlohmann::json::exception&) {
-        callback("provider_response_parse_failed", "");
-        return;
+        if (!handle->cancelled()) {
+            callback("provider_response_parse_failed", "");
+        }
+        return handle;
     }
     const auto parsed = parseOpenAiCompatibleChatResponse(response);
-    callback(parsed.first.empty() ? "provider_response_empty" : parsed.first, parsed.second);
+    if (!handle->cancelled()) {
+        callback(parsed.first.empty() ? "provider_response_empty" : parsed.first, parsed.second);
+    }
+    return handle;
 }
 
-void OpenAiCompatibleChatService::requestStream(const std::vector<ChatMessage>& history, StreamCallback onChunk,
-                                                ChatCallback onComplete) {
+std::shared_ptr<ChatRequestHandle>
+OpenAiCompatibleChatService::requestStream(const std::vector<ChatMessage>& history, StreamCallback onChunk,
+                                           ChatCallback onComplete) {
+    auto handle = std::make_shared<ChatRequestHandle>();
     auto streamConfig = config_;
     streamConfig.stream = true;
     last_result_ = invokeOpenAiCompatibleChat(history, streamConfig);
     if (!last_result_.success) {
-        onComplete(last_result_.message, "");
-        return;
+        if (!handle->cancelled()) {
+            onComplete(last_result_.message, "");
+        }
+        return handle;
     }
 
     std::ifstream responseFile(last_result_.response_path);
     if (!responseFile.is_open()) {
-        onComplete("provider_response_open_failed", "");
-        return;
+        if (!handle->cancelled()) {
+            onComplete("provider_response_open_failed", "");
+        }
+        return handle;
     }
     std::ostringstream buffer;
     buffer << responseFile.rdbuf();
@@ -405,7 +436,7 @@ void OpenAiCompatibleChatService::requestStream(const std::vector<ChatMessage>& 
     try {
         const auto response = nlohmann::json::parse(responseText);
         const auto parsed = parseOpenAiCompatibleChatResponse(response);
-        if (!parsed.first.empty()) {
+        if (!parsed.first.empty() && !handle->cancelled()) {
             onChunk(parsed.first);
         }
         last_result_.stream_diagnostics = {
@@ -425,19 +456,26 @@ void OpenAiCompatibleChatService::requestStream(const std::vector<ChatMessage>& 
             {"errors", nlohmann::json::array()},
             {"final_state", "completed"},
         };
-        onComplete(parsed.first.empty() ? "provider_response_empty" : parsed.first, parsed.second);
-        return;
+        if (!handle->cancelled()) {
+            onComplete(parsed.first.empty() ? "provider_response_empty" : parsed.first, parsed.second);
+        }
+        return handle;
     } catch (const nlohmann::json::exception&) {
     }
 
     last_result_.stream_diagnostics = buildOpenAiCompatibleStreamDiagnostics(responseText);
     for (const auto& chunk : last_result_.stream_diagnostics.value("chunks", nlohmann::json::array())) {
         if (chunk.is_object() && chunk.contains("text") && chunk["text"].is_string()) {
-            onChunk(chunk["text"].get<std::string>());
+            if (!handle->cancelled()) {
+                onChunk(chunk["text"].get<std::string>());
+            }
         }
     }
     const auto parsed = parseOpenAiCompatibleChatStreamResponse(responseText);
-    onComplete(parsed.first.empty() ? "provider_response_empty" : parsed.first, parsed.second);
+    if (!handle->cancelled()) {
+        onComplete(parsed.first.empty() ? "provider_response_empty" : parsed.first, parsed.second);
+    }
+    return handle;
 }
 
 } // namespace urpg::ai

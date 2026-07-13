@@ -148,6 +148,10 @@ void AnalyticsPanel::render() {
 #endif
 }
 
+void AnalyticsPanel::refreshSnapshot() {
+    rebuildSnapshot();
+}
+
 bool AnalyticsPanel::setOptIn(bool enabled) {
     if (!m_dispatcher) {
         recordAction("set_opt_in", false, "No analytics dispatcher is bound.");

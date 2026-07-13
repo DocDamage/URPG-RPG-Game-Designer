@@ -1,54 +1,10 @@
 #include "engine/core/analytics/analytics_uploader.h"
 
-#include <chrono>
-#include <cstdlib>
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include <sstream>
 #include <unordered_map>
 
 namespace urpg::analytics {
-
-namespace {
-
-std::string quoteCommandArg(const std::string& value) {
-#ifdef _WIN32
-    std::string quoted = "\"";
-    for (const char ch : value) {
-        if (ch == '"') {
-            quoted += "\\\"";
-        } else {
-            quoted += ch;
-        }
-    }
-    quoted += "\"";
-    return quoted;
-#else
-    std::string quoted = "'";
-    for (const char ch : value) {
-        if (ch == '\'') {
-            quoted += "'\\''";
-        } else {
-            quoted += ch;
-        }
-    }
-    quoted += "'";
-    return quoted;
-#endif
-}
-
-std::filesystem::path writeTempPayload(const std::string& payload) {
-    const auto unique = std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
-    const auto path = std::filesystem::temp_directory_path() / ("urpg_analytics_upload_" + unique + ".json");
-    std::ofstream out(path, std::ios::binary | std::ios::trunc);
-    if (!out) {
-        return {};
-    }
-    out << payload;
-    return out.good() ? path : std::filesystem::path{};
-}
-
-} // namespace
 
 void AnalyticsUploader::setUploadHandler(UploadHandler handler) {
     m_handler = std::move(handler);
@@ -59,6 +15,10 @@ void AnalyticsUploader::setUploadHandler(UploadHandler handler) {
 
 bool AnalyticsUploader::hasUploadHandler() const {
     return static_cast<bool>(m_handler);
+}
+
+void AnalyticsUploader::setHttpClient(std::shared_ptr<urpg::net::IHttpClient> client) {
+    m_httpClient = std::move(client);
 }
 
 void AnalyticsUploader::setBatchSize(size_t batchSize) {
@@ -103,38 +63,29 @@ void AnalyticsUploader::setHttpJsonEndpoint(AnalyticsUploadEndpoint endpoint) {
     m_uploadMode = "http_json";
     const auto configured = *m_httpEndpoint;
 
-    m_handler = [configured](const std::string& jsonPayload) {
+    const auto client = m_httpClient;
+    m_handler = [configured, client](const std::string& jsonPayload) {
         if (configured.url.empty()) {
             return false;
         }
 
-        const auto payloadPath = writeTempPayload(jsonPayload);
-        if (payloadPath.empty()) {
+        const auto payload = nlohmann::json::parse(jsonPayload, nullptr, false);
+        if (payload.is_discarded()) {
             return false;
         }
 
-        std::ostringstream command;
-        command << quoteCommandArg(configured.curlExecutable.empty() ? "curl" : configured.curlExecutable)
-                << " -fsS -X POST"
-                << " -H " << quoteCommandArg("Content-Type: application/json");
+        urpg::net::HttpRequest request;
+        request.url = configured.url;
+        request.headers = {{"Content-Type", "application/json"}};
         for (const auto& [key, value] : configured.headers) {
-            command << " -H " << quoteCommandArg(key + ": " + value);
+            request.headers[key] = value;
         }
         if (!configured.bearerToken.empty()) {
-            command << " -H " << quoteCommandArg("Authorization: Bearer " + configured.bearerToken);
+            request.headers["Authorization"] = "Bearer " + configured.bearerToken;
         }
-        command << " --data-binary " << quoteCommandArg("@" + payloadPath.string())
-                << " " << quoteCommandArg(configured.url);
-#ifdef _WIN32
-        command << " >NUL 2>NUL";
-#else
-        command << " >/dev/null 2>/dev/null";
-#endif
-
-        const int exitCode = std::system(command.str().c_str());
-        std::error_code ec;
-        std::filesystem::remove(payloadPath, ec);
-        return exitCode == 0;
+        request.jsonBody = payload;
+        auto& httpClient = client == nullptr ? urpg::net::defaultHttpClient() : *client;
+        return httpClient.postJson(request).success();
     };
 }
 

@@ -48,6 +48,7 @@ IMAGE_EXTS = {
     "gif",
     "bmp",
     "webp",
+    "svg",
     "ase",
     "aseprite",
     "tif",
@@ -100,6 +101,12 @@ def infer_pack_category(path_rel: str) -> tuple[str | None, str | None]:
     parts = path_rel.replace("\\", "/").split("/")
     pack = None
     category = None
+    if parts and parts[0] == "external":
+        category = "external-local-assets"
+        if len(parts) >= 4:
+            pack = parts[2]
+        elif len(parts) >= 2:
+            pack = parts[1]
     if "itch-assets" in parts and "packs" in parts:
         i = parts.index("packs")
         if i + 1 < len(parts):
@@ -336,22 +343,41 @@ class Catalog:
             for name in files:
                 yield base / name
 
-    def _rel(self, p: Path) -> str:
-        return str(p.resolve().relative_to(self.repo_root)).replace("\\", "/")
+    def _catalog_root(self, root: Path) -> str:
+        resolved = root.resolve()
+        try:
+            return resolved.relative_to(self.repo_root).as_posix()
+        except ValueError:
+            drive = slugify(resolved.drive.rstrip(":") or "root")
+            return f"external/{drive}-{slugify(resolved.name)}"
+
+    def _rel(self, p: Path, roots: list[Path]) -> str:
+        resolved = p.resolve()
+        try:
+            return resolved.relative_to(self.repo_root).as_posix()
+        except ValueError:
+            for root in roots:
+                try:
+                    relative = resolved.relative_to(root.resolve())
+                except ValueError:
+                    continue
+                root_id = self._catalog_root(root)
+                return root_id if relative == Path(".") else f"{root_id}/{relative.as_posix()}"
+        raise ValueError(f"Asset path is outside every configured index root: {resolved}")
 
     def _source_root_rel(self, p: Path, roots: list[Path]) -> str:
         ap = p.resolve()
         for r in roots:
             rr = r.resolve()
-            if r.is_dir() and str(ap).startswith(str(rr)):
-                return str(rr.relative_to(self.repo_root)).replace("\\", "/")
+            if r.is_dir() and ap.is_relative_to(rr):
+                return self._catalog_root(rr)
             if r.is_file() and ap == rr:
-                return str(rr.relative_to(self.repo_root)).replace("\\", "/")
+                return self._catalog_root(rr)
         return "."
 
     def _existing_by_abs(self) -> dict[str, sqlite3.Row]:
         rows = self.conn.execute(
-            "SELECT id,path_abs,path_rel,size_bytes,mtime_ns,sha256,missing FROM assets"
+            "SELECT id,path_abs,path_rel,source_root,size_bytes,mtime_ns,sha256,media_kind,missing FROM assets"
         ).fetchall()
         return {r["path_abs"]: r for r in rows}
 
@@ -425,14 +451,17 @@ class Catalog:
             ],
         )
 
-    def index(self, roots: list[Path], force: bool = False) -> dict[str, int]:
+    def index(
+        self,
+        roots: list[Path],
+        force: bool = False,
+        include_kinds: set[str] | None = None,
+        checkpoint_every: int = 0,
+        hash_files: bool = True,
+    ) -> dict[str, int]:
         now = now_utc()
-        roots_json = json.dumps(
-            [
-                str(r.resolve().relative_to(self.repo_root)).replace("\\", "/")
-                for r in roots
-            ]
-        )
+        root_ids = {self._catalog_root(root) for root in roots}
+        roots_json = json.dumps(sorted(root_ids))
         cur = self.conn.cursor()
         cur.execute(
             "INSERT INTO scan_runs(started_at,roots_json) VALUES(?,?)",
@@ -444,19 +473,39 @@ class Catalog:
         seen: set[str] = set()
         files_seen = files_indexed = files_skipped = 0
 
+        def checkpoint() -> None:
+            if checkpoint_every <= 0 or files_seen % checkpoint_every != 0:
+                return
+            self.conn.commit()
+            print(
+                json.dumps(
+                    {
+                        "files_seen": files_seen,
+                        "files_indexed": files_indexed,
+                        "files_skipped": files_skipped,
+                    }
+                ),
+                file=sys.stderr,
+                flush=True,
+            )
+
         for root in roots:
             for p in self._iter_files(root):
                 files_seen += 1
+                ext = p.suffix.lower().lstrip(".")
+                kind = infer_kind(ext)
+                if include_kinds and kind not in include_kinds:
+                    checkpoint()
+                    continue
                 try:
                     st = p.stat()
                 except OSError:
+                    checkpoint()
                     continue
                 p_abs = str(p.resolve())
-                p_rel = self._rel(p)
+                p_rel = self._rel(p, roots)
                 src_root = self._source_root_rel(p, roots)
                 seen.add(p_abs)
-                ext = p.suffix.lower().lstrip(".")
-                kind = infer_kind(ext)
                 old = existing.get(p_abs)
                 unchanged = (
                     old is not None
@@ -476,9 +525,10 @@ class Catalog:
                         (p_rel, src_root, kind, pack, category, now, scan_id, p_abs),
                     )
                     files_skipped += 1
+                    checkpoint()
                     continue
 
-                sha = sha256_file(p)
+                sha = sha256_file(p) if hash_files else None
                 width = height = duration_ms = None
                 if kind == "image":
                     size = read_image_size(p, ext)
@@ -545,9 +595,14 @@ class Catalog:
                     },
                 )
                 files_indexed += 1
+                checkpoint()
 
         removed = [
-            (now, scan_id, p_abs) for p_abs in existing.keys() if p_abs not in seen
+            (now, scan_id, p_abs)
+            for p_abs, row in existing.items()
+            if row["source_root"] in root_ids
+            and (not include_kinds or row["media_kind"] in include_kinds)
+            and p_abs not in seen
         ]
         if removed:
             cur.executemany(
@@ -648,7 +703,8 @@ class Catalog:
 def resolve_roots(repo_root: Path, roots: list[str]) -> list[Path]:
     out: list[Path] = []
     for root in roots:
-        p = (repo_root / root).resolve()
+        candidate = Path(root)
+        p = candidate.resolve() if candidate.is_absolute() else (repo_root / candidate).resolve()
         if p.exists():
             out.append(p)
     return out
@@ -666,7 +722,18 @@ def cmd_index(cat: Catalog, args: argparse.Namespace) -> int:
     if not roots:
         print("No valid index roots.", file=sys.stderr)
         return 2
-    print(json.dumps(cat.index(roots=roots, force=args.force), indent=2))
+    print(
+        json.dumps(
+            cat.index(
+                roots=roots,
+                force=args.force,
+                include_kinds=set(args.kinds) if args.kinds else None,
+                checkpoint_every=args.checkpoint_every,
+                hash_files=not args.skip_hash,
+            ),
+            indent=2,
+        )
+    )
     return 0
 
 
@@ -721,6 +788,23 @@ def parser() -> argparse.ArgumentParser:
     idx = sub.add_parser("index", help="Incremental index scan.")
     idx.add_argument("--roots", nargs="*", help="Relative roots to index.")
     idx.add_argument("--force", action="store_true", help="Re-index unchanged files.")
+    idx.add_argument(
+        "--kinds",
+        nargs="*",
+        choices=("image", "audio", "video", "archive", "text-data", "binary"),
+        help="Only index selected media kinds. Other existing kinds remain unchanged.",
+    )
+    idx.add_argument(
+        "--checkpoint-every",
+        type=int,
+        default=1000,
+        help="Commit progress and print a status row after this many visited files (0 disables checkpoints).",
+    )
+    idx.add_argument(
+        "--skip-hash",
+        action="store_true",
+        help="Skip SHA-256 during fast discovery. Re-run with --force later to populate duplicate hashes.",
+    )
 
     f = sub.add_parser("find", help="Search catalog.")
     f.add_argument("--query", help="FTS query (optional).")

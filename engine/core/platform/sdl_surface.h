@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/platform/platform_surface.h"
+#include <functional>
 #include <string>
 
 // SDL2 is required for this implementation.
@@ -14,6 +15,8 @@ namespace urpg {
  */
 class SDLSurface : public IPlatformSurface {
   public:
+    using EventCallback = std::function<void(const void*)>;
+
     SDLSurface() = default;
     SDLSurface(const std::string& title, int width, int height);
     virtual ~SDLSurface();
@@ -26,10 +29,13 @@ class SDLSurface : public IPlatformSurface {
 
     // SDL-specific accessors
     SDL_Window* getNativeWindow() const { return m_window; }
+    void* getNativeGlContext() const { return m_glContext; }
+    void setEventCallback(EventCallback callback) { m_eventCallback = std::move(callback); }
 
   private:
     SDL_Window* m_window = nullptr;
     void* m_glContext = nullptr;
+    EventCallback m_eventCallback;
     bool m_isInitialized = false;
 };
 

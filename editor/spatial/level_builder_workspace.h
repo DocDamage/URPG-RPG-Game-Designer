@@ -31,7 +31,8 @@ class LevelBuilderWorkspace : public EditorPanel {
         Validate = 1,
         Playtest = 2,
         Package = 3,
-        SupportingSpatial = 4,
+        Perspective2D = 4,
+        SupportingSpatial = Perspective2D,
     };
 
     struct ToolbarAction {
@@ -143,7 +144,8 @@ class LevelBuilderWorkspace : public EditorPanel {
         bool visible = true;
         bool native_level_editor = true;
         bool grid_part_document_is_source_of_truth = true;
-        bool legacy_spatial_tools_are_supporting = true;
+        bool perspective_2d_is_first_class = true;
+        bool legacy_spatial_tools_are_supporting = false;
         bool has_document = false;
         bool has_catalog = false;
         bool has_spatial_overlay = false;
@@ -165,6 +167,7 @@ class LevelBuilderWorkspace : public EditorPanel {
         GridPartPlacementPanel::RenderSnapshot placement;
         GridPartInspectorPanel::RenderSnapshot inspector;
         GridPartPlaytestPanel::RenderSnapshot playtest;
+        SpatialAuthoringWorkspace::RenderSnapshot perspective_2d;
         SpatialAuthoringWorkspace::RenderSnapshot supporting_spatial;
         ValidationSummary validation;
         PackageSummary package;
@@ -201,6 +204,9 @@ class LevelBuilderWorkspace : public EditorPanel {
     AuthoringCommandResult MarkPerformanceBudgetPassed();
     AuthoringCommandResult MarkHumanReviewPassed();
     SaveDraftResult SaveLevelDraft();
+    // Serialization is not a save commit. Call this only after the caller has
+    // atomically published the serialized draft to its durable destination.
+    void MarkLevelDraftPersisted();
     LoadDraftResult LoadLevelDraft(const std::string& serialized_document_json);
     ExportResult ExportCurrentLevel();
 

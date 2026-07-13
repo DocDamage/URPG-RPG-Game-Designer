@@ -699,7 +699,7 @@ Do not leave the workspace counting tabs that do not render.
 
 **Root cause:**
 - [cloud_service.h](../engine/core/social/cloud_service.h) only provides an in-memory `LocalInMemoryCloudService`.
-- [AI_SUBSYSTEM_CLOSURE_CHECKLIST.md](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md) marks encrypted sync as ready for `ICloudService` integration.
+- [AI_SUBSYSTEM_CLOSURE_CHECKLIST.md](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md) marks protected sync as ready for `ICloudService` integration.
 - [AI_COPILOT_GUIDE.md](./AI_COPILOT_GUIDE.md) describes cloud sync as a workflow path for preserving conversations across devices.
 - [URPG_Blueprint_v3_1_Integrated.md](./archive/blueprints/URPG_Blueprint_v3_1_Integrated.md) is more accurate, noting the interface is stubbed.
 
@@ -716,7 +716,7 @@ Do not leave the workspace counting tabs that do not render.
 
 **Resolution evidence (2026-04-16):**
 - [cloud_service.h](../engine/core/social/cloud_service.h) already marks `LocalInMemoryCloudService` as in-memory and not a production cloud integration path, while rejecting live-provider initialization.
-- [AI_SUBSYSTEM_CLOSURE_CHECKLIST.md](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md) now frames encrypted sync as plumbing-only coverage backed by `LocalInMemoryCloudService`.
+- [AI_SUBSYSTEM_CLOSURE_CHECKLIST.md](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md) now frames protected sync as plumbing-only coverage backed by `LocalInMemoryCloudService`.
 - [AI_COPILOT_GUIDE.md](./AI_COPILOT_GUIDE.md) now states that the in-tree path is local-memory stub behavior, not operational cross-device persistence.
 
 ---

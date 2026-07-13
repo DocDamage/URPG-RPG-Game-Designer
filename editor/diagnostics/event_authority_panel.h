@@ -97,6 +97,7 @@ public:
 
     void ingestDiagnosticsJsonl(std::string_view diagnostics_jsonl);
     void clearDiagnostics();
+    void clearFilters();
 
     void setFilter(std::string_view event_id_filter);
     std::string getFilter() const { return event_id_filter_; }

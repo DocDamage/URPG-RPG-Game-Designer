@@ -11,8 +11,11 @@
 namespace urpg::exporting::bundle_contract {
 
 constexpr char kBundleMagic[] = "URPGPCK1";
+constexpr char kProtectionMode[] = "authenticated_release_bundle_v1";
 constexpr char kIntegrityMode[] = "fnv1a64_keyed";
-constexpr char kSignatureMode[] = "sha256_keyed_bundle_v1";
+constexpr char kSignatureModeV1[] = "hmac_sha256_bundle_v1";
+constexpr char kSignatureMode[] = "hmac_sha256_bundle_v2";
+constexpr char kBundleSignatureScope[] = "manifest_payload_target_v2";
 
 struct BundleValidationResult {
     bool valid = false;

@@ -47,7 +47,10 @@ void PropPlacementPanel::SetProjectAssetOptions(std::vector<ProjectAssetOption> 
         option.targeted_for_level_builder =
             std::find(option.picker_targets.begin(), option.picker_targets.end(), "level_builder") !=
             option.picker_targets.end();
-        if (option.targeted_for_level_builder) {
+        option.targeted_for_perspective_2d =
+            std::find(option.picker_targets.begin(), option.picker_targets.end(), "spatial_authoring") !=
+            option.picker_targets.end();
+        if (option.targeted_for_level_builder || option.targeted_for_perspective_2d) {
             m_projectAssetOptions.push_back(std::move(option));
         }
     }

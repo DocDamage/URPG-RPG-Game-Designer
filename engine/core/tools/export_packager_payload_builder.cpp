@@ -1,6 +1,7 @@
 #include "engine/core/tools/export_packager_payload_builder.h"
 
 #include "engine/core/security/resource_protector.h"
+#include "engine/core/security/script_transform.h"
 
 #include <algorithm>
 #include <cctype>
@@ -22,6 +23,16 @@ constexpr char kAssetDiscoveryManifestPath[] = "export/asset_discovery_manifest.
 constexpr char kAssetDiscoveryFormat[] = "URPG_PROJECT_ASSET_DISCOVERY_V1";
 constexpr char kAssetLicenseManifestFilename[] = "asset_licenses.json";
 constexpr char kProjectContentBundleMode[] = "project_content_bundle_v1";
+constexpr char kReleaseBootstrapScriptPath[] = "runtime/scripts/bootstrap.urpg.js";
+constexpr std::string_view kReleaseBootstrapScript = R"(// URPG release bootstrap script.
+function urpgBoot(projectEntry) {
+    const runtimeState = {
+        ready: true,
+        projectEntry: projectEntry
+    };
+    return runtimeState;
+}
+)";
 
 struct AssetDiscoveryRoot {
     std::filesystem::path sourcePath;
@@ -255,10 +266,10 @@ nlohmann::json buildProjectEntryPayload() {
 nlohmann::json buildScriptPolicyPayload() {
     return {
         {"format", "URPG_SCRIPT_EXPORT_POLICY_V1"},
-        {"scriptExportMode", "verbatim"},
-        {"supportedModes", nlohmann::json::array({"verbatim"})},
-        {"unsupportedModes", nlohmann::json::array({"obfuscateScripts"})},
-        {"failClosedForUnsupportedModes", true},
+        {"scriptExportMode", "verbatim_or_release_transform"},
+        {"supportedModes", nlohmann::json::array({"verbatim", "urpg_script_minify_v1"})},
+        {"unsupportedModes", nlohmann::json::array()},
+        {"failClosedForUnsupportedModes", false},
         {"runtimeSurface", "quickjs_compat_harness"},
         {"scriptRoots", nlohmann::json::array({
                             {
@@ -272,6 +283,43 @@ nlohmann::json buildScriptPolicyPayload() {
                                 {"exportMode", "verbatim"},
                             },
                         })},
+    };
+}
+
+std::vector<BundlePayload> buildReleaseScriptPayloads(bool enabled) {
+    if (!enabled) {
+        return {};
+    }
+
+    const auto transform = urpg::security::TransformScriptForRelease(kReleaseBootstrapScript, kReleaseBootstrapScriptPath);
+    const std::string transformedSource = transform.transformedSource + "\n";
+    const nlohmann::json transformManifest = {
+        {"format", "URPG_SCRIPT_TRANSFORM_MANIFEST_V1"},
+        {"release_authoritative", true},
+        {"transform_id", transform.transformId},
+        {"scripts", nlohmann::json::array({transform.toJson()})},
+    };
+    const std::string manifestText = transformManifest.dump(2) + "\n";
+
+    return {
+        {
+            kReleaseBootstrapScriptPath,
+            "script",
+            toBytes(transformedSource),
+            transformedSource.size(),
+            false,
+            false,
+            {},
+        },
+        {
+            "runtime/script_transform_manifest.json",
+            "script_transform_manifest",
+            toBytes(manifestText),
+            manifestText.size(),
+            false,
+            false,
+            {},
+        },
     };
 }
 
@@ -471,12 +519,6 @@ BundleBuildResult buildBundlePayloads(const ExportConfig& config) {
     BundleBuildResult result;
     auto& entries = result.payloads;
 
-    if (config.obfuscateScripts) {
-        result.errors.push_back(
-            "Unsupported script export mode: obfuscateScripts=true requires a real script transform pipeline.");
-        return result;
-    }
-
     const nlohmann::json exportMetadata = {
         {"format", "URPG_PROJECT_EXPORT_METADATA_V1"},           {"bundleMode", kProjectContentBundleMode},
         {"target", bundleTargetToString(config.target)},         {"compressAssets", config.compressAssets},
@@ -515,6 +557,9 @@ BundleBuildResult buildBundlePayloads(const ExportConfig& config) {
         false,
         {},
     });
+
+    auto releaseScriptPayloads = buildReleaseScriptPayloads(config.obfuscateScripts);
+    entries.insert(entries.end(), releaseScriptPayloads.begin(), releaseScriptPayloads.end());
 
     auto repoOwnedPayloads = collectRepoOwnedPayloads();
     entries.insert(entries.end(), repoOwnedPayloads.begin(), repoOwnedPayloads.end());
