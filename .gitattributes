@@ -49,6 +49,18 @@ content/assets/gameplay/human_rpg_portraits/00001_10_human_barbarian_0_1.png -fi
 imports/normalized/src010_cc0_starter_pack/**/*.png -filter -diff -merge -text
 imports/normalized/src012_cc0_tiles_vfx/**/*.png -filter -diff -merge -text
 imports/manifests/asset_bundles/*.json filter=lfs diff=lfs merge=lfs -text
+# These compact, release-required governance manifests are normal Git blobs.
+# Keep the large BND-002, BND-005, and BND-011 inventories in LFS, but do not
+# make fresh-clone LFS validation expect pointers for the normal JSON files.
+imports/manifests/asset_bundles/BND-001.json -filter -diff -merge text
+imports/manifests/asset_bundles/BND-003.json -filter -diff -merge text
+imports/manifests/asset_bundles/BND-004.json -filter -diff -merge text
+imports/manifests/asset_bundles/BND-006.json -filter -diff -merge text
+imports/manifests/asset_bundles/BND-007.json -filter -diff -merge text
+imports/manifests/asset_bundles/BND-008.json -filter -diff -merge text
+imports/manifests/asset_bundles/BND-009-modern-ui-starter-payload.json -filter -diff -merge text
+imports/manifests/asset_bundles/BND-010.json -filter -diff -merge text
+imports/manifests/asset_bundles/asset_bundle.schema.json -filter -diff -merge text
 imports/reports/asset_intake/release_required_asset_report.json filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
 *.jpeg filter=lfs diff=lfs merge=lfs -text
