@@ -29,6 +29,7 @@
 #include "editor/spatial/map_authoring_workspace.h"
 #include "editor/spatial/map_authoring_persistence.h"
 #include "editor/playtest/playtest_session_controller.h"
+#include "editor/ui/editor_theme.h"
 #include "engine/core/project/contextual_creator_project.h"
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/analytics/analytics_dispatcher.h"
@@ -3013,7 +3014,7 @@ bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& e
     bool rendered = false;
     if (editorShell.beginFrame(deltaSeconds)) {
 #ifdef URPG_IMGUI_ENABLED
-        if (!editorShell.snapshot().headless) {
+        if (!editorShell.snapshot().headless && (panelRuntime == nullptr || !panelRuntime->creator_mode)) {
             renderEditorChrome(editorShell, panelRuntime);
         }
 #endif
@@ -3245,6 +3246,7 @@ int main(int argc, char** argv) {
 
 #ifdef URPG_IMGUI_ENABLED
         ImGui::CreateContext();
+        urpg::editor::ui::applyEditorTheme(settingsLoad.settings.accessibility.ui_scale);
         ImGui::GetIO().DisplaySize = ImVec2(static_cast<float>(config.width), static_cast<float>(config.height));
         std::filesystem::create_directories(settingsLoad.settings.imgui_ini_path.parent_path());
         const std::string imguiIniFilename = settingsLoad.settings.imgui_ini_path.string();

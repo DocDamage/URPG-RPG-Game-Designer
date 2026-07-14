@@ -723,6 +723,8 @@ set(URPG_CORE_SOURCES
     editor/ui/menu_inspector_model.cpp
     editor/ui/menu_inspector_panel.cpp
     editor/ui/menu_preview_panel.cpp
+    editor/ui/editor_theme.cpp
+    editor/ui/editor_widgets.cpp
     editor/ability/ability_inspector_model.cpp
     editor/ability/ability_inspector_panel.cpp
     editor/ability/ability_orchestration_panel.cpp
@@ -1593,6 +1595,7 @@ add_executable(urpg_tests
     tests/unit/test_local_asset_catalog.cpp
     tests/unit/test_archive_catalog.cpp
     tests/perf/test_local_asset_catalog_perf.cpp
+    tests/perf/test_editor_creator_workflow_perf.cpp
     tests/unit/test_asset_cleanup_planner.cpp
     tests/unit/test_asset_library_panel.cpp
     tests/unit/test_asset_library_import_wizard.cpp

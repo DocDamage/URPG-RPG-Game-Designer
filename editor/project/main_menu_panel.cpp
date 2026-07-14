@@ -1,6 +1,7 @@
 #include "editor/project/main_menu_panel.h"
 
 #include "editor/project/new_project_wizard_model.h"
+#include "editor/ui/editor_theme.h"
 
 #include <algorithm>
 #include <string>
@@ -74,6 +75,8 @@ void MainMenuModel::setAssetBrowserLayout(std::string layout) {
     asset_browser_layout_ = std::move(layout);
 }
 
+void MainMenuModel::setUiScale(const float value) { ui_scale_ = std::clamp(value, 0.75f, 2.0f); }
+
 void MainMenuModel::setExternalAssetLibraryRoot(std::filesystem::path root) {
     external_asset_library_root_ = std::move(root);
 }
@@ -82,6 +85,7 @@ void MainMenuModel::applySettings(const urpg::settings::EditorSettings& settings
     onboarding_enabled_ = settings.onboarding_enabled;
     help_tips_enabled_ = settings.help_tips_enabled;
     setAssetBrowserLayout(settings.asset_browser_layout);
+    setUiScale(settings.accessibility.ui_scale);
     external_asset_library_root_ = settings.external_asset_library_root;
     last_project_ = settings.last_project;
     recent_projects_.clear();
@@ -116,6 +120,7 @@ void MainMenuModel::writeSettings(urpg::settings::EditorSettings* settings) cons
     settings->onboarding_enabled = onboarding_enabled_;
     settings->help_tips_enabled = help_tips_enabled_;
     settings->asset_browser_layout = asset_browser_layout_;
+    settings->accessibility.ui_scale = ui_scale_;
     settings->external_asset_library_root = external_asset_library_root_;
 }
 
@@ -278,6 +283,7 @@ nlohmann::json MainMenuModel::snapshot() const {
         {"onboarding_enabled", onboarding_enabled_},
         {"help_tips_enabled", help_tips_enabled_},
         {"asset_browser_layout", asset_browser_layout_},
+        {"ui_scale", ui_scale_},
         {"external_asset_library_root", external_asset_library_root_.generic_string()},
         {"settings",
          {
@@ -330,7 +336,11 @@ void MainMenuPanel::render() {
     };
 #ifdef URPG_IMGUI_ENABLED
     if (ImGui::GetCurrentContext() != nullptr) {
-        ImGui::SetNextWindowSize(ImVec2(680.0f, 520.0f), ImGuiCond_FirstUseEver);
+        const auto display = ImGui::GetIO().DisplaySize;
+        const auto width = std::clamp(display.x * 0.56f, 640.0f, 960.0f);
+        const auto height = std::clamp(display.y * 0.70f, 520.0f, 760.0f);
+        ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2((display.x - width) * 0.5f, (display.y - height) * 0.5f), ImGuiCond_Always);
         if (ImGui::Begin("URPG Maker")) {
             const auto modelSnapshot = snapshot_["model"];
             if (model_->route() == "settings") {
@@ -347,6 +357,13 @@ void MainMenuPanel::render() {
                 bool helpTips = modelSnapshot.value("help_tips_enabled", true);
                 if (ImGui::Checkbox("Help Tips", &helpTips)) {
                     model_->setHelpTipsEnabled(helpTips);
+                }
+                float uiScalePercent = modelSnapshot.value("ui_scale", 1.0f) * 100.0f;
+                if (ImGui::SliderFloat("Interface Scale", &uiScalePercent, 75.0f, 200.0f, "%.0f%%",
+                                       ImGuiSliderFlags_AlwaysClamp)) {
+                    const auto uiScale = uiScalePercent / 100.0f;
+                    model_->setUiScale(uiScale);
+                    urpg::editor::ui::applyEditorTheme(uiScale);
                 }
                 const bool compact = modelSnapshot.value("asset_browser_layout", "") == "compact_list";
                 if (ImGui::RadioButton("Left Browser Drawer", !compact)) {

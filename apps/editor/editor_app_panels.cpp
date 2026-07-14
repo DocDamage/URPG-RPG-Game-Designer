@@ -30,6 +30,7 @@ std::vector<std::string> editorAppRegisteredNestedPanelFactoryIds() {
         "spatial_ability_canvas",
         "message_inspector",
         "event_authoring",
+        "quest",
         "character_creator",
         "database",
         "vendor",

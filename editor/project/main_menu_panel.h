@@ -17,6 +17,7 @@ public:
     void setOnboardingEnabled(bool enabled);
     void setHelpTipsEnabled(bool enabled);
     void setAssetBrowserLayout(std::string layout);
+    void setUiScale(float value);
     void setExternalAssetLibraryRoot(std::filesystem::path root);
     void applySettings(const urpg::settings::EditorSettings& settings);
     void writeSettings(urpg::settings::EditorSettings* settings) const;
@@ -48,6 +49,7 @@ private:
     bool onboarding_enabled_ = true;
     bool help_tips_enabled_ = true;
     std::string asset_browser_layout_ = "left_collapsible_folder_tree";
+    float ui_scale_ = 1.0f;
     std::filesystem::path external_asset_library_root_;
     std::string last_project_;
     std::vector<std::string> recent_projects_;

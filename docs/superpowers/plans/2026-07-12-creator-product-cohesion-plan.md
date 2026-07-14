@@ -91,7 +91,12 @@ The current `development` implementation has completed the bounded M0-M5 foundat
 | M3 | Implemented preview, archive selection, promotion/attachment, and typed drag payloads | Durable drops are currently accepted by Map Tiles and Props; the other contextual consumers and complete drop-history integration remain open. |
 | M4 | Implemented unified Map routing, shared context/history, layout, diagnostics, and paired atomic save | Complete the remaining shortcut breadth and record graphical route/layout equivalence. |
 | M5 | Implemented atomic starter-project wizard and durable creator checklist | Immediate editor-owned playtest is still M6, so the original M5 milestone wording is only partially satisfied. |
-| M6-M11 | Planned | Playtest/return, recovery/relinking, contextual deep authoring/gameplay primitives, vertical slice, polish, and release qualification remain open. |
+| M6 | Implemented bounded native contract | Manual reference-machine latency and graphical return-path review remain release qualification work. |
+| M7 | Implemented bounded native contract | Forced-termination recovery still requires fresh manual evidence for the target release build. |
+| M8 | Implemented contextual authoring/gameplay contract | WYSIWYG/manual walkthrough evidence remains required before any broad completion claim. |
+| M9 | Implemented governed vertical-slice fixture and integration gate | The package and playthrough must be re-qualified from the target release build. |
+| M10 | In progress | Theme/widget foundation and bounded performance coverage are implemented; graphical, keyboard, and reference-hardware review remain open. |
+| M11 | Pending qualification | Fresh clean-clone/package gates, platform validation, credentials, and release-owner decision remain external or target-build work. |
 
 Focused evidence recorded for this checkpoint includes the creator-journey gate, 25 passing Python asset-import/catalog tests with one platform skip, thumbnail and Map-history tests, all three `dev-spatial` tests, 73 selected M1/M5 CTests, a successful editor headless frame, and successful `urpg_editor`/`urpg_tests` builds. Re-run the milestone commands before using that evidence for a new release target.
 
