@@ -12,6 +12,7 @@ struct VendorPanelSnapshot {
 class VendorPanel {
 public:
     shop::VendorCatalog& catalog() { return catalog_; }
+    void setCatalog(shop::VendorCatalog catalog);
     void setVendorId(std::string vendor_id);
     void setFlags(std::set<std::string> flags);
     VendorPanelSnapshot snapshot() const;

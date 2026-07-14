@@ -17,6 +17,8 @@
 #include "editor/dialogue/dialogue_graph_panel.h"
 #include "editor/events/event_authoring_panel.h"
 #include "editor/character/character_creator_panel.h"
+#include "editor/quest/quest_panel.h"
+#include "editor/shop/vendor_panel.h"
 #include "editor/mod/mod_manager_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/map_authoring_workspace.h"
@@ -134,6 +136,8 @@ struct EditorPanelRuntime {
     urpg::editor::CharacterCreatorModel contextual_character_model;
     urpg::editor::CharacterCreatorPanel contextual_character_panel;
     urpg::editor::DatabasePanel contextual_database_panel;
+    urpg::editor::QuestPanel contextual_quest_panel;
+    urpg::editor::VendorPanel contextual_vendor_panel;
     std::string contextual_character_name;
     urpg::ability::AbilitySystemComponent ability_runtime;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
@@ -2092,6 +2096,8 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
         ImGui::SameLine();
         openContext("quest", "Quest");
         ImGui::SameLine();
+        openContext("vendor", "Vendor");
+        ImGui::SameLine();
         openContext("ability", "Ability");
         ImGui::SameLine();
         openContext("export_diagnostics", "Export Diagnostics");
@@ -2185,6 +2191,59 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
                 if (ImGui::Button("Add Selected Quest Reward")) {
                     database.upsertItem({"reward_" + objectId, "Map Selection Reward", 0, {"quest"}});
                     runtime.contextual_creator_project.setDatabase(std::move(database));
+                    persistContextual();
+                }
+            } else if (snapshot.activeContextRoute == "quest") {
+                auto quests = runtime.contextual_creator_project.questRegistry();
+                runtime.contextual_quest_panel.setRegistry(quests);
+                runtime.contextual_quest_panel.render();
+                const auto panel = runtime.contextual_quest_panel.lastRenderSnapshot();
+                ImGui::Text("Quest definitions: %zu", panel["registry"]["quests"].size());
+                if (ImGui::Button("Create Selection Quest")) {
+                    const auto questId = "quest_" + objectId;
+                    if (quests.findQuest(questId) == nullptr) {
+                        (void)quests.registerQuest({questId, {{"complete", urpg::quest::ObjectiveState::Locked,
+                                                              {{"item", "reward_" + objectId, 1}}, ""}}});
+                        runtime.contextual_creator_project.setQuestRegistry(std::move(quests));
+                        persistContextual();
+                    } else {
+                        runtime.map_save_status = "The selected Map object already has a contextual quest.";
+                    }
+                }
+            } else if (snapshot.activeContextRoute == "vendor") {
+                auto catalog = runtime.contextual_creator_project.vendorCatalog();
+                runtime.contextual_vendor_panel.setCatalog(catalog);
+                runtime.contextual_vendor_panel.setVendorId("vendor_" + objectId);
+                runtime.contextual_vendor_panel.render();
+                const auto panel = runtime.contextual_vendor_panel.lastRenderSnapshot();
+                ImGui::Text("Visible stock: %zu | Diagnostics: %zu", panel.visible_stock_count, panel.diagnostic_count);
+                if (ImGui::Button("Create Vendor Stock for Selection")) {
+                    std::set<std::string> knownItems;
+                    for (const auto& [id, item] : runtime.contextual_creator_project.database().items()) {
+                        (void)item;
+                        knownItems.insert(id);
+                    }
+                    const auto rewardId = "reward_" + objectId;
+                    knownItems.insert(rewardId);
+                    catalog.setKnownItems(std::move(knownItems));
+                    catalog.addVendor({"vendor_" + objectId, {{rewardId, 1, 0, 0, {}}}});
+                    runtime.contextual_creator_project.setVendorCatalog(std::move(catalog));
+                    persistContextual();
+                }
+            } else if (snapshot.activeContextRoute == "ability") {
+                const auto abilityId = "ability_" + objectId;
+                const auto found = runtime.contextual_creator_project.abilities().find(abilityId);
+                auto asset = found == runtime.contextual_creator_project.abilities().end()
+                                 ? urpg::ability::AuthoredAbilityAsset{}
+                                 : found->second;
+                asset.ability_id = abilityId;
+                runtime.ability_inspector_panel.setDraftFromAsset(asset);
+                runtime.ability_inspector_panel.update(runtime.ability_runtime);
+                const auto& panel = runtime.ability_inspector_panel.getRenderSnapshot();
+                ImGui::Text("Draft ability: %s | Diagnostics: %zu", panel.draft_preview.ability_id.c_str(),
+                            panel.diagnostic_count);
+                if (ImGui::Button("Save Ability for Selection")) {
+                    runtime.contextual_creator_project.setAbility(abilityId, runtime.ability_inspector_panel.getDraftAsset());
                     persistContextual();
                 }
             } else {

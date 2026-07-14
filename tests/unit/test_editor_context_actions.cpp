@@ -23,6 +23,11 @@ TEST_CASE("editor context actions preserve map selection and explain deferred ro
     REQUIRE(character.success);
     REQUIRE(actions.returnToPrevious().success);
 
+    valid.route = "vendor";
+    const auto vendor = actions.open(valid);
+    REQUIRE(vendor.success);
+    REQUIRE(actions.returnToPrevious().success);
+
     valid.route = "battle_preview";
     const auto deferred = actions.open(valid);
     REQUIRE_FALSE(deferred.success);
