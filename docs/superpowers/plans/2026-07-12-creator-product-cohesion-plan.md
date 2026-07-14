@@ -95,10 +95,10 @@ The current `development` implementation has completed the bounded M0-M5 foundat
 | M7 | Implemented bounded native contract | Forced-termination recovery still requires fresh manual evidence for the target release build. |
 | M8 | Implemented contextual authoring/gameplay contract | WYSIWYG/manual walkthrough evidence remains required before any broad completion claim. |
 | M9 | Implemented governed vertical-slice fixture and integration gate | The package and playthrough must be re-qualified from the target release build. |
-| M10 | In progress | Theme/widget foundation and bounded performance coverage are implemented; graphical, keyboard, and reference-hardware review remain open. |
-| M11 | Pending qualification | Fresh clean-clone/package gates, platform validation, credentials, and release-owner decision remain external or target-build work. |
+| M10 | In progress | Theme/widget foundation, persisted interface scale, bounded visible-thumbnail/DPI coverage, and an initial startup visual correction are implemented; complete graphical, keyboard, and reference-hardware review remain open. |
+| M11 | Partial target-build qualification | Release configure/build, focused creator/vertical-slice/presentation/project-audit gates, install smoke, and package smoke pass. A non-sparse clean clone, platform validation, signing/notarization credentials, and release-owner decision remain external or target-build work. |
 
-Focused evidence recorded for this checkpoint includes the creator-journey gate, 25 passing Python asset-import/catalog tests with one platform skip, thumbnail and Map-history tests, all three `dev-spatial` tests, 73 selected M1/M5 CTests, a successful editor headless frame, and successful `urpg_editor`/`urpg_tests` builds. Re-run the milestone commands before using that evidence for a new release target.
+Focused evidence recorded for this checkpoint includes the creator-journey and vertical-slice gates, thumbnail and Map-history tests, all three `dev-spatial` tests, selected M1/M5 CTests, a successful editor headless frame, successful `urpg_editor`/`urpg_tests` builds, passing release install/package smoke, and passing presentation/doc/readiness/project-audit gates. The release export unit lane correctly refuses release signing without its required platform credentials. Re-run the milestone commands from a clean non-sparse checkout before using that evidence for a new release target.
 
 ---
 
