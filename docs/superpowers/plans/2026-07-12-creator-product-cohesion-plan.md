@@ -533,11 +533,11 @@ ctest --preset dev-all -R "project creation|new project|template|creator checkli
 - `editor/spatial/spatial_authoring_workspace.*`
 - `editor/spatial/map_authoring_workspace.*`
 
-- [ ] Launch the already-built runtime through `ProcessRunner` with explicit project, map, spawn, and session-manifest arguments.
-- [ ] Serialize unsaved map state into an ignored `.urpg/playtest/<session>` overlay; never pretend it is a manual save.
-- [ ] Refuse launch on blockers that would make the result misleading; allow reviewed nonblocking warnings.
-- [ ] Track starting, running, stopping, exited, crashed, and returned states.
-- [ ] Stop only the process owned by the session and clean stale overlays safely.
+- [x] Launch the already-built runtime through `ProcessRunner` with explicit project, map, spawn, and session-manifest arguments.
+- [x] Serialize unsaved map state into an ignored `.urpg/playtest/<session>` overlay; never pretend it is a manual save.
+- [x] Refuse launch on blockers that would make the result misleading; allow reviewed nonblocking warnings.
+- [x] Track starting, running, stopping, exited, crashed, and returned states.
+- [x] Stop only the process owned by the session and clean stale overlays safely.
 
 ### Task M6.2 - Return structured runtime diagnostics to editor objects
 
@@ -547,25 +547,25 @@ ctest --preset dev-all -R "project creation|new project|template|creator checkli
 - `editor/spatial/map_authoring_workspace.*`
 - related runtime and diagnostics tests
 
-- [ ] Write versioned JSONL diagnostics with map ID, object/event ID, source file, diagnostic code, severity, and timestamp.
-- [ ] Stream or ingest diagnostics without blocking the editor frame.
-- [ ] On return, show the playtest summary and focus the selected diagnostic in the correct map mode.
-- [ ] Keep stdout/stderr available as bounded secondary evidence.
+- [x] Write versioned JSONL diagnostics with map ID, object/event ID, source file, diagnostic code, severity, and timestamp.
+- [x] Stream or ingest diagnostics without blocking the editor frame.
+- [x] On return, show the playtest summary and focus the selected diagnostic in the correct map mode.
+- [x] Keep stdout/stderr available as bounded secondary evidence.
 
 ### Task M6.3 - Add safe data hot reload in bounded stages
 
-- [ ] Stage 1: fast stop/relaunch preserving editor selection and playtest target.
-- [ ] Stage 2: reload explicitly supported JSON resources—dialogue, event pages, abilities, and map metadata—at a runtime safe point.
-- [ ] Version each reload request and return accepted/rejected resource IDs with reasons.
-- [ ] Require relaunch for native code, plugin graph, schema, renderer, or incompatible map topology changes.
-- [ ] Never label a rejected reload as applied.
+- [x] Stage 1: fast stop/relaunch preserving editor selection and playtest target.
+- [x] Stage 2: reload explicitly supported JSON resources—dialogue, event pages, abilities, and map metadata—at a runtime safe point.
+- [x] Version each reload request and return accepted/rejected resource IDs with reasons.
+- [x] Require relaunch for native code, plugin graph, schema, renderer, or incompatible map topology changes.
+- [x] Never label a rejected reload as applied.
 
 ### Task M6.4 - Add playtest controls and shortcuts
 
-- [ ] Play from player start, selected tile/object, map entrance, and saved checkpoint.
-- [ ] Add Play/Stop/Restart and `F5`/`Shift+F5` bindings with remapping support.
-- [ ] Display runtime version, active overlay, target map/spawn, elapsed time, and last exit status.
-- [ ] Preserve unsaved editor state after Return To Editor.
+- [x] Play from player start, selected tile/object, map entrance, and saved checkpoint.
+- [x] Add Play/Stop/Restart and `F5`/`Shift+F5` bindings with remapping support.
+- [x] Display runtime version, active overlay, target map/spawn, elapsed time, and last exit status.
+- [x] Preserve unsaved editor state after Return To Editor.
 
 **Verification:**
 
@@ -592,18 +592,18 @@ ctest --preset dev-all -R "playtest session|grid part playtest|Perspective.*play
 - `editor/project/editor_recovery_service.cpp`
 - `tests/unit/test_editor_recovery_service.cpp`
 
-- [ ] Write ignored recovery snapshots on a configurable interval only when durable surfaces are dirty.
-- [ ] Use atomic manifests with project identity, source revisions, dirty document IDs, timestamp, app version, and checksums.
-- [ ] Retain a bounded rolling set by count and total bytes.
-- [ ] Place a session marker on successful project open and clear it only on orderly close.
-- [ ] Detect an unclean previous session and offer Preview, Restore Copy, Replace Current, Discard, or Later.
+- [x] Write ignored recovery snapshots on a configurable interval only when durable surfaces are dirty.
+- [x] Use atomic manifests with project identity, source revisions, dirty document IDs, timestamp, app version, and checksums.
+- [x] Retain a bounded rolling set by count and total bytes.
+- [x] Place a session marker on successful project open and clear it only on orderly close.
+- [x] Detect an unclean previous session and offer Preview, Restore Copy, Replace Current, Discard, or Later.
 
 ### Task M7.2 - Keep autosave separate from manual save
 
-- [ ] Autosave recovery data under `.urpg/recovery/`; do not overwrite authored project files silently.
-- [ ] Report the last manual save and last recovery snapshot separately.
-- [ ] Pause autosave during project switch, package publication, and atomic manual writes.
-- [ ] Surface per-document snapshot failures without blocking unrelated documents.
+- [x] Autosave recovery data under `.urpg/recovery/`; do not overwrite authored project files silently.
+- [x] Report the last manual save and last recovery snapshot separately.
+- [x] Pause autosave during project switch, package publication, and atomic manual writes.
+- [x] Surface per-document snapshot failures without blocking unrelated documents.
 
 ### Task M7.3 - Add missing-asset relinking
 
@@ -614,10 +614,10 @@ ctest --preset dev-all -R "playtest session|grid part playtest|Perspective.*play
 - `editor/assets/asset_relink_panel.cpp`
 - `tests/unit/test_asset_relink_service.cpp`
 
-- [ ] Match moved assets by promotion ID/hash first, then size/name as an explicitly lower-confidence suggestion.
-- [ ] Preview every reference that will change.
-- [ ] Apply relinks as one reversible command and update project attachment manifests atomically.
-- [ ] Never relink automatically to an unpromoted external source.
+- [x] Match moved assets by promotion ID/hash first, then size/name as an explicitly lower-confidence suggestion.
+- [x] Preview every reference that will change.
+- [x] Apply relinks as one reversible command and update project attachment manifests atomically.
+- [x] Never relink automatically to an unpromoted external source.
 
 **Verification:**
 
@@ -645,10 +645,10 @@ ctest --preset dev-all -R "snapshot|recovery|autosave|dirty state|asset relink|p
 - `apps/editor/main.cpp`
 - `editor/spatial/map_authoring_workspace.*`
 
-- [ ] Define context actions with stable route, object kind/ID, project path, selection payload, and return route.
-- [ ] Open deep editors as inspector tabs, modal workflows, or docked child surfaces.
-- [ ] Preserve map selection and viewport when entering and returning.
-- [ ] Keep panels Deferred until their complete integration meets the WYSIWYG done rule.
+- [x] Define context actions with stable route, object kind/ID, project path, selection payload, and return route.
+- [x] Open deep editors as inspector tabs, modal workflows, or docked child surfaces.
+- [x] Preserve map selection and viewport when entering and returning.
+- [x] Keep panels Deferred until their complete integration meets the WYSIWYG done rule.
 
 ### Task M8.2 - Wave A: event, dialogue, character, and database authoring
 
@@ -659,11 +659,11 @@ ctest --preset dev-all -R "snapshot|recovery|autosave|dirty state|asset relink|p
 - `editor/database/*`
 - relevant runtime loaders and tests
 
-- [ ] Event: author pages, conditions, commands, movement, sprite, and trigger from selected map event.
-- [ ] Dialogue: author graph/text/choices, preview, localization keys, and bind the result back to the event command.
-- [ ] Character: choose attached appearance assets, animation/slicing profile, actor data, and runtime preview.
-- [ ] Database: edit referenced actors, items, switches, variables, common events, encounters, and starting party with reference validation.
-- [ ] Each surface must provide visual authoring, live preview, saved project data, runtime execution, diagnostics, undo/redo, and tests.
+- [x] Event: author pages, conditions, commands, movement, sprite, and trigger from selected map event.
+- [x] Dialogue: author graph/text/choices, preview, localization keys, and bind the result back to the event command.
+- [x] Character: choose attached appearance assets, animation/slicing profile, actor data, and runtime preview.
+- [x] Database: edit referenced actors, items, switches, variables, common events, encounters, and starting party with reference validation.
+- [x] Each surface must provide visual authoring, live preview, saved project data, runtime execution, diagnostics, undo/redo, and tests.
 
 ### Task M8.3 - Wave B: quest, battle, ability, inventory, and economy loops
 
@@ -675,11 +675,11 @@ ctest --preset dev-all -R "snapshot|recovery|autosave|dirty state|asset relink|p
 - `editor/shop/*`
 - related runtime and tests
 
-- [ ] Bind quest steps to map events, dialogue outcomes, item changes, and battle results.
-- [ ] Launch battle preview from an encounter/event context and return results to the authoring surface.
-- [ ] Bind existing ability assets through the map/character/battle inspectors.
-- [ ] Validate item/vendor/loot references and expose runtime preview state.
-- [ ] Avoid top-level promotion unless repeated creator testing proves a separate workspace is necessary.
+- [x] Bind quest steps to map events, dialogue outcomes, item changes, and battle results.
+- [x] Launch battle preview from an encounter/event context and return results to the authoring surface.
+- [x] Bind existing ability assets through the map/character/battle inspectors.
+- [x] Validate item/vendor/loot references and expose runtime preview state.
+- [x] Avoid top-level promotion unless repeated creator testing proves a separate workspace is necessary.
 
 ### Task M8.4 - Wave C: audio, accessibility, input, and export context
 
@@ -690,10 +690,10 @@ ctest --preset dev-all -R "snapshot|recovery|autosave|dirty state|asset relink|p
 - `editor/export/*`
 - `editor/spatial/map_authoring_workspace.*`
 
-- [ ] Choose map/event/battle audio from attached project assets with preview and bus controls.
-- [ ] Run accessibility checks against the active map/menu/dialogue and focus the violating control/object.
-- [ ] Preview keyboard/controller bindings from the current project profile.
-- [ ] Open exact-ship export preview and package blockers from the Map Package mode.
+- [x] Choose map/event/battle audio from attached project assets with preview and bus controls.
+- [x] Run accessibility checks against the active map/menu/dialogue and focus the violating control/object.
+- [x] Preview keyboard/controller bindings from the current project profile.
+- [x] Open exact-ship export preview and package blockers from the Map Package mode.
 
 ### Task M8.5 - Add stable gameplay facade, Perspective 2D ordering, and bounded NPC/prop primitives
 
@@ -727,17 +727,17 @@ ctest --preset dev-all -R "snapshot|recovery|autosave|dirty state|asset relink|p
 - `docs/external-intake/repo-watchlist.md`
 - `docs/external-intake/license-matrix.md`
 
-- [ ] Expose one compact, thread-documented URPG gameplay facade for stable spawn, query, event, input, navigation, resource, and contextual-authoring operations; delegate to existing subsystem owners rather than duplicating their models.
-- [ ] Keep agent/MCP access bounded: read-only inspection by default, structured preview for durable changes, explicit apply where already authorized, stable diagnostics, and no arbitrary runtime or filesystem mutation.
-- [ ] Define one Perspective 2D ground-anchor contract used consistently by spawn placement, collision footprints, navigation destinations, interaction distance, and render ordering; prevent callers from repeatedly converting between sprite top-left and feet coordinates.
-- [ ] Add deterministic `ground`, `occluder`, and `prop` render layers, ordered by authored layer semantics, feet/render Y, and stable entity/object ID as the final tie-breaker.
-- [ ] Add typed NPC operations for move-to point/location, stop, face player, proximity observation, bounded thought/bark display, and current activity; return structured success/failure codes and reuse the existing path router/event runtime.
-- [ ] Keep NPC behavior deterministic and authored. Do not introduce hidden model calls, autonomous online simulation, or unbounded generated dialogue into the runtime loop.
-- [ ] Add stateful map-prop sets for doors, gates, chests, crops, switches, and similar objects, where each state can select an attached sprite, collision footprint, render layer, interaction metadata, and emitted event.
-- [ ] Make prop-state authoring contextual from the Map inspector, participate in shared undo/redo and dirty tracking, validate asset/event references, and round-trip through project data into runtime behavior.
-- [ ] Add concise recipes for NPC patrol/proximity, stateful doors/containers, map placement, quest/inventory hookups, HUD visibility, and save-safe stable IDs using only public URPG facades.
-- [ ] Record Capybara's fork/upstream provenance and MIT disposition before copying any expression-level implementation; prefer independent URPG-native implementations of the concepts.
-- [ ] Prove that the adoption adds no npm, browser DOM, Capybara cloud SDK, online-only asset generation, or second save/pathfinding/runtime stack to shipping URPG targets.
+- [x] Expose one compact, thread-documented URPG gameplay facade for stable spawn, query, event, input, navigation, resource, and contextual-authoring operations; delegate to existing subsystem owners rather than duplicating their models.
+- [x] Keep agent/MCP access bounded: read-only inspection by default, structured preview for durable changes, explicit apply where already authorized, stable diagnostics, and no arbitrary runtime or filesystem mutation.
+- [x] Define one Perspective 2D ground-anchor contract used consistently by spawn placement, collision footprints, navigation destinations, interaction distance, and render ordering; prevent callers from repeatedly converting between sprite top-left and feet coordinates.
+- [x] Add deterministic `ground`, `occluder`, and `prop` render layers, ordered by authored layer semantics, feet/render Y, and stable entity/object ID as the final tie-breaker.
+- [x] Add typed NPC operations for move-to point/location, stop, face player, proximity observation, bounded thought/bark display, and current activity; return structured success/failure codes and reuse the existing path router/event runtime.
+- [x] Keep NPC behavior deterministic and authored. Do not introduce hidden model calls, autonomous online simulation, or unbounded generated dialogue into the runtime loop.
+- [x] Add stateful map-prop sets for doors, gates, chests, crops, switches, and similar objects, where each state can select an attached sprite, collision footprint, render layer, interaction metadata, and emitted event.
+- [x] Make prop-state authoring contextual from the Map inspector, participate in shared undo/redo and dirty tracking, validate asset/event references, and round-trip through project data into runtime behavior.
+- [x] Add concise recipes for NPC patrol/proximity, stateful doors/containers, map placement, quest/inventory hookups, HUD visibility, and save-safe stable IDs using only public URPG facades.
+- [x] Record Capybara's fork/upstream provenance and MIT disposition before copying any expression-level implementation; prefer independent URPG-native implementations of the concepts.
+- [x] Prove that the adoption adds no npm, browser DOM, Capybara cloud SDK, online-only asset generation, or second save/pathfinding/runtime stack to shipping URPG targets.
 
 **Acceptance:** A creator can place a Perspective 2D NPC and stateful door through the Map workspace, preview correct feet-based occlusion and collision, trigger deterministic movement/state changes, and playtest the result through the same native project contracts. The local MCP/AI surface can inspect and invoke only the bounded approved facade operations with truthful diagnostics.
 
@@ -750,10 +750,10 @@ ctest --preset dev-all -R "gameplay runtime facade|Perspective.*render order|NPC
 
 ### Task M8.6 - Promotion review for each deferred surface
 
-- [ ] Record owner, creator entry point, saved contract, runtime consumer, preview, diagnostics, tests, and empty/error/disabled evidence.
-- [ ] Update registry exposure only after those fields are complete.
-- [ ] Prefer Nested exposure for contextual tools.
-- [ ] Add registry and app-shell regression coverage for every exposure change.
+- [x] Record owner, creator entry point, saved contract, runtime consumer, preview, diagnostics, tests, and empty/error/disabled evidence.
+- [x] Update registry exposure only after those fields are complete.
+- [x] Prefer Nested exposure for contextual tools.
+- [x] Add registry and app-shell regression coverage for every exposure change.
 
 **Verification:**
 
@@ -775,10 +775,10 @@ ctest --preset dev-all -R "event|dialogue|character|database|quest|battle|abilit
 - `content/examples/creator_vertical_slice/acceptance.json`
 - governed project files and manifests under the same example root
 
-- [ ] Use only repository-approved proof assets or specifically selected, attributed, promoted, and hydrated assets.
-- [ ] Include two connected maps, one player character, two NPCs, one quest, one item reward, one vendor interaction, one encounter, two abilities, one save point, menus, and an ending state.
-- [ ] Keep the story small enough to replay in under 15 minutes.
-- [ ] Document every asset source and redistribution status.
+- [x] Use only repository-approved proof assets or specifically selected, attributed, promoted, and hydrated assets.
+- [x] Include two connected maps, one player character, two NPCs, one quest, one item reward, one vendor interaction, one encounter, two abilities, one save point, menus, and an ending state.
+- [x] Keep the story small enough to replay in under 15 minutes.
+- [x] Document every asset source and redistribution status.
 
 ### Task M9.2 - Author the slice through creator-facing workflows
 
@@ -794,10 +794,10 @@ ctest --preset dev-all -R "event|dialogue|character|database|quest|battle|abilit
 - `tests/integration/test_creator_vertical_slice.cpp`
 - `tools/ci/check_creator_vertical_slice.ps1`
 
-- [ ] Validate new game, map transfer, dialogue choice, quest activation, combat result, inventory reward, ability use, vendor interaction, save, load, ending, and return to title.
-- [ ] Build a deterministic package and compare its inventory with the governed project attachments.
-- [ ] Prove no raw source, external absolute path, ignored local DB, recovery snapshot, or playtest overlay ships.
-- [ ] Emit a bounded JSON completion report.
+- [x] Validate new game, map transfer, dialogue choice, quest activation, combat result, inventory reward, ability use, vendor interaction, save, load, ending, and return to title.
+- [x] Build a deterministic package and compare its inventory with the governed project attachments.
+- [x] Prove no raw source, external absolute path, ignored local DB, recovery snapshot, or playtest overlay ships.
+- [x] Emit a bounded JSON completion report.
 
 **Verification:**
 
