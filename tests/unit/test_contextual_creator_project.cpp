@@ -38,6 +38,18 @@ TEST_CASE("contextual creator project saves and reopens native authoring data", 
     database.upsertActor({"willow_hero", "Willow", "class_guardian", 120, 12});
     database.upsertItem({"moonwell_lantern", "Moonwell Lantern", 0, {"quest"}});
     project.setDatabase(database);
+    urpg::quest::QuestRegistry quests;
+    REQUIRE(quests.registerQuest({"restore_moonwell_lantern",
+                                  {{"recover_lantern", urpg::quest::ObjectiveState::Locked,
+                                    {{"item", "moonwell_lantern", 1}}, ""}}}));
+    project.setQuestRegistry(quests);
+    urpg::shop::VendorCatalog vendors;
+    vendors.setKnownItems({"moonwell_lantern"});
+    vendors.addVendor({"rowan_tonics", {{"moonwell_lantern", 1, 0, 0, {}}}});
+    project.setVendorCatalog(vendors);
+    urpg::ability::AuthoredAbilityAsset ability;
+    ability.ability_id = "willow_strike";
+    project.setAbility(ability.ability_id, ability);
     REQUIRE(project.save().success);
 
     urpg::project::ContextualCreatorProject reopened;
@@ -47,5 +59,8 @@ TEST_CASE("contextual creator project saves and reopens native authoring data", 
     REQUIRE(reopened.dialogues().at("elder").findNode("start") != nullptr);
     REQUIRE(reopened.characters().at("willow_hero").getDisplayName() == "Willow");
     REQUIRE(reopened.database().items().contains("moonwell_lantern"));
+    REQUIRE(reopened.questRegistry().findQuest("restore_moonwell_lantern") != nullptr);
+    REQUIRE(reopened.vendorCatalog().refreshStock("rowan_tonics", {}).size() == 1);
+    REQUIRE(reopened.abilities().contains("willow_strike"));
     std::filesystem::remove_all(root);
 }

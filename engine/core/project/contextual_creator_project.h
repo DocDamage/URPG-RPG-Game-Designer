@@ -4,6 +4,9 @@
 #include "engine/core/database/rpg_database.h"
 #include "engine/core/dialogue/dialogue_graph.h"
 #include "engine/core/events/event_document.h"
+#include "engine/core/quest/quest_registry.h"
+#include "engine/core/shop/vendor_catalog.h"
+#include "engine/core/ability/authored_ability_asset.h"
 
 #include <filesystem>
 #include <map>
@@ -38,6 +41,12 @@ class ContextualCreatorProject {
     const std::map<std::string, character::CharacterIdentity>& characters() const { return characters_; }
     void setDatabase(database::RpgDatabase database);
     const database::RpgDatabase& database() const { return database_; }
+    void setQuestRegistry(quest::QuestRegistry registry);
+    const quest::QuestRegistry& questRegistry() const { return quest_registry_; }
+    void setVendorCatalog(shop::VendorCatalog catalog);
+    const shop::VendorCatalog& vendorCatalog() const { return vendor_catalog_; }
+    void setAbility(std::string id, ability::AuthoredAbilityAsset asset);
+    const std::map<std::string, ability::AuthoredAbilityAsset>& abilities() const { return abilities_; }
     const std::filesystem::path& projectRoot() const { return project_root_; }
 
   private:
@@ -48,6 +57,9 @@ class ContextualCreatorProject {
     std::map<std::string, dialogue::DialogueGraph> dialogues_;
     std::map<std::string, character::CharacterIdentity> characters_;
     database::RpgDatabase database_;
+    quest::QuestRegistry quest_registry_;
+    shop::VendorCatalog vendor_catalog_;
+    std::map<std::string, ability::AuthoredAbilityAsset> abilities_;
 };
 
 } // namespace urpg::project
