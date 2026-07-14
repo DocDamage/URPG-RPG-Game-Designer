@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <limits>
 #include <map>
+#include <mutex>
 #include <nlohmann/json.hpp>
 #include <set>
 #include <sstream>
@@ -24,6 +25,7 @@ constexpr char kAssetDiscoveryFormat[] = "URPG_PROJECT_ASSET_DISCOVERY_V1";
 constexpr char kAssetLicenseManifestFilename[] = "asset_licenses.json";
 constexpr char kProjectContentBundleMode[] = "project_content_bundle_v1";
 constexpr char kReleaseBootstrapScriptPath[] = "runtime/scripts/bootstrap.urpg.js";
+constexpr std::uintmax_t kLargeBundleManifestBytes = 1u * 1024u * 1024u;
 constexpr std::string_view kReleaseBootstrapScript = R"(// URPG release bootstrap script.
 function urpgBoot(projectEntry) {
     const runtimeState = {
@@ -180,6 +182,68 @@ std::vector<AssetDiscoveryRoot> assetDiscoveryRoots(const ExportConfig& config, 
 std::vector<std::uint8_t> readFileBytes(const std::filesystem::path& path) {
     std::ifstream in(path, std::ios::binary);
     return std::vector<std::uint8_t>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+}
+
+class BundleDistributionProbe final : public nlohmann::json_sax<nlohmann::json> {
+public:
+    using JsonSax = nlohmann::json_sax<nlohmann::json>;
+    using number_integer_t = JsonSax::number_integer_t;
+    using number_unsigned_t = JsonSax::number_unsigned_t;
+    using number_float_t = JsonSax::number_float_t;
+    using string_t = JsonSax::string_t;
+    using binary_t = JsonSax::binary_t;
+
+    bool null() override { return true; }
+    bool boolean(bool) override { return true; }
+    bool number_integer(number_integer_t) override { return true; }
+    bool number_unsigned(number_unsigned_t) override { return true; }
+    bool number_float(number_float_t, const string_t&) override { return true; }
+    bool binary(binary_t&) override { return true; }
+    bool start_object(std::size_t) override { return true; }
+    bool end_object() override { return true; }
+    bool start_array(std::size_t) override { return true; }
+    bool end_array() override { return true; }
+
+    bool key(string_t& value) override {
+        key_ = value;
+        return true;
+    }
+
+    bool string(string_t& value) override {
+        if (key_ == "distribution" && value == "bundled") {
+            foundBundledDistribution_ = true;
+            return false;
+        }
+        return true;
+    }
+
+    bool parse_error(std::size_t, const std::string&, const nlohmann::detail::exception&) override { return false; }
+
+    bool foundBundledDistribution() const { return foundBundledDistribution_; }
+
+private:
+    std::string key_;
+    bool foundBundledDistribution_ = false;
+};
+
+bool oversizedBundleCanContainBundledAsset(const std::filesystem::path& path) {
+    std::error_code error;
+    const auto size = std::filesystem::file_size(path, error);
+    if (error || size <= kLargeBundleManifestBytes) {
+        return true;
+    }
+
+    // Deferred library manifests are not export payload. Stream them to avoid
+    // building a large JSON DOM only to find that no promoted asset is bundled.
+    // Invalid input falls through to the existing DOM parse, which preserves
+    // this collector's established skip-on-malformed behavior.
+    std::ifstream in(path, std::ios::binary);
+    if (!in) {
+        return true;
+    }
+    BundleDistributionProbe probe;
+    const bool parsed = nlohmann::json::sax_parse(in, &probe);
+    return probe.foundBundledDistribution() || !parsed;
 }
 
 bool isLicenseEvidenceFile(const std::filesystem::path& path) {
@@ -343,7 +407,34 @@ std::vector<BundlePayload> collectPromotedAssetBundlePayloads(const ExportConfig
     }
     std::sort(manifestFiles.begin(), manifestFiles.end());
 
+    // The repository's deferred library manifests are immutable during an
+    // export process. Remember only their no-bundled-asset result so repeated
+    // preflight/export calls do not stream the same large inventories again.
+    // Override roots remain uncached for mutable test and tool fixtures.
+    static std::mutex defaultDeferredManifestCacheMutex;
+    static std::map<std::filesystem::path, bool> defaultDeferredManifestCache;
+    const bool useDefaultManifestCache = config.assetBundleManifestRootOverride.empty();
+
     for (const auto& manifestPath : manifestFiles) {
+        bool canContainBundledAsset = true;
+        if (useDefaultManifestCache) {
+            std::scoped_lock lock(defaultDeferredManifestCacheMutex);
+            const auto cached = defaultDeferredManifestCache.find(manifestPath);
+            if (cached != defaultDeferredManifestCache.end()) {
+                canContainBundledAsset = cached->second;
+            } else {
+                canContainBundledAsset = oversizedBundleCanContainBundledAsset(manifestPath);
+                if (!canContainBundledAsset) {
+                    defaultDeferredManifestCache.emplace(manifestPath, false);
+                }
+            }
+        } else {
+            canContainBundledAsset = oversizedBundleCanContainBundledAsset(manifestPath);
+        }
+        if (!canContainBundledAsset) {
+            continue;
+        }
+
         nlohmann::json manifest;
         try {
             const auto manifestBytes = readFileBytes(manifestPath);
