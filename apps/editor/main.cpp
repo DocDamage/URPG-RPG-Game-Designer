@@ -19,6 +19,7 @@
 #include "editor/character/character_creator_panel.h"
 #include "editor/quest/quest_panel.h"
 #include "editor/shop/vendor_panel.h"
+#include "editor/battle/battle_preview_panel.h"
 #include "editor/mod/mod_manager_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/map_authoring_workspace.h"
@@ -138,6 +139,8 @@ struct EditorPanelRuntime {
     urpg::editor::DatabasePanel contextual_database_panel;
     urpg::editor::QuestPanel contextual_quest_panel;
     urpg::editor::VendorPanel contextual_vendor_panel;
+    urpg::battle::BattleFlowController contextual_battle_flow;
+    urpg::editor::BattlePreviewPanel contextual_battle_panel;
     std::string contextual_character_name;
     urpg::ability::AbilitySystemComponent ability_runtime;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
@@ -2098,6 +2101,8 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
         ImGui::SameLine();
         openContext("vendor", "Vendor");
         ImGui::SameLine();
+        openContext("battle_preview", "Battle");
+        ImGui::SameLine();
         openContext("ability", "Ability");
         ImGui::SameLine();
         openContext("export_diagnostics", "Export Diagnostics");
@@ -2245,6 +2250,29 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
                 if (ImGui::Button("Save Ability for Selection")) {
                     runtime.contextual_creator_project.setAbility(abilityId, runtime.ability_inspector_panel.getDraftAsset());
                     persistContextual();
+                }
+            } else if (snapshot.activeContextRoute == "battle_preview") {
+                runtime.contextual_battle_panel.bindRuntime(runtime.contextual_battle_flow);
+                urpg::battle::BattleDamageContext physical;
+                physical.subject.atk = 20;
+                physical.target.def = 10;
+                physical.target.hp = 100;
+                physical.power = 12;
+                runtime.contextual_battle_panel.setPhysicalPreviewContext(physical);
+                runtime.contextual_battle_panel.setEscapePreviewAgility(100, 100);
+                runtime.contextual_battle_panel.refresh();
+                const auto& panel = runtime.contextual_battle_panel.snapshot();
+                ImGui::Text("Encounter context: %s | Phase: %s | Preview damage: %d", objectId.c_str(),
+                            panel.phase.c_str(), panel.physical_damage);
+                if (ImGui::Button("Preview Encounter")) {
+                    runtime.contextual_battle_flow.beginBattle(true);
+                    runtime.contextual_battle_flow.enterAction();
+                    runtime.map_save_status = "Encounter preview started from the current Map context.";
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Return Victory Result")) {
+                    runtime.contextual_battle_flow.markVictory();
+                    runtime.map_save_status = "Encounter preview returned a deterministic victory result to Map authoring.";
                 }
             } else {
                 ImGui::TextDisabled("This contextual route is registered, but its Map dock is not part of Wave A.");

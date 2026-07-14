@@ -33,6 +33,7 @@ std::vector<std::string> editorAppRegisteredNestedPanelFactoryIds() {
         "character_creator",
         "database",
         "vendor",
+        "battle_preview",
         "save_inspector",
         "battle_presentation",
         "export_diagnostics",

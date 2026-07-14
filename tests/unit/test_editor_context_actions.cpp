@@ -29,6 +29,11 @@ TEST_CASE("editor context actions preserve map selection and explain deferred ro
     REQUIRE(actions.returnToPrevious().success);
 
     valid.route = "battle_preview";
+    const auto battle = actions.open(valid);
+    REQUIRE(battle.success);
+    REQUIRE(actions.returnToPrevious().success);
+
+    valid.route = "audio_mix";
     const auto deferred = actions.open(valid);
     REQUIRE_FALSE(deferred.success);
     REQUIRE(deferred.code == "context_action_route_unavailable");

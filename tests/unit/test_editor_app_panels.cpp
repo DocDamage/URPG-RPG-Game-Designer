@@ -56,6 +56,8 @@ TEST_CASE("editor app panels have route factories for release and nested showcas
             routableFactoryIds.end());
     REQUIRE(std::find(routableFactoryIds.begin(), routableFactoryIds.end(), "vendor") !=
             routableFactoryIds.end());
+    REQUIRE(std::find(routableFactoryIds.begin(), routableFactoryIds.end(), "battle_preview") !=
+            routableFactoryIds.end());
     REQUIRE(std::find(routableFactoryIds.begin(), routableFactoryIds.end(), "showcase_crew_management") !=
             routableFactoryIds.end());
 }
