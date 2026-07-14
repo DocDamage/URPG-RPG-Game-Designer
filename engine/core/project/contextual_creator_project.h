@@ -7,6 +7,7 @@
 #include "engine/core/quest/quest_registry.h"
 #include "engine/core/shop/vendor_catalog.h"
 #include "engine/core/ability/authored_ability_asset.h"
+#include "engine/core/input/input_remap_profile.h"
 
 #include <filesystem>
 #include <map>
@@ -47,6 +48,12 @@ class ContextualCreatorProject {
     const shop::VendorCatalog& vendorCatalog() const { return vendor_catalog_; }
     void setAbility(std::string id, ability::AuthoredAbilityAsset asset);
     const std::map<std::string, ability::AuthoredAbilityAsset>& abilities() const { return abilities_; }
+    void setAudioMixConfig(nlohmann::json config);
+    const nlohmann::json& audioMixConfig() const { return audio_mix_config_; }
+    void setAccessibilityReview(nlohmann::json review);
+    const nlohmann::json& accessibilityReview() const { return accessibility_review_; }
+    void setInputProfile(input::InputRemapProfile profile);
+    const input::InputRemapProfile& inputProfile() const { return input_profile_; }
     const std::filesystem::path& projectRoot() const { return project_root_; }
 
   private:
@@ -60,6 +67,9 @@ class ContextualCreatorProject {
     quest::QuestRegistry quest_registry_;
     shop::VendorCatalog vendor_catalog_;
     std::map<std::string, ability::AuthoredAbilityAsset> abilities_;
+    nlohmann::json audio_mix_config_ = nlohmann::json::object();
+    nlohmann::json accessibility_review_ = nlohmann::json::object();
+    input::InputRemapProfile input_profile_;
 };
 
 } // namespace urpg::project

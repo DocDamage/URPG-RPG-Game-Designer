@@ -50,6 +50,11 @@ TEST_CASE("contextual creator project saves and reopens native authoring data", 
     urpg::ability::AuthoredAbilityAsset ability;
     ability.ability_id = "willow_strike";
     project.setAbility(ability.ability_id, ability);
+    project.setAudioMixConfig({{"active_map", "map_intro"}, {"selected_preset", "Default"}});
+    project.setAccessibilityReview({{"map_id", "map_intro"}, {"issue_count", 0}});
+    urpg::input::InputRemapProfile inputProfile;
+    inputProfile.bind({"keyboard", "Enter"}, urpg::input::InputAction::Confirm);
+    project.setInputProfile(inputProfile);
     REQUIRE(project.save().success);
 
     urpg::project::ContextualCreatorProject reopened;
@@ -62,5 +67,8 @@ TEST_CASE("contextual creator project saves and reopens native authoring data", 
     REQUIRE(reopened.questRegistry().findQuest("restore_moonwell_lantern") != nullptr);
     REQUIRE(reopened.vendorCatalog().refreshStock("rowan_tonics", {}).size() == 1);
     REQUIRE(reopened.abilities().contains("willow_strike"));
+    REQUIRE(reopened.audioMixConfig().at("selected_preset") == "Default");
+    REQUIRE(reopened.accessibilityReview().at("issue_count") == 0);
+    REQUIRE(reopened.inputProfile().bindingsFor("Enter").size() == 1);
     std::filesystem::remove_all(root);
 }

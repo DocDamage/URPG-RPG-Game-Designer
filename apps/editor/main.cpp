@@ -20,6 +20,9 @@
 #include "editor/quest/quest_panel.h"
 #include "editor/shop/vendor_panel.h"
 #include "editor/battle/battle_preview_panel.h"
+#include "editor/audio/audio_mix_panel.h"
+#include "editor/accessibility/accessibility_panel.h"
+#include "editor/input/input_remap_panel.h"
 #include "editor/mod/mod_manager_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/map_authoring_workspace.h"
@@ -141,6 +144,12 @@ struct EditorPanelRuntime {
     urpg::editor::VendorPanel contextual_vendor_panel;
     urpg::battle::BattleFlowController contextual_battle_flow;
     urpg::editor::BattlePreviewPanel contextual_battle_panel;
+    urpg::audio::AudioMixPresetBank contextual_audio_presets;
+    urpg::audio::AudioCore contextual_audio_core;
+    urpg::editor::AudioMixPanel contextual_audio_panel;
+    urpg::accessibility::AccessibilityAuditor contextual_accessibility_auditor;
+    urpg::editor::AccessibilityPanel contextual_accessibility_panel;
+    urpg::input::InputRemapProfile contextual_input_profile;
     std::string contextual_character_name;
     urpg::ability::AbilitySystemComponent ability_runtime;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
@@ -415,6 +424,10 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime, const std::filesystem:
     const auto contextual = runtime.contextual_creator_project.open(projectRoot);
     if (!contextual.success) {
         runtime.map_save_status = "Contextual project data could not be opened: " + contextual.message;
+    } else {
+        runtime.contextual_input_profile = runtime.contextual_creator_project.inputProfile();
+        const auto& audioMix = runtime.contextual_creator_project.audioMixConfig();
+        if (audioMix.contains("preset_bank")) runtime.contextual_audio_presets.fromJson(audioMix.at("preset_bank"));
     }
     const auto mapId = starterMapIdForProject(projectRoot);
     runtime.level_builder_document = urpg::map::GridPartDocument{mapId, 16, 12};
@@ -2103,6 +2116,12 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
         ImGui::SameLine();
         openContext("battle_preview", "Battle");
         ImGui::SameLine();
+        openContext("audio_mix", "Audio");
+        ImGui::SameLine();
+        openContext("accessibility", "Accessibility");
+        ImGui::SameLine();
+        openContext("input_remap", "Input");
+        ImGui::SameLine();
         openContext("ability", "Ability");
         ImGui::SameLine();
         openContext("export_diagnostics", "Export Diagnostics");
@@ -2273,6 +2292,58 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
                 if (ImGui::Button("Return Victory Result")) {
                     runtime.contextual_battle_flow.markVictory();
                     runtime.map_save_status = "Encounter preview returned a deterministic victory result to Map authoring.";
+                }
+            } else if (snapshot.activeContextRoute == "audio_mix") {
+                runtime.contextual_audio_panel.bindBank(&runtime.contextual_audio_presets);
+                runtime.contextual_audio_panel.bindCore(&runtime.contextual_audio_core);
+                const auto presets = runtime.contextual_audio_presets.listPresets();
+                runtime.contextual_audio_panel.render();
+                const auto panel = runtime.contextual_audio_panel.lastRenderSnapshot();
+                ImGui::Text("Audio presets: %zu | Current map: %s", presets.size(), snapshot.context.activeMapId.c_str());
+                if (!presets.empty() && ImGui::Button("Preview First Mix Preset")) {
+                    const bool selected = runtime.contextual_audio_panel.selectPreset(presets.front());
+                    runtime.map_save_status = selected ? "Applied the selected mix to the native audio preview core."
+                                                        : "The selected audio mix preset could not be applied.";
+                    if (selected) {
+                        runtime.contextual_creator_project.setAudioMixConfig(
+                            {{"preset_bank", runtime.contextual_audio_presets.toJson()},
+                             {"active_map", snapshot.context.activeMapId}, {"selected_preset", presets.front()}});
+                        persistContextual();
+                    }
+                }
+                if (panel.value("status", std::string("")) == "disabled") {
+                    ImGui::TextDisabled("Audio preview is disabled until a preset bank and audio core are bound.");
+                }
+            } else if (snapshot.activeContextRoute == "accessibility") {
+                runtime.contextual_accessibility_auditor.ingestElements({
+                    {"map_canvas", "Map canvas", true, 1, 7.0f, "map"},
+                    {"map_selection", objectId, false, 2, objectId.empty() ? 1.0f : 7.0f, "map"},
+                });
+                const auto issues = runtime.contextual_accessibility_auditor.audit();
+                runtime.contextual_accessibility_panel.bindAuditor(&runtime.contextual_accessibility_auditor);
+                runtime.contextual_accessibility_panel.render();
+                ImGui::Text("Accessibility issues for current Map context: %zu", issues.size());
+                if (!issues.empty() && ImGui::Button("Focus First Accessibility Issue")) {
+                    runtime.map_save_status = "Focused accessibility target: " + issues.front().elementId;
+                }
+                if (ImGui::Button("Save Accessibility Review")) {
+                    runtime.contextual_creator_project.setAccessibilityReview(
+                        {{"map_id", snapshot.context.activeMapId}, {"object_id", objectId}, {"issue_count", issues.size()}});
+                    persistContextual();
+                }
+            } else if (snapshot.activeContextRoute == "input_remap") {
+                const auto label = urpg::editor::input::InputRemapPanel::snapshotLabel(runtime.contextual_input_profile, "Enter");
+                ImGui::Text("Current project input preview: %s", label.c_str());
+                if (ImGui::Button("Bind Enter to Confirm")) {
+                    const auto validation = runtime.contextual_input_profile.validateBinding({"keyboard", "Enter"},
+                                                                                               urpg::input::InputAction::Confirm, false);
+                    if (validation.accepted) {
+                        runtime.contextual_input_profile.bind({"keyboard", "Enter"}, urpg::input::InputAction::Confirm);
+                        runtime.contextual_creator_project.setInputProfile(runtime.contextual_input_profile);
+                        persistContextual();
+                    } else {
+                        runtime.map_save_status = validation.message;
+                    }
                 }
             } else {
                 ImGui::TextDisabled("This contextual route is registered, but its Map dock is not part of Wave A.");

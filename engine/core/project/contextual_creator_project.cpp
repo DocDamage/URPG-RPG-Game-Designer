@@ -25,6 +25,9 @@ ContextualCreatorProjectResult ContextualCreatorProject::open(const std::filesys
     quest_registry_ = {};
     vendor_catalog_ = {};
     abilities_.clear();
+    audio_mix_config_ = nlohmann::json::object();
+    accessibility_review_ = nlohmann::json::object();
+    input_profile_ = {};
 
     const auto path = project_root_ / kRelativePath;
     if (!std::filesystem::exists(path)) {
@@ -50,6 +53,9 @@ ContextualCreatorProjectResult ContextualCreatorProject::open(const std::filesys
         if (json.contains("vendors")) vendor_catalog_ = shop::VendorCatalog::deserialize(json.at("vendors"));
         const auto serialized_abilities = json.value("abilities", nlohmann::json::object());
         for (const auto& [id, asset] : serialized_abilities.items()) abilities_[id] = asset.get<ability::AuthoredAbilityAsset>();
+        audio_mix_config_ = json.value("audio_mix", nlohmann::json::object());
+        accessibility_review_ = json.value("accessibility_review", nlohmann::json::object());
+        if (json.contains("input_profile")) input_profile_ = input::InputRemapProfile::fromJson(json.at("input_profile"));
     } catch (const std::exception& error) {
         return failure("contextual_project_load_failed", error.what());
     }
@@ -83,7 +89,10 @@ ContextualCreatorProjectResult ContextualCreatorProject::save() const {
                                  {"database", database_.toJson()},
                                  {"quests", quest_registry_.serialize()},
                                  {"vendors", vendor_catalog_.serialize()},
-                                 {"abilities", std::move(abilities)}};
+                                 {"abilities", std::move(abilities)},
+                                 {"audio_mix", audio_mix_config_},
+                                 {"accessibility_review", accessibility_review_},
+                                 {"input_profile", input_profile_.toJson()}};
     std::string error;
     if (!SaveJournal::WriteAtomically(project_root_ / kRelativePath, json.dump(2) + "\n", &error)) {
         return failure("contextual_project_save_failed", error);
@@ -101,6 +110,9 @@ nlohmann::json ContextualCreatorProject::snapshot() const {
             {"actor_count", database_.actors().size()},
             {"item_count", database_.items().size()},
             {"ability_count", abilities_.size()},
+            {"input_binding_count", input_profile_.bindingsFor("Enter").size()},
+            {"audio_mix_configured", !audio_mix_config_.empty()},
+            {"accessibility_reviewed", !accessibility_review_.empty()},
             {"is_valid", validation.success},
             {"diagnostics", validation.diagnostics}};
 }
@@ -112,6 +124,9 @@ void ContextualCreatorProject::setDatabase(database::RpgDatabase database) { dat
 void ContextualCreatorProject::setQuestRegistry(quest::QuestRegistry registry) { quest_registry_ = std::move(registry); }
 void ContextualCreatorProject::setVendorCatalog(shop::VendorCatalog catalog) { vendor_catalog_ = std::move(catalog); }
 void ContextualCreatorProject::setAbility(std::string id, ability::AuthoredAbilityAsset asset) { abilities_[std::move(id)] = std::move(asset); }
+void ContextualCreatorProject::setAudioMixConfig(nlohmann::json config) { audio_mix_config_ = std::move(config); }
+void ContextualCreatorProject::setAccessibilityReview(nlohmann::json review) { accessibility_review_ = std::move(review); }
+void ContextualCreatorProject::setInputProfile(input::InputRemapProfile profile) { input_profile_ = std::move(profile); }
 
 ContextualCreatorProjectResult ContextualCreatorProject::validate() const {
     std::vector<std::string> diagnostics;
@@ -134,6 +149,8 @@ ContextualCreatorProjectResult ContextualCreatorProject::validate() const {
     for (const auto& [id, asset] : abilities_) {
         if (id.empty() || asset.ability_id.empty()) diagnostics.push_back("ability_invalid:" + id);
     }
+    if (!audio_mix_config_.is_object()) diagnostics.push_back("audio_mix_config_invalid");
+    if (!accessibility_review_.is_object()) diagnostics.push_back("accessibility_review_invalid");
     if (!diagnostics.empty()) {
         return {false, "contextual_project_validation_failed", "Resolve contextual project diagnostics before saving.", std::move(diagnostics)};
     }

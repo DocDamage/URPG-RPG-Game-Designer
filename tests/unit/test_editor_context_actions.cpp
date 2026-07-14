@@ -34,6 +34,16 @@ TEST_CASE("editor context actions preserve map selection and explain deferred ro
     REQUIRE(actions.returnToPrevious().success);
 
     valid.route = "audio_mix";
+    REQUIRE(actions.open(valid).success);
+    REQUIRE(actions.returnToPrevious().success);
+    valid.route = "accessibility";
+    REQUIRE(actions.open(valid).success);
+    REQUIRE(actions.returnToPrevious().success);
+    valid.route = "input_remap";
+    REQUIRE(actions.open(valid).success);
+    REQUIRE(actions.returnToPrevious().success);
+
+    valid.route = "device_profile";
     const auto deferred = actions.open(valid);
     REQUIRE_FALSE(deferred.success);
     REQUIRE(deferred.code == "context_action_route_unavailable");
