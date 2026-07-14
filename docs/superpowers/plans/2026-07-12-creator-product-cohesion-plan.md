@@ -95,7 +95,7 @@ The current `development` implementation has completed the bounded M0-M5 foundat
 | M7 | Implemented bounded native contract | Forced-termination recovery still requires fresh manual evidence for the target release build. |
 | M8 | Implemented contextual authoring/gameplay contract | WYSIWYG/manual walkthrough evidence remains required before any broad completion claim. |
 | M9 | Implemented governed vertical-slice fixture and integration gate | The package and playthrough must be re-qualified from the target release build. |
-| M10 | In progress | Theme/widget foundation, persisted interface scale, bounded visible-thumbnail/DPI coverage, and an initial startup visual correction are implemented; complete graphical, keyboard, and reference-hardware review remain open. |
+| M10 | In progress | Theme/widget foundation, persisted interface scale/high-contrast preference, keyboard-navigation enablement, bounded visible-thumbnail/DPI coverage, and an initial startup visual correction are implemented; complete graphical, keyboard, and reference-hardware review remain open. |
 | M11 | Partial target-build qualification | Release configure/build, focused creator/vertical-slice/presentation/project-audit gates, install smoke, and package smoke pass. A non-sparse clean clone, platform validation, signing/notarization credentials, and release-owner decision remain external or target-build work. |
 
 Focused evidence recorded for this checkpoint includes the creator-journey and vertical-slice gates, thumbnail and Map-history tests, all three `dev-spatial` tests, selected M1/M5 CTests, a successful editor headless frame, successful `urpg_editor`/`urpg_tests` builds, passing release install/package smoke, and passing presentation/doc/readiness/project-audit gates. The release export unit lane correctly refuses release signing without its required platform credentials. Re-run the milestone commands from a clean non-sparse checkout before using that evidence for a new release target.
@@ -827,8 +827,8 @@ ctest --test-dir build/dev-ninja-debug -R "creator vertical slice" --output-on-f
 - `apps/editor/main.cpp`
 - release top-level and required nested panels
 
-- [ ] Centralize color, spacing, typography scale, icon sizing, control height, severity, selection, focus, and disabled-state styling.
-- [ ] Add reusable status banner, empty state, diagnostic row, asset card, inspector section, command button, progress, and destructive confirmation widgets.
+- [x] Centralize color, spacing, typography scale, icon sizing, control height, severity, selection, focus, and disabled-state styling.
+- [x] Add reusable status banner, empty state, diagnostic row, asset card, inspector section, command button, progress, and destructive confirmation widgets.
 - [ ] Use labels and icons together for important commands.
 - [ ] Keep themes readable at 100%, 125%, 150%, and 200% scale.
 

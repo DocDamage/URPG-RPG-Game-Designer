@@ -4,4 +4,6 @@ The native editor uses a compact dark workspace designed for long authoring sess
 
 Important commands always retain a text label. Icons can clarify a command but never replace its accessible name. Disabled controls state what must change to enable them, and severity messages pair a stable diagnostic code with a creator-readable next action.
 
-The interface-scale preference is stored in local editor accessibility settings and applies the same tokens at 100%, 125%, 150%, and 200% (with bounded support from 75% to 200%). This establishes the implementation baseline; graphical review remains a release qualification activity and must record the tested resolutions, DPI settings, screenshots, and any remaining issues in the release evidence for the target build.
+The interface-scale preference is stored in local editor accessibility settings and applies the same tokens at 100%, 125%, 150%, and 200% (with bounded support from 75% to 200%). The same local settings surface applies a high-contrast token variant at startup and immediately when changed. Keyboard navigation is enabled for the editor ImGui context so Tab navigation has a visible focus treatment; creator actions must remain reachable without pointer precision.
+
+This establishes the implementation baseline; graphical review remains a release qualification activity and must record the tested resolutions, DPI settings, screenshots, and any remaining issues in the release evidence for the target build.

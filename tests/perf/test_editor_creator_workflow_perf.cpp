@@ -39,4 +39,8 @@ TEST_CASE("editor creator workflow bounds visible thumbnail work and supports DP
     REQUIRE(elapsed < std::chrono::seconds(2));
     REQUIRE(urpg::editor::ui::scaledEditorTheme(urpg::editor::ui::EditorUiScale::Percent200).controlHeight ==
             urpg::editor::ui::defaultEditorTheme().controlHeight * 2.0f);
+    const auto highContrast = urpg::editor::ui::themedEditorTheme({1.25f, true});
+    REQUIRE(highContrast.controlHeight == urpg::editor::ui::defaultEditorTheme().controlHeight * 1.25f);
+    REQUIRE(highContrast.text.r == 1.0f);
+    REQUIRE(highContrast.focus.r == 1.0f);
 }

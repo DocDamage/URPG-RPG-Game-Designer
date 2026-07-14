@@ -107,6 +107,7 @@ TEST_CASE("MainMenuModel exposes editable settings route", "[project][main_menu]
     model.setHelpTipsEnabled(false);
     model.setAssetBrowserLayout("compact_list");
     model.setUiScale(1.5f);
+    model.setHighContrast(true);
     model.chooseSettings();
 
     auto snapshot = model.snapshot();
@@ -116,6 +117,7 @@ TEST_CASE("MainMenuModel exposes editable settings route", "[project][main_menu]
     REQUIRE(snapshot["settings"]["help_tips_enabled"] == false);
     REQUIRE(snapshot["settings"]["asset_browser_layout"] == "compact_list");
     REQUIRE(snapshot["settings"]["ui_scale"] == 1.5f);
+    REQUIRE(snapshot["settings"]["high_contrast"] == true);
     REQUIRE(snapshot["commands"]["new_project"]["route"] == "template_picker");
 
     model.returnToMainMenu();
@@ -134,6 +136,7 @@ TEST_CASE("MainMenuModel persists normalized project identity without losing dis
     settings.help_tips_enabled = false;
     settings.asset_browser_layout = "compact_list";
     settings.accessibility.ui_scale = 1.5f;
+    settings.accessibility.high_contrast = true;
     settings.external_asset_library_root = "G:/Creator Assets";
 
     urpg::editor::MainMenuModel model;
@@ -145,6 +148,7 @@ TEST_CASE("MainMenuModel persists normalized project identity without losing dis
     REQUIRE(snapshot["hidden_missing_projects"].size() == 1);
     REQUIRE(snapshot["external_asset_library_root"] == "G:/Creator Assets");
     REQUIRE(snapshot["ui_scale"] == 1.5f);
+    REQUIRE(snapshot["high_contrast"] == true);
     REQUIRE(snapshot["missing_projects"].size() == 2);
 
     model.chooseOpenProject("c:/CREATOR/demo");
@@ -157,6 +161,7 @@ TEST_CASE("MainMenuModel persists normalized project identity without losing dis
     REQUIRE(saved.help_tips_enabled == false);
     REQUIRE(saved.asset_browser_layout == "compact_list");
     REQUIRE(saved.accessibility.ui_scale == 1.5f);
+    REQUIRE(saved.accessibility.high_contrast == true);
     REQUIRE(saved.external_asset_library_root == "G:/Creator Assets");
 }
 

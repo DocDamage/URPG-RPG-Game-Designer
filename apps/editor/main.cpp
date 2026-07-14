@@ -3246,7 +3246,11 @@ int main(int argc, char** argv) {
 
 #ifdef URPG_IMGUI_ENABLED
         ImGui::CreateContext();
-        urpg::editor::ui::applyEditorTheme(settingsLoad.settings.accessibility.ui_scale);
+        // The creator shell must be operable without pointer precision.  This
+        // also makes ImGui render its visible NavHighlight for Tab navigation.
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        urpg::editor::ui::applyEditorTheme(
+            {settingsLoad.settings.accessibility.ui_scale, settingsLoad.settings.accessibility.high_contrast});
         ImGui::GetIO().DisplaySize = ImVec2(static_cast<float>(config.width), static_cast<float>(config.height));
         std::filesystem::create_directories(settingsLoad.settings.imgui_ini_path.parent_path());
         const std::string imguiIniFilename = settingsLoad.settings.imgui_ini_path.string();

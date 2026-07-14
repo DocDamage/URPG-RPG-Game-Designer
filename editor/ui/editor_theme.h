@@ -30,16 +30,24 @@ struct EditorThemeTokens {
     float rounding = 5.0f;
 };
 
+struct EditorThemePreferences {
+    float uiScale = 1.0f;
+    bool highContrast = false;
+};
+
 enum class EditorUiScale { Percent100, Percent125, Percent150, Percent200 };
 
 [[nodiscard]] EditorThemeTokens defaultEditorTheme();
+[[nodiscard]] EditorThemeTokens highContrastEditorTheme();
 [[nodiscard]] float editorUiScaleFactor(EditorUiScale scale);
 [[nodiscard]] EditorThemeTokens scaledEditorTheme(EditorUiScale scale);
 [[nodiscard]] EditorThemeTokens scaledEditorTheme(float scaleFactor);
+[[nodiscard]] EditorThemeTokens themedEditorTheme(const EditorThemePreferences& preferences);
 
 // Safe to call after ImGui::CreateContext(). It is intentionally a no-op for
 // the deterministic headless/no-ImGui configurations.
 void applyEditorTheme(float scaleFactor = 1.0f);
 void applyEditorTheme(EditorUiScale scale);
+void applyEditorTheme(const EditorThemePreferences& preferences);
 
 } // namespace urpg::editor::ui

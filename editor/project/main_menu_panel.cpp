@@ -2,6 +2,7 @@
 
 #include "editor/project/new_project_wizard_model.h"
 #include "editor/ui/editor_theme.h"
+#include "editor/ui/editor_widgets.h"
 
 #include <algorithm>
 #include <string>
@@ -77,6 +78,8 @@ void MainMenuModel::setAssetBrowserLayout(std::string layout) {
 
 void MainMenuModel::setUiScale(const float value) { ui_scale_ = std::clamp(value, 0.75f, 2.0f); }
 
+void MainMenuModel::setHighContrast(const bool enabled) { high_contrast_ = enabled; }
+
 void MainMenuModel::setExternalAssetLibraryRoot(std::filesystem::path root) {
     external_asset_library_root_ = std::move(root);
 }
@@ -86,6 +89,7 @@ void MainMenuModel::applySettings(const urpg::settings::EditorSettings& settings
     help_tips_enabled_ = settings.help_tips_enabled;
     setAssetBrowserLayout(settings.asset_browser_layout);
     setUiScale(settings.accessibility.ui_scale);
+    setHighContrast(settings.accessibility.high_contrast);
     external_asset_library_root_ = settings.external_asset_library_root;
     last_project_ = settings.last_project;
     recent_projects_.clear();
@@ -121,6 +125,7 @@ void MainMenuModel::writeSettings(urpg::settings::EditorSettings* settings) cons
     settings->help_tips_enabled = help_tips_enabled_;
     settings->asset_browser_layout = asset_browser_layout_;
     settings->accessibility.ui_scale = ui_scale_;
+    settings->accessibility.high_contrast = high_contrast_;
     settings->external_asset_library_root = external_asset_library_root_;
 }
 
@@ -284,12 +289,15 @@ nlohmann::json MainMenuModel::snapshot() const {
         {"help_tips_enabled", help_tips_enabled_},
         {"asset_browser_layout", asset_browser_layout_},
         {"ui_scale", ui_scale_},
+        {"high_contrast", high_contrast_},
         {"external_asset_library_root", external_asset_library_root_.generic_string()},
         {"settings",
          {
              {"onboarding_enabled", onboarding_enabled_},
              {"help_tips_enabled", help_tips_enabled_},
              {"asset_browser_layout", asset_browser_layout_},
+             {"ui_scale", ui_scale_},
+             {"high_contrast", high_contrast_},
          }},
         {"commands",
          {
@@ -338,7 +346,9 @@ void MainMenuPanel::render() {
     if (ImGui::GetCurrentContext() != nullptr) {
         const auto display = ImGui::GetIO().DisplaySize;
         const auto width = std::clamp(display.x * 0.56f, 640.0f, 960.0f);
-        const auto height = std::clamp(display.y * 0.70f, 520.0f, 760.0f);
+        const bool compactStartup = model_->route() == "main_menu";
+        const auto height = compactStartup ? std::clamp(display.y * 0.54f, 440.0f, 560.0f)
+                                           : std::clamp(display.y * 0.70f, 520.0f, 760.0f);
         ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
         ImGui::SetNextWindowPos(ImVec2((display.x - width) * 0.5f, (display.y - height) * 0.5f), ImGuiCond_Always);
         if (ImGui::Begin("URPG Maker")) {
@@ -359,11 +369,16 @@ void MainMenuPanel::render() {
                     model_->setHelpTipsEnabled(helpTips);
                 }
                 float uiScalePercent = modelSnapshot.value("ui_scale", 1.0f) * 100.0f;
+                bool highContrast = modelSnapshot.value("high_contrast", false);
+                if (ImGui::Checkbox("High Contrast", &highContrast)) {
+                    model_->setHighContrast(highContrast);
+                    urpg::editor::ui::applyEditorTheme({uiScalePercent / 100.0f, highContrast});
+                }
                 if (ImGui::SliderFloat("Interface Scale", &uiScalePercent, 75.0f, 200.0f, "%.0f%%",
                                        ImGuiSliderFlags_AlwaysClamp)) {
                     const auto uiScale = uiScalePercent / 100.0f;
                     model_->setUiScale(uiScale);
-                    urpg::editor::ui::applyEditorTheme(uiScale);
+                    urpg::editor::ui::applyEditorTheme({uiScale, highContrast});
                 }
                 const bool compact = modelSnapshot.value("asset_browser_layout", "") == "compact_list";
                 if (ImGui::RadioButton("Left Browser Drawer", !compact)) {
@@ -536,25 +551,22 @@ void MainMenuPanel::render() {
             ImGui::Separator();
             const auto pending = modelSnapshot.value("pending_action", nlohmann::json::object());
             if (pending.value("success", true) == false && pending.contains("message")) {
-                ImGui::TextWrapped("%s", pending.value("message", "Unable to open the requested project.").c_str());
+                ui::renderStatusBanner({ui::EditorSeverity::Error,
+                                        pending.value("message", "Unable to open the requested project."),
+                                        "Choose Open Project to select another project folder."});
             }
             const auto continueCommand = modelSnapshot["commands"]["continue_last_project"];
-            if (!continueCommand.value("enabled", false)) {
-                ImGui::BeginDisabled();
-            }
-            if (ImGui::Button("Continue Last Project", ImVec2(-1.0f, 0.0f))) {
+            if (ui::renderCommandButton("Continue Last Project", ">", continueCommand.value("enabled", false),
+                                        "Open or create a project first.", -1.0f)) {
                 (void)model_->chooseOpenProject(continueCommand.value("projectPath", ""));
             }
-            if (!continueCommand.value("enabled", false)) {
-                ImGui::EndDisabled();
-            }
-            if (ImGui::Button("New Project", ImVec2(-1.0f, 0.0f))) {
+            if (ui::renderCommandButton("New Project", "+", true, {}, -1.0f)) {
                 (void)model_->chooseNewProject();
             }
-            if (ImGui::Button("Open Project", ImVec2(-1.0f, 0.0f))) {
+            if (ui::renderCommandButton("Open Project", "...", true, {}, -1.0f)) {
                 model_->chooseOpenProjectRequest();
             }
-            if (ImGui::Button("Settings", ImVec2(-1.0f, 0.0f))) {
+            if (ui::renderCommandButton("Settings", "*", true, {}, -1.0f)) {
                 model_->chooseSettings();
             }
             ImGui::SeparatorText("Recent Projects");
