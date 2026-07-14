@@ -1,0 +1,9 @@
+{
+  "schema": "urpg.map.v1",
+  "id": "moonwell_shrine",
+  "width": 16,
+  "height": 12,
+  "spawn": { "x": 2, "y": 6 },
+  "links": [{ "target_map": "willow_village", "event_id": "return_to_elder" }],
+  "objects": ["moonwell_gate", "shrine_wisp", "moonwell_lantern"]
+}

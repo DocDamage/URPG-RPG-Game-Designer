@@ -1,0 +1,25 @@
+{
+  "schema": "urpg.project_attachments.v1",
+  "policy": {
+    "governance_fixture": "content/fixtures/project_governance_fixture.json",
+    "raw_external_allowed": false,
+    "absolute_paths_allowed": false
+  },
+  "attachments": [
+    {
+      "asset_id": "release.ui.frame_chrome",
+      "bundle_id": "BND-003",
+      "project_path": "content/attachments/release.ui.frame_chrome",
+      "redistribution": "bundled",
+      "license_evidence": "content/fixtures/project_governance_fixture.json"
+    },
+    {
+      "asset_id": "release.map.caverns_tiles",
+      "bundle_id": "BND-005",
+      "project_path": "content/attachments/release.map.caverns_tiles",
+      "redistribution": "bundled",
+      "license_evidence": "content/fixtures/project_governance_fixture.json"
+    }
+  ],
+  "hydration_status": "manifest_only_package_blocked_until_exact_promoted_payload_is_hydrated"
+}

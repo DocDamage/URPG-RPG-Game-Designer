@@ -1882,6 +1882,7 @@ urpg_enable_windows_test_binary_unlock(urpg_render_tests)
 add_executable(urpg_integration_tests
     tests/integration/test_creator_journey.cpp
     tests/integration/test_creator_project_runtime.cpp
+    tests/integration/test_creator_vertical_slice.cpp
     tests/integration/test_grid_part_map_scene_integration.cpp
     tests/integration/test_integration_runtime_recovery.cpp
     tests/integration/test_runtime_startup_save_flow.cpp

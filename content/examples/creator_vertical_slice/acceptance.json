@@ -1,0 +1,43 @@
+{
+  "schema": "urpg.creator_vertical_slice.v1",
+  "id": "lantern_of_the_willow",
+  "title": "Lantern of the Willow",
+  "template_id": "jrpg",
+  "maximum_playthrough_minutes": 15,
+  "asset_policy": {
+    "allow_raw_external": false,
+    "allow_absolute_paths": false,
+    "allow_local_catalog": false,
+    "allow_recovery_snapshots": false,
+    "allow_playtest_overlays": false,
+    "governance_fixture": "content/fixtures/project_governance_fixture.json",
+    "selected_bundles": ["BND-003", "BND-005"],
+    "license_evidence": [
+      "docs/asset_intake/ASSET_PROMOTION_GUIDE.md",
+      "docs/asset_intake/ASSET_CONTENT_CLOSURE_SIGNOFF.md"
+    ]
+  },
+  "project": {
+    "maps": ["willow_village", "moonwell_shrine"],
+    "player": "willow_hero",
+    "npcs": ["elder_mira", "vendor_rowan"],
+    "quest": "restore_moonwell_lantern",
+    "reward_item": "moonwell_lantern",
+    "vendor": "rowan_tonics",
+    "encounter": "shrine_wisp",
+    "abilities": ["willow_strike", "lantern_guard"],
+    "save_point": "village_well",
+    "menus": ["inventory", "quest_log", "save"],
+    "ending_state": "lantern_returned"
+  },
+  "required_runtime_steps": [
+    "new_game", "map_transfer", "dialogue_choice", "quest_activation",
+    "combat_result", "inventory_reward", "ability_use", "vendor_interaction",
+    "save", "load", "ending", "return_to_title"
+  ],
+  "required_creator_routes": [
+    "event_authoring", "message_inspector", "character_creator", "database",
+    "quest", "battle_preview", "ability", "vendor", "audio_mix",
+    "accessibility", "input_remap", "export_diagnostics"
+  ]
+}

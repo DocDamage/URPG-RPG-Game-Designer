@@ -1,0 +1,11 @@
+{
+  "schema": "urpg.contextual_authoring.v1",
+  "events": ["elder_mira_intro", "walk_to_shrine", "shrine_wisp_encounter", "return_to_elder"],
+  "dialogue": ["elder_mira_intro"],
+  "characters": ["willow_hero", "elder_mira", "vendor_rowan"],
+  "quests": ["restore_moonwell_lantern"],
+  "abilities": ["willow_strike", "lantern_guard"],
+  "vendor": "rowan_tonics",
+  "audio_policy": "silent_governed_fallback",
+  "authoring_status": "requires_contextual_editor_round_trip_before_completion"
+}

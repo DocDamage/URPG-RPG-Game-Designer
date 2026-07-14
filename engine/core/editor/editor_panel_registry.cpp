@@ -11,7 +11,7 @@ constexpr std::array<std::string_view, 8> kReleaseTopLevelPanelIds = {
     "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder", "spatial_authoring",
 };
 
-constexpr std::array<std::string_view, 181> kShowcaseRoutablePanelIds = {
+constexpr std::array<std::string_view, 182> kShowcaseRoutablePanelIds = {
     "3d_dungeon_world",
     "ability",
     "achievement_visual_builder",
@@ -29,6 +29,7 @@ constexpr std::array<std::string_view, 181> kShowcaseRoutablePanelIds = {
     "monster_collection",
     "platformer_physics_lab",
     "puzzle_logic_board",
+    "quest",
     "save_inspector",
     "showcase_affection",
     "showcase_aiming",
