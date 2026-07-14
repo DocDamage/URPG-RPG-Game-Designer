@@ -23,6 +23,7 @@
 #include "editor/audio/audio_mix_panel.h"
 #include "editor/accessibility/accessibility_panel.h"
 #include "editor/input/input_remap_panel.h"
+#include "editor/export/export_diagnostics_panel.h"
 #include "editor/mod/mod_manager_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/map_authoring_workspace.h"
@@ -150,6 +151,7 @@ struct EditorPanelRuntime {
     urpg::accessibility::AccessibilityAuditor contextual_accessibility_auditor;
     urpg::editor::AccessibilityPanel contextual_accessibility_panel;
     urpg::input::InputRemapProfile contextual_input_profile;
+    urpg::editor::ExportDiagnosticsPanel contextual_export_diagnostics_panel;
     std::string contextual_character_name;
     urpg::ability::AbilitySystemComponent ability_runtime;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
@@ -2345,6 +2347,21 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
                         runtime.map_save_status = validation.message;
                     }
                 }
+            } else if (snapshot.activeContextRoute == "export_diagnostics") {
+                urpg::tools::ExportConfig config;
+                config.target = urpg::tools::ExportTarget::Windows_x64;
+                config.mode = urpg::tools::ExportMode::DevBootstrap;
+                config.outputDir = (runtime.project_root / ".urpg" / "export_diagnostics").generic_string();
+                runtime.contextual_export_diagnostics_panel.setExportConfig(config);
+                runtime.contextual_export_diagnostics_panel.render();
+                const auto& panel = runtime.contextual_export_diagnostics_panel.lastRenderSnapshot();
+                ImGui::Text("Export target: Windows x64 (dev bootstrap)");
+                ImGui::Text("Preflight: %s | Existing output valid: %s",
+                            panel.value("validationPassed", false) ? "ready" : "blocked",
+                            panel.value("postExportValidationPassed", false) ? "yes" : "no");
+                const auto& errors = panel.value("errors", nlohmann::json::array());
+                if (!errors.empty()) ImGui::TextWrapped("Preflight issue: %s", errors.front().get<std::string>().c_str());
+                ImGui::TextDisabled("Diagnostics are read-only; use the release/export workflow to emit a package.");
             } else {
                 ImGui::TextDisabled("This contextual route is registered, but its Map dock is not part of Wave A.");
             }

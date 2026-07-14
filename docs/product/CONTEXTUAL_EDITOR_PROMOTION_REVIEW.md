@@ -15,8 +15,9 @@ has all listed evidence and a Map-context entry point.
 | `audio_mix` | `editor/audio`, Map **Audio** dock | `ContextualCreatorProject` persists the preset bank, selected preset, and active Map; native `AudioCore` consumes the selected mix | Mix selection applies to live native preview buses and reports disabled state | audio mix panel/preset, contextual-project round-trip, and contextual routing tests | Promoted to Nested on 2026-07-13 |
 | `accessibility` | `editor/accessibility`, Map **Accessibility** dock | `ContextualCreatorProject` records reviewed Map/object scope and audit count; native `AccessibilityAuditor` regenerates current diagnostics | Audit issue count and first-issue focus action | accessibility panel/auditor, contextual-project round-trip, and contextual routing tests | Promoted to Nested on 2026-07-13 |
 | `input_remap` | `editor/input`, Map **Input** dock | `ContextualCreatorProject` persists the validated input profile; runtime/editor input consumers reuse it | Binding validation and bound/empty preview state | input remap core, contextual-project round-trip, and contextual routing tests | Promoted to Nested on 2026-07-13 |
+| `export_diagnostics` | `editor/export`, Map **Export Diagnostics** dock | Active project root supplies a bounded dev-bootstrap preflight configuration; the owned release/export workflow remains the only package emitter | Preflight readiness, existing-output validation, and first actionable issue | export diagnostics panel suite and contextual routing tests | Existing Nested route now has a Map-context dock |
 
-The two promoted routes are nested, not top-level. Their Map dock preserves
+The listed promoted routes are nested, not top-level. Their Map dock preserves
 the active selection and returns to the unified Map workspace. A missing,
 empty, invalid, or unsaved contextual project emits a visible status/diagnostic
 instead of falling back to ad-hoc JSON editing.
