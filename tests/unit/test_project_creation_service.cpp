@@ -102,11 +102,24 @@ TEST_CASE("ProjectCreationService can create the draft creator vertical-slice se
     const auto result = urpg::project::ProjectCreationService{}.createProject(request);
     REQUIRE(result.success);
     REQUIRE(std::filesystem::is_regular_file(destination / "content" / "maps" / "moonwell_shrine.json"));
+    REQUIRE(std::filesystem::is_regular_file(destination / "content" / "maps" / "willow_village.p2d.json"));
+    REQUIRE(std::filesystem::is_regular_file(destination / "content" / "maps" / "moonwell_shrine.p2d.json"));
+    REQUIRE(std::filesystem::is_regular_file(destination / "content" / "characters" / "willow_hero.json"));
+    REQUIRE(std::filesystem::is_regular_file(destination / "content" / "quests" / "restore_moonwell_lantern.json"));
+    REQUIRE(std::filesystem::is_regular_file(destination / "content" / "vendors" / "rowan_tonics.json"));
+    REQUIRE(std::filesystem::is_regular_file(destination / "content" / "abilities" / "willow_strike.json"));
     std::ifstream seedInput(destination / "content" / "creator_vertical_slice_seed.json", std::ios::binary);
     const auto seed = nlohmann::json::parse(seedInput);
     REQUIRE(seed["schema"] == "urpg.creator_vertical_slice_seed.v1");
     REQUIRE(seed["status"] == "draft");
+    REQUIRE(seed["seed_revision"] == "native_creator_seed.v2");
     REQUIRE(seed["maps"] == nlohmann::json::array({"willow_village", "moonwell_shrine"}));
+    std::ifstream villageDraftInput(destination / "content" / "maps" / "willow_village.p2d.json", std::ios::binary);
+    const auto villageDraft = nlohmann::json::parse(villageDraftInput);
+    REQUIRE(villageDraft["document_kind"] == "urpg.perspective_2d.map");
+    REQUIRE(villageDraft["events"].size() == 3);
+    REQUIRE(villageDraft["events"][0]["event_id"] == "elder_mira_intro");
+    REQUIRE(villageDraft["events"][0]["pages"][0]["commands"][1]["code"] == "show_choice");
     std::filesystem::remove_all(root);
 }
 

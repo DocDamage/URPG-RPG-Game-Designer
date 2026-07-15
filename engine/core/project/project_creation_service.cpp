@@ -116,6 +116,7 @@ ProjectCreationResult ProjectCreationService::createProject(const ProjectCreatio
         {"schema", "urpg.creator_vertical_slice_seed.v1"},
         {"id", "lantern_of_the_willow"},
         {"status", "draft"},
+        {"seed_revision", "native_creator_seed.v2"},
         {"maps", {request.starter_map, "moonwell_shrine"}},
         {"player", "willow_hero"},
         {"npcs", {"elder_mira", "vendor_rowan"}},
@@ -125,6 +126,117 @@ ProjectCreationResult ProjectCreationService::createProject(const ProjectCreatio
           "ability", "vendor", "audio_mix", "accessibility", "input_remap", "export_diagnostics"}},
         {"completion_note", "This seed is intentionally incomplete until every listed route saves, runs, and packages through the native creator workflow."},
     };
+
+    // The creator seed is a real set of native document drafts, not a checklist
+    // pointing authors to hand-written JSON. It remains a draft until its own
+    // creator controls have produced runtime and package evidence.
+    const auto make_perspective_draft = [](const std::string& map_id, nlohmann::json events) {
+        return nlohmann::json{
+            {"document_kind", "urpg.perspective_2d.map"},
+            {"version", 1},
+            {"map_id", map_id},
+            {"width", 16},
+            {"height", 12},
+            {"selected_layer_id", "events"},
+            {"selected_palette_option_id", ""},
+            {"selected_tileset_id", ""},
+            {"selected_tile_id", ""},
+            {"layers", nlohmann::json::array({{{"id", "events"}, {"label", "Events"}, {"kind", "event"},
+                                                 {"visible", true}, {"locked", false}, {"order", 0}}})},
+            {"tiles", nlohmann::json::array()},
+            {"events", std::move(events)},
+            {"tileset_pages", nlohmann::json::array()},
+            {"tile_definitions", nlohmann::json::array()},
+            {"tile_palette", nlohmann::json::array()},
+            {"prop_palette", nlohmann::json::array()},
+            {"project_database", nlohmann::json::object()},
+        };
+    };
+    const auto make_event = [](std::string id, std::string label, int x, int y, nlohmann::json commands) {
+        return nlohmann::json{{"event_id", std::move(id)},
+                              {"label", std::move(label)},
+                              {"trigger_id", "confirm_interact"},
+                              {"layer_id", "events"},
+                              {"x", x},
+                              {"y", y},
+                              {"selected_page_id", "page_1"},
+                              {"commands", nlohmann::json::array()},
+                              {"pages", nlohmann::json::array({{{"page_id", "page_1"},
+                                                                 {"label", "Page 1"},
+                                                                 {"trigger_id", "confirm_interact"},
+                                                                 {"order", 0},
+                                                                 {"conditions", nlohmann::json::array()},
+                                                                 {"commands", std::move(commands)}}})}};
+    };
+    const auto village_perspective_draft = make_perspective_draft(
+        request.starter_map,
+        nlohmann::json::array({
+            make_event("elder_mira_intro", "Elder Mira", 5, 5,
+                       nlohmann::json::array({{{"code", "show_text"},
+                                                {"argument", "The moonwell lantern has gone dark."}},
+                                               {{"code", "show_choice"}, {"argument", "accept_lantern_quest"}},
+                                               {{"code", "change_switch"}, {"argument", "lantern_quest_started=true"}}})),
+            make_event("vendor_rowan", "Rowan's Tonics", 7, 5,
+                       nlohmann::json::array({{{"code", "open_vendor"}, {"argument", "rowan_tonics"}}})),
+            make_event("walk_to_shrine", "Path to Moonwell Shrine", 14, 6,
+                       nlohmann::json::array({{{"code", "transfer_player"}, {"argument", "moonwell_shrine:3,5"}}})),
+        }));
+    const auto shrine_perspective_draft = make_perspective_draft(
+        "moonwell_shrine",
+        nlohmann::json::array({
+            make_event("shrine_wisp_encounter", "Shrine Wisp", 8, 5,
+                       nlohmann::json::array({{{"code", "start_battle"}, {"argument", "shrine_wisp"}}})),
+            make_event("recover_moonwell_lantern", "Moonwell Lantern", 10, 5,
+                       nlohmann::json::array({{{"code", "change_item"}, {"argument", "moonwell_lantern:1"}},
+                                               {{"code", "change_switch"}, {"argument", "lantern_recovered=true"}}})),
+            make_event("return_to_elder", "Return to Elder Mira", 2, 5,
+                       nlohmann::json::array({{{"code", "transfer_player"}, {"argument", "willow_village:4,6"}}})),
+        }));
+    const nlohmann::json vertical_slice_character = {
+        {"schemaVersion", "1.0.0"}, {"name", "Willow Hero"}, {"portraitId", "portrait_ranger_01"},
+        {"bodySpriteId", "sprite_ranger_body"}, {"portraitAssetId", ""}, {"fieldSpriteAssetId", ""},
+        {"battleSpriteAssetId", ""}, {"classId", "class_ranger"}, {"speciesId", ""}, {"originId", ""},
+        {"backgroundId", ""}, {"baseAttributes", {{"Attack", 12.0f}, {"Defense", 8.0f}}},
+        {"appearanceTokens", nlohmann::json::array()}, {"layeredPartAssetIds", nlohmann::json::array()},
+    };
+    const nlohmann::json vertical_slice_quest = {
+        {"schema_version", "urpg.quest_objective_graph.v1"},
+        {"quest_id", "restore_moonwell_lantern"},
+        {"title", "Restore the Moonwell Lantern"},
+        {"nodes", nlohmann::json::array({
+                      {{"id", "start"}, {"type", "start"}, {"title", "Begin"}, {"objective_id", ""},
+                       {"localization_key", ""}, {"conditions", nlohmann::json::array()}, {"rewards", nlohmann::json::array()}},
+                      {{"id", "recover_lantern"}, {"type", "objective"}, {"title", "Recover the lantern"},
+                       {"objective_id", "recover_moonwell_lantern"}, {"localization_key", ""},
+                       {"conditions", nlohmann::json::array({{{"type", "item"}, {"id", "moonwell_lantern"}, {"value", 0}}})},
+                       {"rewards", nlohmann::json::array({{{"type", "gold"}, {"id", "elder_mira"}, {"value", 100}}})}},
+                      {{"id", "complete"}, {"type", "complete"}, {"title", "Complete"}, {"objective_id", ""},
+                       {"localization_key", ""}, {"conditions", nlohmann::json::array()}, {"rewards", nlohmann::json::array()}},
+                  })},
+        {"links", nlohmann::json::array({{{"from", "start"}, {"to", "recover_lantern"}},
+                                           {{"from", "recover_lantern"}, {"to", "complete"}}})},
+    };
+    const nlohmann::json vertical_slice_database = {
+        {"schema", "urpg.database.v1"},
+        {"actors", nlohmann::json::array({{{"id", "willow_hero"}, {"name", "Willow Hero"}, {"class_id", "ranger"},
+                                              {"max_hp", 100}, {"attack", 12}}})},
+        {"items", nlohmann::json::array({{{"id", "moonwell_lantern"}, {"name", "Moonwell Lantern"}, {"price", 75},
+                                             {"tags", nlohmann::json::array({"quest", "vendor"})}}})},
+    };
+    const nlohmann::json vertical_slice_vendor = {
+        {"schema", "urpg.vendor_catalog.v1"},
+        {"vendors", nlohmann::json::array({{{"id", "rowan_tonics"},
+                                               {"stock", nlohmann::json::array({{{"item_id", "moonwell_lantern"},
+                                                                                   {"quantity", 1}, {"buy_price", 75},
+                                                                                   {"sell_price", 35},
+                                                                                   {"required_flags", nlohmann::json::array()}}})}}})},
+    };
+    const nlohmann::json vertical_slice_ability = {
+        {"ability_id", "willow_strike"}, {"cooldown_seconds", 3.0f}, {"mp_cost", 5.0f},
+        {"effect_id", "willow_strike.damage"}, {"effect_attribute", "Attack"}, {"effect_operation", "Add"},
+        {"effect_value", 10.0f}, {"effect_duration", 0.0f}, {"active_condition", ""}, {"passive_condition", ""},
+        {"pattern", {{"name", "Willow Strike"}, {"points", nlohmann::json::array({{{"x", 0}, {"y", 0}}})}}},
+    };
     if (!writeJson(temporary_root / "project.json", manifest) ||
         !writeJson(temporary_root / "content" / "maps" / (request.starter_map + ".json"), starter_map) ||
         !writeJson(temporary_root / "content" / "database.json", database) ||
@@ -132,7 +244,14 @@ ProjectCreationResult ProjectCreationService::createProject(const ProjectCreatio
         !writeJson(temporary_root / "config" / "input_mappings.json", input) ||
         (request.include_creator_vertical_slice_seed &&
          (!writeJson(temporary_root / "content" / "maps" / "moonwell_shrine.json", vertical_slice_map) ||
-          !writeJson(temporary_root / "content" / "creator_vertical_slice_seed.json", vertical_slice_seed)))) {
+          !writeJson(temporary_root / "content" / "maps" / (request.starter_map + ".p2d.json"), village_perspective_draft) ||
+          !writeJson(temporary_root / "content" / "maps" / "moonwell_shrine.p2d.json", shrine_perspective_draft) ||
+          !writeJson(temporary_root / "content" / "characters" / "willow_hero.json", vertical_slice_character) ||
+          !writeJson(temporary_root / "content" / "quests" / "restore_moonwell_lantern.json", vertical_slice_quest) ||
+          !writeJson(temporary_root / "content" / "vendors" / "rowan_tonics.json", vertical_slice_vendor) ||
+          !writeJson(temporary_root / "content" / "abilities" / "willow_strike.json", vertical_slice_ability) ||
+          !writeJson(temporary_root / "content" / "creator_vertical_slice_seed.json", vertical_slice_seed) ||
+          !writeJson(temporary_root / "content" / "database.json", vertical_slice_database)))) {
         rollback();
         return failure("project_staging_write_failed", "Unable to write required starter-project files.");
     }
