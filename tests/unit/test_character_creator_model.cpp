@@ -73,6 +73,23 @@ TEST_CASE("CharacterCreatorModel exposes a durable draft lifecycle for the share
     REQUIRE_FALSE(model.hasUnsavedDraft());
 }
 
+TEST_CASE("CharacterCreatorModel applies attached appearance assets with owner-aware undo and redo",
+          "[character][editor][model][assets][undo]") {
+    CharacterCreatorModel model;
+
+    REQUIRE(model.assignAttachedAppearanceAsset("asset.character.willow.portrait", "portrait"));
+    REQUIRE(model.getIdentity().getPortraitAssetId() == "asset.character.willow.portrait");
+    REQUIRE(model.canUndoAppearanceAssetAssignment());
+    REQUIRE_FALSE(model.canRedoAppearanceAssetAssignment());
+
+    REQUIRE(model.undoAppearanceAssetAssignment());
+    REQUIRE(model.getIdentity().getPortraitAssetId().empty());
+    REQUIRE(model.canRedoAppearanceAssetAssignment());
+
+    REQUIRE(model.redoAppearanceAssetAssignment());
+    REQUIRE(model.getIdentity().getPortraitAssetId() == "asset.character.willow.portrait");
+}
+
 TEST_CASE("CharacterCreatorModel spawns validated character into ECS", "[character][editor][model]") {
     urpg::World world;
     urpg::ActorManager manager(world);

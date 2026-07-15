@@ -50,6 +50,11 @@ public:
     void removeAppearanceToken(const std::string& token);
     void setPromotedAppearanceAssetRows(const nlohmann::json& rows);
     bool selectPromotedAppearancePart(const std::string& asset_id);
+    bool assignAttachedAppearanceAsset(const std::string& asset_id, const std::string& slot);
+    bool undoAppearanceAssetAssignment();
+    bool redoAppearanceAssetAssignment();
+    bool canUndoAppearanceAssetAssignment() const { return !appearance_asset_history_.empty(); }
+    bool canRedoAppearanceAssetAssignment() const { return !appearance_asset_redo_.empty(); }
     void setSpawnPosition(urpg::Fixed32 x, urpg::Fixed32 y, urpg::Fixed32 z = urpg::Fixed32::FromInt(0));
     void setSpawnEnemyFlag(bool is_enemy);
 
@@ -78,6 +83,12 @@ private:
     std::vector<std::string> m_known_body_sprite_ids;
     std::vector<std::string> m_known_appearance_tokens;
     std::vector<CharacterAppearancePartRow> m_appearance_part_rows;
+    struct AppearanceAssetHistoryEntry {
+        urpg::character::CharacterIdentity before;
+        urpg::character::CharacterIdentity after;
+    };
+    std::vector<AppearanceAssetHistoryEntry> appearance_asset_history_;
+    std::vector<AppearanceAssetHistoryEntry> appearance_asset_redo_;
 };
 
 } // namespace urpg::editor

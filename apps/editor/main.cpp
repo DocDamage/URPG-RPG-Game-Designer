@@ -1739,7 +1739,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                 dragPayload.provenance = urpg::editor::EditorAssetProvenanceState::Attached;
                 const auto bytes = urpg::editor::serializeEditorAssetDragPayload(dragPayload);
                 ImGui::SetDragDropPayload("URPG_EDITOR_ASSET_V1", bytes.data(), static_cast<int>(bytes.size()));
-                ImGui::TextUnformatted("Drop onto the Map canvas (Tiles places immediately; Props adds a palette option)");
+                ImGui::TextUnformatted("Drop onto the Map canvas or Character Creator (attached assets only)");
                 ImGui::EndDragDropSource();
             }
             ImGui::PopID();
@@ -2533,6 +2533,42 @@ void renderCharacterCreatorWorkspaceInline(EditorPanelRuntime& runtime) {
     for (const auto& issue : validation.value("issues", nlohmann::json::array())) {
         ImGui::BulletText("%s", issue.value("message", "Invalid character field.").c_str());
     }
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Governed Appearance Asset");
+    static int appearanceSlot = 0;
+    static constexpr const char* appearanceSlots[] = {"portrait", "field", "battle", "layer"};
+    ImGui::Combo("Drop target", &appearanceSlot, appearanceSlots, IM_ARRAYSIZE(appearanceSlots));
+    ImGui::BeginChild("CharacterAppearanceAssetDrop", ImVec2(0.0f, 58.0f), true);
+    ImGui::TextUnformatted("Drop an attached image asset here");
+    if (ImGui::BeginDragDropTarget()) {
+        if (const auto* drag = ImGui::AcceptDragDropPayload("URPG_EDITOR_ASSET_V1")) {
+            const auto* begin = static_cast<const std::uint8_t*>(drag->Data);
+            std::vector<std::uint8_t> bytes(begin, begin + drag->DataSize);
+            urpg::editor::EditorAssetDragPayload asset;
+            const auto parsed = urpg::editor::deserializeEditorAssetDragPayload(bytes, &asset);
+            const auto accepted = parsed.accepted && asset.mediaKind == "image"
+                                      ? urpg::editor::assessEditorAssetDrop(asset, true)
+                                      : urpg::editor::EditorAssetDropDecision{
+                                            false, "character_asset_drop_requires_image",
+                                            "Character Creator accepts attached image assets only.",
+                                            "Attach an image in Assets, then drag it here."};
+            if (!accepted.accepted) {
+                runtime.map_asset_drop_status = accepted.message +
+                                                (accepted.remediation.empty() ? "" : " " + accepted.remediation);
+            } else if (model.assignAttachedAppearanceAsset(asset.assetId, appearanceSlots[appearanceSlot])) {
+                runtime.map_asset_drop_status = "Attached appearance asset assigned as one undoable Character Creator action.";
+            } else {
+                runtime.map_asset_drop_status = "Character appearance asset assignment made no change.";
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+    ImGui::EndChild();
+    if (ImGui::Button("Undo Appearance Assignment")) (void)model.undoAppearanceAssetAssignment();
+    ImGui::SameLine();
+    if (ImGui::Button("Redo Appearance Assignment")) (void)model.redoAppearanceAssetAssignment();
+    if (!runtime.map_asset_drop_status.empty()) ImGui::TextWrapped("%s", runtime.map_asset_drop_status.c_str());
 
     ImGui::Separator();
     if (ImGui::Button("Save Character")) {

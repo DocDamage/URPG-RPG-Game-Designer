@@ -173,6 +173,8 @@ void CharacterCreatorModel::loadIdentity(const urpg::character::CharacterIdentit
     m_identity = identity;
     m_dirty = false;
     m_last_spawned_entity.reset();
+    appearance_asset_history_.clear();
+    appearance_asset_redo_.clear();
 }
 
 void CharacterCreatorModel::resetDraft() {
@@ -183,6 +185,8 @@ void CharacterCreatorModel::resetDraft() {
     m_spawn_is_enemy = false;
     m_last_spawned_entity.reset();
     m_dirty = false;
+    appearance_asset_history_.clear();
+    appearance_asset_redo_.clear();
 }
 
 void CharacterCreatorModel::setName(const std::string& value) {
@@ -288,6 +292,54 @@ bool CharacterCreatorModel::selectPromotedAppearancePart(const std::string& asse
     } else {
         m_identity.addLayeredPartAssetId(it->asset_id);
     }
+    m_dirty = true;
+    return true;
+}
+
+bool CharacterCreatorModel::assignAttachedAppearanceAsset(const std::string& asset_id, const std::string& slot) {
+    if (asset_id.empty() || (slot != "portrait" && slot != "field" && slot != "battle" && slot != "layer")) {
+        return false;
+    }
+
+    const auto before = m_identity;
+    if (slot == "portrait") {
+        m_identity.setPortraitAssetId(asset_id);
+    } else if (slot == "field") {
+        m_identity.setFieldSpriteAssetId(asset_id);
+    } else if (slot == "battle") {
+        m_identity.setBattleSpriteAssetId(asset_id);
+    } else {
+        m_identity.addLayeredPartAssetId(asset_id);
+    }
+    if (before.toJson() == m_identity.toJson()) {
+        return false;
+    }
+    appearance_asset_history_.push_back({before, m_identity});
+    appearance_asset_redo_.clear();
+    m_dirty = true;
+    return true;
+}
+
+bool CharacterCreatorModel::undoAppearanceAssetAssignment() {
+    if (appearance_asset_history_.empty()) {
+        return false;
+    }
+    auto entry = std::move(appearance_asset_history_.back());
+    appearance_asset_history_.pop_back();
+    m_identity = entry.before;
+    appearance_asset_redo_.push_back(std::move(entry));
+    m_dirty = true;
+    return true;
+}
+
+bool CharacterCreatorModel::redoAppearanceAssetAssignment() {
+    if (appearance_asset_redo_.empty()) {
+        return false;
+    }
+    auto entry = std::move(appearance_asset_redo_.back());
+    appearance_asset_redo_.pop_back();
+    m_identity = entry.after;
+    appearance_asset_history_.push_back(std::move(entry));
     m_dirty = true;
     return true;
 }
