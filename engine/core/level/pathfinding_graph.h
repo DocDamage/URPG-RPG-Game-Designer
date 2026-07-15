@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -39,9 +40,12 @@ class PathfindingGraph {
     [[nodiscard]] bool blocked(PathGridPoint point) const;
     [[nodiscard]] int32_t cellCost(PathGridPoint point) const;
     [[nodiscard]] std::string blockReason(PathGridPoint point) const;
+    [[nodiscard]] bool traversalBlocked(PathGridPoint from, PathGridPoint to) const;
+    [[nodiscard]] std::string traversalBlockReason(PathGridPoint from, PathGridPoint to) const;
 
     bool setBlocked(int32_t x, int32_t y, bool blocked, std::string reason = {});
     bool setCellCost(int32_t x, int32_t y, int32_t cost);
+    bool setTraversalBlocked(PathGridPoint from, PathGridPoint to, bool blocked, std::string reason = {});
 
     [[nodiscard]] PathfindingResult findPath(PathGridPoint start, PathGridPoint goal) const;
 
@@ -52,11 +56,18 @@ class PathfindingGraph {
         std::string reason;
     };
 
+    struct Traversal {
+        bool blocked = false;
+        std::string reason;
+    };
+
     [[nodiscard]] size_t index(PathGridPoint point) const;
+    [[nodiscard]] std::optional<size_t> traversalIndex(PathGridPoint from, PathGridPoint to) const;
 
     int32_t width_ = 0;
     int32_t height_ = 0;
     std::vector<Cell> cells_;
+    std::vector<Traversal> traversals_;
 };
 
 } // namespace urpg::level

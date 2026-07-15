@@ -42,6 +42,19 @@ TEST_CASE("PathfindingGraph reports deterministic block reasons without mutating
     REQUIRE(stillBlocked.diagnostics == blocked.diagnostics);
 }
 
+TEST_CASE("PathfindingGraph honors directed traversal blocks", "[pathfinding][graph]") {
+    PathfindingGraph graph(2, 2);
+    REQUIRE(graph.setTraversalBlocked({0, 0}, {1, 0}, true, "one_way_gate"));
+    REQUIRE_FALSE(graph.setTraversalBlocked({0, 0}, {1, 1}, true, "diagonal"));
+
+    const auto routed = graph.findPath({0, 0}, {1, 0});
+    REQUIRE(routed.found);
+    REQUIRE(routed.nodes == std::vector<PathGridPoint>{{0, 0}, {0, 1}, {1, 1}, {1, 0}});
+    REQUIRE(graph.traversalBlocked({0, 0}, {1, 0}));
+    REQUIRE(graph.traversalBlockReason({0, 0}, {1, 0}) == "one_way_gate");
+    REQUIRE_FALSE(graph.traversalBlocked({1, 0}, {0, 0}));
+}
+
 TEST_CASE("PathfindingGraph rejects invalid endpoints with explicit diagnostics", "[pathfinding][graph]") {
     PathfindingGraph graph(2, 2);
     graph.setBlocked(1, 1, true, "goal_blocked");

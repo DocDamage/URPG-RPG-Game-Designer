@@ -30,7 +30,8 @@ std::string defaultBlockReason(PathGridPoint point) {
 
 PathfindingGraph::PathfindingGraph(int32_t width, int32_t height)
     : width_(std::max(0, width)), height_(std::max(0, height)),
-      cells_(static_cast<size_t>(width_) * static_cast<size_t>(height_)) {}
+      cells_(static_cast<size_t>(width_) * static_cast<size_t>(height_)),
+      traversals_(cells_.size() * 4U) {}
 
 bool PathfindingGraph::contains(PathGridPoint point) const {
     return point.x >= 0 && point.y >= 0 && point.x < width_ && point.y < height_;
@@ -58,6 +59,20 @@ std::string PathfindingGraph::blockReason(PathGridPoint point) const {
     return cell.reason.empty() ? defaultBlockReason(point) : cell.reason;
 }
 
+bool PathfindingGraph::traversalBlocked(const PathGridPoint from, const PathGridPoint to) const {
+    const auto traversal = traversalIndex(from, to);
+    return traversal.has_value() && traversals_[*traversal].blocked;
+}
+
+std::string PathfindingGraph::traversalBlockReason(const PathGridPoint from, const PathGridPoint to) const {
+    const auto traversal = traversalIndex(from, to);
+    if (!traversal.has_value() || !traversals_[*traversal].blocked) {
+        return {};
+    }
+    const auto& value = traversals_[*traversal];
+    return value.reason.empty() ? "traversal_blocked" : value.reason;
+}
+
 bool PathfindingGraph::setBlocked(int32_t x, int32_t y, bool isBlocked, std::string reason) {
     const PathGridPoint point{x, y};
     if (!contains(point)) {
@@ -75,6 +90,18 @@ bool PathfindingGraph::setCellCost(int32_t x, int32_t y, int32_t cost) {
         return false;
     }
     cells_[index(point)].cost = std::max(1, cost);
+    return true;
+}
+
+bool PathfindingGraph::setTraversalBlocked(const PathGridPoint from, const PathGridPoint to,
+                                           const bool is_blocked, std::string reason) {
+    const auto traversal = traversalIndex(from, to);
+    if (!traversal.has_value()) {
+        return false;
+    }
+    auto& value = traversals_[*traversal];
+    value.blocked = is_blocked;
+    value.reason = is_blocked ? std::move(reason) : std::string{};
     return true;
 }
 
@@ -163,6 +190,11 @@ PathfindingResult PathfindingGraph::findPath(PathGridPoint start, PathGridPoint 
                 }
                 continue;
             }
+            if (traversalBlocked(current.point, next)) {
+                blockedDiagnostics.push_back(
+                    {"neighbor_traversal_blocked", next, traversalBlockReason(current.point, next)});
+                continue;
+            }
 
             const int32_t nextCost = current.cost + cellCost(next);
             const size_t nextIndex = index(next);
@@ -182,6 +214,27 @@ PathfindingResult PathfindingGraph::findPath(PathGridPoint start, PathGridPoint 
 
 size_t PathfindingGraph::index(PathGridPoint point) const {
     return static_cast<size_t>(point.y) * static_cast<size_t>(width_) + static_cast<size_t>(point.x);
+}
+
+std::optional<size_t> PathfindingGraph::traversalIndex(const PathGridPoint from, const PathGridPoint to) const {
+    if (!contains(from) || !contains(to)) {
+        return std::nullopt;
+    }
+    const int32_t delta_x = to.x - from.x;
+    const int32_t delta_y = to.y - from.y;
+    size_t direction = 0;
+    if (delta_x == 1 && delta_y == 0) {
+        direction = 0;
+    } else if (delta_x == 0 && delta_y == 1) {
+        direction = 1;
+    } else if (delta_x == -1 && delta_y == 0) {
+        direction = 2;
+    } else if (delta_x == 0 && delta_y == -1) {
+        direction = 3;
+    } else {
+        return std::nullopt;
+    }
+    return index(from) * 4U + direction;
 }
 
 } // namespace urpg::level

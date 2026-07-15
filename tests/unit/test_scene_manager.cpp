@@ -300,6 +300,25 @@ TEST_CASE("MapScene: directional tile passage governs movement", "[scene][map][m
     REQUIRE(map.canMove(0, 0, urpg::Direction::Down));
 }
 
+TEST_CASE("MapScene: directional tile passage governs path routing", "[scene][map][pathfinding]") {
+    MapScene map("directional_path", 2, 1);
+    map.setTileWithTileset(0, 0, 1, true, "atlas", true, true, false, true);
+    map.setTileWithTileset(1, 0, 2, true, "atlas", true, true, true, true);
+
+    urpg::level::PathRequest request;
+    request.request_id = "map:player:directional_path";
+    request.actor_id = "player";
+    request.source = urpg::level::PathRequestSource::MapRuntime;
+    request.start = {0, 0};
+    request.goal = {1, 0};
+    const auto routed = map.routePathRequest(request);
+
+    REQUIRE_FALSE(routed.ok);
+    REQUIRE(routed.status == "blocked");
+    REQUIRE(routed.path.diagnostics == std::vector<urpg::level::PathfindingDiagnostic>{
+        {"neighbor_traversal_blocked", {1, 0}, "map_passage_blocked"}});
+}
+
 TEST_CASE("MapScene: invalid dimensions create an empty collision-safe map", "[scene][map][robustness]") {
     std::unique_ptr<MapScene> map;
     REQUIRE_NOTHROW(map = std::make_unique<MapScene>("invalid", -3, 2));

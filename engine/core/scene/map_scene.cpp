@@ -1832,6 +1832,16 @@ urpg::level::RoutedPathRequest MapScene::routePathRequest(urpg::level::PathReque
         for (int x = 0; x < m_width; ++x) {
             if (checkCollision(x, y)) {
                 graph.setBlocked(x, y, true, "map_collision");
+                continue;
+            }
+            for (const auto direction : {urpg::Direction::Right, urpg::Direction::Down,
+                                         urpg::Direction::Left, urpg::Direction::Up}) {
+                const auto delta = urpg::DirectionToVector(direction);
+                const urpg::level::PathGridPoint next{x + delta.x, y + delta.y};
+                if (!graph.contains(next) || checkCollision(next.x, next.y) || canMove(x, y, direction)) {
+                    continue;
+                }
+                graph.setTraversalBlocked({x, y}, next, true, "map_passage_blocked");
             }
         }
     }
