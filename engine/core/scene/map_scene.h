@@ -108,12 +108,14 @@ class MapScene : public GameScene {
             SetSwitch,
             SetVariable,
             AddVariable,
+            SetEventSelfSwitch,
         };
 
         struct StateWrite {
             StateWriteKind kind = StateWriteKind::SetVariable;
             std::string key;
             int32_t value = 0;
+            std::string event_id;
         };
 
         // A conditional projection of a single Perspective 2D event page.
@@ -336,7 +338,7 @@ class MapScene : public GameScene {
                                            const std::string& conversation_id);
     bool validateAuthoredDialogueStateWrites(const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes);
     void applyAuthoredDialogueStateWrites(const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes);
-    bool authoredDialoguePageConditionsMatch(
+    bool authoredDialoguePageConditionsMatch(const std::string& event_id,
         const std::vector<AuthoredDialogueInteraction::PageCondition>& conditions) const;
     bool beginActiveAuthoredDialogueNode(const std::string& node_id);
 

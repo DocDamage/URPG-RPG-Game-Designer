@@ -1732,6 +1732,7 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
     REQUIRE(workspace.AddPerspectiveEventFromScreen("moonwell", "Moonwell", "confirm_interact", 40.0f, 40.0f));
     REQUIRE(workspace.AddPerspectiveEventPage("moonwell", "main", "Main", "confirm_interact"));
     REQUIRE(workspace.AddPerspectiveEventPageCommand("moonwell", "main", "change_variable", "moonwell_visited=1"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("moonwell", "main", "change_self_switch", "A=true"));
     REQUIRE(workspace.AddPerspectiveEventPageCommand("moonwell", "main", "start_dialogue", "moonwell_intro"));
 
     REQUIRE(map.authoredDialogueInteractions().size() == 1);
@@ -1762,9 +1763,24 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
                                                           original_interaction.tile_y));
     REQUIRE(map.activeDialogueConversationId() == "project.dialogue.moonwell_ranked");
 
+    {
+        std::ofstream output(project_root / "content" / "dialogues" / "moonwell_self_switch.json", std::ios::binary);
+        REQUIRE(output.good());
+        output << graph.serialize().dump(2) << '\n';
+    }
+    REQUIRE(workspace.AddPerspectiveEventPage("moonwell", "self_switch", "Self Switch", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageConditionRule("moonwell", "self_switch", "self_switch", "A", "equals",
+                                                            "true"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("moonwell", "self_switch", "start_dialogue",
+                                                      "moonwell_self_switch"));
+    REQUIRE(map.authoredDialogueInteractions().front().page_candidates.size() == 3);
+    REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", original_interaction.tile_x,
+                                                          original_interaction.tile_y));
+    REQUIRE(map.activeDialogueConversationId() == "project.dialogue.moonwell_self_switch");
+
     auto duplicate = original_interaction;
     duplicate.event_id = "duplicate";
-    REQUIRE_FALSE(map.setAuthoredDialogueInteractions({interaction, duplicate}));
+    REQUIRE_FALSE(map.setAuthoredDialogueInteractions({original_interaction, duplicate}));
     REQUIRE(map.authoredDialogueInteractions().size() == 1);
 
     urpg::scene::MapScene::AuthoredDialogueInteraction rejected_interaction;

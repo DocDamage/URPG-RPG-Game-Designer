@@ -75,6 +75,12 @@ bool isStableDialogueProjectId(const std::string& dialogue_id) {
            });
 }
 
+std::string mapEventSelfSwitchStateKey(const std::string& map_id,
+                                       const std::string& event_id,
+                                       const std::string& key) {
+    return "authored_map_self_switch:" + map_id + ":" + event_id + ":" + key;
+}
+
 bool isSupportedPerspectivePageComparison(const std::string& comparison) {
     return comparison.empty() || comparison == "equals" || comparison == "not_equals" ||
            comparison == "greater_equal" || comparison == "greater_than" || comparison == "less_equal" ||
@@ -852,15 +858,24 @@ bool MapScene::setAuthoredDialogueInteractions(std::vector<AuthoredDialogueInter
             return false;
         }
         if (std::any_of(interaction.state_writes.begin(), interaction.state_writes.end(),
-                        [](const AuthoredDialogueInteraction::StateWrite& write) { return write.key.empty(); })) {
+                        [](const AuthoredDialogueInteraction::StateWrite& write) {
+                            return write.key.empty() ||
+                                   (write.kind == AuthoredDialogueInteraction::StateWriteKind::SetEventSelfSwitch &&
+                                    write.event_id.empty());
+                        })) {
             return false;
         }
         for (const auto& page : interaction.page_candidates) {
             if (page.page_id.empty() || !isStableDialogueProjectId(page.dialogue_id) ||
                 std::any_of(page.state_writes.begin(), page.state_writes.end(),
-                            [](const AuthoredDialogueInteraction::StateWrite& write) { return write.key.empty(); }) ||
+                            [](const AuthoredDialogueInteraction::StateWrite& write) {
+                                return write.key.empty() ||
+                                       (write.kind == AuthoredDialogueInteraction::StateWriteKind::SetEventSelfSwitch &&
+                                        write.event_id.empty());
+                            }) ||
                 std::any_of(page.conditions.begin(), page.conditions.end(), [](const auto& condition) {
-                    return (condition.type != "switch" && condition.type != "variable") || condition.key.empty() ||
+                    return (condition.type != "switch" && condition.type != "variable" &&
+                            condition.type != "self_switch") || condition.key.empty() ||
                            !isSupportedPerspectivePageComparison(condition.comparison);
                 })) {
                 return false;
@@ -882,7 +897,11 @@ bool MapScene::setAuthoredDialogueInteractions(std::vector<AuthoredDialogueInter
 bool MapScene::validateAuthoredDialogueStateWrites(
     const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes) {
     if (std::any_of(state_writes.begin(), state_writes.end(),
-                    [](const AuthoredDialogueInteraction::StateWrite& write) { return write.key.empty(); })) {
+                    [](const AuthoredDialogueInteraction::StateWrite& write) {
+                        return write.key.empty() ||
+                               (write.kind == AuthoredDialogueInteraction::StateWriteKind::SetEventSelfSwitch &&
+                                write.event_id.empty());
+                    })) {
         m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_state_write_key_missing");
         return false;
     }
@@ -904,11 +923,15 @@ void MapScene::applyAuthoredDialogueStateWrites(
             state.setVariable(write.key, saturatingDialogueEffectDelta(authoredDialogueVariableValue(write.key),
                                                                          write.value));
             break;
+        case AuthoredDialogueInteraction::StateWriteKind::SetEventSelfSwitch:
+            state.setSwitch(mapEventSelfSwitchStateKey(m_mapId, write.event_id, write.key), write.value != 0);
+            break;
         }
     }
 }
 
 bool MapScene::authoredDialoguePageConditionsMatch(
+    const std::string& event_id,
     const std::vector<AuthoredDialogueInteraction::PageCondition>& conditions) const {
     const auto& state = urpg::GlobalStateHub::getInstance();
     const auto switches = state.getAllSwitches();
@@ -937,6 +960,22 @@ bool MapScene::authoredDialoguePageConditionsMatch(
             } else {
                 return false;
             }
+        } else if (condition.type == "self_switch") {
+            std::string condition_event_id = event_id;
+            std::string condition_key = condition.key;
+            const size_t separator = condition_key.find(':');
+            if (separator != std::string::npos) {
+                condition_event_id = condition_key.substr(0, separator);
+                condition_key = condition_key.substr(separator + 1);
+            }
+            if (condition_event_id.empty() || condition_key.empty()) {
+                return false;
+            }
+            const auto value = switches.find(mapEventSelfSwitchStateKey(m_mapId, condition_event_id, condition_key));
+            if (value == switches.end()) {
+                return false;
+            }
+            actual_value = value->second ? "true" : "false";
         } else {
             return false;
         }
@@ -957,7 +996,7 @@ bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigg
     }
     const AuthoredDialogueInteraction::PageCandidate* selected_page = nullptr;
     for (const auto& page : interaction->page_candidates) {
-        if (authoredDialoguePageConditionsMatch(page.conditions)) {
+        if (authoredDialoguePageConditionsMatch(interaction->event_id, page.conditions)) {
             selected_page = &page;
         }
     }

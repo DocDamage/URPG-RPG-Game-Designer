@@ -3552,6 +3552,19 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
                             });
                         }
                     }
+                    for (const auto& entry : result.self_switches) {
+                        const size_t separator = entry.key.find(':');
+                        if (separator == std::string::npos || separator == 0 || separator + 1 >= entry.key.size()) {
+                            continue;
+                        }
+                        const std::string normalized_value = lowerCopy(trimCopy(entry.value));
+                        state_writes.push_back({
+                            urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetEventSelfSwitch,
+                            entry.key.substr(separator + 1),
+                            normalized_value == "true" || normalized_value == "1" || normalized_value == "on" ? 1 : 0,
+                            entry.key.substr(0, separator),
+                        });
+                    }
                     if (m_target_scene == nullptr) {
                         result.blocker_codes.push_back("p2d_event_dialogue_start_failed:" + argument);
                         return;
@@ -4121,6 +4134,21 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
                                                  ? urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::AddVariable
                                                  : urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetVariable);
                     state_writes.push_back({kind, key, subtract != std::string::npos ? -value : value});
+                } else if (command.code == "change_self_switch") {
+                    const auto equals = argument.find('=');
+                    if (equals == std::string::npos) {
+                        continue;
+                    }
+                    const std::string key = trimCopy(argument.substr(0, equals));
+                    const std::string value = lowerCopy(trimCopy(argument.substr(equals + 1)));
+                    if (!key.empty()) {
+                        state_writes.push_back({
+                            urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetEventSelfSwitch,
+                            key,
+                            value == "true" || value == "1" || value == "on" ? 1 : 0,
+                            event.event_id,
+                        });
+                    }
                 }
             }
             urpg::scene::MapScene::AuthoredDialogueInteraction::PageCandidate candidate;
@@ -4128,7 +4156,8 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
             candidate.dialogue_id = dialogue_id;
             candidate.state_writes = std::move(state_writes);
             for (const auto& condition : conditions) {
-                if (condition.type != "switch" && condition.type != "variable") {
+                if (condition.type != "switch" && condition.type != "variable" &&
+                    condition.type != "self_switch") {
                     return std::nullopt;
                 }
                 candidate.conditions.push_back({condition.type, condition.key, condition.comparison, condition.value});
