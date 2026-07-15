@@ -2334,6 +2334,12 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         workspace.setNextActionHint("Character authoring opened from the active Map context.");
     }
     ImGui::SameLine();
+    if (ImGui::Button("Edit Ability for This Map")) {
+        (void)editorShell.openPanel("ability");
+        runtime.focus_workspace_next_frame = true;
+        workspace.setNextActionHint("Ability authoring opened from the active Map context.");
+    }
+    ImGui::SameLine();
     ImGui::TextDisabled("Keeps the active project and Map context intact.");
     static std::string questId = "restore_moonwell_lantern";
     static std::string questTitle = "Restore the Moonwell Lantern";
