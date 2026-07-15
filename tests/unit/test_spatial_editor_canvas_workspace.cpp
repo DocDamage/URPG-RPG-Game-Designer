@@ -1802,6 +1802,18 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
     REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", rune_tile_x, rune_tile_y));
     REQUIRE(map.activeDialogueConversationId().empty());
     REQUIRE(map.isDialogueActive());
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("rune_sign", "main", "start_dialogue", "moonwell_intro"));
+    REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", rune_tile_x, rune_tile_y));
+    REQUIRE(map.activeDialogueConversationId().empty());
+    urpg::input::InputCore mixed_sequence_input;
+    mixed_sequence_input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(mixed_sequence_input);
+    mixed_sequence_input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Released);
+    map.handleInput(mixed_sequence_input);
+    mixed_sequence_input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(mixed_sequence_input);
+    REQUIRE(map.activeDialogueConversationId() == "project.dialogue.moonwell_intro");
+    REQUIRE(map.isDialogueActive());
     REQUIRE(workspace.SetPerspectiveEventBlocksMovement("rune_sign", true));
     REQUIRE(map.checkCollision(rune_tile_x, rune_tile_y));
     REQUIRE(workspace.AddPerspectiveEventPage("rune_sign", "cleansed", "Cleansed", "confirm_interact"));

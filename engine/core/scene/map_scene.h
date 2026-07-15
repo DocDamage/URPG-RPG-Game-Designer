@@ -389,6 +389,12 @@ class MapScene : public GameScene {
     bool authoredDialoguePageConditionsMatch(const std::string& event_id,
                                              const std::vector<MapEventPageCondition>& conditions) const;
     bool beginActiveAuthoredDialogueNode(const std::string& node_id);
+    bool beginPendingAuthoredDialogue();
+
+    struct PendingAuthoredDialogue {
+        urpg::dialogue::DialogueGraph graph;
+        std::string conversation_id;
+    };
 
     std::string m_mapId;
     int m_width;
@@ -419,6 +425,7 @@ class MapScene : public GameScene {
     std::string m_activeDialogueConversationId;
     std::vector<std::string> m_dialogueRuntimeDiagnostics;
     std::optional<urpg::dialogue::DialogueGraph> m_activeAuthoredDialogueGraph;
+    std::optional<PendingAuthoredDialogue> m_pendingAuthoredDialogue;
     std::string m_activeAuthoredDialogueNodeId;
     std::optional<urpg::localization::LocaleCatalog> m_dialogueLocaleCatalog;
     std::string m_activeAuthoredDialogueCaption;

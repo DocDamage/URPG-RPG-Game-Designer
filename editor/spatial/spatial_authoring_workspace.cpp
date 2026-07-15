@@ -4362,9 +4362,7 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
             urpg::scene::MapScene::AuthoredDialogueInteraction::PageCandidate candidate;
             candidate.page_id = page_id;
             candidate.dialogue_id = dialogue_id;
-            if (dialogue_id.empty()) {
-                candidate.message_pages = std::move(message_pages);
-            }
+            candidate.message_pages = std::move(message_pages);
             candidate.state_writes = std::move(state_writes);
             for (const auto& condition : conditions) {
                 if (condition.type != "switch" && condition.type != "variable" &&

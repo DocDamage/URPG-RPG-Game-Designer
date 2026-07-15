@@ -21,6 +21,10 @@ without adding a general script or arbitrary file-loading command.
   `start_dialogue` command starts an equivalent native message sequence. Its
   supported state writes preceding the first message apply through the same
   native state owner before presentation.
+- A visible, matched page may combine `show_text` and `start_dialogue`. The
+  graph is loaded and admitted before its preceding supported state writes or
+  message sequence begin; after the final native message page is advanced, the
+  already-admitted graph starts through the same native dialogue owner.
 - `MapScene` accepts only non-empty IDs containing letters, digits, `_`, or
   `-`, reads only that fixed project-local location, parses the native graph
   schema, and starts it using the existing authored-dialogue runtime owner.
@@ -49,8 +53,7 @@ without adding a general script or arbitrary file-loading command.
 
 This supports visible switch/integer-variable/event-local-self-switch
 conditional map-event pages and the existing native `confirm_interact` path;
-other event commands, mixed `show_text` plus saved-graph sequences, interaction
-animation, dialogue-choice-effect
+other event commands, interaction animation, dialogue-choice-effect
 synchronization beyond native dialogue state into the Perspective 2D
 preview-state document, and playthrough/package/
 release qualification remain open. Builds and test execution remain deferred

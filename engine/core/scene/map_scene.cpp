@@ -598,6 +598,9 @@ void MapScene::handleInput(const urpg::input::InputCore& input) {
             if (input.isActionJustPressed(urpg::input::InputAction::MoveDown))
                 m_messageRunner.moveChoiceNext();
         }
+        if (!m_messageRunner.isActive() && m_pendingAuthoredDialogue.has_value() && !beginPendingAuthoredDialogue()) {
+            m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_event_pending_start_failed");
+        }
         return; // Block character movement during dialogue
     }
 
@@ -879,6 +882,7 @@ void MapScene::validateRenderAssetReferences() {
 }
 
 void MapScene::startDialogue(const std::vector<urpg::message::DialoguePage>& pages) {
+    m_pendingAuthoredDialogue.reset();
     m_activeDialogueConversationId.clear();
     m_dialogueRuntimeDiagnostics.clear();
     m_activeAuthoredDialogueGraph.reset();
@@ -889,6 +893,7 @@ void MapScene::startDialogue(const std::vector<urpg::message::DialoguePage>& pag
 }
 
 bool MapScene::startAuthoredDialogue(const urpg::dialogue::DialogueGraph& graph, std::string conversation_id) {
+    m_pendingAuthoredDialogue.reset();
     if (!validateAuthoredDialogueAdmission(graph, conversation_id)) {
         return false;
     }
@@ -1173,9 +1178,17 @@ bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigg
     }
     const std::string& dialogue_id = selected_page != nullptr ? selected_page->dialogue_id : interaction->dialogue_id;
     const auto& state_writes = selected_page != nullptr ? selected_page->state_writes : interaction->state_writes;
-    if (selected_page != nullptr && selected_page->dialogue_id.empty()) {
+    if (selected_page != nullptr && !selected_page->message_pages.empty()) {
         m_dialogueRuntimeDiagnostics.clear();
-        if (!validateAuthoredDialogueStateWrites(state_writes)) {
+        std::optional<urpg::dialogue::DialogueGraph> pending_graph;
+        std::string pending_conversation_id;
+        if (!dialogue_id.empty()) {
+            pending_graph = loadAuthoredDialogueFromProject(dialogue_id);
+            pending_conversation_id = "project.dialogue." + dialogue_id;
+        }
+        if (!validateAuthoredDialogueStateWrites(state_writes) ||
+            (!dialogue_id.empty() &&
+             (!pending_graph.has_value() || !validateAuthoredDialogueAdmission(*pending_graph, pending_conversation_id)))) {
             m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_event_trigger_failed:" + interaction->event_id);
             return true;
         }
@@ -1187,13 +1200,31 @@ bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigg
                                  std::to_string(index),
                              selected_page->message_pages[index], {}, true, {}, 0});
         }
-        startDialogue(pages);
+        m_activeDialogueConversationId.clear();
+        m_activeAuthoredDialogueGraph.reset();
+        m_activeAuthoredDialogueNodeId.clear();
+        m_activeAuthoredDialogueCaption.clear();
+        m_activeAuthoredDialogueVoiceAssetId.clear();
+        m_pendingAuthoredDialogue.reset();
+        if (pending_graph.has_value()) {
+            m_pendingAuthoredDialogue = {std::move(*pending_graph), std::move(pending_conversation_id)};
+        }
+        m_messageRunner.begin(std::move(pages));
         return true;
     }
     if (!startAuthoredDialogueFromProjectWithStateWrites(dialogue_id, state_writes)) {
         m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_event_trigger_failed:" + interaction->event_id);
     }
     return true;
+}
+
+bool MapScene::beginPendingAuthoredDialogue() {
+    if (!m_pendingAuthoredDialogue.has_value()) {
+        return false;
+    }
+    PendingAuthoredDialogue pending = std::move(*m_pendingAuthoredDialogue);
+    m_pendingAuthoredDialogue.reset();
+    return startAuthoredDialogue(pending.graph, std::move(pending.conversation_id));
 }
 
 void MapScene::setDialogueLocaleCatalog(std::optional<urpg::localization::LocaleCatalog> catalog) {
