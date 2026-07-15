@@ -131,6 +131,7 @@ class MapScene : public GameScene {
         struct PageCandidate {
             std::string page_id;
             std::string dialogue_id;
+            std::vector<std::string> message_pages;
             std::vector<PageCondition> conditions;
             std::vector<StateWrite> state_writes;
         };

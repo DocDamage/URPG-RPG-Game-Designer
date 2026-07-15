@@ -17,6 +17,10 @@ without adding a general script or arbitrary file-loading command.
   interaction path for its authored trigger. At input time, the final matching
   page wins using the same ordered switch, integer-variable, and event-local
   self-switch comparisons as the authoring preview.
+- A visible, matched event page with one or more `show_text` commands and no
+  `start_dialogue` command starts an equivalent native message sequence. Its
+  supported state writes preceding the first message apply through the same
+  native state owner before presentation.
 - `MapScene` accepts only non-empty IDs containing letters, digits, `_`, or
   `-`, reads only that fixed project-local location, parses the native graph
   schema, and starts it using the existing authored-dialogue runtime owner.
@@ -45,7 +49,8 @@ without adding a general script or arbitrary file-loading command.
 
 This supports visible switch/integer-variable/event-local-self-switch
 conditional map-event pages and the existing native `confirm_interact` path;
-other event commands, interaction animation/collision, dialogue-choice-effect
+other event commands, mixed `show_text` plus saved-graph sequences, interaction
+animation/collision, dialogue-choice-effect
 synchronization beyond native dialogue state into the Perspective 2D
 preview-state document, and playthrough/package/
 release qualification remain open. Builds and test execution remain deferred

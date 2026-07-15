@@ -1786,6 +1786,22 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
                                                           original_interaction.tile_y));
     REQUIRE(map.activeDialogueConversationId() == "project.dialogue.moonwell_self_switch");
 
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("rune_sign", "Rune Sign", "confirm_interact", 20.0f, 40.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("rune_sign", "main", "Main", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("rune_sign", "main", "show_text", "The rune hums."));
+    const auto rune_interaction = std::find_if(map.authoredDialogueInteractions().begin(),
+                                               map.authoredDialogueInteractions().end(), [](const auto& candidate) {
+                                                   return candidate.event_id == "rune_sign";
+                                               });
+    REQUIRE(rune_interaction != map.authoredDialogueInteractions().end());
+    REQUIRE(rune_interaction->page_candidates.size() == 1);
+    REQUIRE(rune_interaction->page_candidates.front().dialogue_id.empty());
+    REQUIRE(rune_interaction->page_candidates.front().message_pages == std::vector<std::string>{"The rune hums."});
+    REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", rune_interaction->tile_x,
+                                                          rune_interaction->tile_y));
+    REQUIRE(map.activeDialogueConversationId().empty());
+    REQUIRE(map.isDialogueActive());
+
     auto duplicate = original_interaction;
     duplicate.event_id = "duplicate";
     REQUIRE_FALSE(map.setAuthoredDialogueInteractions({original_interaction, duplicate}));

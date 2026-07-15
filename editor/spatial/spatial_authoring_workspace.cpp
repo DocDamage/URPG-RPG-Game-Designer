@@ -4090,18 +4090,29 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
             -> std::optional<urpg::scene::MapScene::AuthoredDialogueInteraction::PageCandidate> {
             std::string dialogue_id;
             size_t dialogue_command_index = commands.size();
+            size_t first_message_command_index = commands.size();
+            std::vector<std::string> message_pages;
             for (size_t index = 0; index < commands.size(); ++index) {
                 if (commands[index].code == "start_dialogue") {
                     dialogue_id = trimCopy(commands[index].argument);
                     dialogue_command_index = index;
+                } else if (commands[index].code == "show_text") {
+                    if (first_message_command_index == commands.size()) {
+                        first_message_command_index = index;
+                    }
+                    const std::string message = trimCopy(commands[index].argument);
+                    if (!message.empty()) {
+                        message_pages.push_back(message);
+                    }
                 }
             }
-            if (dialogue_id.empty()) {
+            if (dialogue_id.empty() && message_pages.empty()) {
                 return std::nullopt;
             }
+            const size_t state_write_limit = dialogue_id.empty() ? first_message_command_index : dialogue_command_index;
 
             std::vector<urpg::scene::MapScene::AuthoredDialogueInteraction::StateWrite> state_writes;
-            for (size_t index = 0; index < dialogue_command_index; ++index) {
+            for (size_t index = 0; index < state_write_limit; ++index) {
                 const auto& command = commands[index];
                 const std::string argument = trimCopy(command.argument);
                 if (command.code == "change_switch") {
@@ -4156,6 +4167,9 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
             urpg::scene::MapScene::AuthoredDialogueInteraction::PageCandidate candidate;
             candidate.page_id = page_id;
             candidate.dialogue_id = dialogue_id;
+            if (dialogue_id.empty()) {
+                candidate.message_pages = std::move(message_pages);
+            }
             candidate.state_writes = std::move(state_writes);
             for (const auto& condition : conditions) {
                 if (condition.type != "switch" && condition.type != "variable" &&
@@ -4172,8 +4186,13 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
             if (!candidate.has_value()) {
                 continue;
             }
-            interactions.push_back({event.event_id, event.trigger_id, candidate->dialogue_id, event.tile_x, event.tile_y,
-                                    std::move(candidate->state_writes)});
+            urpg::scene::MapScene::AuthoredDialogueInteraction interaction;
+            interaction.event_id = event.event_id;
+            interaction.trigger_id = event.trigger_id;
+            interaction.tile_x = event.tile_x;
+            interaction.tile_y = event.tile_y;
+            interaction.page_candidates.push_back(std::move(*candidate));
+            interactions.push_back(std::move(interaction));
             continue;
         }
 

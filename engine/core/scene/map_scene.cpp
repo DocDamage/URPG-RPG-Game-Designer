@@ -877,7 +877,11 @@ bool MapScene::setAuthoredDialogueInteractions(std::vector<AuthoredDialogueInter
             return false;
         }
         for (const auto& page : interaction.page_candidates) {
-            if (page.page_id.empty() || !isStableDialogueProjectId(page.dialogue_id) ||
+            if (page.page_id.empty() ||
+                (page.dialogue_id.empty() && page.message_pages.empty()) ||
+                (!page.dialogue_id.empty() && !isStableDialogueProjectId(page.dialogue_id)) ||
+                std::any_of(page.message_pages.begin(), page.message_pages.end(),
+                            [](const std::string& message) { return message.empty(); }) ||
                 std::any_of(page.state_writes.begin(), page.state_writes.end(),
                             [](const AuthoredDialogueInteraction::StateWrite& write) {
                                 return write.key.empty() ||
@@ -1049,6 +1053,23 @@ bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigg
     }
     const std::string& dialogue_id = selected_page != nullptr ? selected_page->dialogue_id : interaction->dialogue_id;
     const auto& state_writes = selected_page != nullptr ? selected_page->state_writes : interaction->state_writes;
+    if (selected_page != nullptr && selected_page->dialogue_id.empty()) {
+        m_dialogueRuntimeDiagnostics.clear();
+        if (!validateAuthoredDialogueStateWrites(state_writes)) {
+            m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_event_trigger_failed:" + interaction->event_id);
+            return true;
+        }
+        applyAuthoredDialogueStateWrites(state_writes);
+        std::vector<urpg::message::DialoguePage> pages;
+        pages.reserve(selected_page->message_pages.size());
+        for (size_t index = 0; index < selected_page->message_pages.size(); ++index) {
+            pages.push_back({"authored_event." + interaction->event_id + "." + selected_page->page_id + "." +
+                                 std::to_string(index),
+                             selected_page->message_pages[index], {}, true, {}, 0});
+        }
+        startDialogue(pages);
+        return true;
+    }
     if (!startAuthoredDialogueFromProjectWithStateWrites(dialogue_id, state_writes)) {
         m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_event_trigger_failed:" + interaction->event_id);
     }
