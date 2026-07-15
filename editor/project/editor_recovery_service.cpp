@@ -10,6 +10,7 @@
 #include <iterator>
 #include <limits>
 #include <nlohmann/json.hpp>
+#include <set>
 
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -73,18 +74,58 @@ uint32_t EditorRecoveryService::calculateChecksum(const std::string_view data) {
 
 bool EditorRecoveryService::createRecoverySnapshot(const std::filesystem::path& project_root,
                                                     const std::string& project_id,
-                                                    const std::vector<std::string>& dirty_document_ids) {
+                                                    const std::vector<std::string>& dirty_document_ids,
+                                                    const std::vector<RecoveryDocumentDraft>& drafts) {
     if (project_root.empty() || !std::filesystem::is_directory(project_root) || dirty_document_ids.empty()) return false;
+    std::set<std::string> draftPaths;
+    for (const auto& draft : drafts) {
+        if (draft.document_id.empty() || !isSafeRelativePath(draft.project_relative_path) ||
+            !draftPaths.insert(draft.project_relative_path.generic_string()).second) {
+            return false;
+        }
+    }
     const auto now = std::chrono::system_clock::now();
     const auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
     const auto snapshot_id = "recovery_" + std::to_string(now.time_since_epoch().count());
     project::ProjectSnapshotStore store;
     const auto result = store.createSnapshot(project_root, project_root / ".urpg" / "recovery", snapshot_id);
     if (!result.success) return false;
+    const auto discardSnapshot = [&result] {
+        std::error_code error;
+        std::filesystem::remove_all(result.snapshot_path, error);
+    };
 
     nlohmann::json manifest = result.manifest;
+    std::set<std::string> files;
+    for (const auto& file : manifest["files"]) {
+        if (!file.is_string()) {
+            discardSnapshot();
+            return false;
+        }
+        const auto relative = std::filesystem::path(file.get<std::string>());
+        if (!isSafeRelativePath(relative)) {
+            discardSnapshot();
+            return false;
+        }
+        files.insert(relative.generic_string());
+    }
+    std::string writeError;
+    for (const auto& draft : drafts) {
+        const auto payload = result.snapshot_path / "project" / draft.project_relative_path;
+        std::error_code filesystemError;
+        std::filesystem::create_directories(payload.parent_path(), filesystemError);
+        if (filesystemError || !SaveJournal::WriteAtomically(payload, draft.serialized_contents, &writeError)) {
+            discardSnapshot();
+            return false;
+        }
+        files.insert(draft.project_relative_path.generic_string());
+    }
+    manifest["files"] = nlohmann::json::array();
+    for (const auto& file : files) manifest["files"].push_back(file);
     manifest["project_id"] = project_id;
     manifest["dirty_document_ids"] = dirty_document_ids;
+    manifest["recovery_draft_document_ids"] = nlohmann::json::array();
+    for (const auto& draft : drafts) manifest["recovery_draft_document_ids"].push_back(draft.document_id);
     manifest["timestamp"] = timestamp;
     manifest["app_version"] = versionString();
     manifest["file_checksums"] = nlohmann::json::object();
@@ -97,8 +138,11 @@ bool EditorRecoveryService::createRecoverySnapshot(const std::filesystem::path& 
         manifest["file_checksums"][relative.generic_string()] = calculateChecksum(readFile(payload));
     }
     manifest["checksum"] = calculateChecksum(manifest.dump());
-    std::string error;
-    return SaveJournal::WriteAtomically(result.snapshot_path / "snapshot_manifest.json", manifest.dump(2) + "\n", &error);
+    if (SaveJournal::WriteAtomically(result.snapshot_path / "snapshot_manifest.json", manifest.dump(2) + "\n", &writeError)) {
+        return true;
+    }
+    discardSnapshot();
+    return false;
 }
 
 std::vector<RecoverySnapshotMeta> EditorRecoveryService::listSnapshots(const std::filesystem::path& project_root) const {

@@ -142,10 +142,14 @@ struct EditorPanelRuntime {
     std::string map_asset_drop_status;
     std::string project_session_status;
     std::string recovery_status;
+    std::chrono::steady_clock::time_point next_recovery_snapshot_at{};
     bool map_dirty_surface_registered = false;
     bool perspective_2d_dirty_surface_registered = false;
     bool ability_dirty_surface_registered = false;
 };
+
+constexpr const char* kMapDirtyDocumentId = "map.grid_parts";
+constexpr const char* kPerspective2DDirtyDocumentId = "map.perspective_2d";
 
 std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asset) {
     std::string stem;
@@ -395,6 +399,54 @@ urpg::editor::EditorDirtySaveResult saveAbilityDraft(EditorPanelRuntime& runtime
     runtime.ability_inspector_panel.markDraftPersisted();
     return {true, "ability_saved",
             "Saved draft ability to " + std::filesystem::relative(target_path, runtime.project_root).generic_string() + "."};
+}
+
+void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
+    if (!runtime.project_session.isOpen() || runtime.project_root.empty()) return;
+    const auto mapDirty = runtime.dirty_state_registry.isDirty(kMapDirtyDocumentId) ||
+                          runtime.dirty_state_registry.isDirty(kPerspective2DDirtyDocumentId);
+    const auto abilityDirty = runtime.dirty_state_registry.isDirty("ability.draft");
+    if (!mapDirty && !abilityDirty) return;
+
+    std::vector<urpg::editor::RecoveryDocumentDraft> drafts;
+    if (mapDirty) {
+        const auto perspectiveDraft = runtime.perspective_2d_workspace.PreparePerspectiveMapDraftSave();
+        if (!perspectiveDraft.success) {
+            runtime.recovery_status = "Recovery snapshot deferred: " + perspectiveDraft.message;
+            return;
+        }
+        const auto mapStem = runtime.level_builder_document.mapId();
+        drafts.push_back({kMapDirtyDocumentId, std::filesystem::path("content") / "maps" / (mapStem + ".grid.json"),
+                          urpg::map::GridPartDocumentToJson(runtime.level_builder_document).dump(2) + "\n"});
+        drafts.push_back({kPerspective2DDirtyDocumentId,
+                          std::filesystem::path("content") / "maps" / (mapStem + ".p2d.json"),
+                          perspectiveDraft.serialized_document_json + "\n"});
+    }
+    if (abilityDirty) {
+        const auto ability = runtime.ability_inspector_panel.getDraftAsset();
+        drafts.push_back({"ability.draft", std::filesystem::path("content") / "abilities" / abilityAssetFileName(ability),
+                          nlohmann::json(ability).dump(2) + "\n"});
+    }
+
+    const auto dirtyDocumentIds = runtime.dirty_state_registry.dirtyDocumentIds();
+    if (runtime.recovery_service.createRecoverySnapshot(runtime.project_root, runtime.project_session.activeProject().project_id,
+                                                        dirtyDocumentIds, drafts)) {
+        runtime.recovery_service.pruneSnapshots(runtime.project_root, 12, 512ULL * 1024ULL * 1024ULL);
+        runtime.recovery_status = "Recovery snapshot captured privately; manual saves remain unchanged.";
+    } else {
+        runtime.recovery_status = "Recovery snapshot could not be captured; unsaved work remains only in this editor session.";
+    }
+}
+
+void captureScheduledRecoverySnapshot(EditorPanelRuntime& runtime) {
+    if (runtime.creator_mode || !runtime.project_session.isOpen()) return;
+    const auto now = std::chrono::steady_clock::now();
+    if (runtime.next_recovery_snapshot_at != std::chrono::steady_clock::time_point{} &&
+        now < runtime.next_recovery_snapshot_at) {
+        return;
+    }
+    captureRecoverySnapshot(runtime);
+    runtime.next_recovery_snapshot_at = now + std::chrono::minutes(5);
 }
 
 void bindMapAuthoringProject(EditorPanelRuntime& runtime, const std::filesystem::path& projectRoot) {
@@ -1945,8 +1997,6 @@ void renderPerspectiveWorkspace(EditorPanelRuntime& runtime) {
 
 void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
     auto& workspace = runtime.map_authoring_workspace;
-    constexpr const char* kMapDirtyDocumentId = "map.grid_parts";
-    constexpr const char* kPerspective2DDirtyDocumentId = "map.perspective_2d";
     if (!runtime.map_dirty_surface_registered) {
         runtime.map_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
             kMapDirtyDocumentId,
@@ -2531,6 +2581,28 @@ void renderEditorWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRu
     if (!runtime.recovery_status.empty()) {
         ImGui::TextDisabled("Recovery: %s", runtime.recovery_status.c_str());
     }
+    if (runtime.project_session.isOpen()) {
+        const auto recoverySnapshots = runtime.recovery_service.listSnapshots(runtime.project_root);
+        if (!recoverySnapshots.empty()) {
+            ImGui::TextDisabled("Recovery snapshots: %zu private snapshot%s available", recoverySnapshots.size(),
+                                recoverySnapshots.size() == 1 ? "" : "s");
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Restore Latest to New Folder")) {
+                const auto stamp = std::chrono::duration_cast<std::chrono::seconds>(
+                                       std::chrono::system_clock::now().time_since_epoch())
+                                       .count();
+                const auto destination = runtime.project_root.parent_path() /
+                                         (runtime.project_root.filename().string() + "_recovered_" +
+                                          std::to_string(stamp));
+                if (runtime.recovery_service.restoreRecoverySnapshot(recoverySnapshots.front().path, destination)) {
+                    runtime.recovery_status = "Recovery restored safely to " + destination.generic_string() +
+                                              ". Review it, then open it as a project when ready.";
+                } else {
+                    runtime.recovery_status = "Recovery restore failed; the open project and snapshot were left unchanged.";
+                }
+            }
+        }
+    }
     ImGui::Separator();
 
     if (snapshot.active_panel_id == "diagnostics") {
@@ -2668,6 +2740,7 @@ bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& e
             (void)panelRuntime->dirty_state_registry.markDirty(
                 "ability.draft", panelRuntime->ability_inspector_panel.hasUnsavedDraft());
             panelRuntime->project_session.setDirtySurfaceSummaries(panelRuntime->dirty_state_registry.dirtyDocumentIds());
+            captureScheduledRecoverySnapshot(*panelRuntime);
         }
         rendered = editorShell.endFrame() && rendered;
     }
@@ -2935,6 +3008,7 @@ int main(int argc, char** argv) {
         panelRuntime.project_session.addSwitchListener([&panelRuntime](const urpg::editor::EditorProjectIdentity& identity) {
             const bool unclean = panelRuntime.recovery_service.hasUncleanSessionMarker(identity.root);
             bindMapAuthoringProject(panelRuntime, identity.root);
+            panelRuntime.next_recovery_snapshot_at = {};
             panelRuntime.creator_checklist_panel.setProjectRoot(identity.root);
             if (panelRuntime.recovery_service.writeSessionMarker(identity.root)) {
                 panelRuntime.recovery_status = unclean

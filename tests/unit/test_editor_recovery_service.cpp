@@ -1,6 +1,7 @@
 #include "editor/project/editor_recovery_service.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <nlohmann/json.hpp>
 
 #include <chrono>
 #include <filesystem>
@@ -24,13 +25,24 @@ TEST_CASE("EditorRecoveryService keeps recovery data outside project snapshots",
     urpg::editor::EditorRecoveryService service;
     REQUIRE(service.writeSessionMarker(root));
     REQUIRE(service.hasUncleanSessionMarker(root));
-    REQUIRE(service.createRecoverySnapshot(root, "recovery", {"map.grid_parts", "ability.draft"}));
+    const std::vector<urpg::editor::RecoveryDocumentDraft> drafts = {
+        {"map.grid_parts", "content/story.json", R"({"chapter":2,"recovered":true})"},
+        {"ability.draft", "content/abilities/recovery.json", R"({"ability_id":"recovery"})"},
+    };
+    REQUIRE(service.createRecoverySnapshot(root, "recovery", {"map.grid_parts", "ability.draft"}, drafts));
     const auto snapshots = service.listSnapshots(root);
     REQUIRE(snapshots.size() == 1);
     REQUIRE(snapshots.front().project_id == "recovery");
     REQUIRE(snapshots.front().dirty_document_ids == std::vector<std::string>{"map.grid_parts", "ability.draft"});
     REQUIRE_FALSE(std::filesystem::exists(snapshots.front().path / "project" / ".urpg"));
+    const auto restoreRoot = root.parent_path() / (root.filename().string() + "_restored");
+    REQUIRE(service.restoreRecoverySnapshot(snapshots.front().path, restoreRoot));
+    std::ifstream restoredStory(restoreRoot / "content" / "story.json");
+    REQUIRE(restoredStory.good());
+    REQUIRE(nlohmann::json::parse(restoredStory)["chapter"] == 2);
+    REQUIRE(std::filesystem::is_regular_file(restoreRoot / "content" / "abilities" / "recovery.json"));
     REQUIRE(service.clearSessionMarker(root));
     REQUIRE_FALSE(service.hasUncleanSessionMarker(root));
+    std::filesystem::remove_all(restoreRoot);
     std::filesystem::remove_all(root);
 }
