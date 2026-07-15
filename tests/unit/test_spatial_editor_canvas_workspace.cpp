@@ -5,6 +5,9 @@
 #include "editor/spatial/spatial_ability_canvas_panel.h"
 #include "editor/spatial/spatial_authoring_workspace.h"
 #include "engine/core/ability/authored_ability_asset.h"
+#include "engine/core/dialogue/dialogue_graph.h"
+#include "engine/core/global_state_hub.h"
+#include "engine/core/input/input_core.h"
 #include "engine/core/presentation/dialogue_translator.h"
 #include "engine/core/presentation/map_scene_translator.h"
 #include "engine/core/presentation/menu_scene_translator.h"
@@ -19,7 +22,9 @@
 #include <nlohmann/json.hpp>
 
 #include <algorithm>
+#include <chrono>
 #include <filesystem>
+#include <fstream>
 
 using namespace urpg::editor;
 using namespace urpg::presentation;
@@ -1674,6 +1679,114 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D executes live eve
     REQUIRE(std::find(snapshot.perspective_2d_ui.command_picker_options.begin(),
                       snapshot.perspective_2d_ui.command_picker_options.end(),
                       "change_switch") != snapshot.perspective_2d_ui.command_picker_options.end());
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start saved native dialogue graphs",
+          "[editor][spatial][p2d_depth]") {
+    auto& global_state = urpg::GlobalStateHub::getInstance();
+    global_state.clearSessionState();
+    const auto unique = std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+    const auto project_root = std::filesystem::temp_directory_path() / ("urpg_p2d_event_dialogue_" + unique);
+    std::filesystem::create_directories(project_root / "content" / "dialogues");
+
+    urpg::dialogue::DialogueGraph graph;
+    urpg::dialogue::DialogueNode start;
+    start.id = "start";
+    start.speaker_id = "guide";
+    start.speaker_name = "Guide";
+    start.text_preview = "The saved dialogue graph is running.";
+    start.ending = true;
+    REQUIRE(graph.addNode(start));
+    graph.setStartNode("start");
+    {
+        std::ofstream output(project_root / "content" / "dialogues" / "moonwell_intro.json", std::ios::binary);
+        REQUIRE(output.good());
+        output << graph.serialize().dump(2) << '\n';
+    }
+
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_dialogue_map";
+    overlay.elevation.width = 4;
+    overlay.elevation.height = 4;
+    overlay.elevation.levels.resize(16, 0);
+    urpg::scene::MapScene map("p2d_dialogue_map", 4, 4);
+    map.setProjectRoot(project_root);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 80.0f;
+    projection.viewportHeight = 80.0f;
+    projection.cameraCenterX = 2.0f;
+    projection.cameraCenterZ = 2.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(workspace.AddPerspectiveLayer("events", "Events", "event"));
+    workspace.SetPerspectiveTilePaletteOptions({{"grass", "Grass", "overworld", "grass", "asset.grass",
+                                                 "content/tiles/grass.png", "field", ""}});
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTilePaletteOption("grass"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(40.0f, 40.0f));
+    REQUIRE(workspace.SelectPerspectiveLayer("events"));
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("moonwell", "Moonwell", "confirm_interact", 40.0f, 40.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("moonwell", "main", "Main", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("moonwell", "main", "change_variable", "moonwell_visited=1"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("moonwell", "main", "start_dialogue", "moonwell_intro"));
+
+    REQUIRE(map.authoredDialogueInteractions().size() == 1);
+    const auto& interaction = map.authoredDialogueInteractions().front();
+    REQUIRE(interaction.event_id == "moonwell");
+    map.getPlayerMovement().gridPos = {interaction.tile_x, interaction.tile_y};
+    urpg::input::InputCore input;
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(input);
+    REQUIRE(map.activeDialogueConversationId() == "project.dialogue.moonwell_intro");
+    REQUIRE(map.isDialogueActive());
+    REQUIRE(std::get<int32_t>(global_state.getVariable("moonwell_visited")) == 1);
+
+    auto duplicate = interaction;
+    duplicate.event_id = "duplicate";
+    REQUIRE_FALSE(map.setAuthoredDialogueInteractions({interaction, duplicate}));
+    REQUIRE(map.authoredDialogueInteractions().size() == 1);
+
+    urpg::scene::MapScene::AuthoredDialogueInteraction rejected_interaction;
+    rejected_interaction.event_id = "invalid_graph";
+    rejected_interaction.trigger_id = "confirm_interact";
+    rejected_interaction.dialogue_id = "missing_graph";
+    rejected_interaction.tile_x = interaction.tile_x;
+    rejected_interaction.tile_y = interaction.tile_y;
+    rejected_interaction.state_writes.push_back({
+        urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetVariable,
+        "must_not_write",
+        42,
+    });
+    REQUIRE(map.setAuthoredDialogueInteractions({rejected_interaction}));
+    REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", interaction.tile_x, interaction.tile_y));
+    REQUIRE(std::get<int32_t>(global_state.getVariable("must_not_write")) == 0);
+
+    const auto runtime = workspace.ExecutePerspectiveRuntimeEvent("moonwell");
+    REQUIRE(runtime.success);
+    REQUIRE(map.activeDialogueConversationId() == "project.dialogue.moonwell_intro");
+    REQUIRE(map.isDialogueActive());
+    REQUIRE(std::get<int32_t>(global_state.getVariable("moonwell_visited")) == 1);
+
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("invalid_dialogue", "Invalid", "confirm_interact", 40.0f, 40.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("invalid_dialogue", "main", "Main", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("invalid_dialogue", "main", "change_variable",
+                                                      "manual_must_not_write=99"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("invalid_dialogue", "main", "start_dialogue", "../escape"));
+    const auto invalid_runtime = workspace.ExecutePerspectiveRuntimeEvent("invalid_dialogue");
+    REQUIRE_FALSE(invalid_runtime.success);
+    REQUIRE(std::get<int32_t>(global_state.getVariable("manual_must_not_write")) == 0);
+    REQUIRE(std::find(invalid_runtime.blocker_codes.begin(), invalid_runtime.blocker_codes.end(),
+                      "p2d_event_dialogue_start_failed:../escape") != invalid_runtime.blocker_codes.end());
+    REQUIRE(std::find(map.dialogueRuntimeDiagnostics().begin(), map.dialogueRuntimeDiagnostics().end(),
+                      "authored_dialogue_project_id_invalid:../escape") != map.dialogueRuntimeDiagnostics().end());
+
+    std::error_code cleanup_error;
+    std::filesystem::remove_all(project_root, cleanup_error);
+    global_state.clearSessionState();
 }
 
 TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D exposes RPG Maker-grade tile metadata",

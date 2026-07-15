@@ -11,6 +11,7 @@
 #include "engine/core/save/save_runtime.h"
 #include "engine/core/save/save_serialization_hub.h"
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <limits>
 #include <nlohmann/json.hpp>
@@ -64,6 +65,13 @@ int32_t saturatingDialogueEffectDelta(const int32_t current, const int32_t delta
         return std::numeric_limits<int32_t>::min();
     }
     return static_cast<int32_t>(result);
+}
+
+bool isStableDialogueProjectId(const std::string& dialogue_id) {
+    return !dialogue_id.empty() &&
+           std::all_of(dialogue_id.begin(), dialogue_id.end(), [](const unsigned char character) {
+               return std::isalnum(character) || character == '_' || character == '-';
+           });
 }
 
 bool BindingMatches(const MapScene::InteractionAbilityBinding& binding, const std::string& trigger_id,
@@ -519,7 +527,9 @@ void MapScene::handleInput(const urpg::input::InputCore& input) {
     if (input.isActionJustPressed(urpg::input::InputAction::Confirm)) {
         if (activateInteractionAbilityAtTile("confirm_interact", m_playerMovement.gridPos.x,
                                              m_playerMovement.gridPos.y) ||
-            activateInteractionAbility("confirm_interact")) {
+            activateInteractionAbility("confirm_interact") ||
+            triggerAuthoredDialogueInteractionAtTile("confirm_interact", m_playerMovement.gridPos.x,
+                                                     m_playerMovement.gridPos.y)) {
             return;
         }
 
@@ -696,6 +706,17 @@ void MapScene::startDialogue(const std::vector<urpg::message::DialoguePage>& pag
 }
 
 bool MapScene::startAuthoredDialogue(const urpg::dialogue::DialogueGraph& graph, std::string conversation_id) {
+    if (!validateAuthoredDialogueAdmission(graph, conversation_id)) {
+        return false;
+    }
+
+    m_activeAuthoredDialogueGraph = graph;
+    m_activeDialogueConversationId = std::move(conversation_id);
+    return beginActiveAuthoredDialogueNode(m_activeAuthoredDialogueGraph->startNode());
+}
+
+bool MapScene::validateAuthoredDialogueAdmission(const urpg::dialogue::DialogueGraph& graph,
+                                                 const std::string& conversation_id) {
     m_dialogueRuntimeDiagnostics.clear();
     if (conversation_id.empty()) {
         m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_conversation_id_missing");
@@ -718,10 +739,129 @@ bool MapScene::startAuthoredDialogue(const urpg::dialogue::DialogueGraph& graph,
             }
         }
     }
+    return true;
+}
 
-    m_activeAuthoredDialogueGraph = graph;
-    m_activeDialogueConversationId = std::move(conversation_id);
-    return beginActiveAuthoredDialogueNode(m_activeAuthoredDialogueGraph->startNode());
+bool MapScene::startAuthoredDialogueFromProject(const std::string& dialogue_id) {
+    return startAuthoredDialogueFromProjectWithStateWrites(dialogue_id, {});
+}
+
+bool MapScene::startAuthoredDialogueFromProjectWithStateWrites(
+    const std::string& dialogue_id, std::vector<AuthoredDialogueInteraction::StateWrite> state_writes) {
+    const auto graph = loadAuthoredDialogueFromProject(dialogue_id);
+    const std::string conversation_id = "project.dialogue." + dialogue_id;
+    if (!graph.has_value() || !validateAuthoredDialogueAdmission(*graph, conversation_id) ||
+        !validateAuthoredDialogueStateWrites(state_writes)) {
+        return false;
+    }
+    applyAuthoredDialogueStateWrites(state_writes);
+    return startAuthoredDialogue(*graph, conversation_id);
+}
+
+std::optional<urpg::dialogue::DialogueGraph> MapScene::loadAuthoredDialogueFromProject(const std::string& dialogue_id) {
+    m_dialogueRuntimeDiagnostics.clear();
+    if (m_projectRoot.empty()) {
+        m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_project_root_missing");
+        return std::nullopt;
+    }
+    if (!isStableDialogueProjectId(dialogue_id)) {
+        m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_project_id_invalid:" + dialogue_id);
+        return std::nullopt;
+    }
+
+    const auto dialogue_path = m_projectRoot / "content" / "dialogues" / (dialogue_id + ".json");
+    std::ifstream input(dialogue_path, std::ios::binary);
+    if (!input.good()) {
+        m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_project_file_missing:" + dialogue_id);
+        return std::nullopt;
+    }
+
+    const auto json = nlohmann::json::parse(input, nullptr, false);
+    if (json.is_discarded()) {
+        m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_project_file_invalid:" + dialogue_id);
+        return std::nullopt;
+    }
+    const auto graph = urpg::dialogue::DialogueGraph::fromJson(json);
+    if (!graph.has_value()) {
+        m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_project_graph_invalid:" + dialogue_id);
+        return std::nullopt;
+    }
+    return graph;
+}
+
+bool MapScene::setAuthoredDialogueInteractions(std::vector<AuthoredDialogueInteraction> interactions) {
+    std::sort(interactions.begin(), interactions.end(), [](const auto& lhs, const auto& rhs) {
+        if (lhs.trigger_id != rhs.trigger_id) return lhs.trigger_id < rhs.trigger_id;
+        if (lhs.tile_y != rhs.tile_y) return lhs.tile_y < rhs.tile_y;
+        if (lhs.tile_x != rhs.tile_x) return lhs.tile_x < rhs.tile_x;
+        return lhs.event_id < rhs.event_id;
+    });
+
+    for (size_t index = 0; index < interactions.size(); ++index) {
+        const auto& interaction = interactions[index];
+        if (interaction.event_id.empty() || interaction.trigger_id.empty() ||
+            !isStableDialogueProjectId(interaction.dialogue_id) || interaction.tile_x < 0 ||
+            interaction.tile_x >= m_width || interaction.tile_y < 0 || interaction.tile_y >= m_height) {
+            return false;
+        }
+        if (std::any_of(interaction.state_writes.begin(), interaction.state_writes.end(),
+                        [](const AuthoredDialogueInteraction::StateWrite& write) { return write.key.empty(); })) {
+            return false;
+        }
+        if (index > 0) {
+            const auto& previous = interactions[index - 1];
+            if (previous.trigger_id == interaction.trigger_id && previous.tile_x == interaction.tile_x &&
+                previous.tile_y == interaction.tile_y) {
+                return false;
+            }
+        }
+    }
+
+    m_authoredDialogueInteractions = std::move(interactions);
+    return true;
+}
+
+bool MapScene::validateAuthoredDialogueStateWrites(
+    const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes) {
+    if (std::any_of(state_writes.begin(), state_writes.end(),
+                    [](const AuthoredDialogueInteraction::StateWrite& write) { return write.key.empty(); })) {
+        m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_state_write_key_missing");
+        return false;
+    }
+    return true;
+}
+
+void MapScene::applyAuthoredDialogueStateWrites(
+    const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes) {
+    auto& state = urpg::GlobalStateHub::getInstance();
+    for (const auto& write : state_writes) {
+        switch (write.kind) {
+        case AuthoredDialogueInteraction::StateWriteKind::SetSwitch:
+            state.setSwitch(write.key, write.value != 0);
+            break;
+        case AuthoredDialogueInteraction::StateWriteKind::SetVariable:
+            state.setVariable(write.key, write.value);
+            break;
+        case AuthoredDialogueInteraction::StateWriteKind::AddVariable:
+            state.setVariable(write.key, saturatingDialogueEffectDelta(authoredDialogueVariableValue(write.key),
+                                                                         write.value));
+            break;
+        }
+    }
+}
+
+bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigger_id, int tile_x, int tile_y) {
+    const auto interaction = std::find_if(
+        m_authoredDialogueInteractions.begin(), m_authoredDialogueInteractions.end(), [&](const auto& candidate) {
+            return candidate.trigger_id == trigger_id && candidate.tile_x == tile_x && candidate.tile_y == tile_y;
+        });
+    if (interaction == m_authoredDialogueInteractions.end()) {
+        return false;
+    }
+    if (!startAuthoredDialogueFromProjectWithStateWrites(interaction->dialogue_id, interaction->state_writes)) {
+        m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_event_trigger_failed:" + interaction->event_id);
+    }
+    return true;
 }
 
 void MapScene::setDialogueLocaleCatalog(std::optional<urpg::localization::LocaleCatalog> catalog) {
@@ -852,6 +992,23 @@ bool MapScene::saveGame(int slotId) {
 MapSceneSaveLoadResult MapScene::saveGameDetailed(int slotId) {
     auto& hub = urpg::GlobalStateHub::getInstance();
     std::string snapshot = urpg::save::SaveSerializationHub::snapshotGlobalState(hub);
+    const std::string project_dialogue_prefix = "project.dialogue.";
+    const std::string dialogue_id = m_activeDialogueConversationId.starts_with(project_dialogue_prefix)
+                                        ? m_activeDialogueConversationId.substr(project_dialogue_prefix.size())
+                                        : std::string{};
+    if (m_activeAuthoredDialogueGraph.has_value() && isStableDialogueProjectId(dialogue_id) &&
+        !m_activeAuthoredDialogueNodeId.empty()) {
+        auto root = nlohmann::json::parse(snapshot, nullptr, false);
+        if (!root.is_discarded() && root.is_object()) {
+            root["map_scene_dialogue_checkpoint"] = {
+                {"version", 1},
+                {"conversation_id", m_activeDialogueConversationId},
+                {"dialogue_id", dialogue_id},
+                {"node_id", m_activeAuthoredDialogueNodeId},
+            };
+            snapshot = root.dump();
+        }
+    }
 
     const auto request = makeMapSceneSaveRequest(m_projectRoot, slotId);
     MapSceneSaveLoadResult result;
@@ -893,6 +1050,41 @@ MapSceneSaveLoadResult MapScene::loadGameDetailed(int slotId) {
     if (loadResult.ok) {
         auto& hub = urpg::GlobalStateHub::getInstance();
         urpg::save::SaveSerializationHub::restoreGlobalState(hub, loadResult.payload);
+        startDialogue({});
+
+        const auto root = nlohmann::json::parse(loadResult.payload, nullptr, false);
+        const auto checkpoint = root.is_object()
+                                    ? root.value("map_scene_dialogue_checkpoint", nlohmann::json::object())
+                                    : nlohmann::json::object();
+        if (checkpoint.is_object() && !checkpoint.empty()) {
+            const bool checkpoint_shape_valid =
+                checkpoint.contains("version") && checkpoint["version"].is_number_integer() &&
+                checkpoint.contains("dialogue_id") && checkpoint["dialogue_id"].is_string() &&
+                checkpoint.contains("conversation_id") && checkpoint["conversation_id"].is_string() &&
+                checkpoint.contains("node_id") && checkpoint["node_id"].is_string();
+            if (!checkpoint_shape_valid || checkpoint["version"].get<int>() != 1) {
+                result.diagnostics.push_back("map_dialogue_checkpoint_restore_failed");
+            } else {
+                const std::string dialogue_id = checkpoint["dialogue_id"].get<std::string>();
+                const std::string conversation_id = checkpoint["conversation_id"].get<std::string>();
+                const std::string node_id = checkpoint["node_id"].get<std::string>();
+                const std::string expected_conversation_id = "project.dialogue." + dialogue_id;
+                const auto graph = loadAuthoredDialogueFromProject(dialogue_id);
+                if (!graph.has_value() || conversation_id != expected_conversation_id || node_id.empty() ||
+                    !validateAuthoredDialogueAdmission(*graph, conversation_id) || graph->findNode(node_id) == nullptr) {
+                    result.diagnostics.push_back("map_dialogue_checkpoint_restore_failed");
+                } else {
+                    m_activeAuthoredDialogueGraph = *graph;
+                    m_activeDialogueConversationId = conversation_id;
+                    if (!beginActiveAuthoredDialogueNode(node_id)) {
+                        m_activeAuthoredDialogueGraph.reset();
+                        m_activeDialogueConversationId.clear();
+                        m_activeAuthoredDialogueNodeId.clear();
+                        result.diagnostics.push_back("map_dialogue_checkpoint_restore_failed");
+                    }
+                }
+            }
+        }
         if (loadResult.loaded_from_recovery) {
             urpg::diagnostics::RuntimeDiagnostics::warning(
                 "scene.map", "map.load_recovered",

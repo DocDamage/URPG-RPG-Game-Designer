@@ -729,6 +729,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
   private:
     void captureRenderSnapshot();
     void syncEventSpritesToTargetScene();
+    void syncAuthoredDialogueInteractionsToTargetScene();
     void syncPanelVisibility();
     void markPerspectiveDirty();
     bool projectScreenToTile(float screen_x, float screen_y, int32_t& out_tile_x, int32_t& out_tile_y) const;

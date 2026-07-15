@@ -946,6 +946,66 @@ TEST_CASE("MapScene executes a saved native Dialogue Graph through the message r
     state.clearSessionState();
 }
 
+TEST_CASE("MapScene restores a saved project Dialogue Graph checkpoint at its active node",
+          "[scene][map][dialogue][runtime][save]") {
+    TempRuntimeSettingsRoot project;
+    std::filesystem::create_directories(project.root() / "content" / "dialogues");
+
+    urpg::dialogue::DialogueGraph graph;
+    REQUIRE(graph.addNode({"start", "guide", "Guide", "", "Start.", false,
+                           {{"continue", "Continue", "end", {}, {}}}}));
+    REQUIRE(graph.addNode({"end", "guide", "Guide", "", "Resumed ending.", true, {}}));
+    graph.setStartNode("start");
+    {
+        std::ofstream output(project.root() / "content" / "dialogues" / "checkpoint_dialogue.json", std::ios::binary);
+        REQUIRE(output.good());
+        output << graph.serialize().dump(2) << '\n';
+    }
+
+    MapScene map("CheckpointMap", 2, 2);
+    map.setProjectRoot(project.root());
+    REQUIRE(map.startAuthoredDialogueFromProject("checkpoint_dialogue"));
+    urpg::input::InputCore input;
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(input);
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Released);
+    map.handleInput(input);
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(input);
+    REQUIRE(map.activeAuthoredDialogueNodeId() == "end");
+    REQUIRE(map.saveGame(37));
+
+    map.startDialogue({{"replacement", "Replacement runtime dialogue.", {}, true, {}, 0}});
+    REQUIRE(map.loadGame(37));
+    REQUIRE(map.activeDialogueConversationId() == "project.dialogue.checkpoint_dialogue");
+    REQUIRE(map.activeAuthoredDialogueNodeId() == "end");
+
+    map.onUpdate(0.0f);
+    const auto& resumed_commands = renderFrameCommands(urpg::RenderLayer::getInstance());
+    const bool saw_resumed_text = std::any_of(resumed_commands.begin(), resumed_commands.end(),
+                                              [](const auto& command) {
+                                                  const auto* text = renderCommandAs<urpg::TextRenderData>(command);
+                                                  return text != nullptr && text->text == "Resumed ending.";
+                                              });
+    REQUIRE(saw_resumed_text);
+
+    std::filesystem::create_directories(project.root() / "saves");
+    {
+        std::ofstream malformed(project.root() / "saves" / "slot_38.json", std::ios::binary);
+        REQUIRE(malformed.good());
+        malformed << nlohmann::json{{"switches", nlohmann::json::object()},
+                                    {"variables", nlohmann::json::object()},
+                                    {"differential", false},
+                                    {"map_scene_dialogue_checkpoint", {{"version", "not-an-integer"}}}}
+                         .dump();
+    }
+    const auto malformed_load = map.loadGameDetailed(38);
+    REQUIRE(malformed_load.ok);
+    REQUIRE(std::find(malformed_load.diagnostics.begin(), malformed_load.diagnostics.end(),
+                      "map_dialogue_checkpoint_restore_failed") != malformed_load.diagnostics.end());
+    REQUIRE_FALSE(map.isDialogueActive());
+}
+
 TEST_CASE("InputCore stores text input, editing text, and backspace for one input frame",
           "[scene][map][input][chatbot]") {
     urpg::input::InputCore input;

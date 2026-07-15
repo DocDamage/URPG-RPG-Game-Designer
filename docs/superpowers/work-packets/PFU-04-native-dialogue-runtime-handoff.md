@@ -32,11 +32,19 @@ Execute a saved native Dialogue Graph through the existing `MapScene` and
   state authority after the selected choice is confirmed, saturating at native
   `int32_t` limits. Missing effect keys fail admission before the active
   runtime dialogue changes.
+- MapScene save slots now retain a versioned checkpoint for an active
+  project-saved dialogue graph: stable project dialogue ID, conversation ID,
+  and active node ID. Load restores global state first, then reopens that node
+  only after the current project graph passes native loading and admission.
+  Invalid or stale checkpoints leave normal global-state load successful but
+  report a bounded restore diagnostic and no dialogue remains active.
 
 ## Limits
 
 This first execution slice does not resolve captions or voice assets at
 runtime; select locale bundles automatically; support non-integer dialogue
-state; bind graphs to authored map events; add save-state restoration; or
-qualify playthrough/package/release behavior. Builds and test execution remain
-deferred under the user instruction for this phase.
+state; preserve transient page-presentation/choice-cursor state across save;
+or qualify playthrough/package/release behavior. Saved-graph execution from an
+authored map-event command is covered by
+`PFU-04-map-event-dialogue-runtime-binding.md`. Builds and test execution
+remain deferred under the user instruction for this phase.

@@ -3886,7 +3886,7 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
     static std::string eventLabel = "Elder Mira";
     static std::string eventTrigger = "confirm_interact";
     static constexpr const char* eventCommandCodes[] = {
-        "show_text", "show_choice", "transfer_player", "change_switch", "change_variable", "change_self_switch", "change_gold",
+        "show_text", "show_choice", "start_dialogue", "transfer_player", "change_switch", "change_variable", "change_self_switch", "change_gold",
         "change_item", "move_route", "call_common_event", "start_battle", "open_vendor",
     };
     static int eventCommandIndex = 0;
@@ -3898,6 +3898,9 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
     ImGui::InputText("Trigger", &eventTrigger);
     ImGui::Combo("Command", &eventCommandIndex, eventCommandCodes, IM_ARRAYSIZE(eventCommandCodes));
     ImGui::InputText("Command Argument", &commandArgument);
+    if (std::string_view(eventCommandCodes[eventCommandIndex]) == "start_dialogue") {
+        ImGui::TextDisabled("Use a saved Dialogue Graph ID from content/dialogues (letters, digits, '_' and '-' only).");
+    }
     ImGui::InputFloat("Map X", &eventScreenX, 1.0f, 8.0f, "%.0f");
     ImGui::InputFloat("Map Y", &eventScreenY, 1.0f, 8.0f, "%.0f");
     if (ImGui::Button("Create Event Page")) {
@@ -3943,7 +3946,9 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
             if (ImGui::SmallButton("Run")) {
                 const auto result = workspace.ExecutePerspectiveRuntimeEvent(event.event_id);
                 if (!result.success) {
-                    runtime.map_save_status = "Native event runtime blocked: " + result.message;
+                    const std::string detail = result.blocker_codes.empty() ? std::string{} :
+                        " [" + result.blocker_codes.back() + "]";
+                    runtime.map_save_status = "Native event runtime blocked: " + result.message + detail;
                 } else {
                     syncQuestPreviewWorldFromPerspectiveRuntime(result, runtime.quest_preview_world);
                     const bool openedMessageInspector =

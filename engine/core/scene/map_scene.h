@@ -100,6 +100,30 @@ class MapScene : public GameScene {
         std::string prop_asset_id;
     };
 
+    // Runtime projection of one persisted map-event dialogue command. The
+    // map scene owns input dispatch and graph admission; the source document
+    // remains the authoring/history owner.
+    struct AuthoredDialogueInteraction {
+        enum class StateWriteKind : uint8_t {
+            SetSwitch,
+            SetVariable,
+            AddVariable,
+        };
+
+        struct StateWrite {
+            StateWriteKind kind = StateWriteKind::SetVariable;
+            std::string key;
+            int32_t value = 0;
+        };
+
+        std::string event_id;
+        std::string trigger_id;
+        std::string dialogue_id;
+        int tile_x = -1;
+        int tile_y = -1;
+        std::vector<StateWrite> state_writes;
+    };
+
     MapScene(const std::string& mapId, int width, int height);
     virtual ~MapScene() = default;
 
@@ -178,10 +202,29 @@ class MapScene : public GameScene {
     // MessageFlowRunner, evaluating its integer conditions and applying its
     // effects through the native GlobalStateHub.
     bool startAuthoredDialogue(const urpg::dialogue::DialogueGraph& graph, std::string conversation_id);
+    // Starts a saved authored dialogue graph from content/dialogues/<dialogue_id>.json.
+    // Dialogue IDs are deliberately restricted to stable project identifiers so
+    // map events cannot use this as a general file-loading escape hatch.
+    bool startAuthoredDialogueFromProject(const std::string& dialogue_id);
+    // Applies bounded preflighted state writes only after the saved graph is
+    // valid for native admission, then starts it.
+    bool startAuthoredDialogueFromProjectWithStateWrites(
+        const std::string& dialogue_id, std::vector<AuthoredDialogueInteraction::StateWrite> state_writes);
+    // Replaces the complete projected map-event dialogue interaction batch.
+    // Invalid batches leave the current runtime projection intact.
+    bool setAuthoredDialogueInteractions(std::vector<AuthoredDialogueInteraction> interactions);
+    // Returns true when a matching interaction consumes the trigger, even if
+    // its saved graph cannot be admitted. That prevents legacy fallback
+    // dialogue from masking an authored event failure.
+    bool triggerAuthoredDialogueInteractionAtTile(const std::string& trigger_id, int tile_x, int tile_y);
+    const std::vector<AuthoredDialogueInteraction>& authoredDialogueInteractions() const {
+        return m_authoredDialogueInteractions;
+    }
     void setDialogueLocaleCatalog(std::optional<urpg::localization::LocaleCatalog> catalog);
     std::string dialogueLocaleCode() const;
     const std::vector<std::string>& dialogueRuntimeDiagnostics() const { return m_dialogueRuntimeDiagnostics; }
     const std::string& activeDialogueConversationId() const { return m_activeDialogueConversationId; }
+    const std::string& activeAuthoredDialogueNodeId() const { return m_activeAuthoredDialogueNodeId; }
 
     /**
      * @brief Starts a chatbot-driven conversation.
@@ -268,6 +311,11 @@ class MapScene : public GameScene {
     void submitCachedTileCommands(urpg::RenderLayer& layer) const;
     void validateRenderAssetReferences();
     void registerEventSpriteTextures();
+    std::optional<urpg::dialogue::DialogueGraph> loadAuthoredDialogueFromProject(const std::string& dialogue_id);
+    bool validateAuthoredDialogueAdmission(const urpg::dialogue::DialogueGraph& graph,
+                                           const std::string& conversation_id);
+    bool validateAuthoredDialogueStateWrites(const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes);
+    void applyAuthoredDialogueStateWrites(const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes);
     bool beginActiveAuthoredDialogueNode(const std::string& node_id);
 
     std::string m_mapId;
@@ -299,6 +347,7 @@ class MapScene : public GameScene {
     std::optional<urpg::dialogue::DialogueGraph> m_activeAuthoredDialogueGraph;
     std::string m_activeAuthoredDialogueNodeId;
     std::optional<urpg::localization::LocaleCatalog> m_dialogueLocaleCatalog;
+    std::vector<AuthoredDialogueInteraction> m_authoredDialogueInteractions;
     std::shared_ptr<urpg::ai::ChatbotComponent> m_activeChatbot;
     std::unique_ptr<urpg::ui::ChatWindow> m_chatUI;
     std::shared_ptr<urpg::audio::AudioCore> m_audioCore;

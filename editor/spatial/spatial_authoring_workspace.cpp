@@ -3494,6 +3494,9 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
         execute_commands = [&](const std::vector<PerspectiveEvent::Command>& commands,
                                const std::string& branch_path) {
             for (const auto& command : commands) {
+                if (!result.blocker_codes.empty()) {
+                    return;
+                }
                 Perspective2DEventExecutionStep step;
                 step.code = command.code;
                 step.argument = command.argument;
@@ -3526,6 +3529,37 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
                         std::find(result.dialogue_choices.begin(), result.dialogue_choices.end(), argument) ==
                             result.dialogue_choices.end()) {
                         result.dialogue_choices.push_back(argument);
+                    }
+                } else if (command.code == "start_dialogue") {
+                    std::vector<urpg::scene::MapScene::AuthoredDialogueInteraction::StateWrite> state_writes;
+                    for (const auto& entry : result.switches) {
+                        const std::string normalized_value = lowerCopy(trimCopy(entry.value));
+                        state_writes.push_back({
+                            urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetSwitch,
+                            entry.key,
+                            normalized_value == "true" || normalized_value == "1" || normalized_value == "on" ? 1 : 0,
+                        });
+                    }
+                    for (const auto& entry : result.variables) {
+                        int value = 0;
+                        if (parseInt(entry.value, value)) {
+                            state_writes.push_back({
+                                urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetVariable,
+                                entry.key,
+                                static_cast<int32_t>(value),
+                            });
+                        }
+                    }
+                    if (m_target_scene == nullptr) {
+                        result.blocker_codes.push_back("p2d_event_dialogue_start_failed:" + argument);
+                        return;
+                    }
+                    if (!m_target_scene->startAuthoredDialogueFromProjectWithStateWrites(argument,
+                                                                                           std::move(state_writes))) {
+                        result.blocker_codes.push_back("p2d_event_dialogue_start_failed:" + argument);
+                        const auto& diagnostics = m_target_scene->dialogueRuntimeDiagnostics();
+                        result.blocker_codes.insert(result.blocker_codes.end(), diagnostics.begin(), diagnostics.end());
+                        return;
                     }
                 } else if (command.code == "transfer_player") {
                     const auto map_split = argument.find(':');
@@ -3638,8 +3672,15 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
 
     execute_commands(active_page != nullptr ? active_page->commands : event->commands, "root");
     result.executed_command_count = result.executed_commands.size();
-    result.success = true;
-    result.message = "Perspective 2D runtime event executed.";
+    result.success = result.blocker_codes.empty();
+    result.message = result.success ? "Perspective 2D runtime event executed."
+                                   : "Perspective 2D runtime event failed to start an authored dialogue.";
+
+    if (!result.success) {
+        last_perspective_runtime_result_ = result;
+        captureRenderSnapshot();
+        return last_perspective_runtime_result_;
+    }
 
     perspective_runtime_switches_ = result.switches;
     perspective_runtime_variables_ = result.variables;
@@ -4009,8 +4050,97 @@ void SpatialAuthoringWorkspace::syncEventSpritesToTargetScene() {
     (void)m_target_scene->setEventSprites(std::move(sprites));
 }
 
+void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() {
+    if (m_target_scene == nullptr) {
+        return;
+    }
+
+    std::vector<urpg::scene::MapScene::AuthoredDialogueInteraction> interactions;
+    for (const auto& event : perspective_events_) {
+        const auto layer = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                        [&](const PerspectiveLayer& candidate) {
+                                            return candidate.id == event.layer_id;
+                                        });
+        if (layer == perspective_layers_.end() || !layer->visible || event.tile_x < 0 ||
+            event.tile_x >= m_target_scene->getWidth() || event.tile_y < 0 ||
+            event.tile_y >= m_target_scene->getHeight()) {
+            continue;
+        }
+
+        const PerspectiveEvent::Page* active_page = nullptr;
+        for (const auto& page : event.pages) {
+            if (page.conditions.empty()) {
+                active_page = &page;
+            }
+        }
+        const auto& commands = active_page != nullptr ? active_page->commands : event.commands;
+        std::string dialogue_id;
+        size_t dialogue_command_index = commands.size();
+        for (size_t index = 0; index < commands.size(); ++index) {
+            const auto& command = commands[index];
+            if (command.code == "start_dialogue") {
+                dialogue_id = trimCopy(command.argument);
+                dialogue_command_index = index;
+            }
+        }
+        if (dialogue_id.empty()) {
+            continue;
+        }
+
+        std::vector<urpg::scene::MapScene::AuthoredDialogueInteraction::StateWrite> state_writes;
+        for (size_t index = 0; index < dialogue_command_index; ++index) {
+            const auto& command = commands[index];
+            const std::string argument = trimCopy(command.argument);
+            if (command.code == "change_switch") {
+                const auto equals = argument.find('=');
+                if (equals == std::string::npos) {
+                    continue;
+                }
+                const std::string key = trimCopy(argument.substr(0, equals));
+                const std::string value = lowerCopy(trimCopy(argument.substr(equals + 1)));
+                if (!key.empty()) {
+                    state_writes.push_back({urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetSwitch,
+                                            key, value == "true" || value == "1" || value == "on" ? 1 : 0});
+                }
+            } else if (command.code == "change_variable") {
+                const auto add = argument.find("+=");
+                const auto subtract = argument.find("-=");
+                const auto assign = argument.find('=');
+                const size_t operator_position = add != std::string::npos ? add :
+                                                 (subtract != std::string::npos ? subtract : assign);
+                if (operator_position == std::string::npos) {
+                    continue;
+                }
+                const std::string key = trimCopy(argument.substr(0, operator_position));
+                const size_t operator_length = add != std::string::npos || subtract != std::string::npos ? 2 : 1;
+                int value = 0;
+                if (key.empty() || !parseInt(trimCopy(argument.substr(operator_position + operator_length)), value)) {
+                    continue;
+                }
+                const auto kind = add != std::string::npos
+                                      ? urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::AddVariable
+                                      : (subtract != std::string::npos
+                                             ? urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::AddVariable
+                                             : urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetVariable);
+                state_writes.push_back({kind, key, subtract != std::string::npos ? -value : value});
+            }
+        }
+        const std::string trigger_id = active_page != nullptr && !active_page->trigger_id.empty()
+                                           ? active_page->trigger_id
+                                           : event.trigger_id;
+        interactions.push_back({event.event_id, trigger_id, dialogue_id, event.tile_x, event.tile_y,
+                                std::move(state_writes)});
+    }
+    if (!m_target_scene->setAuthoredDialogueInteractions(std::move(interactions))) {
+        // Never leave a stale interaction projection active after the authoring
+        // document becomes ambiguous (for example, duplicate trigger tiles).
+        (void)m_target_scene->setAuthoredDialogueInteractions({});
+    }
+}
+
 void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     syncEventSpritesToTargetScene();
+    syncAuthoredDialogueInteractionsToTargetScene();
     if (!restoring_perspective_history_) {
         perspective_history_checkpoint_ = serializePerspectiveMapDraft();
     }
@@ -4283,6 +4413,7 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     last_render_snapshot_.perspective_2d_ui.command_picker_options = {
         "show_text",
         "show_choice",
+        "start_dialogue",
         "transfer_player",
         "change_switch",
         "change_variable",
