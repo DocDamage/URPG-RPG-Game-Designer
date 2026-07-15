@@ -1617,13 +1617,14 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D executes live eve
     REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "move_route", "right,down"));
     REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "call_common_event", "common_unlock"));
     REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "start_battle", "shrine_wisp"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "open_vendor", "rowan_tonics"));
     REQUIRE(workspace.AddPerspectiveEventPageConditionalBranch("ev_runtime", "main", "switch", "door_open", "equals", "true"));
-    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_runtime", "main", 10, true, "transfer_player", "castle:2,7"));
+    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_runtime", "main", 11, true, "transfer_player", "castle:2,7"));
     REQUIRE(workspace.SelectPerspectiveEventPage("ev_runtime", "main"));
 
     const auto runtime = workspace.ExecutePerspectiveRuntimeEvent("ev_runtime");
     REQUIRE(runtime.success);
-    REQUIRE(runtime.executed_command_count == 12);
+    REQUIRE(runtime.executed_command_count == 13);
     REQUIRE(runtime.messages[0] == "Welcome.");
     REQUIRE(runtime.dialogue_choices[0] == "accept_moonwell_quest");
     REQUIRE(runtime.switches[0].key == "door_open");
@@ -1637,6 +1638,7 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D executes live eve
     REQUIRE(runtime.inventory[0].value == "3");
     REQUIRE(runtime.common_events[0] == "common_unlock");
     REQUIRE(runtime.battles[0] == "shrine_wisp");
+    REQUIRE(runtime.vendors[0] == "rowan_tonics");
     REQUIRE(runtime.movement_route_steps[0] == "right");
     REQUIRE(runtime.player_map_id == "castle");
     REQUIRE(runtime.player_tile_x == 2);

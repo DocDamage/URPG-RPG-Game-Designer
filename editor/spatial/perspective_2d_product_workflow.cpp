@@ -20,6 +20,7 @@ bool isSupportedCommand(const std::string& code) {
                                                     "move_route",
                                                     "call_common_event",
                                                     "start_battle",
+                                                    "open_vendor",
                                                     "conditional_branch"};
     return supported.find(code) != supported.end();
 }

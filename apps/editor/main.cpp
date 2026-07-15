@@ -2340,7 +2340,7 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
     static std::string eventTrigger = "confirm_interact";
     static constexpr const char* eventCommandCodes[] = {
         "show_text", "show_choice", "transfer_player", "change_switch", "change_variable", "change_self_switch", "change_gold",
-        "change_item", "move_route", "call_common_event", "start_battle",
+        "change_item", "move_route", "call_common_event", "start_battle", "open_vendor",
     };
     static int eventCommandIndex = 0;
     static std::string commandArgument = "The moonwell lantern has gone dark.";
@@ -2396,24 +2396,35 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
                 } else {
                     syncQuestPreviewWorldFromPerspectiveRuntime(result, runtime.quest_preview_world);
                     if (!result.battles.empty()) {
-                    const auto& encounterId = result.battles.front();
-                    const auto ability = runtime.ability_inspector_panel.getDraftAsset();
-                    runtime.battle_preview_actions.clear();
-                    runtime.battle_preview_flow.beginBattle(true);
-                    runtime.battle_preview_flow.enterInput();
-                    runtime.battle_preview_actions.enqueue(
-                        {runtime.character_draft_id, encounterId, ability.ability_id, 100, 0});
-                    runtime.battle_preview_encounter_id = encounterId;
-                    runtime.diagnostics_workspace.bindBattleRuntime(runtime.battle_preview_flow,
-                                                                   runtime.battle_preview_actions);
-                    runtime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::Battle);
-                    (void)editorShell.openPanel("diagnostics");
-                    runtime.focus_workspace_next_frame = true;
-                    runtime.map_save_status = "Native event launched encounter preview '" + encounterId +
-                                              "'. It remains a preview until a playtest records its combat result.";
+                        const auto& encounterId = result.battles.front();
+                        const auto ability = runtime.ability_inspector_panel.getDraftAsset();
+                        runtime.battle_preview_actions.clear();
+                        runtime.battle_preview_flow.beginBattle(true);
+                        runtime.battle_preview_flow.enterInput();
+                        runtime.battle_preview_actions.enqueue(
+                            {runtime.character_draft_id, encounterId, ability.ability_id, 100, 0});
+                        runtime.battle_preview_encounter_id = encounterId;
+                        runtime.diagnostics_workspace.bindBattleRuntime(runtime.battle_preview_flow,
+                                                                       runtime.battle_preview_actions);
+                        runtime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::Battle);
+                        (void)editorShell.openPanel("diagnostics");
+                        runtime.focus_workspace_next_frame = true;
+                        runtime.map_save_status = "Native event launched encounter preview '" + encounterId +
+                                                  "'. It remains a preview until a playtest records its combat result.";
+                    } else if (!result.vendors.empty()) {
+                        const auto& vendorId = result.vendors.front();
+                        const auto* vendor = runtime.vendor_draft.findVendor(vendorId);
+                        if (vendor == nullptr) {
+                            runtime.map_save_status = "Native event referenced unknown vendor '" + vendorId + "'.";
+                        } else {
+                            runtime.vendor_draft_id = vendorId;
+                            const auto stock = runtime.vendor_draft.refreshStock(vendorId, {});
+                            runtime.map_save_status = "Native event opened vendor preview '" + vendorId + "' with " +
+                                                      std::to_string(stock.size()) + " visible stock row(s).";
+                        }
                     } else {
-                    runtime.map_save_status = "Native event runtime completed: " +
-                                              std::to_string(result.executed_command_count) + " command(s) executed.";
+                        runtime.map_save_status = "Native event runtime completed: " +
+                                                  std::to_string(result.executed_command_count) + " command(s) executed.";
                     }
                 }
             }

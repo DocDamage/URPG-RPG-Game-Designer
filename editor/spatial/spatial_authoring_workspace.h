@@ -388,6 +388,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::vector<std::string> movement_route_steps;
         std::vector<std::string> common_events;
         std::vector<std::string> battles;
+        std::vector<std::string> vendors;
         int gold = 0;
         std::string player_map_id;
         int32_t player_tile_x = 0;

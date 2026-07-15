@@ -3033,6 +3033,10 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
                     if (!argument.empty()) {
                         result.battles.push_back(argument);
                     }
+                } else if (command.code == "open_vendor") {
+                    if (!argument.empty()) {
+                        result.vendors.push_back(argument);
+                    }
                 }
             }
         };
@@ -3064,6 +3068,7 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
     runtime_json["movement_route_steps"] = result.movement_route_steps;
     runtime_json["common_events"] = result.common_events;
     runtime_json["battles"] = result.battles;
+    runtime_json["vendors"] = result.vendors;
     runtime_json["gold"] = result.gold;
     runtime_json["player"] = {{"map_id", result.player_map_id},
                               {"tile_x", result.player_tile_x},
@@ -3555,6 +3560,7 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
         "move_route",
         "call_common_event",
         "start_battle",
+        "open_vendor",
         "conditional_branch",
     };
     const auto has_branch_command = [&](const auto& self, const std::vector<PerspectiveEvent::Command>& commands) -> bool {
