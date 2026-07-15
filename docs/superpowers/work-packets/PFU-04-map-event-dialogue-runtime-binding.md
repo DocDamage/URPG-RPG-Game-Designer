@@ -13,8 +13,10 @@ without adding a general script or arbitrary file-loading command.
 
 - The native Map event command picker exposes `start_dialogue`. Its argument is
   the saved Dialogue Graph ID under `content/dialogues/<id>.json`. A visible,
-  in-bounds event with a current unconditional page projects that command into
-  the native MapScene tile interaction path for its authored trigger.
+  in-bounds event page projects that command into the native MapScene tile
+  interaction path for its authored trigger. At input time, the final matching
+  page wins using the same ordered switch/integer-variable comparisons as the
+  authoring preview.
 - `MapScene` accepts only non-empty IDs containing letters, digits, `_`, or
   `-`, reads only that fixed project-local location, parses the native graph
   schema, and starts it using the existing authored-dialogue runtime owner.
@@ -36,9 +38,9 @@ without adding a general script or arbitrary file-loading command.
 
 ## Limits
 
-This supports only visible, unconditional map-event pages and the existing
-native `confirm_interact` path; conditional page selection, other event
-commands, interaction animation/collision, dialogue-choice-effect
+This supports visible switch/integer-variable conditional map-event pages and
+the existing native `confirm_interact` path; self-switch page conditions,
+other event commands, interaction animation/collision, dialogue-choice-effect
 synchronization back into the Perspective 2D
 preview-state document, automatic locale selection, and playthrough/package/
 release qualification remain open. Builds and test execution remain deferred

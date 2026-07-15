@@ -1737,6 +1737,7 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
     REQUIRE(map.authoredDialogueInteractions().size() == 1);
     const auto& interaction = map.authoredDialogueInteractions().front();
     REQUIRE(interaction.event_id == "moonwell");
+    const auto original_interaction = interaction;
     map.getPlayerMovement().gridPos = {interaction.tile_x, interaction.tile_y};
     urpg::input::InputCore input;
     input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
@@ -1745,7 +1746,23 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
     REQUIRE(map.isDialogueActive());
     REQUIRE(std::get<int32_t>(global_state.getVariable("moonwell_visited")) == 1);
 
-    auto duplicate = interaction;
+    {
+        std::ofstream output(project_root / "content" / "dialogues" / "moonwell_ranked.json", std::ios::binary);
+        REQUIRE(output.good());
+        output << graph.serialize().dump(2) << '\n';
+    }
+    REQUIRE(workspace.AddPerspectiveEventPage("moonwell", "ranked", "Ranked", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageConditionRule("moonwell", "ranked", "variable", "rank",
+                                                            "greater_equal", "2"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("moonwell", "ranked", "start_dialogue", "moonwell_ranked"));
+    REQUIRE(map.authoredDialogueInteractions().size() == 1);
+    REQUIRE(map.authoredDialogueInteractions().front().page_candidates.size() == 2);
+    global_state.setVariable("rank", int32_t{2});
+    REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", original_interaction.tile_x,
+                                                          original_interaction.tile_y));
+    REQUIRE(map.activeDialogueConversationId() == "project.dialogue.moonwell_ranked");
+
+    auto duplicate = original_interaction;
     duplicate.event_id = "duplicate";
     REQUIRE_FALSE(map.setAuthoredDialogueInteractions({interaction, duplicate}));
     REQUIRE(map.authoredDialogueInteractions().size() == 1);
@@ -1754,15 +1771,16 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
     rejected_interaction.event_id = "invalid_graph";
     rejected_interaction.trigger_id = "confirm_interact";
     rejected_interaction.dialogue_id = "missing_graph";
-    rejected_interaction.tile_x = interaction.tile_x;
-    rejected_interaction.tile_y = interaction.tile_y;
+    rejected_interaction.tile_x = original_interaction.tile_x;
+    rejected_interaction.tile_y = original_interaction.tile_y;
     rejected_interaction.state_writes.push_back({
         urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetVariable,
         "must_not_write",
         42,
     });
     REQUIRE(map.setAuthoredDialogueInteractions({rejected_interaction}));
-    REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", interaction.tile_x, interaction.tile_y));
+    REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", original_interaction.tile_x,
+                                                          original_interaction.tile_y));
     REQUIRE(std::get<int32_t>(global_state.getVariable("must_not_write")) == 0);
 
     const auto runtime = workspace.ExecutePerspectiveRuntimeEvent("moonwell");

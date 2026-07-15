@@ -12,6 +12,7 @@
 #include "engine/core/save/save_serialization_hub.h"
 #include <algorithm>
 #include <cctype>
+#include <cstdlib>
 #include <fstream>
 #include <limits>
 #include <nlohmann/json.hpp>
@@ -72,6 +73,37 @@ bool isStableDialogueProjectId(const std::string& dialogue_id) {
            std::all_of(dialogue_id.begin(), dialogue_id.end(), [](const unsigned char character) {
                return std::isalnum(character) || character == '_' || character == '-';
            });
+}
+
+bool isSupportedPerspectivePageComparison(const std::string& comparison) {
+    return comparison.empty() || comparison == "equals" || comparison == "not_equals" ||
+           comparison == "greater_equal" || comparison == "greater_than" || comparison == "less_equal" ||
+           comparison == "less_than";
+}
+
+bool perspectivePageConditionMatches(const std::string& actual_value,
+                                     const std::string& comparison,
+                                     const std::string& expected_value) {
+    if (comparison.empty() || comparison == "equals") {
+        return actual_value == expected_value;
+    }
+    if (comparison == "not_equals") {
+        return actual_value != expected_value;
+    }
+
+    char* actual_end = nullptr;
+    char* expected_end = nullptr;
+    const double actual = std::strtod(actual_value.c_str(), &actual_end);
+    const double expected = std::strtod(expected_value.c_str(), &expected_end);
+    if (actual_end == actual_value.c_str() || expected_end == expected_value.c_str() || actual_end == nullptr ||
+        expected_end == nullptr || *actual_end != '\0' || *expected_end != '\0') {
+        return false;
+    }
+    if (comparison == "greater_equal") return actual >= expected;
+    if (comparison == "greater_than") return actual > expected;
+    if (comparison == "less_equal") return actual <= expected;
+    if (comparison == "less_than") return actual < expected;
+    return false;
 }
 
 bool BindingMatches(const MapScene::InteractionAbilityBinding& binding, const std::string& trigger_id,
@@ -813,13 +845,26 @@ bool MapScene::setAuthoredDialogueInteractions(std::vector<AuthoredDialogueInter
     for (size_t index = 0; index < interactions.size(); ++index) {
         const auto& interaction = interactions[index];
         if (interaction.event_id.empty() || interaction.trigger_id.empty() ||
-            !isStableDialogueProjectId(interaction.dialogue_id) || interaction.tile_x < 0 ||
+            (interaction.dialogue_id.empty() && interaction.page_candidates.empty()) ||
+            (!interaction.dialogue_id.empty() && !isStableDialogueProjectId(interaction.dialogue_id)) ||
+            interaction.tile_x < 0 ||
             interaction.tile_x >= m_width || interaction.tile_y < 0 || interaction.tile_y >= m_height) {
             return false;
         }
         if (std::any_of(interaction.state_writes.begin(), interaction.state_writes.end(),
                         [](const AuthoredDialogueInteraction::StateWrite& write) { return write.key.empty(); })) {
             return false;
+        }
+        for (const auto& page : interaction.page_candidates) {
+            if (page.page_id.empty() || !isStableDialogueProjectId(page.dialogue_id) ||
+                std::any_of(page.state_writes.begin(), page.state_writes.end(),
+                            [](const AuthoredDialogueInteraction::StateWrite& write) { return write.key.empty(); }) ||
+                std::any_of(page.conditions.begin(), page.conditions.end(), [](const auto& condition) {
+                    return (condition.type != "switch" && condition.type != "variable") || condition.key.empty() ||
+                           !isSupportedPerspectivePageComparison(condition.comparison);
+                })) {
+                return false;
+            }
         }
         if (index > 0) {
             const auto& previous = interactions[index - 1];
@@ -863,6 +908,45 @@ void MapScene::applyAuthoredDialogueStateWrites(
     }
 }
 
+bool MapScene::authoredDialoguePageConditionsMatch(
+    const std::vector<AuthoredDialogueInteraction::PageCondition>& conditions) const {
+    const auto& state = urpg::GlobalStateHub::getInstance();
+    const auto switches = state.getAllSwitches();
+    const auto variables = state.getAllVariables();
+    for (const auto& condition : conditions) {
+        std::string actual_value;
+        if (condition.type == "switch") {
+            const auto value = switches.find(condition.key);
+            if (value == switches.end()) {
+                return false;
+            }
+            actual_value = value->second ? "true" : "false";
+        } else if (condition.type == "variable") {
+            const auto value = variables.find(condition.key);
+            if (value == variables.end()) {
+                return false;
+            }
+            if (const auto* integer = std::get_if<int32_t>(&value->second)) {
+                actual_value = std::to_string(*integer);
+            } else if (const auto* decimal = std::get_if<float>(&value->second)) {
+                actual_value = std::to_string(*decimal);
+            } else if (const auto* boolean = std::get_if<bool>(&value->second)) {
+                actual_value = *boolean ? "true" : "false";
+            } else if (const auto* string = std::get_if<std::string>(&value->second)) {
+                actual_value = *string;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        if (!perspectivePageConditionMatches(actual_value, condition.comparison, condition.value)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigger_id, int tile_x, int tile_y) {
     const auto interaction = std::find_if(
         m_authoredDialogueInteractions.begin(), m_authoredDialogueInteractions.end(), [&](const auto& candidate) {
@@ -871,7 +955,18 @@ bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigg
     if (interaction == m_authoredDialogueInteractions.end()) {
         return false;
     }
-    if (!startAuthoredDialogueFromProjectWithStateWrites(interaction->dialogue_id, interaction->state_writes)) {
+    const AuthoredDialogueInteraction::PageCandidate* selected_page = nullptr;
+    for (const auto& page : interaction->page_candidates) {
+        if (authoredDialoguePageConditionsMatch(page.conditions)) {
+            selected_page = &page;
+        }
+    }
+    if (selected_page == nullptr && interaction->dialogue_id.empty()) {
+        return false;
+    }
+    const std::string& dialogue_id = selected_page != nullptr ? selected_page->dialogue_id : interaction->dialogue_id;
+    const auto& state_writes = selected_page != nullptr ? selected_page->state_writes : interaction->state_writes;
+    if (!startAuthoredDialogueFromProjectWithStateWrites(dialogue_id, state_writes)) {
         m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_event_trigger_failed:" + interaction->event_id);
     }
     return true;

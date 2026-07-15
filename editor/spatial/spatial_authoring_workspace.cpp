@@ -11,7 +11,9 @@
 #include <filesystem>
 #include <functional>
 #include <iomanip>
+#include <iterator>
 #include <nlohmann/json.hpp>
+#include <optional>
 #include <sstream>
 
 namespace urpg::editor {
@@ -4067,69 +4069,109 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
             continue;
         }
 
-        const PerspectiveEvent::Page* active_page = nullptr;
-        for (const auto& page : event.pages) {
-            if (page.conditions.empty()) {
-                active_page = &page;
+        const auto make_candidate = [&](const std::string& page_id,
+                                        const std::vector<PerspectiveEvent::Condition>& conditions,
+                                        const std::vector<PerspectiveEvent::Command>& commands)
+            -> std::optional<urpg::scene::MapScene::AuthoredDialogueInteraction::PageCandidate> {
+            std::string dialogue_id;
+            size_t dialogue_command_index = commands.size();
+            for (size_t index = 0; index < commands.size(); ++index) {
+                if (commands[index].code == "start_dialogue") {
+                    dialogue_id = trimCopy(commands[index].argument);
+                    dialogue_command_index = index;
+                }
             }
-        }
-        const auto& commands = active_page != nullptr ? active_page->commands : event.commands;
-        std::string dialogue_id;
-        size_t dialogue_command_index = commands.size();
-        for (size_t index = 0; index < commands.size(); ++index) {
-            const auto& command = commands[index];
-            if (command.code == "start_dialogue") {
-                dialogue_id = trimCopy(command.argument);
-                dialogue_command_index = index;
+            if (dialogue_id.empty()) {
+                return std::nullopt;
             }
-        }
-        if (dialogue_id.empty()) {
+
+            std::vector<urpg::scene::MapScene::AuthoredDialogueInteraction::StateWrite> state_writes;
+            for (size_t index = 0; index < dialogue_command_index; ++index) {
+                const auto& command = commands[index];
+                const std::string argument = trimCopy(command.argument);
+                if (command.code == "change_switch") {
+                    const auto equals = argument.find('=');
+                    if (equals == std::string::npos) {
+                        continue;
+                    }
+                    const std::string key = trimCopy(argument.substr(0, equals));
+                    const std::string value = lowerCopy(trimCopy(argument.substr(equals + 1)));
+                    if (!key.empty()) {
+                        state_writes.push_back({urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetSwitch,
+                                                key, value == "true" || value == "1" || value == "on" ? 1 : 0});
+                    }
+                } else if (command.code == "change_variable") {
+                    const auto add = argument.find("+=");
+                    const auto subtract = argument.find("-=");
+                    const auto assign = argument.find('=');
+                    const size_t operator_position = add != std::string::npos ? add :
+                                                     (subtract != std::string::npos ? subtract : assign);
+                    if (operator_position == std::string::npos) {
+                        continue;
+                    }
+                    const std::string key = trimCopy(argument.substr(0, operator_position));
+                    const size_t operator_length = add != std::string::npos || subtract != std::string::npos ? 2 : 1;
+                    int value = 0;
+                    if (key.empty() || !parseInt(trimCopy(argument.substr(operator_position + operator_length)), value)) {
+                        continue;
+                    }
+                    const auto kind = add != std::string::npos
+                                          ? urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::AddVariable
+                                          : (subtract != std::string::npos
+                                                 ? urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::AddVariable
+                                                 : urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetVariable);
+                    state_writes.push_back({kind, key, subtract != std::string::npos ? -value : value});
+                }
+            }
+            urpg::scene::MapScene::AuthoredDialogueInteraction::PageCandidate candidate;
+            candidate.page_id = page_id;
+            candidate.dialogue_id = dialogue_id;
+            candidate.state_writes = std::move(state_writes);
+            for (const auto& condition : conditions) {
+                if (condition.type != "switch" && condition.type != "variable") {
+                    return std::nullopt;
+                }
+                candidate.conditions.push_back({condition.type, condition.key, condition.comparison, condition.value});
+            }
+            return candidate;
+        };
+
+        if (event.pages.empty()) {
+            const auto candidate = make_candidate("event", {}, event.commands);
+            if (!candidate.has_value()) {
+                continue;
+            }
+            interactions.push_back({event.event_id, event.trigger_id, candidate->dialogue_id, event.tile_x, event.tile_y,
+                                    std::move(candidate->state_writes)});
             continue;
         }
 
-        std::vector<urpg::scene::MapScene::AuthoredDialogueInteraction::StateWrite> state_writes;
-        for (size_t index = 0; index < dialogue_command_index; ++index) {
-            const auto& command = commands[index];
-            const std::string argument = trimCopy(command.argument);
-            if (command.code == "change_switch") {
-                const auto equals = argument.find('=');
-                if (equals == std::string::npos) {
-                    continue;
-                }
-                const std::string key = trimCopy(argument.substr(0, equals));
-                const std::string value = lowerCopy(trimCopy(argument.substr(equals + 1)));
-                if (!key.empty()) {
-                    state_writes.push_back({urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetSwitch,
-                                            key, value == "true" || value == "1" || value == "on" ? 1 : 0});
-                }
-            } else if (command.code == "change_variable") {
-                const auto add = argument.find("+=");
-                const auto subtract = argument.find("-=");
-                const auto assign = argument.find('=');
-                const size_t operator_position = add != std::string::npos ? add :
-                                                 (subtract != std::string::npos ? subtract : assign);
-                if (operator_position == std::string::npos) {
-                    continue;
-                }
-                const std::string key = trimCopy(argument.substr(0, operator_position));
-                const size_t operator_length = add != std::string::npos || subtract != std::string::npos ? 2 : 1;
-                int value = 0;
-                if (key.empty() || !parseInt(trimCopy(argument.substr(operator_position + operator_length)), value)) {
-                    continue;
-                }
-                const auto kind = add != std::string::npos
-                                      ? urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::AddVariable
-                                      : (subtract != std::string::npos
-                                             ? urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::AddVariable
-                                             : urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetVariable);
-                state_writes.push_back({kind, key, subtract != std::string::npos ? -value : value});
+        std::vector<std::pair<std::string,
+                              std::vector<urpg::scene::MapScene::AuthoredDialogueInteraction::PageCandidate>>>
+            candidates_by_trigger;
+        for (const auto& page : event.pages) {
+            const auto candidate = make_candidate(page.page_id, page.conditions, page.commands);
+            if (!candidate.has_value()) {
+                continue;
             }
+            const std::string trigger_id = page.trigger_id.empty() ? event.trigger_id : page.trigger_id;
+            auto group = std::find_if(candidates_by_trigger.begin(), candidates_by_trigger.end(),
+                                      [&](const auto& existing) { return existing.first == trigger_id; });
+            if (group == candidates_by_trigger.end()) {
+                candidates_by_trigger.push_back({trigger_id, {}});
+                group = std::prev(candidates_by_trigger.end());
+            }
+            group->second.push_back(*candidate);
         }
-        const std::string trigger_id = active_page != nullptr && !active_page->trigger_id.empty()
-                                           ? active_page->trigger_id
-                                           : event.trigger_id;
-        interactions.push_back({event.event_id, trigger_id, dialogue_id, event.tile_x, event.tile_y,
-                                std::move(state_writes)});
+        for (auto& [trigger_id, candidates] : candidates_by_trigger) {
+            urpg::scene::MapScene::AuthoredDialogueInteraction interaction;
+            interaction.event_id = event.event_id;
+            interaction.trigger_id = std::move(trigger_id);
+            interaction.tile_x = event.tile_x;
+            interaction.tile_y = event.tile_y;
+            interaction.page_candidates = std::move(candidates);
+            interactions.push_back(std::move(interaction));
+        }
     }
     if (!m_target_scene->setAuthoredDialogueInteractions(std::move(interactions))) {
         // Never leave a stale interaction projection active after the authoring

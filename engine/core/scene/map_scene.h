@@ -116,12 +116,30 @@ class MapScene : public GameScene {
             int32_t value = 0;
         };
 
+        // A conditional projection of a single Perspective 2D event page.
+        // The source page order is retained so the final matching page has
+        // the same precedence as the authoring preview.
+        struct PageCondition {
+            std::string type;
+            std::string key;
+            std::string comparison = "equals";
+            std::string value;
+        };
+
+        struct PageCandidate {
+            std::string page_id;
+            std::string dialogue_id;
+            std::vector<PageCondition> conditions;
+            std::vector<StateWrite> state_writes;
+        };
+
         std::string event_id;
         std::string trigger_id;
         std::string dialogue_id;
         int tile_x = -1;
         int tile_y = -1;
         std::vector<StateWrite> state_writes;
+        std::vector<PageCandidate> page_candidates;
     };
 
     MapScene(const std::string& mapId, int width, int height);
@@ -318,6 +336,8 @@ class MapScene : public GameScene {
                                            const std::string& conversation_id);
     bool validateAuthoredDialogueStateWrites(const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes);
     void applyAuthoredDialogueStateWrites(const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes);
+    bool authoredDialoguePageConditionsMatch(
+        const std::vector<AuthoredDialogueInteraction::PageCondition>& conditions) const;
     bool beginActiveAuthoredDialogueNode(const std::string& node_id);
 
     std::string m_mapId;
