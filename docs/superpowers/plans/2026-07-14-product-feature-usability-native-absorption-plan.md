@@ -462,6 +462,8 @@ Bounded implementation evidence (2026-07-15): `AssetTransformRevisionService` cr
 
 Tileset assignment update (2026-07-15): a validated `tileset_slice` manifest can now enter its own native review/confirm project owner. The owner verifies the runtime-ready promoted source hash, revision/grid identity, canonical ordered tile paths, and every tile SHA-256; it then stages all PNGs into a project-owned `content/tilesets/<tileset-id>/tiles` bundle and publishes a provenance manifest and idempotent receipt. A fail-closed reference ledger protects the derived bundle from removal while assignment is prepared or complete. This supersedes the preceding statement that multi-file tilesets are unassignable; it does not claim Map-page insertion/history, collision metadata, runtime texture packing, crash recovery, or detach support.
 
+Derived-image preview update (2026-07-15): the Assets workspace now renders the latest source-scoped crop, palette, extracted-palette, or first sliced-tile result through its existing render-thread thumbnail cache only after the immutable manifest resolves the exact expected output path. It is read-only and fails closed for malformed/missing/unexpected outputs; visual crop selection, source/derived comparison, and Map/runtime integration remain open.
+
 ### PFU-04 - Deepen extensions, recipes, menu, quest, and dialogue authoring
 
 **Source IDs:** F04-F07, I03-I08

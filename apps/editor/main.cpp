@@ -2490,6 +2490,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     static nlohmann::json pendingDerivedRevisionAttachmentPlan = nlohmann::json::object();
     static nlohmann::json pendingDerivedTilesetAssignmentPlan = nlohmann::json::object();
     static std::string derivedRevisionManifestPath;
+    static std::string derivedRevisionSourcePath;
     static std::string transformOperationId = "image-crop-scale";
     static int transformCropX = 0;
     static int transformCropY = 0;
@@ -2541,6 +2542,62 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     static std::string curationCollectionLabel;
     static std::string comparisonLeftPath;
     static std::string comparisonRightPath;
+    const auto inspectDerivedImagePreview = [](const std::string& manifest_path)
+        -> std::optional<std::pair<std::filesystem::path, std::string>> {
+        if (manifest_path.empty()) return std::nullopt;
+        try {
+        std::ifstream input(manifest_path, std::ios::binary);
+        const auto manifest = nlohmann::json::parse(input, nullptr, false);
+        if (manifest.is_discarded() || manifest.value("schema", "") != "urpg.asset_transform_revision.v1") {
+            return std::nullopt;
+        }
+        const auto operation = manifest.value("operation", "");
+        const auto derivedRevision = manifest.value("derived_revision", "");
+        if (derivedRevision.size() != 64 ||
+            !std::all_of(derivedRevision.begin(), derivedRevision.end(), [](const unsigned char character) {
+                return std::isxdigit(character);
+            })) {
+            return std::nullopt;
+        }
+        std::error_code error;
+        const auto manifestDirectory =
+            std::filesystem::weakly_canonical(std::filesystem::path(manifest_path).parent_path(), error);
+        if (error) return std::nullopt;
+        const auto validateImage = [&](const std::filesystem::path& candidate, const std::filesystem::path& parent,
+                                       const std::string& filename) -> std::optional<std::filesystem::path> {
+            const auto canonical = std::filesystem::weakly_canonical(candidate, error);
+            if (error || !std::filesystem::is_regular_file(canonical) || canonical.parent_path() != parent ||
+                canonical.filename() != filename) {
+                return std::nullopt;
+            }
+            return canonical;
+        };
+        if (operation == "image_crop_scale" || operation == "image_palette" || operation == "image_palette_extract") {
+            const auto output = validateImage(manifest.value("output_path", ""), manifestDirectory,
+                                              derivedRevision + ".png");
+            return output.has_value() ? std::make_optional(std::make_pair(*output, operation)) : std::nullopt;
+        }
+        if (operation == "tileset_slice" && manifest.contains("output_paths") && manifest["output_paths"].is_array() &&
+            !manifest["output_paths"].empty() && manifest["output_paths"][0].is_string()) {
+            const auto tileDirectory =
+                std::filesystem::weakly_canonical(manifestDirectory / (derivedRevision + ".tiles"), error);
+            if (error) return std::nullopt;
+            const auto output = validateImage(manifest["output_paths"][0].get<std::string>(), tileDirectory,
+                                              "000000.png");
+            return output.has_value() ? std::make_optional(std::make_pair(*output, operation)) : std::nullopt;
+        }
+        return std::nullopt;
+        } catch (const nlohmann::json::exception&) {
+            return std::nullopt;
+        }
+    };
+    const auto rememberDerivedRevision = [&](const nlohmann::json& result, const std::string& source_path) {
+        if (!result.value("success", false)) return;
+        derivedRevisionManifestPath = result.value("manifest_path", "");
+        derivedRevisionSourcePath = source_path;
+        pendingDerivedRevisionAttachmentPlan = nlohmann::json::object();
+        pendingDerivedTilesetAssignmentPlan = nlohmann::json::object();
+    };
     const auto configuredLibraryRoot = runtime.external_asset_library_root;
     if (ImGui::Button("Load Reports")) {
         std::string error;
@@ -2865,10 +2922,54 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
             const auto path = row.value("path", "");
             ImGui::PushID(row.value("asset_id", path).c_str());
             ImGui::Text("%s: %s", projectAttached ? "Attached" : "Ready", row.value("asset_id", "asset").c_str());
+            if (derivedRevisionSourcePath == path && !derivedRevisionManifestPath.empty()) {
+                const auto preview = inspectDerivedImagePreview(derivedRevisionManifestPath);
+                if (!preview.has_value()) {
+                    ImGui::TextDisabled("Latest derived revision has no valid image preview.");
+                } else {
+                    urpg::editor::EditorThumbnailRequest request;
+                    request.sourcePath = preview->first;
+                    request.requestedWidth = 192;
+                    request.requestedHeight = 192;
+                    std::error_code previewError;
+                    const auto sizeBytes = std::filesystem::file_size(request.sourcePath, previewError);
+                    if (!previewError) {
+                        request.sizeBytes = sizeBytes;
+                        const auto modified = std::filesystem::last_write_time(request.sourcePath, previewError);
+                        if (!previewError) request.modifiedTimeNs = static_cast<int64_t>(modified.time_since_epoch().count());
+                    }
+                    runtime.asset_thumbnail_pinned_requests.push_back(request);
+                    runtime.asset_thumbnail_cache.pumpUploads();
+                    const auto thumbnail = runtime.asset_thumbnail_cache.snapshotFor(request);
+                    ImGui::TextDisabled("Derived preview (%s): %s", preview->second.c_str(),
+                                        request.sourcePath.filename().string().c_str());
+                    if (thumbnail.state == urpg::editor::EditorThumbnailState::Ready && thumbnail.textureId != 0) {
+                        const auto texture = [](const uint32_t textureId) -> ImTextureID {
+                            if constexpr (std::is_pointer_v<ImTextureID>) {
+                                return reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(textureId));
+                            }
+                            return static_cast<ImTextureID>(textureId);
+                        }(thumbnail.textureId);
+                        ImGui::Image(texture, ImVec2(192.0f, 192.0f));
+                    } else {
+                        ImGui::Button(thumbnail.state == urpg::editor::EditorThumbnailState::Queued ? "Loading derived preview"
+                                                                                                      : "Derived preview unavailable",
+                                      ImVec2(192.0f, 48.0f));
+                    }
+                }
+            }
             ImGui::SameLine();
             if (ImGui::SmallButton("Compare Left")) comparisonLeftPath = path;
             ImGui::SameLine();
             if (ImGui::SmallButton("Compare Right")) comparisonRightPath = path;
+            ImGui::SameLine();
+            if (!derivedRevisionManifestPath.empty() && derivedRevisionSourcePath != path &&
+                ImGui::SmallButton("Use Derived Manifest Here")) {
+                derivedRevisionSourcePath = path;
+                pendingDerivedRevisionAttachmentPlan = nlohmann::json::object();
+                pendingDerivedTilesetAssignmentPlan = nlohmann::json::object();
+                assetWorkflowStatus = "Derived revision is now bound to this source asset for review and preview.";
+            }
             ImGui::SameLine();
             const bool favorite = panel.model().isAssetFavorite(path);
             if (ImGui::SmallButton(favorite ? "Unfavorite" : "Favorite")) {
@@ -2979,7 +3080,8 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                     ImGui::TextDisabled("Revision: %.16s", pendingAssetAttachmentPlan.value("expected_source_revision", "").c_str());
                 }
             }
-            if (!derivedRevisionManifestPath.empty() && (attach.value("enabled", false) || projectAttached)) {
+            if (derivedRevisionSourcePath == path && !derivedRevisionManifestPath.empty() &&
+                (attach.value("enabled", false) || projectAttached)) {
                 ImGui::SameLine();
                 const bool isPendingDerivedPlan = pendingDerivedRevisionAttachmentPlan.value("success", false) &&
                                                   pendingDerivedRevisionAttachmentPlan.value("path", "") == path &&
@@ -3018,7 +3120,8 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                                         pendingDerivedRevisionAttachmentPlan.value("expected_source_revision", "").c_str());
                 }
             }
-            if (!derivedRevisionManifestPath.empty() && (attach.value("enabled", false) || projectAttached)) {
+            if (derivedRevisionSourcePath == path && !derivedRevisionManifestPath.empty() &&
+                (attach.value("enabled", false) || projectAttached)) {
                 const bool isPendingTilesetPlan = pendingDerivedTilesetAssignmentPlan.value("success", false) &&
                                                   pendingDerivedTilesetAssignmentPlan.value("path", "") == path &&
                                                   pendingDerivedTilesetAssignmentPlan.value("derived_manifest_path", "") ==
@@ -3072,9 +3175,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                         path, derivedRoot, transformOperationId, transformCropX, transformCropY, cropWidth, cropHeight,
                         outputWidth, outputHeight);
                     assetWorkflowStatus = result.value("message", "Image revision did not return a status.");
-                    if (result.value("success", false)) {
-                        derivedRevisionManifestPath = result.value("manifest_path", "");
-                    }
+                    rememberDerivedRevision(result, path);
                 }
             }
             if (paletteRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
@@ -3096,9 +3197,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                     const auto result = panel.createImagePaletteRevision(path, derivedRoot, paletteOperationId,
                                                                           std::move(colors), paletteDither);
                     assetWorkflowStatus = result.value("message", "Palette revision did not return a status.");
-                    if (result.value("success", false)) {
-                        derivedRevisionManifestPath = result.value("manifest_path", "");
-                    }
+                    rememberDerivedRevision(result, path);
                 }
             }
             if (paletteExtractRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
@@ -3108,9 +3207,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                     const auto result = panel.createImagePaletteExtractRevision(
                         path, derivedRoot, paletteExtractOperationId, paletteExtractMaxColors, paletteExtractDither);
                     assetWorkflowStatus = result.value("message", "Automatic palette revision did not return a status.");
-                    if (result.value("success", false)) {
-                        derivedRevisionManifestPath = result.value("manifest_path", "");
-                    }
+                    rememberDerivedRevision(result, path);
                 }
             }
             if (audioRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "audio") {
@@ -3127,9 +3224,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                         audioUseLoop ? static_cast<int64_t>(std::max(audioLoopStartFrame, 0)) : -1,
                         audioUseLoop ? static_cast<int64_t>(std::max(audioLoopEndFrame, 0)) : -1);
                     assetWorkflowStatus = result.value("message", "Audio revision did not return a status.");
-                    if (result.value("success", false)) {
-                        derivedRevisionManifestPath = result.value("manifest_path", "");
-                    }
+                    rememberDerivedRevision(result, path);
                 }
             }
             if (tilesetRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
@@ -3140,6 +3235,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                         path, derivedRoot, tilesetOperationId, tilesetTileWidth, tilesetTileHeight, tilesetMargin,
                         tilesetSpacing);
                     assetWorkflowStatus = result.value("message", "Tileset revision did not return a status.");
+                    rememberDerivedRevision(result, path);
                 }
             }
             if (atlasRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
