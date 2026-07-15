@@ -20,7 +20,8 @@ bool ContainsId(const std::vector<std::string>& ids, const std::string& id) {
 
 const std::vector<std::string>& CanonicalReleasePanelIds() {
     static const std::vector<std::string> ids = {
-        "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder", "spatial_authoring",
+        "diagnostics", "assets", "ability", "character_creator", "patterns", "mod", "analytics", "level_builder",
+        "spatial_authoring",
     };
     return ids;
 }
@@ -187,6 +188,7 @@ TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][
     REQUIRE(ContainsId(ids, "diagnostics"));
     REQUIRE(ContainsId(ids, "assets"));
     REQUIRE(ContainsId(ids, "ability"));
+    REQUIRE(ContainsId(ids, "character_creator"));
     REQUIRE(ContainsId(ids, "patterns"));
     REQUIRE(ContainsId(ids, "mod"));
     REQUIRE(ContainsId(ids, "analytics"));

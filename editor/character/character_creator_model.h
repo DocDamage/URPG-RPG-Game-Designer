@@ -37,6 +37,8 @@ public:
 
     const urpg::character::CharacterIdentity& getIdentity() const { return m_identity; }
     std::optional<EntityID> lastSpawnedEntity() const { return m_last_spawned_entity; }
+    bool hasUnsavedDraft() const { return m_dirty; }
+    void markDraftPersisted() { m_dirty = false; }
 
     void setName(const std::string& value);
     void setPortraitId(const std::string& value);

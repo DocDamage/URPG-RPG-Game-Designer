@@ -11,8 +11,8 @@
 namespace {
 
 const std::vector<std::string>& CanonicalReleasePanelIds() {
-    static const std::vector<std::string> ids = {"diagnostics", "assets",  "ability", "patterns",
-                                                 "mod",         "analytics", "level_builder",
+    static const std::vector<std::string> ids = {"diagnostics", "assets", "ability", "character_creator",
+                                                 "patterns", "mod", "analytics", "level_builder",
                                                  "spatial_authoring"};
     return ids;
 }

@@ -61,6 +61,18 @@ TEST_CASE("CharacterCreatorModel validation blocks spawn until required fields a
     REQUIRE(snapshot["workflow"]["can_spawn"]);
 }
 
+TEST_CASE("CharacterCreatorModel exposes a durable draft lifecycle for the shared editor save owner",
+          "[character][editor][model][dirty state]") {
+    CharacterCreatorModel model;
+    REQUIRE_FALSE(model.hasUnsavedDraft());
+
+    model.setName("Willow Hero");
+    REQUIRE(model.hasUnsavedDraft());
+
+    model.markDraftPersisted();
+    REQUIRE_FALSE(model.hasUnsavedDraft());
+}
+
 TEST_CASE("CharacterCreatorModel spawns validated character into ECS", "[character][editor][model]") {
     urpg::World world;
     urpg::ActorManager manager(world);

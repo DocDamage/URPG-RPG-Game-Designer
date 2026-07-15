@@ -5,6 +5,8 @@
 #include "editor/assets/asset_library_panel.h"
 #include "editor/assets/editor_asset_drag_payload.h"
 #include "editor/assets/editor_thumbnail_cache.h"
+#include "editor/character/character_creator_model.h"
+#include "editor/character/character_creator_panel.h"
 #include "editor/project/creator_checklist_panel.h"
 #include "editor/project/main_menu_panel.h"
 #include "editor/project/new_project_wizard_model.h"
@@ -112,6 +114,8 @@ struct EditorPanelRuntime {
     urpg::editor::EditorRecoveryService recovery_service;
     urpg::editor::EditorDirtyStateRegistry dirty_state_registry;
     urpg::editor::AbilityInspectorPanel ability_inspector_panel;
+    urpg::editor::CharacterCreatorModel character_creator_model;
+    urpg::editor::CharacterCreatorPanel character_creator_panel;
     urpg::editor::PatternFieldModel pattern_field_model;
     urpg::editor::PatternFieldPanel pattern_field_panel;
     urpg::editor::ModManagerPanel mod_manager_panel;
@@ -135,6 +139,7 @@ struct EditorPanelRuntime {
     urpg::analytics::AnalyticsPrivacyController analytics_privacy_controller;
     std::filesystem::path project_root;
     std::filesystem::path external_asset_library_root;
+    std::string character_draft_id = "protagonist";
     bool creator_mode = false;
     bool focus_workspace_next_frame = true;
     std::string last_workspace_panel_id;
@@ -147,10 +152,12 @@ struct EditorPanelRuntime {
     bool map_dirty_surface_registered = false;
     bool perspective_2d_dirty_surface_registered = false;
     bool ability_dirty_surface_registered = false;
+    bool character_dirty_surface_registered = false;
 };
 
 constexpr const char* kMapDirtyDocumentId = "map.grid_parts";
 constexpr const char* kPerspective2DDirtyDocumentId = "map.perspective_2d";
+constexpr const char* kCharacterDirtyDocumentId = "character.creator";
 
 std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asset) {
     std::string stem;
@@ -387,6 +394,8 @@ std::string starterMapIdForProject(const std::filesystem::path& projectRoot) {
     return "EditorPreview";
 }
 
+bool atomicWriteTextFile(const std::filesystem::path& target, std::string_view contents, std::string* error);
+
 urpg::editor::EditorDirtySaveResult saveAbilityDraft(EditorPanelRuntime& runtime) {
     if (runtime.project_root.empty()) {
         return {false, "ability_save_project_unavailable", "Open a project before saving an ability draft."};
@@ -402,12 +411,31 @@ urpg::editor::EditorDirtySaveResult saveAbilityDraft(EditorPanelRuntime& runtime
             "Saved draft ability to " + std::filesystem::relative(target_path, runtime.project_root).generic_string() + "."};
 }
 
+std::filesystem::path characterDraftPath(const EditorPanelRuntime& runtime) {
+    return runtime.project_root / "content" / "characters" / (runtime.character_draft_id + ".json");
+}
+
+urpg::editor::EditorDirtySaveResult saveCharacterDraft(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty()) {
+        return {false, "character_save_project_unavailable", "Open a project before saving a character draft."};
+    }
+    std::string error;
+    const auto target = characterDraftPath(runtime);
+    if (!atomicWriteTextFile(target, runtime.character_creator_model.getIdentity().toJson().dump(2) + "\n", &error)) {
+        return {false, "character_save_failed", "Failed to save character draft: " + error};
+    }
+    runtime.character_creator_model.markDraftPersisted();
+    return {true, "character_saved",
+            "Saved character draft to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
+}
+
 void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     if (!runtime.project_session.isOpen() || runtime.project_root.empty()) return;
     const auto mapDirty = runtime.dirty_state_registry.isDirty(kMapDirtyDocumentId) ||
                           runtime.dirty_state_registry.isDirty(kPerspective2DDirtyDocumentId);
     const auto abilityDirty = runtime.dirty_state_registry.isDirty("ability.draft");
-    if (!mapDirty && !abilityDirty) return;
+    const auto characterDirty = runtime.dirty_state_registry.isDirty(kCharacterDirtyDocumentId);
+    if (!mapDirty && !abilityDirty && !characterDirty) return;
 
     std::vector<urpg::editor::RecoveryDocumentDraft> drafts;
     if (mapDirty) {
@@ -427,6 +455,11 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
         const auto ability = runtime.ability_inspector_panel.getDraftAsset();
         drafts.push_back({"ability.draft", std::filesystem::path("content") / "abilities" / abilityAssetFileName(ability),
                           nlohmann::json(ability).dump(2) + "\n"});
+    }
+    if (characterDirty) {
+        drafts.push_back({kCharacterDirtyDocumentId, std::filesystem::path("content") / "characters" /
+                                                        (runtime.character_draft_id + ".json"),
+                          runtime.character_creator_model.getIdentity().toJson().dump(2) + "\n"});
     }
 
     const auto dirtyDocumentIds = runtime.dirty_state_registry.dirtyDocumentIds();
@@ -452,6 +485,33 @@ void captureScheduledRecoverySnapshot(EditorPanelRuntime& runtime) {
 
 void bindMapAuthoringProject(EditorPanelRuntime& runtime, const std::filesystem::path& projectRoot) {
     runtime.project_root = projectRoot;
+    runtime.character_draft_id = "protagonist";
+    {
+        std::ifstream manifestInput(projectRoot / "project.json", std::ios::binary);
+        const auto manifest = nlohmann::json::parse(manifestInput, nullptr, false);
+        if (manifest.is_object() && manifest.contains("creator") && manifest["creator"].is_object() &&
+            manifest["creator"].value("vertical_slice_seed", "") == "lantern_of_the_willow_draft") {
+            runtime.character_draft_id = "willow_hero";
+        }
+    }
+    const auto characterPath = characterDraftPath(runtime);
+    if (std::ifstream characterInput(characterPath, std::ios::binary); characterInput.good()) {
+        try {
+            runtime.character_creator_model.loadIdentity(
+                urpg::character::CharacterIdentity::fromJson(nlohmann::json::parse(characterInput)));
+        } catch (const std::exception&) {
+            runtime.character_creator_model.resetDraft();
+        }
+    } else if (runtime.character_draft_id == "willow_hero") {
+        urpg::character::CharacterIdentity hero;
+        hero.setName("Willow Hero");
+        hero.setClassId("class_ranger");
+        hero.setPortraitId("portrait_ranger_01");
+        hero.setBodySpriteId("sprite_ranger_body");
+        runtime.character_creator_model.loadIdentity(hero);
+    } else {
+        runtime.character_creator_model.resetDraft();
+    }
     const auto mapId = starterMapIdForProject(projectRoot);
     runtime.level_builder_document = urpg::map::GridPartDocument{mapId, 16, 12};
     const auto gridPath = projectRoot / "content" / "maps" / (mapId + ".grid.json");
@@ -677,6 +737,15 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
         [] {},
         {},
     });
+    runtime.character_creator_panel.bindModel(&runtime.character_creator_model);
+    runtime.character_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        kCharacterDirtyDocumentId,
+        "character_creator",
+        false,
+        [&runtime] { return saveCharacterDraft(runtime); },
+        [] {},
+        {},
+    });
     runtime.pattern_field_panel.bindModel(runtime.pattern_field_model);
     runtime.mod_loader = std::make_unique<urpg::mod::ModLoader>(runtime.mod_registry);
     runtime.mod_manager_panel.bindRegistry(&runtime.mod_registry);
@@ -709,6 +778,12 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
              return [&panelRuntime](const urpg::editor::EditorFrameContext&) {
                  panelRuntime.ability_inspector_panel.update(panelRuntime.ability_runtime);
                  panelRuntime.ability_inspector_panel.render();
+             };
+         }},
+        {"character_creator",
+         [](EditorPanelRuntime& panelRuntime) {
+             return [&panelRuntime](const urpg::editor::EditorFrameContext&) {
+                 panelRuntime.character_creator_panel.render();
              };
          }},
         {"patterns",
@@ -2425,6 +2500,40 @@ void renderAbilityWorkspaceInline(EditorPanelRuntime& runtime) {
         }
     }
 }
+
+void renderCharacterCreatorWorkspaceInline(EditorPanelRuntime& runtime) {
+    auto& model = runtime.character_creator_model;
+    auto name = model.getIdentity().getName();
+    auto classId = model.getIdentity().getClassId();
+    auto portraitId = model.getIdentity().getPortraitId();
+    auto bodySpriteId = model.getIdentity().getBodySpriteId();
+
+    ImGui::TextUnformatted("Character Identity");
+    ImGui::TextDisabled("Changes are protected by the shared editor save and recovery flow.");
+    if (ImGui::InputText("Name", &name)) model.setName(name);
+    if (ImGui::InputText("Class ID", &classId)) model.setClassId(classId);
+    if (ImGui::InputText("Portrait ID", &portraitId)) model.setPortraitId(portraitId);
+    if (ImGui::InputText("Body Sprite ID", &bodySpriteId)) model.setBodySpriteId(bodySpriteId);
+
+    ImGui::Separator();
+    const auto snapshot = model.buildSnapshot();
+    const auto validation = snapshot.value("validation", nlohmann::json::object());
+    const bool valid = validation.value("is_valid", false);
+    ImGui::Text("Validation: %s", valid ? "ready" : "needs attention");
+    for (const auto& issue : validation.value("issues", nlohmann::json::array())) {
+        ImGui::BulletText("%s", issue.value("message", "Invalid character field.").c_str());
+    }
+
+    ImGui::Separator();
+    if (ImGui::Button("Save Character")) {
+        const auto result = runtime.dirty_state_registry.save(kCharacterDirtyDocumentId);
+        runtime.map_save_status = result.message;
+    }
+    ImGui::SameLine();
+    ImGui::TextDisabled("Draft: %s", runtime.character_draft_id.c_str());
+    if (!runtime.map_save_status.empty()) ImGui::TextWrapped("%s", runtime.map_save_status.c_str());
+}
+
 void renderPatternsWorkspaceInline(EditorPanelRuntime& runtime) {
     auto& panel = runtime.pattern_field_panel;
     auto& currentModel = runtime.pattern_field_model;
@@ -2646,6 +2755,8 @@ void renderEditorWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRu
         renderMapAuthoringWorkspace(runtime);
     } else if (snapshot.active_panel_id == "ability") {
         renderAbilityWorkspaceInline(runtime);
+    } else if (snapshot.active_panel_id == "character_creator") {
+        renderCharacterCreatorWorkspaceInline(runtime);
     } else if (snapshot.active_panel_id == "patterns") {
         renderPatternsWorkspaceInline(runtime);
     } else if (snapshot.active_panel_id == "analytics") {
@@ -2677,6 +2788,7 @@ bool useWorkspaceOnlyRenderer(const urpg::editor::EditorShell& editorShell, cons
 
     const auto& activePanelId = editorShell.activePanelId();
     return activePanelId == "diagnostics" || activePanelId == "assets" || activePanelId == "ability" ||
+           activePanelId == "character_creator" ||
            activePanelId == "patterns" || activePanelId == "mod" || activePanelId == "analytics" ||
            activePanelId == "level_builder" || activePanelId == "spatial_authoring";
 }
@@ -2688,6 +2800,8 @@ void refreshWorkspaceOnlyPanel(EditorPanelRuntime& runtime, const std::string& a
         runtime.asset_library_panel.render();
     } else if (activePanelId == "ability") {
         runtime.ability_inspector_panel.update(runtime.ability_runtime);
+    } else if (activePanelId == "character_creator") {
+        runtime.character_creator_panel.render();
     } else if (activePanelId == "mod") {
         runtime.mod_manager_panel.render();
     } else if (activePanelId == "analytics") {
@@ -2765,9 +2879,15 @@ bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& e
             }
         }
 #endif
-        if (panelRuntime != nullptr && panelRuntime->ability_dirty_surface_registered) {
-            (void)panelRuntime->dirty_state_registry.markDirty(
-                "ability.draft", panelRuntime->ability_inspector_panel.hasUnsavedDraft());
+        if (panelRuntime != nullptr) {
+            if (panelRuntime->ability_dirty_surface_registered) {
+                (void)panelRuntime->dirty_state_registry.markDirty(
+                    "ability.draft", panelRuntime->ability_inspector_panel.hasUnsavedDraft());
+            }
+            if (panelRuntime->character_dirty_surface_registered) {
+                (void)panelRuntime->dirty_state_registry.markDirty(
+                    kCharacterDirtyDocumentId, panelRuntime->character_creator_model.hasUnsavedDraft());
+            }
             panelRuntime->project_session.setDirtySurfaceSummaries(panelRuntime->dirty_state_registry.dirtyDocumentIds());
             captureScheduledRecoverySnapshot(*panelRuntime);
         }

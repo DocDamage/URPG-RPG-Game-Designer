@@ -7,8 +7,9 @@ namespace urpg::editor {
 
 namespace {
 
-constexpr std::array<std::string_view, 8> kReleaseTopLevelPanelIds = {
-    "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder", "spatial_authoring",
+constexpr std::array<std::string_view, 9> kReleaseTopLevelPanelIds = {
+    "diagnostics", "assets", "ability", "character_creator", "patterns", "mod", "analytics", "level_builder",
+    "spatial_authoring",
 };
 
 constexpr std::array<std::string_view, 181> kShowcaseRoutablePanelIds = {
@@ -880,8 +881,8 @@ std::vector<EditorPanelRegistryEntry> buildRegistry() {
      "Deferred roadmap panel; puzzle authoring is outside the current release shell."},
     {"export_diagnostics", "Export Diagnostics", "Release", EditorPanelExposure::Nested, "editor/export",
      "Nested export preview route required by WYSIWYG template showcase."},
-    {"character_creator", "Character Creator", "Gameplay", EditorPanelExposure::Deferred, "editor/character",
-     "Deferred until character creation workflow is selected for release shell registration."},
+    {"character_creator", "Character Creator", "Gameplay", EditorPanelExposure::ReleaseTopLevel, "editor/character",
+     "Durable character identity authoring with shared save, navigation, and recovery ownership."},
     {"achievement", "Achievement", "Gameplay", EditorPanelExposure::Deferred, "editor/achievement",
      "Deferred until achievement authoring is selected for release shell registration."},
     {"controller_binding", "Controller Binding", "Input", EditorPanelExposure::Deferred, "editor/action",

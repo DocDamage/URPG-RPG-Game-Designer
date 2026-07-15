@@ -31,7 +31,7 @@ any platform-specific signing/notarization credentials required for final distri
 
 ## Verified Release Surface
 
-- Release top-level editor panels are intentionally limited to `diagnostics`, `assets`, `ability`, `patterns`, `mod`, `analytics`, `level_builder`, and `spatial_authoring`.
+- Release top-level editor panels are intentionally limited to `diagnostics`, `assets`, `ability`, `character_creator`, `patterns`, `mod`, `analytics`, `level_builder`, and `spatial_authoring`.
 - Every release top-level panel has an app-shell factory and is covered by registry/app panel regression tests.
 - `developer_debug_overlay` and other debug/dev surfaces are `DevOnly`, excluded from release navigation, and tested as such.
 - Deferred editor panels remain compiled for direct tests, snapshots, or roadmap work, but are not advertised as release navigation.
