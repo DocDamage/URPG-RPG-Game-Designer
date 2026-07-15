@@ -506,6 +506,26 @@ nlohmann::json AssetLibraryPanel::confirmDerivedRevisionAttachmentToProject(
     return result.toJson();
 }
 
+nlohmann::json AssetLibraryPanel::planDerivedTilesetAssignmentToProject(
+    std::string source_path, const std::filesystem::path& derived_manifest_path,
+    const std::filesystem::path& project_root, const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    auto result = model_.planDerivedTilesetAssignmentToProject(std::move(source_path), derived_manifest_path,
+                                                                 project_root, policy);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::confirmDerivedTilesetAssignmentToProject(
+    std::string source_path, const std::filesystem::path& derived_manifest_path,
+    const std::filesystem::path& project_root, std::string expected_source_revision, std::string operation_id,
+    const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    auto result = model_.confirmDerivedTilesetAssignmentToProject(
+        std::move(source_path), derived_manifest_path, project_root, std::move(expected_source_revision),
+        std::move(operation_id), policy);
+    refreshRenderSnapshotsFromModel();
+    return result.toJson();
+}
+
 nlohmann::json AssetLibraryPanel::createImageCropScaleRevision(
     std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
     const int32_t crop_x, const int32_t crop_y, const int32_t crop_width, const int32_t crop_height,

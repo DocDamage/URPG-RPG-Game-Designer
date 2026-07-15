@@ -114,6 +114,16 @@ class AssetLibraryPanel {
         const std::filesystem::path& project_root, std::string expected_source_revision, std::string operation_id,
         urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
             urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
+    nlohmann::json planDerivedTilesetAssignmentToProject(
+        std::string source_path, const std::filesystem::path& derived_manifest_path,
+        const std::filesystem::path& project_root,
+        urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+            urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
+    nlohmann::json confirmDerivedTilesetAssignmentToProject(
+        std::string source_path, const std::filesystem::path& derived_manifest_path,
+        const std::filesystem::path& project_root, std::string expected_source_revision, std::string operation_id,
+        urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+            urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
     nlohmann::json createImageCropScaleRevision(
         std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
         int32_t crop_x, int32_t crop_y, int32_t crop_width, int32_t crop_height, int32_t output_width,

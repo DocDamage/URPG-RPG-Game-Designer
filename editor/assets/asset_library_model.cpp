@@ -2142,6 +2142,104 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::confirmDerivedRevision
     return result;
 }
 
+nlohmann::json AssetLibraryModel::planDerivedTilesetAssignmentToProject(
+    std::string source_path, const std::filesystem::path& derived_manifest_path,
+    const std::filesystem::path& project_root, const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "plan_derived_tileset_assignment"},
+        {"path", source_path},
+        {"derived_manifest_path", derived_manifest_path.generic_string()},
+        {"project_root", project_root.generic_string()},
+        {"conflict_policy", attachmentConflictPolicyName(policy)},
+        {"success", false},
+        {"code", "asset_not_found"},
+        {"message", "Asset was not found in the library."},
+        {"tileset_id", ""},
+        {"expected_source_revision", ""},
+        {"operation_id", ""},
+        {"tile_directory", ""},
+        {"manifest_path", ""},
+        {"columns", 0},
+        {"rows", 0},
+        {"tile_width", 0},
+        {"tile_height", 0},
+        {"diagnostics", nlohmann::json::array()},
+    };
+    const auto found = library_.findAsset(source_path);
+    if (found.has_value()) {
+        urpg::assets::ProjectAssetAttachmentService service;
+        const auto plan = service.planDerivedTilesetAssignment(manifestFromAssetRecord(*found), derived_manifest_path,
+                                                                 project_root, policy);
+        action["tileset_id"] = plan.tilesetId;
+        action["success"] = plan.valid;
+        action["code"] = plan.valid ? "project_derived_tileset_assignment_planned"
+                                      : "project_derived_tileset_assignment_plan_invalid";
+        action["message"] = plan.valid ? "Review the derived tileset bundle and project paths before confirming."
+                                        : "The derived tileset assignment cannot be planned.";
+        action["expected_source_revision"] = plan.sourceRevision;
+        action["operation_id"] = plan.valid ? "tileset-" + attachmentOperationId(plan.tilesetId, plan.sourceRevision, policy)
+                                              : "";
+        action["tile_directory"] = plan.tileDirectory.generic_string();
+        action["manifest_path"] = plan.manifestPath.generic_string();
+        action["columns"] = plan.columns;
+        action["rows"] = plan.rows;
+        action["tile_width"] = plan.tileWidth;
+        action["tile_height"] = plan.tileHeight;
+        action["diagnostics"] = plan.diagnostics;
+    }
+    action_history_.push_back(action);
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+urpg::assets::AssetLibraryActionResult AssetLibraryModel::confirmDerivedTilesetAssignmentToProject(
+    std::string source_path, const std::filesystem::path& derived_manifest_path,
+    const std::filesystem::path& project_root, std::string expected_source_revision, std::string operation_id,
+    const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    const auto found = library_.findAsset(source_path);
+    if (!found.has_value()) {
+        urpg::assets::AssetLibraryActionResult result{"confirm_derived_tileset_assignment", source_path, false,
+                                                      "asset_not_found", "Asset was not found in the library."};
+        action_history_.push_back(result.toJson());
+        refreshSnapshot();
+        snapshot_.last_action = result.toJson();
+        snapshot_.action_history = action_history_;
+        return result;
+    }
+    if (expected_source_revision.empty() || operation_id.empty()) {
+        urpg::assets::AssetLibraryActionResult result{
+            "confirm_derived_tileset_assignment", source_path, false, "tileset_assignment_confirmation_missing",
+            "Tileset assignment confirmation requires the review revision and operation ID from a current plan."};
+        action_history_.push_back(result.toJson());
+        refreshSnapshot();
+        snapshot_.last_action = result.toJson();
+        snapshot_.action_history = action_history_;
+        return result;
+    }
+    urpg::assets::ProjectDerivedTilesetAssignmentRequest request;
+    request.source = manifestFromAssetRecord(*found);
+    request.derivedManifestPath = derived_manifest_path;
+    request.projectRoot = project_root;
+    request.conflictPolicy = policy;
+    request.operationId = std::move(operation_id);
+    request.expectedSourceRevision = std::move(expected_source_revision);
+    urpg::assets::ProjectAssetAttachmentService service;
+    const auto assignment = service.assignDerivedTileset(request);
+    urpg::assets::AssetLibraryActionResult result{"confirm_derived_tileset_assignment", source_path, assignment.success,
+                                                  assignment.code, assignment.message};
+    if (assignment.success) {
+        library_.addUsageReference(source_path, "project_tileset_assignment:" + assignment.manifestPath.generic_string());
+    }
+    action_history_.push_back(result.toJson());
+    rebuildCleanupPreview();
+    snapshot_.last_action = result.toJson();
+    snapshot_.action_history = action_history_;
+    return result;
+}
+
 nlohmann::json AssetLibraryModel::createImageCropScaleRevision(
     std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
     const int32_t crop_x, const int32_t crop_y, const int32_t crop_width, const int32_t crop_height,

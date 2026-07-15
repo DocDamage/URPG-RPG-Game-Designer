@@ -1141,6 +1141,81 @@ TEST_CASE("ProjectAssetAttachmentService attaches validated single-output derive
     std::filesystem::remove_all(root);
 }
 
+TEST_CASE("ProjectAssetAttachmentService assigns validated derived tileset bundles",
+          "[assets][asset_library][asset_attachment][tileset]") {
+    const auto root = uniqueAssetTempRoot("urpg_derived_tileset_assignment");
+    std::filesystem::remove_all(root);
+    const auto sourcePayload = root / ".urpg" / "asset-library" / "promoted" / "asset.tiles" / "payloads" /
+                               "tiles.ppm";
+    const auto derivedRoot = root / ".urpg" / "asset-library" / "derived";
+    const auto projectRoot = root / "project";
+    std::string ppm = "P6\n3 1\n255\n";
+    ppm.append({static_cast<char>(0xFF), 0, 0, 0, static_cast<char>(0xFF), 0, 0, 0, static_cast<char>(0xFF)});
+    writeBinaryFile(sourcePayload, ppm);
+
+    urpg::assets::AssetPromotionManifest source;
+    source.assetId = "asset.tiles";
+    source.sourcePath = "imports/raw/tiles.ppm";
+    source.promotedPath = sourcePayload.generic_string();
+    source.licenseId = "project_private";
+    source.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+    source.preview.kind = "image";
+    source.preview.thumbnailPath = source.promotedPath;
+    source.preview.width = 3;
+    source.preview.height = 1;
+    source.package.includeInRuntime = true;
+
+    urpg::assets::AssetTransformRevisionService transforms;
+    urpg::assets::AssetTilesetSlicePlan slice;
+    slice.operationId = "three-single-tile-slice";
+    slice.source = source;
+    slice.derivedRoot = derivedRoot;
+    slice.tileWidth = 1;
+    slice.tileHeight = 1;
+    const auto revision = transforms.createTilesetSliceRevision(slice);
+    REQUIRE(revision.success);
+
+    urpg::assets::ProjectAssetAttachmentService attachments;
+    const auto plan = attachments.planDerivedTilesetAssignment(source, revision.manifestPath, projectRoot);
+    REQUIRE(plan.valid);
+    REQUIRE(plan.tilesetId == "asset.tiles.tileset." + revision.derivedRevision.substr(0, 16));
+    REQUIRE(plan.columns == 3);
+    REQUIRE(plan.rows == 1);
+    REQUIRE(plan.sourceRevision.size() == 64);
+
+    urpg::assets::ProjectDerivedTilesetAssignmentRequest request;
+    request.source = source;
+    request.derivedManifestPath = revision.manifestPath;
+    request.projectRoot = projectRoot;
+    request.operationId = "assign-derived-tiles";
+    request.expectedSourceRevision = plan.sourceRevision;
+    const auto assigned = attachments.assignDerivedTileset(request);
+    REQUIRE(assigned.success);
+    REQUIRE(assigned.code == "project_derived_tileset_assigned");
+    REQUIRE(std::filesystem::is_directory(assigned.payloadPath));
+    REQUIRE(std::filesystem::is_regular_file(assigned.manifestPath));
+    REQUIRE(readBinaryFile(assigned.payloadPath / "000000.png") == readBinaryFile(revision.outputPath / "000000.png"));
+    REQUIRE(readBinaryFile(assigned.payloadPath / "000002.png") == readBinaryFile(revision.outputPath / "000002.png"));
+    std::ifstream assignmentManifestStream(assigned.manifestPath);
+    const auto assignmentManifest = nlohmann::json::parse(assignmentManifestStream);
+    REQUIRE(assignmentManifest["schema"] == "urpg.project_derived_tileset_assignment.v1");
+    REQUIRE(assignmentManifest["grid"]["tile_count"] == 3);
+    REQUIRE(assignmentManifest["tile_paths"].size() == 3);
+
+    const urpg::assets::AssetTransformRevisionRemovalRequest removal{
+        derivedRoot, source.assetId, revision.derivedRevision};
+    const auto removalBlocked = transforms.removeDerivedRevision(removal);
+    REQUIRE_FALSE(removalBlocked.success);
+    REQUIRE(removalBlocked.code == "asset_transform_revision_attached");
+
+    const auto replayed = attachments.assignDerivedTileset(request);
+    REQUIRE(replayed.success);
+    REQUIRE(replayed.code == "project_derived_tileset_assigned");
+    REQUIRE(replayed.message.find("without reapplying") != std::string::npos);
+
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("ProjectAssetAttachmentService copies promoted payloads and writes project manifests",
           "[assets][asset_library][asset_attachment]") {
     const auto root = uniqueAssetTempRoot("urpg_project_asset_attachment");

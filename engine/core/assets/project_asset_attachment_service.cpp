@@ -6,8 +6,10 @@
 #include <cctype>
 #include <chrono>
 #include <fstream>
+#include <iomanip>
 #include <iterator>
 #include <nlohmann/json.hpp>
+#include <sstream>
 #include <string_view>
 #include <vector>
 
@@ -116,6 +118,8 @@ bool isSafeRelativePath(const std::filesystem::path& path) {
     return std::none_of(path.begin(), path.end(), [](const auto& part) { return part == ".."; });
 }
 
+std::string hashText(const std::string& value);
+
 struct DerivedAttachmentCandidate {
     bool valid = false;
     std::string code;
@@ -123,6 +127,145 @@ struct DerivedAttachmentCandidate {
     std::vector<std::string> diagnostics;
     AssetPromotionManifest manifest;
 };
+
+bool isSha256Hex(const std::string& value) {
+    return value.size() == 64 &&
+           std::all_of(value.begin(), value.end(), [](const unsigned char character) { return std::isxdigit(character); });
+}
+
+struct DerivedTilesetCandidate {
+    bool valid = false;
+    std::string code;
+    std::string message;
+    std::vector<std::string> diagnostics;
+    std::string sourceAssetId;
+    std::string tilesetId;
+    std::string sourceRevision;
+    std::string derivedRevision;
+    std::string reviewRevision;
+    int columns = 0;
+    int rows = 0;
+    int tileWidth = 0;
+    int tileHeight = 0;
+    std::filesystem::path tileDirectory;
+    std::filesystem::path manifestPath;
+    std::vector<std::filesystem::path> tilePaths;
+};
+
+std::string tilesetFilename(const size_t index) {
+    std::ostringstream output;
+    output << std::setw(6) << std::setfill('0') << index << ".png";
+    return output.str();
+}
+
+DerivedTilesetCandidate derivedTilesetCandidate(const AssetPromotionManifest& source,
+                                                const std::filesystem::path& derivedManifestPath) {
+    auto sourceDiagnostics = validateAssetPromotionManifest(source);
+    sourceDiagnostics.insert(sourceDiagnostics.end(), source.diagnostics.begin(), source.diagnostics.end());
+    if (!sourceDiagnostics.empty() || source.status != AssetPromotionStatus::RuntimeReady || !source.package.includeInRuntime) {
+        return {false, "asset_derived_tileset_source_invalid",
+                "Only a valid runtime-ready promoted asset can supply a derived tileset.", sourceDiagnostics};
+    }
+    if (!std::filesystem::is_regular_file(source.promotedPath)) {
+        return {false, "asset_derived_tileset_source_payload_missing", "The promoted source payload is missing."};
+    }
+    if (!std::filesystem::is_regular_file(derivedManifestPath)) {
+        return {false, "asset_derived_tileset_manifest_missing", "The derived tileset manifest is missing."};
+    }
+    try {
+        std::ifstream input(derivedManifestPath, std::ios::binary);
+        const auto revision = nlohmann::json::parse(input, nullptr, false);
+        if (revision.is_discarded() || revision.value("schema", "") != "urpg.asset_transform_revision.v1" ||
+            revision.value("operation", "") != "tileset_slice") {
+            return {false, "asset_derived_tileset_manifest_invalid", "The derived revision is not a valid tileset slice."};
+        }
+        const auto derivedRevision = revision.value("derived_revision", "");
+        const auto sourceRevision = hashFile(source.promotedPath);
+        if (!isSha256Hex(derivedRevision) || revision.value("source_asset_id", "") != source.assetId ||
+            revision.value("source_revision", "") != sourceRevision || !revision.contains("grid") ||
+            !revision["grid"].is_object() || !revision.contains("output_paths") || !revision["output_paths"].is_array()) {
+            return {false, "asset_derived_tileset_provenance_invalid",
+                    "The derived tileset no longer matches its reviewed promoted source or manifest."};
+        }
+        const auto& grid = revision["grid"];
+        const int columns = grid.value("columns", 0);
+        const int rows = grid.value("rows", 0);
+        const int tileWidth = grid.value("tile_width", 0);
+        const int tileHeight = grid.value("tile_height", 0);
+        const int margin = grid.value("margin", -1);
+        const int spacing = grid.value("spacing", -1);
+        const int tileCount = grid.value("tile_count", 0);
+        const nlohmann::json identity = {
+            {"schema", "urpg.asset_transform_revision.v1"},
+            {"operation", "tileset_slice"},
+            {"operation_id", revision.value("operation_id", "")},
+            {"source_asset_id", source.assetId},
+            {"source_revision", sourceRevision},
+            {"tile_width", tileWidth},
+            {"tile_height", tileHeight},
+            {"margin", margin},
+            {"spacing", spacing},
+        };
+        if (revision.value("operation_id", "").empty() || columns < 1 || rows < 1 || tileWidth < 1 ||
+            tileHeight < 1 || margin < 0 || spacing < 0 || tileCount != columns * rows ||
+            revision["output_paths"].size() != static_cast<size_t>(tileCount) || derivedRevision != hashText(identity.dump())) {
+            return {false, "asset_derived_tileset_grid_invalid", "The derived tileset grid is incomplete or invalid."};
+        }
+        std::error_code error;
+        const auto manifestDirectory = std::filesystem::weakly_canonical(derivedManifestPath.parent_path(), error);
+        const auto expectedTileDirectory = manifestDirectory / (derivedRevision + ".tiles");
+        const auto tileDirectory = std::filesystem::weakly_canonical(expectedTileDirectory, error);
+        if (error || !std::filesystem::is_directory(tileDirectory)) {
+            return {false, "asset_derived_tileset_output_missing", "The derived tileset output directory is missing."};
+        }
+        std::vector<std::filesystem::path> tilePaths;
+        nlohmann::json tileHashes = nlohmann::json::array();
+        tilePaths.reserve(static_cast<size_t>(tileCount));
+        for (size_t index = 0; index < static_cast<size_t>(tileCount); ++index) {
+            if (!revision["output_paths"][index].is_string()) {
+                return {false, "asset_derived_tileset_output_invalid", "A derived tileset output path is invalid."};
+            }
+            const auto tilePath = std::filesystem::weakly_canonical(
+                std::filesystem::path(revision["output_paths"][index].get<std::string>()), error);
+            if (error || !std::filesystem::is_regular_file(tilePath) || tilePath.parent_path() != tileDirectory ||
+                tilePath.filename() != tilesetFilename(index)) {
+                return {false, "asset_derived_tileset_output_invalid",
+                        "The derived tileset output paths do not match the deterministic tile bundle."};
+            }
+            tileHashes.push_back(hashFile(tilePath));
+            tilePaths.push_back(tilePath);
+        }
+        const nlohmann::json reviewIdentity = {
+            {"schema", "urpg.project_derived_tileset_assignment_review.v1"},
+            {"source_asset_id", source.assetId},
+            {"source_revision", sourceRevision},
+            {"derived_revision", derivedRevision},
+            {"grid", grid},
+            {"tile_sha256", tileHashes},
+        };
+        DerivedTilesetCandidate candidate;
+        candidate.valid = true;
+        candidate.sourceAssetId = source.assetId;
+        candidate.tilesetId = source.assetId + ".tileset." + derivedRevision.substr(0, 16);
+        candidate.sourceRevision = sourceRevision;
+        candidate.derivedRevision = derivedRevision;
+        candidate.reviewRevision = hashText(reviewIdentity.dump());
+        candidate.columns = columns;
+        candidate.rows = rows;
+        candidate.tileWidth = tileWidth;
+        candidate.tileHeight = tileHeight;
+        candidate.tileDirectory = tileDirectory;
+        candidate.manifestPath = std::filesystem::weakly_canonical(derivedManifestPath, error);
+        candidate.tilePaths = std::move(tilePaths);
+        if (error) {
+            return {false, "asset_derived_tileset_manifest_path_invalid",
+                    "The derived tileset manifest path could not be resolved."};
+        }
+        return candidate;
+    } catch (const nlohmann::json::exception&) {
+        return {false, "asset_derived_tileset_manifest_invalid", "The derived tileset manifest is malformed."};
+    }
+}
 
 DerivedAttachmentCandidate derivedAttachmentCandidate(const AssetPromotionManifest& source,
                                                       const std::filesystem::path& derivedManifestPath) {
@@ -190,6 +333,50 @@ DerivedAttachmentCandidate derivedAttachmentCandidate(const AssetPromotionManife
 
 std::string hashText(const std::string& value) {
     return security::Sha256::toHex(security::Sha256::compute({value.begin(), value.end()}));
+}
+
+std::filesystem::path tilesetAssignmentReceiptPath(const std::filesystem::path& projectRoot,
+                                                   const std::string& operationId) {
+    return projectRoot / ".urpg" / "tileset-assignment-operations" / (operationId + ".json");
+}
+
+std::string tilesetAssignmentFingerprint(const ProjectDerivedTilesetAssignmentRequest& request,
+                                         const std::string& reviewRevision) {
+    const nlohmann::json value = {
+        {"schema", "urpg.project_derived_tileset_assignment_request.v1"},
+        {"asset", serializeAssetPromotionManifest(request.source)},
+        {"derived_manifest_path", request.derivedManifestPath.generic_string()},
+        {"project_root", request.projectRoot.generic_string()},
+        {"policy", static_cast<int>(request.conflictPolicy)},
+        {"review_revision", reviewRevision},
+        {"expected_source_revision", request.expectedSourceRevision},
+    };
+    return hashText(value.dump());
+}
+
+nlohmann::json projectTilesetManifest(const DerivedTilesetCandidate& candidate, const std::string& tilesetId,
+                                      const std::filesystem::path& projectRoot) {
+    nlohmann::json tilePaths = nlohmann::json::array();
+    for (size_t index = 0; index < candidate.tilePaths.size(); ++index) {
+        tilePaths.push_back({{"index", index},
+                             {"path", (std::filesystem::path("content") / "tilesets" / sanitizeSegment(tilesetId) /
+                                       "tiles" / tilesetFilename(index))
+                                          .generic_string()},
+                             {"sha256", hashFile(candidate.tilePaths[index])}});
+    }
+    return {
+        {"schema", "urpg.project_derived_tileset_assignment.v1"},
+        {"tileset_id", tilesetId},
+        {"source_asset_id", candidate.sourceAssetId},
+        {"source_revision", candidate.sourceRevision},
+        {"review_revision", candidate.reviewRevision},
+        {"derived_revision", candidate.derivedRevision},
+        {"derived_manifest_path", candidate.manifestPath.generic_string()},
+        {"grid", {{"columns", candidate.columns}, {"rows", candidate.rows}, {"tile_width", candidate.tileWidth},
+                  {"tile_height", candidate.tileHeight}, {"tile_count", candidate.tilePaths.size()}}},
+        {"tile_paths", std::move(tilePaths)},
+        {"project_root", projectRoot.generic_string()},
+    };
 }
 
 std::filesystem::path derivedAttachmentReferencePath(const std::filesystem::path& derivedManifestPath,
@@ -433,6 +620,201 @@ ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachDerivedRevisio
         result.code = "project_asset_attached_reference_tracking_pending";
         result.message = "The project asset was attached, but its derived revision remains protected until reference tracking is recovered.";
         result.diagnostics.push_back("asset_derived_attachment_reference_finalize_failed");
+    }
+    return result;
+}
+
+ProjectDerivedTilesetAssignmentPlan ProjectAssetAttachmentService::planDerivedTilesetAssignment(
+    const AssetPromotionManifest& source, const std::filesystem::path& derivedManifestPath,
+    const std::filesystem::path& projectRoot, const ProjectAssetAttachmentConflictPolicy conflictPolicy) const {
+    (void)conflictPolicy;
+    ProjectDerivedTilesetAssignmentPlan plan;
+    const auto candidate = derivedTilesetCandidate(source, derivedManifestPath);
+    if (!candidate.valid) {
+        plan.diagnostics = candidate.diagnostics;
+        plan.diagnostics.insert(plan.diagnostics.begin(), candidate.code);
+        return plan;
+    }
+    if (projectRoot.empty()) {
+        plan.diagnostics.push_back("project_root_missing");
+        return plan;
+    }
+    const auto segment = sanitizeSegment(candidate.tilesetId);
+    plan.valid = true;
+    plan.tilesetId = candidate.tilesetId;
+    plan.sourceRevision = candidate.reviewRevision;
+    plan.derivedRevision = candidate.manifestPath.stem().string();
+    plan.columns = candidate.columns;
+    plan.rows = candidate.rows;
+    plan.tileWidth = candidate.tileWidth;
+    plan.tileHeight = candidate.tileHeight;
+    plan.tileDirectory = projectRoot / "content" / "tilesets" / segment / "tiles";
+    plan.manifestPath = projectRoot / "content" / "tilesets" / (segment + ".json");
+    return plan;
+}
+
+ProjectAssetAttachmentResult ProjectAssetAttachmentService::assignDerivedTileset(
+    const ProjectDerivedTilesetAssignmentRequest& request) const {
+    if (!isSafeOperationId(request.operationId)) {
+        return blocked("project_tileset_assignment_operation_id_invalid",
+                       "Tileset assignment requires a stable safe operation ID from its reviewed plan.");
+    }
+    if (request.expectedSourceRevision.empty()) {
+        return blocked("project_tileset_assignment_source_revision_required",
+                       "Tileset assignment requires the review revision from its current plan.");
+    }
+    const auto candidate = derivedTilesetCandidate(request.source, request.derivedManifestPath);
+    if (!candidate.valid) return blocked(candidate.code, candidate.message, candidate.diagnostics);
+    const auto fingerprint = tilesetAssignmentFingerprint(request, candidate.reviewRevision);
+    const auto receiptPath = tilesetAssignmentReceiptPath(request.projectRoot, request.operationId);
+    if (std::filesystem::is_regular_file(receiptPath)) {
+        std::ifstream input(receiptPath, std::ios::binary);
+        const auto receipt = nlohmann::json::parse(input, nullptr, false);
+        if (receipt.is_discarded() || receipt.value("schema", "") != "urpg.project_derived_tileset_assignment_receipt.v1" ||
+            receipt.value("request_fingerprint", "") != fingerprint) {
+            return blocked("project_tileset_assignment_operation_mismatch",
+                           "The operation ID was already used for a different tileset assignment request.");
+        }
+        ProjectAssetAttachmentResult result;
+        result.success = receipt.value("success", false);
+        result.code = receipt.value("code", "project_tileset_assignment_receipt_invalid");
+        result.message = "The completed tileset assignment was returned without reapplying it.";
+        result.payloadPath = receipt.value("tile_directory", "");
+        result.manifestPath = receipt.value("manifest_path", "");
+        result.sourceRevision = receipt.value("review_revision", "");
+        result.operationId = request.operationId;
+        return result;
+    }
+    const auto plan = planDerivedTilesetAssignment(request.source, request.derivedManifestPath, request.projectRoot,
+                                                    request.conflictPolicy);
+    if (!plan.valid) {
+        return blocked(plan.diagnostics.empty() ? "project_tileset_assignment_plan_invalid" : plan.diagnostics.front(),
+                       "The tileset assignment plan is no longer valid.", plan.diagnostics);
+    }
+    if (request.expectedSourceRevision != plan.sourceRevision) {
+        return blocked("project_tileset_assignment_source_revision_mismatch",
+                       "The reviewed tileset bundle changed. Refresh the plan before assigning it.");
+    }
+
+    auto tilesetId = plan.tilesetId;
+    auto tileDirectory = plan.tileDirectory;
+    auto manifestPath = plan.manifestPath;
+    const auto destinationDirectory = [&] { return tileDirectory.parent_path(); };
+    const auto hasCollision = [&] {
+        return std::filesystem::exists(destinationDirectory()) || std::filesystem::exists(manifestPath);
+    };
+    if (hasCollision() && request.conflictPolicy == ProjectAssetAttachmentConflictPolicy::Cancel) {
+        return blocked("project_tileset_assignment_conflict_requires_resolution",
+                       "A project tileset assignment with this stable ID already exists. Choose Replace, Keep Both, or Relink Existing.");
+    }
+    if (hasCollision() && request.conflictPolicy == ProjectAssetAttachmentConflictPolicy::RelinkExisting) {
+        ProjectAssetAttachmentResult result;
+        result.success = true;
+        result.code = "project_tileset_relinked_existing";
+        result.message = "Existing project tileset assignment was retained and relinked.";
+        result.payloadPath = tileDirectory;
+        result.manifestPath = manifestPath;
+        result.sourceRevision = plan.sourceRevision;
+        result.operationId = request.operationId;
+        return result;
+    }
+    if (hasCollision() && request.conflictPolicy == ProjectAssetAttachmentConflictPolicy::KeepBoth) {
+        const auto original = tilesetId;
+        bool foundAvailableDestination = false;
+        for (size_t suffix = 2; suffix < 10'000; ++suffix) {
+            tilesetId = original + "-" + std::to_string(suffix);
+            const auto segment = sanitizeSegment(tilesetId);
+            tileDirectory = request.projectRoot / "content" / "tilesets" / segment / "tiles";
+            manifestPath = request.projectRoot / "content" / "tilesets" / (segment + ".json");
+            if (!std::filesystem::exists(destinationDirectory()) && !std::filesystem::exists(manifestPath)) {
+                foundAvailableDestination = true;
+                break;
+            }
+        }
+        if (!foundAvailableDestination) {
+            return blocked("project_tileset_assignment_keep_both_exhausted",
+                           "No available project tileset ID could be allocated for Keep Both.");
+        }
+    }
+
+    AssetPromotionManifest referenceAsset;
+    referenceAsset.assetId = tilesetId;
+    const auto reference = prepareDerivedAttachmentReference(referenceAsset, candidate.manifestPath, request.projectRoot,
+                                                              request.operationId);
+    if (!reference.success) return blocked(reference.code, reference.message);
+
+    std::error_code error;
+    std::filesystem::create_directories(destinationDirectory().parent_path(), error);
+    if (error) {
+        if (reference.created) removeIfPresent(reference.markerPath);
+        return blocked("project_tileset_assignment_directory_create_failed", error.message());
+    }
+    const auto stagedDirectory = siblingWorkingPath(destinationDirectory(), "stage-tileset");
+    const auto stagedTiles = stagedDirectory / "tiles";
+    const auto stagedManifest = siblingWorkingPath(manifestPath, "stage-tileset-manifest");
+    std::filesystem::create_directories(stagedTiles, error);
+    if (error) {
+        if (reference.created) removeIfPresent(reference.markerPath);
+        return blocked("project_tileset_assignment_stage_create_failed", error.message());
+    }
+    for (size_t index = 0; index < candidate.tilePaths.size(); ++index) {
+        std::filesystem::copy_file(candidate.tilePaths[index], stagedTiles / tilesetFilename(index),
+                                   std::filesystem::copy_options::none, error);
+        if (error) {
+            removeIfPresent(stagedDirectory);
+            if (reference.created) removeIfPresent(reference.markerPath);
+            return blocked("project_tileset_assignment_stage_copy_failed", error.message());
+        }
+    }
+    if (!writeJsonFile(stagedManifest, projectTilesetManifest(candidate, tilesetId, request.projectRoot))) {
+        removeIfPresent(stagedDirectory);
+        removeIfPresent(stagedManifest);
+        if (reference.created) removeIfPresent(reference.markerPath);
+        return blocked("project_tileset_assignment_stage_write_failed", "The project tileset manifest could not be staged.");
+    }
+
+    const auto directoryBackup = siblingWorkingPath(destinationDirectory(), "backup-tileset");
+    const auto manifestBackup = siblingWorkingPath(manifestPath, "backup-tileset-manifest");
+    const bool hadDirectory = std::filesystem::exists(destinationDirectory());
+    const bool hadManifest = std::filesystem::exists(manifestPath);
+    if (hadDirectory) std::filesystem::rename(destinationDirectory(), directoryBackup, error);
+    if (!error && hadManifest) std::filesystem::rename(manifestPath, manifestBackup, error);
+    if (!error) std::filesystem::rename(stagedDirectory, destinationDirectory(), error);
+    if (!error) std::filesystem::rename(stagedManifest, manifestPath, error);
+    if (error) {
+        removeIfPresent(destinationDirectory());
+        removeIfPresent(manifestPath);
+        if (hadDirectory && std::filesystem::exists(directoryBackup)) std::filesystem::rename(directoryBackup, destinationDirectory(), error);
+        if (hadManifest && std::filesystem::exists(manifestBackup)) std::filesystem::rename(manifestBackup, manifestPath, error);
+        removeIfPresent(stagedDirectory);
+        removeIfPresent(stagedManifest);
+        if (reference.created) removeIfPresent(reference.markerPath);
+        return blocked("project_tileset_assignment_publish_failed", "The staged project tileset assignment could not be published.");
+    }
+    removeIfPresent(directoryBackup);
+    removeIfPresent(manifestBackup);
+
+    ProjectAssetAttachmentResult result;
+    result.success = true;
+    result.code = "project_derived_tileset_assigned";
+    result.message = "The reviewed derived tileset bundle was assigned to project-owned content.";
+    result.payloadPath = tileDirectory;
+    result.manifestPath = manifestPath;
+    result.sourceRevision = plan.sourceRevision;
+    result.operationId = request.operationId;
+    if (!finalizeDerivedAttachmentReference(reference.markerPath, manifestPath)) {
+        result.code = "project_tileset_assigned_reference_tracking_pending";
+        result.message = "The project tileset was assigned, but its derived revision remains protected until reference tracking is recovered.";
+        result.diagnostics.push_back("asset_derived_attachment_reference_finalize_failed");
+    }
+    std::filesystem::create_directories(receiptPath.parent_path(), error);
+    if (error || !writeJsonFile(receiptPath, {{"schema", "urpg.project_derived_tileset_assignment_receipt.v1"},
+                                               {"request_fingerprint", fingerprint}, {"success", result.success},
+                                               {"code", result.code}, {"tile_directory", result.payloadPath.generic_string()},
+                                               {"manifest_path", result.manifestPath.generic_string()},
+                                               {"review_revision", result.sourceRevision}})) {
+        result.code = "project_tileset_assigned_receipt_pending";
+        result.message = "The project tileset was assigned, but its operation receipt could not be written.";
     }
     return result;
 }

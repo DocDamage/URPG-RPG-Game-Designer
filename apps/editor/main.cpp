@@ -2488,6 +2488,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     static int attachmentConflictPolicy = 0;
     static nlohmann::json pendingAssetAttachmentPlan = nlohmann::json::object();
     static nlohmann::json pendingDerivedRevisionAttachmentPlan = nlohmann::json::object();
+    static nlohmann::json pendingDerivedTilesetAssignmentPlan = nlohmann::json::object();
     static std::string derivedRevisionManifestPath;
     static std::string transformOperationId = "image-crop-scale";
     static int transformCropX = 0;
@@ -2795,7 +2796,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
         const bool tilesetRevisionOpen =
             ImGui::CollapsingHeader("Deterministic Tileset Slice", ImGuiTreeNodeFlags_DefaultOpen);
         if (tilesetRevisionOpen) {
-            ImGui::TextWrapped("Produce a row-major PNG tile directory from an exact image grid. Tileset assignment remains a separate native owner.");
+            ImGui::TextWrapped("Produce a row-major PNG tile directory from an exact image grid, then review and assign the bundle through the native project tileset owner.");
             ImGui::InputText("Tileset operation ID", &tilesetOperationId);
             ImGui::InputInt("Tile width", &tilesetTileWidth);
             ImGui::SameLine();
@@ -3015,6 +3016,46 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                     }
                     ImGui::TextDisabled("Derived revision: %.16s",
                                         pendingDerivedRevisionAttachmentPlan.value("expected_source_revision", "").c_str());
+                }
+            }
+            if (!derivedRevisionManifestPath.empty() && (attach.value("enabled", false) || projectAttached)) {
+                const bool isPendingTilesetPlan = pendingDerivedTilesetAssignmentPlan.value("success", false) &&
+                                                  pendingDerivedTilesetAssignmentPlan.value("path", "") == path &&
+                                                  pendingDerivedTilesetAssignmentPlan.value("derived_manifest_path", "") ==
+                                                      std::filesystem::path(derivedRevisionManifestPath).generic_string() &&
+                                                  pendingDerivedTilesetAssignmentPlan.value("project_root", "") ==
+                                                      runtime.project_root.generic_string() &&
+                                                  pendingDerivedTilesetAssignmentPlan.value("conflict_policy", "") ==
+                                                      conflictPolicyIds[attachmentConflictPolicy];
+                if (!isPendingTilesetPlan && ImGui::Button("Review Tileset Assignment")) {
+                    pendingDerivedTilesetAssignmentPlan = panel.planDerivedTilesetAssignmentToProject(
+                        path, derivedRevisionManifestPath, runtime.project_root, policy);
+                    assetWorkflowStatus = pendingDerivedTilesetAssignmentPlan.value(
+                        "message", "Derived tileset assignment plan did not return a status.");
+                }
+                if (isPendingTilesetPlan) {
+                    ImGui::SameLine();
+                    if (ImGui::Button("Confirm Tileset Assignment")) {
+                        const auto result = panel.confirmDerivedTilesetAssignmentToProject(
+                            path, derivedRevisionManifestPath, runtime.project_root,
+                            pendingDerivedTilesetAssignmentPlan.value("expected_source_revision", ""),
+                            pendingDerivedTilesetAssignmentPlan.value("operation_id", ""), policy);
+                        assetWorkflowStatus = result.value("message", "Derived tileset assignment did not return a status.");
+                        if (result.value("success", false)) {
+                            pendingDerivedTilesetAssignmentPlan = nlohmann::json::object();
+                        }
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Refresh Tileset Review")) {
+                        pendingDerivedTilesetAssignmentPlan = panel.planDerivedTilesetAssignmentToProject(
+                            path, derivedRevisionManifestPath, runtime.project_root, policy);
+                        assetWorkflowStatus = pendingDerivedTilesetAssignmentPlan.value(
+                            "message", "Derived tileset assignment plan did not return a status.");
+                    }
+                    ImGui::TextDisabled("Tileset: %s (%dx%d tiles)",
+                                        pendingDerivedTilesetAssignmentPlan.value("tileset_id", "").c_str(),
+                                        pendingDerivedTilesetAssignmentPlan.value("columns", 0),
+                                        pendingDerivedTilesetAssignmentPlan.value("rows", 0));
                 }
             }
             if (cropRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {

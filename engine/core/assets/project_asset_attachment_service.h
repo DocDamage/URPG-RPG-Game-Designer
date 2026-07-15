@@ -42,6 +42,32 @@ struct ProjectDerivedAssetAttachmentRequest {
     std::string expectedSourceRevision;
 };
 
+// Multi-file tileset revisions use a dedicated owner instead of pretending
+// that their tile directory is a single attachable asset. The checked plan
+// binds every expected PNG and the grid metadata to the review revision.
+struct ProjectDerivedTilesetAssignmentRequest {
+    AssetPromotionManifest source;
+    std::filesystem::path derivedManifestPath;
+    std::filesystem::path projectRoot;
+    ProjectAssetAttachmentConflictPolicy conflictPolicy = ProjectAssetAttachmentConflictPolicy::Cancel;
+    std::string operationId;
+    std::string expectedSourceRevision;
+};
+
+struct ProjectDerivedTilesetAssignmentPlan {
+    bool valid = false;
+    std::string tilesetId;
+    std::string sourceRevision;
+    std::string derivedRevision;
+    int columns = 0;
+    int rows = 0;
+    int tileWidth = 0;
+    int tileHeight = 0;
+    std::filesystem::path tileDirectory;
+    std::filesystem::path manifestPath;
+    std::vector<std::string> diagnostics;
+};
+
 struct ProjectAssetAttachmentResult {
     bool success = false;
     std::string code;
@@ -66,6 +92,12 @@ public:
         const std::filesystem::path& projectRoot,
         ProjectAssetAttachmentConflictPolicy conflictPolicy = ProjectAssetAttachmentConflictPolicy::Cancel) const;
     ProjectAssetAttachmentResult attachDerivedRevision(const ProjectDerivedAssetAttachmentRequest& request) const;
+
+    ProjectDerivedTilesetAssignmentPlan planDerivedTilesetAssignment(
+        const AssetPromotionManifest& source, const std::filesystem::path& derivedManifestPath,
+        const std::filesystem::path& projectRoot,
+        ProjectAssetAttachmentConflictPolicy conflictPolicy = ProjectAssetAttachmentConflictPolicy::Cancel) const;
+    ProjectAssetAttachmentResult assignDerivedTileset(const ProjectDerivedTilesetAssignmentRequest& request) const;
 
     // Compatibility entry point for existing callers. New durable creator
     // actions must plan, then apply a checked ProjectAssetAttachmentRequest.
