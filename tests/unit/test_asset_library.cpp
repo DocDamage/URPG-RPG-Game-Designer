@@ -1203,10 +1203,21 @@ TEST_CASE("ProjectAssetAttachmentService assigns validated derived tileset bundl
     REQUIRE(assignmentManifest["tile_paths"].size() == 3);
     REQUIRE(assignmentManifest["atlas"]["path"] ==
             "content/tilesets/" + plan.tilesetId + "/atlas.png");
-    REQUIRE(assignmentManifest["atlas"]["width"] == 3);
-    REQUIRE(assignmentManifest["atlas"]["height"] == 1);
+    REQUIRE(assignmentManifest["atlas"]["width"] == 3 * 48);
+    REQUIRE(assignmentManifest["atlas"]["height"] == 48);
+    REQUIRE(assignmentManifest["atlas"]["cell_width"] == 48);
+    REQUIRE(assignmentManifest["atlas"]["cell_height"] == 48);
     REQUIRE(assignmentManifest["atlas"]["sha256"].get<std::string>().size() == 64);
     REQUIRE(std::filesystem::is_regular_file(assigned.payloadPath.parent_path() / "atlas.png"));
+    int atlasWidth = 0;
+    int atlasHeight = 0;
+    int atlasChannels = 0;
+    stbi_uc* atlasPixels = stbi_load((assigned.payloadPath.parent_path() / "atlas.png").string().c_str(), &atlasWidth,
+                                    &atlasHeight, &atlasChannels, STBI_rgb_alpha);
+    REQUIRE(atlasPixels != nullptr);
+    REQUIRE(atlasWidth == 3 * 48);
+    REQUIRE(atlasHeight == 48);
+    stbi_image_free(atlasPixels);
 
     const urpg::assets::AssetTransformRevisionRemovalRequest removal{
         derivedRoot, source.assetId, revision.derivedRevision};

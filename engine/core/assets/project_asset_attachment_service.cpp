@@ -22,6 +22,7 @@ namespace urpg::assets {
 namespace {
 
 std::atomic_uint64_t attachmentStagingSequence{0};
+constexpr int kRuntimeTilesetCellSize = 48;
 
 std::string sanitizeSegment(std::string value) {
     for (auto& ch : value) {
@@ -382,20 +383,23 @@ nlohmann::json projectTilesetManifest(const DerivedTilesetCandidate& candidate, 
         {"atlas", {{"path", (std::filesystem::path("content") / "tilesets" / sanitizeSegment(tilesetId) / "atlas.png")
                                  .generic_string()},
                    {"sha256", atlasSha256},
-                   {"width", candidate.columns * candidate.tileWidth},
-                   {"height", candidate.rows * candidate.tileHeight}}},
+                   {"width", candidate.columns * kRuntimeTilesetCellSize},
+                   {"height", candidate.rows * kRuntimeTilesetCellSize},
+                   {"cell_width", kRuntimeTilesetCellSize},
+                   {"cell_height", kRuntimeTilesetCellSize}}},
         {"project_root", projectRoot.generic_string()},
     };
 }
 
 bool packTilesetAtlas(const DerivedTilesetCandidate& candidate, const std::filesystem::path& atlasPath,
                       std::string& failureMessage) {
-    const auto atlasWidth = candidate.columns * candidate.tileWidth;
-    const auto atlasHeight = candidate.rows * candidate.tileHeight;
-    if (atlasWidth <= 0 || atlasHeight <= 0 || atlasWidth > 16384 || atlasHeight > 16384) {
+    if (candidate.columns <= 0 || candidate.rows <= 0 || candidate.columns > 16384 / kRuntimeTilesetCellSize ||
+        candidate.rows > 16384 / kRuntimeTilesetCellSize) {
         failureMessage = "The tileset atlas dimensions are invalid or exceed the native packing limit.";
         return false;
     }
+    const auto atlasWidth = candidate.columns * kRuntimeTilesetCellSize;
+    const auto atlasHeight = candidate.rows * kRuntimeTilesetCellSize;
     const auto pixelCount = static_cast<size_t>(atlasWidth) * static_cast<size_t>(atlasHeight);
     if (pixelCount > (std::numeric_limits<size_t>::max() / 4U) || pixelCount > (1U << 28U)) {
         failureMessage = "The tileset atlas exceeds the native packing memory limit.";
@@ -418,12 +422,18 @@ bool packTilesetAtlas(const DerivedTilesetCandidate& candidate, const std::files
         }
         const auto tileX = static_cast<int>(index % static_cast<size_t>(candidate.columns));
         const auto tileY = static_cast<int>(index / static_cast<size_t>(candidate.columns));
-        for (int y = 0; y < candidate.tileHeight; ++y) {
-            const auto destination = (static_cast<size_t>(tileY * candidate.tileHeight + y) * atlasWidth +
-                                      static_cast<size_t>(tileX * candidate.tileWidth)) *
-                                     4U;
-            const auto source = static_cast<size_t>(y) * static_cast<size_t>(candidate.tileWidth) * 4U;
-            std::copy_n(decoded.get() + source, static_cast<size_t>(candidate.tileWidth) * 4U, atlas.begin() + destination);
+        for (int y = 0; y < kRuntimeTilesetCellSize; ++y) {
+            const auto sourceY = (y * candidate.tileHeight) / kRuntimeTilesetCellSize;
+            for (int x = 0; x < kRuntimeTilesetCellSize; ++x) {
+                const auto sourceX = (x * candidate.tileWidth) / kRuntimeTilesetCellSize;
+                const auto destination =
+                    (static_cast<size_t>(tileY * kRuntimeTilesetCellSize + y) * atlasWidth +
+                     static_cast<size_t>(tileX * kRuntimeTilesetCellSize + x)) *
+                    4U;
+                const auto source =
+                    (static_cast<size_t>(sourceY) * static_cast<size_t>(candidate.tileWidth) + sourceX) * 4U;
+                std::copy_n(decoded.get() + source, 4U, atlas.begin() + destination);
+            }
         }
     }
     if (stbi_write_png(atlasPath.string().c_str(), atlasWidth, atlasHeight, 4, atlas.data(), atlasWidth * 4) == 0) {

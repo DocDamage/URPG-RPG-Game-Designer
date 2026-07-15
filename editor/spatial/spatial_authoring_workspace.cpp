@@ -1682,9 +1682,6 @@ bool SpatialAuthoringWorkspace::ImportAssignedTilesetBundle(const std::filesyste
             manifest["tile_paths"].size() != static_cast<size_t>(tileCount)) {
             return fail("The project tileset assignment grid is invalid.");
         }
-        if (tileWidth != 48 || tileHeight != 48) {
-            return fail("The current native Map renderer accepts assigned tilesets with 48 by 48 pixel cells only.");
-        }
         std::error_code error;
         const auto manifestPath = std::filesystem::weakly_canonical(assignment_manifest_path, error);
         if (error || !std::filesystem::is_regular_file(manifestPath)) {
@@ -1702,7 +1699,8 @@ bool SpatialAuthoringWorkspace::ImportAssignedTilesetBundle(const std::filesyste
         const auto atlasPath = std::filesystem::weakly_canonical(expectedAtlasPath, error);
         if (!atlas.is_object() || atlas.value("path", "") !=
                                       (std::filesystem::path("content") / "tilesets" / tilesetId / "atlas.png").generic_string() ||
-            atlas.value("width", 0) != columns * tileWidth || atlas.value("height", 0) != rows * tileHeight ||
+            atlas.value("width", 0) != columns * 48 || atlas.value("height", 0) != rows * 48 ||
+            atlas.value("cell_width", 0) != 48 || atlas.value("cell_height", 0) != 48 ||
             !atlas["sha256"].is_string() || error || !std::filesystem::is_regular_file(atlasPath) ||
             atlasPath != expectedAtlasPath || sha256File(atlasPath) != atlas["sha256"].get<std::string>()) {
             return fail("The project tileset runtime atlas is missing or does not match its assignment manifest.");
@@ -1739,7 +1737,7 @@ bool SpatialAuthoringWorkspace::ImportAssignedTilesetBundle(const std::filesyste
             perspective_tile_palette_options_.end());
         perspective_tileset_pages_.push_back(
             {tilesetId, tilesetId, tilesetId, (std::filesystem::path("content") / "tilesets" / (tilesetId + ".json")).generic_string(),
-             columns, rows, tileWidth, tileHeight,
+             columns, rows, 48, 48,
              (std::filesystem::path("content") / "tilesets" / tilesetId / "atlas.png").generic_string()});
         for (size_t index = 0; index < tilePaths.size(); ++index) {
             std::ostringstream suffix;
