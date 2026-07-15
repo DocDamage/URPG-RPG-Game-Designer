@@ -1,0 +1,52 @@
+{
+  "schema": "urpg.creator_journey_qualification_spec.v1",
+  "qualification_id": "pfu_i1_native_creator_baseline",
+  "required_provenance": {
+    "clean_worktree": true,
+    "build_configurations": ["Debug", "Release"]
+  },
+  "steps": [
+    {
+      "id": "launch_editor",
+      "required_evidence_kinds": ["editor_startup"],
+      "allowed_informational_diagnostics": [],
+      "forbidden_diagnostic_codes": ["fallback_shell", "stale_report", "workflow_not_integrated"],
+      "budget": { "max_duration_ms": 30000 }
+    },
+    {
+      "id": "create_project",
+      "required_evidence_kinds": ["native_project_creation", "project_validation"],
+      "allowed_informational_diagnostics": [],
+      "forbidden_diagnostic_codes": ["manual_json_required", "fallback_template", "workflow_not_integrated"],
+      "budget": { "max_duration_ms": 120000 }
+    },
+    {
+      "id": "attach_project_asset",
+      "required_evidence_kinds": ["governed_asset_attachment", "undo_history"],
+      "allowed_informational_diagnostics": [],
+      "forbidden_diagnostic_codes": ["asset_drop_requires_attachment", "manual_json_required", "workflow_not_integrated"],
+      "budget": { "max_duration_ms": 120000 }
+    },
+    {
+      "id": "author_map",
+      "required_evidence_kinds": ["map_authoring", "native_dirty_state"],
+      "allowed_informational_diagnostics": [],
+      "forbidden_diagnostic_codes": ["fallback_map_route", "workflow_not_integrated"],
+      "budget": { "max_duration_ms": 60000 }
+    },
+    {
+      "id": "playtest_and_return",
+      "required_evidence_kinds": ["editor_playtest_session", "editor_return"],
+      "allowed_informational_diagnostics": [],
+      "forbidden_diagnostic_codes": ["editor_playtest_session_not_implemented", "fallback_runtime_launch", "workflow_not_integrated"],
+      "budget": { "max_duration_ms": 30000 }
+    },
+    {
+      "id": "save_validate_and_package",
+      "required_evidence_kinds": ["native_save", "project_validation", "package_smoke"],
+      "allowed_informational_diagnostics": [],
+      "forbidden_diagnostic_codes": ["package_preview_validated", "manual_json_required", "workflow_not_integrated"],
+      "budget": { "max_duration_ms": 120000 }
+    }
+  ]
+}
