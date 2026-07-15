@@ -2499,6 +2499,8 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     static std::string paletteOperationId = "image-fixed-palette";
     static float paletteColorA[4] = {1.0f, 0.0f, 0.0f, 1.0f};
     static float paletteColorB[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    static std::string paletteExtractOperationId = "image-auto-palette";
+    static int paletteExtractMaxColors = 16;
     static std::string audioOperationId = "audio-trim-fade-gain";
     static int audioStartFrame = 0;
     static int audioEndFrame = 0;
@@ -2735,6 +2737,16 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
             ImGui::InputText("Palette operation ID", &paletteOperationId);
             ImGui::ColorEdit4("Palette color A", paletteColorA);
             ImGui::ColorEdit4("Palette color B", paletteColorB);
+            if (configuredLibraryRoot.empty()) {
+                ImGui::TextDisabled("A configured external asset library is required to store derived revisions.");
+            }
+        }
+        const bool paletteExtractRevisionOpen =
+            ImGui::CollapsingHeader("Deterministic Automatic Palette", ImGuiTreeNodeFlags_DefaultOpen);
+        if (paletteExtractRevisionOpen) {
+            ImGui::TextWrapped("Extract up to 256 exact RGBA colors by frequency, breaking ties by RGBA value, then reduce with deterministic nearest-color mapping.");
+            ImGui::InputText("Automatic palette operation ID", &paletteExtractOperationId);
+            ImGui::SliderInt("Maximum extracted colors", &paletteExtractMaxColors, 2, 256);
             if (configuredLibraryRoot.empty()) {
                 ImGui::TextDisabled("A configured external asset library is required to store derived revisions.");
             }
@@ -3019,6 +3031,18 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                     const auto result = panel.createImagePaletteRevision(
                         path, derivedRoot, paletteOperationId, {toRgba(paletteColorA), toRgba(paletteColorB)});
                     assetWorkflowStatus = result.value("message", "Palette revision did not return a status.");
+                    if (result.value("success", false)) {
+                        derivedRevisionManifestPath = result.value("manifest_path", "");
+                    }
+                }
+            }
+            if (paletteExtractRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
+                ImGui::SameLine();
+                if (ImGui::Button("Extract Palette Revision")) {
+                    const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
+                    const auto result = panel.createImagePaletteExtractRevision(
+                        path, derivedRoot, paletteExtractOperationId, paletteExtractMaxColors);
+                    assetWorkflowStatus = result.value("message", "Automatic palette revision did not return a status.");
                     if (result.value("success", false)) {
                         derivedRevisionManifestPath = result.value("manifest_path", "");
                     }

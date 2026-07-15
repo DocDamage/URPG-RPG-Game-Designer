@@ -2235,6 +2235,51 @@ nlohmann::json AssetLibraryModel::createImagePaletteRevision(std::string source_
     return action;
 }
 
+nlohmann::json AssetLibraryModel::createImagePaletteExtractRevision(std::string source_path,
+                                                                     const std::filesystem::path& derived_root,
+                                                                     std::string operation_id,
+                                                                     const int32_t max_colors) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "create_image_palette_extract_revision"},
+        {"path", source_path},
+        {"derived_root", derived_root.generic_string()},
+        {"operation_id", operation_id},
+        {"max_colors", max_colors},
+        {"success", false},
+        {"code", "asset_not_found"},
+        {"message", "Asset was not found in the library."},
+        {"manifest_path", ""},
+        {"output_path", ""},
+        {"source_revision", ""},
+        {"derived_revision", ""},
+        {"diagnostics", nlohmann::json::array()},
+    };
+    const auto found = library_.findAsset(source_path);
+    if (found.has_value()) {
+        urpg::assets::AssetImagePaletteExtractPlan plan;
+        plan.operationId = std::move(operation_id);
+        plan.source = manifestFromAssetRecord(*found);
+        plan.derivedRoot = derived_root;
+        plan.maxColors = max_colors;
+        urpg::assets::AssetTransformRevisionService service;
+        const auto result = service.createImagePaletteExtractRevision(plan);
+        action["asset_id"] = found->asset_id;
+        action["success"] = result.success;
+        action["code"] = result.code;
+        action["message"] = result.message;
+        action["manifest_path"] = result.manifestPath.generic_string();
+        action["output_path"] = result.outputPath.generic_string();
+        action["source_revision"] = result.sourceRevision;
+        action["derived_revision"] = result.derivedRevision;
+        action["diagnostics"] = result.diagnostics;
+    }
+    action_history_.push_back(action);
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
 nlohmann::json AssetLibraryModel::createAudioTrimFadeGainRevision(
     std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
     const uint64_t start_frame, const uint64_t end_frame, const uint64_t fade_in_frames,

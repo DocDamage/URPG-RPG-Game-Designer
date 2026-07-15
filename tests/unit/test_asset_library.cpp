@@ -915,6 +915,24 @@ TEST_CASE("AssetTransformRevisionService creates deterministic atlas metadata re
     REQUIRE_FALSE(invalidPalette.success);
     REQUIRE(invalidPalette.code == "asset_transform_palette_plan_invalid");
 
+    urpg::assets::AssetImagePaletteExtractPlan paletteExtractPlan;
+    paletteExtractPlan.operationId = "extract-two-colors";
+    paletteExtractPlan.source = cropSource;
+    paletteExtractPlan.derivedRoot = plan.derivedRoot;
+    paletteExtractPlan.maxColors = 2;
+    const auto extractedPalette = service.createImagePaletteExtractRevision(paletteExtractPlan);
+    REQUIRE(extractedPalette.success);
+    REQUIRE(std::filesystem::is_regular_file(extractedPalette.outputPath));
+    std::ifstream extractedManifestStream(extractedPalette.manifestPath);
+    const auto extractedManifest = nlohmann::json::parse(extractedManifestStream);
+    REQUIRE(extractedManifest["operation"] == "image_palette_extract");
+    REQUIRE(extractedManifest["palette_rgba"] == nlohmann::json::array({0x0000FFFFU, 0x00FF00FFU}));
+    REQUIRE(service.createImagePaletteExtractRevision(paletteExtractPlan).code == "asset_transform_revision_reused");
+    paletteExtractPlan.maxColors = 1;
+    const auto invalidExtractedPalette = service.createImagePaletteExtractRevision(paletteExtractPlan);
+    REQUIRE_FALSE(invalidExtractedPalette.success);
+    REQUIRE(invalidExtractedPalette.code == "asset_transform_palette_extract_plan_invalid");
+
     urpg::assets::AssetTilesetSlicePlan tilesetPlan;
     tilesetPlan.operationId = "slice-one-pixel-tiles";
     tilesetPlan.source = cropSource;
@@ -1047,6 +1065,15 @@ TEST_CASE("ProjectAssetAttachmentService attaches validated single-output derive
     REQUIRE(plan.valid);
     REQUIRE(plan.assetId == "asset.hero.revision." + revision.derivedRevision.substr(0, 16));
     REQUIRE(plan.sourceRevision.size() == 64);
+
+    urpg::assets::AssetImagePaletteExtractPlan extractedPalette;
+    extractedPalette.operationId = "palette-extract-attach";
+    extractedPalette.source = source;
+    extractedPalette.derivedRoot = derivedRoot;
+    extractedPalette.maxColors = 2;
+    const auto extractedRevision = transforms.createImagePaletteExtractRevision(extractedPalette);
+    REQUIRE(extractedRevision.success);
+    REQUIRE(attachments.planDerivedRevisionAttachment(source, extractedRevision.manifestPath, projectRoot).valid);
 
     urpg::assets::ProjectDerivedAssetAttachmentRequest request;
     request.source = source;

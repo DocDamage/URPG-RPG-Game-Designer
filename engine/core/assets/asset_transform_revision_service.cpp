@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <iterator>
 #include <limits>
+#include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <set>
@@ -382,6 +383,137 @@ AssetTransformRevisionResult AssetTransformRevisionService::createImagePaletteRe
     std::filesystem::rename(stagedManifest, manifestPath, error);
     if (error) { std::filesystem::remove(stagedManifest, error); std::filesystem::remove(outputPath, error); return blocked("asset_transform_manifest_publish_failed", error.message()); }
     return {true, "asset_transform_revision_created", "A deterministic palette revision was created.",
+            sourceRevision, derivedRevision, manifestPath, {}, outputPath};
+}
+
+AssetTransformRevisionResult AssetTransformRevisionService::createImagePaletteExtractRevision(
+    const AssetImagePaletteExtractPlan& plan) const {
+    AssetTransformRevisionResult eligibility;
+    if (!isEligibleSource(plan.source, &eligibility)) return eligibility;
+    if (plan.operationId.empty() || plan.derivedRoot.empty() || plan.maxColors < 2 || plan.maxColors > 256) {
+        return blocked("asset_transform_palette_extract_plan_invalid",
+                       "Automatic palette extraction requires a requested size from two to 256 colors.");
+    }
+    const auto sourcePath = std::filesystem::path(plan.source.promotedPath);
+    if (!std::filesystem::is_regular_file(sourcePath)) {
+        return blocked("asset_transform_source_payload_missing", "The promoted source payload is missing.");
+    }
+    int width = 0;
+    int height = 0;
+    int channels = 0;
+    stbi_uc* decoded = stbi_load(sourcePath.string().c_str(), &width, &height, &channels, STBI_rgb_alpha);
+    if (decoded == nullptr) return blocked("asset_transform_source_decode_failed", stbi_failure_reason());
+    const auto decodedPixels = std::unique_ptr<stbi_uc, decltype(&stbi_image_free)>(decoded, stbi_image_free);
+
+    std::map<uint32_t, size_t> frequencies;
+    const auto pixelCount = static_cast<size_t>(width) * height;
+    for (size_t pixel = 0; pixel < pixelCount; ++pixel) {
+        const auto* source = decodedPixels.get() + (pixel * 4U);
+        const auto color = (static_cast<uint32_t>(source[0]) << 24U) |
+                           (static_cast<uint32_t>(source[1]) << 16U) |
+                           (static_cast<uint32_t>(source[2]) << 8U) | static_cast<uint32_t>(source[3]);
+        ++frequencies[color];
+    }
+    if (frequencies.size() < 2U) {
+        return blocked("asset_transform_palette_extract_insufficient_colors",
+                       "Automatic palette extraction needs an image with at least two exact RGBA colors.");
+    }
+    std::vector<std::pair<uint32_t, size_t>> ranked(frequencies.begin(), frequencies.end());
+    std::sort(ranked.begin(), ranked.end(), [](const auto& left, const auto& right) {
+        return left.second != right.second ? left.second > right.second : left.first < right.first;
+    });
+    const auto selectedCount = std::min(static_cast<size_t>(plan.maxColors), ranked.size());
+    std::vector<uint32_t> colors;
+    colors.reserve(selectedCount);
+    for (size_t index = 0; index < selectedCount; ++index) colors.push_back(ranked[index].first);
+
+    const auto sourceRevision = sha256File(sourcePath);
+    const nlohmann::json identity = {
+        {"schema", "urpg.asset_transform_revision.v1"},
+        {"operation", "image_palette_extract"},
+        {"operation_id", plan.operationId},
+        {"source_asset_id", plan.source.assetId},
+        {"source_revision", sourceRevision},
+        {"selection", "exact_rgba_frequency_desc_then_rgba_asc"},
+        {"requested_max_colors", plan.maxColors},
+        {"palette_rgba", colors},
+    };
+    const auto derivedRevision = sha256Text(identity.dump());
+    const auto outputDirectory = plan.derivedRoot / plan.source.assetId / "revisions";
+    const auto outputPath = outputDirectory / (derivedRevision + ".png");
+    const auto manifestPath = outputDirectory / (derivedRevision + ".json");
+    const nlohmann::json manifest = {
+        {"schema", "urpg.asset_transform_revision.v1"},
+        {"operation", "image_palette_extract"},
+        {"operation_id", plan.operationId},
+        {"source_asset_id", plan.source.assetId},
+        {"source_promoted_path", plan.source.promotedPath},
+        {"source_revision", sourceRevision},
+        {"derived_revision", derivedRevision},
+        {"output_path", outputPath.generic_string()},
+        {"width", width},
+        {"height", height},
+        {"requested_max_colors", plan.maxColors},
+        {"palette_rgba", colors},
+        {"selection", "exact_rgba_frequency_desc_then_rgba_asc"},
+        {"mapping", "nearest_rgba_squared"},
+    };
+    std::error_code error;
+    std::filesystem::create_directories(outputDirectory, error);
+    if (error) return blocked("asset_transform_directory_create_failed", error.message());
+    if (std::filesystem::is_regular_file(manifestPath)) {
+        std::ifstream existing(manifestPath, std::ios::binary);
+        if (nlohmann::json::parse(existing, nullptr, false) == manifest && std::filesystem::is_regular_file(outputPath)) {
+            return {true, "asset_transform_revision_reused", "The identical extracted palette revision already exists.",
+                    sourceRevision, derivedRevision, manifestPath, {}, outputPath};
+        }
+        return blocked("asset_transform_revision_collision", "A different or incomplete revision occupies this ID.");
+    }
+    std::vector<stbi_uc> outputPixels(pixelCount * 4U);
+    for (size_t pixel = 0; pixel < pixelCount; ++pixel) {
+        const auto* source = decodedPixels.get() + (pixel * 4U);
+        uint32_t selected = colors.front();
+        uint64_t bestDistance = std::numeric_limits<uint64_t>::max();
+        for (const auto color : colors) {
+            uint64_t distance = 0;
+            for (size_t channel = 0; channel < 4U; ++channel) {
+                const auto paletteValue = static_cast<int>((color >> ((3U - channel) * 8U)) & 0xFFU);
+                const auto delta = static_cast<int>(source[channel]) - paletteValue;
+                distance += static_cast<uint64_t>(delta * delta);
+            }
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                selected = color;
+            }
+        }
+        for (size_t channel = 0; channel < 4U; ++channel) {
+            outputPixels[pixel * 4U + channel] = static_cast<stbi_uc>((selected >> ((3U - channel) * 8U)) & 0xFFU);
+        }
+    }
+    const auto stagedOutput = outputPath.string() + ".tmp";
+    if (stbi_write_png(stagedOutput.c_str(), width, height, 4, outputPixels.data(), width * 4) == 0) {
+        return blocked("asset_transform_output_write_failed", "The derived palette PNG could not be written.");
+    }
+    std::filesystem::rename(stagedOutput, outputPath, error);
+    if (error) {
+        std::filesystem::remove(stagedOutput, error);
+        return blocked("asset_transform_output_publish_failed", error.message());
+    }
+    const auto stagedManifest = manifestPath.string() + ".tmp";
+    std::ofstream manifestOutput(stagedManifest, std::ios::binary | std::ios::trunc);
+    manifestOutput << manifest.dump(2) << '\n';
+    manifestOutput.close();
+    if (!manifestOutput) {
+        std::filesystem::remove(outputPath, error);
+        return blocked("asset_transform_manifest_write_failed", "The derived manifest could not be written.");
+    }
+    std::filesystem::rename(stagedManifest, manifestPath, error);
+    if (error) {
+        std::filesystem::remove(stagedManifest, error);
+        std::filesystem::remove(outputPath, error);
+        return blocked("asset_transform_manifest_publish_failed", error.message());
+    }
+    return {true, "asset_transform_revision_created", "A deterministic extracted palette revision was created.",
             sourceRevision, derivedRevision, manifestPath, {}, outputPath};
 }
 

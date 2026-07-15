@@ -146,7 +146,8 @@ DerivedAttachmentCandidate derivedAttachmentCandidate(const AssetPromotionManife
         return {false, "asset_derived_revision_manifest_invalid", "The derived revision manifest is invalid.", {}, {}};
     }
     const auto operation = revision.value("operation", "");
-    if (operation != "image_crop_scale" && operation != "image_palette" && operation != "audio_trim_fade_gain_pcm16") {
+    if (operation != "image_crop_scale" && operation != "image_palette" && operation != "image_palette_extract" &&
+        operation != "audio_trim_fade_gain_pcm16") {
         return {false, "asset_derived_revision_not_attachable",
                 "This revision has no single media output that can be attached through the project asset owner.", {}, {}};
     }

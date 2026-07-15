@@ -60,6 +60,18 @@ struct AssetImagePalettePlan {
     std::vector<uint32_t> colorsRgba;
 };
 
+// Extracts an ordered exact-RGBA palette directly from a reviewed promoted
+// image, then applies the same deterministic nearest-colour reduction as the
+// explicit palette operation. Selection is frequency-descending with RGBA
+// ascending tie breaking, and both the requested size and selected entries are
+// part of the immutable derived revision identity.
+struct AssetImagePaletteExtractPlan {
+    std::string operationId;
+    AssetPromotionManifest source;
+    std::filesystem::path derivedRoot;
+    int32_t maxColors = 0;
+};
+
 struct AssetTilesetSlicePlan {
     std::string operationId;
     AssetPromotionManifest source;
@@ -93,6 +105,7 @@ class AssetTransformRevisionService {
     AssetTransformRevisionResult createAtlasMetadataRevision(const AssetAtlasMetadataPlan& plan) const;
     AssetTransformRevisionResult createImageCropScaleRevision(const AssetImageCropScalePlan& plan) const;
     AssetTransformRevisionResult createImagePaletteRevision(const AssetImagePalettePlan& plan) const;
+    AssetTransformRevisionResult createImagePaletteExtractRevision(const AssetImagePaletteExtractPlan& plan) const;
     AssetTransformRevisionResult createTilesetSliceRevision(const AssetTilesetSlicePlan& plan) const;
     AssetTransformRevisionResult createAudioTrimFadeGainRevision(const AssetAudioTrimFadeGainPlan& plan) const;
     AssetTransformRevisionResult removeDerivedRevision(const AssetTransformRevisionRemovalRequest& request) const;
