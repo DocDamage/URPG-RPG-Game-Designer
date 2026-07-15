@@ -56,6 +56,14 @@ struct MapEventSprite {
     int tile_y = 0;
 };
 
+// A native collision projection of an authored event. Event documents remain
+// authoritative; MapScene uses this record only for movement and path checks.
+struct MapEventCollider {
+    std::string event_id;
+    int tile_x = 0;
+    int tile_y = 0;
+};
+
 enum class MapSceneSaveLoadOperation : uint8_t {
     Save,
     Load,
@@ -192,6 +200,8 @@ class MapScene : public GameScene {
     // IDs and map bounds. Invalid batches leave the current runtime view intact.
     bool setEventSprites(std::vector<MapEventSprite> sprites);
     const std::vector<MapEventSprite>& eventSprites() const { return m_eventSprites; }
+    bool setEventColliders(std::vector<MapEventCollider> colliders);
+    const std::vector<MapEventCollider>& eventColliders() const { return m_eventColliders; }
     const std::vector<std::string>& assetDiagnostics() const { return m_assetDiagnostics; }
     void setRuntimeAssetMode(urpg::RuntimeAssetMode mode);
     urpg::RuntimeAssetMode runtimeAssetMode() const { return m_runtimeAssetMode; }
@@ -215,11 +225,7 @@ class MapScene : public GameScene {
     }
 
     // Coordinate Authority
-    bool checkCollision(int x, int y) const {
-        if (x < 0 || x >= m_width || y < 0 || y >= m_height)
-            return true;
-        return !m_tiles[y * m_width + x].isPassable;
-    }
+    bool checkCollision(int x, int y) const;
 
     MovementComponent& getPlayerMovement() { return m_playerMovement; }
 
@@ -365,6 +371,7 @@ class MapScene : public GameScene {
     bool m_renderLayerDirty = true;
     MapAssetReferences m_assetReferences;
     std::vector<MapEventSprite> m_eventSprites;
+    std::vector<MapEventCollider> m_eventColliders;
     std::vector<std::string> m_assetDiagnostics;
     bool m_assetReferencesValidated = false;
     urpg::RuntimeAssetMode m_runtimeAssetMode = urpg::RuntimeAssetMode::Development;

@@ -6,9 +6,9 @@
 
 ## Scope
 
-Project the existing Perspective 2D event image reference into the bound native
-`MapScene` renderer without adding a second event store, changing event command
-execution, or claiming package/runtime qualification.
+Project the existing Perspective 2D event image reference and opt-in movement
+blocker into the bound native `MapScene` without adding a second event store,
+changing event command execution, or claiming package/runtime qualification.
 
 ## Contract
 
@@ -28,10 +28,14 @@ execution, or claiming package/runtime qualification.
 - Perspective 2D undo, redo, draft load, layer visibility, and active-map
   rebinding reuse the existing document/history route, so the runtime sprite
   projection follows the same authoritative state.
+- An event's persisted `blocks_movement` flag is edited through the Event
+  Authoring UI and projects only for visible, in-bounds event layers. The
+  `MapScene` replaces the validated collider batch deterministically by event
+  ID; direct movement and path planning use the same collision predicate.
 
 ## Limits
 
-This does not add event collision, animation/sheet slicing, page-conditional
-visibility, interaction binding, event execution changes, texture packing,
-package evidence, or release qualification. Builds and test execution remain
-deferred under the user instruction for this phase.
+This does not add page-conditional collision, animation/sheet slicing,
+page-conditional visibility, interaction binding, event execution changes,
+texture packing, package evidence, or release qualification. Builds and test
+execution remain deferred under the user instruction for this phase.

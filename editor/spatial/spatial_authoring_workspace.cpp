@@ -1925,6 +1925,18 @@ bool SpatialAuthoringWorkspace::MovePerspectiveEventFromScreen(const std::string
     return true;
 }
 
+bool SpatialAuthoringWorkspace::SetPerspectiveEventBlocksMovement(const std::string& event_id, bool blocks_movement) {
+    auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                              [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end() || event->blocks_movement == blocks_movement) {
+        return false;
+    }
+    event->blocks_movement = blocks_movement;
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
 bool SpatialAuthoringWorkspace::AddPerspectiveEventCommand(const std::string& event_id,
                                                            const std::string& command_code,
                                                            const std::string& argument) {
@@ -2526,6 +2538,7 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
                                      {"layer_id", event.layer_id},
                                      {"x", event.tile_x},
                                      {"y", event.tile_y},
+                                     {"blocks_movement", event.blocks_movement},
                                      {"selected_page_id", event.selected_page_id},
                                      {"commands", serialize_commands(event.commands)},
                                      {"pages", std::move(pages)}};
@@ -3143,6 +3156,7 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
         event.asset_project_path = event_json.value("asset_project_path", "");
         event.tile_x = event_json.value("x", 0);
         event.tile_y = event_json.value("y", 0);
+        event.blocks_movement = event_json.value("blocks_movement", false);
         event.selected_page_id = event_json.value("selected_page_id", "");
         event.commands = load_commands(event_json.value("commands", nlohmann::json::array()));
         for (const auto& page_json : event_json.value("pages", nlohmann::json::array())) {
@@ -4067,6 +4081,27 @@ void SpatialAuthoringWorkspace::syncEventSpritesToTargetScene() {
     (void)m_target_scene->setEventSprites(std::move(sprites));
 }
 
+void SpatialAuthoringWorkspace::syncEventCollidersToTargetScene() {
+    if (m_target_scene == nullptr) {
+        return;
+    }
+    std::vector<urpg::scene::MapEventCollider> colliders;
+    for (const auto& event : perspective_events_) {
+        const auto layer = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                        [&](const PerspectiveLayer& candidate) {
+                                            return candidate.id == event.layer_id;
+                                        });
+        if (!event.blocks_movement || layer == perspective_layers_.end() || !layer->visible || event.tile_x < 0 ||
+            event.tile_x >= m_target_scene->getWidth() || event.tile_y < 0 || event.tile_y >= m_target_scene->getHeight()) {
+            continue;
+        }
+        colliders.push_back({event.event_id, event.tile_x, event.tile_y});
+    }
+    if (!m_target_scene->setEventColliders(std::move(colliders))) {
+        (void)m_target_scene->setEventColliders({});
+    }
+}
+
 void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() {
     if (m_target_scene == nullptr) {
         return;
@@ -4257,6 +4292,7 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueRuntimeStateFromTargetScene(
 
 void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     syncEventSpritesToTargetScene();
+    syncEventCollidersToTargetScene();
     syncAuthoredDialogueInteractionsToTargetScene();
     syncAuthoredDialogueRuntimeStateFromTargetScene();
     if (!restoring_perspective_history_) {
@@ -4473,6 +4509,7 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
         event_snapshot.asset_project_path = event.asset_project_path;
         event_snapshot.tile_x = event.tile_x;
         event_snapshot.tile_y = event.tile_y;
+        event_snapshot.blocks_movement = event.blocks_movement;
         event_snapshot.selected_page_id = event.selected_page_id;
         const PerspectiveEvent::Page* active_page = active_page_for_event(event);
         if (active_page != nullptr) {

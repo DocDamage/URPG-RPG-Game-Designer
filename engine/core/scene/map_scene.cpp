@@ -703,6 +703,34 @@ bool MapScene::setEventSprites(std::vector<MapEventSprite> sprites) {
     return true;
 }
 
+bool MapScene::setEventColliders(std::vector<MapEventCollider> colliders) {
+    std::sort(colliders.begin(), colliders.end(), [](const auto& lhs, const auto& rhs) {
+        return lhs.event_id < rhs.event_id;
+    });
+    for (size_t index = 0; index < colliders.size(); ++index) {
+        const auto& collider = colliders[index];
+        if (collider.event_id.empty() || collider.tile_x < 0 || collider.tile_x >= m_width || collider.tile_y < 0 ||
+            collider.tile_y >= m_height ||
+            (index > 0 && colliders[index - 1].event_id == collider.event_id)) {
+            return false;
+        }
+    }
+    m_eventColliders = std::move(colliders);
+    return true;
+}
+
+bool MapScene::checkCollision(int x, int y) const {
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
+        return true;
+    }
+    if (!m_tiles[y * m_width + x].isPassable) {
+        return true;
+    }
+    return std::any_of(m_eventColliders.begin(), m_eventColliders.end(), [&](const MapEventCollider& collider) {
+        return collider.tile_x == x && collider.tile_y == y;
+    });
+}
+
 void MapScene::setRuntimeAssetMode(urpg::RuntimeAssetMode mode) {
     if (m_runtimeAssetMode == mode) {
         return;

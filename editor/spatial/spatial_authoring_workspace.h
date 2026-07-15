@@ -142,6 +142,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string asset_project_path;
         int32_t tile_x = 0;
         int32_t tile_y = 0;
+        bool blocks_movement = false;
         bool visible_in_playtest = true;
         size_t command_count = 0;
         size_t page_count = 0;
@@ -624,6 +625,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                        float screen_x,
                                        float screen_y);
     bool MovePerspectiveEventFromScreen(const std::string& event_id, float screen_x, float screen_y);
+    bool SetPerspectiveEventBlocksMovement(const std::string& event_id, bool blocks_movement);
     bool AddPerspectiveEventCommand(const std::string& event_id,
                                     const std::string& command_code,
                                     const std::string& argument);
@@ -729,6 +731,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
   private:
     void captureRenderSnapshot();
     void syncEventSpritesToTargetScene();
+    void syncEventCollidersToTargetScene();
     void syncAuthoredDialogueInteractionsToTargetScene();
     void syncAuthoredDialogueRuntimeStateFromTargetScene();
     void syncPanelVisibility();
@@ -796,6 +799,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string asset_project_path;
         int32_t tile_x = 0;
         int32_t tile_y = 0;
+        bool blocks_movement = false;
         std::string selected_page_id;
         std::vector<Command> commands;
         std::vector<Page> pages;

@@ -3906,6 +3906,7 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
     static std::string commandArgument = "The moonwell lantern has gone dark.";
     static float eventScreenX = 80.0f;
     static float eventScreenY = 80.0f;
+    static bool eventBlocksMovement = false;
     ImGui::InputText("Event ID", &eventId);
     ImGui::InputText("Label", &eventLabel);
     ImGui::InputText("Trigger", &eventTrigger);
@@ -3916,6 +3917,7 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
     }
     ImGui::InputFloat("Map X", &eventScreenX, 1.0f, 8.0f, "%.0f");
     ImGui::InputFloat("Map Y", &eventScreenY, 1.0f, 8.0f, "%.0f");
+    ImGui::Checkbox("Blocks Movement", &eventBlocksMovement);
     if (ImGui::Button("Create Event Page")) {
         const auto layer = std::find_if(snapshot.perspective_2d_layers.begin(), snapshot.perspective_2d_layers.end(),
                                         [](const auto& candidate) {
@@ -3933,7 +3935,13 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
                                       workspace.AddPerspectiveEventPageCommand(eventId, pageId,
                                                                               eventCommandCodes[eventCommandIndex],
                                                                               commandArgument);
-            runtime.map_save_status = addedCommand
+            const bool collisionAlreadyConfigured = std::any_of(
+                snapshot.perspective_2d_events.begin(), snapshot.perspective_2d_events.end(),
+                [&](const auto& event) { return event.event_id == eventId && event.blocks_movement; });
+            const bool configuredCollision = addedCommand &&
+                                             (!eventBlocksMovement || collisionAlreadyConfigured ||
+                                              workspace.SetPerspectiveEventBlocksMovement(eventId, true));
+            runtime.map_save_status = configuredCollision
                                           ? "Event page authored in the active Map document; save Map to publish it."
                                           : "Event creation was rejected; event IDs and page IDs must be unique.";
         }
@@ -3943,6 +3951,10 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
         for (const auto& event : snapshot.perspective_2d_events) {
             ImGui::PushID(event.event_id.c_str());
             ImGui::Text("%s (%zu pages)", event.event_id.c_str(), event.page_count);
+            bool blocksMovement = event.blocks_movement;
+            if (ImGui::Checkbox("Blocks Movement", &blocksMovement)) {
+                (void)workspace.SetPerspectiveEventBlocksMovement(event.event_id, blocksMovement);
+            }
             if (!event.asset_id.empty()) {
                 ImGui::TextDisabled("Runtime event sprite: %s", event.asset_id.c_str());
                 ImGui::TextDisabled("Project path: %s", event.asset_project_path.c_str());

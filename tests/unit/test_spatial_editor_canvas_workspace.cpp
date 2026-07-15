@@ -1797,10 +1797,15 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
     REQUIRE(rune_interaction->page_candidates.size() == 1);
     REQUIRE(rune_interaction->page_candidates.front().dialogue_id.empty());
     REQUIRE(rune_interaction->page_candidates.front().message_pages == std::vector<std::string>{"The rune hums."});
-    REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", rune_interaction->tile_x,
-                                                          rune_interaction->tile_y));
+    const int rune_tile_x = rune_interaction->tile_x;
+    const int rune_tile_y = rune_interaction->tile_y;
+    REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", rune_tile_x, rune_tile_y));
     REQUIRE(map.activeDialogueConversationId().empty());
     REQUIRE(map.isDialogueActive());
+    REQUIRE(workspace.SetPerspectiveEventBlocksMovement("rune_sign", true));
+    REQUIRE(map.checkCollision(rune_tile_x, rune_tile_y));
+    REQUIRE(workspace.SetPerspectiveEventBlocksMovement("rune_sign", false));
+    REQUIRE_FALSE(map.checkCollision(rune_tile_x, rune_tile_y));
 
     auto duplicate = original_interaction;
     duplicate.event_id = "duplicate";
