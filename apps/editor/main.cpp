@@ -2,6 +2,9 @@
 #include "editor/ability/ability_inspector_panel.h"
 #include "editor/ability/pattern_field_panel.h"
 #include "editor/analytics/analytics_panel.h"
+#include "editor/accessibility/accessibility_audio_adapter.h"
+#include "editor/accessibility/accessibility_battle_adapter.h"
+#include "editor/accessibility/accessibility_panel.h"
 #include "editor/assets/asset_library_panel.h"
 #include "editor/assets/editor_asset_drag_payload.h"
 #include "editor/assets/editor_thumbnail_cache.h"
@@ -144,6 +147,8 @@ struct EditorPanelRuntime {
     urpg::audio::AudioMixPresetBank audio_mix_draft;
     urpg::editor::AudioMixPanel audio_mix_panel;
     urpg::input::InputRemapStore input_remap_draft;
+    urpg::accessibility::AccessibilityAuditor accessibility_auditor;
+    urpg::editor::AccessibilityPanel accessibility_panel;
     urpg::battle::BattleFlowController battle_preview_flow;
     urpg::battle::BattleActionQueue battle_preview_actions;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
@@ -1062,6 +1067,7 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
     runtime.audio_mix_panel.bindBank(&runtime.audio_mix_draft);
     runtime.audio_mix_panel.bindCore(&runtime.audio_preview_core);
     runtime.diagnostics_workspace.bindAudioRuntime(runtime.audio_preview_core);
+    runtime.accessibility_panel.bindAuditor(&runtime.accessibility_auditor);
     bindLevelBuilder(runtime);
 
     using PanelRenderFactory = std::function<urpg::editor::EditorShell::RenderCallback(EditorPanelRuntime&)>;
@@ -2808,6 +2814,33 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         if (ImGui::Button("Save Input Remaps")) {
             const auto result = runtime.dirty_state_registry.save(kInputRemapDirtyDocumentId);
             runtime.map_save_status = result.message;
+        }
+    }
+    if (ImGui::CollapsingHeader("Accessibility Audit")) {
+        ImGui::TextDisabled("Audits the active native audio mix and battle-preview surfaces.");
+        if (ImGui::Button("Audit Current Creator Surfaces")) {
+            auto elements = urpg::editor::AccessibilityAudioAdapter::ingest(runtime.audio_mix_draft);
+            const auto battleElements = urpg::editor::AccessibilityBattleAdapter::ingest(
+                runtime.diagnostics_workspace.battlePanel().getModel());
+            elements.insert(elements.end(), battleElements.begin(), battleElements.end());
+            runtime.accessibility_auditor.clear();
+            runtime.accessibility_auditor.ingestElements(elements);
+            runtime.accessibility_panel.render();
+            runtime.map_save_status = "Accessibility audit completed for " + std::to_string(elements.size()) +
+                                      " current creator element(s).";
+        }
+        const auto accessibilitySnapshot = runtime.accessibility_panel.lastRenderSnapshot();
+        if (accessibilitySnapshot.value("status", "not_run") == "ready") {
+            ImGui::Text("Issues: %zu (errors %zu, warnings %zu)",
+                        accessibilitySnapshot.value("issueCount", size_t{0}),
+                        accessibilitySnapshot.value("errorCount", size_t{0}),
+                        accessibilitySnapshot.value("warningCount", size_t{0}));
+            for (const auto& issue : accessibilitySnapshot.value("issues", nlohmann::json::array())) {
+                ImGui::BulletText("[%s] %s", issue.value("category", "issue").c_str(),
+                                  issue.value("message", "Accessibility issue.").c_str());
+            }
+        } else {
+            ImGui::TextDisabled("Run the audit to inspect the current native creator surfaces.");
         }
     }
     static std::string questId = "restore_moonwell_lantern";
