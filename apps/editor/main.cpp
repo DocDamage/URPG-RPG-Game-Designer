@@ -37,6 +37,7 @@
 #include "engine/core/editor/editor_shell.h"
 #include "engine/core/engine_context.h"
 #include "engine/core/engine_shell.h"
+#include "engine/core/input/input_remap_store.h"
 #include "engine/core/map/grid_part_catalog.h"
 #include "engine/core/map/grid_part_document.h"
 #include "engine/core/map/grid_part_ruleset.h"
@@ -142,6 +143,7 @@ struct EditorPanelRuntime {
     urpg::audio::AudioCore audio_preview_core;
     urpg::audio::AudioMixPresetBank audio_mix_draft;
     urpg::editor::AudioMixPanel audio_mix_panel;
+    urpg::input::InputRemapStore input_remap_draft;
     urpg::battle::BattleFlowController battle_preview_flow;
     urpg::battle::BattleActionQueue battle_preview_actions;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
@@ -182,6 +184,7 @@ struct EditorPanelRuntime {
     bool database_dirty_surface_registered = false;
     bool vendor_dirty_surface_registered = false;
     bool audio_mix_dirty_surface_registered = false;
+    bool input_remap_dirty_surface_registered = false;
 };
 
 constexpr const char* kMapDirtyDocumentId = "map.grid_parts";
@@ -191,6 +194,7 @@ constexpr const char* kQuestDirtyDocumentId = "quest.draft";
 constexpr const char* kDatabaseDirtyDocumentId = "database.project";
 constexpr const char* kVendorDirtyDocumentId = "vendor.catalog";
 constexpr const char* kAudioMixDirtyDocumentId = "audio.mix";
+constexpr const char* kInputRemapDirtyDocumentId = "input.remap";
 
 std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asset) {
     std::string stem;
@@ -566,6 +570,23 @@ urpg::editor::EditorDirtySaveResult saveAudioMixDraft(EditorPanelRuntime& runtim
             "Saved audio mix to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
+std::filesystem::path inputRemapDraftPath(const EditorPanelRuntime& runtime) {
+    return runtime.project_root / "config" / "input_remap.json";
+}
+
+urpg::editor::EditorDirtySaveResult saveInputRemapDraft(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty()) {
+        return {false, "input_remap_save_project_unavailable", "Open a project before saving input remaps."};
+    }
+    std::string error;
+    const auto target = inputRemapDraftPath(runtime);
+    if (!atomicWriteTextFile(target, runtime.input_remap_draft.saveToJson().dump(2) + "\n", &error)) {
+        return {false, "input_remap_save_failed", "Failed to save input remaps: " + error};
+    }
+    return {true, "input_remap_saved",
+            "Saved input remaps to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
+}
+
 void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     if (!runtime.project_session.isOpen() || runtime.project_root.empty()) return;
     const auto mapDirty = runtime.dirty_state_registry.isDirty(kMapDirtyDocumentId) ||
@@ -576,7 +597,9 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     const auto databaseDirty = runtime.dirty_state_registry.isDirty(kDatabaseDirtyDocumentId);
     const auto vendorDirty = runtime.dirty_state_registry.isDirty(kVendorDirtyDocumentId);
     const auto audioMixDirty = runtime.dirty_state_registry.isDirty(kAudioMixDirtyDocumentId);
-    if (!mapDirty && !abilityDirty && !characterDirty && !questDirty && !databaseDirty && !vendorDirty && !audioMixDirty) return;
+    const auto inputRemapDirty = runtime.dirty_state_registry.isDirty(kInputRemapDirtyDocumentId);
+    if (!mapDirty && !abilityDirty && !characterDirty && !questDirty && !databaseDirty && !vendorDirty && !audioMixDirty &&
+        !inputRemapDirty) return;
 
     std::vector<urpg::editor::RecoveryDocumentDraft> drafts;
     if (mapDirty) {
@@ -619,6 +642,10 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     if (audioMixDirty) {
         drafts.push_back({kAudioMixDirtyDocumentId, std::filesystem::path("config") / "audio_mix_presets.json",
                           audioMixDraftJson(runtime).dump(2) + "\n"});
+    }
+    if (inputRemapDirty) {
+        drafts.push_back({kInputRemapDirtyDocumentId, std::filesystem::path("config") / "input_remap.json",
+                          runtime.input_remap_draft.saveToJson().dump(2) + "\n"});
     }
 
     const auto dirtyDocumentIds = runtime.dirty_state_registry.dirtyDocumentIds();
@@ -736,6 +763,15 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
         (void)runtime.audio_mix_panel.selectPreset(runtime.audio_mix_preset);
     }
     runtime.diagnostics_workspace.bindAudioRuntime(runtime.audio_preview_core);
+    runtime.input_remap_draft.resetToDefaults();
+    if (std::ifstream inputRemapInput(inputRemapDraftPath(runtime), std::ios::binary); inputRemapInput.good()) {
+        try {
+            runtime.input_remap_draft.loadFromJson(nlohmann::json::parse(inputRemapInput));
+        } catch (const std::exception&) {
+            runtime.map_save_status = "Saved input remaps are invalid; default mappings were restored instead.";
+            runtime.input_remap_draft.resetToDefaults();
+        }
+    }
     const auto starterMapId = starterMapIdForProject(projectRoot);
     const auto requestedMapExists = std::find(runtime.available_map_ids.begin(), runtime.available_map_ids.end(), requestedMapId) !=
                                     runtime.available_map_ids.end();
@@ -1002,6 +1038,14 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
         "map_authoring",
         false,
         [&runtime] { return saveAudioMixDraft(runtime); },
+        [] {},
+        {},
+    });
+    runtime.input_remap_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        kInputRemapDirtyDocumentId,
+        "map_authoring",
+        false,
+        [&runtime] { return saveInputRemapDraft(runtime); },
         [] {},
         {},
     });
@@ -2720,6 +2764,49 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         ImGui::SameLine();
         if (ImGui::Button("Save Audio Mix")) {
             const auto result = runtime.dirty_state_registry.save(kAudioMixDirtyDocumentId);
+            runtime.map_save_status = result.message;
+        }
+    }
+    if (ImGui::CollapsingHeader("Input Remap")) {
+        static int keyCode = 90;
+        static int actionIndex = 5;
+        static constexpr const char* inputActionLabels[] = {
+            "None", "Move Up", "Move Down", "Move Left", "Move Right", "Confirm", "Cancel", "Menu",
+            "Page Left", "Page Right", "Battle Attack", "Battle Skill", "Battle Item", "Battle Defend",
+            "Battle Escape", "Debug",
+        };
+        static constexpr urpg::input::InputAction inputActions[] = {
+            urpg::input::InputAction::None,       urpg::input::InputAction::MoveUp,
+            urpg::input::InputAction::MoveDown,   urpg::input::InputAction::MoveLeft,
+            urpg::input::InputAction::MoveRight,  urpg::input::InputAction::Confirm,
+            urpg::input::InputAction::Cancel,     urpg::input::InputAction::Menu,
+            urpg::input::InputAction::PageLeft,   urpg::input::InputAction::PageRight,
+            urpg::input::InputAction::BattleAttack, urpg::input::InputAction::BattleSkill,
+            urpg::input::InputAction::BattleItem, urpg::input::InputAction::BattleDefend,
+            urpg::input::InputAction::BattleEscape, urpg::input::InputAction::Debug,
+        };
+        ImGui::TextDisabled("Project key mappings use the native versioned input-remap store.");
+        ImGui::InputInt("Virtual Key Code", &keyCode);
+        ImGui::Combo("Input Action", &actionIndex, inputActionLabels, IM_ARRAYSIZE(inputActionLabels));
+        ImGui::TextDisabled("%zu active mapping(s)", runtime.input_remap_draft.getAllMappings().size());
+        if (ImGui::Button("Apply Input Binding")) {
+            if (keyCode < 0) {
+                runtime.map_save_status = "Input binding needs a non-negative virtual key code.";
+            } else {
+                runtime.input_remap_draft.setMapping(keyCode, inputActions[actionIndex]);
+                (void)runtime.dirty_state_registry.markDirty(kInputRemapDirtyDocumentId, true);
+                runtime.map_save_status = "Input binding updated; save it before switching context.";
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Restore Default Bindings")) {
+            runtime.input_remap_draft.resetToDefaults();
+            (void)runtime.dirty_state_registry.markDirty(kInputRemapDirtyDocumentId, true);
+            runtime.map_save_status = "Default input bindings restored; save to publish them.";
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save Input Remaps")) {
+            const auto result = runtime.dirty_state_registry.save(kInputRemapDirtyDocumentId);
             runtime.map_save_status = result.message;
         }
     }
