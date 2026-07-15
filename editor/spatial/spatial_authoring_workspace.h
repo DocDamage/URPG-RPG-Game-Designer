@@ -730,6 +730,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     void captureRenderSnapshot();
     void syncEventSpritesToTargetScene();
     void syncAuthoredDialogueInteractionsToTargetScene();
+    void syncAuthoredDialogueRuntimeStateFromTargetScene();
     void syncPanelVisibility();
     void markPerspectiveDirty();
     bool projectScreenToTile(float screen_x, float screen_y, int32_t& out_tile_x, int32_t& out_tile_y) const;
@@ -863,6 +864,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     std::vector<Perspective2DStateEntry> perspective_runtime_switches_;
     std::vector<Perspective2DStateEntry> perspective_runtime_variables_;
     std::vector<Perspective2DStateEntry> perspective_runtime_self_switches_;
+    uint64_t last_synced_authored_dialogue_state_revision_ = 0;
     std::vector<Perspective2DStateEntry> perspective_runtime_inventory_;
     std::vector<std::string> perspective_runtime_dialogue_choices_;
     int perspective_runtime_gold_ = 0;

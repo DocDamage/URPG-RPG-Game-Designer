@@ -81,6 +81,14 @@ std::string mapEventSelfSwitchStateKey(const std::string& map_id,
     return "authored_map_self_switch:" + map_id + ":" + event_id + ":" + key;
 }
 
+std::string authoredDialogueStateValueText(const urpg::GlobalStateHub::Value& value) {
+    if (const auto* integer = std::get_if<int32_t>(&value)) return std::to_string(*integer);
+    if (const auto* decimal = std::get_if<float>(&value)) return std::to_string(*decimal);
+    if (const auto* boolean = std::get_if<bool>(&value)) return *boolean ? "true" : "false";
+    if (const auto* string = std::get_if<std::string>(&value)) return *string;
+    return {};
+}
+
 bool isSupportedPerspectivePageComparison(const std::string& comparison) {
     return comparison.empty() || comparison == "equals" || comparison == "not_equals" ||
            comparison == "greater_equal" || comparison == "greater_than" || comparison == "less_equal" ||
@@ -546,6 +554,9 @@ void MapScene::handleInput(const urpg::input::InputCore& input) {
                                     urpg::GlobalStateHub::getInstance().setVariable(
                                         effect.key, saturatingDialogueEffectDelta(current, effect.delta));
                                 }
+                                if (!choice->effects.empty()) {
+                                    ++m_authoredDialogueStateRevision;
+                                }
                                 if (!beginActiveAuthoredDialogueNode(choice->target_node_id)) {
                                     m_dialogueRuntimeDiagnostics.push_back(
                                         "authored_dialogue_target_runtime_admission_failed:" + choice->target_node_id);
@@ -928,6 +939,39 @@ void MapScene::applyAuthoredDialogueStateWrites(
             break;
         }
     }
+    if (!state_writes.empty()) {
+        ++m_authoredDialogueStateRevision;
+    }
+}
+
+MapScene::AuthoredDialogueStateSnapshot MapScene::authoredDialogueStateSnapshot() const {
+    AuthoredDialogueStateSnapshot snapshot;
+    snapshot.revision = m_authoredDialogueStateRevision;
+    const auto& state = urpg::GlobalStateHub::getInstance();
+    const auto self_switch_prefix = "authored_map_self_switch:" + m_mapId + ":";
+    for (const auto& [key, value] : state.getAllSwitches()) {
+        if (key.starts_with("authored_map_self_switch:")) {
+            if (key.starts_with(self_switch_prefix)) {
+                const std::string local_key = key.substr(self_switch_prefix.size());
+                if (const size_t separator = local_key.find(':'); separator != std::string::npos && separator > 0 &&
+                    separator + 1 < local_key.size()) {
+                    snapshot.self_switches.push_back({local_key, value ? "true" : "false"});
+                }
+            }
+            continue;
+        }
+        snapshot.switches.push_back({key, value ? "true" : "false"});
+    }
+    for (const auto& [key, value] : state.getAllVariables()) {
+        snapshot.variables.push_back({key, authoredDialogueStateValueText(value)});
+    }
+    const auto sort_entries = [](std::vector<AuthoredDialogueStateEntry>& entries) {
+        std::sort(entries.begin(), entries.end(), [](const auto& lhs, const auto& rhs) { return lhs.key < rhs.key; });
+    };
+    sort_entries(snapshot.switches);
+    sort_entries(snapshot.variables);
+    sort_entries(snapshot.self_switches);
+    return snapshot;
 }
 
 bool MapScene::authoredDialoguePageConditionsMatch(

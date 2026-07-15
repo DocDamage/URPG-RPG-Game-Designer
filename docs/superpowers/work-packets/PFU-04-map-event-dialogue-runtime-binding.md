@@ -29,6 +29,11 @@ without adding a general script or arbitrary file-loading command.
   the saved graph before applying them through `GlobalStateHub`, then evaluates
   supported dialogue choice conditions against that same authority. Missing or
   invalid graphs therefore cannot partially apply projected writes.
+- `MapScene` versions its authored dialogue state after projected writes and
+  dialogue-choice effects. The bound Perspective 2D workspace consumes that
+  versioned snapshot on its normal render pass, updating its preview switches,
+  variables, and map/event-local self-switches without marking the source map
+  draft dirty.
 - MapScene rejects duplicate trigger/tile projections as a whole. The Map
   workspace clears a rejected runtime batch rather than leaving stale event
   interactions active.
@@ -41,7 +46,7 @@ without adding a general script or arbitrary file-loading command.
 This supports visible switch/integer-variable/event-local-self-switch
 conditional map-event pages and the existing native `confirm_interact` path;
 other event commands, interaction animation/collision, dialogue-choice-effect
-synchronization back into the Perspective 2D
+synchronization beyond native dialogue state into the Perspective 2D
 preview-state document, and playthrough/package/
 release qualification remain open. Builds and test execution remain deferred
 under the user instruction for this phase.

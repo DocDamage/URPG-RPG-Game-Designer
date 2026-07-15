@@ -1746,6 +1746,14 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
     REQUIRE(map.activeDialogueConversationId() == "project.dialogue.moonwell_intro");
     REQUIRE(map.isDialogueActive());
     REQUIRE(std::get<int32_t>(global_state.getVariable("moonwell_visited")) == 1);
+    workspace.Render({0.016f, 37});
+    const auto native_state = workspace.lastRenderSnapshot().last_perspective_2d_runtime;
+    REQUIRE(std::find_if(native_state.variables.begin(), native_state.variables.end(),
+                         [](const auto& entry) { return entry.key == "moonwell_visited" && entry.value == "1"; }) !=
+            native_state.variables.end());
+    REQUIRE(std::find_if(native_state.self_switches.begin(), native_state.self_switches.end(),
+                         [](const auto& entry) { return entry.key == "moonwell:A" && entry.value == "true"; }) !=
+            native_state.self_switches.end());
 
     {
         std::ofstream output(project_root / "content" / "dialogues" / "moonwell_ranked.json", std::ios::binary);

@@ -253,6 +253,8 @@ void SpatialAuthoringWorkspace::SetTargets(urpg::scene::MapScene* scene,
                                            urpg::presentation::SpatialMapOverlay* overlay) {
     m_target_scene = scene;
     m_target_overlay = overlay;
+    last_synced_authored_dialogue_state_revision_ =
+        m_target_scene != nullptr ? m_target_scene->authoredDialogueStateSnapshot().revision : 0;
     elevation_panel_.SetTarget(overlay);
     prop_panel_.SetTarget(overlay);
     binding_panel_.SetTarget(scene);
@@ -4209,9 +4211,35 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
     }
 }
 
+void SpatialAuthoringWorkspace::syncAuthoredDialogueRuntimeStateFromTargetScene() {
+    if (m_target_scene == nullptr) {
+        return;
+    }
+    const auto native_state = m_target_scene->authoredDialogueStateSnapshot();
+    if (native_state.revision == last_synced_authored_dialogue_state_revision_) {
+        return;
+    }
+    const auto copy_entries = [](const auto& source) {
+        std::vector<Perspective2DStateEntry> entries;
+        entries.reserve(source.size());
+        for (const auto& entry : source) {
+            entries.push_back({entry.key, entry.value});
+        }
+        return entries;
+    };
+    perspective_runtime_switches_ = copy_entries(native_state.switches);
+    perspective_runtime_variables_ = copy_entries(native_state.variables);
+    perspective_runtime_self_switches_ = copy_entries(native_state.self_switches);
+    last_perspective_runtime_result_.switches = perspective_runtime_switches_;
+    last_perspective_runtime_result_.variables = perspective_runtime_variables_;
+    last_perspective_runtime_result_.self_switches = perspective_runtime_self_switches_;
+    last_synced_authored_dialogue_state_revision_ = native_state.revision;
+}
+
 void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     syncEventSpritesToTargetScene();
     syncAuthoredDialogueInteractionsToTargetScene();
+    syncAuthoredDialogueRuntimeStateFromTargetScene();
     if (!restoring_perspective_history_) {
         perspective_history_checkpoint_ = serializePerspectiveMapDraft();
     }

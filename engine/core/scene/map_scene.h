@@ -144,6 +144,18 @@ class MapScene : public GameScene {
         std::vector<PageCandidate> page_candidates;
     };
 
+    struct AuthoredDialogueStateEntry {
+        std::string key;
+        std::string value;
+    };
+
+    struct AuthoredDialogueStateSnapshot {
+        uint64_t revision = 0;
+        std::vector<AuthoredDialogueStateEntry> switches;
+        std::vector<AuthoredDialogueStateEntry> variables;
+        std::vector<AuthoredDialogueStateEntry> self_switches;
+    };
+
     MapScene(const std::string& mapId, int width, int height);
     virtual ~MapScene() = default;
 
@@ -240,6 +252,7 @@ class MapScene : public GameScene {
     const std::vector<AuthoredDialogueInteraction>& authoredDialogueInteractions() const {
         return m_authoredDialogueInteractions;
     }
+    AuthoredDialogueStateSnapshot authoredDialogueStateSnapshot() const;
     void setDialogueLocaleCatalog(std::optional<urpg::localization::LocaleCatalog> catalog);
     std::string dialogueLocaleCode() const;
     const std::vector<std::string>& dialogueRuntimeDiagnostics() const { return m_dialogueRuntimeDiagnostics; }
@@ -338,7 +351,8 @@ class MapScene : public GameScene {
                                            const std::string& conversation_id);
     bool validateAuthoredDialogueStateWrites(const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes);
     void applyAuthoredDialogueStateWrites(const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes);
-    bool authoredDialoguePageConditionsMatch(const std::string& event_id,
+    bool authoredDialoguePageConditionsMatch(
+        const std::string& event_id,
         const std::vector<AuthoredDialogueInteraction::PageCondition>& conditions) const;
     bool beginActiveAuthoredDialogueNode(const std::string& node_id);
 
@@ -374,6 +388,7 @@ class MapScene : public GameScene {
     std::string m_activeAuthoredDialogueCaption;
     std::string m_activeAuthoredDialogueVoiceAssetId;
     std::vector<AuthoredDialogueInteraction> m_authoredDialogueInteractions;
+    uint64_t m_authoredDialogueStateRevision = 0;
     std::shared_ptr<urpg::ai::ChatbotComponent> m_activeChatbot;
     std::unique_ptr<urpg::ui::ChatWindow> m_chatUI;
     std::shared_ptr<urpg::audio::AudioCore> m_audioCore;

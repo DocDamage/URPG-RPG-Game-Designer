@@ -929,6 +929,13 @@ TEST_CASE("MapScene executes a saved native Dialogue Graph through the message r
     input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
     map.handleInput(input);
     REQUIRE(std::get<int32_t>(state.getVariable("score")) == std::numeric_limits<int32_t>::max());
+    const auto choice_effect_state = map.authoredDialogueStateSnapshot();
+    REQUIRE(choice_effect_state.revision > 0);
+    REQUIRE(std::find_if(choice_effect_state.variables.begin(), choice_effect_state.variables.end(),
+                         [](const auto& entry) {
+                             return entry.key == "score" &&
+                                    entry.value == std::to_string(std::numeric_limits<int32_t>::max());
+                         }) != choice_effect_state.variables.end());
 
     state.setVariable("flag", int32_t{0});
     REQUIRE(map.startAuthoredDialogue(stateful, "test.stateful_dialogue"));
