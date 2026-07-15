@@ -1,6 +1,6 @@
 # Truth Alignment Rules
 
-Status Date: 2026-04-23
+Status Date: 2026-07-14
 
 This document defines how readiness claims stay aligned across canonical docs, template docs, diagnostics surfaces, and machine-readable readiness records.
 
@@ -15,10 +15,10 @@ When these disagree, the canonical resolution order is:
 1. `content/readiness/readiness_status.json`
 2. `docs/release/RELEASE_READINESS_MATRIX.md`
 3. `docs/governance/TEMPLATE_READINESS_MATRIX.md`
-4. `docs/status/PROGRAM_COMPLETION_STATUS.md`
-5. `docs/archive/planning/NATIVE_FEATURE_ABSORPTION_PLAN.md`
+4. `docs/APP_RELEASE_READINESS_MATRIX.md`
+5. `docs/PROGRAM_COMPLETION_STATUS.md`
 
-Older planning inputs, archive docs, and addenda are reference material, not status authorities.
+`docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` and active plans under `docs/superpowers/plans/` govern direction and execution but do not override evidence-backed status. Older planning inputs, archive docs, external-intake proposals, and addenda are reference material, not status authorities.
 
 ## Alignment Requirements
 

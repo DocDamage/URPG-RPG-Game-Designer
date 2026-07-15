@@ -1,10 +1,17 @@
 # Product Feature and Usability Roadmap
 
-**Status:** Proposed  
+> **Historical source input — do not execute as a URPG implementation plan.**
+> This document was authored for a non-Git RPG Maker MZ asset/vendor bundle and
+> a standalone Node Creator Hub prototype. Its Node/NW.js, HTML sidecar,
+> `plugins.js`, bundle-count, and M0-M13 assumptions do not describe the native
+> URPG product. The corrected executable mapping is
+> `docs/superpowers/plans/2026-07-14-product-feature-usability-native-absorption-plan.md`.
+
+**Status:** Superseded external-intake proposal; retained for provenance
 **Last updated:** 2026-07-14  
-**Primary user:** A creator building an RPG Maker MZ game with this bundle  
+**Primary user:** Historical target — a creator building an RPG Maker MZ game with the old bundle
 **Planning horizon:** Multi-release; no calendar commitment is implied  
-**Related plan:** `TECH_DEBT_REMEDIATION_PLAN.md`
+**Replacement plan:** `docs/superpowers/plans/2026-07-14-product-feature-usability-native-absorption-plan.md`
 
 ## 1. Purpose
 

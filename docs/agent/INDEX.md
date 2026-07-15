@@ -12,6 +12,7 @@ This directory is the agent-facing map for URPG. It points to canonical files ra
 | Current release gaps and debt | `docs/agent/KNOWN_DEBT.md` |
 | Current release execution tasks | `docs/release/AAA_RELEASE_EXECUTION_PLAN.md` |
 | Current creator-product implementation tasks | `docs/superpowers/plans/2026-07-12-creator-product-cohesion-plan.md` |
+| Native absorption of the external F01-F24/I01-I10 proposal | `docs/superpowers/plans/2026-07-14-product-feature-usability-native-absorption-plan.md` |
 | Current creator journey and implementation checkpoint | `docs/product/CREATOR_JOURNEY.md`, `docs/product/CREATOR_JOURNEY_BASELINE.md` |
 | Current release-surface audit tasks | `docs/superpowers/plans/2026-04-30-release-surface-audit-execution-plan.md` |
 | Current verified app-release status | `README.md`, `docs/APP_RELEASE_READINESS_MATRIX.md` |
@@ -26,6 +27,7 @@ This directory is the agent-facing map for URPG. It points to canonical files ra
 - Editor control inventory: `docs/release/EDITOR_CONTROL_INVENTORY.md`
 - Native map editor status: `README.md`, `docs/release/EDITOR_CONTROL_INVENTORY.md`, and `tests/unit/test_grid_part_editor.cpp`
 - Creator shell, virtual asset workflow, unified Map, and starter-project status: `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/product/CREATOR_JOURNEY_BASELINE.md`, and `docs/superpowers/plans/2026-07-12-creator-product-cohesion-plan.md`
+- External product-feature absorption: `docs/superpowers/plans/2026-07-14-product-feature-usability-native-absorption-plan.md`; its source roadmap under `docs/external-intake/` is provenance only
 - Release authoring persistence status: `docs/release/EDITOR_CONTROL_INVENTORY.md`,
   `docs/superpowers/plans/2026-04-30-release-surface-audit-execution-plan.md`, and
   `tests/unit/test_diagnostics_workspace.cpp`

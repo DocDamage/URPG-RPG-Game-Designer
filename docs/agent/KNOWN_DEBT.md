@@ -13,6 +13,7 @@ This file is a pointer map, not the debt database.
 ## Current Agent Priorities
 
 - Prefer the active creator-product cohesion plan over broad subsystem expansion: `docs/superpowers/plans/2026-07-12-creator-product-cohesion-plan.md`.
+- Use `docs/superpowers/plans/2026-07-14-product-feature-usability-native-absorption-plan.md` only as a child absorption plan after the active creator-plan dependencies. The imported MZ/Node roadmap and local Creator Hub prototype are reference inputs, not native implementation or release evidence.
 - Treat M0-M5 as a bounded implemented foundation, not a completed product. Remaining M1/M3/M4 breadth is explicit: aggregate Perspective 2D-only changes and register durable non-Map authoring surfaces with the shared dirty-state owner, add contextual asset-drop consumers beyond Map Tiles/Props with real undo history, complete shortcut coverage, and record graphical route/layout equivalence.
 - M6-M9 have bounded implementation and focused test contracts on the active creator-cohesion branch: editor-owned current-map playtest/diagnostics, recovery/relinking, contextual authoring/native gameplay primitives, and the governed vertical slice. Re-run their gates from the target release build; those contracts are not a substitute for manual WYSIWYG evidence.
 - M10 has a shared editor theme/widget foundation and bounded visible-thumbnail/DPI performance coverage, but its graphical, keyboard, accessibility, and reference-machine review is still required. Headless/model coverage is not manual signoff.
