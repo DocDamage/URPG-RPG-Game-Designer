@@ -1937,6 +1937,34 @@ bool SpatialAuthoringWorkspace::SetPerspectiveEventBlocksMovement(const std::str
     return true;
 }
 
+bool SpatialAuthoringWorkspace::SetPerspectiveEventSpriteAnimation(const std::string& event_id,
+                                                                    const int32_t frame_width,
+                                                                    const int32_t frame_height,
+                                                                    const int32_t frame_count,
+                                                                    const float frame_duration,
+                                                                    const bool loop) {
+    if (frame_width <= 0 || frame_height <= 0 || frame_count <= 0 || frame_count > 64 ||
+        !std::isfinite(frame_duration) || frame_duration < 0.01f || frame_duration > 10.0f) {
+        return false;
+    }
+    const auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                                    [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end() ||
+        (event->sprite_frame_width == frame_width && event->sprite_frame_height == frame_height &&
+         event->sprite_frame_count == frame_count && event->sprite_frame_duration == frame_duration &&
+         event->sprite_loop == loop)) {
+        return false;
+    }
+    event->sprite_frame_width = frame_width;
+    event->sprite_frame_height = frame_height;
+    event->sprite_frame_count = frame_count;
+    event->sprite_frame_duration = frame_duration;
+    event->sprite_loop = loop;
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
 bool SpatialAuthoringWorkspace::SetPerspectiveEventPageBlocksMovement(const std::string& event_id,
                                                                        const std::string& page_id,
                                                                        std::optional<bool> blocks_movement) {
@@ -2565,6 +2593,11 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
                                      {"x", event.tile_x},
                                      {"y", event.tile_y},
                                      {"blocks_movement", event.blocks_movement},
+                                     {"sprite_frame_width", event.sprite_frame_width},
+                                     {"sprite_frame_height", event.sprite_frame_height},
+                                     {"sprite_frame_count", event.sprite_frame_count},
+                                     {"sprite_frame_duration", event.sprite_frame_duration},
+                                     {"sprite_loop", event.sprite_loop},
                                      {"selected_page_id", event.selected_page_id},
                                      {"commands", serialize_commands(event.commands)},
                                      {"pages", std::move(pages)}};
@@ -3183,6 +3216,20 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
         event.tile_x = event_json.value("x", 0);
         event.tile_y = event_json.value("y", 0);
         event.blocks_movement = event_json.value("blocks_movement", false);
+        event.sprite_frame_width = event_json.value("sprite_frame_width", 48);
+        event.sprite_frame_height = event_json.value("sprite_frame_height", 48);
+        event.sprite_frame_count = event_json.value("sprite_frame_count", 1);
+        event.sprite_frame_duration = event_json.value("sprite_frame_duration", 0.15f);
+        event.sprite_loop = event_json.value("sprite_loop", true);
+        if (event.sprite_frame_width <= 0 || event.sprite_frame_height <= 0 || event.sprite_frame_count <= 0 ||
+            event.sprite_frame_count > 64 || !std::isfinite(event.sprite_frame_duration) ||
+            event.sprite_frame_duration < 0.01f || event.sprite_frame_duration > 10.0f) {
+            event.sprite_frame_width = 48;
+            event.sprite_frame_height = 48;
+            event.sprite_frame_count = 1;
+            event.sprite_frame_duration = 0.15f;
+            event.sprite_loop = true;
+        }
         event.selected_page_id = event_json.value("selected_page_id", "");
         event.commands = load_commands(event_json.value("commands", nlohmann::json::array()));
         for (const auto& page_json : event_json.value("pages", nlohmann::json::array())) {
@@ -4107,7 +4154,12 @@ void SpatialAuthoringWorkspace::syncEventSpritesToTargetScene() {
         sprites.push_back({event.event_id,
                            {event.asset_id, std::filesystem::path{event.asset_project_path}},
                            event.tile_x,
-                           event.tile_y});
+                           event.tile_y,
+                           event.sprite_frame_width,
+                           event.sprite_frame_height,
+                           event.sprite_frame_count,
+                           event.sprite_frame_duration,
+                           event.sprite_loop});
     }
     (void)m_target_scene->setEventSprites(std::move(sprites));
 }
@@ -4559,6 +4611,11 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
         event_snapshot.tile_x = event.tile_x;
         event_snapshot.tile_y = event.tile_y;
         event_snapshot.blocks_movement = event.blocks_movement;
+        event_snapshot.sprite_frame_width = event.sprite_frame_width;
+        event_snapshot.sprite_frame_height = event.sprite_frame_height;
+        event_snapshot.sprite_frame_count = event.sprite_frame_count;
+        event_snapshot.sprite_frame_duration = event.sprite_frame_duration;
+        event_snapshot.sprite_loop = event.sprite_loop;
         event_snapshot.selected_page_id = event.selected_page_id;
         const PerspectiveEvent::Page* active_page = active_page_for_event(event);
         if (active_page != nullptr) {

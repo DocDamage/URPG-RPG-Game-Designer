@@ -712,6 +712,31 @@ TEST_CASE("MapScene projects validated authored event sprites into runtime rende
     REQUIRE(sawSign);
 }
 
+TEST_CASE("MapScene advances authored event sprite-sheet frames deterministically",
+          "[scene][map][render][events][animation]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    MapScene map("AnimatedEventSpriteMap", 2, 1);
+    REQUIRE(map.setEventSprites({
+        {"event_torch", {"asset.torch", "content/assets/torch.png"}, 1, 0, 16, 24, 3, 0.10f, true},
+    }));
+
+    map.onUpdate(0.11f);
+    bool saw_second_frame = false;
+    for (const auto& command : renderFrameCommands(layer)) {
+        if (renderCommandType(command) != urpg::RenderCmdType::Sprite) {
+            continue;
+        }
+        const auto* sprite = renderCommandAs<urpg::SpriteRenderData>(command);
+        saw_second_frame = saw_second_frame ||
+                           (sprite != nullptr && sprite->textureId == "asset.torch" && sprite->srcX == 16 &&
+                            sprite->srcY == 0 && sprite->width == 16 && sprite->height == 24 &&
+                            sprite->x == 48.0f && sprite->y == 0.0f && sprite->zOrder == 2);
+    }
+    REQUIRE(saw_second_frame);
+}
+
 TEST_CASE("MapScene emits diagnostics before rendering asset placeholders", "[scene][map][render][assets]") {
     auto& layer = urpg::RenderLayer::getInstance();
     layer.flush();

@@ -23,8 +23,13 @@ changing event command execution, or claiming package/runtime qualification.
   intact; accepted sprites are sorted by event ID for deterministic command
   order.
 - `MapScene` registers the governed asset path as renderer metadata and emits
-  one 48-pixel sprite command at the authored tile with a z-order above the
-  player. It does not load or mutate an asset catalog.
+  one configured sprite-frame command at the authored tile with a z-order
+  above the player. It does not load or mutate an asset catalog.
+- Each event retains a bounded horizontal sprite-sheet configuration: positive
+  frame width and height, one to 64 frames, a 0.01-to-10-second frame duration,
+  and loop mode. Existing events default to one 48-pixel frame. `MapScene`
+  advances accepted sprite projections from its frame delta and emits the
+  current source rectangle deterministically.
 - Perspective 2D undo, redo, draft load, layer visibility, and active-map
   rebinding reuse the existing document/history route, so the runtime sprite
   projection follows the same authoritative state.
@@ -38,7 +43,7 @@ changing event command execution, or claiming package/runtime qualification.
 
 ## Limits
 
-This does not add animation/sheet slicing, page-conditional visibility,
-interaction binding, event execution changes, texture packing, package
-evidence, or release qualification. Builds and test execution remain deferred
-under the user instruction for this phase.
+This does not add asset-catalog sprite-sheet slicing, page-conditional
+visibility, interaction binding, event execution changes, texture packing,
+package evidence, or release qualification. Builds and test execution remain
+deferred under the user instruction for this phase.

@@ -146,6 +146,11 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         int32_t tile_x = 0;
         int32_t tile_y = 0;
         bool blocks_movement = false;
+        int32_t sprite_frame_width = 48;
+        int32_t sprite_frame_height = 48;
+        int32_t sprite_frame_count = 1;
+        float sprite_frame_duration = 0.15f;
+        bool sprite_loop = true;
         bool visible_in_playtest = true;
         size_t command_count = 0;
         size_t page_count = 0;
@@ -629,6 +634,12 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                        float screen_y);
     bool MovePerspectiveEventFromScreen(const std::string& event_id, float screen_x, float screen_y);
     bool SetPerspectiveEventBlocksMovement(const std::string& event_id, bool blocks_movement);
+    bool SetPerspectiveEventSpriteAnimation(const std::string& event_id,
+                                            int32_t frame_width,
+                                            int32_t frame_height,
+                                            int32_t frame_count,
+                                            float frame_duration,
+                                            bool loop);
     bool SetPerspectiveEventPageBlocksMovement(const std::string& event_id,
                                                const std::string& page_id,
                                                std::optional<bool> blocks_movement);
@@ -808,6 +819,11 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         int32_t tile_x = 0;
         int32_t tile_y = 0;
         bool blocks_movement = false;
+        int32_t sprite_frame_width = 48;
+        int32_t sprite_frame_height = 48;
+        int32_t sprite_frame_count = 1;
+        float sprite_frame_duration = 0.15f;
+        bool sprite_loop = true;
         std::string selected_page_id;
         std::vector<Command> commands;
         std::vector<Page> pages;

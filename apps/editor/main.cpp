@@ -3952,6 +3952,23 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
             if (ImGui::Checkbox("Default Blocks Movement", &blocksMovement)) {
                 (void)workspace.SetPerspectiveEventBlocksMovement(event.event_id, blocksMovement);
             }
+            int frameWidth = event.sprite_frame_width;
+            int frameHeight = event.sprite_frame_height;
+            int frameCount = event.sprite_frame_count;
+            float frameDuration = event.sprite_frame_duration;
+            bool spriteLoop = event.sprite_loop;
+            bool changedSpriteAnimation = ImGui::InputInt("Sprite Frame Width", &frameWidth);
+            ImGui::SameLine();
+            changedSpriteAnimation = ImGui::InputInt("Sprite Frame Height", &frameHeight) || changedSpriteAnimation;
+            changedSpriteAnimation = ImGui::InputInt("Sprite Frame Count", &frameCount) || changedSpriteAnimation;
+            ImGui::SameLine();
+            changedSpriteAnimation = ImGui::InputFloat("Sprite Frame Duration", &frameDuration, 0.01f, 0.1f, "%.2f") ||
+                                     changedSpriteAnimation;
+            changedSpriteAnimation = ImGui::Checkbox("Sprite Animation Loops", &spriteLoop) || changedSpriteAnimation;
+            if (changedSpriteAnimation) {
+                (void)workspace.SetPerspectiveEventSpriteAnimation(event.event_id, frameWidth, frameHeight,
+                                                                    frameCount, frameDuration, spriteLoop);
+            }
             for (const auto& page : event.pages) {
                 ImGui::PushID(page.page_id.c_str());
                 int collisionMode = !page.has_blocks_movement_override ? 0 : page.blocks_movement ? 1 : 2;

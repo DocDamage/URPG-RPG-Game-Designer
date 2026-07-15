@@ -12,6 +12,7 @@
 #include "engine/core/save/save_serialization_hub.h"
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <cstdlib>
 #include <fstream>
 #include <limits>
@@ -421,6 +422,13 @@ void MapScene::onUpdate(float deltaTime) {
 
     m_playerAbilitySystem.update(deltaTime);
 
+    const float animation_delta = std::max(deltaTime, 0.0f);
+    for (size_t index = 0; index < m_eventSprites.size() && index < m_eventSpriteElapsedSeconds.size(); ++index) {
+        if (m_eventSprites[index].frame_count > 1) {
+            m_eventSpriteElapsedSeconds[index] += animation_delta;
+        }
+    }
+
     // 3. Submit tile and player render commands
     if (m_renderLayerDirty) {
         rebuildTileRenderCache();
@@ -449,13 +457,16 @@ void MapScene::onUpdate(float deltaTime) {
     playerCmd.zOrder = 1;
     layer.submit(urpg::toFrameRenderCommand(playerCmd));
 
-    for (const auto& event_sprite : m_eventSprites) {
+    for (size_t index = 0; index < m_eventSprites.size(); ++index) {
+        const auto& event_sprite = m_eventSprites[index];
         urpg::SpriteCommand eventCmd;
         eventCmd.textureId = event_sprite.asset.id;
+        eventCmd.srcX = currentEventSpriteFrame(index) * event_sprite.frame_width;
+        eventCmd.srcY = 0;
         eventCmd.x = static_cast<float>(event_sprite.tile_x) * kTileSize;
         eventCmd.y = static_cast<float>(event_sprite.tile_y) * kTileSize;
-        eventCmd.width = kTileSize;
-        eventCmd.height = kTileSize;
+        eventCmd.width = event_sprite.frame_width;
+        eventCmd.height = event_sprite.frame_height;
         eventCmd.zOrder = 2;
         layer.submit(urpg::toFrameRenderCommand(eventCmd));
     }
@@ -686,6 +697,8 @@ bool MapScene::setEventSprites(std::vector<MapEventSprite> sprites) {
         const auto& sprite = sprites[index];
         if (sprite.event_id.empty() || sprite.asset.id.empty() || sprite.asset.path.empty() ||
             sprite.tile_x < 0 || sprite.tile_x >= m_width || sprite.tile_y < 0 || sprite.tile_y >= m_height ||
+            sprite.frame_width <= 0 || sprite.frame_height <= 0 || sprite.frame_count <= 0 || sprite.frame_count > 64 ||
+            !std::isfinite(sprite.frame_duration) || sprite.frame_duration < 0.01f || sprite.frame_duration > 10.0f ||
             (!previous_event_id.empty() && previous_event_id == sprite.event_id)) {
             return false;
         }
@@ -699,8 +712,26 @@ bool MapScene::setEventSprites(std::vector<MapEventSprite> sprites) {
     }
 
     m_eventSprites = std::move(sprites);
+    m_eventSpriteElapsedSeconds.assign(m_eventSprites.size(), 0.0f);
     registerEventSpriteTextures();
     return true;
+}
+
+int32_t MapScene::currentEventSpriteFrame(const size_t index) const {
+    if (index >= m_eventSprites.size() || index >= m_eventSpriteElapsedSeconds.size()) {
+        return 0;
+    }
+    const auto& sprite = m_eventSprites[index];
+    if (sprite.frame_count <= 1) {
+        return 0;
+    }
+    const float cycle_duration = sprite.frame_duration * static_cast<float>(sprite.frame_count);
+    float elapsed = m_eventSpriteElapsedSeconds[index];
+    if (sprite.loop && cycle_duration > 0.0f) {
+        elapsed = std::fmod(elapsed, cycle_duration);
+    }
+    const int32_t frame = static_cast<int32_t>(elapsed / sprite.frame_duration);
+    return std::clamp(frame, 0, sprite.frame_count - 1);
 }
 
 bool MapScene::setEventColliders(std::vector<MapEventCollider> colliders) {

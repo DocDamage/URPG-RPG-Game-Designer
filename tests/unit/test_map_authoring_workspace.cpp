@@ -180,11 +180,26 @@ TEST_CASE("MapAuthoringWorkspace projects attached event drops into the active M
     REQUIRE(mapScene.eventSprites()[0].asset.id == attached.assetId);
     REQUIRE(mapScene.eventSprites()[0].tile_x == event.tile_x);
     REQUIRE(mapScene.eventSprites()[0].tile_y == event.tile_y);
+    REQUIRE(perspective2D.SetPerspectiveEventSpriteAnimation(event.event_id, 24, 32, 4, 0.20f, false));
+    REQUIRE(mapScene.eventSprites()[0].frame_width == 24);
+    REQUIRE(mapScene.eventSprites()[0].frame_height == 32);
+    REQUIRE(mapScene.eventSprites()[0].frame_count == 4);
+    REQUIRE(mapScene.eventSprites()[0].frame_duration == 0.20f);
+    REQUIRE_FALSE(mapScene.eventSprites()[0].loop);
 
+    REQUIRE(workspace.undo().success);
+    REQUIRE(mapScene.eventSprites().size() == 1);
+    REQUIRE(mapScene.eventSprites()[0].frame_width == 48);
+    REQUIRE(mapScene.eventSprites()[0].frame_count == 1);
+    REQUIRE(mapScene.eventSprites()[0].loop);
     REQUIRE(workspace.undo().success);
     REQUIRE(mapScene.eventSprites().empty());
     REQUIRE(workspace.redo().success);
     REQUIRE(mapScene.eventSprites().size() == 1);
+    REQUIRE(mapScene.eventSprites()[0].frame_width == 48);
+    REQUIRE(workspace.redo().success);
+    REQUIRE(mapScene.eventSprites()[0].frame_width == 24);
+    REQUIRE(mapScene.eventSprites()[0].frame_count == 4);
 }
 
 TEST_CASE("MapAuthoringWorkspace routes Perspective 2D history through the active Map mode", "[spatial][map_authoring][history]") {

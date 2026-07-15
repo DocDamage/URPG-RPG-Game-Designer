@@ -54,6 +54,11 @@ struct MapEventSprite {
     MapAssetReference asset;
     int tile_x = 0;
     int tile_y = 0;
+    int32_t frame_width = 48;
+    int32_t frame_height = 48;
+    int32_t frame_count = 1;
+    float frame_duration = 0.15f;
+    bool loop = true;
 };
 
 // A condition shared by native projections of one persisted Perspective 2D
@@ -366,6 +371,7 @@ class MapScene : public GameScene {
     void submitCachedTileCommands(urpg::RenderLayer& layer) const;
     void validateRenderAssetReferences();
     void registerEventSpriteTextures();
+    int32_t currentEventSpriteFrame(size_t index) const;
     std::optional<urpg::dialogue::DialogueGraph> loadAuthoredDialogueFromProject(const std::string& dialogue_id);
     bool validateAuthoredDialogueAdmission(const urpg::dialogue::DialogueGraph& graph,
                                            const std::string& conversation_id);
@@ -383,6 +389,7 @@ class MapScene : public GameScene {
     bool m_renderLayerDirty = true;
     MapAssetReferences m_assetReferences;
     std::vector<MapEventSprite> m_eventSprites;
+    std::vector<float> m_eventSpriteElapsedSeconds;
     std::vector<MapEventCollider> m_eventColliders;
     std::vector<std::string> m_assetDiagnostics;
     bool m_assetReferencesValidated = false;
