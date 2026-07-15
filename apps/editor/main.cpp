@@ -2499,6 +2499,10 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     static int transformCropHeight = 0;
     static int transformOutputWidth = 0;
     static int transformOutputHeight = 0;
+    static std::string cropSelectionSourcePath;
+    static bool cropSelectionDragging = false;
+    static int cropSelectionStartX = 0;
+    static int cropSelectionStartY = 0;
     static std::string paletteOperationId = "image-fixed-palette";
     static int paletteColorCount = 2;
     static std::array<std::array<float, 4>, 256> paletteColors = [] {
@@ -2818,7 +2822,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
         const bool cropRevisionOpen =
             ImGui::CollapsingHeader("Deterministic Image Crop and Scale", ImGuiTreeNodeFlags_DefaultOpen);
         if (cropRevisionOpen) {
-            ImGui::TextWrapped("Create a non-destructive PNG revision from a promoted image. Zero width or height uses the source preview dimension.");
+            ImGui::TextWrapped("Create a non-destructive PNG revision from a promoted image. Use Edit Crop on Preview for exact source-pixel selection; zero width or height uses the source preview dimension.");
             ImGui::InputText("Transform operation ID", &transformOperationId);
             ImGui::InputInt("Crop X", &transformCropX);
             ImGui::SameLine();
@@ -3207,7 +3211,97 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                 }
             }
             if (cropRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
-                ImGui::SameLine();
+                if (ImGui::SmallButton("Edit Crop on Preview")) {
+                    cropSelectionSourcePath = path;
+                    cropSelectionDragging = false;
+                }
+                if (cropSelectionSourcePath == path) {
+                    const int sourceWidth = row.value("preview_width", 0);
+                    const int sourceHeight = row.value("preview_height", 0);
+                    const auto sourcePreviewPath = std::filesystem::path(row.value("preview_path", ""));
+                    ImGui::TextDisabled("Drag over the source preview to set exact crop bounds (%d x %d source pixels).",
+                                        sourceWidth, sourceHeight);
+                    std::error_code previewError;
+                    if (sourceWidth <= 0 || sourceHeight <= 0 || sourcePreviewPath.empty() ||
+                        !std::filesystem::is_regular_file(sourcePreviewPath, previewError)) {
+                        ImGui::TextDisabled("Source preview is unavailable for crop selection.");
+                    } else {
+                        urpg::editor::EditorThumbnailRequest request;
+                        request.sourcePath = sourcePreviewPath;
+                        request.requestedWidth = 320;
+                        request.requestedHeight = 320;
+                        request.sizeBytes = std::filesystem::file_size(sourcePreviewPath, previewError);
+                        if (!previewError) {
+                            const auto modified = std::filesystem::last_write_time(sourcePreviewPath, previewError);
+                            if (!previewError) request.modifiedTimeNs = static_cast<int64_t>(modified.time_since_epoch().count());
+                        }
+                        if (previewError) {
+                            ImGui::TextDisabled("Source preview is unavailable for crop selection.");
+                        } else {
+                            runtime.asset_thumbnail_pinned_requests.push_back(request);
+                            runtime.asset_thumbnail_cache.pumpUploads();
+                            const auto thumbnail = runtime.asset_thumbnail_cache.snapshotFor(request);
+                            if (thumbnail.state == urpg::editor::EditorThumbnailState::Ready && thumbnail.textureId != 0) {
+                                const float scale = std::min(1.0f, 320.0f / static_cast<float>(std::max(sourceWidth, sourceHeight)));
+                                const ImVec2 previewSize(static_cast<float>(sourceWidth) * scale,
+                                                        static_cast<float>(sourceHeight) * scale);
+                                const auto texture = [](const uint32_t textureId) -> ImTextureID {
+                                    if constexpr (std::is_pointer_v<ImTextureID>) {
+                                        return reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(textureId));
+                                    }
+                                    return static_cast<ImTextureID>(textureId);
+                                }(thumbnail.textureId);
+                                ImGui::Image(texture, previewSize);
+                                const auto previewMin = ImGui::GetItemRectMin();
+                                const auto clampPixel = [&](const ImVec2 mouse) {
+                                    const auto x = static_cast<int>((mouse.x - previewMin.x) / scale);
+                                    const auto y = static_cast<int>((mouse.y - previewMin.y) / scale);
+                                    return ImVec2(static_cast<float>(std::clamp(x, 0, sourceWidth - 1)),
+                                                  static_cast<float>(std::clamp(y, 0, sourceHeight - 1)));
+                                };
+                                if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                                    const auto pixel = clampPixel(ImGui::GetMousePos());
+                                    cropSelectionStartX = static_cast<int>(pixel.x);
+                                    cropSelectionStartY = static_cast<int>(pixel.y);
+                                    transformCropX = cropSelectionStartX;
+                                    transformCropY = cropSelectionStartY;
+                                    transformCropWidth = 1;
+                                    transformCropHeight = 1;
+                                    cropSelectionDragging = true;
+                                }
+                                if (cropSelectionDragging && ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+                                    const auto pixel = clampPixel(ImGui::GetMousePos());
+                                    const auto endX = static_cast<int>(pixel.x);
+                                    const auto endY = static_cast<int>(pixel.y);
+                                    transformCropX = std::min(cropSelectionStartX, endX);
+                                    transformCropY = std::min(cropSelectionStartY, endY);
+                                    transformCropWidth = std::abs(endX - cropSelectionStartX) + 1;
+                                    transformCropHeight = std::abs(endY - cropSelectionStartY) + 1;
+                                }
+                                if (cropSelectionDragging && !ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+                                    cropSelectionDragging = false;
+                                }
+                                if (transformCropWidth > 0 && transformCropHeight > 0) {
+                                    const auto selectionMin = ImVec2(
+                                        previewMin.x + static_cast<float>(transformCropX) * scale,
+                                        previewMin.y + static_cast<float>(transformCropY) * scale);
+                                    const auto selectionMax = ImVec2(
+                                        previewMin.x + static_cast<float>(transformCropX + transformCropWidth) * scale,
+                                        previewMin.y + static_cast<float>(transformCropY + transformCropHeight) * scale);
+                                    ImGui::GetWindowDrawList()->AddRectFilled(selectionMin, selectionMax,
+                                                                              IM_COL32(80, 170, 255, 48));
+                                    ImGui::GetWindowDrawList()->AddRect(selectionMin, selectionMax,
+                                                                        IM_COL32(80, 170, 255, 255), 0.0f, 0, 2.0f);
+                                }
+                            } else {
+                                ImGui::TextDisabled("Source preview is loading or unavailable for crop selection.");
+                            }
+                        }
+                    }
+                }
+                if (cropSelectionSourcePath != path) {
+                    ImGui::SameLine();
+                }
                 if (ImGui::Button("Create Crop Revision")) {
                     const int sourceWidth = row.value("preview_width", 0);
                     const int sourceHeight = row.value("preview_height", 0);
