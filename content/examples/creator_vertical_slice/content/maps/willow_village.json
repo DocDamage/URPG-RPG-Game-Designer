@@ -1,0 +1,9 @@
+{
+  "schema": "urpg.map.v1",
+  "id": "willow_village",
+  "width": 16,
+  "height": 12,
+  "spawn": { "x": 4, "y": 6 },
+  "links": [{ "target_map": "moonwell_shrine", "event_id": "walk_to_shrine" }],
+  "objects": ["village_well", "elder_mira", "vendor_rowan"]
+}
