@@ -2776,6 +2776,7 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
     result.variables = perspective_runtime_variables_;
     result.self_switches = perspective_runtime_self_switches_;
     result.inventory = perspective_runtime_inventory_;
+    result.dialogue_choices = perspective_runtime_dialogue_choices_;
     result.gold = perspective_runtime_gold_;
     result.player_map_id =
         perspective_runtime_player_map_id_.empty() ? result.map_id : perspective_runtime_player_map_id_;
@@ -2925,6 +2926,12 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
                 const std::string argument = trimCopy(command.argument);
                 if (command.code == "show_text") {
                     result.messages.push_back(argument);
+                } else if (command.code == "show_choice") {
+                    if (!argument.empty() &&
+                        std::find(result.dialogue_choices.begin(), result.dialogue_choices.end(), argument) ==
+                            result.dialogue_choices.end()) {
+                        result.dialogue_choices.push_back(argument);
+                    }
                 } else if (command.code == "transfer_player") {
                     const auto map_split = argument.find(':');
                     const auto comma_split = argument.find(',', map_split == std::string::npos ? 0 : map_split + 1);
@@ -3039,6 +3046,7 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
     perspective_runtime_variables_ = result.variables;
     perspective_runtime_self_switches_ = result.self_switches;
     perspective_runtime_inventory_ = result.inventory;
+    perspective_runtime_dialogue_choices_ = result.dialogue_choices;
     perspective_runtime_gold_ = result.gold;
     perspective_runtime_player_map_id_ = result.player_map_id;
     perspective_runtime_player_tile_x_ = result.player_tile_x;
@@ -3052,6 +3060,7 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
     runtime_json["active_page_id"] = result.active_page_id;
     runtime_json["trigger_id"] = result.trigger_id;
     runtime_json["messages"] = result.messages;
+    runtime_json["dialogue_choices"] = result.dialogue_choices;
     runtime_json["movement_route_steps"] = result.movement_route_steps;
     runtime_json["common_events"] = result.common_events;
     runtime_json["battles"] = result.battles;
@@ -3536,6 +3545,7 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
         }));
     last_render_snapshot_.perspective_2d_ui.command_picker_options = {
         "show_text",
+        "show_choice",
         "transfer_player",
         "change_switch",
         "change_variable",

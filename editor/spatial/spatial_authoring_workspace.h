@@ -380,6 +380,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         size_t executed_command_count = 0;
         std::vector<Perspective2DEventExecutionStep> executed_commands;
         std::vector<std::string> messages;
+        std::vector<std::string> dialogue_choices;
         std::vector<Perspective2DStateEntry> switches;
         std::vector<Perspective2DStateEntry> variables;
         std::vector<Perspective2DStateEntry> self_switches;
@@ -764,6 +765,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     std::vector<Perspective2DStateEntry> perspective_runtime_variables_;
     std::vector<Perspective2DStateEntry> perspective_runtime_self_switches_;
     std::vector<Perspective2DStateEntry> perspective_runtime_inventory_;
+    std::vector<std::string> perspective_runtime_dialogue_choices_;
     int perspective_runtime_gold_ = 0;
     std::string perspective_runtime_player_map_id_;
     int32_t perspective_runtime_player_tile_x_ = 0;

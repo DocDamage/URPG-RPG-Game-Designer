@@ -10,6 +10,7 @@ namespace {
 
 bool isSupportedCommand(const std::string& code) {
     static const std::set<std::string> supported = {"show_text",
+                                                    "show_choice",
                                                     "transfer_player",
                                                     "change_switch",
                                                     "change_variable",
@@ -18,6 +19,7 @@ bool isSupportedCommand(const std::string& code) {
                                                     "change_item",
                                                     "move_route",
                                                     "call_common_event",
+                                                    "start_battle",
                                                     "conditional_branch"};
     return supported.find(code) != supported.end();
 }

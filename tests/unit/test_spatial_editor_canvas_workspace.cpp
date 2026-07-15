@@ -1608,6 +1608,7 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D executes live eve
     REQUIRE(workspace.AddPerspectiveEventFromScreen("ev_runtime", "Runtime Event", "confirm_interact", 80.0f, 80.0f));
     REQUIRE(workspace.AddPerspectiveEventPage("ev_runtime", "main", "Main", "confirm_interact"));
     REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "show_text", "Welcome."));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "show_choice", "accept_moonwell_quest"));
     REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "change_switch", "door_open=true"));
     REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "change_variable", "rank+=2"));
     REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "change_self_switch", "A=true"));
@@ -1617,13 +1618,14 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D executes live eve
     REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "call_common_event", "common_unlock"));
     REQUIRE(workspace.AddPerspectiveEventPageCommand("ev_runtime", "main", "start_battle", "shrine_wisp"));
     REQUIRE(workspace.AddPerspectiveEventPageConditionalBranch("ev_runtime", "main", "switch", "door_open", "equals", "true"));
-    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_runtime", "main", 9, true, "transfer_player", "castle:2,7"));
+    REQUIRE(workspace.AddPerspectiveEventPageBranchCommand("ev_runtime", "main", 10, true, "transfer_player", "castle:2,7"));
     REQUIRE(workspace.SelectPerspectiveEventPage("ev_runtime", "main"));
 
     const auto runtime = workspace.ExecutePerspectiveRuntimeEvent("ev_runtime");
     REQUIRE(runtime.success);
-    REQUIRE(runtime.executed_command_count == 11);
+    REQUIRE(runtime.executed_command_count == 12);
     REQUIRE(runtime.messages[0] == "Welcome.");
+    REQUIRE(runtime.dialogue_choices[0] == "accept_moonwell_quest");
     REQUIRE(runtime.switches[0].key == "door_open");
     REQUIRE(runtime.switches[0].value == "true");
     REQUIRE(runtime.variables[0].key == "rank");

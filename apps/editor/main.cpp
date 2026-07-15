@@ -2311,7 +2311,7 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
     static std::string eventLabel = "Elder Mira";
     static std::string eventTrigger = "confirm_interact";
     static constexpr const char* eventCommandCodes[] = {
-        "show_text", "transfer_player", "change_switch", "change_variable", "change_self_switch", "change_gold",
+        "show_text", "show_choice", "transfer_player", "change_switch", "change_variable", "change_self_switch", "change_gold",
         "change_item", "move_route", "call_common_event", "start_battle",
     };
     static int eventCommandIndex = 0;
