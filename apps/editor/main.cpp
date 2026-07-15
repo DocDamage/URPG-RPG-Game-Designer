@@ -2133,7 +2133,25 @@ void renderPerspectiveWorkspace(EditorPanelRuntime& runtime) {
     if (!snapshot.perspective_2d_events.empty()) {
         ImGui::Text("Authored events: %zu", snapshot.perspective_2d_events.size());
         for (const auto& event : snapshot.perspective_2d_events) {
-            ImGui::BulletText("%s (%zu pages)", event.event_id.c_str(), event.page_count);
+            ImGui::PushID(event.event_id.c_str());
+            ImGui::Text("%s (%zu pages)", event.event_id.c_str(), event.page_count);
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Preview")) {
+                const auto result = workspace.PreviewPerspectiveEventExecution(event.event_id);
+                runtime.map_save_status = result.success
+                                              ? "Native event preview completed: " + std::to_string(result.executed_command_count) +
+                                                    " command(s) executed."
+                                              : "Native event preview blocked: " + result.message;
+            }
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Run")) {
+                const auto result = workspace.ExecutePerspectiveRuntimeEvent(event.event_id);
+                runtime.map_save_status = result.success
+                                              ? "Native event runtime completed: " + std::to_string(result.executed_command_count) +
+                                                    " command(s) executed."
+                                              : "Native event runtime blocked: " + result.message;
+            }
+            ImGui::PopID();
         }
     }
 }
