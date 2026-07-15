@@ -1937,6 +1937,18 @@ bool SpatialAuthoringWorkspace::SetPerspectiveEventBlocksMovement(const std::str
     return true;
 }
 
+bool SpatialAuthoringWorkspace::SetPerspectiveEventSpriteVisible(const std::string& event_id, bool sprite_visible) {
+    const auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                                    [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end() || event->sprite_visible == sprite_visible) {
+        return false;
+    }
+    event->sprite_visible = sprite_visible;
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
 bool SpatialAuthoringWorkspace::SetPerspectiveEventSpriteAnimation(const std::string& event_id,
                                                                     const int32_t frame_width,
                                                                     const int32_t frame_height,
@@ -1982,6 +1994,28 @@ bool SpatialAuthoringWorkspace::SetPerspectiveEventPageBlocksMovement(const std:
     }
     page->has_blocks_movement_override = blocks_movement.has_value();
     page->blocks_movement = blocks_movement.value_or(false);
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::SetPerspectiveEventPageSpriteVisible(const std::string& event_id,
+                                                                      const std::string& page_id,
+                                                                      std::optional<bool> sprite_visible) {
+    const auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                                    [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    const auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                                   [&](const PerspectiveEvent::Page& candidate) { return candidate.page_id == page_id; });
+    if (page == event->pages.end() ||
+        (page->has_sprite_visible_override == sprite_visible.has_value() &&
+         (!sprite_visible.has_value() || page->sprite_visible == *sprite_visible))) {
+        return false;
+    }
+    page->has_sprite_visible_override = sprite_visible.has_value();
+    page->sprite_visible = sprite_visible.value_or(true);
     markPerspectiveDirty();
     captureRenderSnapshot();
     return true;
@@ -2584,6 +2618,9 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
             if (page.has_blocks_movement_override) {
                 page_json["blocks_movement"] = page.blocks_movement;
             }
+            if (page.has_sprite_visible_override) {
+                page_json["sprite_visible"] = page.sprite_visible;
+            }
             pages.push_back(std::move(page_json));
         }
         nlohmann::json event_json = {{"event_id", event.event_id},
@@ -2593,6 +2630,7 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
                                      {"x", event.tile_x},
                                      {"y", event.tile_y},
                                      {"blocks_movement", event.blocks_movement},
+                                     {"sprite_visible", event.sprite_visible},
                                      {"sprite_frame_width", event.sprite_frame_width},
                                      {"sprite_frame_height", event.sprite_frame_height},
                                      {"sprite_frame_count", event.sprite_frame_count},
@@ -3216,6 +3254,7 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
         event.tile_x = event_json.value("x", 0);
         event.tile_y = event_json.value("y", 0);
         event.blocks_movement = event_json.value("blocks_movement", false);
+        event.sprite_visible = event_json.value("sprite_visible", true);
         event.sprite_frame_width = event_json.value("sprite_frame_width", 48);
         event.sprite_frame_height = event_json.value("sprite_frame_height", 48);
         event.sprite_frame_count = event_json.value("sprite_frame_count", 1);
@@ -3242,6 +3281,11 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
             if (blocks_movement != page_json.end() && blocks_movement->is_boolean()) {
                 page.has_blocks_movement_override = true;
                 page.blocks_movement = blocks_movement->get<bool>();
+            }
+            const auto sprite_visible = page_json.find("sprite_visible");
+            if (sprite_visible != page_json.end() && sprite_visible->is_boolean()) {
+                page.has_sprite_visible_override = true;
+                page.sprite_visible = sprite_visible->get<bool>();
             }
             for (const auto& condition_json : page_json.value("conditions", nlohmann::json::array())) {
                 PerspectiveEvent::Condition condition;
@@ -4151,17 +4195,32 @@ void SpatialAuthoringWorkspace::syncEventSpritesToTargetScene() {
             event.tile_y >= m_target_scene->getHeight()) {
             continue;
         }
-        sprites.push_back({event.event_id,
-                           {event.asset_id, std::filesystem::path{event.asset_project_path}},
-                           event.tile_x,
-                           event.tile_y,
-                           event.sprite_frame_width,
-                           event.sprite_frame_height,
-                           event.sprite_frame_count,
-                           event.sprite_frame_duration,
-                           event.sprite_loop});
+        urpg::scene::MapEventSprite sprite;
+        sprite.event_id = event.event_id;
+        sprite.asset = {event.asset_id, std::filesystem::path{event.asset_project_path}};
+        sprite.tile_x = event.tile_x;
+        sprite.tile_y = event.tile_y;
+        sprite.frame_width = event.sprite_frame_width;
+        sprite.frame_height = event.sprite_frame_height;
+        sprite.frame_count = event.sprite_frame_count;
+        sprite.frame_duration = event.sprite_frame_duration;
+        sprite.loop = event.sprite_loop;
+        sprite.default_visible = event.sprite_visible;
+        for (const auto& page : event.pages) {
+            urpg::scene::MapEventSprite::PageCandidate candidate;
+            candidate.page_id = page.page_id;
+            candidate.has_visible_override = page.has_sprite_visible_override;
+            candidate.visible = page.sprite_visible;
+            for (const auto& condition : page.conditions) {
+                candidate.conditions.push_back({condition.type, condition.key, condition.comparison, condition.value});
+            }
+            sprite.page_candidates.push_back(std::move(candidate));
+        }
+        sprites.push_back(std::move(sprite));
     }
-    (void)m_target_scene->setEventSprites(std::move(sprites));
+    if (!m_target_scene->setEventSprites(std::move(sprites))) {
+        (void)m_target_scene->setEventSprites({});
+    }
 }
 
 void SpatialAuthoringWorkspace::syncEventCollidersToTargetScene() {
@@ -4611,6 +4670,7 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
         event_snapshot.tile_x = event.tile_x;
         event_snapshot.tile_y = event.tile_y;
         event_snapshot.blocks_movement = event.blocks_movement;
+        event_snapshot.sprite_visible = event.sprite_visible;
         event_snapshot.sprite_frame_width = event.sprite_frame_width;
         event_snapshot.sprite_frame_height = event.sprite_frame_height;
         event_snapshot.sprite_frame_count = event.sprite_frame_count;
@@ -4635,6 +4695,8 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
             page_snapshot.active_in_playtest = active_page != nullptr && active_page->page_id == page.page_id;
             page_snapshot.has_blocks_movement_override = page.has_blocks_movement_override;
             page_snapshot.blocks_movement = page.blocks_movement;
+            page_snapshot.has_sprite_visible_override = page.has_sprite_visible_override;
+            page_snapshot.sprite_visible = page.sprite_visible;
             for (const auto& condition : page.conditions) {
                 page_snapshot.conditions.push_back(
                     {condition.type, condition.key, condition.comparison, condition.value});

@@ -46,10 +46,26 @@ struct MapAssetReferences {
     MapAssetReference tileset;
 };
 
+// A condition shared by native projections of one persisted Perspective 2D
+// event page. The event document remains the persistence authority.
+struct MapEventPageCondition {
+    std::string type;
+    std::string key;
+    std::string comparison = "equals";
+    std::string value;
+};
+
 // A native Map-owned visual projection of an authored event. The Perspective
 // 2D document remains the persistence authority; this record only supplies
 // the runtime renderer with the approved stable asset reference and position.
 struct MapEventSprite {
+    struct PageCandidate {
+        std::string page_id;
+        bool has_visible_override = false;
+        bool visible = true;
+        std::vector<MapEventPageCondition> conditions;
+    };
+
     std::string event_id;
     MapAssetReference asset;
     int tile_x = 0;
@@ -59,15 +75,8 @@ struct MapEventSprite {
     int32_t frame_count = 1;
     float frame_duration = 0.15f;
     bool loop = true;
-};
-
-// A condition shared by native projections of one persisted Perspective 2D
-// event page. The event document remains the persistence authority.
-struct MapEventPageCondition {
-    std::string type;
-    std::string key;
-    std::string comparison = "equals";
-    std::string value;
+    bool default_visible = true;
+    std::vector<PageCandidate> page_candidates;
 };
 
 // A native collision projection of an authored event. Event documents remain

@@ -3952,6 +3952,10 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
             if (ImGui::Checkbox("Default Blocks Movement", &blocksMovement)) {
                 (void)workspace.SetPerspectiveEventBlocksMovement(event.event_id, blocksMovement);
             }
+            bool spriteVisible = event.sprite_visible;
+            if (ImGui::Checkbox("Default Sprite Visible", &spriteVisible)) {
+                (void)workspace.SetPerspectiveEventSpriteVisible(event.event_id, spriteVisible);
+            }
             int frameWidth = event.sprite_frame_width;
             int frameHeight = event.sprite_frame_height;
             int frameCount = event.sprite_frame_count;
@@ -3979,6 +3983,14 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
                         collisionMode == 0 ? std::nullopt : std::optional<bool>{collisionMode == 1};
                     (void)workspace.SetPerspectiveEventPageBlocksMovement(event.event_id, page.page_id,
                                                                             blocksForPage);
+                }
+                int visibilityMode = !page.has_sprite_visible_override ? 0 : page.sprite_visible ? 1 : 2;
+                ImGui::SameLine();
+                if (ImGui::Combo("Sprite Visibility", &visibilityMode, "Inherit\0Visible\0Hidden\0")) {
+                    const std::optional<bool> visibleForPage =
+                        visibilityMode == 0 ? std::nullopt : std::optional<bool>{visibilityMode == 1};
+                    (void)workspace.SetPerspectiveEventPageSpriteVisible(event.event_id, page.page_id,
+                                                                          visibleForPage);
                 }
                 ImGui::PopID();
             }

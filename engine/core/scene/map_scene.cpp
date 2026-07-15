@@ -459,6 +459,15 @@ void MapScene::onUpdate(float deltaTime) {
 
     for (size_t index = 0; index < m_eventSprites.size(); ++index) {
         const auto& event_sprite = m_eventSprites[index];
+        bool visible = event_sprite.default_visible;
+        for (const auto& page : event_sprite.page_candidates) {
+            if (authoredDialoguePageConditionsMatch(event_sprite.event_id, page.conditions) && page.has_visible_override) {
+                visible = page.visible;
+            }
+        }
+        if (!visible) {
+            continue;
+        }
         urpg::SpriteCommand eventCmd;
         eventCmd.textureId = event_sprite.asset.id;
         eventCmd.srcX = currentEventSpriteFrame(index) * event_sprite.frame_width;
@@ -702,6 +711,16 @@ bool MapScene::setEventSprites(std::vector<MapEventSprite> sprites) {
             (!previous_event_id.empty() && previous_event_id == sprite.event_id)) {
             return false;
         }
+        for (const auto& page : sprite.page_candidates) {
+            if (page.page_id.empty() ||
+                std::any_of(page.conditions.begin(), page.conditions.end(), [](const auto& condition) {
+                    return (condition.type != "switch" && condition.type != "variable" &&
+                            condition.type != "self_switch") ||
+                           condition.key.empty() || !isSupportedPerspectivePageComparison(condition.comparison);
+                })) {
+                return false;
+            }
+        }
         for (size_t previous_index = 0; previous_index < index; ++previous_index) {
             const auto& previous = sprites[previous_index];
             if (previous.asset.id == sprite.asset.id && previous.asset.path != sprite.asset.path) {
@@ -711,8 +730,31 @@ bool MapScene::setEventSprites(std::vector<MapEventSprite> sprites) {
         previous_event_id = sprite.event_id;
     }
 
+    std::vector<float> elapsed_seconds;
+    elapsed_seconds.reserve(sprites.size());
+    for (const auto& sprite : sprites) {
+        const auto previous = std::find_if(m_eventSprites.begin(), m_eventSprites.end(),
+                                           [&](const MapEventSprite& candidate) {
+                                               return candidate.event_id == sprite.event_id;
+                                           });
+        if (previous == m_eventSprites.end()) {
+            elapsed_seconds.push_back(0.0f);
+            continue;
+        }
+        const size_t previous_index = static_cast<size_t>(std::distance(m_eventSprites.begin(), previous));
+        const bool animation_unchanged = previous->asset.id == sprite.asset.id &&
+                                         previous->asset.path == sprite.asset.path &&
+                                         previous->frame_width == sprite.frame_width &&
+                                         previous->frame_height == sprite.frame_height &&
+                                         previous->frame_count == sprite.frame_count &&
+                                         previous->frame_duration == sprite.frame_duration &&
+                                         previous->loop == sprite.loop;
+        elapsed_seconds.push_back(animation_unchanged && previous_index < m_eventSpriteElapsedSeconds.size()
+                                      ? m_eventSpriteElapsedSeconds[previous_index]
+                                      : 0.0f);
+    }
     m_eventSprites = std::move(sprites);
-    m_eventSpriteElapsedSeconds.assign(m_eventSprites.size(), 0.0f);
+    m_eventSpriteElapsedSeconds = std::move(elapsed_seconds);
     registerEventSpriteTextures();
     return true;
 }

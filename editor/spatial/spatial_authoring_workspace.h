@@ -129,6 +129,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
             bool active_in_playtest = false;
             bool has_blocks_movement_override = false;
             bool blocks_movement = false;
+            bool has_sprite_visible_override = false;
+            bool sprite_visible = true;
             size_t condition_count = 0;
             size_t command_count = 0;
             std::vector<ConditionSnapshot> conditions;
@@ -146,6 +148,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         int32_t tile_x = 0;
         int32_t tile_y = 0;
         bool blocks_movement = false;
+        bool sprite_visible = true;
         int32_t sprite_frame_width = 48;
         int32_t sprite_frame_height = 48;
         int32_t sprite_frame_count = 1;
@@ -634,6 +637,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                        float screen_y);
     bool MovePerspectiveEventFromScreen(const std::string& event_id, float screen_x, float screen_y);
     bool SetPerspectiveEventBlocksMovement(const std::string& event_id, bool blocks_movement);
+    bool SetPerspectiveEventSpriteVisible(const std::string& event_id, bool sprite_visible);
     bool SetPerspectiveEventSpriteAnimation(const std::string& event_id,
                                             int32_t frame_width,
                                             int32_t frame_height,
@@ -643,6 +647,9 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     bool SetPerspectiveEventPageBlocksMovement(const std::string& event_id,
                                                const std::string& page_id,
                                                std::optional<bool> blocks_movement);
+    bool SetPerspectiveEventPageSpriteVisible(const std::string& event_id,
+                                              const std::string& page_id,
+                                              std::optional<bool> sprite_visible);
     bool AddPerspectiveEventCommand(const std::string& event_id,
                                     const std::string& command_code,
                                     const std::string& argument);
@@ -806,6 +813,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
             int order = 0;
             bool has_blocks_movement_override = false;
             bool blocks_movement = false;
+            bool has_sprite_visible_override = false;
+            bool sprite_visible = true;
             std::vector<Condition> conditions;
             std::vector<Command> commands;
         };
@@ -819,6 +828,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         int32_t tile_x = 0;
         int32_t tile_y = 0;
         bool blocks_movement = false;
+        bool sprite_visible = true;
         int32_t sprite_frame_width = 48;
         int32_t sprite_frame_height = 48;
         int32_t sprite_frame_count = 1;

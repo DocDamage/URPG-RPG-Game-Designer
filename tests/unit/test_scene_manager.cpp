@@ -735,6 +735,55 @@ TEST_CASE("MapScene advances authored event sprite-sheet frames deterministicall
                             sprite->x == 48.0f && sprite->y == 0.0f && sprite->zOrder == 2);
     }
     REQUIRE(saw_second_frame);
+
+    layer.flush();
+    REQUIRE(map.setEventSprites(map.eventSprites()));
+    map.onUpdate(0.10f);
+    bool saw_third_frame = false;
+    for (const auto& command : renderFrameCommands(layer)) {
+        if (renderCommandType(command) != urpg::RenderCmdType::Sprite) {
+            continue;
+        }
+        const auto* sprite = renderCommandAs<urpg::SpriteRenderData>(command);
+        saw_third_frame = saw_third_frame ||
+                          (sprite != nullptr && sprite->textureId == "asset.torch" && sprite->srcX == 32);
+    }
+    REQUIRE(saw_third_frame);
+}
+
+TEST_CASE("MapScene makes authored event sprites follow the final matching page visibility",
+          "[scene][map][render][events][visibility]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+    auto& state = urpg::GlobalStateHub::getInstance();
+    state.setSwitch("torch_extinguished", false);
+
+    MapEventSprite sprite{"event_torch", {"asset.torch", "content/assets/torch.png"}, 0, 0};
+    MapEventSprite::PageCandidate extinguished;
+    extinguished.page_id = "extinguished";
+    extinguished.has_visible_override = true;
+    extinguished.visible = false;
+    extinguished.conditions.push_back({"switch", "torch_extinguished", "equals", "true"});
+    sprite.page_candidates.push_back(std::move(extinguished));
+
+    MapScene map("EventVisibilityMap", 1, 1);
+    REQUIRE(map.setEventSprites({std::move(sprite)}));
+    const auto saw_torch = [](const auto& commands) {
+        return std::any_of(commands.begin(), commands.end(), [](const auto& command) {
+            const auto* rendered = renderCommandAs<urpg::SpriteRenderData>(command);
+            return rendered != nullptr && rendered->textureId == "asset.torch";
+        });
+    };
+    map.onUpdate(0.0f);
+    const auto visible_commands = renderFrameCommands(layer);
+    REQUIRE(saw_torch(visible_commands));
+
+    layer.flush();
+    state.setSwitch("torch_extinguished", true);
+    map.onUpdate(0.0f);
+    const auto hidden_commands = renderFrameCommands(layer);
+    REQUIRE_FALSE(saw_torch(hidden_commands));
+    state.setSwitch("torch_extinguished", false);
 }
 
 TEST_CASE("MapScene emits diagnostics before rendering asset placeholders", "[scene][map][render][assets]") {

@@ -40,10 +40,14 @@ changing event command execution, or claiming package/runtime qualification.
   final matching page with the existing switch/integer-variable/event-local
   self-switch condition authority; direct movement and path planning use the
   same collision predicate.
+- An event's default sprite visibility and page-level visible/hidden overrides
+  use that same final-match condition authority. Hidden pages suppress only
+  the event sprite command; they do not alter the event document, collision,
+  or interaction admission.
 
 ## Limits
 
-This does not add asset-catalog sprite-sheet slicing, page-conditional
-visibility, interaction binding, event execution changes, texture packing,
-package evidence, or release qualification. Builds and test execution remain
-deferred under the user instruction for this phase.
+This does not add asset-catalog sprite-sheet slicing, interaction binding,
+event execution changes, texture packing, package evidence, or release
+qualification. Builds and test execution remain deferred under the user
+instruction for this phase.
