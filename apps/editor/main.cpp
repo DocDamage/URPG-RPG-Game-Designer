@@ -506,9 +506,32 @@ std::string playtestSpawnForSelectedPart(const EditorPanelRuntime& runtime) {
     return std::to_string(selected->grid_x) + "," + std::to_string(selected->grid_y);
 }
 
+std::string playtestDocumentBlocker(const EditorPanelRuntime& runtime) {
+    const auto& document = runtime.level_builder_document;
+    if (document.parts().empty()) {
+        return {};
+    }
+    if (runtime.level_builder_catalog.size() == 0) {
+        return "Map playtest is blocked: load the project's Grid Parts catalog before launching authored parts.";
+    }
+    const auto validation = urpg::map::ValidateGridPartDocument(document, runtime.level_builder_catalog);
+    const auto blocker = std::find_if(validation.diagnostics.begin(), validation.diagnostics.end(),
+                                      [](const auto& diagnostic) {
+                                          return diagnostic.severity == urpg::map::GridPartSeverity::Blocker ||
+                                                 diagnostic.severity == urpg::map::GridPartSeverity::Error;
+                                      });
+    return blocker == validation.diagnostics.end()
+               ? std::string{}
+               : "Map playtest is blocked by " + blocker->code + ": " + blocker->message;
+}
+
 bool startCurrentMapPlaytest(EditorPanelRuntime& runtime, bool fromSelectedPart = false) {
     if (runtime.project_root.empty()) {
         runtime.map_save_status = "Open a project before starting playtest.";
+        return false;
+    }
+    if (const auto blocker = playtestDocumentBlocker(runtime); !blocker.empty()) {
+        runtime.map_save_status = blocker;
         return false;
     }
     (void)runtime.map_authoring_workspace.activateMode(urpg::editor::MapAuthoringMode::Playtest);
