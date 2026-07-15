@@ -499,7 +499,14 @@ std::string playtestSpawnForDocument(const urpg::map::GridPartDocument& document
     return std::to_string(playerStart->grid_x) + "," + std::to_string(playerStart->grid_y);
 }
 
-bool startCurrentMapPlaytest(EditorPanelRuntime& runtime) {
+std::string playtestSpawnForSelectedPart(const EditorPanelRuntime& runtime) {
+    const auto& selectedInstanceId = runtime.level_builder_workspace.lastRenderSnapshot().inspector.selected_instance_id;
+    const auto* selected = runtime.level_builder_document.findPart(selectedInstanceId);
+    if (selected == nullptr) return {};
+    return std::to_string(selected->grid_x) + "," + std::to_string(selected->grid_y);
+}
+
+bool startCurrentMapPlaytest(EditorPanelRuntime& runtime, bool fromSelectedPart = false) {
     if (runtime.project_root.empty()) {
         runtime.map_save_status = "Open a project before starting playtest.";
         return false;
@@ -511,9 +518,10 @@ bool startCurrentMapPlaytest(EditorPanelRuntime& runtime) {
         return false;
     }
     const auto gridDraft = urpg::map::GridPartDocumentToJson(runtime.level_builder_document).dump(2) + "\n";
+    const auto selectedSpawn = fromSelectedPart ? playtestSpawnForSelectedPart(runtime) : std::string{};
+    const auto spawn = selectedSpawn.empty() ? playtestSpawnForDocument(runtime.level_builder_document) : selectedSpawn;
     const bool started = runtime.playtest_session.start(runtime.project_root, runtime.level_builder_document.mapId(),
-                                                        playtestSpawnForDocument(runtime.level_builder_document),
-                                                        gridDraft, perspectiveDraft.serialized_document_json + "\n");
+                                                        spawn, gridDraft, perspectiveDraft.serialized_document_json + "\n");
     runtime.map_save_status = runtime.playtest_session.message();
     if (!started && runtime.map_save_status.empty()) {
         runtime.map_save_status = "Map playtest could not start.";
@@ -2087,6 +2095,9 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
         runtime.map_save_status = result.success ? "Redo applied to " + result.owner + "." : result.message;
     }
     const auto startPlaytest = [&] { (void)startCurrentMapPlaytest(runtime); };
+    const auto startSelectedPartPlaytest = [&] { (void)startCurrentMapPlaytest(runtime, true); };
+    const bool hasSelectedPartPlaytestTarget =
+        runtime.level_builder_document.findPart(levelSnapshot.inspector.selected_instance_id) != nullptr;
     if (!io.WantTextInput && ImGui::IsKeyPressed(ImGuiKey_F5, false)) {
         if (io.KeyShift) {
             startPlaytest();
@@ -2114,8 +2125,18 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
         if (ImGui::Button("Restart Playtest")) {
             startPlaytest();
         }
-    } else if (ImGui::Button("Playtest Current Map")) {
-        startPlaytest();
+    } else {
+        if (ImGui::Button("Playtest Current Map")) {
+            startPlaytest();
+        }
+        ImGui::SameLine();
+        if (hasSelectedPartPlaytestTarget) {
+            if (ImGui::Button("Playtest From Selected Part")) {
+                startSelectedPartPlaytest();
+            }
+        } else {
+            ImGui::TextDisabled("Select a part to playtest from it");
+        }
     }
     ImGui::SameLine();
     ImGui::TextDisabled("Ctrl+S Save  |  Ctrl+Shift+S Save All  |  Ctrl+Z/Y Undo/Redo  |  F5 Play/Stop  |  Shift+F5 Restart");
