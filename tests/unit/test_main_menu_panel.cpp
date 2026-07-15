@@ -53,6 +53,10 @@ TEST_CASE("MainMenuModel exposes startup routes and project actions", "[project]
     REQUIRE(model.route() == "editor");
     REQUIRE(snapshot["pending_action"]["action"] == "enter_editor");
     REQUIRE(snapshot["recent_projects"][0]["path"] == "C:/projects/from_template.urpg");
+
+    model.enterEditor("C:/projects/playtest_template.urpg", true);
+    snapshot = model.snapshot();
+    REQUIRE(snapshot["pending_action"]["playtest_starter"] == true);
 }
 
 TEST_CASE("MainMenuModel locates missing projects into recents", "[project][main_menu]") {

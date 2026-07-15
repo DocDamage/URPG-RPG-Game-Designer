@@ -10,6 +10,8 @@
 #include "editor/project/new_project_wizard_model.h"
 #include "editor/project/editor_project_session.h"
 #include "editor/project/editor_dirty_state_registry.h"
+#include "editor/project/editor_recovery_service.h"
+#include "editor/playtest/playtest_session_controller.h"
 #include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/mod/mod_manager_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
@@ -106,6 +108,7 @@ struct EditorPanelRuntime {
     urpg::editor::MainMenuPanel main_menu_panel;
     urpg::editor::NewProjectWizardModel new_project_wizard;
     urpg::editor::EditorProjectSession project_session;
+    urpg::editor::EditorRecoveryService recovery_service;
     urpg::editor::EditorDirtyStateRegistry dirty_state_registry;
     urpg::editor::AbilityInspectorPanel ability_inspector_panel;
     urpg::editor::PatternFieldModel pattern_field_model;
@@ -117,6 +120,7 @@ struct EditorPanelRuntime {
     // The two release routes remain available, but this shared coordinator owns
     // their creator-facing mode, selection, history, and project context.
     urpg::editor::MapAuthoringWorkspace map_authoring_workspace;
+    urpg::editor::PlaytestSessionController playtest_session;
     urpg::ability::AbilitySystemComponent ability_runtime;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
     urpg::map::GridPartCatalog level_builder_catalog;
@@ -136,7 +140,10 @@ struct EditorPanelRuntime {
     std::string map_save_status;
     std::string map_asset_drop_status;
     std::string project_session_status;
+    std::string recovery_status;
     bool map_dirty_surface_registered = false;
+    bool perspective_2d_dirty_surface_registered = false;
+    bool ability_dirty_surface_registered = false;
 };
 
 std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asset) {
@@ -374,6 +381,21 @@ std::string starterMapIdForProject(const std::filesystem::path& projectRoot) {
     return "EditorPreview";
 }
 
+urpg::editor::EditorDirtySaveResult saveAbilityDraft(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty()) {
+        return {false, "ability_save_project_unavailable", "Open a project before saving an ability draft."};
+    }
+    const auto asset = runtime.ability_inspector_panel.getDraftAsset();
+    const auto target_path =
+        urpg::ability::canonicalAbilityContentDirectory(runtime.project_root) / abilityAssetFileName(asset);
+    if (!urpg::ability::saveAuthoredAbilityAssetToFile(asset, target_path)) {
+        return {false, "ability_save_failed", "Failed to save ability draft to " + target_path.generic_string() + "."};
+    }
+    runtime.ability_inspector_panel.markDraftPersisted();
+    return {true, "ability_saved",
+            "Saved draft ability to " + std::filesystem::relative(target_path, runtime.project_root).generic_string() + "."};
+}
+
 void bindMapAuthoringProject(EditorPanelRuntime& runtime, const std::filesystem::path& projectRoot) {
     runtime.project_root = projectRoot;
     const auto mapId = starterMapIdForProject(projectRoot);
@@ -470,6 +492,27 @@ bool saveMapAuthoringDocument(EditorPanelRuntime& runtime, std::string* error) {
     return true;
 }
 
+bool startCurrentMapPlaytest(EditorPanelRuntime& runtime, const std::string& spawn = "0,0") {
+    if (runtime.project_root.empty()) {
+        runtime.map_save_status = "Open a project before starting playtest.";
+        return false;
+    }
+    (void)runtime.map_authoring_workspace.activateMode(urpg::editor::MapAuthoringMode::Playtest);
+    const auto perspectiveDraft = runtime.perspective_2d_workspace.PreparePerspectiveMapDraftSave();
+    if (!perspectiveDraft.success) {
+        runtime.map_save_status = "Map playtest could not start: " + perspectiveDraft.message;
+        return false;
+    }
+    const auto gridDraft = urpg::map::GridPartDocumentToJson(runtime.level_builder_document).dump(2) + "\n";
+    const bool started = runtime.playtest_session.start(runtime.project_root, runtime.level_builder_document.mapId(), spawn,
+                                                        gridDraft, perspectiveDraft.serialized_document_json + "\n");
+    runtime.map_save_status = runtime.playtest_session.message();
+    if (!started && runtime.map_save_status.empty()) {
+        runtime.map_save_status = "Map playtest could not start.";
+    }
+    return started;
+}
+
 bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRuntime& runtime) {
     runtime.ability_inspector_panel.update(runtime.ability_runtime);
     runtime.ability_inspector_panel.setCommandCallbacks({
@@ -493,22 +536,9 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
             return selected;
         },
         [&runtime] {
-            if (runtime.project_root.empty()) {
-                runtime.ability_inspector_panel.recordCommandResult("save_draft", false,
-                                                                    "Project root is not configured.");
-                return false;
-            }
-
-            const auto asset = runtime.ability_inspector_panel.getDraftAsset();
-            const auto target_path =
-                urpg::ability::canonicalAbilityContentDirectory(runtime.project_root) / abilityAssetFileName(asset);
-            const bool ok = urpg::ability::saveAuthoredAbilityAssetToFile(asset, target_path);
-            runtime.ability_inspector_panel.recordCommandResult(
-                "save_draft", ok,
-                ok ? "Saved draft ability to " +
-                         std::filesystem::relative(target_path, runtime.project_root).generic_string()
-                   : "Failed to save draft ability to " + target_path.generic_string());
-            return ok;
+            const auto result = saveAbilityDraft(runtime);
+            runtime.ability_inspector_panel.recordCommandResult("save_draft", result.success, result.message);
+            return result.success;
         },
         [&runtime] {
             if (runtime.project_root.empty()) {
@@ -546,6 +576,14 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
                 "load_draft", true, "Loaded draft ability from " + selected->relative_path + ".");
             return true;
         },
+    });
+    runtime.ability_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        "ability.draft",
+        "ability",
+        false,
+        [&runtime] { return saveAbilityDraft(runtime); },
+        [] {},
+        {},
     });
     runtime.pattern_field_panel.bindModel(runtime.pattern_field_model);
     runtime.mod_loader = std::make_unique<urpg::mod::ModLoader>(runtime.mod_registry);
@@ -1869,6 +1907,7 @@ void renderPerspectiveWorkspace(EditorPanelRuntime& runtime) {
 void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
     auto& workspace = runtime.map_authoring_workspace;
     constexpr const char* kMapDirtyDocumentId = "map.grid_parts";
+    constexpr const char* kPerspective2DDirtyDocumentId = "map.perspective_2d";
     if (!runtime.map_dirty_surface_registered) {
         runtime.map_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
             kMapDirtyDocumentId,
@@ -1877,6 +1916,24 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
             [&runtime] {
                 std::string error;
                 if (saveMapAuthoringDocument(runtime, &error)) {
+                    (void)runtime.dirty_state_registry.markDirty("map.perspective_2d", false);
+                    return urpg::editor::EditorDirtySaveResult{true, "map_saved", "Map saved atomically."};
+                }
+                return urpg::editor::EditorDirtySaveResult{false, "map_save_failed", std::move(error)};
+            },
+            [] {},
+            {},
+        });
+    }
+    if (!runtime.perspective_2d_dirty_surface_registered) {
+        runtime.perspective_2d_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+            kPerspective2DDirtyDocumentId,
+            "spatial_authoring",
+            false,
+            [&runtime] {
+                std::string error;
+                if (saveMapAuthoringDocument(runtime, &error)) {
+                    (void)runtime.dirty_state_registry.markDirty("map.grid_parts", false);
                     return urpg::editor::EditorDirtySaveResult{true, "map_saved", "Map saved atomically."};
                 }
                 return urpg::editor::EditorDirtySaveResult{false, "map_save_failed", std::move(error)};
@@ -1915,12 +1972,26 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
                                        levelSnapshot.validation.blocking_count > 0
                                            ? "Resolve Map validation blockers before playtest or package."
                                            : "Map validation has no blocking diagnostics."});
-    workspace.context().setPlaytestState(workspace.snapshot().activeMode == "playtest" ? "prepared" : "idle");
+    runtime.playtest_session.update();
+    const auto playtestState = runtime.playtest_session.state();
+    const char* playtestStateLabel = "idle";
+    switch (playtestState) {
+    case urpg::editor::PlaytestSessionState::Starting: playtestStateLabel = "starting"; break;
+    case urpg::editor::PlaytestSessionState::Running: playtestStateLabel = "running"; break;
+    case urpg::editor::PlaytestSessionState::Stopping: playtestStateLabel = "stopping"; break;
+    case urpg::editor::PlaytestSessionState::Exited: playtestStateLabel = "exited"; break;
+    case urpg::editor::PlaytestSessionState::Crashed: playtestStateLabel = "crashed"; break;
+    case urpg::editor::PlaytestSessionState::Returned: playtestStateLabel = "returned"; break;
+    case urpg::editor::PlaytestSessionState::Inactive: break;
+    }
+    workspace.context().setPlaytestState(playtestStateLabel);
     workspace.context().setPackageState(workspace.snapshot().activeMode == "package"
                                             ? levelSnapshot.package.readiness
                                             : "draft");
     (void)runtime.dirty_state_registry.markDirty(kMapDirtyDocumentId,
                                                  !runtime.level_builder_document.dirtyChunks().empty());
+    (void)runtime.dirty_state_registry.markDirty(
+        kPerspective2DDirtyDocumentId, perspectiveSnapshot.perspective_2d_project.has_unsaved_changes);
     runtime.project_session.setDirtySurfaceSummaries(runtime.dirty_state_registry.dirtyDocumentIds());
     workspace.refresh();
     const auto& snapshot = workspace.snapshot();
@@ -2007,10 +2078,16 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
         const auto result = workspace.redo();
         runtime.map_save_status = result.success ? "Redo applied to " + result.owner + "." : result.message;
     }
+    const auto startPlaytest = [&] { (void)startCurrentMapPlaytest(runtime); };
     if (!io.WantTextInput && ImGui::IsKeyPressed(ImGuiKey_F5, false)) {
-        (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Playtest);
-        const bool launched = runtime.level_builder_workspace.ActivateToolbarAction("playtest_start");
-        runtime.map_save_status = launched ? "Map playtest started." : "Map playtest could not start; resolve the visible blockers.";
+        if (io.KeyShift) {
+            startPlaytest();
+        } else if (runtime.playtest_session.isActive()) {
+            runtime.playtest_session.returnToEditor();
+            runtime.map_save_status = runtime.playtest_session.message();
+        } else {
+            startPlaytest();
+        }
     }
     if (ImGui::Button("Save Map")) {
         saveMap();
@@ -2020,8 +2097,29 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
         saveAll();
     }
     ImGui::SameLine();
-    ImGui::TextDisabled("Ctrl+S Save  |  Ctrl+Shift+S Save All  |  Ctrl+Z/Y Undo/Redo  |  F5 Playtest");
+    if (runtime.playtest_session.isActive()) {
+        if (ImGui::Button("Return to Editor")) {
+            runtime.playtest_session.returnToEditor();
+            runtime.map_save_status = runtime.playtest_session.message();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Restart Playtest")) {
+            startPlaytest();
+        }
+    } else if (ImGui::Button("Playtest Current Map")) {
+        startPlaytest();
+    }
+    ImGui::SameLine();
+    ImGui::TextDisabled("Ctrl+S Save  |  Ctrl+Shift+S Save All  |  Ctrl+Z/Y Undo/Redo  |  F5 Play/Stop  |  Shift+F5 Restart");
     if (!runtime.map_save_status.empty()) ImGui::TextWrapped("%s", runtime.map_save_status.c_str());
+    if (!runtime.playtest_session.sessionDirectory().empty()) {
+        ImGui::TextDisabled("Playtest %s | exit %d | overlay %s", playtestStateLabel,
+                            runtime.playtest_session.exitCode(),
+                            runtime.playtest_session.sessionDirectory().generic_string().c_str());
+    }
+    for (const auto& diagnostic : runtime.playtest_session.diagnostics()) {
+        ImGui::TextWrapped("Runtime %s: %s", diagnostic.code.c_str(), diagnostic.message.c_str());
+    }
 
     const auto renderMapDiagnostics = [&] {
         if (!snapshot.layout.diagnosticsVisible ||
@@ -2357,6 +2455,9 @@ void renderEditorWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRu
     if (!runtime.project_session_status.empty()) {
         ImGui::TextDisabled("%s", runtime.project_session_status.c_str());
     }
+    if (!runtime.recovery_status.empty()) {
+        ImGui::TextDisabled("Recovery: %s", runtime.recovery_status.c_str());
+    }
     ImGui::Separator();
 
     if (snapshot.active_panel_id == "diagnostics") {
@@ -2438,9 +2539,14 @@ void leaveCreatorModeWhenProjectOpened(urpg::editor::EditorShell& editorShell, E
     runtime.creator_mode = false;
     editorShell.setProjectRoot(runtime.project_root);
     (void)editorShell.openPanel("level_builder");
+    if (action.value("playtest_starter", false)) {
+        (void)startCurrentMapPlaytest(runtime);
+    }
     if (action.value("action", "") == "enter_editor") {
         runtime.map_authoring_workspace.setNextActionHint(
-            "Start with Parts to paint the starter map, then choose Playtest when you are ready.");
+            action.value("playtest_starter", false)
+                ? "Starter-map playtest is launching with the current private overlay."
+                : "Start with Parts to paint the starter map, then choose Playtest when you are ready.");
         runtime.creator_checklist_panel.setVisible(true);
     }
     runtime.focus_workspace_next_frame = true;
@@ -2485,6 +2591,11 @@ bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& e
             }
         }
 #endif
+        if (panelRuntime != nullptr && panelRuntime->ability_dirty_surface_registered) {
+            (void)panelRuntime->dirty_state_registry.markDirty(
+                "ability.draft", panelRuntime->ability_inspector_panel.hasUnsavedDraft());
+            panelRuntime->project_session.setDirtySurfaceSummaries(panelRuntime->dirty_state_registry.dirtyDocumentIds());
+        }
         rendered = editorShell.endFrame() && rendered;
     }
 #ifdef URPG_IMGUI_ENABLED
@@ -2749,8 +2860,19 @@ int main(int argc, char** argv) {
         panelRuntime.main_menu_panel.bindModel(&panelRuntime.main_menu_model);
         panelRuntime.main_menu_panel.bindWizard(&panelRuntime.new_project_wizard);
         panelRuntime.project_session.addSwitchListener([&panelRuntime](const urpg::editor::EditorProjectIdentity& identity) {
+            const bool unclean = panelRuntime.recovery_service.hasUncleanSessionMarker(identity.root);
             bindMapAuthoringProject(panelRuntime, identity.root);
             panelRuntime.creator_checklist_panel.setProjectRoot(identity.root);
+            if (panelRuntime.recovery_service.writeSessionMarker(identity.root)) {
+                panelRuntime.recovery_status = unclean
+                    ? "The previous editor session did not close cleanly. Recovery snapshots are available under .urpg/recovery."
+                    : "Recovery session marker is active; manual saves remain separate from recovery data.";
+            } else {
+                panelRuntime.recovery_status = "Could not write the editor recovery session marker.";
+            }
+        });
+        panelRuntime.project_session.addCloseListener([&panelRuntime](const urpg::editor::EditorProjectIdentity& identity) {
+            (void)panelRuntime.recovery_service.clearSessionMarker(identity.root);
         });
         // A supplied/recent path is not editor state until the session accepts
         // its manifest. This prevents a stale directory from becoming an

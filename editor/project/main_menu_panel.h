@@ -36,7 +36,7 @@ public:
     void cancelMissingProjectLocate();
     void chooseSettings();
     void returnToMainMenu();
-    void enterEditor(std::string project_path);
+    void enterEditor(std::string project_path, bool playtest_starter = false);
     const std::string& route() const { return route_; }
     bool onboardingEnabled() const { return onboarding_enabled_; }
     bool helpTipsEnabled() const { return help_tips_enabled_; }

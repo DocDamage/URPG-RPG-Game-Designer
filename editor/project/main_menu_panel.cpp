@@ -242,11 +242,14 @@ void MainMenuModel::returnToMainMenu() {
     pending_action_ = {{"action", "main_menu"}, {"route", route_}};
 }
 
-void MainMenuModel::enterEditor(std::string project_path) {
+void MainMenuModel::enterEditor(std::string project_path, const bool playtest_starter) {
     route_ = "editor";
     setLastProject(project_path);
     addRecentProject(project_path);
     pending_action_ = {{"action", "enter_editor"}, {"projectPath", std::move(project_path)}, {"route", route_}};
+    if (playtest_starter) {
+        pending_action_["playtest_starter"] = true;
+    }
 }
 
 void MainMenuModel::refreshProjectAvailability() {
@@ -495,11 +498,15 @@ void MainMenuPanel::render() {
                 } else if (step == "create") {
                     const bool enabled = !wizard_destination_.empty() && !wizard_project_id_.empty();
                     if (!enabled) ImGui::BeginDisabled();
-                    if (ImGui::Button("Create Project", ImVec2(-1.0f, 0.0f))) {
+                    const auto createProject = [&](const bool playtestStarter) {
                         const auto result = wizard_->createProject();
                         wizard_status_ = result.message;
-                        if (result.success) model_->enterEditor(result.project_root.generic_string());
+                        if (result.success) model_->enterEditor(result.project_root.generic_string(), playtestStarter);
+                    };
+                    if (ImGui::Button("Create Project", ImVec2(-1.0f, 0.0f))) {
+                        createProject(false);
                     }
+                    if (ImGui::Button("Create Project and Playtest", ImVec2(-1.0f, 0.0f))) createProject(true);
                     if (!enabled) ImGui::EndDisabled();
                     if (!enabled) ImGui::TextDisabled("Enter a project ID and a destination before creating.");
                 }

@@ -41,8 +41,12 @@ TEST_CASE("EditorProjectSession commits validated projects before notifying pane
 
     urpg::editor::EditorProjectSession session;
     std::string notified_id;
+    std::string closed_id;
     session.addSwitchListener([&notified_id](const urpg::editor::EditorProjectIdentity& identity) {
         notified_id = identity.project_id;
+    });
+    session.addCloseListener([&closed_id](const urpg::editor::EditorProjectIdentity& identity) {
+        closed_id = identity.project_id;
     });
 
     const auto result = session.openProject(project.root());
@@ -55,6 +59,7 @@ TEST_CASE("EditorProjectSession commits validated projects before notifying pane
     session.setDirtySurfaceSummaries({"map:opening", "ability:fire"});
     REQUIRE(session.dirtySurfaceSummaries().size() == 2);
     REQUIRE(session.closeProject().success);
+    REQUIRE(closed_id == "creator_demo");
     REQUIRE(session.dirtySurfaceSummaries().empty());
 }
 

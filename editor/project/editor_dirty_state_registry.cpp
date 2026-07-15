@@ -64,6 +64,13 @@ EditorNavigationGuardResult EditorDirtyStateRegistry::resolveNavigation(EditorNa
         return result;
     }
     for (const auto& document_id : result.dirty_document_ids) {
+        // A single atomic save can own several registered surfaces (for
+        // example the paired Grid Parts and Perspective 2D map documents).
+        // Do not invoke a second, redundant save after that transaction has
+        // already cleared another surface in this navigation request.
+        if (!isDirty(document_id)) {
+            continue;
+        }
         const auto save_result = save(document_id);
         if (!save_result.success) {
             result.failed_document_id = document_id;

@@ -51,6 +51,9 @@ EditorProjectSessionResult EditorProjectSession::openProject(const std::filesyst
         return result;
     }
 
+    if (open_) {
+        for (const auto& listener : close_listeners_) listener(active_project_);
+    }
     active_project_ = std::move(next_project);
     open_ = true;
     last_diagnostic_ = result;
@@ -61,6 +64,9 @@ EditorProjectSessionResult EditorProjectSession::openProject(const std::filesyst
 }
 
 EditorProjectSessionResult EditorProjectSession::closeProject() {
+    if (open_) {
+        for (const auto& listener : close_listeners_) listener(active_project_);
+    }
     active_project_ = {};
     dirty_surface_summaries_.clear();
     open_ = false;
@@ -75,6 +81,12 @@ void EditorProjectSession::setDirtySurfaceSummaries(std::vector<std::string> sum
 void EditorProjectSession::addSwitchListener(SwitchListener listener) {
     if (listener) {
         switch_listeners_.push_back(std::move(listener));
+    }
+}
+
+void EditorProjectSession::addCloseListener(CloseListener listener) {
+    if (listener) {
+        close_listeners_.push_back(std::move(listener));
     }
 }
 

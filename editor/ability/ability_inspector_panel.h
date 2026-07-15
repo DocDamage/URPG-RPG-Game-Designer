@@ -108,6 +108,8 @@ class AbilityInspectorPanel {
     }
     DraftAbilityDefinition getDraftAsset() const;
     void setDraftFromAsset(const DraftAbilityDefinition& asset);
+    bool hasUnsavedDraft() const { return m_draft_dirty; }
+    void markDraftPersisted() { m_draft_dirty = false; }
     const PatternFieldModel& getDraftPatternModel() const { return m_draft_pattern_model; }
 
     bool isVisible() const { return m_visible; }
@@ -128,6 +130,7 @@ class AbilityInspectorPanel {
     RenderSnapshot m_snapshot;
     CommandCallbacks m_command_callbacks;
     bool m_visible = true;
+    bool m_draft_dirty = false;
 };
 
 } // namespace urpg::editor

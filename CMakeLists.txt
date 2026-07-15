@@ -661,6 +661,7 @@ set(URPG_CORE_SOURCES
     editor/project/main_menu_panel.cpp
     editor/project/editor_project_session.cpp
     editor/project/editor_dirty_state_registry.cpp
+    editor/project/editor_recovery_service.cpp
     editor/project/creator_checklist.cpp
     editor/project/creator_checklist_panel.cpp
     editor/quest/quest_panel.cpp
@@ -740,6 +741,7 @@ set(URPG_CORE_SOURCES
     editor/spatial/grid_part_placement_panel.cpp
     editor/spatial/grid_part_inspector_panel.cpp
     editor/spatial/grid_part_playtest_panel.cpp
+    editor/playtest/playtest_session_controller.cpp
     editor/spatial/level_builder_workspace.cpp
     editor/spatial/map_authoring_context.cpp
     editor/spatial/map_authoring_persistence.cpp
@@ -1500,6 +1502,8 @@ add_executable(urpg_tests
     tests/unit/test_fixed32.cpp
     tests/unit/test_frame_budget.cpp
     tests/unit/test_process_runner.cpp
+    tests/unit/test_playtest_session_controller.cpp
+    tests/unit/test_runtime_diagnostics.cpp
     tests/unit/test_future_feature_16.cpp
     tests/unit/test_chatbot_component.cpp
     tests/unit/test_ai_knowledge_base.cpp
@@ -1560,6 +1564,7 @@ add_executable(urpg_tests
     tests/unit/test_new_project_wizard_panel.cpp
     tests/unit/test_main_menu_panel.cpp
     tests/unit/test_editor_project_session.cpp
+    tests/unit/test_editor_recovery_service.cpp
     tests/unit/test_editor_dirty_state_registry.cpp
     tests/unit/test_creator_checklist.cpp
     tests/unit/test_creator_checklist_panel.cpp

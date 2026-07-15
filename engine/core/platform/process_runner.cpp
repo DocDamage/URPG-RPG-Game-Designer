@@ -22,6 +22,14 @@ extern char** environ;
 namespace urpg::platform {
 namespace {
 
+constexpr size_t kMaxCapturedOutputBytes = 1024 * 1024;
+
+void boundCapturedOutput(std::string& output) {
+    if (output.size() > kMaxCapturedOutputBytes) {
+        output.erase(0, output.size() - kMaxCapturedOutputBytes);
+    }
+}
+
 #ifdef _WIN32
 std::wstring utf8ToWide(const std::string& value) {
     if (value.empty()) {
@@ -338,5 +346,215 @@ ProcessResult runProcess(const ProcessCommand& command) {
     return result;
 #endif
 }
+
+Process::Process() = default;
+
+Process::~Process() {
+    terminate();
+}
+
+#ifdef _WIN32
+namespace {
+
+void readAvailablePipe(HANDLE handle, std::string& output) {
+    DWORD available = 0;
+    while (PeekNamedPipe(handle, nullptr, 0, nullptr, &available, nullptr) && available > 0) {
+        std::string chunk(available, '\0');
+        DWORD read = 0;
+        if (!ReadFile(handle, chunk.data(), available, &read, nullptr) || read == 0) {
+            break;
+        }
+        output.append(chunk.data(), read);
+    }
+}
+
+} // namespace
+
+bool Process::launch(const ProcessCommand& command) {
+    cleanup();
+    error_.clear();
+    stdout_text_.clear();
+    stderr_text_.clear();
+    if (command.executable.empty()) {
+        error_ = "process executable is empty";
+        return false;
+    }
+
+    HANDLE stdoutRead = nullptr;
+    HANDLE stdoutWrite = nullptr;
+    HANDLE stderrRead = nullptr;
+    HANDLE stderrWrite = nullptr;
+    if (command.captureStdout && !createPipe(stdoutRead, stdoutWrite, true)) {
+        error_ = "failed to create stdout pipe";
+        return false;
+    }
+    if (command.captureStderr && !createPipe(stderrRead, stderrWrite, true)) {
+        if (stdoutRead != nullptr) {
+            CloseHandle(stdoutRead);
+            CloseHandle(stdoutWrite);
+        }
+        error_ = "failed to create stderr pipe";
+        return false;
+    }
+
+    STARTUPINFOW startup{};
+    startup.cb = sizeof(startup);
+    if (command.captureStdout || command.captureStderr) {
+        startup.dwFlags |= STARTF_USESTDHANDLES;
+        startup.hStdOutput = command.captureStdout ? stdoutWrite : GetStdHandle(STD_OUTPUT_HANDLE);
+        startup.hStdError = command.captureStderr ? stderrWrite : GetStdHandle(STD_ERROR_HANDLE);
+        startup.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    }
+    PROCESS_INFORMATION process{};
+    auto commandLine = buildCommandLine(command);
+    const auto executable = pathToWide(command.executable);
+    const auto workingDirectory = command.workingDirectory.empty() ? std::wstring{} : pathToWide(command.workingDirectory);
+    const bool explicitApplication = command.executable.is_absolute() || command.executable.has_parent_path();
+    const BOOL launched = CreateProcessW(explicitApplication ? executable.c_str() : nullptr, commandLine.data(), nullptr,
+                                         nullptr, TRUE, CREATE_NO_WINDOW, nullptr,
+                                         workingDirectory.empty() ? nullptr : workingDirectory.c_str(), &startup, &process);
+    if (stdoutWrite != nullptr) CloseHandle(stdoutWrite);
+    if (stderrWrite != nullptr) CloseHandle(stderrWrite);
+    if (!launched) {
+        if (stdoutRead != nullptr) CloseHandle(stdoutRead);
+        if (stderrRead != nullptr) CloseHandle(stderrRead);
+        error_ = "failed to launch process: " + std::to_string(GetLastError());
+        return false;
+    }
+    process_handle_ = process.hProcess;
+    thread_handle_ = process.hThread;
+    stdout_read_ = stdoutRead;
+    stderr_read_ = stderrRead;
+    return true;
+}
+
+bool Process::isRunning(int* exitCode) {
+    const auto process = static_cast<HANDLE>(process_handle_);
+    if (process == nullptr) {
+        if (exitCode) *exitCode = -1;
+        return false;
+    }
+    if (stdout_read_ != nullptr) readAvailablePipe(static_cast<HANDLE>(stdout_read_), stdout_text_);
+    if (stderr_read_ != nullptr) readAvailablePipe(static_cast<HANDLE>(stderr_read_), stderr_text_);
+    boundCapturedOutput(stdout_text_);
+    boundCapturedOutput(stderr_text_);
+    DWORD code = 0;
+    if (!GetExitCodeProcess(process, &code)) {
+        if (exitCode) *exitCode = -1;
+        cleanup();
+        return false;
+    }
+    if (code == STILL_ACTIVE) return true;
+    if (exitCode) *exitCode = static_cast<int>(code);
+    if (stdout_read_ != nullptr) stdout_text_ += readPipe(static_cast<HANDLE>(stdout_read_));
+    if (stderr_read_ != nullptr) stderr_text_ += readPipe(static_cast<HANDLE>(stderr_read_));
+    boundCapturedOutput(stdout_text_);
+    boundCapturedOutput(stderr_text_);
+    cleanup();
+    return false;
+}
+
+void Process::terminate() {
+    if (process_handle_ != nullptr) {
+        TerminateProcess(static_cast<HANDLE>(process_handle_), 1);
+        (void)WaitForSingleObject(static_cast<HANDLE>(process_handle_), 5000);
+    }
+    cleanup();
+}
+
+void Process::cleanup() {
+    if (process_handle_ != nullptr) CloseHandle(static_cast<HANDLE>(process_handle_));
+    if (thread_handle_ != nullptr) CloseHandle(static_cast<HANDLE>(thread_handle_));
+    if (stdout_read_ != nullptr) CloseHandle(static_cast<HANDLE>(stdout_read_));
+    if (stderr_read_ != nullptr) CloseHandle(static_cast<HANDLE>(stderr_read_));
+    process_handle_ = nullptr;
+    thread_handle_ = nullptr;
+    stdout_read_ = nullptr;
+    stderr_read_ = nullptr;
+}
+#else
+bool Process::launch(const ProcessCommand& command) {
+    cleanup();
+    error_.clear();
+    stdout_text_.clear();
+    stderr_text_.clear();
+    if (command.executable.empty()) {
+        error_ = "process executable is empty";
+        return false;
+    }
+    int stdoutPipe[2] = {-1, -1};
+    int stderrPipe[2] = {-1, -1};
+    if (command.captureStdout && pipe(stdoutPipe) != 0) {
+        error_ = "failed to create stdout pipe";
+        return false;
+    }
+    if (command.captureStderr && pipe(stderrPipe) != 0) {
+        if (stdoutPipe[0] >= 0) {
+            close(stdoutPipe[0]);
+            close(stdoutPipe[1]);
+        }
+        error_ = "failed to create stderr pipe";
+        return false;
+    }
+    pid_ = fork();
+    if (pid_ == 0) {
+        if (!command.workingDirectory.empty()) chdir(command.workingDirectory.c_str());
+        if (command.captureStdout) dup2(stdoutPipe[1], STDOUT_FILENO);
+        if (command.captureStderr) dup2(stderrPipe[1], STDERR_FILENO);
+        if (stdoutPipe[0] >= 0) { close(stdoutPipe[0]); close(stdoutPipe[1]); }
+        if (stderrPipe[0] >= 0) { close(stderrPipe[0]); close(stderrPipe[1]); }
+        std::vector<std::string> argvStorage{command.executable.string()};
+        argvStorage.insert(argvStorage.end(), command.arguments.begin(), command.arguments.end());
+        std::vector<char*> argv;
+        for (auto& value : argvStorage) argv.push_back(value.data());
+        argv.push_back(nullptr);
+        execvp(argv[0], argv.data());
+        _exit(127);
+    }
+    if (pid_ < 0) {
+        if (stdoutPipe[0] >= 0) { close(stdoutPipe[0]); close(stdoutPipe[1]); }
+        if (stderrPipe[0] >= 0) { close(stderrPipe[0]); close(stderrPipe[1]); }
+        error_ = "failed to fork process";
+        return false;
+    }
+    if (stdoutPipe[1] >= 0) { close(stdoutPipe[1]); setCloseOnExec(stdoutPipe[0]); setNonBlocking(stdoutPipe[0]); stdout_fd_ = stdoutPipe[0]; }
+    if (stderrPipe[1] >= 0) { close(stderrPipe[1]); setCloseOnExec(stderrPipe[0]); setNonBlocking(stderrPipe[0]); stderr_fd_ = stderrPipe[0]; }
+    return true;
+}
+
+bool Process::isRunning(int* exitCode) {
+    if (pid_ < 0) {
+        if (exitCode) *exitCode = -1;
+        return false;
+    }
+    if (stdout_fd_ >= 0) readAvailable(stdout_fd_, stdout_text_);
+    if (stderr_fd_ >= 0) readAvailable(stderr_fd_, stderr_text_);
+    boundCapturedOutput(stdout_text_);
+    boundCapturedOutput(stderr_text_);
+    int status = 0;
+    const pid_t waited = waitpid(pid_, &status, WNOHANG);
+    if (waited == 0) return true;
+    if (exitCode) *exitCode = waited == pid_ && WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+    cleanup();
+    return false;
+}
+
+void Process::terminate() {
+    if (pid_ >= 0) {
+        kill(pid_, SIGKILL);
+        int status = 0;
+        (void)waitpid(pid_, &status, 0);
+    }
+    cleanup();
+}
+
+void Process::cleanup() {
+    if (stdout_fd_ >= 0) close(stdout_fd_);
+    if (stderr_fd_ >= 0) close(stderr_fd_);
+    pid_ = -1;
+    stdout_fd_ = -1;
+    stderr_fd_ = -1;
+}
+#endif
 
 } // namespace urpg::platform

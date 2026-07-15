@@ -989,6 +989,9 @@ bool SpatialAuthoringWorkspace::AddAttachedAssetToTilePalette(const std::string&
         captureRenderSnapshot();
         return true;
     }
+    if (perspective_history_checkpoint_.empty()) {
+        perspective_history_checkpoint_ = serializePerspectiveMapDraft();
+    }
     perspective_tile_palette_options_.push_back(
         {asset_id + ".tile", asset_id, asset_id, "tile", asset_id, project_path, "attached", project_path});
     selected_palette_option_id_ = perspective_tile_palette_options_.back().option_id;
@@ -1010,6 +1013,9 @@ bool SpatialAuthoringWorkspace::AddAttachedAssetToPropPalette(const std::string&
     const auto existing = std::find_if(options.begin(), options.end(),
                                        [&](const auto& option) { return option.asset_id == asset_id; });
     if (existing == options.end()) {
+        if (perspective_history_checkpoint_.empty()) {
+            perspective_history_checkpoint_ = serializePerspectiveMapDraft();
+        }
         options.push_back({asset_id, project_path, "prop", {"spatial_authoring"}, false, true});
     }
     prop_panel_.SetProjectAssetOptions(std::move(options));
@@ -1828,6 +1834,8 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
     json["events"] = nlohmann::json::array();
     json["tileset_pages"] = nlohmann::json::array();
     json["tile_definitions"] = nlohmann::json::array();
+    json["tile_palette"] = nlohmann::json::array();
+    json["prop_palette"] = nlohmann::json::array();
     json["project_database"] =
         serializeProjectReferences(perspective_project_references_,
                                    perspective_starting_party_,
@@ -1872,6 +1880,24 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
     }
     for (const auto& definition : perspective_tile_definitions_) {
         json["tile_definitions"].push_back(serializeTileDefinition(definition));
+    }
+    for (const auto& option : perspective_tile_palette_options_) {
+        json["tile_palette"].push_back({{"option_id", option.option_id},
+                                         {"label", option.label},
+                                         {"tileset_id", option.tileset_id},
+                                         {"tile_id", option.tile_id},
+                                         {"asset_id", option.asset_id},
+                                         {"project_path", option.project_path},
+                                         {"category_id", option.category_id},
+                                         {"thumbnail_path", option.thumbnail_path}});
+    }
+    for (const auto& option : prop_panel_.lastRenderSnapshot().project_asset_options) {
+        json["prop_palette"].push_back({{"asset_id", option.asset_id},
+                                         {"project_path", option.project_path},
+                                         {"picker_kind", option.picker_kind},
+                                         {"picker_targets", option.picker_targets},
+                                         {"targeted_for_level_builder", option.targeted_for_level_builder},
+                                         {"targeted_for_perspective_2d", option.targeted_for_perspective_2d}});
     }
     for (const auto& tile : perspective_tiles_) {
         json["tiles"].push_back({{"layer_id", tile.layer_id},
@@ -2287,6 +2313,7 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
     perspective_events_.clear();
     perspective_tileset_pages_.clear();
     perspective_tile_definitions_.clear();
+    perspective_tile_palette_options_.clear();
     perspective_project_references_.clear();
     perspective_starting_party_.clear();
     perspective_save_load_enabled_ = false;
@@ -2361,6 +2388,34 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
             perspective_tile_definitions_.push_back(std::move(definition));
         }
     }
+    for (const auto& option_json : json.value("tile_palette", nlohmann::json::array())) {
+        Perspective2DPaletteOption option;
+        option.option_id = option_json.value("option_id", "");
+        option.label = option_json.value("label", option.option_id);
+        option.tileset_id = option_json.value("tileset_id", "");
+        option.tile_id = option_json.value("tile_id", "");
+        option.asset_id = option_json.value("asset_id", "");
+        option.project_path = option_json.value("project_path", "");
+        option.category_id = option_json.value("category_id", "");
+        option.thumbnail_path = option_json.value("thumbnail_path", "");
+        if (!option.option_id.empty() && !option.asset_id.empty() && !option.project_path.empty()) {
+            perspective_tile_palette_options_.push_back(std::move(option));
+        }
+    }
+    std::vector<PropPlacementPanel::ProjectAssetOption> prop_options;
+    for (const auto& option_json : json.value("prop_palette", nlohmann::json::array())) {
+        PropPlacementPanel::ProjectAssetOption option;
+        option.asset_id = option_json.value("asset_id", "");
+        option.project_path = option_json.value("project_path", "");
+        option.picker_kind = option_json.value("picker_kind", "prop");
+        option.picker_targets = option_json.value("picker_targets", std::vector<std::string>{});
+        option.targeted_for_level_builder = option_json.value("targeted_for_level_builder", false);
+        option.targeted_for_perspective_2d = option_json.value("targeted_for_perspective_2d", true);
+        if (!option.asset_id.empty() && !option.project_path.empty()) {
+            prop_options.push_back(std::move(option));
+        }
+    }
+    prop_panel_.SetProjectAssetOptions(std::move(prop_options));
     const auto project_json = json.value("project_database", nlohmann::json::object());
     const auto load_references = [&](const nlohmann::json& rows, const std::string& kind) {
         for (const auto& row : rows) {

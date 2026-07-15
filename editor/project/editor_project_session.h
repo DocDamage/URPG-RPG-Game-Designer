@@ -23,10 +23,12 @@ struct EditorProjectSessionResult {
 class EditorProjectSession {
   public:
     using SwitchListener = std::function<void(const EditorProjectIdentity&)>;
+    using CloseListener = std::function<void(const EditorProjectIdentity&)>;
 
     EditorProjectSessionResult openProject(const std::filesystem::path& project_root);
     EditorProjectSessionResult closeProject();
     void addSwitchListener(SwitchListener listener);
+    void addCloseListener(CloseListener listener);
     void setDirtySurfaceSummaries(std::vector<std::string> summaries);
 
     bool isOpen() const { return open_; }
@@ -43,6 +45,7 @@ class EditorProjectSession {
     EditorProjectSessionResult last_diagnostic_;
     std::vector<std::string> dirty_surface_summaries_;
     std::vector<SwitchListener> switch_listeners_;
+    std::vector<CloseListener> close_listeners_;
 };
 
 } // namespace urpg::editor

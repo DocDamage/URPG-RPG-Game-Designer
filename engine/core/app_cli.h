@@ -23,6 +23,9 @@ struct RuntimeCliOptions {
     bool width_provided = false;
     bool height_provided = false;
     std::filesystem::path project_root = std::filesystem::current_path();
+    std::string map;
+    std::string spawn;
+    std::filesystem::path session_manifest;
 };
 
 struct EditorCliOptions {

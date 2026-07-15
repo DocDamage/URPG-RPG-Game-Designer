@@ -62,6 +62,7 @@ void AbilityInspectorPanel::resetDraftAbility() {
     m_draft_definition = {};
     m_draft_pattern_model = PatternFieldModel{};
     m_draft_pattern_model.setName(m_draft_definition.pattern.getName());
+    m_draft_dirty = true;
 }
 
 bool AbilityInspectorPanel::setDraftAbilityId(const std::string& ability_id) {
@@ -69,6 +70,7 @@ bool AbilityInspectorPanel::setDraftAbilityId(const std::string& ability_id) {
         return false;
     }
     m_draft_definition.ability_id = ability_id;
+    m_draft_dirty = true;
     return true;
 }
 
@@ -77,6 +79,7 @@ bool AbilityInspectorPanel::setDraftCooldownSeconds(float cooldown_seconds) {
         return false;
     }
     m_draft_definition.cooldown_seconds = cooldown_seconds;
+    m_draft_dirty = true;
     return true;
 }
 
@@ -85,6 +88,7 @@ bool AbilityInspectorPanel::setDraftMpCost(float mp_cost) {
         return false;
     }
     m_draft_definition.mp_cost = mp_cost;
+    m_draft_dirty = true;
     return true;
 }
 
@@ -93,6 +97,7 @@ bool AbilityInspectorPanel::setDraftEffectId(const std::string& effect_id) {
         return false;
     }
     m_draft_definition.effect_id = effect_id;
+    m_draft_dirty = true;
     return true;
 }
 
@@ -101,6 +106,7 @@ bool AbilityInspectorPanel::setDraftEffectAttribute(const std::string& effect_at
         return false;
     }
     m_draft_definition.effect_attribute = effect_attribute;
+    m_draft_dirty = true;
     return true;
 }
 
@@ -109,6 +115,7 @@ bool AbilityInspectorPanel::setDraftEffectOperation(urpg::ModifierOp effect_oper
         return false;
     }
     m_draft_definition.effect_operation = effect_operation;
+    m_draft_dirty = true;
     return true;
 }
 
@@ -117,6 +124,7 @@ bool AbilityInspectorPanel::setDraftEffectValue(float effect_value) {
         return false;
     }
     m_draft_definition.effect_value = effect_value;
+    m_draft_dirty = true;
     return true;
 }
 
@@ -125,6 +133,7 @@ bool AbilityInspectorPanel::setDraftEffectDuration(float effect_duration) {
         return false;
     }
     m_draft_definition.effect_duration = effect_duration;
+    m_draft_dirty = true;
     return true;
 }
 
@@ -134,25 +143,32 @@ bool AbilityInspectorPanel::setDraftPatternName(const std::string& pattern_name)
     }
     m_draft_pattern_model.setName(pattern_name);
     m_draft_definition.pattern.setName(pattern_name);
+    m_draft_dirty = true;
     return true;
 }
 
 bool AbilityInspectorPanel::applyDraftPatternPreset(const std::string& preset_id) {
     const auto before = m_draft_pattern_model.buildPreviewSnapshot().grid_rows;
     m_draft_pattern_model.applyPreset(preset_id);
-    return before != m_draft_pattern_model.buildPreviewSnapshot().grid_rows;
+    const bool changed = before != m_draft_pattern_model.buildPreviewSnapshot().grid_rows;
+    m_draft_dirty = m_draft_dirty || changed;
+    return changed;
 }
 
 bool AbilityInspectorPanel::toggleDraftPatternPoint(int32_t x, int32_t y) {
     const bool before = m_draft_pattern_model.isPointSelected(x, y);
     m_draft_pattern_model.togglePoint(x, y);
-    return before != m_draft_pattern_model.isPointSelected(x, y);
+    const bool changed = before != m_draft_pattern_model.isPointSelected(x, y);
+    m_draft_dirty = m_draft_dirty || changed;
+    return changed;
 }
 
 bool AbilityInspectorPanel::clearDraftPattern() {
     const auto before = m_draft_pattern_model.buildPreviewSnapshot().grid_rows;
     m_draft_pattern_model.clearPattern();
-    return before != m_draft_pattern_model.buildPreviewSnapshot().grid_rows;
+    const bool changed = before != m_draft_pattern_model.buildPreviewSnapshot().grid_rows;
+    m_draft_dirty = m_draft_dirty || changed;
+    return changed;
 }
 
 std::shared_ptr<urpg::ability::GameplayAbility> AbilityInspectorPanel::buildDraftAbility() const {
@@ -174,6 +190,7 @@ AbilityInspectorPanel::DraftAbilityDefinition AbilityInspectorPanel::getDraftAss
 void AbilityInspectorPanel::setDraftFromAsset(const DraftAbilityDefinition& asset) {
     m_draft_definition = asset;
     m_draft_pattern_model.setCurrentPattern(std::make_shared<urpg::PatternField>(asset.pattern));
+    m_draft_dirty = false;
 }
 
 AbilityInspectorPanel::DraftPreviewSnapshot AbilityInspectorPanel::buildDraftPreviewSnapshot() const {

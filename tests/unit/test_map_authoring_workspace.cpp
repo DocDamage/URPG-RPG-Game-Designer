@@ -1,8 +1,12 @@
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/map_authoring_workspace.h"
 #include "editor/spatial/spatial_authoring_workspace.h"
+#include "engine/core/presentation/presentation_schema.h"
+#include "engine/core/scene/map_scene.h"
 
 #include <catch2/catch_test_macros.hpp>
+
+#include <nlohmann/json.hpp>
 
 TEST_CASE("MapAuthoringWorkspace routes release entry modes through existing child workspaces", "[spatial][map_authoring]") {
     urpg::editor::LevelBuilderWorkspace levelBuilder;
@@ -44,6 +48,13 @@ TEST_CASE("MapAuthoringWorkspace routes release entry modes through existing chi
 TEST_CASE("MapAuthoringWorkspace accepts attached asset drops into durable Map palettes", "[spatial][map_authoring][assets]") {
     urpg::editor::LevelBuilderWorkspace levelBuilder;
     urpg::editor::SpatialAuthoringWorkspace perspective2D;
+    urpg::presentation::SpatialMapOverlay overlay;
+    overlay.mapId = "creator_demo";
+    overlay.elevation.width = 16;
+    overlay.elevation.height = 12;
+    overlay.elevation.levels.assign(16 * 12, 0);
+    urpg::scene::MapScene mapScene("creator_demo", 16, 12);
+    perspective2D.SetTargets(&mapScene, &overlay);
     urpg::editor::MapAuthoringWorkspace workspace;
     workspace.bind(&levelBuilder, &perspective2D);
 
@@ -58,12 +69,36 @@ TEST_CASE("MapAuthoringWorkspace accepts attached asset drops into durable Map p
     const auto tileDrop = workspace.acceptAssetDrop(attached, "tiles");
     REQUIRE(tileDrop.accepted);
     REQUIRE(workspace.context().snapshot().perspective2DDirty);
-    REQUIRE_FALSE(workspace.context().snapshot().canUndo);
+    REQUIRE(workspace.context().snapshot().canUndo);
+    REQUIRE(workspace.context().snapshot().historyOwner == "perspective_2d");
+    REQUIRE(perspective2D.lastRenderSnapshot().perspective_2d_palette.tile_options.size() == 1);
+
+    const auto persisted = perspective2D.PreparePerspectiveMapDraftSave();
+    REQUIRE(persisted.success);
+    const auto persistedJson = nlohmann::json::parse(persisted.serialized_document_json);
+    REQUIRE(persistedJson["tile_palette"].size() == 1);
+    REQUIRE(persistedJson["tile_palette"][0]["asset_id"] == "asset.hero");
+
+    const auto undone = workspace.undo();
+    REQUIRE(undone.success);
+    REQUIRE(undone.owner == "perspective_2d");
+    REQUIRE(perspective2D.lastRenderSnapshot().perspective_2d_palette.tile_options.empty());
+
+    const auto redone = workspace.redo();
+    REQUIRE(redone.success);
+    REQUIRE(redone.owner == "perspective_2d");
     REQUIRE(perspective2D.lastRenderSnapshot().perspective_2d_palette.tile_options.size() == 1);
 
     const auto propDrop = workspace.acceptAssetDrop(attached, "props");
     REQUIRE(propDrop.accepted);
     REQUIRE(perspective2D.lastRenderSnapshot().props.project_asset_options.size() == 1);
+
+    const auto roundTrip = perspective2D.PreparePerspectiveMapDraftSave();
+    REQUIRE(roundTrip.success);
+    urpg::editor::SpatialAuthoringWorkspace restored;
+    REQUIRE(restored.LoadPerspectiveMapDraft(roundTrip.serialized_document_json).success);
+    REQUIRE(restored.lastRenderSnapshot().perspective_2d_palette.tile_options.size() == 1);
+    REQUIRE(restored.lastRenderSnapshot().props.project_asset_options.size() == 1);
 
     attached.provenance = urpg::editor::EditorAssetProvenanceState::RawExternal;
     const auto rawDrop = workspace.acceptAssetDrop(attached, "tiles");

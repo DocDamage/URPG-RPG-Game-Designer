@@ -236,3 +236,19 @@ TEST_CASE("Ability Inspector Diagnostics Snapshot", "[ability][editor]") {
         REQUIRE(draftAsc.getAttribute("Defense", 0.0f) == 114.0f);
     }
 }
+
+TEST_CASE("Ability Inspector reports authored draft dirtiness", "[ability][editor][dirty state]") {
+    AbilityInspectorPanel panel;
+    REQUIRE_FALSE(panel.hasUnsavedDraft());
+    REQUIRE(panel.setDraftAbilityId("skill.dirty"));
+    REQUIRE(panel.hasUnsavedDraft());
+    panel.markDraftPersisted();
+    REQUIRE_FALSE(panel.hasUnsavedDraft());
+
+    REQUIRE(panel.applyDraftPatternPreset("skill_cross_small"));
+    REQUIRE(panel.hasUnsavedDraft());
+
+    const auto savedAsset = panel.getDraftAsset();
+    panel.setDraftFromAsset(savedAsset);
+    REQUIRE_FALSE(panel.hasUnsavedDraft());
+}
