@@ -142,6 +142,7 @@ struct EditorPanelRuntime {
     std::string map_asset_drop_status;
     std::string project_session_status;
     std::string recovery_status;
+    std::filesystem::path restored_recovery_project_path;
     std::chrono::steady_clock::time_point next_recovery_snapshot_at{};
     bool map_dirty_surface_registered = false;
     bool perspective_2d_dirty_surface_registered = false;
@@ -2600,11 +2601,34 @@ void renderEditorWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRu
                                          (runtime.project_root.filename().string() + "_recovered_" +
                                           std::to_string(stamp));
                 if (runtime.recovery_service.restoreRecoverySnapshot(recoverySnapshots.front().path, destination)) {
+                    runtime.restored_recovery_project_path = destination;
                     runtime.recovery_status = "Recovery restored safely to " + destination.generic_string() +
                                               ". Review it, then open it as a project when ready.";
                 } else {
                     runtime.recovery_status = "Recovery restore failed; the open project and snapshot were left unchanged.";
                 }
+            }
+        }
+        if (!runtime.restored_recovery_project_path.empty()) {
+            const auto hasUnsavedWork = !runtime.dirty_state_registry.dirtyDocumentIds().empty();
+            if (hasUnsavedWork) ImGui::BeginDisabled();
+            if (ImGui::SmallButton("Open Recovered Project")) {
+                const auto opened = runtime.project_session.openProject(runtime.restored_recovery_project_path);
+                if (opened.success) {
+                    editorShell.setProjectRoot(runtime.project_session.activeProject().root);
+                    runtime.main_menu_model.setLastProject(runtime.project_session.activeProject().root.generic_string());
+                    runtime.main_menu_model.addRecentProject(runtime.project_session.activeProject().root.generic_string());
+                    runtime.recovery_status = "Opened the recovered project in a separate editor session.";
+                    runtime.restored_recovery_project_path.clear();
+                } else {
+                    runtime.recovery_status = "Recovered project could not be opened: " + opened.message;
+                }
+            }
+            if (hasUnsavedWork) {
+                if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+                    ImGui::SetTooltip("Save or discard current project work before opening the recovered project.");
+                }
+                ImGui::EndDisabled();
             }
         }
     }
