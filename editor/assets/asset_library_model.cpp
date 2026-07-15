@@ -2238,7 +2238,7 @@ nlohmann::json AssetLibraryModel::createImagePaletteRevision(std::string source_
 nlohmann::json AssetLibraryModel::createImagePaletteExtractRevision(std::string source_path,
                                                                      const std::filesystem::path& derived_root,
                                                                      std::string operation_id,
-                                                                     const int32_t max_colors) {
+                                                                     const int32_t max_colors, const bool dither) {
     std::replace(source_path.begin(), source_path.end(), '\\', '/');
     nlohmann::json action = {
         {"action", "create_image_palette_extract_revision"},
@@ -2246,6 +2246,7 @@ nlohmann::json AssetLibraryModel::createImagePaletteExtractRevision(std::string 
         {"derived_root", derived_root.generic_string()},
         {"operation_id", operation_id},
         {"max_colors", max_colors},
+        {"dither", dither},
         {"success", false},
         {"code", "asset_not_found"},
         {"message", "Asset was not found in the library."},
@@ -2262,6 +2263,7 @@ nlohmann::json AssetLibraryModel::createImagePaletteExtractRevision(std::string 
         plan.source = manifestFromAssetRecord(*found);
         plan.derivedRoot = derived_root;
         plan.maxColors = max_colors;
+        plan.dither = dither;
         urpg::assets::AssetTransformRevisionService service;
         const auto result = service.createImagePaletteExtractRevision(plan);
         action["asset_id"] = found->asset_id;

@@ -928,6 +928,15 @@ TEST_CASE("AssetTransformRevisionService creates deterministic atlas metadata re
     REQUIRE(extractedManifest["operation"] == "image_palette_extract");
     REQUIRE(extractedManifest["palette_rgba"] == nlohmann::json::array({0x0000FFFFU, 0x00FF00FFU}));
     REQUIRE(service.createImagePaletteExtractRevision(paletteExtractPlan).code == "asset_transform_revision_reused");
+    paletteExtractPlan.dither = true;
+    const auto ditheredPalette = service.createImagePaletteExtractRevision(paletteExtractPlan);
+    REQUIRE(ditheredPalette.success);
+    REQUIRE(ditheredPalette.derivedRevision != extractedPalette.derivedRevision);
+    std::ifstream ditheredManifestStream(ditheredPalette.manifestPath);
+    const auto ditheredManifest = nlohmann::json::parse(ditheredManifestStream);
+    REQUIRE(ditheredManifest["dither"] == "floyd_steinberg_rgba_fixed16");
+    REQUIRE(service.createImagePaletteExtractRevision(paletteExtractPlan).code == "asset_transform_revision_reused");
+    paletteExtractPlan.dither = false;
     paletteExtractPlan.maxColors = 1;
     const auto invalidExtractedPalette = service.createImagePaletteExtractRevision(paletteExtractPlan);
     REQUIRE_FALSE(invalidExtractedPalette.success);

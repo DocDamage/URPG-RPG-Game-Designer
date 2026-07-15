@@ -70,6 +70,7 @@ struct AssetImagePaletteExtractPlan {
     AssetPromotionManifest source;
     std::filesystem::path derivedRoot;
     int32_t maxColors = 0;
+    bool dither = false;
 };
 
 struct AssetTilesetSlicePlan {

@@ -190,7 +190,7 @@ class AssetLibraryModel {
                                               std::string operation_id, std::vector<uint32_t> colors_rgba);
     nlohmann::json createImagePaletteExtractRevision(std::string source_path,
                                                      const std::filesystem::path& derived_root,
-                                                     std::string operation_id, int32_t max_colors);
+                                                     std::string operation_id, int32_t max_colors, bool dither);
     nlohmann::json createAudioTrimFadeGainRevision(
         std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
         uint64_t start_frame, uint64_t end_frame, uint64_t fade_in_frames, uint64_t fade_out_frames,
