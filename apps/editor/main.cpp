@@ -46,6 +46,7 @@
 #include "engine/core/map/grid_part_document.h"
 #include "engine/core/map/grid_part_ruleset.h"
 #include "engine/core/map/grid_part_serializer.h"
+#include "engine/core/message/message_core.h"
 #include "engine/core/mod/mod_loader.h"
 #include "engine/core/mod/mod_registry.h"
 #include "engine/core/platform/headless_renderer.h"
@@ -146,6 +147,8 @@ struct EditorPanelRuntime {
     urpg::editor::PlaytestSessionController playtest_session;
     urpg::SaveCatalog map_runtime_save_catalog;
     std::unique_ptr<urpg::SaveSessionCoordinator> map_runtime_save_session;
+    urpg::message::MessageFlowRunner map_message_preview_flow;
+    urpg::message::RichTextLayoutEngine map_message_preview_layout;
     urpg::ability::AbilitySystemComponent ability_runtime;
     urpg::audio::AudioCore audio_preview_core;
     urpg::audio::AudioMixPresetBank audio_mix_draft;
@@ -526,6 +529,47 @@ void syncQuestPreviewWorldFromPerspectiveRuntime(
     // A start_battle command is an encounter launch, not a combat result. Do
     // not populate world.battles until the native battle runtime reports an
     // outcome through its own owner.
+}
+
+bool openMessageInspectorForPerspectiveRuntime(
+    urpg::editor::EditorShell& editor_shell, EditorPanelRuntime& runtime,
+    const urpg::editor::SpatialAuthoringWorkspace::Perspective2DRuntimeResult& runtime_result,
+    const std::string& event_label) {
+    if (runtime_result.messages.empty() && runtime_result.dialogue_choices.empty()) {
+        return false;
+    }
+
+    std::vector<urpg::message::DialoguePage> pages;
+    pages.reserve(std::max<size_t>(size_t{1}, runtime_result.messages.size()));
+    for (size_t index = 0; index < runtime_result.messages.size(); ++index) {
+        urpg::message::DialoguePage page;
+        page.id = runtime_result.event_id + ".message." + std::to_string(index + 1);
+        page.body = runtime_result.messages[index];
+        page.variant.mode = urpg::message::MessagePresentationMode::Speaker;
+        page.variant.tone = urpg::message::MessageTone::Portrait;
+        page.variant.speaker = event_label.empty() ? runtime_result.event_id : event_label;
+        pages.push_back(std::move(page));
+    }
+    if (pages.empty()) {
+        urpg::message::DialoguePage page;
+        page.id = runtime_result.event_id + ".choice";
+        page.body = "Choose a response.";
+        page.variant.mode = urpg::message::MessagePresentationMode::Speaker;
+        page.variant.tone = urpg::message::MessageTone::Portrait;
+        page.variant.speaker = event_label.empty() ? runtime_result.event_id : event_label;
+        pages.push_back(std::move(page));
+    }
+    for (size_t index = 0; index < runtime_result.dialogue_choices.size(); ++index) {
+        const auto& choice = runtime_result.dialogue_choices[index];
+        pages.back().choices.push_back({runtime_result.event_id + ".choice." + std::to_string(index + 1), choice, true, {}});
+    }
+
+    runtime.map_message_preview_flow.resetWithPages(std::move(pages));
+    runtime.diagnostics_workspace.bindMessageRuntime(runtime.map_message_preview_flow, runtime.map_message_preview_layout);
+    runtime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::MessageText);
+    (void)editor_shell.openPanel("diagnostics");
+    runtime.focus_workspace_next_frame = true;
+    return true;
 }
 
 urpg::editor::EditorDirtySaveResult saveDatabaseDraft(EditorPanelRuntime& runtime) {
@@ -2479,6 +2523,8 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
                     runtime.map_save_status = "Native event runtime blocked: " + result.message;
                 } else {
                     syncQuestPreviewWorldFromPerspectiveRuntime(result, runtime.quest_preview_world);
+                    const bool openedMessageInspector =
+                        openMessageInspectorForPerspectiveRuntime(editorShell, runtime, result, event.label);
                     if (!result.battles.empty()) {
                         const auto& encounterId = result.battles.front();
                         const auto ability = runtime.ability_inspector_panel.getDraftAsset();
@@ -2506,6 +2552,8 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
                             runtime.map_save_status = "Native event opened vendor preview '" + vendorId + "' with " +
                                                       std::to_string(stock.size()) + " visible stock row(s).";
                         }
+                    } else if (openedMessageInspector) {
+                        runtime.map_save_status = "Native event opened the Message Inspector for its authored dialogue preview.";
                     } else {
                         runtime.map_save_status = "Native event runtime completed: " +
                                                   std::to_string(result.executed_command_count) + " command(s) executed.";
