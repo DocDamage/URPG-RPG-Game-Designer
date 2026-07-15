@@ -1644,6 +1644,14 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D executes live eve
     REQUIRE(runtime.player_tile_x == 2);
     REQUIRE(runtime.player_tile_y == 7);
 
+    const auto restored = workspace.RestorePerspectiveRuntimeState(runtime.serialized_runtime_state_json);
+    REQUIRE(restored.success);
+    REQUIRE(restored.command_id == "restore_perspective_2d_runtime_state");
+    REQUIRE(restored.switches[0].key == "door_open");
+    REQUIRE(restored.inventory[0].value == "3");
+    REQUIRE(restored.player_map_id == "castle");
+    REQUIRE_FALSE(workspace.RestorePerspectiveRuntimeState("{}").success);
+
     workspace.Render({0.016f, 36});
     const auto snapshot = workspace.lastRenderSnapshot();
     REQUIRE(snapshot.last_perspective_2d_runtime.success);

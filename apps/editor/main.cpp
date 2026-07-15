@@ -53,6 +53,7 @@
 #include "engine/core/presentation/presentation_schema.h"
 #include "engine/core/project/project_snapshot_store.h"
 #include "engine/core/quest/quest_objective_graph.h"
+#include "engine/core/save/save_catalog.h"
 #include "engine/core/shop/vendor_catalog.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/scene_manager.h"
@@ -143,6 +144,8 @@ struct EditorPanelRuntime {
     // their creator-facing mode, selection, history, and project context.
     urpg::editor::MapAuthoringWorkspace map_authoring_workspace;
     urpg::editor::PlaytestSessionController playtest_session;
+    urpg::SaveCatalog map_runtime_save_catalog;
+    std::unique_ptr<urpg::SaveSessionCoordinator> map_runtime_save_session;
     urpg::ability::AbilitySystemComponent ability_runtime;
     urpg::audio::AudioCore audio_preview_core;
     urpg::audio::AudioMixPresetBank audio_mix_draft;
@@ -499,7 +502,9 @@ std::set<std::string> databaseItemIds(const urpg::database::RpgDatabase& databas
 void syncQuestPreviewWorldFromPerspectiveRuntime(
     const urpg::editor::SpatialAuthoringWorkspace::Perspective2DRuntimeResult& runtime_result,
     urpg::quest::QuestWorldState& world) {
+    auto battle_preview_outcomes = std::move(world.battles);
     world = {};
+    world.battles = std::move(battle_preview_outcomes);
     for (const auto& entry : runtime_result.switches) {
         world.switches[entry.key] = entry.value == "true" || entry.value == "1" || entry.value == "on";
     }
@@ -828,6 +833,9 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
             runtime.map_save_status = "Saved Perspective 2D map draft could not be loaded: " + result.message;
         }
     }
+    runtime.map_runtime_save_catalog.clear();
+    runtime.map_runtime_save_session = std::make_unique<urpg::SaveSessionCoordinator>(runtime.map_runtime_save_catalog);
+    runtime.diagnostics_workspace.bindSaveRuntime(runtime.map_runtime_save_catalog, *runtime.map_runtime_save_session);
     runtime.map_authoring_workspace.refresh();
 }
 
@@ -2909,6 +2917,79 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         } else {
             ImGui::TextDisabled("Run preflight to inspect this project's export staging configuration.");
         }
+    }
+    if (ImGui::CollapsingHeader("Save and Load Preview State")) {
+        static int saveSlot = 1;
+        ImGui::TextDisabled("Persists authoritative Perspective 2D runtime state through the native save coordinator.");
+        ImGui::InputInt("Save Slot", &saveSlot);
+        saveSlot = std::max(1, saveSlot);
+        const auto& runtimeSnapshot =
+            runtime.perspective_2d_workspace.lastRenderSnapshot().last_perspective_2d_runtime;
+        const bool canSaveRuntime = runtimeSnapshot.success && !runtimeSnapshot.serialized_runtime_state_json.empty() &&
+                                    runtime.map_runtime_save_session != nullptr;
+        if (!canSaveRuntime) ImGui::BeginDisabled();
+        if (ImGui::Button("Save Current Preview State")) {
+            const auto savesDirectory = runtime.project_root / "saves";
+            const auto prefix = "map_preview_slot_" + std::to_string(saveSlot);
+            nlohmann::json payload = {
+                {"schema", "urpg.map_preview_save.v1"},
+                {"perspective_runtime", nlohmann::json::parse(runtimeSnapshot.serialized_runtime_state_json)},
+                {"battle_preview_outcomes", runtime.quest_preview_world.battles},
+            };
+            urpg::SaveSessionSaveRequest request;
+            request.slot_id = saveSlot;
+            request.meta.category = urpg::SaveSlotCategory::Manual;
+            request.meta.retention_class = urpg::SaveRetentionClass::Manual;
+            request.meta.map_display_name = runtimeSnapshot.player_map_id.empty() ? runtimeSnapshot.map_id
+                                                                                   : runtimeSnapshot.player_map_id;
+            request.meta.custom_metadata["owner"] = "map_authoring_runtime";
+            request.primary_save_path = savesDirectory / (prefix + ".json");
+            request.metadata_path = savesDirectory / (prefix + ".meta.json");
+            request.payload = payload.dump(2);
+            const auto saved = runtime.map_runtime_save_session->save(request);
+            runtime.map_save_status = saved.ok ? "Saved native Map preview state to slot " + std::to_string(saveSlot) + "."
+                                                : "Map preview save failed: " + saved.error;
+        }
+        if (!canSaveRuntime) ImGui::EndDisabled();
+        ImGui::SameLine();
+        const bool canLoadRuntime = runtime.map_runtime_save_session != nullptr;
+        if (!canLoadRuntime) ImGui::BeginDisabled();
+        if (ImGui::Button("Load Preview State")) {
+            const auto savesDirectory = runtime.project_root / "saves";
+            const auto prefix = "map_preview_slot_" + std::to_string(saveSlot);
+            urpg::SaveSessionLoadRequest request;
+            request.slot_id = saveSlot;
+            request.runtime_request.primary_save_path = savesDirectory / (prefix + ".json");
+            request.runtime_request.metadata_path = savesDirectory / (prefix + ".meta.json");
+            const auto loaded = runtime.map_runtime_save_session->load(request);
+            const auto runtimePayload = urpg::RuntimeSaveLoader::Load(request.runtime_request);
+            const auto payload = runtimePayload.ok ? nlohmann::json::parse(runtimePayload.payload, nullptr, false)
+                                                   : nlohmann::json(nullptr);
+            if (!loaded.ok) {
+                runtime.map_save_status = "Map preview load failed: " + loaded.error;
+            } else if (!payload.is_object() || payload.value("schema", "") != "urpg.map_preview_save.v1" ||
+                       !payload.contains("perspective_runtime")) {
+                runtime.map_save_status = "Map preview load rejected an incompatible save payload.";
+            } else {
+                const auto restored =
+                    runtime.perspective_2d_workspace.RestorePerspectiveRuntimeState(payload["perspective_runtime"].dump());
+                if (!restored.success) {
+                    runtime.map_save_status = "Map preview state restore blocked: " + restored.message;
+                } else {
+                    syncQuestPreviewWorldFromPerspectiveRuntime(restored, runtime.quest_preview_world);
+                    runtime.quest_preview_world.battles = payload.value("battle_preview_outcomes", std::vector<std::string>{});
+                    runtime.map_save_status = "Loaded native Map preview state from slot " + std::to_string(saveSlot) + ".";
+                }
+            }
+        }
+        if (!canLoadRuntime) ImGui::EndDisabled();
+        ImGui::SameLine();
+        if (ImGui::Button("Open Save Diagnostics")) {
+            (void)editorShell.openPanel("diagnostics");
+            runtime.focus_workspace_next_frame = true;
+            workspace.setNextActionHint("Native Save diagnostics opened from the active Map context.");
+        }
+        ImGui::TextDisabled("Preview save/load is not playtest or package evidence.");
     }
     static std::string questId = "restore_moonwell_lantern";
     static std::string questTitle = "Restore the Moonwell Lantern";

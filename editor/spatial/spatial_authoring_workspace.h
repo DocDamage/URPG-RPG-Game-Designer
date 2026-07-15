@@ -607,6 +607,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     Perspective2DExportResult ExportPerspectiveMap();
     Perspective2DEventExecutionResult PreviewPerspectiveEventExecution(const std::string& event_id);
     Perspective2DRuntimeResult ExecutePerspectiveRuntimeEvent(const std::string& event_id);
+    Perspective2DRuntimeResult RestorePerspectiveRuntimeState(const std::string& serialized_runtime_state_json);
     bool SetPerspectiveProjectDatabaseReferences(std::vector<Perspective2DProjectReference> references);
     bool SetPerspectiveProjectStartingParty(std::vector<std::string> actor_ids);
     bool SetPerspectiveProjectSaveLoadState(bool enabled, const std::string& save_profile_id);

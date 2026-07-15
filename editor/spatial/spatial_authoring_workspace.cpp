@@ -3105,6 +3105,116 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
     return last_perspective_runtime_result_;
 }
 
+SpatialAuthoringWorkspace::Perspective2DRuntimeResult
+SpatialAuthoringWorkspace::RestorePerspectiveRuntimeState(const std::string& serialized_runtime_state_json) {
+    Perspective2DRuntimeResult result;
+    result.command_id = "restore_perspective_2d_runtime_state";
+
+    nlohmann::json json;
+    try {
+        json = nlohmann::json::parse(serialized_runtime_state_json);
+    } catch (const nlohmann::json::exception&) {
+        result.blocker_codes.push_back("p2d_runtime_state_json_parse_failed");
+    }
+    if (result.blocker_codes.empty() &&
+        (json.value("document_kind", "") != "urpg.perspective_2d.runtime_state" || json.value("version", 0) != 1)) {
+        result.blocker_codes.push_back("p2d_runtime_state_schema_invalid");
+    }
+    const std::string active_map_id = m_target_overlay != nullptr ? m_target_overlay->mapId : std::string{};
+    if (result.blocker_codes.empty() && (active_map_id.empty() || json.value("map_id", "") != active_map_id)) {
+        result.blocker_codes.push_back("p2d_runtime_state_map_mismatch");
+    }
+
+    const auto read_entries = [](const nlohmann::json& rows, std::vector<Perspective2DStateEntry>& out_entries) {
+        if (!rows.is_array()) {
+            return false;
+        }
+        std::set<std::string> seen_keys;
+        for (const auto& row : rows) {
+            if (!row.is_object()) {
+                return false;
+            }
+            const std::string key = row.value("key", "");
+            const std::string value = row.value("value", "");
+            if (key.empty() || !seen_keys.insert(key).second) {
+                return false;
+            }
+            out_entries.push_back({key, value});
+        }
+        return true;
+    };
+    const auto read_strings = [](const nlohmann::json& rows, std::vector<std::string>& out_values) {
+        if (!rows.is_array()) {
+            return false;
+        }
+        for (const auto& value : rows) {
+            if (!value.is_string()) {
+                return false;
+            }
+            out_values.push_back(value.get<std::string>());
+        }
+        return true;
+    };
+
+    std::vector<Perspective2DStateEntry> switches;
+    std::vector<Perspective2DStateEntry> variables;
+    std::vector<Perspective2DStateEntry> self_switches;
+    std::vector<Perspective2DStateEntry> inventory;
+    std::vector<std::string> dialogue_choices;
+    if (result.blocker_codes.empty() &&
+        (!read_entries(json.value("switches", nlohmann::json::array()), switches) ||
+         !read_entries(json.value("variables", nlohmann::json::array()), variables) ||
+         !read_entries(json.value("self_switches", nlohmann::json::array()), self_switches) ||
+         !read_entries(json.value("inventory", nlohmann::json::array()), inventory) ||
+         !read_strings(json.value("dialogue_choices", nlohmann::json::array()), dialogue_choices))) {
+        result.blocker_codes.push_back("p2d_runtime_state_entries_invalid");
+    }
+
+    const auto player = json.value("player", nlohmann::json::object());
+    const std::string player_map_id = player.value("map_id", "");
+    if (result.blocker_codes.empty() &&
+        (!player.is_object() || player_map_id.empty() || !player.contains("tile_x") || !player.contains("tile_y") ||
+         !player["tile_x"].is_number_integer() || !player["tile_y"].is_number_integer())) {
+        result.blocker_codes.push_back("p2d_runtime_state_player_invalid");
+    }
+    if (!result.blocker_codes.empty()) {
+        result.message = "Perspective 2D runtime state restore is blocked.";
+        last_perspective_runtime_result_ = result;
+        captureRenderSnapshot();
+        return last_perspective_runtime_result_;
+    }
+
+    perspective_runtime_switches_ = std::move(switches);
+    perspective_runtime_variables_ = std::move(variables);
+    perspective_runtime_self_switches_ = std::move(self_switches);
+    perspective_runtime_inventory_ = std::move(inventory);
+    perspective_runtime_dialogue_choices_ = std::move(dialogue_choices);
+    perspective_runtime_gold_ = std::max(0, json.value("gold", 0));
+    perspective_runtime_player_map_id_ = player_map_id;
+    perspective_runtime_player_tile_x_ = player["tile_x"].get<int32_t>();
+    perspective_runtime_player_tile_y_ = player["tile_y"].get<int32_t>();
+
+    result.success = true;
+    result.message = "Perspective 2D runtime state restored.";
+    result.map_id = active_map_id;
+    result.event_id = json.value("event_id", "");
+    result.active_page_id = json.value("active_page_id", "");
+    result.trigger_id = json.value("trigger_id", "");
+    result.switches = perspective_runtime_switches_;
+    result.variables = perspective_runtime_variables_;
+    result.self_switches = perspective_runtime_self_switches_;
+    result.inventory = perspective_runtime_inventory_;
+    result.dialogue_choices = perspective_runtime_dialogue_choices_;
+    result.gold = perspective_runtime_gold_;
+    result.player_map_id = perspective_runtime_player_map_id_;
+    result.player_tile_x = perspective_runtime_player_tile_x_;
+    result.player_tile_y = perspective_runtime_player_tile_y_;
+    result.serialized_runtime_state_json = json.dump(2);
+    last_perspective_runtime_result_ = result;
+    captureRenderSnapshot();
+    return last_perspective_runtime_result_;
+}
+
 bool SpatialAuthoringWorkspace::SetPerspectiveProjectDatabaseReferences(
     std::vector<Perspective2DProjectReference> references) {
     for (const auto& reference : references) {
