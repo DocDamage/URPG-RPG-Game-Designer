@@ -161,6 +161,9 @@ struct EditorPanelRuntime {
     std::string vendor_draft_id = "vendor_draft";
     std::string battle_preview_encounter_id;
     std::string audio_mix_preset = "Default";
+    std::string audio_preview_asset_id;
+    std::vector<std::string> audio_preview_asset_undo;
+    std::vector<std::string> audio_preview_asset_redo;
     bool creator_mode = false;
     bool focus_workspace_next_frame = true;
     std::string last_workspace_panel_id;
@@ -518,6 +521,7 @@ nlohmann::json audioMixDraftJson(const EditorPanelRuntime& runtime) {
     auto json = runtime.audio_mix_draft.toJson();
     json["schema"] = "urpg.project_audio_mix.v1";
     json["active_preset"] = runtime.audio_mix_preset;
+    json["encounter_preview_asset_id"] = runtime.audio_preview_asset_id;
     return json;
 }
 
@@ -681,11 +685,15 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
     runtime.vendor_draft.setKnownItems(databaseItemIds(runtime.database_draft));
     runtime.audio_mix_draft.loadDefaults();
     runtime.audio_mix_preset = "Default";
+    runtime.audio_preview_asset_id.clear();
+    runtime.audio_preview_asset_undo.clear();
+    runtime.audio_preview_asset_redo.clear();
     if (std::ifstream audioMixInput(audioMixDraftPath(runtime), std::ios::binary); audioMixInput.good()) {
         try {
             const auto audioMixJson = nlohmann::json::parse(audioMixInput);
             runtime.audio_mix_draft.fromJson(audioMixJson);
             runtime.audio_mix_preset = audioMixJson.value("active_preset", "Default");
+            runtime.audio_preview_asset_id = audioMixJson.value("encounter_preview_asset_id", "");
         } catch (const std::exception&) {
             runtime.map_save_status = "Saved audio mix is invalid; the default mix was loaded instead.";
             runtime.audio_mix_draft.loadDefaults();
@@ -2579,6 +2587,71 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             }
             ImGui::EndCombo();
         }
+        ImGui::TextUnformatted("Governed Encounter Audio");
+        ImGui::TextDisabled("Assigned asset: %s",
+                            runtime.audio_preview_asset_id.empty() ? "(none)" : runtime.audio_preview_asset_id.c_str());
+        ImGui::BeginChild("AudioMixAssetDrop", ImVec2(0.0f, 54.0f), true);
+        ImGui::TextUnformatted("Drop an attached audio asset here");
+        if (ImGui::BeginDragDropTarget()) {
+            if (const auto* drag = ImGui::AcceptDragDropPayload("URPG_EDITOR_ASSET_V1")) {
+                const auto* begin = static_cast<const std::uint8_t*>(drag->Data);
+                std::vector<std::uint8_t> bytes(begin, begin + drag->DataSize);
+                urpg::editor::EditorAssetDragPayload asset;
+                const auto parsed = urpg::editor::deserializeEditorAssetDragPayload(bytes, &asset);
+                const auto accepted = parsed.accepted && asset.mediaKind == "audio"
+                                          ? urpg::editor::assessEditorAssetDrop(asset, true)
+                                          : urpg::editor::EditorAssetDropDecision{
+                                                false, "audio_mix_asset_drop_requires_audio",
+                                                "Audio Mix accepts attached audio assets only.",
+                                                "Attach an audio asset in Assets, then drag it here."};
+                if (!accepted.accepted) {
+                    runtime.map_asset_drop_status = accepted.message +
+                                                    (accepted.remediation.empty() ? "" : " " + accepted.remediation);
+                } else if (runtime.audio_preview_asset_id == asset.assetId) {
+                    runtime.map_asset_drop_status = "Audio asset assignment made no change.";
+                } else {
+                    runtime.audio_preview_asset_undo.push_back(runtime.audio_preview_asset_id);
+                    runtime.audio_preview_asset_id = asset.assetId;
+                    runtime.audio_preview_asset_redo.clear();
+                    (void)runtime.dirty_state_registry.markDirty(kAudioMixDirtyDocumentId, true);
+                    runtime.map_asset_drop_status =
+                        "Attached audio asset assigned as one undoable Audio Mix action.";
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+        ImGui::EndChild();
+        if (ImGui::Button("Undo Audio Asset Assignment")) {
+            if (!runtime.audio_preview_asset_undo.empty()) {
+                runtime.audio_preview_asset_redo.push_back(runtime.audio_preview_asset_id);
+                runtime.audio_preview_asset_id = runtime.audio_preview_asset_undo.back();
+                runtime.audio_preview_asset_undo.pop_back();
+                (void)runtime.dirty_state_registry.markDirty(kAudioMixDirtyDocumentId, true);
+                runtime.map_asset_drop_status = "Audio asset assignment undone.";
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Redo Audio Asset Assignment")) {
+            if (!runtime.audio_preview_asset_redo.empty()) {
+                runtime.audio_preview_asset_undo.push_back(runtime.audio_preview_asset_id);
+                runtime.audio_preview_asset_id = runtime.audio_preview_asset_redo.back();
+                runtime.audio_preview_asset_redo.pop_back();
+                (void)runtime.dirty_state_registry.markDirty(kAudioMixDirtyDocumentId, true);
+                runtime.map_asset_drop_status = "Audio asset assignment redone.";
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Preview Assigned Audio")) {
+            if (runtime.audio_preview_asset_id.empty()) {
+                runtime.map_asset_drop_status = "Assign an attached audio asset before previewing it.";
+            } else if (runtime.audio_preview_core.playSound(runtime.audio_preview_asset_id) == 0) {
+                runtime.map_asset_drop_status = "Native audio preview could not start; inspect Audio diagnostics.";
+            } else {
+                runtime.diagnostics_workspace.bindAudioRuntime(runtime.audio_preview_core);
+                runtime.map_asset_drop_status = "Native audio preview started for the assigned project asset.";
+            }
+        }
+        if (!runtime.map_asset_drop_status.empty()) ImGui::TextWrapped("%s", runtime.map_asset_drop_status.c_str());
         if (ImGui::Button("Apply Mix Preview")) {
             if (!runtime.audio_mix_panel.selectPreset(runtime.audio_mix_preset)) {
                 runtime.map_save_status = "Audio mix preview rejected an unknown preset.";
