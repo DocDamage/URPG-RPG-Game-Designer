@@ -1663,7 +1663,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                 dragPayload.provenance = urpg::editor::EditorAssetProvenanceState::Attached;
                 const auto bytes = urpg::editor::serializeEditorAssetDragPayload(dragPayload);
                 ImGui::SetDragDropPayload("URPG_EDITOR_ASSET_V1", bytes.data(), static_cast<int>(bytes.size()));
-                ImGui::TextUnformatted("Drop into Map Tiles or Props");
+                ImGui::TextUnformatted("Drop onto the Map canvas (Tiles places immediately; Props adds a palette option)");
                 ImGui::EndDragDropSource();
             }
             ImGui::PopID();
@@ -2271,21 +2271,7 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
     };
 
     ImGui::Separator();
-    ImGui::TextDisabled("Asset drop target: Tiles or Props mode accepts attached project assets only.");
-    if (ImGui::BeginDragDropTarget()) {
-        if (const auto* drag = ImGui::AcceptDragDropPayload("URPG_EDITOR_ASSET_V1")) {
-            const auto* begin = static_cast<const std::uint8_t*>(drag->Data);
-            std::vector<std::uint8_t> bytes(begin, begin + drag->DataSize);
-            urpg::editor::EditorAssetDragPayload asset;
-            const auto parsed = urpg::editor::deserializeEditorAssetDragPayload(bytes, &asset);
-            const auto decision = parsed.accepted ? workspace.acceptAssetDrop(asset, snapshot.activeMode) : parsed;
-            runtime.map_asset_drop_status = decision.accepted
-                                                ? "Attached asset added to the " + snapshot.activeMode + " palette."
-                                                : decision.message +
-                                                      (decision.remediation.empty() ? "" : " " + decision.remediation);
-        }
-        ImGui::EndDragDropTarget();
-    }
+    ImGui::TextDisabled("Drop attached project assets on the Map canvas. Tiles place immediately; Props enroll in their palette.");
     if (!runtime.map_asset_drop_status.empty()) ImGui::TextWrapped("%s", runtime.map_asset_drop_status.c_str());
 
     const auto layout = snapshot.layout;
@@ -2321,6 +2307,7 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
         }
         ImGui::TableSetColumnIndex(1);
         ImGui::TextUnformatted("Canvas");
+        const auto canvasOrigin = ImGui::GetCursorScreenPos();
         ImGui::BeginChild("MapAuthoringCanvas", ImVec2(0.0f, canvasHeight), true);
         // Keep the established child renderers as the source-of-truth canvas;
         // the shared workspace determines which deep editor is foregrounded.
@@ -2329,6 +2316,24 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
             renderLevelBuilderWorkspace(runtime);
         } else {
             renderPerspectiveWorkspace(runtime);
+        }
+        if (ImGui::BeginDragDropTarget()) {
+            if (const auto* drag = ImGui::AcceptDragDropPayload("URPG_EDITOR_ASSET_V1")) {
+                const auto* begin = static_cast<const std::uint8_t*>(drag->Data);
+                std::vector<std::uint8_t> bytes(begin, begin + drag->DataSize);
+                urpg::editor::EditorAssetDragPayload asset;
+                const auto parsed = urpg::editor::deserializeEditorAssetDragPayload(bytes, &asset);
+                const auto mouse = ImGui::GetMousePos();
+                const auto decision = parsed.accepted
+                                          ? workspace.placeAssetDrop(asset, snapshot.activeMode, mouse.x - canvasOrigin.x,
+                                                                     mouse.y - canvasOrigin.y)
+                                          : parsed;
+                runtime.map_asset_drop_status = decision.accepted
+                                                    ? decision.message
+                                                    : decision.message +
+                                                          (decision.remediation.empty() ? "" : " " + decision.remediation);
+            }
+            ImGui::EndDragDropTarget();
         }
         ImGui::EndChild();
         ImGui::TableSetColumnIndex(2);

@@ -106,6 +106,48 @@ TEST_CASE("MapAuthoringWorkspace accepts attached asset drops into durable Map p
     REQUIRE(rawDrop.code == "asset_drop_requires_attachment");
 }
 
+TEST_CASE("MapAuthoringWorkspace atomically places an attached tile drop with owner-aware undo",
+          "[spatial][map_authoring][assets][history]") {
+    urpg::editor::LevelBuilderWorkspace levelBuilder;
+    urpg::editor::SpatialAuthoringWorkspace perspective2D;
+    urpg::presentation::SpatialMapOverlay overlay;
+    overlay.mapId = "creator_demo";
+    overlay.elevation.width = 16;
+    overlay.elevation.height = 12;
+    overlay.elevation.levels.assign(16 * 12, 0);
+    urpg::scene::MapScene mapScene("creator_demo", 16, 12);
+    perspective2D.SetTargets(&mapScene, &overlay);
+    perspective2D.SetProjectionSettings({1280.0f, 720.0f, 8.0f, 6.0f, 1.0f / 48.0f, true});
+    REQUIRE(perspective2D.AddPerspectiveLayer("ground", "Ground", "tile"));
+    REQUIRE(perspective2D.SelectPerspectiveLayer("ground"));
+    urpg::editor::MapAuthoringWorkspace workspace;
+    workspace.bind(&levelBuilder, &perspective2D);
+
+    urpg::editor::EditorAssetDragPayload attached;
+    attached.assetId = "asset.hero";
+    attached.projectPath = "content/assets/imported/asset.hero/hero.png";
+    attached.mediaKind = "image";
+    attached.provenance = urpg::editor::EditorAssetProvenanceState::Attached;
+
+    const auto placed = workspace.placeAssetDrop(attached, "tiles", 640.0f, 360.0f);
+    REQUIRE(placed.accepted);
+    REQUIRE(placed.code == "asset_drop_placed");
+    REQUIRE(workspace.context().snapshot().perspective2DDirty);
+    REQUIRE(workspace.context().snapshot().historyOwner == "perspective_2d");
+    REQUIRE(perspective2D.lastRenderSnapshot().perspective_2d_palette.tile_options.size() == 1);
+    REQUIRE(perspective2D.lastRenderSnapshot().perspective_2d_project.painted_tile_count == 1);
+
+    const auto undone = workspace.undo();
+    REQUIRE(undone.success);
+    REQUIRE(perspective2D.lastRenderSnapshot().perspective_2d_palette.tile_options.empty());
+    REQUIRE(perspective2D.lastRenderSnapshot().perspective_2d_project.painted_tile_count == 0);
+
+    const auto redone = workspace.redo();
+    REQUIRE(redone.success);
+    REQUIRE(perspective2D.lastRenderSnapshot().perspective_2d_palette.tile_options.size() == 1);
+    REQUIRE(perspective2D.lastRenderSnapshot().perspective_2d_project.painted_tile_count == 1);
+}
+
 TEST_CASE("MapAuthoringWorkspace routes Perspective 2D history through the active Map mode", "[spatial][map_authoring][history]") {
     urpg::editor::LevelBuilderWorkspace levelBuilder;
     urpg::editor::SpatialAuthoringWorkspace perspective2D;

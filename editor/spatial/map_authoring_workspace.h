@@ -59,6 +59,10 @@ class MapAuthoringWorkspace {
     MapAuthoringHistoryResult redo();
     void setLayout(MapAuthoringLayoutState layout);
     EditorAssetDropDecision acceptAssetDrop(const EditorAssetDragPayload& payload, std::string_view target_mode);
+    EditorAssetDropDecision placeAssetDrop(const EditorAssetDragPayload& payload,
+                                           std::string_view target_mode,
+                                           float canvas_screen_x,
+                                           float canvas_screen_y);
     void setNextActionHint(std::string hint);
     void clearNextActionHint();
     void setProjectRoot(std::filesystem::path projectRoot);

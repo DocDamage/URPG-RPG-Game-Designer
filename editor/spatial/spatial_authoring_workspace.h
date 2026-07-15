@@ -500,6 +500,12 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     void SetPerspectiveTilePaletteOptions(std::vector<Perspective2DPaletteOption> options);
     bool AddAttachedAssetToTilePalette(const std::string& asset_id, const std::string& project_path);
     bool AddAttachedAssetToPropPalette(const std::string& asset_id, const std::string& project_path);
+    // Atomically registers an attached tile asset and paints it at the canvas
+    // drop coordinate. One Perspective 2D undo reverses both changes.
+    bool PlaceAttachedAssetTileFromScreen(const std::string& asset_id,
+                                          const std::string& project_path,
+                                          float screen_x,
+                                          float screen_y);
     bool SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages);
     bool SetPerspectiveTileDefinition(Perspective2DTileDefinition definition);
     Perspective2DTilePreviewResult PreviewPerspectiveTileAt(int32_t tile_x, int32_t tile_y);

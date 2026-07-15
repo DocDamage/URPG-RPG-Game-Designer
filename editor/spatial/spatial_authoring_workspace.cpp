@@ -1024,6 +1024,66 @@ bool SpatialAuthoringWorkspace::AddAttachedAssetToPropPalette(const std::string&
     return true;
 }
 
+bool SpatialAuthoringWorkspace::PlaceAttachedAssetTileFromScreen(const std::string& asset_id,
+                                                                  const std::string& project_path,
+                                                                  const float screen_x,
+                                                                  const float screen_y) {
+    if (asset_id.empty() || project_path.empty() || m_target_overlay == nullptr || selected_perspective_layer_id_.empty()) {
+        return false;
+    }
+    const auto layer = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                    [&](const PerspectiveLayer& candidate) {
+                                        return candidate.id == selected_perspective_layer_id_;
+                                    });
+    if (layer == perspective_layers_.end() || layer->kind != "tile" || layer->locked || !layer->visible) {
+        return false;
+    }
+    int32_t tile_x = 0;
+    int32_t tile_y = 0;
+    if (!projectScreenToTile(screen_x, screen_y, tile_x, tile_y) ||
+        tile_x >= static_cast<int32_t>(m_target_overlay->elevation.width) ||
+        tile_y >= static_cast<int32_t>(m_target_overlay->elevation.height)) {
+        return false;
+    }
+
+    const auto before = serializePerspectiveMapDraft();
+    const auto palette = std::find_if(perspective_tile_palette_options_.begin(), perspective_tile_palette_options_.end(),
+                                      [&](const auto& option) { return option.asset_id == asset_id; });
+    bool changed = false;
+    if (palette == perspective_tile_palette_options_.end()) {
+        perspective_tile_palette_options_.push_back(
+            {asset_id + ".tile", asset_id, asset_id, "tile", asset_id, project_path, "attached", project_path});
+        changed = true;
+    }
+    const auto selected = std::find_if(perspective_tile_palette_options_.begin(), perspective_tile_palette_options_.end(),
+                                       [&](const auto& option) { return option.asset_id == asset_id; });
+    selected_palette_option_id_ = selected->option_id;
+    selected_tileset_id_ = selected->tileset_id;
+    selected_tile_id_ = selected->tile_id;
+
+    const auto existing = std::find_if(perspective_tiles_.begin(), perspective_tiles_.end(),
+                                       [&](const PerspectiveTilePaint& paint) {
+                                           return paint.layer_id == selected_perspective_layer_id_ &&
+                                                  paint.tile_x == tile_x && paint.tile_y == tile_y;
+                                       });
+    if (existing == perspective_tiles_.end()) {
+        perspective_tiles_.push_back({selected_perspective_layer_id_, selected_tileset_id_, selected_tile_id_, tile_x, tile_y});
+        changed = true;
+    } else if (existing->tileset_id != selected_tileset_id_ || existing->tile_id != selected_tile_id_) {
+        existing->tileset_id = selected_tileset_id_;
+        existing->tile_id = selected_tile_id_;
+        changed = true;
+    }
+    if (changed) {
+        perspective_undo_drafts_.push_back(before);
+        perspective_redo_drafts_.clear();
+        perspective_has_unsaved_changes_ = true;
+        perspective_playtest_ready_ = false;
+    }
+    captureRenderSnapshot();
+    return true;
+}
+
 bool SpatialAuthoringWorkspace::SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages) {
     if (pages.empty()) {
         return false;

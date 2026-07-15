@@ -154,6 +154,32 @@ EditorAssetDropDecision MapAuthoringWorkspace::acceptAssetDrop(const EditorAsset
     return {true, "asset_drop_accepted", "Attached asset was added to the Map palette.", ""};
 }
 
+EditorAssetDropDecision MapAuthoringWorkspace::placeAssetDrop(const EditorAssetDragPayload& payload,
+                                                               const std::string_view target_mode,
+                                                               const float canvas_screen_x,
+                                                               const float canvas_screen_y) {
+    auto decision = assessEditorAssetDrop(payload, true);
+    if (!decision.accepted) {
+        return decision;
+    }
+    if (target_mode != "tiles") {
+        return acceptAssetDrop(payload, target_mode);
+    }
+    if (perspective_2d_ == nullptr) {
+        return {false, "asset_drop_workspace_unbound", "The Perspective 2D Map workspace is not available.",
+                "Open a project map before dropping an asset."};
+    }
+    if (!perspective_2d_->PlaceAttachedAssetTileFromScreen(payload.assetId, payload.projectPath, canvas_screen_x,
+                                                            canvas_screen_y)) {
+        return {false, "asset_drop_tile_placement_rejected",
+                "The attached asset could not be placed on the current tile layer.",
+                "Select a visible unlocked tile layer and drop inside the map canvas."};
+    }
+    context_.setDocumentDirty(MapAuthoringDocumentOwner::Perspective2D, true);
+    rebuildSnapshot();
+    return {true, "asset_drop_placed", "Attached asset was placed on the Map tile layer as one undoable action.", ""};
+}
+
 void MapAuthoringWorkspace::setNextActionHint(std::string hint) {
     next_action_hint_ = std::move(hint);
     rebuildSnapshot();
