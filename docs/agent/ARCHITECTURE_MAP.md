@@ -38,5 +38,5 @@ URPG is organized around a native C++ runtime with bounded compatibility and edi
 - Presentation validation: `docs/presentation/VALIDATION.md`
 - Release execution plan: `docs/release/AAA_RELEASE_EXECUTION_PLAN.md`
 - Program status: `docs/PROGRAM_COMPLETION_STATUS.md`
-- Active creator-product plan: `docs/superpowers/plans/2026-07-12-creator-product-cohesion-plan.md`
+- Active creator-product plan: `docs/superpowers/plans/2026-07-14-product-feature-usability-native-absorption-plan.md`
 - Creator journey contract/checkpoint: `docs/product/CREATOR_JOURNEY.md`; `docs/product/CREATOR_JOURNEY_BASELINE.md`
