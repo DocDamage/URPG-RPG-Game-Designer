@@ -2071,7 +2071,7 @@ void renderPerspectiveWorkspace(EditorPanelRuntime& runtime) {
     }
 }
 
-void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
+void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRuntime& runtime) {
     auto& workspace = runtime.map_authoring_workspace;
     if (!runtime.map_dirty_surface_registered) {
         runtime.map_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
@@ -2174,6 +2174,16 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
                 snapshot.context.validation.diagnosticCount, snapshot.context.validation.blockingCount,
                 snapshot.context.playtestState.c_str(), snapshot.context.packageState.c_str());
     ImGui::TextWrapped("%s", snapshot.nextAction.c_str());
+    ImGui::Separator();
+    ImGui::TextUnformatted("Contextual Authoring");
+    ImGui::TextDisabled("Current character draft: %s", runtime.character_draft_id.c_str());
+    if (ImGui::Button("Edit Character for This Map")) {
+        (void)editorShell.openPanel("character_creator");
+        runtime.focus_workspace_next_frame = true;
+        workspace.setNextActionHint("Character authoring opened from the active Map context.");
+    }
+    ImGui::SameLine();
+    ImGui::TextDisabled("Keeps the active project and Map context intact.");
     if (ImGui::CollapsingHeader("Map Layout")) {
         auto layout = snapshot.layout;
         bool changed = false;
@@ -2750,9 +2760,9 @@ void renderEditorWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRu
     } else if (snapshot.active_panel_id == "mod") {
         renderModWorkspace(runtime);
     } else if (snapshot.active_panel_id == "level_builder") {
-        renderMapAuthoringWorkspace(runtime);
+        renderMapAuthoringWorkspace(editorShell, runtime);
     } else if (snapshot.active_panel_id == "spatial_authoring") {
-        renderMapAuthoringWorkspace(runtime);
+        renderMapAuthoringWorkspace(editorShell, runtime);
     } else if (snapshot.active_panel_id == "ability") {
         renderAbilityWorkspaceInline(runtime);
     } else if (snapshot.active_panel_id == "character_creator") {
