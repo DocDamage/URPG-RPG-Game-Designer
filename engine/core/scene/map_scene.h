@@ -279,10 +279,12 @@ class MapScene : public GameScene {
     // Dialogue IDs are deliberately restricted to stable project identifiers so
     // map events cannot use this as a general file-loading escape hatch.
     bool startAuthoredDialogueFromProject(const std::string& dialogue_id);
-    // Applies bounded preflighted state writes only after the saved graph is
-    // valid for native admission, then starts it.
+    // Applies bounded preflighted state writes and an optional current-map
+    // transfer only after the saved graph is valid for native admission, then
+    // starts it.
     bool startAuthoredDialogueFromProjectWithStateWrites(
-        const std::string& dialogue_id, std::vector<AuthoredDialogueInteraction::StateWrite> state_writes);
+        const std::string& dialogue_id, std::vector<AuthoredDialogueInteraction::StateWrite> state_writes,
+        std::optional<AuthoredDialogueInteraction::Transfer> transfer = std::nullopt);
     // Replaces the complete projected map-event dialogue interaction batch.
     // Invalid batches leave the current runtime projection intact.
     bool setAuthoredDialogueInteractions(std::vector<AuthoredDialogueInteraction> interactions);

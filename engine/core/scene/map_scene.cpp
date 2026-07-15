@@ -935,11 +935,18 @@ bool MapScene::startAuthoredDialogueFromProject(const std::string& dialogue_id) 
 }
 
 bool MapScene::startAuthoredDialogueFromProjectWithStateWrites(
-    const std::string& dialogue_id, std::vector<AuthoredDialogueInteraction::StateWrite> state_writes) {
+    const std::string& dialogue_id, std::vector<AuthoredDialogueInteraction::StateWrite> state_writes,
+    std::optional<AuthoredDialogueInteraction::Transfer> transfer) {
     const auto graph = loadAuthoredDialogueFromProject(dialogue_id);
     const std::string conversation_id = "project.dialogue." + dialogue_id;
     if (!graph.has_value() || !validateAuthoredDialogueAdmission(*graph, conversation_id) ||
-        !validateAuthoredDialogueStateWrites(state_writes)) {
+        !validateAuthoredDialogueStateWrites(state_writes) ||
+        (transfer.has_value() &&
+         (transfer->map_id != m_mapId || transfer->tile_x < 0 || transfer->tile_x >= m_width ||
+          transfer->tile_y < 0 || transfer->tile_y >= m_height))) {
+        return false;
+    }
+    if (transfer.has_value() && !applyAuthoredDialogueTransfer(*transfer)) {
         return false;
     }
     applyAuthoredDialogueStateWrites(state_writes);
@@ -1007,7 +1014,6 @@ bool MapScene::setAuthoredDialogueInteractions(std::vector<AuthoredDialogueInter
                 (page.dialogue_id.empty() && page.message_pages.empty() && page.state_writes.empty() &&
                  !page.transfer.has_value()) ||
                 (!page.dialogue_id.empty() && !isStableDialogueProjectId(page.dialogue_id)) ||
-                (page.transfer.has_value() && !page.dialogue_id.empty() && page.message_pages.empty()) ||
                 (page.transfer.has_value() &&
                  (page.transfer->map_id != m_mapId || page.transfer->tile_x < 0 || page.transfer->tile_x >= m_width ||
                   page.transfer->tile_y < 0 || page.transfer->tile_y >= m_height)) ||
@@ -1248,7 +1254,9 @@ bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigg
         }
         return true;
     }
-    if (!startAuthoredDialogueFromProjectWithStateWrites(dialogue_id, state_writes)) {
+    const std::optional<AuthoredDialogueInteraction::Transfer> dialogue_transfer =
+        transfer != nullptr ? std::optional<AuthoredDialogueInteraction::Transfer>{*transfer} : std::nullopt;
+    if (!startAuthoredDialogueFromProjectWithStateWrites(dialogue_id, state_writes, dialogue_transfer)) {
         m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_event_trigger_failed:" + interaction->event_id);
     }
     return true;
