@@ -38,8 +38,8 @@ without adding a general script or arbitrary file-loading command.
 
 This supports only visible, unconditional map-event pages and the existing
 native `confirm_interact` path; conditional page selection, other event
-commands, interaction animation/collision, active-dialogue save restoration,
-dialogue-choice-effect synchronization back into the Perspective 2D
-preview-state document, voice/captions, automatic locale selection, and
-playthrough/package/release qualification remain open. Builds and test
-execution remain deferred under the user instruction for this phase.
+commands, interaction animation/collision, dialogue-choice-effect
+synchronization back into the Perspective 2D
+preview-state document, automatic locale selection, and playthrough/package/
+release qualification remain open. Builds and test execution remain deferred
+under the user instruction for this phase.

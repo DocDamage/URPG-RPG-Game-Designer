@@ -1006,6 +1006,50 @@ TEST_CASE("MapScene restores a saved project Dialogue Graph checkpoint at its ac
     REQUIRE_FALSE(map.isDialogueActive());
 }
 
+TEST_CASE("MapScene presents authored dialogue captions and dispatches voice through its native audio core",
+          "[scene][map][dialogue][runtime][audio]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    urpg::dialogue::DialogueGraph graph;
+    urpg::dialogue::DialogueNode node;
+    node.id = "voice_caption";
+    node.speaker_id = "guide";
+    node.speaker_name = "Guide";
+    node.text_preview = "A spoken line.";
+    node.ending = true;
+    node.voice_asset_id = "guide_voice_line";
+    node.caption_localization_key = "dialogue.guide.caption";
+    REQUIRE(graph.addNode(node));
+    graph.setStartNode("voice_caption");
+
+    MapScene map("VoiceCaptionMap", 2, 2);
+    auto audio = std::make_shared<urpg::audio::AudioCore>();
+    map.setAudioCore(audio);
+    urpg::localization::LocaleCatalog locale;
+    locale.loadFromJson(nlohmann::json{{"locale", "en-US"},
+                                      {"keys", {{"dialogue.guide.caption", "[Guide voice caption]"}}}});
+    map.setDialogueLocaleCatalog(locale);
+    REQUIRE(map.startAuthoredDialogue(graph, "test.voice_caption"));
+    REQUIRE(map.activeAuthoredDialogueCaption() == "[Guide voice caption]");
+    REQUIRE(map.activeAuthoredDialogueVoiceAssetId() == "guide_voice_line");
+    REQUIRE(audio->activeSourceCount() == 1);
+
+    map.onUpdate(0.0f);
+    const auto& commands = renderFrameCommands(layer);
+    REQUIRE(std::any_of(commands.begin(), commands.end(), [](const auto& command) {
+        const auto* text = renderCommandAs<urpg::TextRenderData>(command);
+        return text != nullptr && text->text == "[Guide voice caption]";
+    }));
+
+    MapScene without_audio("VoiceCaptionNoAudio", 2, 2);
+    REQUIRE(without_audio.startAuthoredDialogue(graph, "test.voice_caption_no_audio"));
+    REQUIRE(std::find(without_audio.dialogueRuntimeDiagnostics().begin(),
+                      without_audio.dialogueRuntimeDiagnostics().end(),
+                      "authored_dialogue_voice_audio_core_missing:voice_caption") !=
+            without_audio.dialogueRuntimeDiagnostics().end());
+}
+
 TEST_CASE("InputCore stores text input, editing text, and backspace for one input frame",
           "[scene][map][input][chatbot]") {
     urpg::input::InputCore input;

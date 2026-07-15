@@ -312,6 +312,17 @@ void MapScene::onUpdate(float deltaTime) {
             textCmd.zOrder = 51;
             layer.submit(urpg::toFrameRenderCommand(textCmd));
 
+            if (!m_activeAuthoredDialogueCaption.empty()) {
+                urpg::TextCommand captionCmd;
+                captionCmd.text = m_activeAuthoredDialogueCaption;
+                captionCmd.x = 40.0f;
+                captionCmd.y = 252.0f;
+                captionCmd.fontSize = 18;
+                captionCmd.maxWidth = 560;
+                captionCmd.zOrder = 49;
+                layer.submit(urpg::toFrameRenderCommand(captionCmd));
+            }
+
             if (m_messageRunner.state() == urpg::message::MessageFlowState::AwaitingChoice) {
                 const auto& choice_prompt = m_messageRunner.choicePrompt();
                 const auto& choices = choice_prompt.options();
@@ -702,6 +713,8 @@ void MapScene::startDialogue(const std::vector<urpg::message::DialoguePage>& pag
     m_dialogueRuntimeDiagnostics.clear();
     m_activeAuthoredDialogueGraph.reset();
     m_activeAuthoredDialogueNodeId.clear();
+    m_activeAuthoredDialogueCaption.clear();
+    m_activeAuthoredDialogueVoiceAssetId.clear();
     m_messageRunner.begin(pages);
 }
 
@@ -901,6 +914,18 @@ bool MapScene::beginActiveAuthoredDialogueNode(const std::string& node_id) {
     page.body = resolve_text(node->localization_key, node->text_preview, node->id);
     page.variant.speaker = node->speaker_name.empty() ? node->speaker_id : node->speaker_name;
     page.variant.route_token = "native_dialogue_graph";
+    m_activeAuthoredDialogueCaption = node->caption_localization_key.empty()
+                                         ? std::string{}
+                                         : resolve_text(node->caption_localization_key, page.body, node->id + ":caption");
+    m_activeAuthoredDialogueVoiceAssetId = node->voice_asset_id;
+    if (!m_activeAuthoredDialogueVoiceAssetId.empty()) {
+        if (m_audioCore == nullptr) {
+            m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_voice_audio_core_missing:" + node->id);
+        } else if (m_audioCore->playSound(m_activeAuthoredDialogueVoiceAssetId, urpg::audio::AudioCategory::SE) == 0) {
+            m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_voice_playback_failed:" + node->id + ":" +
+                                                   m_activeAuthoredDialogueVoiceAssetId);
+        }
+    }
     for (const auto& choice : node->choices) {
         bool enabled = true;
         std::string disabled_reason;

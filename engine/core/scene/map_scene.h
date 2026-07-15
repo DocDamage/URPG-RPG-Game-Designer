@@ -225,6 +225,8 @@ class MapScene : public GameScene {
     const std::vector<std::string>& dialogueRuntimeDiagnostics() const { return m_dialogueRuntimeDiagnostics; }
     const std::string& activeDialogueConversationId() const { return m_activeDialogueConversationId; }
     const std::string& activeAuthoredDialogueNodeId() const { return m_activeAuthoredDialogueNodeId; }
+    const std::string& activeAuthoredDialogueCaption() const { return m_activeAuthoredDialogueCaption; }
+    const std::string& activeAuthoredDialogueVoiceAssetId() const { return m_activeAuthoredDialogueVoiceAssetId; }
 
     /**
      * @brief Starts a chatbot-driven conversation.
@@ -347,6 +349,8 @@ class MapScene : public GameScene {
     std::optional<urpg::dialogue::DialogueGraph> m_activeAuthoredDialogueGraph;
     std::string m_activeAuthoredDialogueNodeId;
     std::optional<urpg::localization::LocaleCatalog> m_dialogueLocaleCatalog;
+    std::string m_activeAuthoredDialogueCaption;
+    std::string m_activeAuthoredDialogueVoiceAssetId;
     std::vector<AuthoredDialogueInteraction> m_authoredDialogueInteractions;
     std::shared_ptr<urpg::ai::ChatbotComponent> m_activeChatbot;
     std::unique_ptr<urpg::ui::ChatWindow> m_chatUI;

@@ -539,6 +539,8 @@ void bindLevelBuilder(EditorPanelRuntime& runtime) {
 
     if (runtime.perspective_2d_scene != nullptr) {
         runtime.perspective_2d_scene->setProjectRoot(runtime.project_root);
+        runtime.perspective_2d_scene->setAudioCore(std::shared_ptr<urpg::audio::AudioCore>(
+            &runtime.audio_preview_core, [](urpg::audio::AudioCore*) {}));
     }
 
     const bool catalogLoaded = loadGridPartCatalog(runtime.project_root, runtime.level_builder_catalog);

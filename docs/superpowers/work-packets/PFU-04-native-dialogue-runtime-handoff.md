@@ -25,6 +25,11 @@ Execute a saved native Dialogue Graph through the existing `MapScene` and
   choice localization keys resolve through that catalog. Missing selected keys
   retain their authored preview/label fallback and emit an observable runtime
   diagnostic; no locale bundle is changed.
+- An authored node caption key resolves through that same selected catalog and
+  renders above the native message box, with the resolved node body as its
+  fallback. An authored voice asset ID dispatches through the injected native
+  `AudioCore` as an SE source when the node begins. Missing audio-core binding
+  or rejected playback records a diagnostic without rejecting the dialogue.
 - Choice conditions evaluate against the existing native `GlobalStateHub`
   integer-compatible values. Unmet or unsupported conditions render disabled
   choices rather than silently changing the branch.
@@ -41,10 +46,9 @@ Execute a saved native Dialogue Graph through the existing `MapScene` and
 
 ## Limits
 
-This first execution slice does not resolve captions or voice assets at
-runtime; select locale bundles automatically; support non-integer dialogue
-state; preserve transient page-presentation/choice-cursor state across save;
-or qualify playthrough/package/release behavior. Saved-graph execution from an
-authored map-event command is covered by
+This first execution slice does not select locale bundles automatically;
+support non-integer dialogue state; preserve transient page-presentation/
+choice-cursor state across save; or qualify playthrough/package/release
+behavior. Saved-graph execution from an authored map-event command is covered by
 `PFU-04-map-event-dialogue-runtime-binding.md`. Builds and test execution
 remain deferred under the user instruction for this phase.
