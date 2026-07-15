@@ -50,7 +50,7 @@ without adding a general script or arbitrary file-loading command.
 This supports visible switch/integer-variable/event-local-self-switch
 conditional map-event pages and the existing native `confirm_interact` path;
 other event commands, mixed `show_text` plus saved-graph sequences, interaction
-animation and page-conditional collision, dialogue-choice-effect
+animation, dialogue-choice-effect
 synchronization beyond native dialogue state into the Perspective 2D
 preview-state document, and playthrough/package/
 release qualification remain open. Builds and test execution remain deferred

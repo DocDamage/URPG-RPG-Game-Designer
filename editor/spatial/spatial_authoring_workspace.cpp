@@ -1937,6 +1937,28 @@ bool SpatialAuthoringWorkspace::SetPerspectiveEventBlocksMovement(const std::str
     return true;
 }
 
+bool SpatialAuthoringWorkspace::SetPerspectiveEventPageBlocksMovement(const std::string& event_id,
+                                                                       const std::string& page_id,
+                                                                       std::optional<bool> blocks_movement) {
+    const auto event = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                                    [&](const PerspectiveEvent& candidate) { return candidate.event_id == event_id; });
+    if (event == perspective_events_.end()) {
+        return false;
+    }
+    const auto page = std::find_if(event->pages.begin(), event->pages.end(),
+                                   [&](const PerspectiveEvent::Page& candidate) { return candidate.page_id == page_id; });
+    if (page == event->pages.end() ||
+        (page->has_blocks_movement_override == blocks_movement.has_value() &&
+         (!blocks_movement.has_value() || page->blocks_movement == *blocks_movement))) {
+        return false;
+    }
+    page->has_blocks_movement_override = blocks_movement.has_value();
+    page->blocks_movement = blocks_movement.value_or(false);
+    markPerspectiveDirty();
+    captureRenderSnapshot();
+    return true;
+}
+
 bool SpatialAuthoringWorkspace::AddPerspectiveEventCommand(const std::string& event_id,
                                                            const std::string& command_code,
                                                            const std::string& argument) {
@@ -2525,12 +2547,16 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
                                       {"comparison", condition.comparison},
                                       {"value", condition.value}});
             }
-            pages.push_back({{"page_id", page.page_id},
-                             {"label", page.label},
-                             {"trigger_id", page.trigger_id},
-                             {"order", page.order},
-                             {"conditions", std::move(conditions)},
-                             {"commands", serialize_commands(page.commands)}});
+            nlohmann::json page_json = {{"page_id", page.page_id},
+                                        {"label", page.label},
+                                        {"trigger_id", page.trigger_id},
+                                        {"order", page.order},
+                                        {"conditions", std::move(conditions)},
+                                        {"commands", serialize_commands(page.commands)}};
+            if (page.has_blocks_movement_override) {
+                page_json["blocks_movement"] = page.blocks_movement;
+            }
+            pages.push_back(std::move(page_json));
         }
         nlohmann::json event_json = {{"event_id", event.event_id},
                                      {"label", event.label},
@@ -3165,6 +3191,11 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
             page.label = page_json.value("label", page.page_id);
             page.trigger_id = page_json.value("trigger_id", event.trigger_id);
             page.order = page_json.value("order", static_cast<int>(event.pages.size()));
+            const auto blocks_movement = page_json.find("blocks_movement");
+            if (blocks_movement != page_json.end() && blocks_movement->is_boolean()) {
+                page.has_blocks_movement_override = true;
+                page.blocks_movement = blocks_movement->get<bool>();
+            }
             for (const auto& condition_json : page_json.value("conditions", nlohmann::json::array())) {
                 PerspectiveEvent::Condition condition;
                 condition.type = condition_json.value("type", "");
@@ -4091,11 +4122,29 @@ void SpatialAuthoringWorkspace::syncEventCollidersToTargetScene() {
                                         [&](const PerspectiveLayer& candidate) {
                                             return candidate.id == event.layer_id;
                                         });
-        if (!event.blocks_movement || layer == perspective_layers_.end() || !layer->visible || event.tile_x < 0 ||
+        const bool has_page_override = std::any_of(event.pages.begin(), event.pages.end(), [](const auto& page) {
+            return page.has_blocks_movement_override;
+        });
+        if ((!event.blocks_movement && !has_page_override) || layer == perspective_layers_.end() || !layer->visible || event.tile_x < 0 ||
             event.tile_x >= m_target_scene->getWidth() || event.tile_y < 0 || event.tile_y >= m_target_scene->getHeight()) {
             continue;
         }
-        colliders.push_back({event.event_id, event.tile_x, event.tile_y});
+        urpg::scene::MapEventCollider collider;
+        collider.event_id = event.event_id;
+        collider.tile_x = event.tile_x;
+        collider.tile_y = event.tile_y;
+        collider.default_blocks_movement = event.blocks_movement;
+        for (const auto& page : event.pages) {
+            urpg::scene::MapEventCollider::PageCandidate candidate;
+            candidate.page_id = page.page_id;
+            candidate.has_blocks_movement_override = page.has_blocks_movement_override;
+            candidate.blocks_movement = page.blocks_movement;
+            for (const auto& condition : page.conditions) {
+                candidate.conditions.push_back({condition.type, condition.key, condition.comparison, condition.value});
+            }
+            collider.page_candidates.push_back(std::move(candidate));
+        }
+        colliders.push_back(std::move(collider));
     }
     if (!m_target_scene->setEventColliders(std::move(colliders))) {
         (void)m_target_scene->setEventColliders({});
@@ -4527,6 +4576,8 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
             page_snapshot.order = page.order;
             page_snapshot.selected = page.page_id == event.selected_page_id;
             page_snapshot.active_in_playtest = active_page != nullptr && active_page->page_id == page.page_id;
+            page_snapshot.has_blocks_movement_override = page.has_blocks_movement_override;
+            page_snapshot.blocks_movement = page.blocks_movement;
             for (const auto& condition : page.conditions) {
                 page_snapshot.conditions.push_back(
                     {condition.type, condition.key, condition.comparison, condition.value});

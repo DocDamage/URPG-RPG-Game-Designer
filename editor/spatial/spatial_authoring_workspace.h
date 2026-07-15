@@ -15,6 +15,7 @@
 #include "editor/ui/editor_panel.h"
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -126,6 +127,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
             int order = 0;
             bool selected = false;
             bool active_in_playtest = false;
+            bool has_blocks_movement_override = false;
+            bool blocks_movement = false;
             size_t condition_count = 0;
             size_t command_count = 0;
             std::vector<ConditionSnapshot> conditions;
@@ -626,6 +629,9 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                        float screen_y);
     bool MovePerspectiveEventFromScreen(const std::string& event_id, float screen_x, float screen_y);
     bool SetPerspectiveEventBlocksMovement(const std::string& event_id, bool blocks_movement);
+    bool SetPerspectiveEventPageBlocksMovement(const std::string& event_id,
+                                               const std::string& page_id,
+                                               std::optional<bool> blocks_movement);
     bool AddPerspectiveEventCommand(const std::string& event_id,
                                     const std::string& command_code,
                                     const std::string& argument);
@@ -787,6 +793,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
             std::string label;
             std::string trigger_id;
             int order = 0;
+            bool has_blocks_movement_override = false;
+            bool blocks_movement = false;
             std::vector<Condition> conditions;
             std::vector<Command> commands;
         };

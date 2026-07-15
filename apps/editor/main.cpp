@@ -3917,7 +3917,7 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
     }
     ImGui::InputFloat("Map X", &eventScreenX, 1.0f, 8.0f, "%.0f");
     ImGui::InputFloat("Map Y", &eventScreenY, 1.0f, 8.0f, "%.0f");
-    ImGui::Checkbox("Blocks Movement", &eventBlocksMovement);
+    ImGui::Checkbox("First Page Blocks Movement", &eventBlocksMovement);
     if (ImGui::Button("Create Event Page")) {
         const auto layer = std::find_if(snapshot.perspective_2d_layers.begin(), snapshot.perspective_2d_layers.end(),
                                         [](const auto& candidate) {
@@ -3935,12 +3935,9 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
                                       workspace.AddPerspectiveEventPageCommand(eventId, pageId,
                                                                               eventCommandCodes[eventCommandIndex],
                                                                               commandArgument);
-            const bool collisionAlreadyConfigured = std::any_of(
-                snapshot.perspective_2d_events.begin(), snapshot.perspective_2d_events.end(),
-                [&](const auto& event) { return event.event_id == eventId && event.blocks_movement; });
             const bool configuredCollision = addedCommand &&
-                                             (!eventBlocksMovement || collisionAlreadyConfigured ||
-                                              workspace.SetPerspectiveEventBlocksMovement(eventId, true));
+                                             (!eventBlocksMovement ||
+                                              workspace.SetPerspectiveEventPageBlocksMovement(eventId, pageId, true));
             runtime.map_save_status = configuredCollision
                                           ? "Event page authored in the active Map document; save Map to publish it."
                                           : "Event creation was rejected; event IDs and page IDs must be unique.";
@@ -3952,8 +3949,21 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
             ImGui::PushID(event.event_id.c_str());
             ImGui::Text("%s (%zu pages)", event.event_id.c_str(), event.page_count);
             bool blocksMovement = event.blocks_movement;
-            if (ImGui::Checkbox("Blocks Movement", &blocksMovement)) {
+            if (ImGui::Checkbox("Default Blocks Movement", &blocksMovement)) {
                 (void)workspace.SetPerspectiveEventBlocksMovement(event.event_id, blocksMovement);
+            }
+            for (const auto& page : event.pages) {
+                ImGui::PushID(page.page_id.c_str());
+                int collisionMode = !page.has_blocks_movement_override ? 0 : page.blocks_movement ? 1 : 2;
+                ImGui::TextDisabled("Page: %s", page.label.empty() ? page.page_id.c_str() : page.label.c_str());
+                ImGui::SameLine();
+                if (ImGui::Combo("Collision", &collisionMode, "Inherit\0Block Movement\0Pass Through\0")) {
+                    const std::optional<bool> blocksForPage =
+                        collisionMode == 0 ? std::nullopt : std::optional<bool>{collisionMode == 1};
+                    (void)workspace.SetPerspectiveEventPageBlocksMovement(event.event_id, page.page_id,
+                                                                            blocksForPage);
+                }
+                ImGui::PopID();
             }
             if (!event.asset_id.empty()) {
                 ImGui::TextDisabled("Runtime event sprite: %s", event.asset_id.c_str());

@@ -1804,6 +1804,16 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
     REQUIRE(map.isDialogueActive());
     REQUIRE(workspace.SetPerspectiveEventBlocksMovement("rune_sign", true));
     REQUIRE(map.checkCollision(rune_tile_x, rune_tile_y));
+    REQUIRE(workspace.AddPerspectiveEventPage("rune_sign", "cleansed", "Cleansed", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageConditionRule("rune_sign", "cleansed", "switch", "rune_cleansed",
+                                                            "equals", "true"));
+    REQUIRE(workspace.SetPerspectiveEventPageBlocksMovement("rune_sign", "cleansed", false));
+    global_state.setSwitch("rune_cleansed", false);
+    REQUIRE(map.checkCollision(rune_tile_x, rune_tile_y));
+    global_state.setSwitch("rune_cleansed", true);
+    REQUIRE_FALSE(map.checkCollision(rune_tile_x, rune_tile_y));
+    REQUIRE(workspace.SetPerspectiveEventPageBlocksMovement("rune_sign", "cleansed", std::nullopt));
+    REQUIRE(map.checkCollision(rune_tile_x, rune_tile_y));
     REQUIRE(workspace.SetPerspectiveEventBlocksMovement("rune_sign", false));
     REQUIRE_FALSE(map.checkCollision(rune_tile_x, rune_tile_y));
 

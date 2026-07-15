@@ -714,6 +714,16 @@ bool MapScene::setEventColliders(std::vector<MapEventCollider> colliders) {
             (index > 0 && colliders[index - 1].event_id == collider.event_id)) {
             return false;
         }
+        for (const auto& page : collider.page_candidates) {
+            if (page.page_id.empty() ||
+                std::any_of(page.conditions.begin(), page.conditions.end(), [](const auto& condition) {
+                    return (condition.type != "switch" && condition.type != "variable" &&
+                            condition.type != "self_switch") ||
+                           condition.key.empty() || !isSupportedPerspectivePageComparison(condition.comparison);
+                })) {
+                return false;
+            }
+        }
     }
     m_eventColliders = std::move(colliders);
     return true;
@@ -727,7 +737,17 @@ bool MapScene::checkCollision(int x, int y) const {
         return true;
     }
     return std::any_of(m_eventColliders.begin(), m_eventColliders.end(), [&](const MapEventCollider& collider) {
-        return collider.tile_x == x && collider.tile_y == y;
+        if (collider.tile_x != x || collider.tile_y != y) {
+            return false;
+        }
+        bool blocks_movement = collider.default_blocks_movement;
+        for (const auto& page : collider.page_candidates) {
+            if (authoredDialoguePageConditionsMatch(collider.event_id, page.conditions) &&
+                page.has_blocks_movement_override) {
+                blocks_movement = page.blocks_movement;
+            }
+        }
+        return blocks_movement;
     });
 }
 
@@ -1006,9 +1026,8 @@ MapScene::AuthoredDialogueStateSnapshot MapScene::authoredDialogueStateSnapshot(
     return snapshot;
 }
 
-bool MapScene::authoredDialoguePageConditionsMatch(
-    const std::string& event_id,
-    const std::vector<AuthoredDialogueInteraction::PageCondition>& conditions) const {
+bool MapScene::authoredDialoguePageConditionsMatch(const std::string& event_id,
+                                                   const std::vector<MapEventPageCondition>& conditions) const {
     const auto& state = urpg::GlobalStateHub::getInstance();
     const auto switches = state.getAllSwitches();
     const auto variables = state.getAllVariables();

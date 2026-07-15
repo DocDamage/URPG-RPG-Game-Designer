@@ -56,12 +56,30 @@ struct MapEventSprite {
     int tile_y = 0;
 };
 
+// A condition shared by native projections of one persisted Perspective 2D
+// event page. The event document remains the persistence authority.
+struct MapEventPageCondition {
+    std::string type;
+    std::string key;
+    std::string comparison = "equals";
+    std::string value;
+};
+
 // A native collision projection of an authored event. Event documents remain
 // authoritative; MapScene uses this record only for movement and path checks.
 struct MapEventCollider {
+    struct PageCandidate {
+        std::string page_id;
+        bool has_blocks_movement_override = false;
+        bool blocks_movement = false;
+        std::vector<MapEventPageCondition> conditions;
+    };
+
     std::string event_id;
     int tile_x = 0;
     int tile_y = 0;
+    bool default_blocks_movement = false;
+    std::vector<PageCandidate> page_candidates;
 };
 
 enum class MapSceneSaveLoadOperation : uint8_t {
@@ -129,12 +147,7 @@ class MapScene : public GameScene {
         // A conditional projection of a single Perspective 2D event page.
         // The source page order is retained so the final matching page has
         // the same precedence as the authoring preview.
-        struct PageCondition {
-            std::string type;
-            std::string key;
-            std::string comparison = "equals";
-            std::string value;
-        };
+        using PageCondition = MapEventPageCondition;
 
         struct PageCandidate {
             std::string page_id;
@@ -358,9 +371,8 @@ class MapScene : public GameScene {
                                            const std::string& conversation_id);
     bool validateAuthoredDialogueStateWrites(const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes);
     void applyAuthoredDialogueStateWrites(const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes);
-    bool authoredDialoguePageConditionsMatch(
-        const std::string& event_id,
-        const std::vector<AuthoredDialogueInteraction::PageCondition>& conditions) const;
+    bool authoredDialoguePageConditionsMatch(const std::string& event_id,
+                                             const std::vector<MapEventPageCondition>& conditions) const;
     bool beginActiveAuthoredDialogueNode(const std::string& node_id);
 
     std::string m_mapId;

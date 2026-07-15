@@ -28,14 +28,17 @@ changing event command execution, or claiming package/runtime qualification.
 - Perspective 2D undo, redo, draft load, layer visibility, and active-map
   rebinding reuse the existing document/history route, so the runtime sprite
   projection follows the same authoritative state.
-- An event's persisted `blocks_movement` flag is edited through the Event
-  Authoring UI and projects only for visible, in-bounds event layers. The
-  `MapScene` replaces the validated collider batch deterministically by event
-  ID; direct movement and path planning use the same collision predicate.
+- An event's persisted `blocks_movement` default and its page-level
+  `blocks_movement` overrides are edited through Event Authoring and project
+  only for visible, in-bounds event layers. The `MapScene` replaces the
+  validated collider batch deterministically by event ID and evaluates the
+  final matching page with the existing switch/integer-variable/event-local
+  self-switch condition authority; direct movement and path planning use the
+  same collision predicate.
 
 ## Limits
 
-This does not add page-conditional collision, animation/sheet slicing,
-page-conditional visibility, interaction binding, event execution changes,
-texture packing, package evidence, or release qualification. Builds and test
-execution remain deferred under the user instruction for this phase.
+This does not add animation/sheet slicing, page-conditional visibility,
+interaction binding, event execution changes, texture packing, package
+evidence, or release qualification. Builds and test execution remain deferred
+under the user instruction for this phase.
