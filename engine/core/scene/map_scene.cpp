@@ -1004,8 +1004,13 @@ bool MapScene::setAuthoredDialogueInteractions(std::vector<AuthoredDialogueInter
         }
         for (const auto& page : interaction.page_candidates) {
             if (page.page_id.empty() ||
-                (page.dialogue_id.empty() && page.message_pages.empty() && page.state_writes.empty()) ||
+                (page.dialogue_id.empty() && page.message_pages.empty() && page.state_writes.empty() &&
+                 !page.transfer.has_value()) ||
                 (!page.dialogue_id.empty() && !isStableDialogueProjectId(page.dialogue_id)) ||
+                (page.transfer.has_value() && !page.dialogue_id.empty() && page.message_pages.empty()) ||
+                (page.transfer.has_value() &&
+                 (page.transfer->map_id != m_mapId || page.transfer->tile_x < 0 || page.transfer->tile_x >= m_width ||
+                  page.transfer->tile_y < 0 || page.transfer->tile_y >= m_height)) ||
                 std::any_of(page.message_pages.begin(), page.message_pages.end(),
                             [](const std::string& message) { return message.empty(); }) ||
                 std::any_of(page.state_writes.begin(), page.state_writes.end(),
@@ -1072,6 +1077,18 @@ void MapScene::applyAuthoredDialogueStateWrites(
     if (!state_writes.empty()) {
         ++m_authoredDialogueStateRevision;
     }
+}
+
+bool MapScene::applyAuthoredDialogueTransfer(const AuthoredDialogueInteraction::Transfer& transfer) {
+    if (transfer.map_id != m_mapId || transfer.tile_x < 0 || transfer.tile_x >= m_width || transfer.tile_y < 0 ||
+        transfer.tile_y >= m_height) {
+        return false;
+    }
+    m_playerMovement.lastGridPos = m_playerMovement.gridPos;
+    m_playerMovement.gridPos = {transfer.tile_x, transfer.tile_y};
+    m_playerMovement.isMoving = false;
+    m_playerMovement.moveProgress = 0.0f;
+    return true;
 }
 
 MapScene::AuthoredDialogueStateSnapshot MapScene::authoredDialogueStateSnapshot() const {
@@ -1178,6 +1195,9 @@ bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigg
     }
     const std::string& dialogue_id = selected_page != nullptr ? selected_page->dialogue_id : interaction->dialogue_id;
     const auto& state_writes = selected_page != nullptr ? selected_page->state_writes : interaction->state_writes;
+    const auto* transfer = selected_page != nullptr && selected_page->transfer.has_value()
+                               ? &*selected_page->transfer
+                               : nullptr;
     if (selected_page != nullptr && !selected_page->message_pages.empty()) {
         m_dialogueRuntimeDiagnostics.clear();
         std::optional<urpg::dialogue::DialogueGraph> pending_graph;
@@ -1193,6 +1213,10 @@ bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigg
             return true;
         }
         applyAuthoredDialogueStateWrites(state_writes);
+        if (transfer != nullptr && !applyAuthoredDialogueTransfer(*transfer)) {
+            m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_event_transfer_failed:" + interaction->event_id);
+            return true;
+        }
         std::vector<urpg::message::DialoguePage> pages;
         pages.reserve(selected_page->message_pages.size());
         for (size_t index = 0; index < selected_page->message_pages.size(); ++index) {
@@ -1219,6 +1243,9 @@ bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigg
             return true;
         }
         applyAuthoredDialogueStateWrites(state_writes);
+        if (transfer != nullptr && !applyAuthoredDialogueTransfer(*transfer)) {
+            m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_event_transfer_failed:" + interaction->event_id);
+        }
         return true;
     }
     if (!startAuthoredDialogueFromProjectWithStateWrites(dialogue_id, state_writes)) {

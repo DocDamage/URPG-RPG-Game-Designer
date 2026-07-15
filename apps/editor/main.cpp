@@ -3914,6 +3914,8 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
     ImGui::InputText("Command Argument", &commandArgument);
     if (std::string_view(eventCommandCodes[eventCommandIndex]) == "start_dialogue") {
         ImGui::TextDisabled("Use a saved Dialogue Graph ID from content/dialogues (letters, digits, '_' and '-' only).");
+    } else if (std::string_view(eventCommandCodes[eventCommandIndex]) == "transfer_player") {
+        ImGui::TextDisabled("Use the bound Map ID and in-bounds tile coordinates: map_id:x,y.");
     }
     ImGui::InputFloat("Map X", &eventScreenX, 1.0f, 8.0f, "%.0f");
     ImGui::InputFloat("Map Y", &eventScreenY, 1.0f, 8.0f, "%.0f");

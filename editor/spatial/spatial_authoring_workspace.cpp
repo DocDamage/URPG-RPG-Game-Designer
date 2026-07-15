@@ -4304,6 +4304,7 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
             const size_t state_write_limit = dialogue_id.empty() ? first_message_command_index : dialogue_command_index;
 
             std::vector<urpg::scene::MapScene::AuthoredDialogueInteraction::StateWrite> state_writes;
+            std::optional<urpg::scene::MapScene::AuthoredDialogueInteraction::Transfer> transfer;
             for (size_t index = 0; index < state_write_limit; ++index) {
                 const auto& command = commands[index];
                 const std::string argument = trimCopy(command.argument);
@@ -4354,9 +4355,20 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
                             event.event_id,
                         });
                     }
+                } else if (command.code == "transfer_player") {
+                    urpg::scene::MapScene::AuthoredDialogueInteraction::Transfer parsed_transfer;
+                    const auto map_split = argument.find(':');
+                    const auto comma_split = argument.find(',', map_split == std::string::npos ? 0 : map_split + 1);
+                    if (map_split != std::string::npos && comma_split != std::string::npos &&
+                        parseInt(trimCopy(argument.substr(map_split + 1, comma_split - map_split - 1)),
+                                 parsed_transfer.tile_x) &&
+                        parseInt(trimCopy(argument.substr(comma_split + 1)), parsed_transfer.tile_y)) {
+                        parsed_transfer.map_id = trimCopy(argument.substr(0, map_split));
+                    }
+                    transfer = std::move(parsed_transfer);
                 }
             }
-            if (dialogue_id.empty() && message_pages.empty() && state_writes.empty()) {
+            if (dialogue_id.empty() && message_pages.empty() && state_writes.empty() && !transfer.has_value()) {
                 return std::nullopt;
             }
             urpg::scene::MapScene::AuthoredDialogueInteraction::PageCandidate candidate;
@@ -4364,6 +4376,7 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
             candidate.dialogue_id = dialogue_id;
             candidate.message_pages = std::move(message_pages);
             candidate.state_writes = std::move(state_writes);
+            candidate.transfer = std::move(transfer);
             for (const auto& condition : conditions) {
                 if (condition.type != "switch" && condition.type != "variable" &&
                     condition.type != "self_switch") {

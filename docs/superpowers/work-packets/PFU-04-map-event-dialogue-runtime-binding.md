@@ -40,6 +40,11 @@ without adding a general script or arbitrary file-loading command.
 - A matched page containing only supported switch, integer-variable, or
   event-local self-switch writes runs through that same typed state owner and
   consumes the interaction without opening a native message or graph.
+- A state-only or text-presenting matched page may contain one bounded
+  `transfer_player` command before presentation. It accepts only
+  `current_map_id:x,y` with in-bounds tile coordinates, then resets the native
+  player movement state at that tile; graph-only transfer pages and cross-map
+  transfer remain outside this slice.
 - `MapScene` versions its authored dialogue state after projected writes and
   dialogue-choice effects. The bound Perspective 2D workspace consumes that
   versioned snapshot on its normal render pass, updating its preview switches,
@@ -56,7 +61,7 @@ without adding a general script or arbitrary file-loading command.
 
 This supports visible switch/integer-variable/event-local-self-switch
 conditional map-event pages and the existing native `confirm_interact` path;
-other event commands beyond bounded state writes, interaction animation, dialogue-choice-effect
+other event commands beyond bounded state writes/current-map transfer, interaction animation, dialogue-choice-effect
 synchronization beyond native dialogue state into the Perspective 2D
 preview-state document, and playthrough/package/
 release qualification remain open. Builds and test execution remain deferred

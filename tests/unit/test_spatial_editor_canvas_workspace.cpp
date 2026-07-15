@@ -1851,6 +1851,20 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
                          [](const auto& entry) { return entry.key == "state_signal:B" && entry.value == "true"; }) !=
             state_only_snapshot.self_switches.end());
 
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("transfer_signal", "Transfer Signal", "confirm_interact", 50.0f, 40.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("transfer_signal", "main", "Main", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("transfer_signal", "main", "transfer_player", "p2d_dialogue_map:3,3"));
+    const auto transfer_interaction = std::find_if(map.authoredDialogueInteractions().begin(),
+                                                   map.authoredDialogueInteractions().end(), [](const auto& candidate) {
+                                                       return candidate.event_id == "transfer_signal";
+                                                   });
+    REQUIRE(transfer_interaction != map.authoredDialogueInteractions().end());
+    REQUIRE(transfer_interaction->page_candidates.front().transfer.has_value());
+    REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", transfer_interaction->tile_x,
+                                                          transfer_interaction->tile_y));
+    REQUIRE(map.getPlayerMovement().gridPos == urpg::Vector2i{3, 3});
+    REQUIRE_FALSE(map.getPlayerMovement().isMoving);
+
     auto duplicate = original_interaction;
     duplicate.event_id = "duplicate";
     REQUIRE_FALSE(map.setAuthoredDialogueInteractions({original_interaction, duplicate}));

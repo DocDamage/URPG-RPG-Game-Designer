@@ -158,6 +158,12 @@ class MapScene : public GameScene {
             std::string event_id;
         };
 
+        struct Transfer {
+            std::string map_id;
+            int tile_x = -1;
+            int tile_y = -1;
+        };
+
         // A conditional projection of a single Perspective 2D event page.
         // The source page order is retained so the final matching page has
         // the same precedence as the authoring preview.
@@ -169,6 +175,7 @@ class MapScene : public GameScene {
             std::vector<std::string> message_pages;
             std::vector<PageCondition> conditions;
             std::vector<StateWrite> state_writes;
+            std::optional<Transfer> transfer;
         };
 
         std::string event_id;
@@ -388,6 +395,7 @@ class MapScene : public GameScene {
     void applyAuthoredDialogueStateWrites(const std::vector<AuthoredDialogueInteraction::StateWrite>& state_writes);
     bool authoredDialoguePageConditionsMatch(const std::string& event_id,
                                              const std::vector<MapEventPageCondition>& conditions) const;
+    bool applyAuthoredDialogueTransfer(const AuthoredDialogueInteraction::Transfer& transfer);
     bool beginActiveAuthoredDialogueNode(const std::string& node_id);
     bool beginPendingAuthoredDialogue();
 
