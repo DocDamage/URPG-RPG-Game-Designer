@@ -11,6 +11,7 @@
 #include "editor/audio/audio_mix_panel.h"
 #include "editor/character/character_creator_model.h"
 #include "editor/character/character_creator_panel.h"
+#include "editor/export/export_diagnostics_panel.h"
 #include "editor/project/creator_checklist_panel.h"
 #include "editor/project/main_menu_panel.h"
 #include "editor/project/new_project_wizard_model.h"
@@ -149,6 +150,7 @@ struct EditorPanelRuntime {
     urpg::input::InputRemapStore input_remap_draft;
     urpg::accessibility::AccessibilityAuditor accessibility_auditor;
     urpg::editor::AccessibilityPanel accessibility_panel;
+    urpg::editor::ExportDiagnosticsPanel export_diagnostics_panel;
     urpg::battle::BattleFlowController battle_preview_flow;
     urpg::battle::BattleActionQueue battle_preview_actions;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
@@ -2841,6 +2843,47 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             }
         } else {
             ImGui::TextDisabled("Run the audit to inspect the current native creator surfaces.");
+        }
+    }
+    if (ImGui::CollapsingHeader("Export Diagnostics")) {
+        static int exportTargetIndex = 0;
+        static constexpr const char* exportTargetLabels[] = {
+            "Windows x64", "Linux x64", "macOS Universal", "Web WASM",
+        };
+        static constexpr urpg::tools::ExportTarget exportTargets[] = {
+            urpg::tools::ExportTarget::Windows_x64,
+            urpg::tools::ExportTarget::Linux_x64,
+            urpg::tools::ExportTarget::macOS_Universal,
+            urpg::tools::ExportTarget::Web_WASM,
+        };
+        ImGui::TextDisabled("Run native export preflight for this project; this view never creates a package.");
+        ImGui::Combo("Export Target", &exportTargetIndex, exportTargetLabels, IM_ARRAYSIZE(exportTargetLabels));
+        const auto previewOutputDir = runtime.project_root / "build" / "export-preview";
+        ImGui::TextDisabled("Preview output: %s", previewOutputDir.generic_string().c_str());
+        if (ImGui::Button("Run Export Preflight")) {
+            urpg::tools::ExportConfig config{};
+            config.target = exportTargets[exportTargetIndex];
+            config.mode = urpg::tools::ExportMode::DevBootstrap;
+            config.outputDir = previewOutputDir.string();
+            runtime.export_diagnostics_panel.setExportConfig(config);
+            runtime.export_diagnostics_panel.render();
+            runtime.map_save_status = "Export preflight completed; no package was generated.";
+        }
+        const auto& exportSnapshot = runtime.export_diagnostics_panel.lastRenderSnapshot();
+        if (exportSnapshot.value("panel", "") == "export_diagnostics") {
+            const bool preflightPassed = exportSnapshot.value("validationPassed", false);
+            ImGui::Text("Preflight: %s", preflightPassed ? "passed" : "blocked");
+            ImGui::TextDisabled("This is staging validation, not package or release evidence.");
+            for (const auto& error : exportSnapshot.value("errors", nlohmann::json::array())) {
+                ImGui::BulletText("%s", error.get<std::string>().c_str());
+            }
+            if (exportSnapshot.value("postExportValidationPassed", false)) {
+                ImGui::TextDisabled("Existing emitted output passed post-export inspection.");
+            } else {
+                ImGui::TextDisabled("No validated emitted package is present at the preview output.");
+            }
+        } else {
+            ImGui::TextDisabled("Run preflight to inspect this project's export staging configuration.");
         }
     }
     static std::string questId = "restore_moonwell_lantern";
