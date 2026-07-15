@@ -5,6 +5,7 @@
 #include "editor/assets/asset_library_panel.h"
 #include "editor/assets/editor_asset_drag_payload.h"
 #include "editor/assets/editor_thumbnail_cache.h"
+#include "editor/audio/audio_mix_panel.h"
 #include "editor/character/character_creator_model.h"
 #include "editor/character/character_creator_panel.h"
 #include "editor/project/creator_checklist_panel.h"
@@ -24,6 +25,8 @@
 #include "engine/core/analytics/analytics_dispatcher.h"
 #include "engine/core/analytics/analytics_privacy_controller.h"
 #include "engine/core/analytics/analytics_uploader.h"
+#include "engine/core/audio/audio_core.h"
+#include "engine/core/audio/audio_mix_presets.h"
 #include "engine/core/app_cli.h"
 
 #include <type_traits>
@@ -135,6 +138,9 @@ struct EditorPanelRuntime {
     urpg::editor::MapAuthoringWorkspace map_authoring_workspace;
     urpg::editor::PlaytestSessionController playtest_session;
     urpg::ability::AbilitySystemComponent ability_runtime;
+    urpg::audio::AudioCore audio_preview_core;
+    urpg::audio::AudioMixPresetBank audio_mix_draft;
+    urpg::editor::AudioMixPanel audio_mix_panel;
     urpg::battle::BattleFlowController battle_preview_flow;
     urpg::battle::BattleActionQueue battle_preview_actions;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
@@ -154,6 +160,7 @@ struct EditorPanelRuntime {
     std::string quest_draft_id = "quest_draft";
     std::string vendor_draft_id = "vendor_draft";
     std::string battle_preview_encounter_id;
+    std::string audio_mix_preset = "Default";
     bool creator_mode = false;
     bool focus_workspace_next_frame = true;
     std::string last_workspace_panel_id;
@@ -170,6 +177,7 @@ struct EditorPanelRuntime {
     bool quest_dirty_surface_registered = false;
     bool database_dirty_surface_registered = false;
     bool vendor_dirty_surface_registered = false;
+    bool audio_mix_dirty_surface_registered = false;
 };
 
 constexpr const char* kMapDirtyDocumentId = "map.grid_parts";
@@ -178,6 +186,7 @@ constexpr const char* kCharacterDirtyDocumentId = "character.creator";
 constexpr const char* kQuestDirtyDocumentId = "quest.draft";
 constexpr const char* kDatabaseDirtyDocumentId = "database.project";
 constexpr const char* kVendorDirtyDocumentId = "vendor.catalog";
+constexpr const char* kAudioMixDirtyDocumentId = "audio.mix";
 
 std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asset) {
     std::string stem;
@@ -501,6 +510,30 @@ urpg::editor::EditorDirtySaveResult saveVendorDraft(EditorPanelRuntime& runtime)
             "Saved vendor stock to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
+std::filesystem::path audioMixDraftPath(const EditorPanelRuntime& runtime) {
+    return runtime.project_root / "config" / "audio_mix_presets.json";
+}
+
+nlohmann::json audioMixDraftJson(const EditorPanelRuntime& runtime) {
+    auto json = runtime.audio_mix_draft.toJson();
+    json["schema"] = "urpg.project_audio_mix.v1";
+    json["active_preset"] = runtime.audio_mix_preset;
+    return json;
+}
+
+urpg::editor::EditorDirtySaveResult saveAudioMixDraft(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty()) {
+        return {false, "audio_mix_save_project_unavailable", "Open a project before saving an audio mix."};
+    }
+    std::string error;
+    const auto target = audioMixDraftPath(runtime);
+    if (!atomicWriteTextFile(target, audioMixDraftJson(runtime).dump(2) + "\n", &error)) {
+        return {false, "audio_mix_save_failed", "Failed to save audio mix: " + error};
+    }
+    return {true, "audio_mix_saved",
+            "Saved audio mix to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
+}
+
 void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     if (!runtime.project_session.isOpen() || runtime.project_root.empty()) return;
     const auto mapDirty = runtime.dirty_state_registry.isDirty(kMapDirtyDocumentId) ||
@@ -510,7 +543,8 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     const auto questDirty = runtime.dirty_state_registry.isDirty(kQuestDirtyDocumentId);
     const auto databaseDirty = runtime.dirty_state_registry.isDirty(kDatabaseDirtyDocumentId);
     const auto vendorDirty = runtime.dirty_state_registry.isDirty(kVendorDirtyDocumentId);
-    if (!mapDirty && !abilityDirty && !characterDirty && !questDirty && !databaseDirty && !vendorDirty) return;
+    const auto audioMixDirty = runtime.dirty_state_registry.isDirty(kAudioMixDirtyDocumentId);
+    if (!mapDirty && !abilityDirty && !characterDirty && !questDirty && !databaseDirty && !vendorDirty && !audioMixDirty) return;
 
     std::vector<urpg::editor::RecoveryDocumentDraft> drafts;
     if (mapDirty) {
@@ -549,6 +583,10 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
         drafts.push_back({kVendorDirtyDocumentId, std::filesystem::path("content") / "vendors" /
                                                      (runtime.vendor_draft_id + ".json"),
                           runtime.vendor_draft.toJson().dump(2) + "\n"});
+    }
+    if (audioMixDirty) {
+        drafts.push_back({kAudioMixDirtyDocumentId, std::filesystem::path("config") / "audio_mix_presets.json",
+                          audioMixDraftJson(runtime).dump(2) + "\n"});
     }
 
     const auto dirtyDocumentIds = runtime.dirty_state_registry.dirtyDocumentIds();
@@ -641,6 +679,27 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
         runtime.vendor_draft = urpg::shop::VendorCatalog::fromJson(nlohmann::json::parse(vendorInput, nullptr, false));
     }
     runtime.vendor_draft.setKnownItems(databaseItemIds(runtime.database_draft));
+    runtime.audio_mix_draft.loadDefaults();
+    runtime.audio_mix_preset = "Default";
+    if (std::ifstream audioMixInput(audioMixDraftPath(runtime), std::ios::binary); audioMixInput.good()) {
+        try {
+            const auto audioMixJson = nlohmann::json::parse(audioMixInput);
+            runtime.audio_mix_draft.fromJson(audioMixJson);
+            runtime.audio_mix_preset = audioMixJson.value("active_preset", "Default");
+        } catch (const std::exception&) {
+            runtime.map_save_status = "Saved audio mix is invalid; the default mix was loaded instead.";
+            runtime.audio_mix_draft.loadDefaults();
+            runtime.audio_mix_preset = "Default";
+        }
+    }
+    runtime.audio_preview_core.setAssetRoot(projectRoot / "content");
+    runtime.audio_mix_panel.bindBank(&runtime.audio_mix_draft);
+    runtime.audio_mix_panel.bindCore(&runtime.audio_preview_core);
+    if (!runtime.audio_mix_panel.selectPreset(runtime.audio_mix_preset)) {
+        runtime.audio_mix_preset = "Default";
+        (void)runtime.audio_mix_panel.selectPreset(runtime.audio_mix_preset);
+    }
+    runtime.diagnostics_workspace.bindAudioRuntime(runtime.audio_preview_core);
     const auto starterMapId = starterMapIdForProject(projectRoot);
     const auto requestedMapExists = std::find(runtime.available_map_ids.begin(), runtime.available_map_ids.end(), requestedMapId) !=
                                     runtime.available_map_ids.end();
@@ -902,6 +961,14 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
         [] {},
         {},
     });
+    runtime.audio_mix_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        kAudioMixDirtyDocumentId,
+        "map_authoring",
+        false,
+        [&runtime] { return saveAudioMixDraft(runtime); },
+        [] {},
+        {},
+    });
     runtime.pattern_field_panel.bindModel(runtime.pattern_field_model);
     runtime.mod_loader = std::make_unique<urpg::mod::ModLoader>(runtime.mod_registry);
     runtime.mod_manager_panel.bindRegistry(&runtime.mod_registry);
@@ -912,6 +979,9 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
     runtime.analytics_panel.bindUploader(&runtime.analytics_uploader);
     runtime.analytics_panel.bindPrivacyController(&runtime.analytics_privacy_controller);
     runtime.diagnostics_workspace.bindAbilityRuntime(runtime.ability_runtime);
+    runtime.audio_mix_panel.bindBank(&runtime.audio_mix_draft);
+    runtime.audio_mix_panel.bindCore(&runtime.audio_preview_core);
+    runtime.diagnostics_workspace.bindAudioRuntime(runtime.audio_preview_core);
     bindLevelBuilder(runtime);
 
     using PanelRenderFactory = std::function<urpg::editor::EditorShell::RenderCallback(EditorPanelRuntime&)>;
@@ -2476,6 +2546,44 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         }
         if (!canRecordPreviewOutcome) {
             ImGui::EndDisabled();
+        }
+    }
+    if (ImGui::CollapsingHeader("Audio Mix", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::TextDisabled("Project mix presets apply to the native editor audio core and save with this project.");
+        const auto presetNames = runtime.audio_mix_draft.listPresets();
+        if (ImGui::BeginCombo("Mix Preset", runtime.audio_mix_preset.c_str())) {
+            for (const auto& presetName : presetNames) {
+                const bool selected = presetName == runtime.audio_mix_preset;
+                if (ImGui::Selectable(presetName.c_str(), selected)) {
+                    runtime.audio_mix_preset = presetName;
+                }
+                if (selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        if (ImGui::Button("Apply Mix Preview")) {
+            if (!runtime.audio_mix_panel.selectPreset(runtime.audio_mix_preset)) {
+                runtime.map_save_status = "Audio mix preview rejected an unknown preset.";
+            } else {
+                runtime.diagnostics_workspace.bindAudioRuntime(runtime.audio_preview_core);
+                runtime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::Audio);
+                (void)runtime.dirty_state_registry.markDirty(kAudioMixDirtyDocumentId, true);
+                runtime.map_save_status = "Applied audio mix '" + runtime.audio_mix_preset +
+                                          "' to the native editor preview; save to publish it.";
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Open Audio Diagnostics")) {
+            runtime.diagnostics_workspace.bindAudioRuntime(runtime.audio_preview_core);
+            runtime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::Audio);
+            (void)editorShell.openPanel("diagnostics");
+            runtime.focus_workspace_next_frame = true;
+            workspace.setNextActionHint("Audio diagnostics opened from the active Map context.");
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save Audio Mix")) {
+            const auto result = runtime.dirty_state_registry.save(kAudioMixDirtyDocumentId);
+            runtime.map_save_status = result.message;
         }
     }
     static std::string questId = "restore_moonwell_lantern";
