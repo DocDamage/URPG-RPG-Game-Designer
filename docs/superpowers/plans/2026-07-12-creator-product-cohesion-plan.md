@@ -90,8 +90,12 @@ The current `development` implementation has completed the bounded M0-M5 foundat
 | M2 | Implemented metadata-only virtual catalog and 100,000-row performance coverage | Re-run against the creator's configured live library when qualifying a release machine. |
 | M3 | Implemented preview, archive selection, promotion/attachment, and typed drag payloads | Durable drops are currently accepted by Map Tiles and Props; the other contextual consumers and complete drop-history integration remain open. |
 | M4 | Implemented unified Map routing, shared context/history, layout, diagnostics, and paired atomic save | Complete the remaining shortcut breadth and record graphical route/layout equivalence. |
-| M5 | Implemented atomic starter-project wizard and durable creator checklist | Immediate editor-owned playtest is still M6, so the original M5 milestone wording is only partially satisfied. |
-| M6-M11 | Planned | Playtest/return, recovery/relinking, contextual deep authoring/gameplay primitives, vertical slice, polish, and release qualification remain open. |
+| M5 | Implemented atomic starter-project wizard and durable creator checklist | The wizard now offers a starter-map playtest handoff; full milestone evidence still needs native runtime execution and requalification. |
+| M6 | Initial implementation | Editor-owned process lifecycle, private current-map overlay, F5 stop/restart, and bounded JSONL diagnostics are implemented. Blocker enforcement, target breadth, diagnostic focus, and safe reload remain open. |
+| M7 | Initial implementation | Checksummed recovery snapshot primitives and orderly-session markers are implemented. In-memory draft autosave, restore/review UI, and asset relinking remain open. |
+| M8 | Planned | Contextual deep authoring/gameplay primitives remain open. |
+| M9 | Contract defined | The governed vertical-slice scenario and strict report gate exist, but no creator-authored passed runtime/package report exists. |
+| M10-M11 | Planned | Manual polish/review and clean target qualification remain open. |
 
 Focused evidence recorded for this checkpoint includes the creator-journey gate, 25 passing Python asset-import/catalog tests with one platform skip, thumbnail and Map-history tests, all three `dev-spatial` tests, 73 selected M1/M5 CTests, a successful editor headless frame, and successful `urpg_editor`/`urpg_tests` builds. Re-run the milestone commands before using that evidence for a new release target.
 
@@ -101,8 +105,9 @@ Focused evidence recorded for this checkpoint includes the creator-journey gate,
 
 - `content/fixtures/creator_journey_qualification_spec.json` defines the required PFU-I1 creator steps, evidence kinds, diagnostic policy, deterministic budgets, and Debug/Release provenance requirements.
 - `tools/ci/check_creator_journey_qualification.ps1` accepts only a complete passed report with clean, commit-matched build and evidence provenance; it rejects partial/deferred status, duplicate/missing/unknown steps, fallback diagnostics, missing artifacts, and evidence from another commit.
+- `tools/ci/check_pfu_i1_qualification.ps1` invokes the target command set and emits a commit-stamped manifest only after the strict report, M9 slice, spatial, governed-asset, recovery, accessibility/input, package, install, and Debug/Release provenance checks pass.
 
-This contract is a gate definition, not a qualification result. The historical creator-journey report remains the current mixed passed/partial/deferred baseline until native creator workflows produce the required target evidence.
+This contract and wrapper are gate definitions, not qualification results. The historical creator-journey report remains the current mixed passed/partial/deferred baseline until native creator workflows produce the required target evidence.
 
 ---
 
