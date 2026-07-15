@@ -520,9 +520,9 @@ nlohmann::json AssetLibraryPanel::createImageCropScaleRevision(
 nlohmann::json AssetLibraryPanel::createImagePaletteRevision(std::string source_path,
                                                               const std::filesystem::path& derived_root,
                                                               std::string operation_id,
-                                                              std::vector<uint32_t> colors_rgba) {
+                                                              std::vector<uint32_t> colors_rgba, const bool dither) {
     auto result = model_.createImagePaletteRevision(std::move(source_path), derived_root, std::move(operation_id),
-                                                    std::move(colors_rgba));
+                                                    std::move(colors_rgba), dither);
     refreshRenderSnapshotsFromModel();
     return result;
 }

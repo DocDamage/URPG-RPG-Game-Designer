@@ -2194,13 +2194,14 @@ nlohmann::json AssetLibraryModel::createImageCropScaleRevision(
 nlohmann::json AssetLibraryModel::createImagePaletteRevision(std::string source_path,
                                                               const std::filesystem::path& derived_root,
                                                               std::string operation_id,
-                                                              std::vector<uint32_t> colors_rgba) {
+                                                              std::vector<uint32_t> colors_rgba, const bool dither) {
     std::replace(source_path.begin(), source_path.end(), '\\', '/');
     nlohmann::json action = {
         {"action", "create_image_palette_revision"},
         {"path", source_path},
         {"derived_root", derived_root.generic_string()},
         {"operation_id", operation_id},
+        {"dither", dither},
         {"success", false},
         {"code", "asset_not_found"},
         {"message", "Asset was not found in the library."},
@@ -2217,6 +2218,7 @@ nlohmann::json AssetLibraryModel::createImagePaletteRevision(std::string source_
         plan.source = manifestFromAssetRecord(*found);
         plan.derivedRoot = derived_root;
         plan.colorsRgba = std::move(colors_rgba);
+        plan.dither = dither;
         urpg::assets::AssetTransformRevisionService service;
         const auto result = service.createImagePaletteRevision(plan);
         action["asset_id"] = found->asset_id;

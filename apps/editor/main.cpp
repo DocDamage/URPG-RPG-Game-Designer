@@ -2505,6 +2505,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
         return colors;
     }();
     static int paletteInitializedColorCount = 2;
+    static bool paletteDither = false;
     static std::string paletteExtractOperationId = "image-auto-palette";
     static int paletteExtractMaxColors = 16;
     static bool paletteExtractDither = false;
@@ -2753,6 +2754,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                 const std::string label = "Palette color " + std::to_string(index + 1);
                 ImGui::ColorEdit4(label.c_str(), paletteColors[static_cast<size_t>(index)].data());
             }
+            ImGui::Checkbox("Fixed-point Floyd-Steinberg dither", &paletteDither);
             if (configuredLibraryRoot.empty()) {
                 ImGui::TextDisabled("A configured external asset library is required to store derived revisions.");
             }
@@ -3051,7 +3053,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                     }
                     const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
                     const auto result = panel.createImagePaletteRevision(path, derivedRoot, paletteOperationId,
-                                                                          std::move(colors));
+                                                                          std::move(colors), paletteDither);
                     assetWorkflowStatus = result.value("message", "Palette revision did not return a status.");
                     if (result.value("success", false)) {
                         derivedRevisionManifestPath = result.value("manifest_path", "");

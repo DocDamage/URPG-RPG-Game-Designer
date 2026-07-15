@@ -329,7 +329,8 @@ AssetTransformRevisionResult AssetTransformRevisionService::createImagePaletteRe
     const auto sourceRevision = sha256File(sourcePath);
     const nlohmann::json identity = {{"schema", "urpg.asset_transform_revision.v1"}, {"operation", "image_palette"},
                                      {"operation_id", plan.operationId}, {"source_asset_id", plan.source.assetId},
-                                     {"source_revision", sourceRevision}, {"palette_rgba", plan.colorsRgba}};
+                                     {"source_revision", sourceRevision}, {"palette_rgba", plan.colorsRgba},
+                                     {"dither", plan.dither ? "floyd_steinberg_rgba_fixed16" : "none"}};
     const auto derivedRevision = sha256Text(identity.dump());
     const auto outputDirectory = plan.derivedRoot / plan.source.assetId / "revisions";
     const auto outputPath = outputDirectory / (derivedRevision + ".png");
@@ -339,7 +340,8 @@ AssetTransformRevisionResult AssetTransformRevisionService::createImagePaletteRe
                                      {"source_promoted_path", plan.source.promotedPath}, {"source_revision", sourceRevision},
                                      {"derived_revision", derivedRevision}, {"output_path", outputPath.generic_string()},
                                      {"width", width}, {"height", height}, {"palette_rgba", plan.colorsRgba},
-                                     {"mapping", "nearest_rgba_squared"}};
+                                     {"mapping", "nearest_rgba_squared"},
+                                     {"dither", plan.dither ? "floyd_steinberg_rgba_fixed16" : "none"}};
     std::error_code error;
     std::filesystem::create_directories(outputDirectory, error);
     if (error) return blocked("asset_transform_directory_create_failed", error.message());
@@ -351,22 +353,44 @@ AssetTransformRevisionResult AssetTransformRevisionService::createImagePaletteRe
         }
         return blocked("asset_transform_revision_collision", "A different or incomplete revision occupies this ID.");
     }
-    std::vector<stbi_uc> outputPixels(static_cast<size_t>(width) * height * 4U);
-    for (size_t pixel = 0; pixel < static_cast<size_t>(width) * height; ++pixel) {
+    const auto pixelCount = static_cast<size_t>(width) * height;
+    std::vector<stbi_uc> outputPixels(pixelCount * 4U);
+    std::vector<int32_t> ditherErrors(plan.dither ? pixelCount * 4U : 0U, 0);
+    const auto addDitherError = [&](const int x, const int y, const size_t channel, const int32_t error,
+                                    const int weight) {
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+            ditherErrors[(static_cast<size_t>(y) * width + x) * 4U + channel] += (error * weight) / 16;
+        }
+    };
+    for (int y = 0; y < height; ++y) for (int x = 0; x < width; ++x) {
+        const auto pixel = static_cast<size_t>(y) * width + x;
         const auto* source = decodedPixels.get() + (pixel * 4U);
+        int32_t working[4] = {};
+        for (size_t channel = 0; channel < 4U; ++channel) {
+            const auto error = plan.dither ? ditherErrors[pixel * 4U + channel] : 0;
+            working[channel] = std::clamp(static_cast<int32_t>(source[channel]) * 16 + error, 0, 255 * 16);
+        }
         uint32_t selected = plan.colorsRgba.front();
         uint64_t bestDistance = std::numeric_limits<uint64_t>::max();
         for (const auto color : plan.colorsRgba) {
             uint64_t distance = 0;
             for (size_t channel = 0; channel < 4U; ++channel) {
-                const auto paletteValue = static_cast<int>((color >> ((3U - channel) * 8U)) & 0xFFU);
-                const auto delta = static_cast<int>(source[channel]) - paletteValue;
+                const auto paletteValue = static_cast<int32_t>((color >> ((3U - channel) * 8U)) & 0xFFU) * 16;
+                const auto delta = working[channel] - paletteValue;
                 distance += static_cast<uint64_t>(delta * delta);
             }
             if (distance < bestDistance) { bestDistance = distance; selected = color; }
         }
         for (size_t channel = 0; channel < 4U; ++channel) {
-            outputPixels[pixel * 4U + channel] = static_cast<stbi_uc>((selected >> ((3U - channel) * 8U)) & 0xFFU);
+            const auto paletteValue = static_cast<int32_t>((selected >> ((3U - channel) * 8U)) & 0xFFU) * 16;
+            const auto residual = working[channel] - paletteValue;
+            outputPixels[pixel * 4U + channel] = static_cast<stbi_uc>(paletteValue / 16);
+            if (plan.dither) {
+                addDitherError(x + 1, y, channel, residual, 7);
+                addDitherError(x - 1, y + 1, channel, residual, 3);
+                addDitherError(x, y + 1, channel, residual, 5);
+                addDitherError(x + 1, y + 1, channel, residual, 1);
+            }
         }
     }
     const auto stagedOutput = outputPath.string() + ".tmp";

@@ -58,6 +58,7 @@ struct AssetImagePalettePlan {
     AssetPromotionManifest source;
     std::filesystem::path derivedRoot;
     std::vector<uint32_t> colorsRgba;
+    bool dither = false;
 };
 
 // Extracts an ordered exact-RGBA palette directly from a reviewed promoted

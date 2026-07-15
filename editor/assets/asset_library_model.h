@@ -187,7 +187,8 @@ class AssetLibraryModel {
         int32_t crop_x, int32_t crop_y, int32_t crop_width, int32_t crop_height, int32_t output_width,
         int32_t output_height);
     nlohmann::json createImagePaletteRevision(std::string source_path, const std::filesystem::path& derived_root,
-                                              std::string operation_id, std::vector<uint32_t> colors_rgba);
+                                              std::string operation_id, std::vector<uint32_t> colors_rgba,
+                                              bool dither);
     nlohmann::json createImagePaletteExtractRevision(std::string source_path,
                                                      const std::filesystem::path& derived_root,
                                                      std::string operation_id, int32_t max_colors, bool dither);
