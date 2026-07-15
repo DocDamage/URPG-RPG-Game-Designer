@@ -34,6 +34,10 @@ namespace urpg::scene {
 struct TileData {
     uint16_t tileId = 0;
     bool isPassable = true;
+    bool passableDown = true;
+    bool passableLeft = true;
+    bool passableRight = true;
+    bool passableUp = true;
     bool hasVisual = false;
     // Empty keeps the map-level tileset reference for legacy/compat maps.
     // Native authored maps may select a packed atlas per painted tile.
@@ -249,7 +253,12 @@ class MapScene : public GameScene {
      */
     void setTilePassable(int x, int y, bool passable) {
         if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
-            m_tiles[y * m_width + x].isPassable = passable;
+            auto& tile = m_tiles[y * m_width + x];
+            tile.isPassable = passable;
+            tile.passableDown = passable;
+            tile.passableLeft = passable;
+            tile.passableRight = passable;
+            tile.passableUp = passable;
             m_renderLayerDirty = true;
         }
     }
@@ -259,17 +268,27 @@ class MapScene : public GameScene {
             auto& tile = m_tiles[y * m_width + x];
             tile.tileId = tileId;
             tile.isPassable = passable;
+            tile.passableDown = passable;
+            tile.passableLeft = passable;
+            tile.passableRight = passable;
+            tile.passableUp = passable;
             tile.hasVisual = true;
             tile.tilesetId.clear();
             m_renderLayerDirty = true;
         }
     }
 
-    void setTileWithTileset(int x, int y, uint16_t tileId, bool passable, std::string tileset_id) {
+    void setTileWithTileset(int x, int y, uint16_t tileId, bool passable, std::string tileset_id,
+                            bool passable_down = true, bool passable_left = true,
+                            bool passable_right = true, bool passable_up = true) {
         if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
             auto& tile = m_tiles[y * m_width + x];
             tile.tileId = tileId;
             tile.isPassable = passable;
+            tile.passableDown = passable_down;
+            tile.passableLeft = passable_left;
+            tile.passableRight = passable_right;
+            tile.passableUp = passable_up;
             tile.hasVisual = true;
             tile.tilesetId = std::move(tileset_id);
             m_renderLayerDirty = true;
@@ -280,6 +299,7 @@ class MapScene : public GameScene {
 
     // Coordinate Authority
     bool checkCollision(int x, int y) const;
+    bool canMove(int x, int y, urpg::Direction direction) const;
 
     MovementComponent& getPlayerMovement() { return m_playerMovement; }
 

@@ -286,6 +286,20 @@ TEST_CASE("MapScene: Coordinate and Collision Authority", "[scene][map]") {
     }
 }
 
+TEST_CASE("MapScene: directional tile passage governs movement", "[scene][map][movement]") {
+    MapScene map("directional", 2, 2);
+    map.setTileWithTileset(0, 0, 1, true, "atlas", false, true, true, true);
+    map.setTileWithTileset(0, 1, 2, true, "atlas", true, true, true, true);
+    REQUIRE_FALSE(map.canMove(0, 0, urpg::Direction::Down));
+
+    map.setTileWithTileset(0, 0, 1, true, "atlas", true, true, true, true);
+    map.setTileWithTileset(0, 1, 2, true, "atlas", true, true, true, false);
+    REQUIRE_FALSE(map.canMove(0, 0, urpg::Direction::Down));
+
+    map.setTileWithTileset(0, 1, 2, true, "atlas", true, true, true, true);
+    REQUIRE(map.canMove(0, 0, urpg::Direction::Down));
+}
+
 TEST_CASE("MapScene: invalid dimensions create an empty collision-safe map", "[scene][map][robustness]") {
     std::unique_ptr<MapScene> map;
     REQUIRE_NOTHROW(map = std::make_unique<MapScene>("invalid", -3, 2));

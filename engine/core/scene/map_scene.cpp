@@ -26,6 +26,34 @@ namespace {
 constexpr const char* kMissingPlayerSpriteId = "missing_player_sprite";
 constexpr const char* kMissingTilesetId = "missing_tileset";
 
+bool allowsPassage(const TileData& tile, const urpg::Direction direction) {
+    switch (direction) {
+    case urpg::Direction::Down:
+        return tile.passableDown;
+    case urpg::Direction::Left:
+        return tile.passableLeft;
+    case urpg::Direction::Right:
+        return tile.passableRight;
+    case urpg::Direction::Up:
+        return tile.passableUp;
+    }
+    return false;
+}
+
+urpg::Direction oppositeDirection(const urpg::Direction direction) {
+    switch (direction) {
+    case urpg::Direction::Down:
+        return urpg::Direction::Up;
+    case urpg::Direction::Left:
+        return urpg::Direction::Right;
+    case urpg::Direction::Right:
+        return urpg::Direction::Left;
+    case urpg::Direction::Up:
+        return urpg::Direction::Down;
+    }
+    return urpg::Direction::Down;
+}
+
 std::optional<bool> evaluateAuthoredDialogueCondition(const urpg::dialogue::DialogueCondition& condition) {
     if (condition.key.empty()) {
         return std::nullopt;
@@ -509,7 +537,8 @@ void MapScene::rebuildTileRenderCache() {
 }
 
 void MapScene::clearTiles(const bool passable) {
-    std::fill(m_tiles.begin(), m_tiles.end(), TileData{0, passable, false, {}});
+    std::fill(m_tiles.begin(), m_tiles.end(),
+              TileData{0, passable, passable, passable, passable, passable, false, {}});
     m_renderLayerDirty = true;
 }
 
@@ -652,8 +681,10 @@ void MapScene::handleInput(const urpg::input::InputCore& input) {
     }
 
     if (shouldMove) {
-        auto collisionCheck = [this](int x, int y) { return this->checkCollision(x, y); };
-        urpg::MovementSystem::TryMove(m_playerMovement, moveDir, collisionCheck);
+        if (canMove(m_playerMovement.gridPos.x, m_playerMovement.gridPos.y, moveDir)) {
+            auto collisionCheck = [this](int x, int y) { return this->checkCollision(x, y); };
+            urpg::MovementSystem::TryMove(m_playerMovement, moveDir, collisionCheck);
+        }
     }
 }
 
@@ -835,6 +866,24 @@ bool MapScene::checkCollision(int x, int y) const {
         }
         return blocks_movement;
     });
+}
+
+bool MapScene::canMove(const int x, const int y, const urpg::Direction direction) const {
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
+        return false;
+    }
+    const auto& source = m_tiles[static_cast<size_t>(y * m_width + x)];
+    if (!source.isPassable) {
+        return false;
+    }
+    const auto delta = urpg::DirectionToVector(direction);
+    const int targetX = x + delta.x;
+    const int targetY = y + delta.y;
+    if (checkCollision(targetX, targetY)) {
+        return false;
+    }
+    const auto& target = m_tiles[static_cast<size_t>(targetY * m_width + targetX)];
+    return allowsPassage(source, direction) && allowsPassage(target, oppositeDirection(direction));
 }
 
 void MapScene::setRuntimeAssetMode(urpg::RuntimeAssetMode mode) {

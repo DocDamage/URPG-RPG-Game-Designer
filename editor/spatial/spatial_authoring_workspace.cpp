@@ -4484,9 +4484,9 @@ void SpatialAuthoringWorkspace::syncPerspectiveTilesToTargetScene() {
             page->runtime_atlas_path.empty() || !index.has_value() || *index >= tileCount) {
             continue;
         }
-        const bool passable = !definition->collision && definition->passable_down && definition->passable_left &&
-                              definition->passable_right && definition->passable_up;
-        m_target_scene->setTileWithTileset(tile.tile_x, tile.tile_y, *index, passable, page->asset_id);
+        m_target_scene->setTileWithTileset(tile.tile_x, tile.tile_y, *index, !definition->collision, page->asset_id,
+                                           definition->passable_down, definition->passable_left,
+                                           definition->passable_right, definition->passable_up);
     }
 }
 
