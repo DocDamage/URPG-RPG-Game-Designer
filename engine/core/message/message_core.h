@@ -87,6 +87,7 @@ class ChoicePromptState {
     bool isOpen() const { return open_; }
     size_t optionCount() const { return options_.size(); }
     size_t selectedIndex() const { return selected_index_; }
+    const std::vector<ChoiceOption>& options() const { return options_; }
     const ChoiceOption* selectedOption() const;
     bool setSelectedIndex(size_t index);
     bool moveNext();

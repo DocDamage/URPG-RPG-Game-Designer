@@ -28,6 +28,9 @@ struct DialogueChoice {
     std::string target_node_id;
     std::vector<DialogueCondition> conditions;
     std::vector<DialogueEffect> effects;
+    // Optional stable authoring reference for the visible choice label.
+    // Existing graphs with freeform labels remain valid.
+    std::string localization_key;
 };
 
 struct DialogueNode {
@@ -59,6 +62,7 @@ struct DialogueGraphDiagnostic {
 struct DialoguePreviewChoiceState {
     std::string id;
     std::string label;
+    std::string localization_key;
     std::string target_node_id;
     bool enabled = false;
     std::vector<DialogueGraphDiagnostic> diagnostics;
@@ -83,7 +87,7 @@ public:
     bool addChoice(const std::string& node_id, DialogueChoice choice);
     bool removeChoice(const std::string& node_id, const std::string& choice_id);
     bool updateChoice(const std::string& node_id, const std::string& choice_id, std::string label,
-                      std::string target_node_id);
+                      std::string target_node_id, std::string localization_key);
     bool addChoiceCondition(const std::string& node_id, const std::string& choice_id, DialogueCondition condition);
     bool removeChoiceCondition(const std::string& node_id, const std::string& choice_id,
                                const DialogueCondition& condition);

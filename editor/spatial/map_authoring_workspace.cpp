@@ -210,7 +210,7 @@ EditorAssetDropDecision MapAuthoringWorkspace::placeAssetDrop(const EditorAssetD
     context_.setDocumentDirty(MapAuthoringDocumentOwner::Perspective2D, true);
     rebuildSnapshot();
     const std::string message = target_mode == "events"
-                                    ? "Attached image event metadata was authored as one undoable action; event sprite rendering remains separate."
+                                    ? "Attached image event and its MapScene sprite projection were authored as one undoable action."
                                     : "Attached asset was placed on the Map as one undoable action.";
     return {true, "asset_drop_placed", message, ""};
 }

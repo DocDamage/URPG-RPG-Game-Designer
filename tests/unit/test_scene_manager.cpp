@@ -1,5 +1,7 @@
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
+#include "engine/core/dialogue/dialogue_graph.h"
+#include "engine/core/global_state_hub.h"
 #include "engine/core/message/chatbot_component.h"
 #include "engine/core/render/render_layer.h"
 #include "engine/core/scene/battle_scene.h"
@@ -17,6 +19,8 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <limits>
+#include <nlohmann/json.hpp>
 #include <type_traits>
 #include <utility>
 
@@ -669,6 +673,45 @@ TEST_CASE("MapScene uses project map asset references for render commands", "[sc
     REQUIRE(urpg::diagnostics::RuntimeDiagnostics::snapshot().empty());
 }
 
+TEST_CASE("MapScene projects validated authored event sprites into runtime render commands",
+          "[scene][map][render][events]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    MapScene map("EventSpriteMap", 3, 2);
+    REQUIRE(map.setEventSprites({
+        {"event_vendor", {"asset.vendor", "content/assets/vendor.png"}, 2, 1},
+        {"event_sign", {"asset.sign", "content/assets/sign.png"}, 0, 1},
+    }));
+    REQUIRE(map.eventSprites().size() == 2);
+    REQUIRE(map.eventSprites()[0].event_id == "event_sign");
+    REQUIRE_FALSE(map.setEventSprites({
+        {"event_invalid", {"asset.invalid", "content/assets/invalid.png"}, 3, 1},
+    }));
+    REQUIRE(map.eventSprites().size() == 2);
+    REQUIRE_FALSE(map.setEventSprites({
+        {"event_a", {"asset.shared", "content/assets/a.png"}, 0, 0},
+        {"event_b", {"asset.shared", "content/assets/b.png"}, 1, 0},
+    }));
+    REQUIRE(map.eventSprites().size() == 2);
+
+    map.onUpdate(0.0f);
+    bool sawVendor = false;
+    bool sawSign = false;
+    for (const auto& command : renderFrameCommands(layer)) {
+        if (renderCommandType(command) != urpg::RenderCmdType::Sprite) {
+            continue;
+        }
+        const auto* sprite = renderCommandAs<urpg::SpriteRenderData>(command);
+        sawVendor = sawVendor || (sprite != nullptr && sprite->textureId == "asset.vendor" &&
+                                  sprite->x == 96.0f && sprite->y == 48.0f && sprite->zOrder == 2);
+        sawSign = sawSign || (sprite != nullptr && sprite->textureId == "asset.sign" &&
+                               sprite->x == 0.0f && sprite->y == 48.0f && sprite->zOrder == 2);
+    }
+    REQUIRE(sawVendor);
+    REQUIRE(sawSign);
+}
+
 TEST_CASE("MapScene emits diagnostics before rendering asset placeholders", "[scene][map][render][assets]") {
     auto& layer = urpg::RenderLayer::getInstance();
     layer.flush();
@@ -814,6 +857,93 @@ TEST_CASE("MapScene: message runner submits render commands during dialogue", "[
 
     REQUIRE(hasTextCmd);
     REQUIRE(hasRectCmd);
+}
+
+TEST_CASE("MapScene executes a saved native Dialogue Graph through the message runtime",
+          "[scene][map][dialogue][runtime]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    urpg::dialogue::DialogueGraph graph;
+    REQUIRE(graph.addNode({"start", "guide", "Guide", "dialogue.start", "Choose a route.", false,
+                           {{"continue", "Continue", "end", {}, {}, "dialogue.choice.continue"}}}));
+    REQUIRE(graph.addNode({"end", "guide", "Guide", "dialogue.end", "Journey complete.", true, {}}));
+
+    MapScene map("AuthoredDialogueMap", 2, 2);
+    urpg::localization::LocaleCatalog locale;
+    locale.loadFromJson(nlohmann::json{{"locale", "en-US"},
+                                      {"keys", {{"dialogue.start", "Choose a localized route."},
+                                                {"dialogue.choice.continue", "Continue locally"},
+                                                {"dialogue.end", "Localized journey complete."}}}});
+    map.setDialogueLocaleCatalog(locale);
+    REQUIRE(map.startAuthoredDialogue(graph, "test.authored_dialogue"));
+    REQUIRE(map.activeDialogueConversationId() == "test.authored_dialogue");
+    REQUIRE(map.isDialogueActive());
+
+    map.onUpdate(0.0f);
+    bool saw_start = false;
+    for (const auto& command : renderFrameCommands(layer)) {
+        const auto* text = renderCommandAs<urpg::TextRenderData>(command);
+        saw_start = saw_start || (text != nullptr && text->text == "Choose a localized route.");
+    }
+    REQUIRE(saw_start);
+
+    urpg::input::InputCore input;
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(input);
+    map.onUpdate(0.0f);
+    bool saw_choice = false;
+    for (const auto& command : renderFrameCommands(layer)) {
+        const auto* text = renderCommandAs<urpg::TextRenderData>(command);
+        saw_choice = saw_choice || (text != nullptr && text->text == "> Continue locally");
+    }
+    REQUIRE(saw_choice);
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Released);
+    map.handleInput(input);
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(input);
+
+    map.onUpdate(0.0f);
+    bool saw_end = false;
+    for (const auto& command : renderFrameCommands(layer)) {
+        const auto* text = renderCommandAs<urpg::TextRenderData>(command);
+        saw_end = saw_end || (text != nullptr && text->text == "Localized journey complete.");
+    }
+    REQUIRE(saw_end);
+
+    auto& state = urpg::GlobalStateHub::getInstance();
+    state.clearSessionState();
+    state.setVariable("flag", int32_t{1});
+    state.setVariable("score", std::numeric_limits<int32_t>::max() - 1);
+    urpg::dialogue::DialogueGraph stateful;
+    REQUIRE(stateful.addNode({"start", "guide", "Guide", "dialogue.start", "Stateful.", false,
+                              {{"continue", "Continue", "end", {{"flag", "==", 1}}, {{"score", 5}}}}));
+    REQUIRE(stateful.addNode({"end", "guide", "Guide", "dialogue.end", "End.", true, {}}));
+    REQUIRE(map.startAuthoredDialogue(stateful, "test.stateful_dialogue"));
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Released);
+    map.handleInput(input);
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(input);
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Released);
+    map.handleInput(input);
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(input);
+    REQUIRE(std::get<int32_t>(state.getVariable("score")) == std::numeric_limits<int32_t>::max());
+
+    state.setVariable("flag", int32_t{0});
+    REQUIRE(map.startAuthoredDialogue(stateful, "test.stateful_dialogue"));
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Released);
+    map.handleInput(input);
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(input);
+    map.onUpdate(0.0f);
+    bool saw_disabled_choice = false;
+    for (const auto& command : renderFrameCommands(layer)) {
+        const auto* text = renderCommandAs<urpg::TextRenderData>(command);
+        saw_disabled_choice = saw_disabled_choice || (text != nullptr && text->text == "  [Unavailable] Continue");
+    }
+    REQUIRE(saw_disabled_choice);
+    state.clearSessionState();
 }
 
 TEST_CASE("InputCore stores text input, editing text, and backspace for one input frame",

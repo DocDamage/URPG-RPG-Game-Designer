@@ -136,7 +136,7 @@ bool DialogueGraph::removeChoice(const std::string& node_id, const std::string& 
 }
 
 bool DialogueGraph::updateChoice(const std::string& node_id, const std::string& choice_id, std::string label,
-                                 std::string target_node_id) {
+                                 std::string target_node_id, std::string localization_key) {
     const auto node = nodes_.find(node_id);
     if (node == nodes_.end() || choice_id.empty() || label.empty() || target_node_id.empty() ||
         !nodes_.contains(target_node_id)) {
@@ -145,11 +145,13 @@ bool DialogueGraph::updateChoice(const std::string& node_id, const std::string& 
     const auto choice = std::find_if(node->second.choices.begin(), node->second.choices.end(),
                                      [&](const DialogueChoice& candidate) { return candidate.id == choice_id; });
     if (choice == node->second.choices.end() ||
-        (choice->label == label && choice->target_node_id == target_node_id)) {
+        (choice->label == label && choice->target_node_id == target_node_id &&
+         choice->localization_key == localization_key)) {
         return false;
     }
     choice->label = std::move(label);
     choice->target_node_id = std::move(target_node_id);
+    choice->localization_key = std::move(localization_key);
     return true;
 }
 
@@ -287,6 +289,7 @@ std::vector<DialoguePreviewChoiceState> DialogueGraph::previewChoices(
         DialoguePreviewChoiceState state;
         state.id = choice.id;
         state.label = choice.label;
+        state.localization_key = choice.localization_key;
         state.target_node_id = choice.target_node_id;
         state.enabled = true;
         if (choice.target_node_id.empty() || findNode(choice.target_node_id) == nullptr) {
@@ -449,6 +452,13 @@ std::vector<DialogueGraphDiagnostic> DialogueGraph::validateLocalizationKeys(
                                    "Dialogue node caption localization key is not present in the active project catalog.",
                                    node_id, ""});
         }
+        for (const auto& choice : node.choices) {
+            if (!choice.localization_key.empty() && !localization_keys.contains(choice.localization_key)) {
+                diagnostics.push_back({"missing_choice_localization_key",
+                                       "Dialogue choice localization key is not present in the active project catalog.",
+                                       node_id, choice.id});
+            }
+        }
     }
     return diagnostics;
 }
@@ -508,8 +518,12 @@ std::optional<DialogueGraph> DialogueGraph::fromJson(const nlohmann::json& json)
                     !choice_json.contains("effects") || !choice_json["effects"].is_array()) {
                     return std::nullopt;
                 }
+                if (choice_json.contains("localization_key") && !choice_json["localization_key"].is_string()) {
+                    return std::nullopt;
+                }
                 DialogueChoice choice{choice_json["id"].get<std::string>(), choice_json["label"].get<std::string>(),
                                       choice_json["target_node_id"].get<std::string>(), {}, {}};
+                choice.localization_key = choice_json.value("localization_key", "");
                 for (const auto& condition_json : choice_json["conditions"]) {
                     if (!condition_json.is_object() || !condition_json.contains("key") ||
                         !condition_json["key"].is_string() || !condition_json.contains("op") ||
@@ -568,6 +582,9 @@ nlohmann::json DialogueGraph::serialize() const {
             choice_json["target_node_id"] = choice.target_node_id;
             choice_json["conditions"] = conditions;
             choice_json["effects"] = effects;
+            if (!choice.localization_key.empty()) {
+                choice_json["localization_key"] = choice.localization_key;
+            }
             choices.push_back(choice_json);
         }
         nlohmann::json node_json;

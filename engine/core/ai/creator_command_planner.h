@@ -75,6 +75,10 @@ struct CreatorCommandRequest {
     int32_t width = 32;
     int32_t height = 32;
     int32_t selected_tile_id = 2;
+    // Bounded dimensions for the reviewed deterministic tile-only route.
+    // They are not a generic brush or arbitrary provider-supplied shape.
+    int32_t tile_paint_width = 1;
+    int32_t tile_paint_height = 1;
     std::string selected_prop_asset_id;
     std::string selected_event_layer_id;
     std::string event_label;

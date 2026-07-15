@@ -4,8 +4,10 @@
 #include "engine/core/ability/authored_ability_asset.h"
 #include "engine/core/animation/animation_components.h"
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/dialogue/dialogue_graph.h"
 #include "engine/core/input/input_core.h"
 #include "engine/core/level/path_request_router.h"
+#include "engine/core/localization/locale_catalog.h"
 #include "engine/core/message/chatbot_component.h"
 #include "engine/core/message/dialogue_registry.h"
 #include "engine/core/message/message_core.h"
@@ -42,6 +44,16 @@ struct MapAssetReference {
 struct MapAssetReferences {
     MapAssetReference player_sprite;
     MapAssetReference tileset;
+};
+
+// A native Map-owned visual projection of an authored event. The Perspective
+// 2D document remains the persistence authority; this record only supplies
+// the runtime renderer with the approved stable asset reference and position.
+struct MapEventSprite {
+    std::string event_id;
+    MapAssetReference asset;
+    int tile_x = 0;
+    int tile_y = 0;
 };
 
 enum class MapSceneSaveLoadOperation : uint8_t {
@@ -119,6 +131,10 @@ class MapScene : public GameScene {
     void setPlayerCharacter(const std::string& name, int index);
     void setAssetReferences(MapAssetReferences references);
     const MapAssetReferences& assetReferences() const { return m_assetReferences; }
+    // Replaces the complete event-sprite projection after validating stable
+    // IDs and map bounds. Invalid batches leave the current runtime view intact.
+    bool setEventSprites(std::vector<MapEventSprite> sprites);
+    const std::vector<MapEventSprite>& eventSprites() const { return m_eventSprites; }
     const std::vector<std::string>& assetDiagnostics() const { return m_assetDiagnostics; }
     void setRuntimeAssetMode(urpg::RuntimeAssetMode mode);
     urpg::RuntimeAssetMode runtimeAssetMode() const { return m_runtimeAssetMode; }
@@ -158,6 +174,14 @@ class MapScene : public GameScene {
      * @brief Triggers a dialogue flow in this scene.
      */
     void startDialogue(const std::vector<urpg::message::DialoguePage>& pages);
+    // Admits a structurally valid native Dialogue Graph into the existing
+    // MessageFlowRunner, evaluating its integer conditions and applying its
+    // effects through the native GlobalStateHub.
+    bool startAuthoredDialogue(const urpg::dialogue::DialogueGraph& graph, std::string conversation_id);
+    void setDialogueLocaleCatalog(std::optional<urpg::localization::LocaleCatalog> catalog);
+    std::string dialogueLocaleCode() const;
+    const std::vector<std::string>& dialogueRuntimeDiagnostics() const { return m_dialogueRuntimeDiagnostics; }
+    const std::string& activeDialogueConversationId() const { return m_activeDialogueConversationId; }
 
     /**
      * @brief Starts a chatbot-driven conversation.
@@ -243,6 +267,8 @@ class MapScene : public GameScene {
     void rebuildTileRenderCache();
     void submitCachedTileCommands(urpg::RenderLayer& layer) const;
     void validateRenderAssetReferences();
+    void registerEventSpriteTextures();
+    bool beginActiveAuthoredDialogueNode(const std::string& node_id);
 
     std::string m_mapId;
     int m_width;
@@ -251,6 +277,7 @@ class MapScene : public GameScene {
     std::vector<urpg::TileCommand> m_cachedTileCommands;
     bool m_renderLayerDirty = true;
     MapAssetReferences m_assetReferences;
+    std::vector<MapEventSprite> m_eventSprites;
     std::vector<std::string> m_assetDiagnostics;
     bool m_assetReferencesValidated = false;
     urpg::RuntimeAssetMode m_runtimeAssetMode = urpg::RuntimeAssetMode::Development;
@@ -267,6 +294,11 @@ class MapScene : public GameScene {
 
     // Dialogue & AI Runtime
     urpg::message::MessageFlowRunner m_messageRunner;
+    std::string m_activeDialogueConversationId;
+    std::vector<std::string> m_dialogueRuntimeDiagnostics;
+    std::optional<urpg::dialogue::DialogueGraph> m_activeAuthoredDialogueGraph;
+    std::string m_activeAuthoredDialogueNodeId;
+    std::optional<urpg::localization::LocaleCatalog> m_dialogueLocaleCatalog;
     std::shared_ptr<urpg::ai::ChatbotComponent> m_activeChatbot;
     std::unique_ptr<urpg::ui::ChatWindow> m_chatUI;
     std::shared_ptr<urpg::audio::AudioCore> m_audioCore;

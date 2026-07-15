@@ -1,11 +1,14 @@
 #include "editor/spatial/spatial_authoring_workspace.h"
 
+#include "engine/core/scene/map_scene.h"
+
 #include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <filesystem>
 #include <functional>
 #include <iomanip>
 #include <nlohmann/json.hpp>
@@ -3982,7 +3985,32 @@ SpatialAuthoringWorkspace::RecordPerspectiveReleaseAssetGate(size_t release_requ
     return last_perspective_release_asset_gate_result_;
 }
 
+void SpatialAuthoringWorkspace::syncEventSpritesToTargetScene() {
+    if (m_target_scene == nullptr) {
+        return;
+    }
+
+    std::vector<urpg::scene::MapEventSprite> sprites;
+    for (const auto& event : perspective_events_) {
+        const auto layer = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                        [&](const PerspectiveLayer& candidate) {
+                                            return candidate.id == event.layer_id;
+                                        });
+        if (event.asset_id.empty() || event.asset_project_path.empty() || layer == perspective_layers_.end() ||
+            !layer->visible || event.tile_x < 0 || event.tile_x >= m_target_scene->getWidth() || event.tile_y < 0 ||
+            event.tile_y >= m_target_scene->getHeight()) {
+            continue;
+        }
+        sprites.push_back({event.event_id,
+                           {event.asset_id, std::filesystem::path{event.asset_project_path}},
+                           event.tile_x,
+                           event.tile_y});
+    }
+    (void)m_target_scene->setEventSprites(std::move(sprites));
+}
+
 void SpatialAuthoringWorkspace::captureRenderSnapshot() {
+    syncEventSpritesToTargetScene();
     if (!restoring_perspective_history_) {
         perspective_history_checkpoint_ = serializePerspectiveMapDraft();
     }

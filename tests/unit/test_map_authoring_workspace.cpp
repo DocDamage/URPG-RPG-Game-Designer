@@ -148,6 +148,45 @@ TEST_CASE("MapAuthoringWorkspace atomically places an attached tile drop with ow
     REQUIRE(perspective2D.lastRenderSnapshot().perspective_2d_project.painted_tile_count == 1);
 }
 
+TEST_CASE("MapAuthoringWorkspace projects attached event drops into the active MapScene",
+          "[spatial][map_authoring][assets][events][render]") {
+    urpg::editor::LevelBuilderWorkspace levelBuilder;
+    urpg::editor::SpatialAuthoringWorkspace perspective2D;
+    urpg::presentation::SpatialMapOverlay overlay;
+    overlay.mapId = "creator_demo";
+    overlay.elevation.width = 16;
+    overlay.elevation.height = 12;
+    overlay.elevation.levels.assign(16 * 12, 0);
+    urpg::scene::MapScene mapScene("creator_demo", 16, 12);
+    perspective2D.SetTargets(&mapScene, &overlay);
+    perspective2D.SetProjectionSettings({1280.0f, 720.0f, 8.0f, 6.0f, 1.0f / 48.0f, true});
+    REQUIRE(perspective2D.AddPerspectiveLayer("events", "Events", "event"));
+
+    urpg::editor::MapAuthoringWorkspace workspace;
+    workspace.bind(&levelBuilder, &perspective2D);
+    REQUIRE(workspace.activateMode(urpg::editor::MapAuthoringMode::Events));
+
+    urpg::editor::EditorAssetDragPayload attached;
+    attached.assetId = "asset.vendor";
+    attached.projectPath = "content/assets/imported/asset.vendor/vendor.png";
+    attached.mediaKind = "image";
+    attached.provenance = urpg::editor::EditorAssetProvenanceState::Attached;
+
+    const auto placed = workspace.placeAssetDrop(attached, "events", 640.0f, 360.0f);
+    REQUIRE(placed.accepted);
+    REQUIRE(mapScene.eventSprites().size() == 1);
+    const auto& event = perspective2D.lastRenderSnapshot().perspective_2d_events[0];
+    REQUIRE(mapScene.eventSprites()[0].event_id == event.event_id);
+    REQUIRE(mapScene.eventSprites()[0].asset.id == attached.assetId);
+    REQUIRE(mapScene.eventSprites()[0].tile_x == event.tile_x);
+    REQUIRE(mapScene.eventSprites()[0].tile_y == event.tile_y);
+
+    REQUIRE(workspace.undo().success);
+    REQUIRE(mapScene.eventSprites().empty());
+    REQUIRE(workspace.redo().success);
+    REQUIRE(mapScene.eventSprites().size() == 1);
+}
+
 TEST_CASE("MapAuthoringWorkspace routes Perspective 2D history through the active Map mode", "[spatial][map_authoring][history]") {
     urpg::editor::LevelBuilderWorkspace levelBuilder;
     urpg::editor::SpatialAuthoringWorkspace perspective2D;

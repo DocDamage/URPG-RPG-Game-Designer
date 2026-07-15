@@ -74,6 +74,7 @@ void GridPartPlacementPanel::SetTargets(urpg::map::GridPartDocument* document,
         selected_smart_prefab_id_.clear();
     }
     last_smart_prefab_result_ = {};
+    last_rectangle_fill_result_ = {};
     hover_active_ = false;
     captureRenderSnapshot();
 }
@@ -89,6 +90,7 @@ bool GridPartPlacementPanel::SetSelectedPartId(const std::string& part_id) {
     }
 
     selected_part_id_ = part_id;
+    last_rectangle_fill_result_ = {};
     hover_active_ = false;
     captureRenderSnapshot();
     return true;
@@ -163,13 +165,65 @@ bool GridPartPlacementPanel::PlaceSelectedPartFromScreen(float screen_x, float s
     return PlaceSelectedPartAtGrid(grid_x, grid_y);
 }
 
-bool GridPartPlacementPanel::FillSelectedPartRectangle(int32_t min_x, int32_t min_y, int32_t max_x, int32_t max_y) {
+GridPartPlacementPanel::RectangleFillResult GridPartPlacementPanel::PreviewSelectedPartRectangle(
+    int32_t min_x, int32_t min_y, int32_t max_x, int32_t max_y) const {
+    RectangleFillResult result;
     if (document_ == nullptr || catalog_ == nullptr || selected_part_id_.empty()) {
+        result.code = "rectangle_fill_owner_unavailable";
+        result.message = "Open a Grid Part document and select a catalog part before reviewing a rectangle fill.";
+        return result;
+    }
+
+    const auto* definition = catalog_->find(selected_part_id_);
+    if (definition == nullptr) {
+        result.code = "rectangle_fill_missing_definition";
+        result.message = "The selected catalog part is no longer available.";
+        return result;
+    }
+
+    const int32_t left = std::min(min_x, max_x);
+    const int32_t right = std::max(min_x, max_x);
+    const int32_t top = std::min(min_y, max_y);
+    const int32_t bottom = std::max(min_y, max_y);
+    if (!document_->inBounds(left, top) || !document_->inBounds(right, bottom)) {
+        result.code = "rectangle_fill_out_of_bounds";
+        result.message = "The reviewed rectangle must stay within the active Grid Part document.";
+        return result;
+    }
+
+    size_t operation_count = 0;
+    for (int32_t y = top; y <= bottom; ++y) {
+        for (int32_t x = left; x <= right; ++x) {
+            const auto instance = makeInstance(*definition, x, y);
+            if (!document_->footprintInBounds(instance)) {
+                result.code = "rectangle_fill_footprint_out_of_bounds";
+                result.message = "The selected part footprint would extend outside the active Grid Part document.";
+                return result;
+            }
+            ++operation_count;
+        }
+    }
+
+    result.accepted = operation_count != 0;
+    result.code = result.accepted ? "rectangle_fill_ready" : "rectangle_fill_empty";
+    result.message = result.accepted ? "The selected Grid Part rectangle is ready to apply as one undoable Map operation."
+                                    : "The selected Grid Part rectangle contains no placement cells.";
+    result.operation_count = operation_count;
+    return result;
+}
+
+bool GridPartPlacementPanel::FillSelectedPartRectangle(int32_t min_x, int32_t min_y, int32_t max_x, int32_t max_y) {
+    last_rectangle_fill_result_ = PreviewSelectedPartRectangle(min_x, min_y, max_x, max_y);
+    if (!last_rectangle_fill_result_.accepted || document_ == nullptr || catalog_ == nullptr) {
+        captureRenderSnapshot();
         return false;
     }
 
     const auto* definition = catalog_->find(selected_part_id_);
     if (definition == nullptr) {
+        last_rectangle_fill_result_ = {false, "rectangle_fill_missing_definition",
+                                       "The selected catalog part is no longer available."};
+        captureRenderSnapshot();
         return false;
     }
 
@@ -182,16 +236,23 @@ bool GridPartPlacementPanel::FillSelectedPartRectangle(int32_t min_x, int32_t mi
     for (int32_t y = top; y <= bottom; ++y) {
         for (int32_t x = left; x <= right; ++x) {
             auto instance = makeInstance(*definition, x, y);
-            if (!document_->footprintInBounds(instance)) {
-                captureRenderSnapshot();
-                return false;
-            }
             commands.push_back(std::make_unique<urpg::map::PlacePartCommand>(std::move(instance)));
         }
     }
 
     const bool filled = history_.execute(
         *document_, std::make_unique<urpg::map::BulkGridPartCommand>(std::move(commands), "Fill Grid Parts"));
+    if (filled) {
+        last_rectangle_fill_result_.code = "rectangle_fill_applied";
+        last_rectangle_fill_result_.message =
+            "Applied the reviewed Grid Part rectangle as one undoable native Map operation.";
+    } else {
+        last_rectangle_fill_result_.accepted = false;
+        last_rectangle_fill_result_.code = "rectangle_fill_apply_rejected";
+        last_rectangle_fill_result_.message =
+            "The Grid Part rectangle was rejected without leaving partial Map changes.";
+        last_rectangle_fill_result_.operation_count = 0;
+    }
     captureRenderSnapshot();
     return filled;
 }
@@ -297,6 +358,7 @@ void GridPartPlacementPanel::captureRenderSnapshot() {
     last_render_snapshot_.selected_part_id = selected_part_id_;
     last_render_snapshot_.selected_smart_prefab_id = selected_smart_prefab_id_;
     last_render_snapshot_.last_smart_prefab_result = last_smart_prefab_result_;
+    last_render_snapshot_.last_rectangle_fill_result = last_rectangle_fill_result_;
     last_render_snapshot_.hover_active = hover_active_;
     last_render_snapshot_.hover_valid = hover_valid_;
     last_render_snapshot_.hover_reason = hover_reason_;

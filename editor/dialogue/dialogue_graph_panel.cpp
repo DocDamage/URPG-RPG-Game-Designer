@@ -85,6 +85,7 @@ void DialogueGraphPanel::render() {
             }
             interactive_choices.push_back({{"id", choice.id},
                                            {"label", choice.label},
+                                           {"localization_key", choice.localization_key},
                                            {"target_node_id", choice.target_node_id},
                                            {"enabled", choice.enabled},
                                            {"diagnostics", std::move(choice_diagnostics)}});

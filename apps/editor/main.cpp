@@ -126,6 +126,17 @@ bool defaultHeadless() {
 #endif
 }
 
+bool containsCaseInsensitive(const std::string& value, const std::string& needle) {
+    if (needle.empty() || needle.size() > value.size()) {
+        return needle.empty();
+    }
+    return std::search(value.begin(), value.end(), needle.begin(), needle.end(),
+                       [](const char left, const char right) {
+                           return std::tolower(static_cast<unsigned char>(left)) ==
+                                  std::tolower(static_cast<unsigned char>(right));
+                       }) != value.end();
+}
+
 void printVersion() {
     std::cout << "URPG Editor " << urpg::versionString() << "\n";
 }
@@ -288,6 +299,37 @@ std::vector<std::string> collectProjectLocalizationKeys(const std::filesystem::p
         }
     }
     return {keys.begin(), keys.end()};
+}
+
+std::optional<urpg::localization::LocaleCatalog> loadProjectDialogueLocaleCatalog(
+    const std::filesystem::path& project_root, const std::string& requested_locale) {
+    std::vector<std::filesystem::path> bundle_paths;
+    std::error_code directory_error;
+    const auto localization_directory = project_root / "content" / "localization";
+    for (const auto& entry : std::filesystem::directory_iterator(localization_directory, directory_error)) {
+        if (directory_error || !entry.is_regular_file() || entry.path().extension() != ".json") {
+            continue;
+        }
+        bundle_paths.push_back(entry.path());
+    }
+    std::sort(bundle_paths.begin(), bundle_paths.end());
+    for (const auto& bundle_path : bundle_paths) {
+        std::ifstream input(bundle_path, std::ios::binary);
+        const auto bundle = nlohmann::json::parse(input, nullptr, false);
+        if (!urpg::localization::LocaleCatalog::validateBundleJson(bundle)) {
+            continue;
+        }
+        try {
+            urpg::localization::LocaleCatalog catalog;
+            catalog.loadFromJson(bundle);
+            if (requested_locale.empty() || catalog.getLocaleCode() == requested_locale) {
+                return catalog;
+            }
+        } catch (const std::invalid_argument&) {
+            // Invalid project locale data cannot be selected for runtime text.
+        }
+    }
+    return std::nullopt;
 }
 
 std::vector<std::pair<std::string, std::string>> collectProjectDialogueSpeakerOptions(
@@ -494,6 +536,10 @@ void bindLevelBuilder(EditorPanelRuntime& runtime) {
         static_cast<size_t>(runtime.level_builder_overlay.elevation.width) *
             static_cast<size_t>(runtime.level_builder_overlay.elevation.height),
         0);
+
+    if (runtime.perspective_2d_scene != nullptr) {
+        runtime.perspective_2d_scene->setProjectRoot(runtime.project_root);
+    }
 
     const bool catalogLoaded = loadGridPartCatalog(runtime.project_root, runtime.level_builder_catalog);
     runtime.level_builder_workspace.SetTargets(&runtime.level_builder_document,
@@ -3416,6 +3462,38 @@ void renderLevelBuilderWorkspace(EditorPanelRuntime& runtime) {
         ImGui::TextDisabled("%s", entry.category.c_str());
         ImGui::PopID();
     }
+    if (!snapshot.placement.selected_part_id.empty() && ImGui::CollapsingHeader("Grid Part Rectangle Fill")) {
+        static int rectangleFillMinX = 0;
+        static int rectangleFillMinY = 0;
+        static int rectangleFillMaxX = 0;
+        static int rectangleFillMaxY = 0;
+        ImGui::TextDisabled("Review the selected catalog part before applying one all-or-nothing native Map edit.");
+        ImGui::InputInt("Minimum X", &rectangleFillMinX);
+        ImGui::InputInt("Minimum Y", &rectangleFillMinY);
+        ImGui::InputInt("Maximum X", &rectangleFillMaxX);
+        ImGui::InputInt("Maximum Y", &rectangleFillMaxY);
+        if (ImGui::Button("Review Grid Part Rectangle Fill")) {
+            const auto review = workspace.placementPanel().PreviewSelectedPartRectangle(
+                rectangleFillMinX, rectangleFillMinY, rectangleFillMaxX, rectangleFillMaxY);
+            runtime.map_save_status = review.accepted
+                                          ? "Grid Part rectangle review is ready: " +
+                                                std::to_string(review.operation_count) + " placements will be applied together."
+                                          : "Grid Part rectangle review blocked: " + review.message;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Apply Grid Part Rectangle Fill")) {
+            const bool applied = workspace.placementPanel().FillSelectedPartRectangle(
+                rectangleFillMinX, rectangleFillMinY, rectangleFillMaxX, rectangleFillMaxY);
+            const auto& result = workspace.placementPanel().lastRenderSnapshot().last_rectangle_fill_result;
+            runtime.map_save_status = applied ? std::string{"Grid Part rectangle applied as one native undoable Map operation."}
+                                               : "Grid Part rectangle apply blocked: " + result.message;
+        }
+        const auto& result = workspace.placementPanel().lastRenderSnapshot().last_rectangle_fill_result;
+        if (!result.code.empty()) {
+            ImGui::TextDisabled("Rectangle fill status: %s", result.message.c_str());
+            ImGui::TextDisabled("Reviewed placement count: %zu", result.operation_count);
+        }
+    }
     if (!snapshot.placement.smart_prefabs.empty() && ImGui::CollapsingHeader("Native Smart Prefabs")) {
         static int smartPrefabGridX = 0;
         static int smartPrefabGridY = 0;
@@ -3541,6 +3619,8 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
         static int creatorTileX = 0;
         static int creatorTileY = 0;
         static int creatorPlannedTileId = 2;
+        static int creatorTilePaintWidth = 1;
+        static int creatorTilePaintHeight = 1;
         static std::string creatorLayerId;
         static std::string creatorPaletteOptionId;
         static int creatorPropX = 0;
@@ -3608,11 +3688,13 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
             [&](const auto& layer) { return layer.id == creatorEventLayerId; });
 
         ImGui::TextDisabled("Developer-only. Reviews a local deterministic plan; provider transport is dry-run only.");
-        ImGui::TextDisabled("Only separate tile-only and prop-only plans can apply through the active Map owner.");
+        ImGui::TextDisabled("Only separate tile-only, prop-only, and fixed message-event plans can apply through the active Map owner.");
         ImGui::InputText("Creator Tile Prompt", &creatorPrompt);
         ImGui::InputInt("Creator Tile X", &creatorTileX);
         ImGui::InputInt("Creator Tile Y", &creatorTileY);
         ImGui::InputInt("Creator Planned Tile ID", &creatorPlannedTileId);
+        ImGui::InputInt("Creator Tile Paint Width (1-64)", &creatorTilePaintWidth);
+        ImGui::InputInt("Creator Tile Paint Height (1-64)", &creatorTilePaintHeight);
         if (ImGui::BeginCombo("Creator Target Layer", creatorLayerId.empty() ? "Select tile layer" : creatorLayerId.c_str())) {
             for (const auto& layer : snapshot.perspective_2d_layers) {
                 const bool supported = layer.kind == "tile" && layer.visible && !layer.locked;
@@ -3639,8 +3721,8 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
             }
             ImGui::EndCombo();
         }
-        const bool creatorTileIntentSupported = creatorPrompt.find("paint tile") != std::string::npos ||
-                                                creatorPrompt.find("stamp tile") != std::string::npos;
+        const bool creatorTileIntentSupported = containsCaseInsensitive(creatorPrompt, "paint tile") ||
+                                                containsCaseInsensitive(creatorPrompt, "stamp tile");
         const bool canReviewCreatorTilePlan = creatorTileIntentSupported && !workspace.activePerspectiveMapId().empty() &&
                                               tileLayer != snapshot.perspective_2d_layers.end() && !creatorLayerId.empty() &&
                                               selectedPaletteOption != snapshot.perspective_2d_palette.tile_options.end();
@@ -3660,6 +3742,8 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
             request.width = static_cast<int32_t>(snapshot.perspective_2d_project.width);
             request.height = static_cast<int32_t>(snapshot.perspective_2d_project.height);
             request.selected_tile_id = creatorPlannedTileId;
+            request.tile_paint_width = creatorTilePaintWidth;
+            request.tile_paint_height = creatorTilePaintHeight;
             request.provider = urpg::ai::CreatorAiProvider::LocalDeterministic;
             runtime.creator_command_panel.setMapWorkspace(&workspace);
             runtime.creator_command_panel.setTilePaletteBindings(
@@ -3844,9 +3928,8 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
             ImGui::PushID(event.event_id.c_str());
             ImGui::Text("%s (%zu pages)", event.event_id.c_str(), event.page_count);
             if (!event.asset_id.empty()) {
-                ImGui::TextDisabled("Attached image metadata: %s", event.asset_id.c_str());
-                ImGui::TextDisabled("Project path: %s (sprite rendering remains separate)",
-                                    event.asset_project_path.c_str());
+                ImGui::TextDisabled("Runtime event sprite: %s", event.asset_id.c_str());
+                ImGui::TextDisabled("Project path: %s", event.asset_project_path.c_str());
             }
             if (event.asset_id.empty()) ImGui::SameLine();
             if (ImGui::SmallButton("Preview")) {
@@ -4516,7 +4599,9 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
     static std::string dialogueChoiceSourceId = "start";
     static std::string dialogueChoiceId = "ask_moonwell";
     static std::string dialogueChoiceLabel = "Ask about the Moonwell";
+    static std::string dialogueChoiceLocalizationKey;
     static std::string dialogueChoiceTargetId = "farewell";
+    static std::string dialogueRuntimeLocale;
     static std::string dialogueConditionKey = "moonwell_ready";
     static std::string dialogueConditionOp = ">=";
     static int dialogueConditionValue = 1;
@@ -5197,14 +5282,35 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             ImGui::InputText("Choice Source Node", &dialogueChoiceSourceId);
             ImGui::InputText("Dialogue Choice ID", &dialogueChoiceId);
             ImGui::InputText("Dialogue Choice Label", &dialogueChoiceLabel);
+            ImGui::InputText("Dialogue Choice Localization Key", &dialogueChoiceLocalizationKey);
+            pick_localization_key("Pick Choice Localization Key", dialogueChoiceLocalizationKey);
             ImGui::InputText("Choice Target Node", &dialogueChoiceTargetId);
+            if (ImGui::Button("Load Dialogue Choice")) {
+                const auto* source = runtime.dialogue_draft->findNode(dialogueChoiceSourceId);
+                if (source == nullptr) {
+                    runtime.map_save_status = "Enter an existing source node and choice ID to load a dialogue choice.";
+                } else if (const auto choice = std::find_if(source->choices.begin(), source->choices.end(),
+                                                            [&](const auto& candidate) {
+                                                                return candidate.id == dialogueChoiceId;
+                                                            });
+                           choice != source->choices.end()) {
+                    dialogueChoiceLabel = choice->label;
+                    dialogueChoiceLocalizationKey = choice->localization_key;
+                    dialogueChoiceTargetId = choice->target_node_id;
+                    runtime.map_save_status = "Dialogue choice loaded into the native authoring controls.";
+                } else {
+                    runtime.map_save_status = "Enter an existing source node and choice ID to load a dialogue choice.";
+                }
+            }
+            ImGui::SameLine();
             if (ImGui::Button("Add Dialogue Choice")) {
                 auto next = *runtime.dialogue_draft;
                 if (!node_exists(dialogueChoiceSourceId) || !node_exists(dialogueChoiceTargetId) ||
                     dialogueChoiceId.empty() || dialogueChoiceLabel.empty()) {
                     runtime.map_save_status = "Dialogue choices require existing source/target nodes plus an ID and label.";
                 } else if (next.addChoice(dialogueChoiceSourceId,
-                                           {dialogueChoiceId, dialogueChoiceLabel, dialogueChoiceTargetId, {}, {}}) &&
+                                           {dialogueChoiceId, dialogueChoiceLabel, dialogueChoiceTargetId, {}, {},
+                                            dialogueChoiceLocalizationKey}) &&
                            applyDialogueGraphMutation(runtime, std::move(next))) {
                     runtime.map_save_status = "Dialogue choice added as one undoable project edit.";
                 } else {
@@ -5215,7 +5321,7 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             if (ImGui::Button("Update Dialogue Choice")) {
                 auto next = *runtime.dialogue_draft;
                 if (next.updateChoice(dialogueChoiceSourceId, dialogueChoiceId, dialogueChoiceLabel,
-                                      dialogueChoiceTargetId) &&
+                                      dialogueChoiceTargetId, dialogueChoiceLocalizationKey) &&
                     applyDialogueGraphMutation(runtime, std::move(next))) {
                     runtime.map_save_status = "Dialogue choice updated as one undoable project edit.";
                 } else {
@@ -5313,6 +5419,35 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                     ImGui::BulletText("%s: %s", diagnostic.code.c_str(), diagnostic.message.c_str());
                 }
             }
+            const bool dialogue_saved = !runtime.dirty_state_registry.isDirty(kDialogueDirtyDocumentId);
+            ImGui::InputText("Dialogue Runtime Locale (optional)", &dialogueRuntimeLocale);
+            if (!dialogue_saved || runtime.perspective_2d_scene == nullptr) {
+                ImGui::BeginDisabled();
+            }
+            if (ImGui::Button("Run Saved Dialogue in Native MapScene")) {
+                runtime.perspective_2d_scene->setDialogueLocaleCatalog(
+                    loadProjectDialogueLocaleCatalog(runtime.project_root, dialogueRuntimeLocale));
+                const bool started = runtime.perspective_2d_scene->startAuthoredDialogue(
+                    *runtime.dialogue_draft, "editor.dialogue." + runtime.dialogue_draft_id);
+                if (started) {
+                    runtime.map_save_status = "Saved Dialogue Graph started through the native MapScene message runtime";
+                    if (runtime.perspective_2d_scene->dialogueLocaleCode().empty()) {
+                        runtime.map_save_status += "; preview text fallback is active.";
+                    } else {
+                        runtime.map_save_status +=
+                            " with locale " + runtime.perspective_2d_scene->dialogueLocaleCode() + ".";
+                    }
+                } else {
+                    runtime.map_save_status = "Saved Dialogue Graph could not start: " +
+                                              (runtime.perspective_2d_scene->dialogueRuntimeDiagnostics().empty()
+                                                   ? std::string{"runtime admission failed"}
+                                                   : runtime.perspective_2d_scene->dialogueRuntimeDiagnostics().front());
+                }
+            }
+            if (!dialogue_saved || runtime.perspective_2d_scene == nullptr) {
+                ImGui::EndDisabled();
+                ImGui::TextDisabled("Save the Dialogue Graph before running it through the native MapScene runtime.");
+            }
         }
         if (ImGui::CollapsingHeader("Interactive Dialogue Condition Preview")) {
             static std::string previewValueKey = "guide_affinity";
@@ -5374,6 +5509,9 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                                     runtime.dialogue_preview_trace.push_back(runtime.dialogue_preview_node_id);
                                 }
                             }
+                        }
+                        if (!choice.localization_key.empty()) {
+                            ImGui::TextDisabled("Localization key: %s", choice.localization_key.c_str());
                         }
                         for (const auto& diagnostic : choice.diagnostics) {
                             ImGui::SameLine();

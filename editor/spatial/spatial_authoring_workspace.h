@@ -580,8 +580,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                           float screen_x,
                                           float screen_y);
     // Creates one authored event from a governed attached image drop. The
-    // asset reference is retained in the Perspective 2D document and history;
-    // it does not add event-sprite runtime rendering.
+    // asset reference is retained in the Perspective 2D document/history and
+    // projected to the bound MapScene as a runtime sprite when its layer is visible.
     bool PlaceAttachedAssetEventFromScreen(const std::string& asset_id,
                                            const std::string& project_path,
                                            float screen_x,
@@ -728,6 +728,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
 
   private:
     void captureRenderSnapshot();
+    void syncEventSpritesToTargetScene();
     void syncPanelVisibility();
     void markPerspectiveDirty();
     bool projectScreenToTile(float screen_x, float screen_y, int32_t& out_tile_x, int32_t& out_tile_y) const;

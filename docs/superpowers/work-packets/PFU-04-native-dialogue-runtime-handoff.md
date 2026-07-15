@@ -1,0 +1,42 @@
+# PFU-04 Work Packet: Native Dialogue Graph Runtime Handoff
+
+**Status:** Implemented; verification deferred by user instruction
+
+**Date:** 2026-07-15
+
+## Scope
+
+Execute a saved native Dialogue Graph through the existing `MapScene` and
+`MessageFlowRunner`, rather than treating its ImGui preview as runtime proof.
+
+## Contract
+
+- The Map Dialogue Authoring control enables the runtime action only after the
+  current graph is saved. It passes that graph to the bound native `MapScene`
+  with a stable project-local conversation ID.
+- `MapScene` validates structural and flow diagnostics before replacing the
+  current runtime dialogue. The current runtime dialogue remains intact if
+  admission fails.
+- Valid graph nodes become native message nodes with their authored preview
+  text, speaker metadata, and choice targets. The existing message runtime
+  renders choice labels, selected state, and keyboard selection, then follows
+  the selected native graph target.
+- When the runtime owner receives a valid native `LocaleCatalog`, node and
+  choice localization keys resolve through that catalog. Missing selected keys
+  retain their authored preview/label fallback and emit an observable runtime
+  diagnostic; no locale bundle is changed.
+- Choice conditions evaluate against the existing native `GlobalStateHub`
+  integer-compatible values. Unmet or unsupported conditions render disabled
+  choices rather than silently changing the branch.
+- Choice effects add their declared integer delta through that same native
+  state authority after the selected choice is confirmed, saturating at native
+  `int32_t` limits. Missing effect keys fail admission before the active
+  runtime dialogue changes.
+
+## Limits
+
+This first execution slice does not resolve captions or voice assets at
+runtime; select locale bundles automatically; support non-integer dialogue
+state; bind graphs to authored map events; add save-state restoration; or
+qualify playthrough/package/release behavior. Builds and test execution remain
+deferred under the user instruction for this phase.

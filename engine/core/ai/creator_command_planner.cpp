@@ -269,7 +269,8 @@ nlohmann::json buildCreatorProviderRequest(const CreatorCommandRequest& request)
     const nlohmann::json context = {
         {"project_id", request.project_id},
         {"map_id", request.map_id},
-        {"selected_tile", {{"x", request.tile_x}, {"y", request.tile_y}, {"tile_id", request.selected_tile_id}}},
+        {"selected_tile", {{"x", request.tile_x}, {"y", request.tile_y}, {"tile_id", request.selected_tile_id},
+                           {"paint_width", request.tile_paint_width}, {"paint_height", request.tile_paint_height}}},
         {"selected_prop_asset_id", request.selected_prop_asset_id},
         {"selected_event_layer_id", request.selected_event_layer_id},
         {"event_label", request.event_label},
@@ -746,7 +747,28 @@ CreatorCommandPlan CreatorCommandPlanner::planTileStamp(const CreatorCommandRequ
                                     request.tile_x, request.tile_y, request.map_id});
         return plan;
     }
-    plan.tile_edits.push_back({"terrain", request.tile_x, request.tile_y, request.selected_tile_id});
+    constexpr int32_t kMaximumReviewedTilePaintDimension = 64;
+    if (request.tile_paint_width <= 0 || request.tile_paint_height <= 0 ||
+        request.tile_paint_width > kMaximumReviewedTilePaintDimension ||
+        request.tile_paint_height > kMaximumReviewedTilePaintDimension) {
+        plan.diagnostics.push_back(
+            {"creator_tile_paint_extent_invalid", "Reviewed tile paint dimensions must be between 1 and 64 cells.",
+             request.tile_x, request.tile_y, request.map_id});
+        return plan;
+    }
+    if (request.tile_paint_width > request.width - request.tile_x ||
+        request.tile_paint_height > request.height - request.tile_y) {
+        plan.diagnostics.push_back({"creator_tile_paint_out_of_bounds",
+                                    "The reviewed tile paint rectangle extends outside the Map bounds.", request.tile_x,
+                                    request.tile_y, request.map_id});
+        return plan;
+    }
+    for (int32_t offset_y = 0; offset_y < request.tile_paint_height; ++offset_y) {
+        for (int32_t offset_x = 0; offset_x < request.tile_paint_width; ++offset_x) {
+            plan.tile_edits.push_back(
+                {"terrain", request.tile_x + offset_x, request.tile_y + offset_y, request.selected_tile_id});
+        }
+    }
     plan.can_apply = true;
     return plan;
 }

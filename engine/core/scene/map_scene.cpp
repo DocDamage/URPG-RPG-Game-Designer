@@ -3,12 +3,16 @@
 #include "engine/core/audio/audio_ai_bridge.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
+#include "engine/core/dialogue/dialogue_graph.h"
+#include "engine/core/global_state_hub.h"
+#include "engine/core/assets/texture_registry.h"
 #include "engine/core/render/asset_loader.h"
 #include "engine/core/save/runtime_save_startup.h"
 #include "engine/core/save/save_runtime.h"
 #include "engine/core/save/save_serialization_hub.h"
 #include <algorithm>
 #include <fstream>
+#include <limits>
 #include <nlohmann/json.hpp>
 #include <utility>
 
@@ -18,6 +22,49 @@ namespace {
 
 constexpr const char* kMissingPlayerSpriteId = "missing_player_sprite";
 constexpr const char* kMissingTilesetId = "missing_tileset";
+
+std::optional<bool> evaluateAuthoredDialogueCondition(const urpg::dialogue::DialogueCondition& condition) {
+    if (condition.key.empty()) {
+        return std::nullopt;
+    }
+    const auto value = urpg::GlobalStateHub::getInstance().getVariable(condition.key);
+    int32_t actual = 0;
+    if (const auto* integer = std::get_if<int32_t>(&value)) {
+        actual = *integer;
+    } else if (const auto* decimal = std::get_if<float>(&value)) {
+        actual = static_cast<int32_t>(*decimal);
+    } else if (const auto* boolean = std::get_if<bool>(&value)) {
+        actual = *boolean ? 1 : 0;
+    } else {
+        return std::nullopt;
+    }
+    if (condition.op == "=" || condition.op == "==") return actual == condition.value;
+    if (condition.op == "!=") return actual != condition.value;
+    if (condition.op == ">") return actual > condition.value;
+    if (condition.op == ">=") return actual >= condition.value;
+    if (condition.op == "<") return actual < condition.value;
+    if (condition.op == "<=") return actual <= condition.value;
+    return std::nullopt;
+}
+
+int32_t authoredDialogueVariableValue(const std::string& key) {
+    const auto value = urpg::GlobalStateHub::getInstance().getVariable(key);
+    if (const auto* integer = std::get_if<int32_t>(&value)) return *integer;
+    if (const auto* decimal = std::get_if<float>(&value)) return static_cast<int32_t>(*decimal);
+    if (const auto* boolean = std::get_if<bool>(&value)) return *boolean ? 1 : 0;
+    return 0;
+}
+
+int32_t saturatingDialogueEffectDelta(const int32_t current, const int32_t delta) {
+    const int64_t result = static_cast<int64_t>(current) + static_cast<int64_t>(delta);
+    if (result > std::numeric_limits<int32_t>::max()) {
+        return std::numeric_limits<int32_t>::max();
+    }
+    if (result < std::numeric_limits<int32_t>::min()) {
+        return std::numeric_limits<int32_t>::min();
+    }
+    return static_cast<int32_t>(result);
+}
 
 bool BindingMatches(const MapScene::InteractionAbilityBinding& binding, const std::string& trigger_id,
                     std::optional<std::pair<int, int>> tile, std::optional<std::string_view> prop_asset_id,
@@ -256,6 +303,23 @@ void MapScene::onUpdate(float deltaTime) {
             textCmd.maxWidth = 560;
             textCmd.zOrder = 51;
             layer.submit(urpg::toFrameRenderCommand(textCmd));
+
+            if (m_messageRunner.state() == urpg::message::MessageFlowState::AwaitingChoice) {
+                const auto& choice_prompt = m_messageRunner.choicePrompt();
+                const auto& choices = choice_prompt.options();
+                for (size_t index = 0; index < choices.size(); ++index) {
+                    const auto& choice = choices[index];
+                    urpg::TextCommand choiceCmd;
+                    choiceCmd.text = std::string(choice.enabled && index == choice_prompt.selectedIndex() ? "> " : "  ") +
+                                     (choice.enabled ? choice.label : "[Unavailable] " + choice.label);
+                    choiceCmd.x = 40.0f;
+                    choiceCmd.y = 332.0f + static_cast<float>(index) * 22.0f;
+                    choiceCmd.fontSize = 18;
+                    choiceCmd.maxWidth = 560;
+                    choiceCmd.zOrder = 52;
+                    layer.submit(urpg::toFrameRenderCommand(choiceCmd));
+                }
+            }
         }
     }
 
@@ -319,6 +383,17 @@ void MapScene::onUpdate(float deltaTime) {
     playerCmd.height = 48;
     playerCmd.zOrder = 1;
     layer.submit(urpg::toFrameRenderCommand(playerCmd));
+
+    for (const auto& event_sprite : m_eventSprites) {
+        urpg::SpriteCommand eventCmd;
+        eventCmd.textureId = event_sprite.asset.id;
+        eventCmd.x = static_cast<float>(event_sprite.tile_x) * kTileSize;
+        eventCmd.y = static_cast<float>(event_sprite.tile_y) * kTileSize;
+        eventCmd.width = kTileSize;
+        eventCmd.height = kTileSize;
+        eventCmd.zOrder = 2;
+        layer.submit(urpg::toFrameRenderCommand(eventCmd));
+    }
 }
 
 void MapScene::rebuildTileRenderCache() {
@@ -401,12 +476,31 @@ void MapScene::handleInput(const urpg::input::InputCore& input) {
             } else if (m_messageRunner.state() == urpg::message::MessageFlowState::AwaitingChoice) {
                 auto selectedId = m_messageRunner.confirmChoice();
                 if (selectedId.has_value() && !selectedId->empty()) {
-                    // Start the next part of the conversation based on choice
-                    auto& registry = urpg::message::DialogueRegistry::getInstance();
-                    // In this model, the choice.id IS the next node_id
-                    auto nextPages = registry.flattenConversation("intro_elder", *selectedId);
-                    if (!nextPages.empty()) {
-                        startDialogue(nextPages);
+                    if (m_activeAuthoredDialogueGraph.has_value()) {
+                        const auto* node = m_activeAuthoredDialogueGraph->findNode(m_activeAuthoredDialogueNodeId);
+                        if (node != nullptr) {
+                            const auto choice = std::find_if(node->choices.begin(), node->choices.end(),
+                                                             [&](const auto& candidate) {
+                                                                 return candidate.id == *selectedId;
+                                                             });
+                            if (choice != node->choices.end()) {
+                                for (const auto& effect : choice->effects) {
+                                    const int32_t current = authoredDialogueVariableValue(effect.key);
+                                    urpg::GlobalStateHub::getInstance().setVariable(
+                                        effect.key, saturatingDialogueEffectDelta(current, effect.delta));
+                                }
+                                if (!beginActiveAuthoredDialogueNode(choice->target_node_id)) {
+                                    m_dialogueRuntimeDiagnostics.push_back(
+                                        "authored_dialogue_target_runtime_admission_failed:" + choice->target_node_id);
+                                }
+                            }
+                        }
+                    } else {
+                        auto& registry = urpg::message::DialogueRegistry::getInstance();
+                        auto nextPages = registry.flattenConversation("intro_elder", *selectedId);
+                        if (!nextPages.empty()) {
+                            m_messageRunner.begin(std::move(nextPages));
+                        }
                     }
                 }
             }
@@ -512,6 +606,33 @@ void MapScene::setAssetReferences(MapAssetReferences references) {
     m_renderLayerDirty = true;
 }
 
+bool MapScene::setEventSprites(std::vector<MapEventSprite> sprites) {
+    std::sort(sprites.begin(), sprites.end(), [](const MapEventSprite& lhs, const MapEventSprite& rhs) {
+        return lhs.event_id < rhs.event_id;
+    });
+
+    std::string previous_event_id;
+    for (size_t index = 0; index < sprites.size(); ++index) {
+        const auto& sprite = sprites[index];
+        if (sprite.event_id.empty() || sprite.asset.id.empty() || sprite.asset.path.empty() ||
+            sprite.tile_x < 0 || sprite.tile_x >= m_width || sprite.tile_y < 0 || sprite.tile_y >= m_height ||
+            (!previous_event_id.empty() && previous_event_id == sprite.event_id)) {
+            return false;
+        }
+        for (size_t previous_index = 0; previous_index < index; ++previous_index) {
+            const auto& previous = sprites[previous_index];
+            if (previous.asset.id == sprite.asset.id && previous.asset.path != sprite.asset.path) {
+                return false;
+            }
+        }
+        previous_event_id = sprite.event_id;
+    }
+
+    m_eventSprites = std::move(sprites);
+    registerEventSpriteTextures();
+    return true;
+}
+
 void MapScene::setRuntimeAssetMode(urpg::RuntimeAssetMode mode) {
     if (m_runtimeAssetMode == mode) {
         return;
@@ -567,7 +688,104 @@ void MapScene::validateRenderAssetReferences() {
 }
 
 void MapScene::startDialogue(const std::vector<urpg::message::DialoguePage>& pages) {
+    m_activeDialogueConversationId.clear();
+    m_dialogueRuntimeDiagnostics.clear();
+    m_activeAuthoredDialogueGraph.reset();
+    m_activeAuthoredDialogueNodeId.clear();
     m_messageRunner.begin(pages);
+}
+
+bool MapScene::startAuthoredDialogue(const urpg::dialogue::DialogueGraph& graph, std::string conversation_id) {
+    m_dialogueRuntimeDiagnostics.clear();
+    if (conversation_id.empty()) {
+        m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_conversation_id_missing");
+        return false;
+    }
+
+    const auto structural_diagnostics = graph.validate();
+    const auto flow_diagnostics = graph.analyzeFlow();
+    if (!structural_diagnostics.empty() || !flow_diagnostics.empty()) {
+        m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_graph_invalid");
+        return false;
+    }
+    for (const auto& [node_id, node] : graph.nodes()) {
+        for (const auto& choice : node.choices) {
+            if (std::any_of(choice.effects.begin(), choice.effects.end(),
+                            [](const urpg::dialogue::DialogueEffect& effect) { return effect.key.empty(); })) {
+                m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_effect_key_missing:" + node_id + ":" +
+                                                       choice.id);
+                return false;
+            }
+        }
+    }
+
+    m_activeAuthoredDialogueGraph = graph;
+    m_activeDialogueConversationId = std::move(conversation_id);
+    return beginActiveAuthoredDialogueNode(m_activeAuthoredDialogueGraph->startNode());
+}
+
+void MapScene::setDialogueLocaleCatalog(std::optional<urpg::localization::LocaleCatalog> catalog) {
+    m_dialogueLocaleCatalog = std::move(catalog);
+}
+
+std::string MapScene::dialogueLocaleCode() const {
+    return m_dialogueLocaleCatalog.has_value() ? m_dialogueLocaleCatalog->getLocaleCode() : std::string{};
+}
+
+bool MapScene::beginActiveAuthoredDialogueNode(const std::string& node_id) {
+    if (!m_activeAuthoredDialogueGraph.has_value()) {
+        return false;
+    }
+    const auto* node = m_activeAuthoredDialogueGraph->findNode(node_id);
+    if (node == nullptr) {
+        return false;
+    }
+
+    const auto resolve_text = [this](const std::string& localization_key, const std::string& fallback,
+                                     const std::string& reference_id) {
+        if (localization_key.empty() || !m_dialogueLocaleCatalog.has_value()) {
+            return fallback;
+        }
+        const auto resolved = m_dialogueLocaleCatalog->getKey(localization_key);
+        if (resolved.has_value()) {
+            return *resolved;
+        }
+        m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_locale_key_missing:" +
+                                               m_dialogueLocaleCatalog->getLocaleCode() + ":" + localization_key +
+                                               ":" + reference_id);
+        return fallback;
+    };
+
+    urpg::message::DialoguePage page;
+    page.id = node->id;
+    page.body = resolve_text(node->localization_key, node->text_preview, node->id);
+    page.variant.speaker = node->speaker_name.empty() ? node->speaker_id : node->speaker_name;
+    page.variant.route_token = "native_dialogue_graph";
+    for (const auto& choice : node->choices) {
+        bool enabled = true;
+        std::string disabled_reason;
+        for (const auto& condition : choice.conditions) {
+            const auto matches = evaluateAuthoredDialogueCondition(condition);
+            if (!matches.has_value()) {
+                enabled = false;
+                disabled_reason = "Unsupported dialogue condition.";
+                break;
+            }
+            if (!*matches) {
+                enabled = false;
+                disabled_reason = "Dialogue condition is not met.";
+                break;
+            }
+        }
+        page.choices.push_back({choice.id,
+                                resolve_text(choice.localization_key, choice.label, node->id + ":" + choice.id),
+                                enabled,
+                                std::move(disabled_reason)});
+    }
+
+    m_activeAuthoredDialogueNodeId = node->id;
+    m_messageRunner.begin({std::move(page)});
+    return true;
 }
 
 void MapScene::startChatbot(const std::string& systemPrompt, std::shared_ptr<urpg::ai::IChatService> service) {
@@ -698,6 +916,19 @@ MapSceneSaveLoadResult MapScene::loadGameDetailed(int slotId) {
 
 void MapScene::setProjectRoot(std::filesystem::path project_root) {
     m_projectRoot = std::move(project_root);
+    registerEventSpriteTextures();
+}
+
+void MapScene::registerEventSpriteTextures() {
+    for (const auto& sprite : m_eventSprites) {
+        std::filesystem::path asset_path = sprite.asset.path;
+        if (asset_path.is_relative() && !m_projectRoot.empty()) {
+            asset_path = m_projectRoot / asset_path;
+        }
+        urpg::TextureMeta meta;
+        meta.filePath = asset_path.lexically_normal().generic_string();
+        urpg::TextureRegistry::getInstance().registerTexture(sprite.asset.id, meta);
+    }
 }
 
 void MapScene::grantPlayerAbility(const urpg::ability::AuthoredAbilityAsset& asset) {

@@ -6,7 +6,8 @@
 TEST_CASE("gameplay recipe template previews, applies idempotently, and reverts its owned target",
           "[gameplay][recipe]") {
     const auto recipes = urpg::gameplay::builtInGameplayRecipeTemplates();
-    REQUIRE(recipes.size() == 2);
+    REQUIRE(recipes.size() == 3);
+    REQUIRE(recipes[2].id == "urpg.recipe.camp_rest_recovery");
 
     urpg::gameplay::GameplayRecipeProjectDocument project;
     urpg::gameplay::GameplayRecipeService service;

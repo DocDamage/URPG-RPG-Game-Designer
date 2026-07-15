@@ -98,6 +98,25 @@ std::vector<UiElementSnapshot> AccessibilitySpatialAdapter::ingest(
         apply.sourceContext = "editor/spatial/grid_part_placement_panel.h";
         elements.push_back(std::move(apply));
     }
+    if (!gridPartSnapshot.selected_part_id.empty()) {
+        UiElementSnapshot review;
+        review.id = "spatial.grid_part_rectangle.review";
+        review.label = "Review selected Grid Part rectangle fill: " + gridPartSnapshot.selected_part_id;
+        review.hasFocus = gridPartSnapshot.visible && gridPartSnapshot.has_document && gridPartSnapshot.has_catalog;
+        review.focusOrder = 7;
+        review.contrastRatio = 0.0f;
+        review.sourceContext = "editor/spatial/grid_part_placement_panel.h";
+        elements.push_back(std::move(review));
+
+        UiElementSnapshot apply;
+        apply.id = "spatial.grid_part_rectangle.apply";
+        apply.label = "Apply reviewed Grid Part rectangle fill";
+        apply.hasFocus = gridPartSnapshot.visible && gridPartSnapshot.has_document && gridPartSnapshot.has_catalog;
+        apply.focusOrder = 8;
+        apply.contrastRatio = 0.0f;
+        apply.sourceContext = "editor/spatial/grid_part_placement_panel.h";
+        elements.push_back(std::move(apply));
+    }
 
     // The coordinator is the native owner of the creator-facing Map mode
     // route. Surface its currently available modes as structured alternatives

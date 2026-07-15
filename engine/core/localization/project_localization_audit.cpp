@@ -97,6 +97,14 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
                           const auto id = stringField(node, "id");
                           addReference(stringField(node, "localization_key"), entry.path(), "dialogue.node", id);
                           addReference(stringField(node, "caption_localization_key"), entry.path(), "dialogue.caption", id);
+                          if (node.contains("choices") && node["choices"].is_array()) {
+                              for (const auto& choice : node["choices"]) {
+                                  if (!choice.is_object()) continue;
+                                  const auto choice_id = stringField(choice, "id");
+                                  addReference(stringField(choice, "localization_key"), entry.path(),
+                                               "dialogue.choice", id + ":" + choice_id);
+                              }
+                          }
                       }
                   }, audit.diagnostics);
     scanDirectory(project_root / "content" / "quests", "project_localization_audit_quests_unreadable",

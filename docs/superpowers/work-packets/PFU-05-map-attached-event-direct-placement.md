@@ -24,9 +24,10 @@ project-path reference.
 3. The native owner creates a unique `asset_event_<asset-id>` event ID, records
    the asset ID/project path with the event, and captures placement plus layer
    selection as one Perspective 2D undo/redo action.
-4. The event asset reference round-trips only in the Perspective 2D authoring
-   document and render snapshot. It does not add event-sprite rendering,
-   runtime execution semantics, or package support.
+4. The event asset reference round-trips in the Perspective 2D authoring
+   document and render snapshot. The bound native `MapScene` now receives the
+   sprite projection through the separate PFU-05 runtime-sprite slice; event
+   execution semantics and package support remain separate.
 
 ## Acceptance and verification
 
@@ -44,6 +45,6 @@ Verification commands (deferred):
 ## Rollback and limits
 
 Removing the Events route restores the former Tiles/Props-only canvas-drop
-behavior. Event sprite rendering, asset-revision/staleness checks, collision
-policy, authored event pages/commands, cross-owner history, and runtime/export
-asset support remain separate PFU-05 work.
+behavior. Asset-revision/staleness checks, collision policy, authored event
+pages/commands, cross-owner history, and runtime/export asset support remain
+separate PFU-05 work.

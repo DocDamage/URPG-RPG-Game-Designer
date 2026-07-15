@@ -569,7 +569,27 @@ std::vector<GameplayRecipe> builtInGameplayRecipeTemplates() {
         {"signal_state", "broadcast_signal", GameplayRecipeParameterField::RuleVariableWriteValue,
          "world.town.signal"},
     };
-    return {starter, townSignal};
+
+    GameplayRecipe campRest;
+    campRest.id = "urpg.recipe.camp_rest_recovery";
+    campRest.version = "1.0.0";
+    campRest.display_name = "Camp Rest Recovery";
+    campRest.target.id = "urpg.feature.camp_rest_recovery";
+    campRest.target.feature_type = "companion_banter";
+    campRest.target.display_name = "Camp Rest Recovery";
+    campRest.target.visual_layers = {"camp", "party", "dialogue"};
+    campRest.target.rules.push_back({"rest_at_camp", "Rest at camp", "confirm_interact", "campfire",
+                                     "recover_party", 0, 0, {}, {"camp.rest.used"},
+                                     {{"camp.rest.status", "rested"}}, {{"party_hp", 25}}});
+    campRest.parameters = {
+        {"rest_status", "Rest status", GameplayRecipeParameterKind::String, "rested"},
+        {"healing_amount", "Party healing", GameplayRecipeParameterKind::Integer, "", 25, true, 0, 999},
+    };
+    campRest.parameter_bindings = {
+        {"rest_status", "rest_at_camp", GameplayRecipeParameterField::RuleVariableWriteValue, "camp.rest.status"},
+        {"healing_amount", "rest_at_camp", GameplayRecipeParameterField::RuleResourceDeltaValue, "party_hp"},
+    };
+    return {starter, townSignal, campRest};
 }
 
 nlohmann::json gameplayRecipePreviewToJson(const GameplayRecipePreview& preview) {

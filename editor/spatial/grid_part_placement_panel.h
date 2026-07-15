@@ -7,6 +7,7 @@
 #include "engine/core/map/grid_part_validator.h"
 #include "engine/core/presentation/presentation_schema.h"
 
+#include <cstddef>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -43,6 +44,13 @@ class GridPartPlacementPanel : public EditorPanel {
         std::vector<std::string> rejected_operation_ids;
     };
 
+    struct RectangleFillResult {
+        bool accepted = false;
+        std::string code;
+        std::string message;
+        size_t operation_count = 0;
+    };
+
     struct RenderSnapshot {
         bool visible = true;
         bool has_document = false;
@@ -68,6 +76,7 @@ class GridPartPlacementPanel : public EditorPanel {
         std::string selected_smart_prefab_id;
         std::vector<SmartPrefabSnapshot> smart_prefabs;
         SmartPrefabPlacementResult last_smart_prefab_result;
+        RectangleFillResult last_rectangle_fill_result;
     };
 
     GridPartPlacementPanel() : EditorPanel("Grid Part Placement") {}
@@ -82,6 +91,7 @@ class GridPartPlacementPanel : public EditorPanel {
     bool HoverSelectedPartFromScreen(float screen_x, float screen_y);
     bool PlaceSelectedPartAtGrid(int32_t grid_x, int32_t grid_y);
     bool PlaceSelectedPartFromScreen(float screen_x, float screen_y);
+    RectangleFillResult PreviewSelectedPartRectangle(int32_t min_x, int32_t min_y, int32_t max_x, int32_t max_y) const;
     bool FillSelectedPartRectangle(int32_t min_x, int32_t min_y, int32_t max_x, int32_t max_y);
     bool SetSelectedSmartPrefabId(const std::string& prefab_id);
     SmartPrefabPlacementResult PreviewSelectedSmartPrefabAtGrid(
@@ -113,6 +123,7 @@ class GridPartPlacementPanel : public EditorPanel {
     std::string selected_part_id_;
     std::string selected_smart_prefab_id_;
     SmartPrefabPlacementResult last_smart_prefab_result_;
+    RectangleFillResult last_rectangle_fill_result_;
     bool hover_active_ = false;
     bool hover_valid_ = false;
     std::string hover_reason_;

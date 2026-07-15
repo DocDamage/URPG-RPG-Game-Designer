@@ -55,9 +55,11 @@ compatibility remain separate work.
 ## Implementation evidence
 
 2026-07-15: `builtInGameplayRecipeTemplates()` now contains the parameterized
-Starter Quest Choice and Town Event Signal templates. They use distinct stable
-recipe/target IDs and native `quest_choice_consequence` and
-`world_state_timeline` WYSIWYG feature types, respectively. The Ability
+Starter Quest Choice, Town Event Signal, and Camp Rest Recovery templates. They
+use distinct stable recipe/target IDs and native `quest_choice_consequence`,
+`world_state_timeline`, and `companion_banter` WYSIWYG feature types,
+respectively. Camp Rest Recovery binds only the named camp-status variable and
+party-health resource field through the same typed parameter contract. The Ability
 workspace derives its selector from that compiled catalog and asks
 `GameplayRecipePanel` to select a template without changing the project
 document. No build, test, or formatting command was run after this increment

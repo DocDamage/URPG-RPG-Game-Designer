@@ -135,7 +135,8 @@ void CreatorCommandPanel::render() {
 
     last_render_snapshot_ = {
         {"prompt", request_.prompt},
-        {"selected_tile", {{"x", request_.tile_x}, {"y", request_.tile_y}, {"tile_id", request_.selected_tile_id}}},
+        {"selected_tile", {{"x", request_.tile_x}, {"y", request_.tile_y}, {"tile_id", request_.selected_tile_id},
+                           {"paint_width", request_.tile_paint_width}, {"paint_height", request_.tile_paint_height}}},
         {"plan", current_plan_.toJson()},
         {"validation_diagnostics", validation.size()},
         {"apply_preview", std::move(apply_preview)},
