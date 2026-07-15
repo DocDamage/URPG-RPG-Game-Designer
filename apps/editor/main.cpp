@@ -125,6 +125,7 @@ struct EditorPanelRuntime {
     urpg::editor::CharacterCreatorModel character_creator_model;
     urpg::editor::CharacterCreatorPanel character_creator_panel;
     std::optional<urpg::quest::QuestObjectiveGraphDocument> quest_draft;
+    urpg::quest::QuestWorldState quest_preview_world;
     urpg::database::RpgDatabase database_draft;
     urpg::shop::VendorCatalog vendor_draft;
     urpg::editor::PatternFieldModel pattern_field_model;
@@ -482,6 +483,33 @@ std::set<std::string> databaseItemIds(const urpg::database::RpgDatabase& databas
     std::set<std::string> ids;
     for (const auto& [id, _] : database.items()) ids.insert(id);
     return ids;
+}
+
+void syncQuestPreviewWorldFromPerspectiveRuntime(
+    const urpg::editor::SpatialAuthoringWorkspace::Perspective2DRuntimeResult& runtime_result,
+    urpg::quest::QuestWorldState& world) {
+    world = {};
+    for (const auto& entry : runtime_result.switches) {
+        world.switches[entry.key] = entry.value == "true" || entry.value == "1" || entry.value == "on";
+    }
+    for (const auto& entry : runtime_result.variables) {
+        try {
+            world.variables[entry.key] = std::stoi(entry.value);
+        } catch (const std::exception&) {
+            // Event execution only writes parsed integer variables. Keep this
+            // boundary defensive so a malformed external draft cannot claim a
+            // quest condition was met.
+        }
+    }
+    for (const auto& entry : runtime_result.inventory) {
+        if (entry.value != "0") {
+            world.items.push_back(entry.key);
+        }
+    }
+    world.dialogue_choices = runtime_result.dialogue_choices;
+    // A start_battle command is an encounter launch, not a combat result. Do
+    // not populate world.battles until the native battle runtime reports an
+    // outcome through its own owner.
 }
 
 urpg::editor::EditorDirtySaveResult saveDatabaseDraft(EditorPanelRuntime& runtime) {
@@ -2365,7 +2393,9 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
                 const auto result = workspace.ExecutePerspectiveRuntimeEvent(event.event_id);
                 if (!result.success) {
                     runtime.map_save_status = "Native event runtime blocked: " + result.message;
-                } else if (!result.battles.empty()) {
+                } else {
+                    syncQuestPreviewWorldFromPerspectiveRuntime(result, runtime.quest_preview_world);
+                    if (!result.battles.empty()) {
                     const auto& encounterId = result.battles.front();
                     const auto ability = runtime.ability_inspector_panel.getDraftAsset();
                     runtime.battle_preview_actions.clear();
@@ -2381,9 +2411,10 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
                     runtime.focus_workspace_next_frame = true;
                     runtime.map_save_status = "Native event launched encounter preview '" + encounterId +
                                               "'. It remains a preview until a playtest records its combat result.";
-                } else {
+                    } else {
                     runtime.map_save_status = "Native event runtime completed: " +
                                               std::to_string(result.executed_command_count) + " command(s) executed.";
+                    }
                 }
             }
             ImGui::PopID();
@@ -2709,8 +2740,10 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             }
         }
         ImGui::SameLine();
+        ImGui::TextDisabled("Runtime preview: %zu choice(s), %zu item(s)",
+                            runtime.quest_preview_world.dialogue_choices.size(), runtime.quest_preview_world.items.size());
         if (ImGui::Button("Preview Quest") && runtime.quest_draft.has_value()) {
-            const auto preview = runtime.quest_draft->preview({});
+            const auto preview = runtime.quest_draft->preview(runtime.quest_preview_world);
             runtime.map_save_status = preview.diagnostics.empty()
                                           ? "Quest preview completed: " + std::to_string(preview.ready_node_ids.size()) +
                                                 " ready node(s), " + std::to_string(preview.blocked_node_ids.size()) + " blocked."
