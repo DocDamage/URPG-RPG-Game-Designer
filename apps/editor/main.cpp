@@ -2170,8 +2170,28 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
                             static_cast<long long>(runtime.playtest_session.elapsed().count()), runtime.playtest_session.exitCode(),
                             runtime.playtest_session.sessionDirectory().generic_string().c_str());
     }
-    for (const auto& diagnostic : runtime.playtest_session.diagnostics()) {
+    for (size_t runtimeDiagnosticIndex = 0;
+         runtimeDiagnosticIndex < runtime.playtest_session.diagnostics().size(); ++runtimeDiagnosticIndex) {
+        const auto& diagnostic = runtime.playtest_session.diagnostics()[runtimeDiagnosticIndex];
+        ImGui::PushID(static_cast<int>(runtimeDiagnosticIndex));
         ImGui::TextWrapped("Runtime %s: %s", diagnostic.code.c_str(), diagnostic.message.c_str());
+        if (!diagnostic.object_id.empty()) {
+            const auto matchingDiagnostic = std::find_if(
+                levelSnapshot.diagnostics.begin(), levelSnapshot.diagnostics.end(), [&](const auto& candidate) {
+                    return candidate.instance_id == diagnostic.object_id;
+                });
+            if (matchingDiagnostic != levelSnapshot.diagnostics.end()) {
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Focus Map Object")) {
+                    const auto index = static_cast<size_t>(
+                        std::distance(levelSnapshot.diagnostics.begin(), matchingDiagnostic));
+                    const bool focused = workspace.focusGridDiagnostic(index);
+                    runtime.map_save_status = focused ? "Focused the Map object reported by the runtime."
+                                                      : "The runtime-reported Map object could not be focused.";
+                }
+            }
+        }
+        ImGui::PopID();
     }
 
     const auto renderMapDiagnostics = [&] {
