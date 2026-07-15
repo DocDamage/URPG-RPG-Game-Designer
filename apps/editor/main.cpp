@@ -32,6 +32,7 @@
 #include "engine/core/engine_shell.h"
 #include "engine/core/map/grid_part_catalog.h"
 #include "engine/core/map/grid_part_document.h"
+#include "engine/core/map/grid_part_ruleset.h"
 #include "engine/core/map/grid_part_serializer.h"
 #include "engine/core/mod/mod_loader.h"
 #include "engine/core/mod/mod_registry.h"
@@ -492,7 +493,13 @@ bool saveMapAuthoringDocument(EditorPanelRuntime& runtime, std::string* error) {
     return true;
 }
 
-bool startCurrentMapPlaytest(EditorPanelRuntime& runtime, const std::string& spawn = "0,0") {
+std::string playtestSpawnForDocument(const urpg::map::GridPartDocument& document) {
+    const auto* playerStart = urpg::map::FindPlayerSpawnPart(document);
+    if (playerStart == nullptr) return "0,0";
+    return std::to_string(playerStart->grid_x) + "," + std::to_string(playerStart->grid_y);
+}
+
+bool startCurrentMapPlaytest(EditorPanelRuntime& runtime) {
     if (runtime.project_root.empty()) {
         runtime.map_save_status = "Open a project before starting playtest.";
         return false;
@@ -504,7 +511,8 @@ bool startCurrentMapPlaytest(EditorPanelRuntime& runtime, const std::string& spa
         return false;
     }
     const auto gridDraft = urpg::map::GridPartDocumentToJson(runtime.level_builder_document).dump(2) + "\n";
-    const bool started = runtime.playtest_session.start(runtime.project_root, runtime.level_builder_document.mapId(), spawn,
+    const bool started = runtime.playtest_session.start(runtime.project_root, runtime.level_builder_document.mapId(),
+                                                        playtestSpawnForDocument(runtime.level_builder_document),
                                                         gridDraft, perspectiveDraft.serialized_document_json + "\n");
     runtime.map_save_status = runtime.playtest_session.message();
     if (!started && runtime.map_save_status.empty()) {

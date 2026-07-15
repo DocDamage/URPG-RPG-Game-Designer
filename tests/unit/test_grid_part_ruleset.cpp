@@ -92,6 +92,21 @@ TEST_CASE("Grid ruleset validation accepts spawn and exit signals from part prop
     REQUIRE(result.diagnostics.empty());
 }
 
+TEST_CASE("Grid ruleset player-start lookup accepts the validated spawn signals", "[grid_part][ruleset]") {
+    GridPartDocument document("map001", 8, 6);
+    auto decoration = makePart("map001:prop:1:1", "prop.crate", GridPartCategory::Prop, 1, 1);
+    REQUIRE(document.placePart(decoration));
+    auto spawn = makePart("map001:spawn:4:2", "trigger.spawn", GridPartCategory::Trigger, 4, 2);
+    spawn.properties["spawn"] = "player";
+    REQUIRE(document.placePart(spawn));
+
+    const auto* found = FindPlayerSpawnPart(document);
+    REQUIRE(found != nullptr);
+    REQUIRE(found->instance_id == "map001:spawn:4:2");
+    REQUIRE(found->grid_x == 4);
+    REQUIRE(found->grid_y == 2);
+}
+
 TEST_CASE("Grid ruleset validation reports profile size and incompatible part constraints", "[grid_part][ruleset]") {
     GridPartCatalog catalog;
     REQUIRE(catalog.addDefinition(

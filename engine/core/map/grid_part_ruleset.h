@@ -31,6 +31,11 @@ struct GridRulesetProfile {
 
 GridRulesetProfile MakeDefaultGridRulesetProfile(GridPartRuleset ruleset);
 
+// Returns the first authored player-start marker in document order.  The
+// lookup deliberately shares the same signal vocabulary that ruleset
+// validation accepts, so editor playtest launches and validation agree.
+const PlacedPartInstance* FindPlayerSpawnPart(const GridPartDocument& document);
+
 GridPartValidationResult ValidateGridPartRuleset(const GridPartDocument& document, const GridPartCatalog& catalog,
                                                  const GridRulesetProfile& profile);
 

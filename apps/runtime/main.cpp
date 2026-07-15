@@ -114,7 +114,10 @@ std::shared_ptr<urpg::scene::MapScene> makeRuntimeMapScene(const std::filesystem
     const int height = gridDocument ? gridDocument->height() : 12;
     auto map = std::make_shared<urpg::scene::MapScene>(mapName, width, height);
     map->setAssetReferences(urpg::scene::loadRuntimeMapAssetReferences(projectRoot, mapName));
-    if (gridDocument) {
+    // A starter map may intentionally be blank.  It still has a valid map
+    // canvas and can be launched with the editor-selected fallback spawn; it
+    // simply has no Grid Parts that require the optional catalog to compile.
+    if (gridDocument && !gridDocument->parts().empty()) {
         urpg::map::GridPartCatalog catalog;
         std::string catalogError;
         if (urpg::map::LoadGridPartCatalogFromProject(

@@ -129,6 +129,13 @@ GridRulesetProfile MakeDefaultGridRulesetProfile(GridPartRuleset ruleset) {
     return profile;
 }
 
+const PlacedPartInstance* FindPlayerSpawnPart(const GridPartDocument& document) {
+    const auto& parts = document.parts();
+    const auto found = std::find_if(parts.begin(), parts.end(),
+                                    [](const auto& part) { return isSpawnPart(part); });
+    return found == parts.end() ? nullptr : &(*found);
+}
+
 GridPartValidationResult ValidateGridPartRuleset(const GridPartDocument& document, const GridPartCatalog& catalog,
                                                  const GridRulesetProfile& profile) {
     GridPartValidationResult result;
