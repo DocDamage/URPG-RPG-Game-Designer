@@ -1,5 +1,6 @@
 #include "editor/project/creator_checklist.h"
 
+#include <algorithm>
 #include <fstream>
 #include <nlohmann/json.hpp>
 
@@ -40,6 +41,32 @@ bool starterMapHasSpawn(const std::filesystem::path& project_root) {
         std::ifstream input(entry.path(), std::ios::binary);
         const auto json = nlohmann::json::parse(input, nullptr, false);
         if (json.is_object() && json.contains("spawn") && json["spawn"].is_object()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool mapHasAuthoredEvent(const std::filesystem::path& project_root) {
+    const auto maps = project_root / "content" / "maps";
+    std::error_code error;
+    if (!std::filesystem::is_directory(maps, error) || error) {
+        return false;
+    }
+    for (const auto& entry : std::filesystem::directory_iterator(maps, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") {
+            continue;
+        }
+        std::ifstream input(entry.path(), std::ios::binary);
+        const auto json = nlohmann::json::parse(input, nullptr, false);
+        if (!json.is_object()) {
+            continue;
+        }
+        const auto events = json.find("events");
+        if (events != json.end() && events->is_array() &&
+            std::any_of(events->begin(), events->end(), [](const auto& event) {
+                return event.is_object() && !event.value("event_id", "").empty();
+            })) {
             return true;
         }
     }
@@ -96,7 +123,8 @@ CreatorChecklistSnapshot CreatorChecklist::inspect(const std::filesystem::path& 
         {"hero_art", "Choose hero art", containsJsonFile(project_root / "content" / "assets" / "manifests")},
         {"map", "Paint or edit the map", containsJsonFile(project_root / "content" / "maps")},
         {"player_start", "Place player start", starterMapHasSpawn(project_root)},
-        {"npc_event", "Create an NPC event", containsJsonFile(project_root / "content" / "events")},
+        {"npc_event", "Create an NPC event",
+         containsJsonFile(project_root / "content" / "events") || mapHasAuthoredEvent(project_root)},
         {"dialogue", "Preview dialogue", containsJsonFile(project_root / "content" / "dialogue")},
         {"playtest", "Playtest", std::filesystem::is_regular_file(project_root / ".urpg" / "playtest" / "last_completed.json")},
         {"save", "Save", std::filesystem::is_regular_file(project_root / ".urpg" / "creator" / "last_manual_save.json")},

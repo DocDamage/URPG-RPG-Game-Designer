@@ -2,6 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -40,5 +41,21 @@ TEST_CASE("CreatorChecklist derives completion from durable project state", "[pr
     stateInput.close();
     REQUIRE(checklist.setDismissed(root, false));
     REQUIRE_FALSE(checklist.inspect(root).dismissed);
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("CreatorChecklist recognizes events persisted by the native Map document", "[project][creator checklist][events]") {
+    const auto root = std::filesystem::temp_directory_path() /
+        ("urpg_creator_checklist_map_event_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    writeJson(root / "content/maps/willow_village.p2d.json",
+              R"({"events":[{"event_id":"elder_mira_intro","pages":[{"page_id":"main"}]}]})");
+
+    urpg::editor::CreatorChecklist checklist;
+    const auto snapshot = checklist.inspect(root);
+    const auto event = std::find_if(snapshot.items.begin(), snapshot.items.end(), [](const auto& item) {
+        return item.id == "npc_event";
+    });
+    REQUIRE(event != snapshot.items.end());
+    REQUIRE(event->complete);
     std::filesystem::remove_all(root);
 }
