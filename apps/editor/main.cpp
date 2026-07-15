@@ -18,6 +18,7 @@
 #include "editor/mod/mod_manager_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/map_authoring_workspace.h"
+#include "engine/core/battle/battle_core.h"
 #include "editor/spatial/map_authoring_persistence.h"
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/analytics/analytics_dispatcher.h"
@@ -134,6 +135,8 @@ struct EditorPanelRuntime {
     urpg::editor::MapAuthoringWorkspace map_authoring_workspace;
     urpg::editor::PlaytestSessionController playtest_session;
     urpg::ability::AbilitySystemComponent ability_runtime;
+    urpg::battle::BattleFlowController battle_preview_flow;
+    urpg::battle::BattleActionQueue battle_preview_actions;
     urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
     urpg::map::GridPartCatalog level_builder_catalog;
     urpg::presentation::SpatialMapOverlay level_builder_overlay;
@@ -150,6 +153,7 @@ struct EditorPanelRuntime {
     std::string character_draft_id = "protagonist";
     std::string quest_draft_id = "quest_draft";
     std::string vendor_draft_id = "vendor_draft";
+    std::string battle_preview_encounter_id;
     bool creator_mode = false;
     bool focus_workspace_next_frame = true;
     std::string last_workspace_panel_id;
@@ -2430,6 +2434,50 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
     }
     ImGui::SameLine();
     ImGui::TextDisabled("Keeps the active project and Map context intact.");
+    static std::string encounterId = "shrine_wisp";
+    static std::string previewAbilityId = "willow_strike";
+    if (ImGui::CollapsingHeader("Encounter Preview", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::TextDisabled("Preview uses the native Battle Inspector; encounter launch remains authored by a Map event.");
+        ImGui::InputText("Encounter ID", &encounterId);
+        ImGui::InputText("Preview Ability", &previewAbilityId);
+        if (ImGui::Button("Open Encounter Preview")) {
+            if (encounterId.empty() || previewAbilityId.empty()) {
+                runtime.map_save_status = "Encounter preview needs a non-empty encounter and ability ID.";
+            } else {
+                runtime.battle_preview_actions.clear();
+                runtime.battle_preview_flow.beginBattle(true);
+                runtime.battle_preview_flow.enterInput();
+                runtime.battle_preview_actions.enqueue(
+                    {runtime.character_draft_id, encounterId, previewAbilityId, 100, 0});
+                runtime.battle_preview_encounter_id = encounterId;
+                runtime.diagnostics_workspace.bindBattleRuntime(runtime.battle_preview_flow,
+                                                               runtime.battle_preview_actions);
+                runtime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::Battle);
+                (void)editorShell.openPanel("diagnostics");
+                runtime.focus_workspace_next_frame = true;
+                workspace.setNextActionHint("Battle preview opened from the active Map context.");
+                runtime.map_save_status = "Encounter preview opened for '" + encounterId + "'.";
+            }
+        }
+        ImGui::SameLine();
+        const bool canRecordPreviewOutcome = !runtime.battle_preview_encounter_id.empty() &&
+                                             runtime.battle_preview_flow.isActive();
+        if (!canRecordPreviewOutcome) {
+            ImGui::BeginDisabled();
+        }
+        if (ImGui::Button("Mark Preview Victory")) {
+            runtime.battle_preview_flow.enterAction();
+            runtime.battle_preview_flow.markVictory();
+            runtime.diagnostics_workspace.bindBattleRuntime(runtime.battle_preview_flow,
+                                                           runtime.battle_preview_actions);
+            runtime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::Battle);
+            runtime.map_save_status = "Battle preview marked victory for '" + runtime.battle_preview_encounter_id +
+                                      "'; this does not claim a playtest combat result.";
+        }
+        if (!canRecordPreviewOutcome) {
+            ImGui::EndDisabled();
+        }
+    }
     static std::string questId = "restore_moonwell_lantern";
     static std::string questTitle = "Restore the Moonwell Lantern";
     static std::string objectiveId = "return_lantern_to_elder";
