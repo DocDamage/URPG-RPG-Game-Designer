@@ -303,6 +303,15 @@ std::vector<std::string> collectProjectLocalizationKeys(const std::filesystem::p
 
 std::optional<urpg::localization::LocaleCatalog> loadProjectDialogueLocaleCatalog(
     const std::filesystem::path& project_root, const std::string& requested_locale) {
+    std::string selected_locale = requested_locale;
+    if (selected_locale.empty()) {
+        std::ifstream manifest_input(project_root / "project.json", std::ios::binary);
+        const auto manifest = nlohmann::json::parse(manifest_input, nullptr, false);
+        if (manifest.is_object() && manifest.contains("localization") && manifest["localization"].is_object()) {
+            selected_locale = manifest["localization"].value("default_locale", "");
+        }
+    }
+
     std::vector<std::filesystem::path> bundle_paths;
     std::error_code directory_error;
     const auto localization_directory = project_root / "content" / "localization";
@@ -322,7 +331,7 @@ std::optional<urpg::localization::LocaleCatalog> loadProjectDialogueLocaleCatalo
         try {
             urpg::localization::LocaleCatalog catalog;
             catalog.loadFromJson(bundle);
-            if (requested_locale.empty() || catalog.getLocaleCode() == requested_locale) {
+            if (selected_locale.empty() || catalog.getLocaleCode() == selected_locale) {
                 return catalog;
             }
         } catch (const std::invalid_argument&) {
@@ -539,6 +548,8 @@ void bindLevelBuilder(EditorPanelRuntime& runtime) {
 
     if (runtime.perspective_2d_scene != nullptr) {
         runtime.perspective_2d_scene->setProjectRoot(runtime.project_root);
+        runtime.perspective_2d_scene->setDialogueLocaleCatalog(
+            loadProjectDialogueLocaleCatalog(runtime.project_root, {}));
         runtime.perspective_2d_scene->setAudioCore(std::shared_ptr<urpg::audio::AudioCore>(
             &runtime.audio_preview_core, [](urpg::audio::AudioCore*) {}));
     }
@@ -5427,7 +5438,7 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                 }
             }
             const bool dialogue_saved = !runtime.dirty_state_registry.isDirty(kDialogueDirtyDocumentId);
-            ImGui::InputText("Dialogue Runtime Locale (optional)", &dialogueRuntimeLocale);
+            ImGui::InputText("Dialogue Runtime Locale Override (optional)", &dialogueRuntimeLocale);
             if (!dialogue_saved || runtime.perspective_2d_scene == nullptr) {
                 ImGui::BeginDisabled();
             }

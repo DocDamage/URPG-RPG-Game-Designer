@@ -46,9 +46,11 @@ Execute a saved native Dialogue Graph through the existing `MapScene` and
 
 ## Limits
 
-This first execution slice does not select locale bundles automatically;
-support non-integer dialogue state; preserve transient page-presentation/
-choice-cursor state across save; or qualify playthrough/package/release
+This first execution slice selects a valid project `localization.default_locale`
+bundle automatically when the MapScene binds to a project; the creator can
+still provide an explicit preview override. It does not yet support non-integer
+dialogue state, preserve transient page-presentation/choice-cursor state across
+save, or qualify playthrough/package/release
 behavior. Saved-graph execution from an authored map-event command is covered by
 `PFU-04-map-event-dialogue-runtime-binding.md`. Builds and test execution
 remain deferred under the user instruction for this phase.
