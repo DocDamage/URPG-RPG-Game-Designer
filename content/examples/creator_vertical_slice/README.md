@@ -6,7 +6,9 @@ cross to Moonwell Shrine, and return the lantern to the village elder.
 
 ## Creator workflow
 
-1. Create or open a JRPG project through the startup shell.
+1. Create or open a JRPG project through the startup shell. The Classic JRPG
+   wizard can seed the two-map `Lantern of the Willow` draft; that seed remains
+   explicitly incomplete until its listed native contextual routes round-trip.
 2. Attach only the acceptance-manifest entries through Assets.
 3. Use Map to author both maps, their events, the shrine gate prop state, and
    the two NPCs.

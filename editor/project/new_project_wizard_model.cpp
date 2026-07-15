@@ -74,6 +74,10 @@ void NewProjectWizardModel::setStarterMap(std::string starter_map) {
     request_.starter_map = std::move(starter_map);
 }
 
+void NewProjectWizardModel::setCreatorVerticalSliceSeed(const bool enabled) {
+    request_.include_creator_vertical_slice_seed = enabled;
+}
+
 bool NewProjectWizardModel::nextStep() {
     if (step_ == NewProjectWizardStep::Create) return false;
     step_ = static_cast<NewProjectWizardStep>(static_cast<int>(step_) + 1);
@@ -115,6 +119,7 @@ nlohmann::json NewProjectWizardModel::snapshot() const {
         {"external_asset_library_root", request_.external_asset_library_root.generic_string()},
         {"external_asset_library", externalLibrarySnapshot(request_.external_asset_library_root)},
         {"starter_map", request_.starter_map},
+        {"creator_vertical_slice_seed", request_.include_creator_vertical_slice_seed},
         {"step", kStepIds[static_cast<size_t>(step_)]},
         {"steps", kStepIds},
         {"cancelled", cancelled_},

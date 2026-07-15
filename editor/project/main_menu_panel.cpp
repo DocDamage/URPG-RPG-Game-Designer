@@ -466,6 +466,13 @@ void MainMenuPanel::render() {
                     } else {
                         ImGui::TextWrapped("Classic JRPG creates a controllable starter map, player spawn, input profile, save profile, and project manifest.");
                     }
+                    if (selectedTemplate == "jrpg") {
+                        bool verticalSliceSeed = wizard_->snapshot().value("creator_vertical_slice_seed", false);
+                        if (ImGui::Checkbox("Seed Lantern of the Willow draft", &verticalSliceSeed)) {
+                            wizard_->setCreatorVerticalSliceSeed(verticalSliceSeed);
+                        }
+                        ImGui::TextDisabled("Creates a draft two-map scenario through the wizard; it is not M9 completion evidence.");
+                    }
                 } else if (step == "visual_style") {
                     if (ImGui::Button("Classic")) wizard_->setVisualStyle("classic");
                     ImGui::SameLine();
@@ -495,6 +502,9 @@ void MainMenuPanel::render() {
                     ImGui::BulletText("Display: %s", review.value("display_preset", "1280x720").c_str());
                     ImGui::BulletText("Input: %s", review.value("input_preset", "keyboard_gamepad").c_str());
                     ImGui::BulletText("Starter map: %s", review.value("starter_map", "map_intro").c_str());
+                    if (review.value("creator_vertical_slice_seed", false)) {
+                        ImGui::BulletText("Scenario seed: Lantern of the Willow (draft)");
+                    }
                 } else if (step == "create") {
                     const bool enabled = !wizard_destination_.empty() && !wizard_project_id_.empty();
                     if (!enabled) ImGui::BeginDisabled();

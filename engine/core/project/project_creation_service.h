@@ -15,6 +15,7 @@ struct ProjectCreationRequest {
     std::string display_preset = "1280x720";
     std::string input_preset = "keyboard_gamepad";
     std::string starter_map = "map_intro";
+    bool include_creator_vertical_slice_seed = false;
     std::filesystem::path external_asset_library_root;
 };
 

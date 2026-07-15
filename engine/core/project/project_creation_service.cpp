@@ -90,6 +90,9 @@ ProjectCreationResult ProjectCreationService::createProject(const ProjectCreatio
     manifest["creator"] = {{"display_preset", request.display_preset},
                            {"input_preset", request.input_preset},
                            {"starter_map", request.starter_map}};
+    if (request.include_creator_vertical_slice_seed) {
+        manifest["creator"]["vertical_slice_seed"] = "lantern_of_the_willow_draft";
+    }
 
     const nlohmann::json starter_map = {{"schema", "urpg.map.v1"}, {"id", request.starter_map},
                                         {"width", 16}, {"height", 12}, {"spawn", {{"x", 4}, {"y", 6}}}};
@@ -97,11 +100,35 @@ ProjectCreationResult ProjectCreationService::createProject(const ProjectCreatio
                                      {"items", nlohmann::json::array()}, {"switches", nlohmann::json::array()}};
     const nlohmann::json save_profile = {{"schema", "urpg.save_profile.v1"}, {"slot_count", 3}, {"autosave", true}};
     const nlohmann::json input = {{"schema", "urpg.input.v1"}, {"preset", request.input_preset}};
+    const nlohmann::json vertical_slice_map = {
+        {"schema", "urpg.map.v1"},
+        {"id", "moonwell_shrine"},
+        {"width", 16},
+        {"height", 12},
+        {"spawn", {{"x", 3}, {"y", 5}}},
+        {"links", nlohmann::json::array({{{"target_map", request.starter_map}, {"event_id", "return_to_elder"}}})},
+    };
+    const nlohmann::json vertical_slice_seed = {
+        {"schema", "urpg.creator_vertical_slice_seed.v1"},
+        {"id", "lantern_of_the_willow"},
+        {"status", "draft"},
+        {"maps", {request.starter_map, "moonwell_shrine"}},
+        {"player", "willow_hero"},
+        {"npcs", {"elder_mira", "vendor_rowan"}},
+        {"quest", "restore_moonwell_lantern"},
+        {"required_creator_routes",
+         {"event_authoring", "message_inspector", "character_creator", "database", "quest", "battle_preview",
+          "ability", "vendor", "audio_mix", "accessibility", "input_remap", "export_diagnostics"}},
+        {"completion_note", "This seed is intentionally incomplete until every listed route saves, runs, and packages through the native creator workflow."},
+    };
     if (!writeJson(temporary_root / "project.json", manifest) ||
         !writeJson(temporary_root / "content" / "maps" / (request.starter_map + ".json"), starter_map) ||
         !writeJson(temporary_root / "content" / "database.json", database) ||
         !writeJson(temporary_root / "content" / "save_profile.json", save_profile) ||
-        !writeJson(temporary_root / "config" / "input_mappings.json", input)) {
+        !writeJson(temporary_root / "config" / "input_mappings.json", input) ||
+        (request.include_creator_vertical_slice_seed &&
+         (!writeJson(temporary_root / "content" / "maps" / "moonwell_shrine.json", vertical_slice_map) ||
+          !writeJson(temporary_root / "content" / "creator_vertical_slice_seed.json", vertical_slice_seed)))) {
         rollback();
         return failure("project_staging_write_failed", "Unable to write required starter-project files.");
     }

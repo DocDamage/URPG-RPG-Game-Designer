@@ -87,3 +87,24 @@ TEST_CASE("ProjectCreationService keeps the external asset-library root out of p
     manifestInput.close();
     std::filesystem::remove_all(root);
 }
+
+TEST_CASE("ProjectCreationService can create the draft creator vertical-slice seed through the native wizard contract",
+          "[project][project creation][creator vertical slice]") {
+    const auto root = uniqueRoot();
+    const auto destination = root / "LanternSeed";
+    urpg::project::ProjectCreationRequest request;
+    request.project_id = "lantern_seed";
+    request.project_name = "Lantern Seed";
+    request.destination = destination;
+    request.include_creator_vertical_slice_seed = true;
+
+    const auto result = urpg::project::ProjectCreationService{}.createProject(request);
+    REQUIRE(result.success);
+    REQUIRE(std::filesystem::is_regular_file(destination / "content" / "maps" / "moonwell_shrine.json"));
+    std::ifstream seedInput(destination / "content" / "creator_vertical_slice_seed.json", std::ios::binary);
+    const auto seed = nlohmann::json::parse(seedInput);
+    REQUIRE(seed["schema"] == "urpg.creator_vertical_slice_seed.v1");
+    REQUIRE(seed["status"] == "draft");
+    REQUIRE(seed["maps"] == nlohmann::json::array({"map_intro", "moonwell_shrine"}));
+    std::filesystem::remove_all(root);
+}

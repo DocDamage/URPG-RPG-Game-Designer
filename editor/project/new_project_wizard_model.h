@@ -19,6 +19,7 @@ public:
     void setVisualStyle(std::string visual_style);
     void setExternalAssetLibraryRoot(std::filesystem::path root);
     void setStarterMap(std::string starter_map);
+    void setCreatorVerticalSliceSeed(bool enabled);
     bool nextStep();
     bool previousStep();
     void cancel();
