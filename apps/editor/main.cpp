@@ -2592,6 +2592,41 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
             return std::nullopt;
         }
     };
+    const auto renderReadOnlyImageThumbnail = [&runtime](const std::filesystem::path& image_path,
+                                                         const char* loading_label,
+                                                         const char* unavailable_label) {
+        urpg::editor::EditorThumbnailRequest request;
+        request.sourcePath = image_path;
+        request.requestedWidth = 192;
+        request.requestedHeight = 192;
+        std::error_code error;
+        request.sizeBytes = std::filesystem::file_size(image_path, error);
+        if (error) {
+            ImGui::Button(unavailable_label, ImVec2(192.0f, 48.0f));
+            return;
+        }
+        const auto modified = std::filesystem::last_write_time(image_path, error);
+        if (error) {
+            ImGui::Button(unavailable_label, ImVec2(192.0f, 48.0f));
+            return;
+        }
+        request.modifiedTimeNs = static_cast<int64_t>(modified.time_since_epoch().count());
+        runtime.asset_thumbnail_pinned_requests.push_back(request);
+        runtime.asset_thumbnail_cache.pumpUploads();
+        const auto thumbnail = runtime.asset_thumbnail_cache.snapshotFor(request);
+        if (thumbnail.state == urpg::editor::EditorThumbnailState::Ready && thumbnail.textureId != 0) {
+            const auto texture = [](const uint32_t textureId) -> ImTextureID {
+                if constexpr (std::is_pointer_v<ImTextureID>) {
+                    return reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(textureId));
+                }
+                return static_cast<ImTextureID>(textureId);
+            }(thumbnail.textureId);
+            ImGui::Image(texture, ImVec2(192.0f, 192.0f));
+            return;
+        }
+        ImGui::Button(thumbnail.state == urpg::editor::EditorThumbnailState::Queued ? loading_label : unavailable_label,
+                      ImVec2(192.0f, 48.0f));
+    };
     const auto rememberDerivedRevision = [&](const nlohmann::json& result, const std::string& source_path) {
         if (!result.value("success", false)) return;
         derivedRevisionManifestPath = result.value("manifest_path", "");
@@ -2929,35 +2964,22 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                 if (!preview.has_value()) {
                     ImGui::TextDisabled("Latest derived revision has no valid image preview.");
                 } else {
-                    urpg::editor::EditorThumbnailRequest request;
-                    request.sourcePath = preview->first;
-                    request.requestedWidth = 192;
-                    request.requestedHeight = 192;
-                    std::error_code previewError;
-                    const auto sizeBytes = std::filesystem::file_size(request.sourcePath, previewError);
-                    if (!previewError) {
-                        request.sizeBytes = sizeBytes;
-                        const auto modified = std::filesystem::last_write_time(request.sourcePath, previewError);
-                        if (!previewError) request.modifiedTimeNs = static_cast<int64_t>(modified.time_since_epoch().count());
-                    }
-                    runtime.asset_thumbnail_pinned_requests.push_back(request);
-                    runtime.asset_thumbnail_cache.pumpUploads();
-                    const auto thumbnail = runtime.asset_thumbnail_cache.snapshotFor(request);
-                    ImGui::TextDisabled("Derived preview (%s): %s", preview->second.c_str(),
-                                        request.sourcePath.filename().string().c_str());
-                    if (thumbnail.state == urpg::editor::EditorThumbnailState::Ready && thumbnail.textureId != 0) {
-                        const auto texture = [](const uint32_t textureId) -> ImTextureID {
-                            if constexpr (std::is_pointer_v<ImTextureID>) {
-                                return reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(textureId));
-                            }
-                            return static_cast<ImTextureID>(textureId);
-                        }(thumbnail.textureId);
-                        ImGui::Image(texture, ImVec2(192.0f, 192.0f));
+                    ImGui::TextDisabled("Read-only source / derived comparison; it does not modify either asset.");
+                    ImGui::BeginGroup();
+                    ImGui::TextDisabled("Source: %s", row.value("preview_path", "").c_str());
+                    const auto sourcePreviewPath = std::filesystem::path(row.value("preview_path", ""));
+                    if (row.value("preview_kind", "") == "image" && !sourcePreviewPath.empty()) {
+                        renderReadOnlyImageThumbnail(sourcePreviewPath, "Loading source preview", "Source preview unavailable");
                     } else {
-                        ImGui::Button(thumbnail.state == urpg::editor::EditorThumbnailState::Queued ? "Loading derived preview"
-                                                                                                      : "Derived preview unavailable",
-                                      ImVec2(192.0f, 48.0f));
+                        ImGui::Button("Source preview unavailable", ImVec2(192.0f, 48.0f));
                     }
+                    ImGui::EndGroup();
+                    ImGui::SameLine();
+                    ImGui::BeginGroup();
+                    ImGui::TextDisabled("Derived (%s): %s", preview->second.c_str(),
+                                        preview->first.filename().string().c_str());
+                    renderReadOnlyImageThumbnail(preview->first, "Loading derived preview", "Derived preview unavailable");
+                    ImGui::EndGroup();
                 }
             }
             ImGui::SameLine();
