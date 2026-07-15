@@ -2253,7 +2253,7 @@ void renderLevelBuilderWorkspace(EditorPanelRuntime& runtime) {
     }
 }
 
-void renderPerspectiveWorkspace(EditorPanelRuntime& runtime) {
+void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRuntime& runtime) {
     auto& workspace = runtime.perspective_2d_workspace;
     const auto& snapshot = workspace.lastRenderSnapshot();
     ImGui::Text("Status: %s", snapshot.status.c_str());
@@ -2355,10 +2355,28 @@ void renderPerspectiveWorkspace(EditorPanelRuntime& runtime) {
             ImGui::SameLine();
             if (ImGui::SmallButton("Run")) {
                 const auto result = workspace.ExecutePerspectiveRuntimeEvent(event.event_id);
-                runtime.map_save_status = result.success
-                                              ? "Native event runtime completed: " + std::to_string(result.executed_command_count) +
-                                                    " command(s) executed."
-                                              : "Native event runtime blocked: " + result.message;
+                if (!result.success) {
+                    runtime.map_save_status = "Native event runtime blocked: " + result.message;
+                } else if (!result.battles.empty()) {
+                    const auto& encounterId = result.battles.front();
+                    const auto ability = runtime.ability_inspector_panel.getDraftAsset();
+                    runtime.battle_preview_actions.clear();
+                    runtime.battle_preview_flow.beginBattle(true);
+                    runtime.battle_preview_flow.enterInput();
+                    runtime.battle_preview_actions.enqueue(
+                        {runtime.character_draft_id, encounterId, ability.ability_id, 100, 0});
+                    runtime.battle_preview_encounter_id = encounterId;
+                    runtime.diagnostics_workspace.bindBattleRuntime(runtime.battle_preview_flow,
+                                                                   runtime.battle_preview_actions);
+                    runtime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::Battle);
+                    (void)editorShell.openPanel("diagnostics");
+                    runtime.focus_workspace_next_frame = true;
+                    runtime.map_save_status = "Native event launched encounter preview '" + encounterId +
+                                              "'. It remains a preview until a playtest records its combat result.";
+                } else {
+                    runtime.map_save_status = "Native event runtime completed: " +
+                                              std::to_string(result.executed_command_count) + " command(s) executed.";
+                }
             }
             ImGui::PopID();
         }
@@ -2908,7 +2926,7 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             snapshot.activeMode == "playtest" || snapshot.activeMode == "package") {
             renderLevelBuilderWorkspace(runtime);
         } else {
-            renderPerspectiveWorkspace(runtime);
+            renderPerspectiveWorkspace(editorShell, runtime);
         }
         if (ImGui::BeginDragDropTarget()) {
             if (const auto* drag = ImGui::AcceptDragDropPayload("URPG_EDITOR_ASSET_V1")) {
