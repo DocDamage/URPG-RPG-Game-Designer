@@ -493,7 +493,12 @@ void MainMenuPanel::render() {
                     }
                 } else if (step == "starter_map") {
                     ImGui::TextUnformatted("The selected template creates a starter map with a player spawn.");
-                    if (ImGui::Button("Starter Map: Intro")) wizard_->setStarterMap("map_intro");
+                    const bool verticalSliceSeed = wizard_->snapshot().value("creator_vertical_slice_seed", false);
+                    if (verticalSliceSeed) {
+                        ImGui::TextUnformatted("Starter Map: Willow Village (required by the Lantern of the Willow draft)");
+                    } else if (ImGui::Button("Starter Map: Intro")) {
+                        wizard_->setStarterMap("map_intro");
+                    }
                     ImGui::TextDisabled("Additional starter-map variants are deferred until they have a certified playable route.");
                 } else if (step == "review") {
                     const auto review = wizard_->snapshot();

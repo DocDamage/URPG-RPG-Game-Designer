@@ -57,6 +57,10 @@ ProjectCreationResult ProjectCreationService::createProject(const ProjectCreatio
         return failure("project_starter_map_invalid",
                        "Choose a starter-map ID containing only letters, numbers, underscores, or hyphens.");
     }
+    if (request.include_creator_vertical_slice_seed && request.starter_map != "willow_village") {
+        return failure("project_vertical_slice_seed_starter_map_invalid",
+                       "Lantern of the Willow must start at the willow_village map.");
+    }
 
     ProjectTemplateGenerator generator;
     const auto generated = generator.generate({request.template_id, request.project_id, request.project_name});

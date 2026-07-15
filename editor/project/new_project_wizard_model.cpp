@@ -71,11 +71,17 @@ void NewProjectWizardModel::setExternalAssetLibraryRoot(std::filesystem::path ro
 }
 
 void NewProjectWizardModel::setStarterMap(std::string starter_map) {
+    if (request_.include_creator_vertical_slice_seed && starter_map != "willow_village") {
+        return;
+    }
     request_.starter_map = std::move(starter_map);
 }
 
 void NewProjectWizardModel::setCreatorVerticalSliceSeed(const bool enabled) {
     request_.include_creator_vertical_slice_seed = enabled;
+    if (enabled) {
+        request_.starter_map = "willow_village";
+    }
 }
 
 bool NewProjectWizardModel::nextStep() {

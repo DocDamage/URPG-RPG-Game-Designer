@@ -97,6 +97,7 @@ TEST_CASE("ProjectCreationService can create the draft creator vertical-slice se
     request.project_name = "Lantern Seed";
     request.destination = destination;
     request.include_creator_vertical_slice_seed = true;
+    request.starter_map = "willow_village";
 
     const auto result = urpg::project::ProjectCreationService{}.createProject(request);
     REQUIRE(result.success);
@@ -105,6 +106,22 @@ TEST_CASE("ProjectCreationService can create the draft creator vertical-slice se
     const auto seed = nlohmann::json::parse(seedInput);
     REQUIRE(seed["schema"] == "urpg.creator_vertical_slice_seed.v1");
     REQUIRE(seed["status"] == "draft");
-    REQUIRE(seed["maps"] == nlohmann::json::array({"map_intro", "moonwell_shrine"}));
+    REQUIRE(seed["maps"] == nlohmann::json::array({"willow_village", "moonwell_shrine"}));
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("ProjectCreationService rejects a vertical-slice seed with a mismatched starter map",
+          "[project][project creation][creator vertical slice][validation]") {
+    const auto root = uniqueRoot();
+    urpg::project::ProjectCreationRequest request;
+    request.project_id = "invalid_lantern_seed";
+    request.project_name = "Invalid Lantern Seed";
+    request.destination = root / "InvalidLanternSeed";
+    request.include_creator_vertical_slice_seed = true;
+
+    const auto result = urpg::project::ProjectCreationService{}.createProject(request);
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.code == "project_vertical_slice_seed_starter_map_invalid");
+    REQUIRE_FALSE(std::filesystem::exists(request.destination));
     std::filesystem::remove_all(root);
 }
