@@ -2595,11 +2595,15 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         if (ImGui::Button("Mark Preview Victory")) {
             runtime.battle_preview_flow.enterAction();
             runtime.battle_preview_flow.markVictory();
+            if (std::find(runtime.quest_preview_world.battles.begin(), runtime.quest_preview_world.battles.end(),
+                          runtime.battle_preview_encounter_id) == runtime.quest_preview_world.battles.end()) {
+                runtime.quest_preview_world.battles.push_back(runtime.battle_preview_encounter_id);
+            }
             runtime.diagnostics_workspace.bindBattleRuntime(runtime.battle_preview_flow,
                                                            runtime.battle_preview_actions);
             runtime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::Battle);
             runtime.map_save_status = "Battle preview marked victory for '" + runtime.battle_preview_encounter_id +
-                                      "'; this does not claim a playtest combat result.";
+                                      "' and updated the quest preview only; this does not claim a playtest combat result.";
         }
         if (!canRecordPreviewOutcome) {
             ImGui::EndDisabled();
@@ -2740,8 +2744,9 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             }
         }
         ImGui::SameLine();
-        ImGui::TextDisabled("Runtime preview: %zu choice(s), %zu item(s)",
-                            runtime.quest_preview_world.dialogue_choices.size(), runtime.quest_preview_world.items.size());
+        ImGui::TextDisabled("Runtime preview: %zu choice(s), %zu item(s), %zu battle-preview result(s)",
+                            runtime.quest_preview_world.dialogue_choices.size(), runtime.quest_preview_world.items.size(),
+                            runtime.quest_preview_world.battles.size());
         if (ImGui::Button("Preview Quest") && runtime.quest_draft.has_value()) {
             const auto preview = runtime.quest_draft->preview(runtime.quest_preview_world);
             runtime.map_save_status = preview.diagnostics.empty()
