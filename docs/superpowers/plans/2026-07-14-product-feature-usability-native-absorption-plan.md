@@ -64,7 +64,7 @@ Test-Path apps/editor
 Test-Path engine/core
 ```
 
-Expected current root: `G:\URPG Maker-development`. Expected origin: `https://github.com/DocDamage/URPG-RPG-Game-Designer.git`. Stop if either identity is different; do not create a replacement application around a missing path.
+For interactive work on this workstation, the expected current root is `G:\URPG Maker-development`; pass it as `-ExpectedRoot` to enforce that task-local pin. Legitimate clones and CI may live elsewhere when no root is pinned, but they must contain the native markers and use repository identity `DocDamage/URPG-RPG-Game-Designer`, accepting normalized HTTPS or SSH forms of `origin`. Stop if a pinned root or the normalized repository identity does not match; do not create a replacement application around a missing path.
 
 ## 2. Planning Authority and Status Language
 
@@ -118,7 +118,7 @@ This plan uses the following conservative states:
 | SpriteForge adapter | Admission, loopback isolation, staged results, normal asset intake | Future governed external-tool adapter feeding F21/F11 | Requirements only until source/license/capability review approves a bounded integration. |
 | Browser pages/controllers and `node:test` | Accessible labels and explicit disabled states | Native ImGui widgets, panels, snapshots, and manual review | Re-express behavior; never port page/controller code. |
 
-PFU-00 must produce a salvage ledger containing every prototype test name, source feature ID, disposition (`native-test`, `compat-test`, `already-covered`, `bundle-only`, or `discard`), native owner, target fixture/test, and result. A passing JavaScript assertion is not checked off until its selected native equivalent passes through an actual URPG owner.
+PFU-00B must produce both a readable ledger and a machine-readable companion containing every prototype test name, every detailed source-roadmap requirement, source feature ID, and disposition (`native-test`, `compat-test`, `already-covered`, `bundle-only`, or `discard`). Assign stable requirement IDs such as `F03-R04` where the source document did not provide one. Native/compat/covered rows require a native owner, target fixture/test, and result; bundle-only and discarded rows instead require the retained-boundary or rejection evidence defined below. A passing JavaScript assertion is not checked off until its selected native equivalent passes through an actual URPG owner.
 
 ## 5. Feature Reconciliation
 
@@ -171,52 +171,148 @@ PFU-00 must produce a salvage ledger containing every prototype test name, sourc
 | I09 Catalog integrity | Merge into F02/F04/F21 and parent M2/M3/M11 provenance, support-file, license, promotion, attachment, and release gates. Remove bundle-specific record counts. |
 | I10 First-party release engineering | The native foundation exists. Residual work is documentation authority, clean-clone/package/platform evidence, and continuing deterministic gate maintenance. |
 
-## 6. Dependency Order
+## 6. Execution Entry, First Increment, and Dependency Order
 
-```text
-PFU-00 provenance/salvage
-  -> PFU-01 active creator-plan closure
-  -> PFU-02 native mutation/reference/history spine
-  -> PFU-03 governed asset/transform/audio depth
-  -> PFU-04 native extensions/recipes/menu/narrative depth
-  -> PFU-05 placement/impact/local-history depth
-  -> PFU-06 playtest/input/accessibility/release integration
-  -> PFU-07 optional assistant/RAG/intent integration
-  -> PFU-08 evaluated advanced authoring and simulation
-  -> PFU-09 optional SpriteForge admission/integration
-  -> PFU-10 governed vertical-slice and release qualification
+### 6.1 Implementation entry gate
+
+Before new feature code begins:
+
+1. Resolve the current creator-work baseline by merging the open PR, or explicitly freeze its reviewed HEAD if the PR cannot yet merge. Query live required checks first. A frozen baseline requires every failure to be recorded as a scoped known break with an owner and exit condition; it never converts red CI into passing evidence. Do not accumulate unrelated PFU feature work on that branch.
+2. Record whether `main` or `development` is the integration base. At this checkpoint the GitHub default and PR base are `main`, while the local creator branch descends from `development`; a new PFU branch must not guess between them.
+3. Create a fresh `agent/<bounded-slice>` branch from the agreed, updated integration base.
+4. Run PFU-00A repository identity checks and the narrow baseline for the selected slice before editing.
+5. Keep the `F:` prototype intact until PFU-00B records its hash and salvage coverage. PFU-00B runs in parallel with unrelated native PFU-01 work; it blocks prototype cleanup and prototype-derived feature claims, not ordinary creator-plan closure.
+6. Do not treat a stale `LastTestsFailed.log` as current evidence. Re-run the affected lane before work in that subsystem; reserve the full suite for merge/milestone qualification.
+
+### 6.2 First bounded increment: PFU-I1 Native Creator Baseline
+
+The first increment is selected before implementation rather than at PFU-10.
+
+| Field | PFU-I1 decision |
+| --- | --- |
+| Outcome | A creator completes launch, project creation, governed asset discovery/attachment, Map authoring, event/spawn setup, playtest/return, save, validation, and package preview through the native shell without editing JSON. |
+| Included source scope | F01; the F02/F21 governed asset path required by the journey; the bounded F08 edit/playtest/return loop; F10 preflight/package evidence; required F09/F22 keyboard, focus, and input behavior; I08-I10. |
+| Included parent work | M0 target qualification; remaining M1/M3-M5 breadth; M2 and M6-M8 target-build requalification where the journey uses their contracts; M9 creator-authored vertical-slice proof; M10 manual creator UX evidence; and the engineering-controlled portion of M11 qualification. |
+| Explicitly not in PFU-I1 | Broader F03-F07 studios, F11-F20 expansion, F23, and F24 beyond audio already required by the vertical slice. They remain in this roadmap and are not cancelled. |
+| Automated exit | A new strict creator-journey qualification gate reports every target step `passed`; one PFU-I1 wrapper runs the versioned vertical-slice, spatial, asset, persistence, accessibility/input, and package command set and emits a clean, commit-stamped evidence manifest. |
+| Manual exit | Recorded native-shell walkthrough at supported layouts/scales and keyboard-only use, plus target-build playtest return, recovery, package inspection, and vertical-slice playthrough. |
+| Release boundary | Missing signing/notarization credentials, external platform runners, legal decisions, or release-owner approval block distribution claims only. They are recorded at PFU-10 and do not deadlock the next internal increment. |
+
+Any later increment must declare the same fields before its first implementation commit: included/excluded F/I outcomes, one vertical acceptance path, entry baseline, automated/manual exit evidence, migration/rollback scope, and release boundary.
+
+### 6.3 Dependency DAG
+
+```mermaid
+flowchart TD
+    A["PFU-00A: repository and branch guard"] --> I1["PFU-I1 / PFU-01: native creator baseline"]
+    B["PFU-00B: parallel prototype and requirement salvage"]
+    I1 --> G["Strict creator-journey qualification gate"]
+    G --> Q1["PFU-10: qualify PFU-I1"]
+    B -.->|required only for prototype-derived claims| Q1
+    G --> C["PFU-02: operation/revision ADR and native mutation spine"]
+    C --> D["PFU-03: governed assets, transforms, and audio"]
+    C --> E["PFU-04: extensions, recipes, menu, and narrative"]
+    C --> F["PFU-05: placement, impact, and local history"]
+    C --> J["PFU-07: optional assistant, RAG, and intent"]
+    H["PFU-06: continuous playtest, input, accessibility, and release requirements"]
+    I1 -.-> H
+    C -.-> H
+    D -.-> H
+    E -.-> H
+    F -.-> H
+    J -.-> H
+    D -.->|F15/F17 prerequisites| K["PFU-08: per-feature evaluated slices"]
+    F -.->|F20 prerequisite| K
+    H -.->|F16 prerequisite| K
+    A -.-> L0["PFU-09A: optional SpriteForge admission decision"]
+    L0 -->|only if approved| L1["PFU-09B: governed SpriteForge integration"]
+    D -->|F21 intake dependency| L1
+    F -->|F11 placement dependency| L1
+    C -.->|when selected| QN["PFU-10: qualify a later bounded increment"]
+    D -.->|when selected| QN
+    E -.->|when selected| QN
+    F -.->|when selected| QN
+    H -.->|requirements for selected scope| QN
+    J -.->|when selected| QN
+    K -.->|when selected| QN
+    L0 -.->|decision evidence when in scope| QN
+    L1 -.->|when selected| QN
 ```
 
-PFU-06 requirements such as focus, input, diagnostics, and release metadata apply continuously to earlier work even though their final qualification occurs later. PFU-07-PFU-09 must not block the no-AI native creator path or the current parent-plan release decision.
+PFU-I1 reaches its own PFU-10 qualification directly; it does not wait for PFU-02-PFU-09. PFU-00B runs in parallel and joins PFU-I1 qualification only when that qualification makes prototype-derived claims. PFU-03, PFU-04, and portions of PFU-05 may run as independent bounded slices after PFU-02 establishes their shared safety contract. Asset-backed PFU-05 slices also depend on the relevant PFU-03 contract. PFU-06 requirements such as focus, input, diagnostics, and release metadata apply continuously. PFU-08 is not one conjunctive lane: F15/F17 depend on the relevant PFU-03 contracts, F16 depends on PFU-06 runtime/input evidence, F20 depends on PFU-05 history/merge foundations, and each slice declares any additional domain prerequisite in its work packet. PFU-09 provenance/license/capability admission is independent; only an approved integration waits for PFU-03/F21 intake and PFU-05/F11 placement contracts. Dashed lanes enter a PFU-10 gate only when the selected increment includes them; they never block the no-AI native creator path.
 
 ## 7. Executable Task Plan
 
-### PFU-00 - Lock provenance and salvage behavior
+No PFU epic is a single issue or pull request. Before editing for PFU-02 or later, create a reviewable work packet expected to take roughly one to five focused engineering days. It must name the F/I and requirement IDs, authoritative owners and files, schema/migration impact, baseline and focused commands, bounded acceptance behavior, manual evidence, rollback/removal path, dependencies, risk, and expected artifacts. Split the packet again if it cannot be reviewed or reverted independently.
+
+### PFU-00A - Verify repository identity and branch baseline
+
+**Source IDs:** I10
+
+**Status:** Mandatory before every implementation session
+
+**Owners:** `tools/ci`, `docs/agent`, repository workflow
+
+Implementation:
+
+1. Add `tools/ci/check_workspace_identity.ps1` to verify that the current Git root contains `AGENTS.md`, `CMakeLists.txt`, `apps/editor`, and `engine/core`, and that normalized SSH or HTTPS `origin` syntax identifies `DocDamage/URPG-RPG-Game-Designer`.
+2. Support an optional `-ExpectedRoot` argument for this workstation's `G:\URPG Maker-development` requirement without making that machine-specific path mandatory for legitimate clones and CI.
+3. Report branch, HEAD, upstream visibility, staged/unstaged/untracked state, origin, integration base, and open-PR state. Open-PR detection is best effort and reports `unknown/offline` when `gh`, authentication, or the network is unavailable.
+4. Fail before mutation when the local root, normalized repository identity, required native markers, or cleanliness requirements do not match. An unavailable remote API must not fail an otherwise valid offline workspace check.
+5. Resolve or freeze the current PR baseline, choose the integration branch explicitly, and create a fresh bounded-work branch before feature implementation.
+6. Run the narrowest existing baseline for the selected work packet and record its result.
+
+Acceptance:
+
+- Running from the old `F:` bundle fails with a clear wrong-repository diagnostic.
+- Running from a valid clone succeeds without requiring the local `G:` path unless `-ExpectedRoot` was supplied.
+- The report makes an untracked or ambiguous feature-branch baseline visible.
+- SSH and HTTPS forms of the same GitHub repository normalize to the same accepted identity, while a different owner/repository fails.
+- Open-PR state is informative and can be `unknown/offline`; it is never a hidden network prerequisite.
+- Live required-check failures are repaired or carried as explicit known breaks with owners and exit conditions; they are never silently inherited as a green baseline.
+- No product code change starts from a dirty or unidentified workspace.
+
+Planned verification after the guard lands:
+
+```powershell
+.\tools\ci\check_workspace_identity.ps1 -ExpectedRoot 'G:\URPG Maker-development'
+git diff --check
+git diff --cached --check
+```
+
+### PFU-00B - Preserve prototype requirements and test intent
 
 **Source IDs:** all; especially I10
 
-**Status:** Now
-**Owners:** `docs/external-intake`, `docs/superpowers/plans`, `docs/agent`
+**Status:** Parallel intake lane; mandatory before prototype cleanup or prototype-derived feature claims
+
+**Owners:** `docs/external-intake`, `tools/docs`, `docs/superpowers/plans`
 
 Implementation:
 
 1. Keep the imported roadmap as a clearly labeled historical source input.
 2. Create `docs/external-intake/CREATOR_HUB_PROTOTYPE_SALVAGE_LEDGER.md` before deleting or archiving the local prototype.
-3. Record a content hash and one row for every one of the 246 prototype test cases.
-4. Classify MZ-only assertions as compat tests, portable safety assertions as native test candidates, and browser-only assertions as discarded implementation with retained UX intent.
-5. Link every accepted assertion to an existing or planned native fixture/test and named owner.
-6. Prohibit `.mjs`, Node packages, browser pages, prototype data stores, and direct `plugins.js` writers from native product directories.
+3. Freeze `docs/external-intake/creator_hub_source_requirement_index.json`: record the imported-roadmap SHA-256, a reviewed canonical requirement count, and one stable ID plus source heading/location for every detailed requirement. The checker compares the ledger against this independent index rather than trusting ledger self-reporting.
+4. Record a reproducible prototype tree digest: SHA-256 over ordinal-sorted UTF-8 records containing normalized relative path, byte length, and file SHA-256. Record the algorithm version and exclusions; exclude only `.git/`, `node_modules/`, generated build/output caches, and OS metadata, and report excluded paths/counts.
+5. Create `docs/external-intake/creator_hub_prototype_salvage.json` with the source/index hashes, prototype digest, inventory counts, all 246 test cases, and every canonical requirement ID, including requirements that have no prototype test.
+6. Give every row a stable ID, source F/I ID, disposition, and rationale. `native-test`, `compat-test`, and `already-covered` rows require a native owner, target test/fixture, implementation status, and evidence result. `bundle-only` rows require the retained artifact/reference and boundary reason. `discard` rows require an explicit rejection reason and intentionally need no native owner or target test.
+7. Add `tools/docs/check_creator_hub_prototype_salvage.ps1` to enforce schema, unique IDs, source/index/digest hashes, the frozen 246-test count, exact canonical requirement coverage, allowed dispositions, and the disposition-specific field rules.
+8. Classify MZ-only assertions as compat tests, portable safety assertions as native test candidates, and browser-only assertions as discarded implementation with retained UX intent.
+9. Link every accepted assertion to an existing or planned native fixture/test and named owner.
+10. Prohibit `.mjs`, Node packages, browser pages, prototype data stores, and direct `plugins.js` writers from native product directories.
 
 Acceptance:
 
-- Every prototype assertion has a disposition and native owner or explicit rejection reason.
+- Every prototype assertion and canonical source requirement has exactly one disposition and satisfies its disposition-specific fields.
+- The machine-readable checker detects missing, duplicated, hash-mismatched, or ownerless accepted rows without demanding fictional native evidence for rejected rows.
 - No prototype code is counted as native feature progress.
-- The only working Git repository used for implementation is the verified URPG root.
 - Documentation authority no longer points at missing or archived files as current truth.
+- PFU-01 work can proceed in parallel, but prototype cleanup and prototype-derived implementation claims cannot.
 
-Verification:
+Planned verification after the index, ledger, and checker land:
 
 ```powershell
+.\tools\docs\check_creator_hub_prototype_salvage.ps1
 .\tools\docs\check-agent-knowledge.ps1 -BuildDirectory build/dev-ninja-debug
 .\tools\ci\check_release_readiness.ps1
 .\tools\ci\truth_reconciler.ps1
@@ -227,8 +323,9 @@ git diff --check
 
 **Source IDs:** F01, F02, F08, F10, F21, I08-I10
 
-**Status:** Current product priority
-**Parent tasks:** M1, M3-M5, M9-M11
+**Status:** Current product priority and PFU-I1 implementation lane
+
+**Parent tasks:** M0-M11; implement remaining gaps and requalify completed contracts used by PFU-I1
 
 Implementation:
 
@@ -238,15 +335,21 @@ Implementation:
 4. Make new-project-to-immediate-playtest satisfy the original M5 creator outcome.
 5. Author and replay the M9 vertical slice through creator controls; any required manual JSON edit is a product blocker.
 6. Complete M10 graphical, keyboard, accessibility, DPI, and reference-hardware review.
-7. Complete M11 non-sparse clean-clone, exact asset hydration, target packaging/platform evidence, and release-owner decision.
+7. Add `content/fixtures/creator_journey_qualification_spec.json` as a separate versioned target contract; do not repurpose the historical baseline spec. Give every required step a stable ID, required evidence kinds, allowed informational diagnostics, forbidden stale/fallback diagnostic codes, and any deterministic budget.
+8. Add a target-state creator-journey qualification report and strict checker while preserving the historical baseline report. Embed source commit, dirty state, build preset/configuration, platform/compiler identity, and build-manifest or tested-binary hashes. The checker must fail on `partial`, `deferred`, `failed`, duplicate/missing/unknown steps, hidden fallbacks, forbidden target diagnostics, dirty/mismatched provenance, or evidence from a different commit.
+9. Add `tools/ci/check_pfu_i1_qualification.ps1` to run the exact target command set and emit one commit-stamped evidence manifest. It must include the strict journey check, creator vertical slice, `dev-spatial`, governed asset intake, persistence/recovery, accessibility/input, and package/install smoke, and bind Debug/Release build provenance to the expected clean commit.
+10. Run the engineering-controlled M11 checks for PFU-I1: non-sparse clean clone, exact selected-asset hydration, empty-tree Debug/Release builds, package/install smoke, version/manifest checks, and target-build playthrough.
+11. Record external platform runners, credentials, legal review, and release-owner decisions as distribution blockers. They do not block the next internal increment when the engineering gate is green and the unsupported claim remains explicit.
 
 Acceptance:
 
 - The creator journey works through the native shell without editing JSON.
+- The strict qualification report contains every versioned target step exactly once and every status is `passed`; the historical baseline remains available for comparison.
+- The PFU-I1 evidence manifest lists the exact commands and artifact hashes, and proves its Debug/Release evidence came from one clean expected commit.
 - M6-M9 bounded contracts are requalified from the target build and are not substituted for manual evidence.
 - No PFU expansion claim hides an open parent-plan blocker.
 
-Verification:
+Current focused baseline before the new qualification wrapper lands:
 
 ```powershell
 ctest --test-dir build/dev-ninja-debug -R "creator journey" --output-on-failure
@@ -255,12 +358,21 @@ ctest --preset dev-spatial --output-on-failure
 .\tools\ci\check_creator_vertical_slice.ps1 -BuildDirectory build/dev-ninja-debug
 ```
 
+Planned qualification command after the target spec, strict gate, and wrapper land:
+
+```powershell
+.\tools\ci\check_pfu_i1_qualification.ps1 -DebugBuildDirectory build/dev-ninja-debug -ReleaseBuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke -ExpectedCommit (git rev-parse HEAD)
+```
+
 Manual evidence: startup, wizard, Assets, both Map routes, contextual editors, playtest return, recovery, package preview, keyboard-only use, supported scales/resolutions, and target package playthrough.
 
 ### PFU-02 - Complete the native mutation, reference, and history spine
 
 **Source IDs:** F01, F11-F14, F19-F20
+
 **Status:** Next; begin only from existing owners
+
+**Prerequisite ADR:** `docs/adr/ADR-013-native-operation-revision-and-atomicity.md`
 
 Primary owners:
 
@@ -274,12 +386,13 @@ Primary owners:
 
 Implementation:
 
-1. Inventory stable object IDs, source revisions, dirty owners, history owners, reference edges, and atomic save behavior by native document type.
-2. Define a small shared operation envelope only for fields that at least two authoritative domains require: operation ID, project/document/object ID, source revision, capability, preview, diagnostics, affected documents, inverse/rollback description, and provenance.
-3. Keep application logic in domain commands. The envelope delegates; it never mutates an independent JSON mirror.
-4. Aggregate reference edges through adapters over existing native graphs and asset metadata before inventing a new store.
-5. Persist portable semantic history only after Map placement and one non-Map domain prove deterministic apply/inverse/replay.
-6. Route AI, procedural, placement, and collaboration callers through the same approved domain commands used by native UI controls.
+1. Author and approve ADR-013 before cross-domain mutation code. It must define stable object/document/operation ID rules; source-revision derivation and comparison; preview token lifetime; in-memory versus durable transaction boundaries; single- and multi-file commit/rollback behavior; crash recovery; dirty/history ownership; schema migration compatibility; idempotency; diagnostics; and behavior under external edits.
+2. Inventory stable object IDs, source revisions, dirty owners, history owners, reference edges, and atomic save behavior by native document type.
+3. Define a small shared operation envelope only for fields that at least two authoritative domains require: operation ID, project/document/object ID, source revision, capability, preview, diagnostics, affected documents, inverse/rollback description, and provenance.
+4. Keep application logic in domain commands. The envelope delegates; it never mutates an independent JSON mirror.
+5. Aggregate reference edges through adapters over existing native graphs and asset metadata before inventing a new store.
+6. Persist portable semantic history only after Map placement and one non-Map domain prove deterministic apply/inverse/replay.
+7. Route AI, procedural, placement, and collaboration callers through the same approved domain commands used by native UI controls.
 
 Acceptance:
 
@@ -294,6 +407,7 @@ Verification: add focused Catch2 coverage for every participating domain, then r
 ### PFU-03 - Deepen governed assets, transforms, personal custody, and audio
 
 **Source IDs:** F02, F03, F21, F24, I01-I02, I09
+
 **Status:** Next after PFU-01; PFU-02 required for durable mutation
 
 Implementation:
@@ -326,6 +440,7 @@ Run focused audio/tool tests for each touched operation and record manual image,
 ### PFU-04 - Deepen extensions, recipes, menu, quest, and dialogue authoring
 
 **Source IDs:** F04-F07, I03-I08
+
 **Status:** Next; independent sublanes share PFU-02 safety semantics
 
 Implementation:
@@ -357,7 +472,8 @@ Manual evidence: menu layout/focus across target sizes and input modes; dialogue
 ### PFU-05 - Complete direct placement, impact analysis, and local operation history
 
 **Source IDs:** F11, F19, F20
-**Status:** After PFU-02 and governed asset revisions
+
+**Status:** After PFU-02; asset-backed slices additionally require relevant PFU-03 revisions
 
 Implementation:
 
@@ -380,7 +496,8 @@ Verification: use the M3 asset gate, `ctest --preset dev-spatial --output-on-fai
 ### PFU-06 - Integrate playtest, semantic input, accessibility, localization, and release evidence
 
 **Source IDs:** F08-F10, F22, I08-I10
-**Status:** Cross-cutting; final closure after PFU-03-PFU-05
+
+**Status:** Cross-cutting; qualify only the requirements included in each bounded increment
 
 Implementation:
 
@@ -414,6 +531,7 @@ Manual evidence includes controller-only and keyboard-only editor/runtime passes
 ### PFU-07 - Rebind assistant, RAG, and intent to authoritative native commands
 
 **Source IDs:** F12-F14
+
 **Status:** Optional, developer-only until all acceptance evidence passes
 
 Implementation:
@@ -445,15 +563,18 @@ Provider/model work also requires manual privacy, permission, cancellation, fail
 ### PFU-08 - Promote advanced authoring only through evaluated native slices
 
 **Source IDs:** F15-F18, residual F20
+
 **Status:** Later; each feature is independently gated
 
 Implementation slices:
 
-1. **F15:** Create a license-safe visual-search/style evaluation corpus and baseline. Add embeddings or multimodal models only if measured relevance materially beats metadata/palette search within storage/performance budgets.
-2. **F16:** Build a deterministic non-AI explorer first using semantic input, real runtime state, isolated seeds/budgets, replay, screenshots, and softlock/oracle diagnostics. Optional model-guided policies remain separate.
-3. **F17:** Route seeded generation and selective regeneration through PFU-02 commands with visual constraints, locks, per-operation review, provenance, and runtime validation.
+PFU-08 is a collection of separately selected work packets, not a single lane that waits for every prerequisite below.
+
+1. **F15 after its PFU-03 search/index contract:** Create a license-safe visual-search/style evaluation corpus and baseline. Add embeddings or multimodal models only if measured relevance materially beats metadata/palette search within storage/performance budgets.
+2. **F16 after its PFU-06 input/playtest/replay contract:** Build a deterministic non-AI explorer first using semantic input, real runtime state, isolated seeds/budgets, replay, screenshots, and softlock/oracle diagnostics. Optional model-guided policies remain separate.
+3. **F17 after PFU-02 and its PFU-03 asset contract:** Route seeded generation and selective regeneration through approved domain commands with visual constraints, locks, per-operation review, provenance, and runtime validation.
 4. **F18:** Run canonical combat/economy/crafting/progression/quest data through declared personas, batches, sensitivity comparisons, and source-linked diagnostics.
-5. **F20:** Expand local semantic history into branch/merge only after dependency-closed replay and conflict resolution pass deterministic fixtures.
+5. **F20 after PFU-05 local-history foundations:** Expand local semantic history into branch/merge only after dependency-closed replay and conflict resolution pass deterministic fixtures.
 
 Acceptance:
 
@@ -467,13 +588,14 @@ Verification: add focused native tests and tool-level evaluation tests per slice
 ### PFU-09 - Decide SpriteForge admission before integration
 
 **Source IDs:** F23
-**Status:** Deferred pending external evidence
+
+**Status:** Admission decision is independent; integration is deferred pending approval and required native contracts
 
 Implementation:
 
-1. Identify the exact source repository/revision, license, model/data dependencies, service routes, generated payloads, and redistribution constraints.
-2. Record keep/reimplement/reject decisions per capability. A documented rejection is a valid outcome.
-3. If approved, implement a versioned supervised job adapter with explicit health/capabilities, bounded inputs/outputs, cancellation, timeouts, path allowlists, no unsolicited network access, and no arbitrary plugin/process authority.
+1. **Admission, independent of PFU-03/PFU-05:** Identify the exact source repository/revision, license, model/data dependencies, service routes, generated payloads, and redistribution constraints.
+2. Record keep/reimplement/reject decisions per capability. A documented rejection is a valid outcome and ends the lane without product integration.
+3. **Integration, only if approved:** Wait for the relevant PFU-03/F21 governed intake and PFU-05/F11 placement contracts, then implement a versioned supervised job adapter with explicit health/capabilities, bounded inputs/outputs, cancellation, timeouts, path allowlists, no unsolicited network access, and no arbitrary plugin/process authority.
 4. Import staged results through F21 promotion/revision rules and place them through F11. Do not add a SpriteForge project database, catalog, history, or frontend to URPG.
 5. Exclude development environments, caches, models, source payloads, and service credentials from game packages.
 
@@ -488,15 +610,17 @@ Verification: provenance/license checks, adapter contract tests, containment/pat
 ### PFU-10 - Qualify one governed product increment
 
 **Source IDs:** all promoted IDs
+
 **Status:** Final gate for each selected release scope
 
 Implementation:
 
-1. Select a bounded release feature set; do not require every deferred frontier feature for the native core product.
-2. Update the creator vertical slice to exercise only features claimed for that increment.
-3. Author the slice through actual creator controls and package the exact reviewed project-selected assets.
-4. Run focused gates during implementation, milestone gates before checking tasks complete, and the full local/release-candidate gates only against the intended candidate.
-5. Update readiness/status/docs only after code, reachability, tests, manual evidence, migration/rollback, and release-owner review support the exact claim.
+1. Read the bounded increment definition selected before implementation; fail planning review if included/excluded outcomes or its vertical acceptance path changed without explicit change control.
+2. Resolve only dependencies required by that selected scope. Excluded PFU epics and optional lanes do not become implicit blockers.
+3. Update the creator vertical slice to exercise only features claimed for that increment.
+4. Author the slice through actual creator controls and package the exact reviewed project-selected assets.
+5. Run focused gates during implementation, milestone gates before checking tasks complete, and the full local/release-candidate gates only against the intended candidate.
+6. Update readiness/status/docs only after code, reachability, tests, manual evidence, migration/rollback, and release-owner review support the exact claim.
 
 Acceptance:
 
@@ -556,8 +680,10 @@ A feature is done for a named release scope only when:
 
 ## 11. Immediate Next Actions
 
-1. Validate this documentation rewrite and reconcile current-status authority links.
-2. Build the PFU-00 salvage ledger from the intact 246-test prototype before any cleanup decision.
-3. Re-run the parent creator-plan focused gates from the current native branch and update only evidence that actually changed.
-4. Finish PFU-01/M10-M11 creator and release qualification before broad feature expansion.
-5. Start PFU-02 with an inventory of existing native command/history/reference owners; do not begin by adding a universal framework.
+1. Resolve or explicitly freeze the current PR baseline, record live required-check failures with owners and exit conditions, record the integration branch, and create a fresh bounded-work branch before feature coding.
+2. Implement PFU-00A's workspace identity guard and run the selected work packet's focused baseline.
+3. Execute PFU-I1/PFU-01 and add the strict creator-journey qualification gate; do not rewrite the historical baseline to force a pass.
+4. Build PFU-00B's Markdown/JSON salvage ledger and checker in parallel, preserving the intact 246-test prototype until it passes.
+5. Write ADR-013 and split PFU-02 into reviewable domain slices before cross-domain mutation work.
+6. Establish a current focused export baseline before export-related changes; an old `LastTestsFailed.log` is neither pass nor failure evidence, and this action closes when the fresh result is recorded.
+7. Qualify PFU-I1 at PFU-10, recording external distribution blockers without preventing the next internal increment.
