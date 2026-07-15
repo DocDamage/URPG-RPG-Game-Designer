@@ -701,11 +701,14 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
     runtime.character_draft_id = "protagonist";
     runtime.quest_draft_id = "quest_draft";
     runtime.vendor_draft_id = "vendor_draft";
+    bool isCreatorVerticalSlice = false;
     {
         std::ifstream manifestInput(projectRoot / "project.json", std::ios::binary);
         const auto manifest = nlohmann::json::parse(manifestInput, nullptr, false);
         if (manifest.is_object() && manifest.contains("creator") && manifest["creator"].is_object() &&
-            manifest["creator"].value("vertical_slice_seed", "") == "lantern_of_the_willow_draft") {
+            (manifest["creator"].value("vertical_slice_seed", "") == "lantern_of_the_willow_draft" ||
+             manifest["creator"].value("scenario", "") == "creator_vertical_slice")) {
+            isCreatorVerticalSlice = true;
             runtime.character_draft_id = "willow_hero";
             runtime.quest_draft_id = "restore_moonwell_lantern";
             runtime.vendor_draft_id = "rowan_tonics";
@@ -728,6 +731,27 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
         runtime.character_creator_model.loadIdentity(hero);
     } else {
         runtime.character_creator_model.resetDraft();
+    }
+    runtime.ability_runtime = {};
+    runtime.ability_runtime.setAttribute("MP", 30.0f);
+    const auto authoredAbilities = urpg::ability::discoverAuthoredAbilityAssets(projectRoot);
+    if (!authoredAbilities.empty()) {
+        const auto preferredAbility = std::find_if(authoredAbilities.begin(), authoredAbilities.end(),
+                                                   [isCreatorVerticalSlice](const auto& candidate) {
+                                                       return isCreatorVerticalSlice
+                                                                  ? candidate.ability_id == "willow_strike"
+                                                                  : false;
+                                                   });
+        const auto& selectedAbility = preferredAbility != authoredAbilities.end() ? *preferredAbility
+                                                                                    : authoredAbilities.front();
+        if (const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(selectedAbility.absolute_path);
+            asset.has_value()) {
+            runtime.ability_inspector_panel.setDraftFromAsset(*asset);
+            runtime.ability_inspector_panel.applyDraftToRuntime(runtime.ability_runtime);
+            runtime.ability_inspector_panel.update(runtime.ability_runtime);
+        } else {
+            runtime.map_save_status = "An authored ability draft could not be loaded for this Map context.";
+        }
     }
     runtime.quest_draft.reset();
     if (std::ifstream questInput(questDraftPath(runtime), std::ios::binary); questInput.good()) {
