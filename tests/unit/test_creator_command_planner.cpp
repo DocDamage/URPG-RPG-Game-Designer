@@ -7,6 +7,16 @@
 
 namespace {
 
+class FakeCreatorHttpClient final : public urpg::net::IHttpClient {
+  public:
+    urpg::net::HttpResponse postJson(const urpg::net::HttpRequest& request) override {
+        lastRequest = request;
+        return {200, R"({"output_text":"{\"schema\":\"urpg.creator_command_plan.v1\",\"intent\":\"noop\",\"can_apply\":false}"})", ""};
+    }
+
+    urpg::net::HttpRequest lastRequest;
+};
+
 bool hasLogic(const urpg::ai::CreatorCommandPlan& plan, const std::string& kind) {
     return std::any_of(plan.logic_edits.begin(), plan.logic_edits.end(), [&](const auto& edit) {
         return edit.kind == kind;
@@ -90,7 +100,7 @@ TEST_CASE("creator command planner exposes ChatGPT Gemini and Kimi provider prof
     REQUIRE(urpg::ai::buildCreatorProviderRequest(request)["body"].contains("messages"));
 }
 
-TEST_CASE("creator command provider transport builds executable curl command without hardcoded secrets",
+TEST_CASE("creator command provider transport builds redacted native HTTP diagnostic without hardcoded secrets",
           "[creator_command][ai][providers][transport]") {
     urpg::ai::CreatorCommandRequest request;
     request.prompt = "make a house";
@@ -104,15 +114,40 @@ TEST_CASE("creator command provider transport builds executable curl command wit
     config.execute = false;
 
     const auto command = urpg::ai::buildCreatorProviderCurlCommand(request, config);
-    REQUIRE(command.find("curl") != std::string::npos);
+    REQUIRE(command.find("native_http_post") != std::string::npos);
     REQUIRE(command.find("api.openai.com") != std::string::npos);
-    REQUIRE(command.find("Authorization: Bearer test-key") != std::string::npos);
+    REQUIRE(command.find("test-key") == std::string::npos);
+    REQUIRE(command.find("[redacted]") != std::string::npos);
 
     const auto result = urpg::ai::invokeCreatorProvider(request, config);
     REQUIRE_FALSE(result.attempted);
     REQUIRE_FALSE(result.success);
     REQUIRE(result.message == "dry_run");
     REQUIRE(result.toJson()["command"].get<std::string>().find("api.openai.com") != std::string::npos);
+}
+
+TEST_CASE("creator command provider execution posts through injectable native HTTP client",
+          "[creator_command][ai][providers][transport][creator]") {
+    urpg::ai::CreatorCommandRequest request;
+    request.prompt = "make a house";
+    request.map_id = "town";
+    request.provider = urpg::ai::CreatorAiProvider::ChatGpt;
+
+    urpg::ai::CreatorProviderTransportConfig config;
+    config.api_key = "creator-secret";
+    config.request_path = "build/creator_native_http_request.json";
+    config.response_path = "build/creator_native_http_response.json";
+    config.execute = true;
+
+    FakeCreatorHttpClient http;
+    const auto result = urpg::ai::invokeCreatorProvider(request, config, &http);
+
+    REQUIRE(result.attempted);
+    REQUIRE(result.success);
+    REQUIRE(result.command.find("creator-secret") == std::string::npos);
+    REQUIRE(http.lastRequest.url.find("api.openai.com") != std::string::npos);
+    REQUIRE(http.lastRequest.headers.count("Authorization") == 1);
+    REQUIRE(http.lastRequest.headers.at("Authorization").find("creator-secret") != std::string::npos);
 }
 
 TEST_CASE("creator command provider responses import into safe creator plans",

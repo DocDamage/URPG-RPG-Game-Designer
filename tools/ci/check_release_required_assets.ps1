@@ -9,7 +9,7 @@ $manifestPath = Join-Path $repoRoot "content/fixtures/project_governance_fixture
 $bundleRoot = Join-Path $repoRoot "imports/manifests/asset_bundles"
 $defaultReportPath = Join-Path $repoRoot "imports/reports/asset_intake/release_required_asset_report.json"
 $requiredSurfaces = @("title", "map", "battle", "ui", "audio", "icons", "fonts")
-$requiredBundleCategories = @("prototype_sprite", "ui_frames_chrome", "vfx_sheet", "cohesive_ui_skin")
+$requiredBundleCategories = @("prototype_sprite", "tileset", "background", "ui_frames_chrome", "vfx_sheet", "vfx_frame", "cohesive_ui_skin")
 $errors = New-Object System.Collections.Generic.List[string]
 $connectedAssets = New-Object System.Collections.Generic.List[object]
 $classifiedAssets = New-Object System.Collections.Generic.List[object]
@@ -206,6 +206,11 @@ if ($null -eq $manifest.releaseAssets) {
         Add-Error "Required starter visual asset '$($asset.id)' must identify starter/proof/generated scope in notes."
       }
     }
+    if ($asset.category -match "tileset|background|vfx_frame") {
+      if ($asset.notes -notmatch "curated|final starter|starter") {
+        Add-Error "Required curated art asset '$($asset.id)' must identify curated/final starter scope in notes."
+      }
+    }
     Add-ConnectedAsset -Id $asset.id -Surface $asset.surface -Source $asset.source -Path $asset.path -Classification "connected" -Notes $asset.notes
     if ($asset.licenseCleared -ne $true) {
       Add-Error "Required release asset '$($asset.id)' is not license-cleared."
@@ -312,6 +317,11 @@ if (-not (Test-Path -LiteralPath $bundleRoot -PathType Container)) {
         }
         if ($asset.notes -notmatch "starter|proof|generated") {
           Add-Error "Release-required starter visual bundle asset must identify starter/proof/generated scope: $($bundleFile.Name) / $($asset.promoted_relative_path)"
+        }
+      }
+      if ($asset.category -match "tileset|background|vfx_frame") {
+        if ($asset.notes -notmatch "curated|final starter|starter") {
+          Add-Error "Release-required curated art bundle asset must identify curated/final starter scope: $($bundleFile.Name) / $($asset.promoted_relative_path)"
         }
       }
       if ($asset.category -match "audio|sfx|bgm|music" -or @($asset.release_surfaces) -contains "audio") {

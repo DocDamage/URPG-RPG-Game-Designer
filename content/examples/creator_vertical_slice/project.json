@@ -1,0 +1,14 @@
+{
+  "_urpg_format_version": "1.0",
+  "_engine_version_min": "0.1.0",
+  "id": "lantern_of_the_willow",
+  "name": "Lantern of the Willow",
+  "template_id": "jrpg",
+  "startup": { "map": "willow_village", "headless_safe": true },
+  "creator": {
+    "scenario": "creator_vertical_slice",
+    "acceptance_manifest": "acceptance.json",
+    "attachment_manifest": "content/attachments.json"
+  },
+  "determinism": { "level": "A", "authoritative_math": "fixed32" }
+}

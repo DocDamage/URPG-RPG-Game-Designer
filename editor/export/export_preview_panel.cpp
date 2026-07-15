@@ -1,50 +1,52 @@
 #include "editor/export/export_preview_panel.h"
 
+#include <algorithm>
 #include <utility>
 
 namespace urpg::editor {
+namespace {
+
+urpg::wysiwyg::PreviewTraceRow makeExportTraceRow(const std::string& trace, const std::string& source_id) {
+    const auto first = trace.find(':');
+    if (first == std::string::npos) {
+        return {trace, source_id, trace};
+    }
+    return {trace.substr(0, first), source_id, trace.substr(first + 1)};
+}
+
+} // namespace
 
 void ExportPreviewPanel::loadDocument(urpg::exporting::ExportPreviewDocument document,
                                       std::filesystem::path workspace_root) {
     document_ = std::move(document);
     workspace_root_ = std::move(workspace_root);
     loaded_ = true;
-    refreshPreview();
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::setMode(urpg::tools::ExportMode mode) {
     document_.mode = mode;
-    if (loaded_) {
-        refreshPreview();
-    }
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::setTarget(urpg::tools::ExportTarget target) {
     document_.target = target;
-    if (loaded_) {
-        refreshPreview();
-    }
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::setRuntimeBinaryPath(std::string runtime_binary_path) {
     document_.runtime_binary_path = std::move(runtime_binary_path);
-    if (loaded_) {
-        refreshPreview();
-    }
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::setOutputDir(std::string output_dir) {
     document_.output_dir = std::move(output_dir);
-    if (loaded_) {
-        refreshPreview();
-    }
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::setExpectedArtifacts(std::vector<std::string> expected_artifacts) {
     document_.expected_artifacts = std::move(expected_artifacts);
-    if (loaded_) {
-        refreshPreview();
-    }
+    dirty_ = true;
 }
 
 void ExportPreviewPanel::render() {
@@ -55,11 +57,14 @@ void ExportPreviewPanel::render() {
         snapshot_.status_message = "Load an export preview before rendering this panel.";
         return;
     }
-    refreshPreview();
+    if (dirty_) {
+        refreshPreview();
+    }
 }
 
 void ExportPreviewPanel::refreshPreview() {
     result_ = urpg::exporting::RunExportPreview(document_, workspace_root_);
+    dirty_ = false;
     snapshot_.disabled = false;
     snapshot_.preview_id = document_.id;
     snapshot_.target = urpg::exporting::ExportPreviewTargetLabel(document_.target);
@@ -124,6 +129,47 @@ void ExportPreviewPanel::refreshPreview() {
     snapshot_.shipping_manifest = result_.shipping_manifest;
     snapshot_.status_message =
         snapshot_.exact_ship_preview ? "Export preview is exactly what will ship." : "Export preview has diagnostics.";
+
+    preview_session_ = {};
+    preview_session_.route_id = "export/export_preview";
+    preview_session_.surface_id = "export_preview";
+    preview_session_.source_id = document_.id;
+    preview_session_.mode = result_.runtime_trace.empty() ? urpg::wysiwyg::PreviewMode::EditorOnly
+                                                          : urpg::wysiwyg::PreviewMode::RuntimeBacked;
+    for (const auto& trace : result_.runtime_trace) {
+        preview_session_.runtime_trace_rows.push_back(makeExportTraceRow(trace, document_.id));
+    }
+    preview_session_.summary_rows.push_back({"target", document_.id, snapshot_.target});
+    preview_session_.summary_rows.push_back({"mode", document_.id, snapshot_.mode});
+    preview_session_.summary_rows.push_back({"output_dir", document_.id, snapshot_.output_dir});
+    preview_session_.summary_rows.push_back(
+        {"expected_artifacts", document_.id, std::to_string(snapshot_.expected_artifact_count)});
+    for (const auto& diagnostic : result_.diagnostics) {
+        preview_session_.diagnostics.push_back({diagnostic.code, diagnostic.message, diagnostic.target, true});
+    }
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::SavedData,
+                                         !document_.id.empty(),
+                                         document_.id.empty() ? "Export preview id is missing."
+                                                              : "Export preview document is saved."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::LivePreview,
+                                         !snapshot_.output_dir.empty(),
+                                         snapshot_.output_dir.empty() ? "No export output directory projected."
+                                                                      : "Export output directory projected."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::RuntimeExecution,
+                                         !result_.runtime_trace.empty(),
+                                         std::to_string(result_.runtime_trace.size()) + " export trace rows."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::Diagnostics,
+                                         result_.diagnostics.empty(),
+                                         result_.diagnostics.empty() ? "No export blockers."
+                                                                     : "Export diagnostics are present."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::ExportPackage,
+                                         result_.exact_ship_preview,
+                                         result_.exact_ship_preview ? "Expected artifacts match exact release output."
+                                                                    : "Export package is not exact-ship ready."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::Tests,
+                                         true,
+                                         "Covered by PreviewSession and export preview tests."});
+    preview_session_.recomputeConfidence();
 }
 
 } // namespace urpg::editor

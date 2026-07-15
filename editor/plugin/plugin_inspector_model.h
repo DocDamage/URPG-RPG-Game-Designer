@@ -18,6 +18,8 @@ struct PluginInspectorSnapshot {
     size_t unsupported_api_count = 0;
     size_t cycle_count = 0;
     size_t shim_hint_count = 0;
+    int32_t estimated_repair_minutes = 0;
+    size_t low_confidence_plugin_count = 0;
     int32_t project_score = 100;
     bool release_authoritative = false;
 };

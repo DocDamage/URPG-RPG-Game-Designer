@@ -5,6 +5,7 @@
 #include "engine/core/assets/global_asset_library_store.h"
 #include "engine/core/assets/global_asset_promotion_service.h"
 #include "engine/core/assets/project_asset_attachment_service.h"
+#include "editor/assets/asset_library_model.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
@@ -13,6 +14,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 
 namespace {
 
@@ -25,6 +27,11 @@ void writeBinaryFile(const std::filesystem::path& path, std::string_view payload
     std::filesystem::create_directories(path.parent_path());
     std::ofstream out(path, std::ios::binary | std::ios::trunc);
     out << payload;
+}
+
+std::string readBinaryFile(const std::filesystem::path& path) {
+    std::ifstream input(path, std::ios::binary);
+    return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
 }
 
 } // namespace
@@ -360,6 +367,9 @@ TEST_CASE("AssetImportSession plans governed promotion manifests", "[assets][ass
             0,
         },
     };
+    session.records.front().authoredMetadata = {
+        {"sprite_sheet_slice", {{"schema", "urpg.sprite_sheet_slice.v1"}, {"frame_width", 16}}},
+    };
 
     const auto ready = urpg::assets::planAssetPromotionManifest(session, session.records[0], "user_license_note",
                                                                 ".urpg/asset-library/promoted", true);
@@ -371,6 +381,7 @@ TEST_CASE("AssetImportSession plans governed promotion manifests", "[assets][ass
     REQUIRE(ready.package.includeInRuntime);
     REQUIRE(ready.preview.kind == "image");
     REQUIRE(ready.preview.width == 48);
+    REQUIRE(ready.authoredMetadata["sprite_sheet_slice"]["frame_width"] == 16);
     REQUIRE(ready.diagnostics.empty());
 
     const auto conversionNeeded = urpg::assets::planAssetPromotionManifest(
@@ -676,7 +687,20 @@ TEST_CASE("GlobalAssetPromotionService copies quarantined payloads into promoted
     manifestStream.close();
     REQUIRE(manifest.assetId == "asset.hero");
     REQUIRE(manifest.promotedPath == result.payloadPath.generic_string());
+    REQUIRE(manifest.sourceSha256 == "aaa");
     REQUIRE(manifest.diagnostics.empty());
+
+    const auto duplicateSource = quarantineRoot / "characters" / "hero-copy.png";
+    writeBinaryFile(duplicateSource, "hero-payload");
+    auto duplicateRecord = session.records.front();
+    duplicateRecord.assetId = "asset.hero.copy";
+    duplicateRecord.relativePath = "characters/hero-copy.png";
+    const auto reused = service.promoteImportRecord(session, duplicateRecord, "user_license_note",
+                                                    root / ".urpg" / "asset-library" / "promoted");
+    REQUIRE(reused.success);
+    REQUIRE(reused.code == "global_asset_reused_by_hash");
+    REQUIRE(reused.payloadPath == result.payloadPath);
+    REQUIRE(reused.manifestPath == result.manifestPath);
 
     std::filesystem::remove_all(root);
 }
@@ -775,6 +799,28 @@ TEST_CASE("ProjectAssetAttachmentService copies promoted payloads and writes pro
     REQUIRE(std::filesystem::is_regular_file(result.manifestPath));
     REQUIRE(result.payloadPath == projectRoot / "content" / "assets" / "imported" / "asset.hero" / "hero.png");
     REQUIRE(result.manifestPath == projectRoot / "content" / "assets" / "manifests" / "asset.hero.json");
+
+    const auto cancelled = service.attachPromotedAsset(manifest, projectRoot);
+    REQUIRE_FALSE(cancelled.success);
+    REQUIRE(cancelled.code == "project_attachment_conflict_requires_resolution");
+
+    const auto keptBoth = service.attachPromotedAsset(
+        manifest, projectRoot, urpg::assets::ProjectAssetAttachmentConflictPolicy::KeepBoth);
+    REQUIRE(keptBoth.success);
+    REQUIRE(keptBoth.payloadPath.filename() == "hero.png");
+    REQUIRE(keptBoth.payloadPath.parent_path().filename() == "asset.hero-2");
+
+    const auto relinked = service.attachPromotedAsset(
+        manifest, projectRoot, urpg::assets::ProjectAssetAttachmentConflictPolicy::RelinkExisting);
+    REQUIRE(relinked.success);
+    REQUIRE(relinked.code == "project_asset_relinked_existing");
+    REQUIRE(relinked.payloadPath == result.payloadPath);
+
+    writeBinaryFile(globalPayload, "updated-hero-payload");
+    const auto replaced = service.attachPromotedAsset(
+        manifest, projectRoot, urpg::assets::ProjectAssetAttachmentConflictPolicy::Replace);
+    REQUIRE(replaced.success);
+    REQUIRE(readBinaryFile(replaced.payloadPath) == "updated-hero-payload");
 
     {
         std::ifstream manifestStream(result.manifestPath);
@@ -1365,4 +1411,40 @@ TEST_CASE("AssetLibrary action rows expose governed promotion manifests", "[asse
     REQUIRE(attached.size() == 1);
     REQUIRE(attached.front().path == "imports/raw/example/hero.png");
     REQUIRE(library.filterAssets(attachableFilter).empty());
+}
+
+TEST_CASE("AssetLibraryModel executes a requested import and loads its review manifest", "[assets][asset_library][import]") {
+    const auto root = uniqueAssetTempRoot("urpg_asset_library_execute_import");
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root / "catalog" / "import_sessions");
+    const auto source = root / "hero.png";
+    std::ofstream(source) << "fixture";
+
+    urpg::editor::AssetLibraryModel model;
+    const auto requested = model.requestImportSource(source, root, "review-hero", "private-project-only");
+    REQUIRE(requested["success"] == true);
+    REQUIRE(model.snapshot().import_wizard["pending_request"].is_object());
+
+    const auto result = model.executePendingImportRequest([&](const auto& command) {
+        REQUIRE(command.arguments.size() >= 2);
+        urpg::assets::AssetImportSession session;
+        session.sessionId = "review-hero";
+        session.sourceKind = urpg::assets::AssetImportSourceKind::File;
+        session.sourcePath = source.generic_string();
+        session.managedSourceRoot = root.generic_string();
+        session.status = urpg::assets::AssetImportStatus::ReviewReady;
+        session.records.push_back({"asset.hero", "hero.png", "normalized/hero.png", "png", "image", "characters",
+                                   "fixture", "abc", 7, 16, 16, 0, false, "", false, false, true, false, {}});
+        std::ofstream(root / "catalog" / "import_sessions" / "review-hero.json")
+            << urpg::assets::serializeAssetImportSession(session).dump(2);
+        return urpg::editor::AssetLibraryModel::ConversionCommandResult{0, "imported", ""};
+    });
+
+    REQUIRE(result["success"] == true);
+    REQUIRE(result["code"] == "import_source_loaded_for_review");
+    REQUIRE(model.snapshot().import_session_count == 1);
+    REQUIRE(model.snapshot().import_review_row_count == 1);
+    REQUIRE(model.snapshot().import_wizard["pending_request"].is_null());
+
+    std::filesystem::remove_all(root);
 }

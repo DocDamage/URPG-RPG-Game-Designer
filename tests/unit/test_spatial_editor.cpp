@@ -114,7 +114,7 @@ TEST_CASE("Spatial Editor Tooling Integration - PropPlacement consumes attached 
             "asset.hero",
             "content/assets/imported/asset.hero/hero.png",
             "sprite",
-            {"level_builder", "sprite_selector"},
+            {"level_builder", "spatial_authoring", "sprite_selector"},
         },
         {
             "asset.click",
@@ -130,6 +130,7 @@ TEST_CASE("Spatial Editor Tooling Integration - PropPlacement consumes attached 
             "content/assets/imported/asset.hero/hero.png");
     REQUIRE(placement.lastRenderSnapshot().project_asset_options[0].picker_kind == "sprite");
     REQUIRE(placement.lastRenderSnapshot().project_asset_options[0].targeted_for_level_builder);
+    REQUIRE(placement.lastRenderSnapshot().project_asset_options[0].targeted_for_perspective_2d);
     REQUIRE(placement.SelectProjectAsset("content/assets/imported/asset.hero/hero.png"));
     REQUIRE(placement.lastRenderSnapshot().selected_asset_id == "content/assets/imported/asset.hero/hero.png");
     REQUIRE(placement.lastRenderSnapshot().selected_project_asset_id == "asset.hero");

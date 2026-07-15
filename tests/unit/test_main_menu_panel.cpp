@@ -1,4 +1,5 @@
 #include "editor/project/main_menu_panel.h"
+#include "editor/project/new_project_wizard_model.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -41,6 +42,12 @@ TEST_CASE("MainMenuModel exposes startup routes and project actions", "[project]
     REQUIRE(snapshot["route"] == "open_project");
     REQUIRE(snapshot["pending_action"]["action"] == "open_project_request");
 
+    model.reportProjectOpenFailure("C:/projects/broken.urpg", "project.json is missing");
+    snapshot = model.snapshot();
+    REQUIRE(snapshot["route"] == "main_menu");
+    REQUIRE(snapshot["pending_action"]["success"] == false);
+    REQUIRE(snapshot["pending_action"]["message"] == "project.json is missing");
+
     model.enterEditor("C:/projects/from_template.urpg");
     snapshot = model.snapshot();
     REQUIRE(model.route() == "editor");
@@ -67,6 +74,16 @@ TEST_CASE("MainMenuModel locates missing projects into recents", "[project][main
     REQUIRE(snapshot["recent_projects"][0]["path"] == "D:/Recovered/missing.urpg");
 }
 
+TEST_CASE("MainMenuModel requires an explicit replacement path when locating a missing project", "[project][main_menu]") {
+    urpg::editor::MainMenuModel model;
+    model.markProjectMissing("C:/projects/missing.urpg");
+    REQUIRE(model.beginLocateMissingProject("C:/projects/missing.urpg"));
+    auto snapshot = model.snapshot();
+    REQUIRE(snapshot["route"] == "locate_project");
+    REQUIRE(snapshot["pending_action"]["projectPath"] == "C:/projects/missing.urpg");
+    REQUIRE_FALSE(model.beginLocateMissingProject("C:/projects/not-listed.urpg"));
+}
+
 TEST_CASE("MainMenuModel limits recents and hides missing projects", "[project][main_menu]") {
     urpg::editor::MainMenuModel model;
     for (int i = 0; i < 12; ++i) {
@@ -89,6 +106,8 @@ TEST_CASE("MainMenuModel exposes editable settings route", "[project][main_menu]
     model.setOnboardingEnabled(false);
     model.setHelpTipsEnabled(false);
     model.setAssetBrowserLayout("compact_list");
+    model.setUiScale(1.5f);
+    model.setHighContrast(true);
     model.chooseSettings();
 
     auto snapshot = model.snapshot();
@@ -97,12 +116,53 @@ TEST_CASE("MainMenuModel exposes editable settings route", "[project][main_menu]
     REQUIRE(snapshot["settings"]["onboarding_enabled"] == false);
     REQUIRE(snapshot["settings"]["help_tips_enabled"] == false);
     REQUIRE(snapshot["settings"]["asset_browser_layout"] == "compact_list");
+    REQUIRE(snapshot["settings"]["ui_scale"] == 1.5f);
+    REQUIRE(snapshot["settings"]["high_contrast"] == true);
     REQUIRE(snapshot["commands"]["new_project"]["route"] == "template_picker");
 
     model.returnToMainMenu();
     snapshot = model.snapshot();
     REQUIRE(snapshot["route"] == "main_menu");
     REQUIRE(snapshot["pending_action"]["action"] == "main_menu");
+}
+
+TEST_CASE("MainMenuModel persists normalized project identity without losing display casing", "[project][main_menu][settings]") {
+    urpg::settings::EditorSettings settings;
+    settings.last_project = "C:/Creator/DEMO";
+    settings.recent_projects = {"C:/Creator/DEMO", "c:\\creator\\demo", "D:/Creator/Other"};
+    settings.pinned_projects = {"C:/Creator/DEMO", "c:/creator/demo"};
+    settings.hidden_missing_projects = {"D:/Creator/Hidden", "d:\\creator\\hidden"};
+    settings.onboarding_enabled = false;
+    settings.help_tips_enabled = false;
+    settings.asset_browser_layout = "compact_list";
+    settings.accessibility.ui_scale = 1.5f;
+    settings.accessibility.high_contrast = true;
+    settings.external_asset_library_root = "G:/Creator Assets";
+
+    urpg::editor::MainMenuModel model;
+    model.applySettings(settings);
+    auto snapshot = model.snapshot();
+    REQUIRE(snapshot["recent_projects"].size() == 2);
+    REQUIRE(snapshot["recent_projects"][0]["path"] == "C:/Creator/DEMO");
+    REQUIRE(snapshot["pinned_projects"].size() == 1);
+    REQUIRE(snapshot["hidden_missing_projects"].size() == 1);
+    REQUIRE(snapshot["external_asset_library_root"] == "G:/Creator Assets");
+    REQUIRE(snapshot["ui_scale"] == 1.5f);
+    REQUIRE(snapshot["high_contrast"] == true);
+    REQUIRE(snapshot["missing_projects"].size() == 2);
+
+    model.chooseOpenProject("c:/CREATOR/demo");
+    urpg::settings::EditorSettings saved;
+    model.writeSettings(&saved);
+    REQUIRE(saved.last_project == "c:/CREATOR/demo");
+    REQUIRE(saved.recent_projects.size() == 2);
+    REQUIRE(saved.recent_projects.front() == "c:/CREATOR/demo");
+    REQUIRE(saved.onboarding_enabled == false);
+    REQUIRE(saved.help_tips_enabled == false);
+    REQUIRE(saved.asset_browser_layout == "compact_list");
+    REQUIRE(saved.accessibility.ui_scale == 1.5f);
+    REQUIRE(saved.accessibility.high_contrast == true);
+    REQUIRE(saved.external_asset_library_root == "G:/Creator Assets");
 }
 
 TEST_CASE("MainMenuPanel renders model-backed main menu snapshot", "[project][main_menu][editor][panel]") {
@@ -118,4 +178,18 @@ TEST_CASE("MainMenuPanel renders model-backed main menu snapshot", "[project][ma
     REQUIRE(snapshot["status"] == "ready");
     REQUIRE(snapshot["model"]["onboarding_enabled"] == false);
     REQUIRE(snapshot["model"]["commands"]["new_project"]["route"] == "template_picker");
+}
+
+TEST_CASE("MainMenuPanel nests a bound guided wizard in the creator flow", "[project][main_menu][editor][panel]") {
+    urpg::editor::MainMenuModel model;
+    urpg::editor::NewProjectWizardModel wizard;
+    urpg::editor::MainMenuPanel panel;
+    panel.bindModel(&model);
+    panel.bindWizard(&wizard);
+    REQUIRE(model.chooseNewProject());
+    panel.render();
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["model"]["route"] == "onboarding");
+    REQUIRE(snapshot["wizard"]["step"] == "project");
+    REQUIRE(snapshot["wizard"]["template_id"] == "jrpg");
 }

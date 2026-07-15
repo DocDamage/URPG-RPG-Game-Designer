@@ -4,6 +4,9 @@ All notable changes to URPG are tracked here.
 
 ## Unreleased
 
+- Added resumable, filtered, fast-discovery indexing for external local asset roots, including SVG sprites and ZIP/RAR/7z archive records without copying source payloads into Git.
+- Reconciled the documented release editor surface with the shipped Perspective 2D Map Editor and added a regression check that keeps the README panel list aligned with the editor registry.
+
 ## 0.1.0 - 2026-05-05
 
 - Finalized the bounded public `v0.1.0` release record, including owner-approved tag authorization and current local/remote release-candidate evidence.

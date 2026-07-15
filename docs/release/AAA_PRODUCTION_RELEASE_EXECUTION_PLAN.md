@@ -1,8 +1,10 @@
 # AAA Production Release Execution Plan
 
-Status Date: 2026-05-25
+Status Date: 2026-05-26
 
 This plan converted the senior release-engineering audit into ordered remediation work. The original invalid `build/dev-ninja-debug` blocker is closed for the current workspace after a fresh configure/build restored test discovery. The bounded `v0.1.0` release tag now exists; post-tag commits should use this plan as historical remediation context and must rerun the final gates before any follow-up public release.
+
+Current follow-up: `docs/superpowers/plans/2026-05-26-finish-current-codebase.md` is the active plan for the newly reconciled post-tag blockers: production `std::system`, credential exposure, compat audio lifetime, chatbot callback lifetime, QuickJS CPU interruption, asset/script protection truth, local-only cloud sync, cross-platform picker gaps, tracked generated/root asset paths, and current LFS footprint.
 
 ## Phase 0 - Build Blockers And App-Breaking Issues
 

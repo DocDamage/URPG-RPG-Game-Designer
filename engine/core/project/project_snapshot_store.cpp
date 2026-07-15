@@ -6,25 +6,94 @@ namespace urpg::project {
 
 namespace {
 
-void copyTree(const std::filesystem::path& source,
+bool copyTree(const std::filesystem::path& source,
               const std::filesystem::path& destination,
-              nlohmann::json& files) {
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(source)) {
-        const auto relative = std::filesystem::relative(entry.path(), source);
-        const auto target = destination / relative;
-        if (entry.is_directory()) {
-            std::filesystem::create_directories(target);
+              nlohmann::json& files,
+              std::vector<std::string>& errors) {
+    std::error_code ec;
+    std::filesystem::recursive_directory_iterator iterator(
+        source, std::filesystem::directory_options::skip_permission_denied, ec);
+    const std::filesystem::recursive_directory_iterator end;
+    if (ec) {
+        errors.push_back("snapshot_enumeration_failed:" + ec.message());
+        return false;
+    }
+
+    while (iterator != end) {
+        const auto& entry = *iterator;
+        const auto relative = std::filesystem::relative(entry.path(), source, ec);
+        if (ec) {
+            errors.push_back("snapshot_relative_path_failed:" + ec.message());
+            return false;
+        }
+        if (!relative.empty() && relative.begin()->string() == ".urpg") {
+            if (entry.is_directory(ec) && !ec) {
+                iterator.disable_recursion_pending();
+            }
+            ec.clear();
+            iterator.increment(ec);
+            if (ec) {
+                errors.push_back("snapshot_enumeration_failed:" + ec.message());
+                return false;
+            }
             continue;
         }
-        std::filesystem::create_directories(target.parent_path());
-        std::filesystem::copy_file(entry.path(), target, std::filesystem::copy_options::overwrite_existing);
+        const auto target = destination / relative;
+        if (entry.is_symlink(ec)) {
+            ec.clear();
+            iterator.increment(ec);
+            if (ec) {
+                errors.push_back("snapshot_enumeration_failed:" + ec.message());
+                return false;
+            }
+            continue;
+        }
+        if (entry.is_directory(ec)) {
+            std::filesystem::create_directories(target, ec);
+            if (ec) {
+                errors.push_back("snapshot_directory_create_failed:" + ec.message());
+                return false;
+            }
+            iterator.increment(ec);
+            if (ec) {
+                errors.push_back("snapshot_enumeration_failed:" + ec.message());
+                return false;
+            }
+            continue;
+        }
+        if (ec || !entry.is_regular_file(ec) || ec) {
+            ec.clear();
+            iterator.increment(ec);
+            if (ec) {
+                errors.push_back("snapshot_enumeration_failed:" + ec.message());
+                return false;
+            }
+            continue;
+        }
+        std::filesystem::create_directories(target.parent_path(), ec);
+        if (ec) {
+            errors.push_back("snapshot_directory_create_failed:" + ec.message());
+            return false;
+        }
+        std::filesystem::copy_file(entry.path(), target, std::filesystem::copy_options::overwrite_existing, ec);
+        if (ec) {
+            errors.push_back("snapshot_file_copy_failed:" + relative.generic_string() + ":" + ec.message());
+            return false;
+        }
         files.push_back(relative.generic_string());
+        iterator.increment(ec);
+        if (ec) {
+            errors.push_back("snapshot_enumeration_failed:" + ec.message());
+            return false;
+        }
     }
+    return true;
 }
 
-void writeManifest(const std::filesystem::path& snapshot_path, const nlohmann::json& manifest) {
+bool writeManifest(const std::filesystem::path& snapshot_path, const nlohmann::json& manifest) {
     std::ofstream out(snapshot_path / "snapshot_manifest.json", std::ios::binary);
-    out << manifest.dump(2);
+    out << manifest.dump(2) << '\n';
+    return static_cast<bool>(out);
 }
 
 } // namespace
@@ -37,7 +106,8 @@ ProjectSnapshotResult ProjectSnapshotStore::createSnapshot(const std::filesystem
         result.errors.push_back("project_root_missing");
         return result;
     }
-    if (snapshot_id.empty()) {
+    if (snapshot_id.empty() || std::filesystem::path(snapshot_id).filename().string() != snapshot_id ||
+        snapshot_id == "." || snapshot_id == "..") {
         result.errors.push_back("missing_snapshot_id");
         return result;
     }
@@ -48,15 +118,27 @@ ProjectSnapshotResult ProjectSnapshotStore::createSnapshot(const std::filesystem
         return result;
     }
 
-    std::filesystem::create_directories(result.snapshot_path);
+    std::error_code ec;
+    std::filesystem::create_directories(result.snapshot_path, ec);
+    if (ec) {
+        result.errors.push_back("snapshot_directory_create_failed:" + ec.message());
+        return result;
+    }
     nlohmann::json files = nlohmann::json::array();
-    copyTree(project_root, result.snapshot_path / "project", files);
+    if (!copyTree(project_root, result.snapshot_path / "project", files, result.errors)) {
+        std::filesystem::remove_all(result.snapshot_path, ec);
+        return result;
+    }
     result.manifest = {
         {"schema_version", "urpg.project_snapshot.v1"},
         {"snapshot_id", snapshot_id},
         {"files", files},
     };
-    writeManifest(result.snapshot_path, result.manifest);
+    if (!writeManifest(result.snapshot_path, result.manifest)) {
+        result.errors.push_back("snapshot_manifest_write_failed");
+        std::filesystem::remove_all(result.snapshot_path, ec);
+        return result;
+    }
     result.success = true;
     return result;
 }
@@ -76,7 +158,11 @@ ProjectSnapshotResult ProjectSnapshotStore::restoreSnapshot(const std::filesyste
     }
 
     nlohmann::json files = nlohmann::json::array();
-    copyTree(project_payload, restore_target, files);
+    if (!copyTree(project_payload, restore_target, files, result.errors)) {
+        std::error_code ec;
+        std::filesystem::remove_all(restore_target, ec);
+        return result;
+    }
     result.manifest = {
         {"schema_version", "urpg.project_snapshot_restore.v1"},
         {"files", files},

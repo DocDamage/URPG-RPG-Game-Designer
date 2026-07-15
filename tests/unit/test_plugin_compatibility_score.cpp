@@ -235,3 +235,37 @@ TEST_CASE("PluginCompatibilityScore exports machine-readable non-authoritative r
     REQUIRE(exported["plugins"][0]["tier"] == "partial");
     REQUIRE(exported["plugins"][0]["issues"][0]["shim_hint"]["native_feature"] == "engine/core/message");
 }
+
+TEST_CASE("PluginCompatibilityScore estimates repair effort and migration suggestions",
+          "[plugin][compatibility][mz_high_end]") {
+    PluginCompatibilityAnalysisInput input;
+    input.native_shim_hints = DefaultNativePluginShimHints();
+    input.failure_diagnostics_jsonl =
+        R"({"seq":1,"subsystem":"plugin_manager","event":"compat_failure","plugin":"WindowTweaks","operation":"execute_command_quickjs_call","message":"call failed","severity":"CRASH_PREVENTED"})";
+    input.manifests = {
+        manifest({
+            {"name", "WindowTweaks"},
+            {"permissions", nlohmann::json::array({"network.fetch"})},
+            {"unsupportedApis", nlohmann::json::array({"Window_Base.drawText", "SceneManager.snapUnknown"})},
+            {"fixtureOnlyBehaviors", nlohmann::json::array({"command_fixture"})},
+            {"fallbackPaths", nlohmann::json::array({"window_fallback"})},
+        }),
+    };
+
+    const auto report = AnalyzePluginCompatibility(input);
+    const auto& window = findPlugin(report, "WindowTweaks");
+
+    REQUIRE(window.estimated_repair_minutes == 240);
+    REQUIRE(window.migration_suggestions.size() == 5);
+    REQUIRE(window.migration_suggestions[0].code == "grant_or_replace_permission");
+    REQUIRE(window.migration_suggestions[1].code == "replace_with_native_shim");
+    REQUIRE(window.migration_suggestions[2].code == "manual_js_api_review");
+    REQUIRE(window.migration_suggestions[3].code == "replace_fixture_only_behavior");
+    REQUIRE(window.migration_suggestions[4].code == "remove_compat_fallback");
+    REQUIRE(window.confidence == "low");
+
+    const auto exported = PluginCompatibilityReportToJson(report);
+    REQUIRE(exported["plugins"][0]["estimated_repair_minutes"] == 240);
+    REQUIRE(exported["plugins"][0]["confidence"] == "low");
+    REQUIRE(exported["plugins"][0]["migration_suggestions"].size() == 5);
+}

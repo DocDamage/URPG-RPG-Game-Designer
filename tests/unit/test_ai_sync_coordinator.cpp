@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include "engine/core/editor/editor_panel_registry.h"
 #include "engine/core/message/ai_sync_coordinator.h"
 #include "engine/core/message/mock_chat_service.h"
 
@@ -87,8 +88,22 @@ TEST_CASE("LocalInMemoryCloudService is hidden from release cloud-sync surfaces"
 
     REQUIRE_FALSE(visibility.release_visible);
     REQUIRE_FALSE(visibility.remote_transport);
+    REQUIRE_FALSE(urpg::social::isCloudSyncReleaseVisible(cloud));
     REQUIRE(visibility.reason.find("process-local") != std::string::npos);
     REQUIRE(visibility.reason.find("remote cloud sync") != std::string::npos);
+}
+
+TEST_CASE("Release editor panel registry does not surface local-only cloud sync", "[ai][cloud][release]") {
+    for (const auto& entry : urpg::editor::editorPanelRegistry()) {
+        if (entry.exposure != urpg::editor::EditorPanelExposure::ReleaseTopLevel) {
+            continue;
+        }
+
+        const std::string searchable = entry.id + " " + entry.title + " " + entry.reason;
+        REQUIRE(searchable.find("cloud sync") == std::string::npos);
+        REQUIRE(searchable.find("cross-device") == std::string::npos);
+        REQUIRE(searchable.find("LocalInMemoryCloudService") == std::string::npos);
+    }
 }
 
 TEST_CASE("AISyncCoordinator syncs and restores history through local in-memory storage", "[ai][cloud]") {

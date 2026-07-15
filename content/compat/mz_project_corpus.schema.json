@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/mz_project_corpus.schema.json",
+  "title": "URPG RPG Maker MZ Project Corpus Descriptor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "sourceLicense",
+    "legalUse",
+    "fixtureScope",
+    "maps",
+    "events",
+    "plugins",
+    "saves",
+    "assets",
+    "expectedCoverage"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9_\\-]*$"
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "sourceLicense": {
+      "type": "string",
+      "minLength": 1
+    },
+    "legalUse": {
+      "type": "string",
+      "enum": [
+        "repo_owned",
+        "permissive_sample",
+        "owner_provided_private"
+      ]
+    },
+    "sourceNotes": {
+      "type": "string"
+    },
+    "fixtureScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "copyrightedRpgMakerPayloadsIncluded",
+        "descriptorOnly",
+        "nativeReferenceOnly"
+      ],
+      "properties": {
+        "copyrightedRpgMakerPayloadsIncluded": {
+          "type": "boolean",
+          "const": false
+        },
+        "descriptorOnly": {
+          "type": "boolean"
+        },
+        "nativeReferenceOnly": {
+          "type": "boolean"
+        }
+      }
+    },
+    "maps": {
+      "$ref": "#/$defs/countLane"
+    },
+    "events": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "supportedCommandCount",
+        "unsupportedCommandCount"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "supportedCommandCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unsupportedCommandCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "commandSet": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "plugins": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "fixtureManifestDirectory"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fixtureManifestDirectory": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "saves": {
+      "$ref": "#/$defs/countLane"
+    },
+    "assets": {
+      "$ref": "#/$defs/countLane"
+    },
+    "expectedCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "importConfidence",
+        "migrationConfidence",
+        "runtimeParityClaim",
+        "visualParityClaim"
+      ],
+      "properties": {
+        "importConfidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "migrationConfidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "runtimeParityClaim": {
+          "type": "boolean"
+        },
+        "visualParityClaim": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "countLane": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

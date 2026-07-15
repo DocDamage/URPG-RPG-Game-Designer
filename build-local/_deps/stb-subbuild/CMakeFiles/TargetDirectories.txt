@@ -1,3 +1,0 @@
-C:/dev/URPG Maker/build-local/_deps/stb-subbuild/CMakeFiles/stb-populate.dir
-C:/dev/URPG Maker/build-local/_deps/stb-subbuild/CMakeFiles/ALL_BUILD.dir
-C:/dev/URPG Maker/build-local/_deps/stb-subbuild/CMakeFiles/ZERO_CHECK.dir

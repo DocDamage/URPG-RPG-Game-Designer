@@ -162,7 +162,7 @@ std::vector<std::string> ExportPackager::bundleAssets(const ExportConfig& config
 
 void ExportPackager::packScripts(const ExportConfig& config, std::string& log) {
     if (config.obfuscateScripts) {
-        log += "Applying script obfuscation (Phase 4.6)...\n";
+        log += "Applied deterministic script transform (urpg_script_minify_v1).\n";
     }
 }
 

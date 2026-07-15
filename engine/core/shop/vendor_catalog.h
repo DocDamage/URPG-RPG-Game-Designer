@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <map>
+#include <nlohmann/json.hpp>
 #include <set>
 #include <string>
 #include <vector>
@@ -33,6 +34,8 @@ public:
     void addVendor(VendorDefinition vendor);
     std::vector<VendorStockItem> refreshStock(const std::string& vendor_id, const std::set<std::string>& active_flags) const;
     std::vector<VendorDiagnostic> validate() const;
+    nlohmann::json serialize() const;
+    static VendorCatalog deserialize(const nlohmann::json& json);
 
 private:
     std::set<std::string> known_items_;

@@ -101,6 +101,24 @@ RuntimeCliParseResult parseRuntimeCli(std::vector<std::string_view> args, bool d
                 return result;
             }
             result.options.project_root = std::filesystem::path(std::string(args[++i]));
+        } else if (arg == "--map") {
+            if (i + 1 >= args.size() || needsValue(args[i + 1])) {
+                result.error = missingValueError(arg);
+                return result;
+            }
+            result.options.map = std::string(args[++i]);
+        } else if (arg == "--spawn") {
+            if (i + 1 >= args.size() || needsValue(args[i + 1])) {
+                result.error = missingValueError(arg);
+                return result;
+            }
+            result.options.spawn = std::string(args[++i]);
+        } else if (arg == "--session-manifest") {
+            if (i + 1 >= args.size() || needsValue(args[i + 1])) {
+                result.error = missingValueError(arg);
+                return result;
+            }
+            result.options.session_manifest = std::filesystem::path(std::string(args[++i]));
         } else {
             result.error = "unknown option: " + std::string(arg);
             return result;
@@ -170,6 +188,7 @@ EditorCliParseResult parseEditorCli(std::vector<std::string_view> args, bool def
                 return result;
             }
             result.options.project_root = std::filesystem::path(std::string(args[++i]));
+            result.options.project_root_provided = true;
         } else if (arg == "--smoke-output") {
             if (i + 1 >= args.size() || needsValue(args[i + 1])) {
                 result.error = missingValueError(arg);
@@ -205,7 +224,8 @@ EditorCliParseResult parseEditorCli(std::vector<std::string_view> args, bool def
 
 std::string runtimeHelpText() {
     return "Usage: urpg_runtime [--headless] [--frames <count>] [--width <pixels>] [--height <pixels>] "
-           "[--project-root <path>] [--version] [--help]\n";
+           "[--project-root <path>] [--map <id>] [--spawn <x,y>] [--session-manifest <path>] "
+           "[--version] [--help]\n";
 }
 
 std::string editorHelpText() {

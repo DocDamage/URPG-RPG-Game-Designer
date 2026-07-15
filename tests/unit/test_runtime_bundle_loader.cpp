@@ -111,7 +111,9 @@ TEST_CASE("runtime bundle loader accepts signed bundles", "[export][runtime_bund
 
     REQUIRE(result.loaded);
     REQUIRE(result.errors.empty());
-    REQUIRE(result.manifest.value("signatureMode", "") == "sha256_keyed_bundle_v1");
+    REQUIRE(result.manifest.value("protectionMode", "") == "authenticated_release_bundle_v1");
+    REQUIRE(result.manifest.value("signatureMode", "") == "hmac_sha256_bundle_v2");
+    REQUIRE(result.manifest.value("bundleSignatureScope", "") == "manifest_payload_target_v2");
 }
 
 TEST_CASE("runtime bundle loader rejects tampered bundles before content load", "[export][runtime_bundle][ffs07]") {
@@ -150,6 +152,21 @@ TEST_CASE("runtime bundle loader rejects tampered manifest metadata", "[export][
         dir / "data.pck", [](nlohmann::json& manifest) { manifest["assetDiscoveryMode"] = "tampered_fixture"; });
 
     const auto result = urpg::exporting::LoadRuntimeBundle(dir / "data.pck", urpg::tools::ExportTarget::Windows_x64);
+
+    REQUIRE_FALSE(result.loaded);
+    REQUIRE(std::find(result.errors.begin(), result.errors.end(), "bundle_signature_mismatch") != result.errors.end());
+}
+
+TEST_CASE("runtime bundle loader rejects replay under a different target scope", "[export][runtime_bundle]") {
+    const auto dir = testTempDir("target_replay");
+    std::vector<urpg::tools::export_packager_detail::BundlePayload> payloads = {
+        payload("data/System.json", "database", bytes({4, 8, 12, 16})),
+    };
+    const auto write_result = urpg::tools::export_packager_detail::writeBundleFile(
+        dir, urpg::tools::ExportTarget::Windows_x64, false, "test_fixture", payloads);
+    REQUIRE(write_result.success);
+
+    const auto result = urpg::exporting::LoadRuntimeBundle(dir / "data.pck", urpg::tools::ExportTarget::Linux_x64);
 
     REQUIRE_FALSE(result.loaded);
     REQUIRE(std::find(result.errors.begin(), result.errors.end(), "bundle_signature_mismatch") != result.errors.end());

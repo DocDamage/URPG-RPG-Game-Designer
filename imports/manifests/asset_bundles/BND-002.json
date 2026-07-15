@@ -1,21 +1,3 @@
-{
-  "bundle_id": "BND-002",
-  "bundle_name": "td_sprint_04_ui_sfx_lane",
-  "source_id": "SRC-003",
-  "bundle_state": "promoted",
-  "release_required": false,
-  "release_surfaces": ["ui", "audio"],
-  "assets": [
-    {
-      "original_relative_path": "addons/kenney_interface_sounds/click_001.wav",
-      "promoted_relative_path": "ui_sfx/kenney_click_001.wav",
-      "category": "ui_sfx",
-      "status": "promoted",
-      "release_required": false,
-      "release_surfaces": ["ui", "audio"],
-      "license_cleared": true,
-      "distribution": "deferred",
-      "notes": "Governed audio proof record retained for attribution/history only. The WAV payload has been removed from GitHub; future promoted audio must use OGG output from the audio conversion pipeline."
-    }
-  ]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:690e286932c70f1506fb50cad42b628379fe30d6d8a9d4d531a546bd76c4fc3c
+size 780

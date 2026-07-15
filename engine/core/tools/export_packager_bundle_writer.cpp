@@ -118,9 +118,10 @@ BundleWriteResult writeBundleFile(const std::filesystem::path& outputDir, Export
     manifest["bundleMode"] = "project_content_bundle_v1";
     manifest["target"] = bundleTargetLabel(target);
     manifest["assetDiscoveryMode"] = assetDiscoveryMode;
-    manifest["protectionMode"] = compressAssets ? "rle_xor" : "none";
+    manifest["protectionMode"] = urpg::exporting::bundle_contract::kProtectionMode;
     manifest["integrityMode"] = urpg::exporting::bundle_contract::kIntegrityMode;
     manifest["signatureMode"] = urpg::exporting::bundle_contract::kSignatureMode;
+    manifest["bundleSignatureScope"] = urpg::exporting::bundle_contract::kBundleSignatureScope;
     manifest["bundleSignature"] = std::string(64, '0');
     manifest["entries"] = nlohmann::json::array();
 
@@ -223,10 +224,10 @@ BundleWriteResult writeBundleFile(const std::filesystem::path& outputDir, Export
     });
     result.log += "Auto-discovered " + std::to_string(discoveredAssetCount) + " project asset(s).\n";
     if (compressAssets) {
-        result.log += "Applied lightweight RLE+XOR protection to bundle payloads.\n";
+        result.log += "Applied release bundle payload compression and per-target obfuscation.\n";
     }
-    result.log += "Applied lightweight keyed integrity tags to bundle payloads.\n";
-    result.log += "Applied keyed SHA-256 bundle signature across manifest metadata and staged payload bytes.\n";
+    result.log += "Applied keyed integrity tags to bundle payloads.\n";
+    result.log += "Applied HMAC-SHA256 target-scoped bundle signature across manifest metadata and staged payload bytes.\n";
     return result;
 }
 

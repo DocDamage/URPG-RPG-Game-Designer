@@ -1,0 +1,160 @@
+#include "engine/core/project/contextual_creator_project.h"
+
+#include "engine/core/save/save_journal.h"
+
+#include <fstream>
+
+namespace urpg::project {
+namespace {
+
+ContextualCreatorProjectResult failure(std::string code, std::string message) {
+    return {false, std::move(code), std::move(message), {}};
+}
+
+} // namespace
+
+ContextualCreatorProjectResult ContextualCreatorProject::open(const std::filesystem::path& projectRoot) {
+    if (projectRoot.empty() || !std::filesystem::is_regular_file(projectRoot / "project.json")) {
+        return failure("contextual_project_root_invalid", "Open a valid URPG project before authoring contextual data.");
+    }
+    project_root_ = projectRoot;
+    event_document_ = {};
+    dialogues_.clear();
+    characters_.clear();
+    database_ = {};
+    quest_registry_ = {};
+    vendor_catalog_ = {};
+    abilities_.clear();
+    audio_mix_config_ = nlohmann::json::object();
+    accessibility_review_ = nlohmann::json::object();
+    input_profile_ = {};
+
+    const auto path = project_root_ / kRelativePath;
+    if (!std::filesystem::exists(path)) {
+        return {true, "contextual_project_opened_empty", "No contextual data exists yet; author a new contextual workflow.", {}};
+    }
+    try {
+        std::ifstream input(path, std::ios::binary);
+        const auto json = nlohmann::json::parse(input);
+        if (json.value("schema", "") != "urpg.contextual_creator_project.v1") {
+            return failure("contextual_project_schema_unsupported", "Contextual project data has an unsupported schema.");
+        }
+        event_document_ = events::EventDocument::fromJson(json.value("event_document", nlohmann::json::object()));
+        const auto serialized_dialogues = json.value("dialogues", nlohmann::json::object());
+        for (const auto& [id, dialogue] : serialized_dialogues.items()) {
+            dialogues_[id] = dialogue::DialogueGraph::fromJson(dialogue);
+        }
+        const auto serialized_characters = json.value("characters", nlohmann::json::object());
+        for (const auto& [id, character] : serialized_characters.items()) {
+            characters_[id] = character::CharacterIdentity::fromJson(character);
+        }
+        database_ = database::RpgDatabase::fromJson(json.value("database", nlohmann::json::object()));
+        if (json.contains("quests")) quest_registry_ = quest::QuestRegistry::deserialize(json.at("quests"));
+        if (json.contains("vendors")) vendor_catalog_ = shop::VendorCatalog::deserialize(json.at("vendors"));
+        const auto serialized_abilities = json.value("abilities", nlohmann::json::object());
+        for (const auto& [id, asset] : serialized_abilities.items()) abilities_[id] = asset.get<ability::AuthoredAbilityAsset>();
+        audio_mix_config_ = json.value("audio_mix", nlohmann::json::object());
+        accessibility_review_ = json.value("accessibility_review", nlohmann::json::object());
+        if (json.contains("input_profile")) input_profile_ = input::InputRemapProfile::fromJson(json.at("input_profile"));
+    } catch (const std::exception& error) {
+        return failure("contextual_project_load_failed", error.what());
+    }
+    const auto validation = validate();
+    return {validation.success, validation.success ? "contextual_project_opened" : "contextual_project_validation_failed",
+            validation.success ? "Contextual project data was loaded." : validation.message, validation.diagnostics};
+}
+
+ContextualCreatorProjectResult ContextualCreatorProject::save() const {
+    if (project_root_.empty()) {
+        return failure("contextual_project_not_open", "Open a URPG project before saving contextual data.");
+    }
+    const auto validation = validate();
+    if (!validation.success) {
+        return validation;
+    }
+    nlohmann::json dialogues = nlohmann::json::object();
+    for (const auto& [id, graph] : dialogues_) {
+        dialogues[id] = graph.serialize();
+    }
+    nlohmann::json characters = nlohmann::json::object();
+    for (const auto& [id, identity] : characters_) {
+        characters[id] = identity.toJson();
+    }
+    nlohmann::json abilities = nlohmann::json::object();
+    for (const auto& [id, asset] : abilities_) abilities[id] = asset;
+    const nlohmann::json json = {{"schema", "urpg.contextual_creator_project.v1"},
+                                 {"event_document", event_document_.toJson()},
+                                 {"dialogues", std::move(dialogues)},
+                                 {"characters", std::move(characters)},
+                                 {"database", database_.toJson()},
+                                 {"quests", quest_registry_.serialize()},
+                                 {"vendors", vendor_catalog_.serialize()},
+                                 {"abilities", std::move(abilities)},
+                                 {"audio_mix", audio_mix_config_},
+                                 {"accessibility_review", accessibility_review_},
+                                 {"input_profile", input_profile_.toJson()}};
+    std::string error;
+    if (!SaveJournal::WriteAtomically(project_root_ / kRelativePath, json.dump(2) + "\n", &error)) {
+        return failure("contextual_project_save_failed", error);
+    }
+    return {true, "contextual_project_saved", "Contextual project data was saved atomically.", {}};
+}
+
+nlohmann::json ContextualCreatorProject::snapshot() const {
+    const auto validation = validate();
+    return {{"schema", "urpg.contextual_creator_project_snapshot.v1"},
+            {"project_root", project_root_.generic_string()},
+            {"event_count", event_document_.events().size()},
+            {"dialogue_count", dialogues_.size()},
+            {"character_count", characters_.size()},
+            {"actor_count", database_.actors().size()},
+            {"item_count", database_.items().size()},
+            {"ability_count", abilities_.size()},
+            {"input_binding_count", input_profile_.bindingsFor("Enter").size()},
+            {"audio_mix_configured", !audio_mix_config_.empty()},
+            {"accessibility_reviewed", !accessibility_review_.empty()},
+            {"is_valid", validation.success},
+            {"diagnostics", validation.diagnostics}};
+}
+
+void ContextualCreatorProject::setEventDocument(events::EventDocument document) { event_document_ = std::move(document); }
+void ContextualCreatorProject::setDialogue(std::string id, dialogue::DialogueGraph graph) { dialogues_[std::move(id)] = std::move(graph); }
+void ContextualCreatorProject::setCharacter(std::string id, character::CharacterIdentity identity) { characters_[std::move(id)] = std::move(identity); }
+void ContextualCreatorProject::setDatabase(database::RpgDatabase database) { database_ = std::move(database); }
+void ContextualCreatorProject::setQuestRegistry(quest::QuestRegistry registry) { quest_registry_ = std::move(registry); }
+void ContextualCreatorProject::setVendorCatalog(shop::VendorCatalog catalog) { vendor_catalog_ = std::move(catalog); }
+void ContextualCreatorProject::setAbility(std::string id, ability::AuthoredAbilityAsset asset) { abilities_[std::move(id)] = std::move(asset); }
+void ContextualCreatorProject::setAudioMixConfig(nlohmann::json config) { audio_mix_config_ = std::move(config); }
+void ContextualCreatorProject::setAccessibilityReview(nlohmann::json review) { accessibility_review_ = std::move(review); }
+void ContextualCreatorProject::setInputProfile(input::InputRemapProfile profile) { input_profile_ = std::move(profile); }
+
+ContextualCreatorProjectResult ContextualCreatorProject::validate() const {
+    std::vector<std::string> diagnostics;
+    if (project_root_.empty()) diagnostics.push_back("contextual_project_not_open");
+    for (const auto& issue : event_document_.validate()) {
+        diagnostics.push_back("event:" + issue.code);
+    }
+    for (const auto& [id, graph] : dialogues_) {
+        if (id.empty() || graph.startNode().empty() || graph.findNode(graph.startNode()) == nullptr) {
+            diagnostics.push_back("dialogue_invalid:" + id);
+        }
+    }
+    for (const auto& [id, identity] : characters_) {
+        if (id.empty() || identity.getName().empty()) diagnostics.push_back("character_invalid:" + id);
+    }
+    for (const auto& issue : database_.validate()) {
+        diagnostics.push_back("database:" + issue.code + ":" + issue.id);
+    }
+    for (const auto& issue : vendor_catalog_.validate()) diagnostics.push_back("vendor:" + issue.code + ":" + issue.id);
+    for (const auto& [id, asset] : abilities_) {
+        if (id.empty() || asset.ability_id.empty()) diagnostics.push_back("ability_invalid:" + id);
+    }
+    if (!audio_mix_config_.is_object()) diagnostics.push_back("audio_mix_config_invalid");
+    if (!accessibility_review_.is_object()) diagnostics.push_back("accessibility_review_invalid");
+    if (!diagnostics.empty()) {
+        return {false, "contextual_project_validation_failed", "Resolve contextual project diagnostics before saving.", std::move(diagnostics)};
+    }
+    return {true, "contextual_project_valid", "Contextual project data is valid.", {}};
+}
+
+} // namespace urpg::project

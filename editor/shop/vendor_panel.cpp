@@ -4,6 +4,10 @@
 
 namespace urpg::editor {
 
+void VendorPanel::setCatalog(shop::VendorCatalog catalog) {
+    catalog_ = std::move(catalog);
+}
+
 void VendorPanel::setVendorId(std::string vendor_id) {
     vendor_id_ = std::move(vendor_id);
 }

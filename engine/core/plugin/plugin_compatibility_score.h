@@ -61,6 +61,13 @@ struct PluginShimHint {
     std::string note;
 };
 
+struct PluginMigrationSuggestion {
+    std::string code;
+    std::string message;
+    std::string target;
+    int32_t estimated_minutes = 0;
+};
+
 struct PluginCompatibilityIssue {
     PluginCompatibilityIssueKind kind = PluginCompatibilityIssueKind::UnsupportedApi;
     std::string plugin_id;
@@ -82,6 +89,9 @@ struct PluginCompatibilityResult {
     std::vector<std::string> denied_permissions;
     std::vector<std::string> unsupported_apis;
     std::vector<PluginShimHint> shim_hints;
+    std::vector<PluginMigrationSuggestion> migration_suggestions;
+    int32_t estimated_repair_minutes = 0;
+    std::string confidence = "high";
 };
 
 struct PluginDependencyEdge {

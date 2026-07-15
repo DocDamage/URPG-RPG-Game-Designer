@@ -37,6 +37,15 @@ struct AccessibilitySettings {
     float ui_scale = 1.0f;
 };
 
+struct MapWorkspaceLayoutSettings {
+    float palette_width_fraction = 0.22f;
+    float inspector_width_fraction = 0.24f;
+    float diagnostics_height_fraction = 0.24f;
+    bool palette_visible = true;
+    bool inspector_visible = true;
+    bool diagnostics_visible = true;
+};
+
 struct RuntimeSettings {
     WindowSettings window;
     AudioSettings audio;
@@ -52,6 +61,15 @@ struct EditorSettings {
     bool restore_workspace = true;
     std::string analytics_consent_state = "unknown";
     bool analytics_upload_enabled = false;
+    std::string last_project;
+    std::vector<std::string> recent_projects;
+    std::vector<std::string> pinned_projects;
+    std::vector<std::string> hidden_missing_projects;
+    bool onboarding_enabled = true;
+    bool help_tips_enabled = true;
+    std::string asset_browser_layout = "left_collapsible_folder_tree";
+    MapWorkspaceLayoutSettings map_workspace_layout;
+    std::filesystem::path external_asset_library_root;
 };
 
 struct SettingsLoadReport {
@@ -71,6 +89,7 @@ struct EditorSettingsLoadResult {
 };
 
 AppSettingsPaths appSettingsPaths(const std::filesystem::path& project_root);
+AppSettingsPaths editorUserSettingsPaths();
 
 RuntimeSettings defaultRuntimeSettings();
 EditorSettings defaultEditorSettings(const AppSettingsPaths& paths);

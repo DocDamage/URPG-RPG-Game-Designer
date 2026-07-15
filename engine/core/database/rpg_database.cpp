@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <stdexcept>
 #include <utility>
 
 namespace urpg::database {
@@ -101,6 +102,36 @@ nlohmann::json RpgDatabase::toJson() const {
         json["items"].push_back({{"id", item.id}, {"name", item.name}, {"price", item.price}, {"tags", item.tags}});
     }
     return json;
+}
+
+RpgDatabase RpgDatabase::fromJson(const nlohmann::json& json) {
+    if (!json.is_object()) {
+        throw std::invalid_argument("RpgDatabase JSON must be an object.");
+    }
+    RpgDatabase database;
+    for (const auto& source_actor : json.value("actors", nlohmann::json::array())) {
+        if (!source_actor.is_object()) {
+            throw std::invalid_argument("RpgDatabase actor must be an object.");
+        }
+        database.upsertActor({source_actor.value("id", ""), source_actor.value("name", ""),
+                              source_actor.value("class_id", ""), source_actor.value("max_hp", 1),
+                              source_actor.value("attack", 1)});
+    }
+    for (const auto& source_item : json.value("items", nlohmann::json::array())) {
+        if (!source_item.is_object()) {
+            throw std::invalid_argument("RpgDatabase item must be an object.");
+        }
+        std::set<std::string> tags;
+        for (const auto& tag : source_item.value("tags", nlohmann::json::array())) {
+            if (!tag.is_string()) {
+                throw std::invalid_argument("RpgDatabase item tag must be a string.");
+            }
+            tags.insert(tag.get<std::string>());
+        }
+        database.upsertItem({source_item.value("id", ""), source_item.value("name", ""),
+                             source_item.value("price", 0), std::move(tags)});
+    }
+    return database;
 }
 
 RpgDatabase RpgDatabase::fromItemsCsv(const std::string& csv) {

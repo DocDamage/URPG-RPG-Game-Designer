@@ -1,4 +1,5 @@
 #include "engine/core/map/grid_part_catalog_loader.h"
+#include "engine/core/platform/process_runner.h"
 
 #include <nlohmann/json.hpp>
 
@@ -77,7 +78,7 @@ GridPartRuleset gridPartRulesetFromString(const std::string& value) {
 }
 
 bool loadJson(const std::filesystem::path& catalog_path, nlohmann::json& payload, std::string* error_message) {
-    std::ifstream stream(catalog_path, std::ios::binary);
+    std::ifstream stream(urpg::platform::resolvePlaytestPath(catalog_path), std::ios::binary);
     if (!stream) {
         setError(error_message, "catalog_open_failed");
         return false;

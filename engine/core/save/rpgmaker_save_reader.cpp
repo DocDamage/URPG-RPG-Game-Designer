@@ -88,7 +88,7 @@ RPGMakerSaveReadResult RPGMakerSaveFileReader::readFile(const std::string& fileP
         result.warnings.push_back("XOR decryption applied with provided key.");
     }
 
-    // Detect format after decryption so encrypted Base64 payloads can be recognized.
+    // Detect format after XOR decoding so protected Base64 payloads can be recognized.
     result.format = detectFormat(decryptedBytes);
     if (result.format == RPGMakerSaveFormat::Unknown) {
         result.errors.push_back("Unable to detect RPG Maker save format from file contents.");

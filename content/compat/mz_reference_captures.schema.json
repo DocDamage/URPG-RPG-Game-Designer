@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/mz_reference_captures.schema.json",
+  "title": "URPG RPG Maker MZ Reference Capture Descriptor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "captureId",
+    "projectId",
+    "sceneId",
+    "backend",
+    "frameHash",
+    "dimensions",
+    "legalUse",
+    "source",
+    "releaseAuthoritative"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "captureId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_\\-]*$"
+    },
+    "projectId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_\\-]*$"
+    },
+    "sceneId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "backend": {
+      "type": "string",
+      "enum": [
+        "mz_reference_headless",
+        "urpg_headless",
+        "urpg_opengl"
+      ]
+    },
+    "frameHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{16,64}$"
+    },
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "legalUse": {
+      "type": "string",
+      "enum": [
+        "repo_owned",
+        "permissive_sample",
+        "owner_provided_private"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "copyrightedRpgMakerPayloadsIncluded",
+        "notes"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "synthetic_reference_capture",
+            "owner_private_capture_descriptor"
+          ]
+        },
+        "copyrightedRpgMakerPayloadsIncluded": {
+          "type": "boolean",
+          "const": false
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "releaseAuthoritative": {
+      "type": "boolean",
+      "const": false
+    }
+  }
+}

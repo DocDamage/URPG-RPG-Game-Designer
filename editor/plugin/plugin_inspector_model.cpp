@@ -35,6 +35,8 @@ nlohmann::json PluginInspectorModel::exportSnapshotJson() const {
         {"unsupported_api_count", snapshot_.unsupported_api_count},
         {"cycle_count", snapshot_.cycle_count},
         {"shim_hint_count", snapshot_.shim_hint_count},
+        {"estimated_repair_minutes", snapshot_.estimated_repair_minutes},
+        {"low_confidence_plugin_count", snapshot_.low_confidence_plugin_count},
         {"project_score", snapshot_.project_score},
         {"release_authoritative", snapshot_.release_authoritative},
     };
@@ -55,6 +57,10 @@ void PluginInspectorModel::refreshSnapshot() {
         snapshot_.permission_denial_count += plugin.denied_permissions.size();
         snapshot_.unsupported_api_count += plugin.unsupported_apis.size();
         snapshot_.shim_hint_count += plugin.shim_hints.size();
+        snapshot_.estimated_repair_minutes += plugin.estimated_repair_minutes;
+        if (plugin.confidence == "low") {
+            ++snapshot_.low_confidence_plugin_count;
+        }
     }
 }
 

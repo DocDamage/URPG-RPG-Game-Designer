@@ -31,11 +31,15 @@ struct AssetPromotionManifest {
     std::string schemaVersion = "1.0.0";
     std::string assetId;
     std::string sourcePath;
+    // Optional immutable content identity captured by the import review. It
+    // enables safe reuse of an already-promoted normalized payload.
+    std::string sourceSha256;
     std::string promotedPath;
     std::string licenseId;
     AssetPromotionStatus status = AssetPromotionStatus::Pending;
     AssetPromotionPreview preview;
     AssetPromotionPackage package;
+    nlohmann::json authoredMetadata = nlohmann::json::object();
     std::vector<std::string> diagnostics;
 };
 

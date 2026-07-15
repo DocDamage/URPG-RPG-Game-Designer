@@ -71,7 +71,7 @@ Use this deterministic route policy so the implementation does not invent incons
   - `horror_environment_fx` -> `horror_fx_builder`
 - For all remaining showcase kinds, use `showcase_<kind>` as the route ID, for example `showcase_crew_management`, `showcase_starship_route`, and `showcase_timed_input`.
 - All `showcase_<kind>` routes are `Nested`, category `Template Showcase`, owner `editor/maker`, and reason `Nested template-showcase route handled by the maker WYSIWYG panel factory.`
-- Do not add `showcase_<kind>` IDs to `requiredTopLevelPanelIds()`; the top-level shell remains the canonical seven unless a product decision separately expands release navigation.
+- Do not add `showcase_<kind>` IDs to `requiredTopLevelPanelIds()`; after the 2026-05-26 Perspective 2D product decision, the top-level shell remains the canonical release set unless another product decision separately expands release navigation.
 
 ---
 

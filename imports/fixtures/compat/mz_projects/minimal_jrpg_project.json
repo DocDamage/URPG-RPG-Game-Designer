@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "minimal_jrpg_project",
+  "displayName": "Minimal JRPG Project Descriptor",
+  "sourceLicense": "repo_owned",
+  "legalUse": "repo_owned",
+  "sourceNotes": "Synthetic descriptor used to prove corpus plumbing without committing RPG Maker project payloads.",
+  "fixtureScope": {
+    "copyrightedRpgMakerPayloadsIncluded": false,
+    "descriptorOnly": true,
+    "nativeReferenceOnly": true
+  },
+  "maps": {
+    "count": 1,
+    "notes": "One synthetic town map descriptor."
+  },
+  "events": {
+    "count": 3,
+    "supportedCommandCount": 10,
+    "unsupportedCommandCount": 0,
+    "commandSet": [
+      "call_common_event",
+      "change_gold",
+      "change_item",
+      "change_self_switch",
+      "change_switch",
+      "change_variable",
+      "conditional_branch",
+      "move_route",
+      "show_text",
+      "transfer_player"
+    ]
+  },
+  "plugins": {
+    "count": 10,
+    "fixtureManifestDirectory": "tests/compat/fixtures/plugins"
+  },
+  "saves": {
+    "count": 1,
+    "notes": "Synthetic save import coverage is represented by existing RPG Maker save reader tests."
+  },
+  "assets": {
+    "count": 0,
+    "notes": "No RPG Maker RTP or third-party art/audio payload is included."
+  },
+  "expectedCoverage": {
+    "importConfidence": "medium",
+    "migrationConfidence": "medium",
+    "runtimeParityClaim": false,
+    "visualParityClaim": false
+  }
+}

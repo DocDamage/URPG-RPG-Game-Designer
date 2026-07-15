@@ -20,7 +20,7 @@ bool ContainsId(const std::vector<std::string>& ids, const std::string& id) {
 
 const std::vector<std::string>& CanonicalReleasePanelIds() {
     static const std::vector<std::string> ids = {
-        "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder",
+        "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder", "spatial_authoring",
     };
     return ids;
 }
@@ -43,6 +43,7 @@ const std::map<std::string, std::string>& CompiledPanelRegistryOwners() {
         {"editor/ai/creator_command_panel.cpp", "ai_assistant"},
         {"editor/analytics/analytics_panel.cpp", "analytics"},
         {"editor/assets/asset_library_panel.cpp", "assets"},
+        {"editor/assets/asset_relink_panel.cpp", "assets"},
         {"editor/audio/audio_mix_panel.cpp", "audio_mix"},
         {"editor/balance/balance_panel.cpp", "balance"},
         {"editor/balance/encounter_designer_panel.cpp", "encounter_designer"},
@@ -93,6 +94,7 @@ const std::map<std::string, std::string>& CompiledPanelRegistryOwners() {
         {"editor/progression/skill_tree_panel.cpp", "skill_tree"},
         {"editor/progression/stat_allocation_panel.cpp", "skill_tree"},
         {"editor/project/main_menu_panel.cpp", "new_project_wizard"},
+        {"editor/project/creator_checklist_panel.cpp", "new_project_wizard"},
         {"editor/project/new_project_wizard_panel.cpp", "new_project_wizard"},
         {"editor/puzzle/puzzle_panel.cpp", "puzzle"},
         {"editor/quest/quest_panel.cpp", "quest"},
@@ -111,6 +113,7 @@ const std::map<std::string, std::string>& CompiledPanelRegistryOwners() {
         {"editor/spatial/grid_part_playtest_panel.cpp", "level_builder"},
         {"editor/spatial/level_builder_workspace.cpp", "level_builder"},
         {"editor/spatial/map_ability_binding_panel.cpp", "map_ability_binding"},
+        {"editor/spatial/map_authoring_workspace.cpp", "spatial_authoring"},
         {"editor/spatial/map_environment_preview_panel.cpp", "spatial_authoring"},
         {"editor/spatial/procedural_map_panel.cpp", "procedural_map"},
         {"editor/spatial/prop_placement_panel.cpp", "prop_placement"},
@@ -191,6 +194,7 @@ TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][
     REQUIRE(ContainsId(ids, "mod"));
     REQUIRE(ContainsId(ids, "analytics"));
     REQUIRE(ContainsId(ids, "level_builder"));
+    REQUIRE(ContainsId(ids, "spatial_authoring"));
 
     const auto* patterns = urpg::editor::findEditorPanelRegistryEntry("patterns");
     REQUIRE(patterns != nullptr);
@@ -225,6 +229,31 @@ TEST_CASE("Editor panel registry matches release control inventory canonical row
     }
 
     REQUIRE(urpg::editor::requiredTopLevelPanelIds() == CanonicalReleasePanelIds());
+}
+
+TEST_CASE("Editor panel registry matches README verified release surface",
+          "[editor][panel][registry][release]") {
+    const auto readmePath = std::filesystem::path(URPG_SOURCE_DIR) / "README.md";
+    const auto readme = readTextFile(readmePath);
+
+    const auto releaseLineStart = readme.find("- Release top-level editor panels are intentionally limited to");
+    REQUIRE(releaseLineStart != std::string::npos);
+    const auto releaseLineEnd = readme.find('\n', releaseLineStart);
+    const auto releaseLine = readme.substr(releaseLineStart, releaseLineEnd - releaseLineStart);
+
+    for (const auto& id : CanonicalReleasePanelIds()) {
+        INFO(id);
+        REQUIRE(releaseLine.find("`" + id + "`") != std::string::npos);
+    }
+
+    for (const auto& entry : urpg::editor::editorPanelRegistry()) {
+        if (ContainsId(CanonicalReleasePanelIds(), entry.id)) {
+            continue;
+        }
+
+        INFO(entry.id);
+        REQUIRE(releaseLine.find("`" + entry.id + "`") == std::string::npos);
+    }
 }
 
 TEST_CASE("Editor panel registry documents every hidden compiled panel", "[editor][panel][registry]") {
@@ -332,7 +361,8 @@ TEST_CASE("Editor panel registry classifies diagnostics and incubating workspace
 
     const auto* spatialAuthoring = urpg::editor::findEditorPanelRegistryEntry("spatial_authoring");
     REQUIRE(spatialAuthoring != nullptr);
-    REQUIRE(spatialAuthoring->exposure == urpg::editor::EditorPanelExposure::Nested);
+    REQUIRE(spatialAuthoring->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
+    REQUIRE(spatialAuthoring->title == "Perspective 2D Map Editor");
 
     const auto* modSdk = urpg::editor::findEditorPanelRegistryEntry("mod_sdk");
     REQUIRE(modSdk != nullptr);

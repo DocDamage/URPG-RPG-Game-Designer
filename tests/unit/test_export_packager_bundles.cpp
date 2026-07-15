@@ -4,6 +4,7 @@
 #include "engine/core/security/resource_protector.h"
 #include "engine/core/tools/export_packager.h"
 #include "engine/core/tools/export_packager_bundle_writer.h"
+#include "engine/core/tools/export_packager_license_audit.h"
 #include "engine/core/tools/export_packager_payload_builder.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -20,6 +21,48 @@
 using namespace urpg::tools;
 using urpg::exporting::ExportValidator;
 using namespace urpg::tests::export_packager;
+
+TEST_CASE("Export license audit streams oversized deferred manifests without bypassing malformed input",
+          "[export][packager][license]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_large_deferred_license_audit";
+    const auto manifestRoot = base / "asset_bundles";
+    std::filesystem::remove_all(base);
+
+    const std::string largeNotes(1024u * 1024u + 32u, 'x');
+    const auto deferredManifest = std::string(R"({
+  "bundle_id": "BND-999",
+  "bundle_name": "large_deferred_library",
+  "source_id": "SRC-999",
+  "bundle_state": "promoted",
+  "notes": ")") + largeNotes + R"(",
+  "assets": [{
+    "status": "promoted",
+    "distribution": "deferred"
+  }]
+})";
+    WriteFile(manifestRoot / "BND-999.json", deferredManifest);
+
+    ExportConfig config{};
+    config.assetBundleManifestRootOverride = manifestRoot.string();
+
+    std::vector<std::string> errors;
+    REQUIRE(urpg::tools::export_packager_detail::auditPromotedAssetBundleLicenses(config, errors));
+    REQUIRE(errors.empty());
+
+    std::filesystem::create_directories(base / "normalized");
+    config.normalizedAssetRootOverride = (base / "normalized").string();
+    config.outputDir = (base / "out").string();
+    const auto deferredExport = ExportPackager().runExport(config);
+    INFO(deferredExport.log);
+    REQUIRE(deferredExport.success);
+
+    WriteFile(manifestRoot / "BND-999-malformed.json", deferredManifest + ",");
+    REQUIRE_FALSE(urpg::tools::export_packager_detail::auditPromotedAssetBundleLicenses(config, errors));
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors.front().find("Malformed asset bundle manifest") != std::string::npos);
+
+    std::filesystem::remove_all(base);
+}
 
 TEST_CASE("ExportPackager writes deterministic bounded asset bundles for identical inputs", "[export][packager]") {
     const auto baseA = std::filesystem::temp_directory_path() / "urpg_export_packager_deterministic_a";
@@ -533,9 +576,10 @@ TEST_CASE("ExportPackager stores bundle payloads as reversible RLE+XOR entries",
 
     const auto bundlePath = base / "data.pck";
     const auto manifest = ReadBundleManifest(bundlePath);
-    REQUIRE(manifest["protectionMode"] == "rle_xor");
+    REQUIRE(manifest["protectionMode"] == "authenticated_release_bundle_v1");
     REQUIRE(manifest["integrityMode"] == "fnv1a64_keyed");
-    REQUIRE(manifest["signatureMode"] == "sha256_keyed_bundle_v1");
+    REQUIRE(manifest["signatureMode"] == "hmac_sha256_bundle_v2");
+    REQUIRE(manifest["bundleSignatureScope"] == "manifest_payload_target_v2");
     REQUIRE(manifest["bundleSignature"] == ComputeBundleSignature(bundlePath, manifest, ExportTarget::Windows_x64));
 
     const auto& firstEntry = manifest["entries"][0];

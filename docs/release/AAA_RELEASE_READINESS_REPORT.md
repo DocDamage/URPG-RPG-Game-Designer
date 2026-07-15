@@ -1,13 +1,13 @@
 # AAA Release-Readiness Report - URPG Engine
 
-**Report date:** 2026-05-25
+**Report date:** 2026-05-26
 **Repository audited:** `C:\dev\URPG Maker`
 **Active branch:** `development` post-`v0.1.0`
 **Verification base commit:** `1d3debb95b6df1d09996e723cc616369cfca99c6` for the annotated `v0.1.0` tag; current post-tag HEAD must be freshly gated before any follow-up release.
 **Purpose:** Authoritative release-readiness audit for the current runtime, editor, packaging, release governance, and asset-hydration gates.
 **Verdict:** **V0.1.0 TAGGED FOR THE BOUNDED RELEASE SCOPE; POST-TAG COMMITS REQUIRE FRESH RELEASE GATES**
 
-**Current documentation note (2026-05-25):** The production release execution-plan remediation merged to `main`, and the annotated `v0.1.0` tag now exists for the bounded package scope at commit `1d3debb95b6df1d09996e723cc616369cfca99c6`. Runtime chat text entry, project-root-aware save/load, AI animation application, release-mode missing-asset diagnostics, release legal/contact metadata, hidden cloud-sync policy, silent audio scope, bounded starter-visual scope, public security reporting policy, install/package docs, and release evidence fixes are implemented and covered by the recorded release gates. Current `development` is post-tag and requires fresh final gates plus a new release-owner decision before another public release.
+**Current documentation note (2026-05-27):** The production release execution-plan remediation merged to `main`, and the annotated `v0.1.0` tag exists for the bounded package scope at commit `1d3debb95b6df1d09996e723cc616369cfca99c6`. Runtime chat text entry, project-root-aware save/load, AI animation application, release-mode missing-asset diagnostics, release legal/contact metadata, hidden cloud-sync policy, silent audio scope, curated release art scope, public security reporting policy, install/package docs, and release evidence fixes are implemented and covered by the recorded release gates. Current `development` is post-tag and requires fresh final gates plus a new release-owner decision before another public release. It is not zero-LFS, but `check_lfs_release_scope.ps1` reconciles the current 307,388 LFS-tracked paths as governed promoted-library payloads or governance evidence with zero release-required LFS paths and zero unknown LFS paths. `check_promoted_asset_library.ps1` validates every promoted bundle row without removing or untracking existing GitHub payloads. Repository generated/retired-root tracking is guarded by `check_no_generated_tracked_files.ps1`.
 
 URPG is no longer blocked by the original app-entry, editor-navigation, install/package, metadata, release-required asset hydration, legal owner acceptance/waiver, remote workflow, local release-candidate validation, security-reporting, or package-documentation issues recorded in the release audits. Those items now have direct implementation and gate evidence or explicit release-owner waiver. For the bounded `v0.1.0` package scope, the annotated release tag has been created; post-tag changes are tracked as the next validation target.
 
@@ -195,7 +195,7 @@ Legal review is formally waived by the release owner, local and remote release-c
 
 **Status:** `BLOCKED`
 
-GitHub still reports the repository-wide LFS budget/access blocker when attempting broad source/vendor asset hydration. Current install/package rules do not ship those source/vendor packs. Release-required assets are verified separately by the RC gate and are no longer LFS pointers.
+GitHub still reports repository-wide source/vendor asset hydration risk when attempting broad source/vendor payload work. Current install/package rules do not ship raw source/vendor packs. Release-required assets are verified separately by the RC gate, and current `development` is not LFS-free. `check_lfs_release_scope.ps1` now reconciles 307,388 LFS-tracked paths as governed promoted-library payloads or governance evidence, and `check_promoted_asset_library.ps1` validates the full promoted manifest inventory. Future shipped-game or template claims must select and hydrate the exact governed payloads they depend on.
 
 Required verification before depending on source/vendor LFS packs: restore GitHub LFS budget/access, then run broad `git lfs pull`/object verification from a fresh clone.
 

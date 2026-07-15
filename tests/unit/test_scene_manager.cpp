@@ -82,12 +82,17 @@ struct TileSnapshot {
 
 class CapturingChatService : public urpg::ai::IChatService {
   public:
-    void requestResponse(const std::vector<urpg::ai::ChatMessage>& history, ChatCallback callback) override {
+    std::shared_ptr<urpg::ai::ChatRequestHandle>
+    requestResponse(const std::vector<urpg::ai::ChatMessage>& history, ChatCallback callback) override {
+        auto handle = std::make_shared<urpg::ai::ChatRequestHandle>();
         ++request_count;
         if (!history.empty()) {
             last_user_message = history.back().content;
         }
-        callback("reply to " + last_user_message, "");
+        if (!handle->cancelled()) {
+            callback("reply to " + last_user_message, "");
+        }
+        return handle;
     }
 
     int request_count = 0;

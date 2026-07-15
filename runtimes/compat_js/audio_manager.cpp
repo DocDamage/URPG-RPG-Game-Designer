@@ -202,7 +202,7 @@ class AudioManagerImpl {
     urpg::audio::AudioCore* audioCore_ = nullptr;
 
     // BGM state
-    AudioChannel* bgmChannel_ = nullptr;
+    std::optional<uint32_t> bgmChannelId_;
     AudioInfo savedBgm_;
     bool bgmDucked_ = false;
     double bgmDuckVolume_ = 1.0;
@@ -210,14 +210,14 @@ class AudioManagerImpl {
     PendingVolumeRamp bgmVolumeRamp_;
 
     // BGS state
-    AudioChannel* bgsChannel_ = nullptr;
+    std::optional<uint32_t> bgsChannelId_;
     PendingCrossfade bgsCrossfade_;
 
     // ME state
-    AudioChannel* meChannel_ = nullptr;
+    std::optional<uint32_t> meChannelId_;
 
     // SE channels
-    std::vector<AudioChannel*> seChannels_;
+    std::vector<uint32_t> seChannelIds_;
 
     AudioManagerImpl() {
         busVolumes_[AudioBus::BGM] = 1.0;
@@ -264,6 +264,37 @@ void ApplyCoreBusVolume(AudioManagerImpl& impl, AudioBus bus) {
     const double busScale = busVolume != impl.busVolumes_.end() ? busVolume->second : 1.0;
     impl.audioCore_->setCategoryVolume(BusToAudioCategory(bus),
                                        static_cast<float>(ClampNormalized(impl.masterVolume_ * busScale)));
+}
+
+AudioChannel* ResolveChannel(AudioManagerImpl& impl, std::optional<uint32_t> id) {
+    if (!id.has_value()) {
+        return nullptr;
+    }
+    for (auto& channel : impl.channels_) {
+        if (channel && channel->id == *id) {
+            return channel.get();
+        }
+    }
+    return nullptr;
+}
+
+void ClearRoleIdsForChannel(AudioManagerImpl& impl, uint32_t id) {
+    if (impl.bgmChannelId_ == id) {
+        impl.bgmChannelId_.reset();
+        impl.bgmCrossfade_.active = false;
+        impl.bgmVolumeRamp_.active = false;
+        impl.bgmVolumeRamp_.clearDuckStateOnComplete = false;
+        impl.bgmDucked_ = false;
+    }
+    if (impl.bgsChannelId_ == id) {
+        impl.bgsChannelId_.reset();
+        impl.bgsCrossfade_.active = false;
+    }
+    if (impl.meChannelId_ == id) {
+        impl.meChannelId_.reset();
+    }
+    impl.seChannelIds_.erase(std::remove(impl.seChannelIds_.begin(), impl.seChannelIds_.end(), id),
+                             impl.seChannelIds_.end());
 }
 
 } // namespace
@@ -381,6 +412,7 @@ void AudioManager::destroyChannel(uint32_t id) {
                 }
                 impl_->backendHandles_.erase(backendIt);
             }
+            ClearRoleIdsForChannel(*impl_, id);
             // Remove from index
             for (auto idxIt = impl_->channelIndex_.begin(); idxIt != impl_->channelIndex_.end();) {
                 if (idxIt->second == id) {
@@ -421,14 +453,13 @@ void AudioManager::playBgm(const std::string& filename, double volume, double pi
     impl_->bgmVolumeRamp_.active = false;
     impl_->bgmVolumeRamp_.clearDuckStateOnComplete = false;
     impl_->bgmDucked_ = false;
-    if (!impl_->bgmChannel_) {
-        createChannel("bgm", AudioBus::BGM);
-        impl_->bgmChannel_ = getChannel("bgm");
+    if (!ResolveChannel(*impl_, impl_->bgmChannelId_)) {
+        impl_->bgmChannelId_ = createChannel("bgm", AudioBus::BGM);
     }
 
-    if (impl_->bgmChannel_) {
-        impl_->bgmChannel_->play(filename, volume, pitch, pos);
-        ApplyChannelVolume(*impl_, impl_->bgmChannel_);
+    if (AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_)) {
+        bgm->play(filename, volume, pitch, pos);
+        ApplyChannelVolume(*impl_, bgm);
     }
     if (impl_->audioCore_) {
         impl_->audioCore_->playBGM(filename, 0.0f);
@@ -440,8 +471,8 @@ void AudioManager::stopBgm() {
     impl_->bgmVolumeRamp_.active = false;
     impl_->bgmVolumeRamp_.clearDuckStateOnComplete = false;
     impl_->bgmDucked_ = false;
-    if (impl_->bgmChannel_) {
-        impl_->bgmChannel_->stop();
+    if (AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_)) {
+        bgm->stop();
     }
     if (impl_->audioCore_) {
         impl_->audioCore_->stopCategory(urpg::audio::AudioCategory::BGM);
@@ -449,19 +480,20 @@ void AudioManager::stopBgm() {
 }
 
 void AudioManager::pauseBgm() {
-    if (impl_->bgmChannel_) {
-        impl_->bgmChannel_->pause();
+    if (AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_)) {
+        bgm->pause();
     }
 }
 
 void AudioManager::resumeBgm() {
-    if (impl_->bgmChannel_) {
-        impl_->bgmChannel_->resume();
+    if (AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_)) {
+        bgm->resume();
     }
 }
 
 void AudioManager::crossfadeBgm(const std::string& filename, double volume, double pitch, int32_t duration) {
-    if (!impl_->bgmChannel_ || !impl_->bgmChannel_->isPlaying() || duration <= 0) {
+    AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_);
+    if (!bgm || !bgm->isPlaying() || duration <= 0) {
         playBgm(filename, volume, pitch);
         return;
     }
@@ -473,7 +505,7 @@ void AudioManager::crossfadeBgm(const std::string& filename, double volume, doub
     impl_->bgmCrossfade_.targetPos = 0;
     impl_->bgmCrossfade_.durationFrames = std::max(1, duration);
     impl_->bgmCrossfade_.elapsedFrames = 0;
-    impl_->bgmCrossfade_.sourceVolume = std::clamp(impl_->bgmChannel_->getVolume(), 0.0, 1.0);
+    impl_->bgmCrossfade_.sourceVolume = std::clamp(bgm->getVolume(), 0.0, 1.0);
     impl_->bgmCrossfade_.switchedTrack = false;
     if (impl_->audioCore_) {
         impl_->audioCore_->playBGM(filename, static_cast<float>(duration) / 60.0f);
@@ -481,11 +513,11 @@ void AudioManager::crossfadeBgm(const std::string& filename, double volume, doub
 }
 
 void AudioManager::saveBgmSettings() {
-    if (impl_->bgmChannel_) {
-        impl_->savedBgm_.name = impl_->bgmChannel_->getFilename();
-        impl_->savedBgm_.volume = impl_->bgmChannel_->getVolume() * 100.0;
-        impl_->savedBgm_.pitch = impl_->bgmChannel_->getPitch() * 100.0;
-        impl_->savedBgm_.pos = impl_->bgmChannel_->getPosition();
+    if (const AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_)) {
+        impl_->savedBgm_.name = bgm->getFilename();
+        impl_->savedBgm_.volume = bgm->getVolume() * 100.0;
+        impl_->savedBgm_.pitch = bgm->getPitch() * 100.0;
+        impl_->savedBgm_.pos = bgm->getPosition();
     }
 }
 
@@ -496,20 +528,22 @@ void AudioManager::restoreBgmSettings() {
 }
 
 bool AudioManager::isBgmPlaying() const {
-    return impl_->bgmChannel_ && impl_->bgmChannel_->isPlaying();
+    const AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_);
+    return bgm && bgm->isPlaying();
 }
 
 bool AudioManager::isBgmPaused() const {
-    return impl_->bgmChannel_ && impl_->bgmChannel_->isPaused();
+    const AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_);
+    return bgm && bgm->isPaused();
 }
 
 AudioInfo AudioManager::getCurrentBgm() const {
     AudioInfo info;
-    if (impl_->bgmChannel_) {
-        info.name = impl_->bgmChannel_->getFilename();
-        info.volume = impl_->bgmChannel_->getVolume() * 100.0;
-        info.pitch = impl_->bgmChannel_->getPitch() * 100.0;
-        info.pos = impl_->bgmChannel_->getPosition();
+    if (const AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_)) {
+        info.name = bgm->getFilename();
+        info.volume = bgm->getVolume() * 100.0;
+        info.pitch = bgm->getPitch() * 100.0;
+        info.pos = bgm->getPosition();
     }
     return info;
 }
@@ -520,14 +554,13 @@ AudioInfo AudioManager::getCurrentBgm() const {
 
 void AudioManager::playBgs(const std::string& filename, double volume, double pitch, int32_t pos) {
     impl_->bgsCrossfade_.active = false;
-    if (!impl_->bgsChannel_) {
-        createChannel("bgs", AudioBus::BGS);
-        impl_->bgsChannel_ = getChannel("bgs");
+    if (!ResolveChannel(*impl_, impl_->bgsChannelId_)) {
+        impl_->bgsChannelId_ = createChannel("bgs", AudioBus::BGS);
     }
 
-    if (impl_->bgsChannel_) {
-        impl_->bgsChannel_->play(filename, volume, pitch, pos);
-        ApplyChannelVolume(*impl_, impl_->bgsChannel_);
+    if (AudioChannel* bgs = ResolveChannel(*impl_, impl_->bgsChannelId_)) {
+        bgs->play(filename, volume, pitch, pos);
+        ApplyChannelVolume(*impl_, bgs);
     }
     if (impl_->audioCore_) {
         impl_->audioCore_->playBGS(filename, 0.0f);
@@ -536,8 +569,8 @@ void AudioManager::playBgs(const std::string& filename, double volume, double pi
 
 void AudioManager::stopBgs() {
     impl_->bgsCrossfade_.active = false;
-    if (impl_->bgsChannel_) {
-        impl_->bgsChannel_->stop();
+    if (AudioChannel* bgs = ResolveChannel(*impl_, impl_->bgsChannelId_)) {
+        bgs->stop();
     }
     if (impl_->audioCore_) {
         impl_->audioCore_->stopCategory(urpg::audio::AudioCategory::BGS);
@@ -545,7 +578,8 @@ void AudioManager::stopBgs() {
 }
 
 void AudioManager::crossfadeBgs(const std::string& filename, double volume, double pitch, int32_t duration) {
-    if (!impl_->bgsChannel_ || !impl_->bgsChannel_->isPlaying() || duration <= 0) {
+    AudioChannel* bgs = ResolveChannel(*impl_, impl_->bgsChannelId_);
+    if (!bgs || !bgs->isPlaying() || duration <= 0) {
         playBgs(filename, volume, pitch);
         return;
     }
@@ -557,7 +591,7 @@ void AudioManager::crossfadeBgs(const std::string& filename, double volume, doub
     impl_->bgsCrossfade_.targetPos = 0;
     impl_->bgsCrossfade_.durationFrames = std::max(1, duration);
     impl_->bgsCrossfade_.elapsedFrames = 0;
-    impl_->bgsCrossfade_.sourceVolume = std::clamp(impl_->bgsChannel_->getVolume(), 0.0, 1.0);
+    impl_->bgsCrossfade_.sourceVolume = std::clamp(bgs->getVolume(), 0.0, 1.0);
     impl_->bgsCrossfade_.switchedTrack = false;
     if (impl_->audioCore_) {
         impl_->audioCore_->playBGS(filename, static_cast<float>(duration) / 60.0f);
@@ -569,14 +603,13 @@ void AudioManager::crossfadeBgs(const std::string& filename, double volume, doub
 // ============================================================================
 
 void AudioManager::playMe(const std::string& filename, double volume, double pitch) {
-    if (!impl_->meChannel_) {
-        createChannel("me", AudioBus::ME);
-        impl_->meChannel_ = getChannel("me");
+    if (!ResolveChannel(*impl_, impl_->meChannelId_)) {
+        impl_->meChannelId_ = createChannel("me", AudioBus::ME);
     }
 
-    if (impl_->meChannel_) {
-        impl_->meChannel_->play(filename, volume, pitch);
-        ApplyChannelVolume(*impl_, impl_->meChannel_);
+    if (AudioChannel* me = ResolveChannel(*impl_, impl_->meChannelId_)) {
+        me->play(filename, volume, pitch);
+        ApplyChannelVolume(*impl_, me);
     }
     if (impl_->audioCore_) {
         impl_->audioCore_->playME(filename, static_cast<float>(std::clamp(volume / 100.0, 0.0, 1.0)),
@@ -585,8 +618,8 @@ void AudioManager::playMe(const std::string& filename, double volume, double pit
 }
 
 void AudioManager::stopMe() {
-    if (impl_->meChannel_) {
-        impl_->meChannel_->stop();
+    if (AudioChannel* me = ResolveChannel(*impl_, impl_->meChannelId_)) {
+        me->stop();
     }
     if (impl_->audioCore_) {
         impl_->audioCore_->stopCategory(urpg::audio::AudioCategory::ME);
@@ -604,7 +637,7 @@ void AudioManager::playSe(const std::string& filename, double volume, double pit
     if (channel) {
         channel->play(filename, volume, pitch);
         ApplyChannelVolume(*impl_, channel);
-        impl_->seChannels_.push_back(channel);
+        impl_->seChannelIds_.push_back(id);
         if (impl_->audioCore_) {
             impl_->backendHandles_[id] = impl_->audioCore_->playSound(
                 filename, urpg::audio::AudioCategory::SE, static_cast<float>(std::clamp(volume / 100.0, 0.0, 1.0)),
@@ -614,9 +647,9 @@ void AudioManager::playSe(const std::string& filename, double volume, double pit
 }
 
 void AudioManager::stopSe() {
-    for (auto* channel : impl_->seChannels_) {
-        if (channel) {
-            if (auto backendIt = impl_->backendHandles_.find(channel->id); backendIt != impl_->backendHandles_.end()) {
+    for (const uint32_t id : impl_->seChannelIds_) {
+        if (AudioChannel* channel = getChannel(id)) {
+            if (auto backendIt = impl_->backendHandles_.find(id); backendIt != impl_->backendHandles_.end()) {
                 if (impl_->audioCore_) {
                     impl_->audioCore_->stopHandle(backendIt->second);
                 }
@@ -625,7 +658,7 @@ void AudioManager::stopSe() {
             channel->stop();
         }
     }
-    impl_->seChannels_.clear();
+    impl_->seChannelIds_.clear();
 }
 
 // ============================================================================
@@ -634,11 +667,11 @@ void AudioManager::stopSe() {
 
 void AudioManager::setMasterVolume(double volume) {
     impl_->masterVolume_ = std::clamp(volume, 0.0, 1.0);
-    ApplyChannelVolume(*impl_, impl_->bgmChannel_);
-    ApplyChannelVolume(*impl_, impl_->bgsChannel_);
-    ApplyChannelVolume(*impl_, impl_->meChannel_);
-    for (auto* channel : impl_->seChannels_) {
-        ApplyChannelVolume(*impl_, channel);
+    ApplyChannelVolume(*impl_, ResolveChannel(*impl_, impl_->bgmChannelId_));
+    ApplyChannelVolume(*impl_, ResolveChannel(*impl_, impl_->bgsChannelId_));
+    ApplyChannelVolume(*impl_, ResolveChannel(*impl_, impl_->meChannelId_));
+    for (const uint32_t id : impl_->seChannelIds_) {
+        ApplyChannelVolume(*impl_, getChannel(id));
     }
     ApplyCoreBusVolume(*impl_, AudioBus::BGM);
     ApplyCoreBusVolume(*impl_, AudioBus::BGS);
@@ -654,17 +687,17 @@ void AudioManager::setBusVolume(AudioBus bus, double volume) {
     impl_->busVolumes_[bus] = std::clamp(volume, 0.0, 1.0);
     switch (bus) {
     case AudioBus::BGM:
-        ApplyChannelVolume(*impl_, impl_->bgmChannel_);
+        ApplyChannelVolume(*impl_, ResolveChannel(*impl_, impl_->bgmChannelId_));
         break;
     case AudioBus::BGS:
-        ApplyChannelVolume(*impl_, impl_->bgsChannel_);
+        ApplyChannelVolume(*impl_, ResolveChannel(*impl_, impl_->bgsChannelId_));
         break;
     case AudioBus::ME:
-        ApplyChannelVolume(*impl_, impl_->meChannel_);
+        ApplyChannelVolume(*impl_, ResolveChannel(*impl_, impl_->meChannelId_));
         break;
     case AudioBus::SE:
-        for (auto* channel : impl_->seChannels_) {
-            ApplyChannelVolume(*impl_, channel);
+        for (const uint32_t id : impl_->seChannelIds_) {
+            ApplyChannelVolume(*impl_, getChannel(id));
         }
         break;
     }
@@ -684,8 +717,8 @@ void AudioManager::duckBgm(double volume, int32_t duration) {
     impl_->bgmDucked_ = true;
     impl_->bgmDuckVolume_ = std::clamp(volume / 100.0, 0.0, 1.0);
 
-    if (impl_->bgmChannel_) {
-        impl_->bgmVolumeRamp_.startVolume = impl_->bgmChannel_->getVolume();
+    if (AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_)) {
+        impl_->bgmVolumeRamp_.startVolume = bgm->getVolume();
         impl_->bgmVolumeRamp_.targetVolume = impl_->bgmDuckVolume_;
         impl_->bgmVolumeRamp_.durationFrames = std::max(1, duration);
         impl_->bgmVolumeRamp_.elapsedFrames = 0;
@@ -695,9 +728,9 @@ void AudioManager::duckBgm(double volume, int32_t duration) {
 }
 
 void AudioManager::unduckBgm(int32_t duration) {
-    if (impl_->bgmChannel_) {
-        impl_->bgmVolumeRamp_.startVolume = impl_->bgmChannel_->getVolume();
-        impl_->bgmVolumeRamp_.targetVolume = ComputeEffectiveVolume(*impl_, *impl_->bgmChannel_);
+    if (AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_)) {
+        impl_->bgmVolumeRamp_.startVolume = bgm->getVolume();
+        impl_->bgmVolumeRamp_.targetVolume = ComputeEffectiveVolume(*impl_, *bgm);
         impl_->bgmVolumeRamp_.durationFrames = std::max(1, duration);
         impl_->bgmVolumeRamp_.elapsedFrames = 0;
         impl_->bgmVolumeRamp_.active = true;
@@ -749,26 +782,27 @@ void AudioManager::update() {
         }
     };
 
-    stepCrossfade(impl_->bgmCrossfade_, impl_->bgmChannel_);
-    stepCrossfade(impl_->bgsCrossfade_, impl_->bgsChannel_);
+    stepCrossfade(impl_->bgmCrossfade_, ResolveChannel(*impl_, impl_->bgmChannelId_));
+    stepCrossfade(impl_->bgsCrossfade_, ResolveChannel(*impl_, impl_->bgsChannelId_));
 
-    if (impl_->bgmVolumeRamp_.active && impl_->bgmChannel_) {
+    if (AudioChannel* bgm = ResolveChannel(*impl_, impl_->bgmChannelId_);
+        impl_->bgmVolumeRamp_.active && bgm) {
         auto& ramp = impl_->bgmVolumeRamp_;
         if (ramp.clearDuckStateOnComplete) {
-            ramp.targetVolume = ComputeEffectiveVolume(*impl_, *impl_->bgmChannel_);
+            ramp.targetVolume = ComputeEffectiveVolume(*impl_, *bgm);
         }
         ramp.elapsedFrames = std::min(ramp.durationFrames, ramp.elapsedFrames + 1);
         const double t = static_cast<double>(ramp.elapsedFrames) / std::max(1, ramp.durationFrames);
         const double volume = ramp.startVolume + ((ramp.targetVolume - ramp.startVolume) * t);
-        impl_->bgmChannel_->setVolume(volume);
+        bgm->setVolume(volume);
 
         if (ramp.elapsedFrames >= ramp.durationFrames) {
             ramp.active = false;
             if (ramp.clearDuckStateOnComplete) {
-                impl_->bgmChannel_->setVolume(ComputeEffectiveVolume(*impl_, *impl_->bgmChannel_));
+                bgm->setVolume(ComputeEffectiveVolume(*impl_, *bgm));
                 impl_->bgmDucked_ = false;
             } else {
-                impl_->bgmChannel_->setVolume(ramp.targetVolume);
+                bgm->setVolume(ramp.targetVolume);
             }
             ramp.clearDuckStateOnComplete = false;
         }
@@ -782,10 +816,12 @@ void AudioManager::update() {
     }
 
     // Clean up finished SE channels
-    for (auto it = impl_->seChannels_.begin(); it != impl_->seChannels_.end();) {
-        if (*it && !(*it)->isPlaying()) {
-            destroyChannel((*it)->id);
-            it = impl_->seChannels_.erase(it);
+    for (auto it = impl_->seChannelIds_.begin(); it != impl_->seChannelIds_.end();) {
+        AudioChannel* channel = getChannel(*it);
+        if (!channel || !channel->isPlaying()) {
+            const uint32_t id = *it;
+            it = impl_->seChannelIds_.erase(it);
+            destroyChannel(id);
         } else {
             ++it;
         }

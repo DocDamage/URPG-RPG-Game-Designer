@@ -6,6 +6,9 @@ param(
 $ErrorActionPreference = "Stop"
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 $fixturesDir = Join-Path $repoRoot "tests\compat\fixtures\plugins"
+$mzCorpusSchemaPath = Join-Path $repoRoot "content\compat\mz_project_corpus.schema.json"
+$mzCorpusDir = Join-Path $repoRoot "imports\fixtures\compat\mz_projects"
+$mzWorkbenchModelPath = Join-Path $repoRoot "editor\compat\mz_migration_workbench_model.cpp"
 $schemaChangelogPath = Join-Path $repoRoot "docs\SCHEMA_CHANGELOG.md"
 $readinessPath = Join-Path $repoRoot "content\readiness\readiness_status.json"
 
@@ -131,7 +134,44 @@ else {
 }
 
 # -----------------------------------------------------------------------
-# 6. Readiness record check: compat_bridge_exit must have signoff contract
+# 6. High-end MZ expansion evidence must stay non-authoritative
+# -----------------------------------------------------------------------
+if (-not (Test-Path $mzCorpusSchemaPath)) {
+  Add-Issue "mz_expansion" "ERROR" "MZ project corpus schema is missing: $mzCorpusSchemaPath"
+}
+
+if (-not (Test-Path $mzCorpusDir)) {
+  Add-Issue "mz_expansion" "ERROR" "MZ project corpus descriptor directory is missing: $mzCorpusDir"
+}
+else {
+  $mzDescriptorFiles = Get-ChildItem -Path $mzCorpusDir -Filter "*.json" -File
+  if ($mzDescriptorFiles.Count -eq 0) {
+    Add-Issue "mz_expansion" "ERROR" "No MZ project corpus descriptor JSON files found under $mzCorpusDir"
+  }
+
+  foreach ($file in $mzDescriptorFiles) {
+    $raw = Get-Content -Raw -LiteralPath $file.FullName
+    $parsed = $raw | ConvertFrom-Json -ErrorAction SilentlyContinue
+    if ($null -eq $parsed) {
+      Add-Issue "mz_expansion" "ERROR" "MZ corpus descriptor '$($file.Name)' is not valid JSON."
+      continue
+    }
+
+    if ($parsed.expectedCoverage.runtimeParityClaim -eq $true) {
+      Add-Issue "mz_expansion" "ERROR" "MZ corpus descriptor '$($file.Name)' claims runtime parity; this lane must remain non-authoritative."
+    }
+    if ($parsed.expectedCoverage.visualParityClaim -eq $true) {
+      Add-Issue "mz_expansion" "ERROR" "MZ corpus descriptor '$($file.Name)' claims visual parity; this lane must remain non-authoritative."
+    }
+  }
+}
+
+if (-not (Test-Path $mzWorkbenchModelPath)) {
+  Add-Issue "mz_expansion" "ERROR" "MZ migration workbench model is missing: $mzWorkbenchModelPath"
+}
+
+# -----------------------------------------------------------------------
+# 7. Readiness record check: compat_bridge_exit must have signoff contract
 # -----------------------------------------------------------------------
 if (-not (Test-Path $readinessPath)) {
   Add-Issue "readiness" "ERROR" "readiness_status.json is missing: $readinessPath"

@@ -21,6 +21,7 @@ class AnalyticsPanel {
     void bindEndpointProfile(const urpg::analytics::AnalyticsEndpointProfile* endpointProfile);
     void setSessionId(std::string sessionId);
     void render();
+    void refreshSnapshot();
     nlohmann::json lastRenderSnapshot() const;
 
     bool setOptIn(bool enabled);

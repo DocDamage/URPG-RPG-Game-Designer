@@ -1,4 +1,5 @@
 #include "engine/core/message/dialogue_project_loader.h"
+#include "engine/core/platform/process_runner.h"
 
 #include "engine/core/message/dialogue_database.h"
 
@@ -122,7 +123,7 @@ DialogueProjectLoadResult DialogueProjectLoader::loadProject(DialogueRegistry& r
 
     result.source_path = selected_path;
     try {
-        std::ifstream input(selected_path);
+        std::ifstream input(urpg::platform::resolvePlaytestPath(selected_path));
         if (!input) {
             addDiagnostic(result, DialogueLoadSeverity::Error, "dialogue_content_open_failed", selected_path,
                           "Project dialogue file could not be opened.");

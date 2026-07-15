@@ -2,6 +2,7 @@
 
 #include "engine/core/export/export_validator.h"
 #include "engine/core/security/resource_protector.h"
+#include "engine/core/security/script_transform.h"
 #include "engine/core/tools/export_packager.h"
 #include "engine/core/tools/export_packager_bundle_writer.h"
 #include "engine/core/tools/export_packager_payload_builder.h"
@@ -169,9 +170,10 @@ TEST_CASE("ExportPackager::runExport result contains correct file list from a fr
     REQUIRE(manifest["bundleMode"] == "project_content_bundle_v1");
     REQUIRE(manifest["target"] == "Windows (x64)");
     REQUIRE(manifest["assetDiscoveryMode"] == "project_root_scan_v1");
-    REQUIRE(manifest["protectionMode"] == "rle_xor");
+    REQUIRE(manifest["protectionMode"] == "authenticated_release_bundle_v1");
     REQUIRE(manifest["integrityMode"] == "fnv1a64_keyed");
-    REQUIRE(manifest["signatureMode"] == "sha256_keyed_bundle_v1");
+    REQUIRE(manifest["signatureMode"] == "hmac_sha256_bundle_v2");
+    REQUIRE(manifest["bundleSignatureScope"] == "manifest_payload_target_v2");
     REQUIRE(manifest["bundleSignature"] ==
             ComputeBundleSignature(base / "data.pck", manifest, ExportTarget::Windows_x64));
     REQUIRE(manifest["entries"].is_array());
@@ -220,8 +222,10 @@ TEST_CASE("ExportPackager::runExport result contains correct file list from a fr
             REQUIRE(text.find("bounded_obfuscation_header") == std::string::npos);
 
             const auto payload = nlohmann::json::parse(text);
-            REQUIRE(payload["scriptExportMode"] == "verbatim");
-            REQUIRE(payload["failClosedForUnsupportedModes"] == true);
+            REQUIRE(payload["scriptExportMode"] == "verbatim_or_release_transform");
+            REQUIRE(payload["supportedModes"].is_array());
+            REQUIRE(payload["supportedModes"].size() == 2);
+            REQUIRE(payload["failClosedForUnsupportedModes"] == false);
         }
     }
 
@@ -451,8 +455,8 @@ TEST_CASE("ExportPackager::runExport fails release native export before bootstra
     std::filesystem::remove_all(base);
 }
 
-TEST_CASE("ExportPackager fails closed for unsupported script export modes", "[export][packager][security]") {
-    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_unsupported_scripts";
+TEST_CASE("ExportPackager transforms script payloads when obfuscateScripts is enabled", "[export][packager][security]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_script_transform";
     std::filesystem::remove_all(base);
 
     ExportPackager packager;
@@ -464,11 +468,31 @@ TEST_CASE("ExportPackager fails closed for unsupported script export modes", "[e
     const auto result = packager.runExport(config);
 
     INFO(result.log);
-    REQUIRE_FALSE(result.success);
-    REQUIRE(result.log.find("Unsupported script export mode") != std::string::npos);
-    REQUIRE_FALSE(std::filesystem::exists(base / "data.pck"));
+    REQUIRE(result.success);
+    REQUIRE(result.log.find("Applied deterministic script transform") != std::string::npos);
+    REQUIRE(std::filesystem::exists(base / "data.pck"));
+
+    const auto manifest = ReadBundleManifest(base / "data.pck");
+    bool foundScript = false;
+    bool foundTransformManifest = false;
+    for (const auto& entry : manifest["entries"]) {
+        foundScript = foundScript || entry.value("path", "") == "runtime/scripts/bootstrap.urpg.js";
+        foundTransformManifest =
+            foundTransformManifest || entry.value("path", "") == "runtime/script_transform_manifest.json";
+    }
+    REQUIRE(foundScript);
+    REQUIRE(foundTransformManifest);
 
     std::filesystem::remove_all(base);
+}
+
+TEST_CASE("Script transform preserves adjacent plus and minus operators", "[export][packager][security]") {
+    const auto result = urpg::security::TransformScriptForRelease(
+        "const total = a + ++b;\nconst next = c - --d;\n",
+        "runtime/scripts/operator_spacing.js");
+
+    REQUIRE(result.transformId == "urpg_script_minify_v1");
+    REQUIRE(result.transformedSource == "const total=a + ++b;const next=c - --d;");
 }
 
 TEST_CASE("ExportPackager bundle writer preserves existing bundle when temp validation fails",

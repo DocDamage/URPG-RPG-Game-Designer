@@ -217,6 +217,15 @@ void EventAuthorityPanel::clearDiagnostics() {
     }
 }
 
+void EventAuthorityPanel::clearFilters() {
+    event_id_filter_.clear();
+    level_filter_.clear();
+    mode_filter_.clear();
+    model_.SetFilter({});
+    model_.SetLevelFilter({});
+    model_.SetModeFilter({});
+}
+
 void EventAuthorityPanel::setFilter(std::string_view event_id_filter) {
     event_id_filter_ = std::string(event_id_filter);
     model_.SetFilter(event_id_filter_);

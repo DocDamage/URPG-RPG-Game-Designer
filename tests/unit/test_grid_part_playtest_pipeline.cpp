@@ -1,8 +1,10 @@
 #include "editor/spatial/grid_part_playtest_panel.h"
+#include "editor/playtest/playtest_session_controller.h"
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
+#include <filesystem>
 #include <string>
 #include <utility>
 
@@ -67,7 +69,7 @@ MapObjective makeChestObjective() {
 
 } // namespace
 
-TEST_CASE("Grid part playtest pipeline validates compiles and records a successful run", "[grid_part][playtest]") {
+TEST_CASE("grid part playtest pipeline validates compiles and records a successful run", "[grid_part][playtest]") {
     const auto catalog = makeCatalog();
     GridPartDocument document("map001", 5, 5);
     REQUIRE(document.placePart(makeSpawn()));
@@ -99,7 +101,7 @@ TEST_CASE("Grid part playtest pipeline validates compiles and records a successf
     REQUIRE(snapshot.latest_result.visited_instance_ids.size() == 2);
 }
 
-TEST_CASE("Grid part playtest pipeline refuses invalid publish blockers", "[grid_part][playtest]") {
+TEST_CASE("grid part playtest pipeline refuses invalid publish blockers", "[grid_part][playtest]") {
     const auto catalog = makeCatalog();
     GridPartDocument document("map001", 5, 5);
     REQUIRE(document.placePart(makePart("map001:missing:1:1", "missing.part", GridPartCategory::Prop, 1, 1)));
@@ -118,7 +120,30 @@ TEST_CASE("Grid part playtest pipeline refuses invalid publish blockers", "[grid
     REQUIRE(snapshot.latest_result.diagnostics.size() >= 3);
 }
 
-TEST_CASE("Grid part playtest pipeline supports playtest from here", "[grid_part][playtest]") {
+TEST_CASE("grid part playtest validates blockers before creating an external session", "[grid_part][playtest]") {
+    const auto catalog = makeCatalog();
+    GridPartDocument document("map001", 5, 5);
+    REQUIRE(document.placePart(makePart("map001:missing:1:1", "missing.part", GridPartCategory::Prop, 1, 1)));
+
+    const auto projectRoot = std::filesystem::temp_directory_path() / "urpg_blocked_external_playtest";
+    std::filesystem::remove_all(projectRoot);
+    std::filesystem::create_directories(projectRoot);
+    PlaytestSessionController controller(projectRoot / "missing_runtime");
+    GridPartPlaytestPanel panel;
+    panel.SetTargets(&document, &catalog);
+    panel.SetProjectRoot(projectRoot);
+    panel.bindPlaytestController(&controller);
+    panel.SetRulesetProfile(MakeDefaultGridRulesetProfile(GridPartRuleset::TopDownJRPG));
+    panel.SetObjective(makeChestObjective());
+
+    REQUIRE_FALSE(panel.PlaytestFromStart());
+    REQUIRE(controller.state() == PlaytestSessionState::Inactive);
+    REQUIRE_FALSE(std::filesystem::exists(projectRoot / ".urpg" / "playtest"));
+    REQUIRE_FALSE(panel.ReturnToEditor());
+    std::filesystem::remove_all(projectRoot);
+}
+
+TEST_CASE("grid part playtest pipeline supports playtest from here", "[grid_part][playtest]") {
     const auto catalog = makeCatalog();
     GridPartDocument document("map001", 5, 5);
     REQUIRE(document.placePart(makeSpawn()));
@@ -140,7 +165,7 @@ TEST_CASE("Grid part playtest pipeline supports playtest from here", "[grid_part
     REQUIRE(result.completed_objective);
 }
 
-TEST_CASE("Grid part playtest pipeline reports objective path softlocks", "[grid_part][playtest]") {
+TEST_CASE("grid part playtest pipeline reports objective path softlocks", "[grid_part][playtest]") {
     const auto catalog = makeCatalog();
     GridPartDocument document("map001", 5, 5);
     REQUIRE(document.placePart(makeSpawn()));
@@ -164,7 +189,7 @@ TEST_CASE("Grid part playtest pipeline reports objective path softlocks", "[grid
     REQUIRE(unreachable != result.diagnostics.end());
 }
 
-TEST_CASE("Grid part playtest pipeline returns to editor without discarding last result", "[grid_part][playtest]") {
+TEST_CASE("grid part playtest pipeline returns to editor without discarding last result", "[grid_part][playtest]") {
     const auto catalog = makeCatalog();
     GridPartDocument document("map001", 5, 5);
     REQUIRE(document.placePart(makeSpawn()));

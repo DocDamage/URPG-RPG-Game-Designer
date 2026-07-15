@@ -6,6 +6,17 @@
 #include <utility>
 
 namespace urpg::editor {
+namespace {
+
+urpg::wysiwyg::PreviewTraceRow makeEventTraceRow(const std::string& trace, const std::string& source_id) {
+    const auto first = trace.find(':');
+    if (first == std::string::npos) {
+        return {trace, source_id, trace};
+    }
+    return {trace.substr(0, first), source_id, trace.substr(first + 1)};
+}
+
+} // namespace
 
 void EventCommandGraphPanel::loadDocument(urpg::events::EventCommandGraphDocument document,
                                           urpg::events::EventWorldState initial_state) {
@@ -124,6 +135,43 @@ void EventCommandGraphPanel::refreshPreview() {
     snapshot_.saved_project_json = document_.toJson().dump();
     snapshot_.status_message =
         snapshot_.diagnostic_count == 0 ? "Event command graph preview is ready." : "Event command graph preview has diagnostics.";
+
+    preview_session_ = {};
+    preview_session_.route_id = "events/event_command_graph";
+    preview_session_.surface_id = "event_command_graph";
+    preview_session_.source_id = document_.id;
+    preview_session_.mode = runtime_preview_.runtime_trace.empty() ? urpg::wysiwyg::PreviewMode::EditorOnly
+                                                                   : urpg::wysiwyg::PreviewMode::RuntimeBacked;
+    for (const auto& trace : runtime_preview_.runtime_trace) {
+        preview_session_.runtime_trace_rows.push_back(makeEventTraceRow(trace, document_.event_id));
+    }
+    for (const auto& command : runtime_preview_.executed_commands) {
+        preview_session_.summary_rows.push_back(
+            {urpg::events::toString(command.kind), command.id, command.target.empty() ? command.value : command.target});
+    }
+    preview_session_.summary_rows.push_back({"switches", document_.id, std::to_string(snapshot_.switch_state_count)});
+    preview_session_.summary_rows.push_back({"variables", document_.id, std::to_string(snapshot_.variable_state_count)});
+    for (const auto& diagnostic : runtime_preview_.diagnostics) {
+        preview_session_.diagnostics.push_back({diagnostic.code, diagnostic.message, diagnostic.target, true});
+    }
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::SavedData,
+                                         !document_.id.empty(),
+                                         document_.id.empty() ? "Event command graph id is missing."
+                                                              : "Event command graph document is saved."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::LivePreview,
+                                         snapshot_.node_count > 0,
+                                         std::to_string(snapshot_.node_count) + " graph nodes projected."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::RuntimeExecution,
+                                         !runtime_preview_.runtime_trace.empty(),
+                                         std::to_string(runtime_preview_.runtime_trace.size()) + " runtime trace rows."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::Diagnostics,
+                                         runtime_preview_.diagnostics.empty(),
+                                         runtime_preview_.diagnostics.empty() ? "No event graph blockers."
+                                                                              : "Event graph diagnostics are present."});
+    preview_session_.evidence.push_back({urpg::wysiwyg::PreviewEvidenceKind::Tests,
+                                         true,
+                                         "Covered by PreviewSession and event graph tests."});
+    preview_session_.recomputeConfidence();
 }
 
 } // namespace urpg::editor

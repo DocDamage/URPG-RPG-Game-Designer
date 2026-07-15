@@ -73,6 +73,21 @@ std::string bundleSignatureKey(urpg::tools::ExportTarget target) {
     }
 }
 
+std::string bundleTargetLabel(urpg::tools::ExportTarget target) {
+    switch (target) {
+    case urpg::tools::ExportTarget::Windows_x64:
+        return "Windows (x64)";
+    case urpg::tools::ExportTarget::Linux_x64:
+        return "Linux (x64)";
+    case urpg::tools::ExportTarget::macOS_Universal:
+        return "macOS (Universal)";
+    case urpg::tools::ExportTarget::Web_WASM:
+        return "Web (WASM/WebGL)";
+    default:
+        return "Other";
+    }
+}
+
 std::string makePayloadIntegrityScope(const nlohmann::json& entry) {
     return entry.value("path", "") + "|" + entry.value("kind", "") + "|" +
            (entry.value("compressed", false) ? "1" : "0") + "|" + (entry.value("obfuscated", false) ? "1" : "0") + "|" +
@@ -164,13 +179,40 @@ BundleValidationResult validateBundleFile(const std::filesystem::path& bundlePat
         result.errors.emplace_back("missing_signature_mode");
         return result;
     }
-    if (result.manifest["signatureMode"].get<std::string>() != kSignatureMode) {
+    const bool hasProtectionMode = result.manifest.contains("protectionMode");
+    const auto signatureMode = result.manifest["signatureMode"].get<std::string>();
+    if (!hasProtectionMode && signatureMode != kSignatureModeV1) {
         result.errors.emplace_back("unsupported_signature_mode");
         return result;
+    }
+    if (hasProtectionMode) {
+        if (!result.manifest["protectionMode"].is_string() ||
+            result.manifest["protectionMode"].get<std::string>() != kProtectionMode) {
+            result.errors.emplace_back("unsupported_protection_mode");
+            return result;
+        }
+        if (signatureMode != kSignatureMode) {
+            result.errors.emplace_back("unsupported_signature_mode");
+            return result;
+        }
+        if (!result.manifest.contains("bundleSignatureScope") ||
+            !result.manifest["bundleSignatureScope"].is_string() ||
+            result.manifest["bundleSignatureScope"].get<std::string>() != kBundleSignatureScope) {
+            result.errors.emplace_back("unsupported_bundle_signature_scope");
+            return result;
+        }
+        if (!result.manifest.contains("target") || !result.manifest["target"].is_string()) {
+            result.errors.emplace_back("missing_bundle_target");
+            return result;
+        }
     }
     if (!result.manifest.contains("bundleSignature") || !result.manifest["bundleSignature"].is_string() ||
         result.manifest["bundleSignature"].get<std::string>().empty()) {
         result.errors.emplace_back("missing_bundle_signature");
+        return result;
+    }
+    if (result.manifest.contains("target") && result.manifest.value("target", "") != bundleTargetLabel(target)) {
+        result.errors.emplace_back("bundle_signature_mismatch");
         return result;
     }
 

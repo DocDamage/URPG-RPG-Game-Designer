@@ -66,6 +66,31 @@ std::string stablePlanId(const std::string& request) {
     return out.str();
 }
 
+std::string editorExposureName(urpg::editor::EditorPanelExposure exposure) {
+    switch (exposure) {
+    case urpg::editor::EditorPanelExposure::ReleaseTopLevel:
+        return "release_top_level";
+    case urpg::editor::EditorPanelExposure::Nested:
+        return "nested";
+    case urpg::editor::EditorPanelExposure::DevOnly:
+        return "dev_only";
+    case urpg::editor::EditorPanelExposure::Deferred:
+        return "deferred";
+    }
+    return "deferred";
+}
+
+std::string accessLevelForExposure(urpg::editor::EditorPanelExposure exposure) {
+    return exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel ? "release_readonly" : "dev_discoverable";
+}
+
+std::string promotionGateForExposure(urpg::editor::EditorPanelExposure exposure, const std::string& reason) {
+    if (exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel) {
+        return "add_review_gated_mutating_tool_or_keep_readonly";
+    }
+    return reason.empty() ? "promote_panel_to_release_top_level" : reason;
+}
+
 void pushUnique(std::vector<std::string>& values, const std::string& value) {
     if (std::find(values.begin(), values.end(), value) == values.end()) {
         values.push_back(value);
@@ -683,6 +708,10 @@ nlohmann::json AppCapability::toJson() const {
         {"actions", actions},
         {"project_paths", project_paths},
         {"keywords", keywords},
+        {"editor_exposure", editor_exposure},
+        {"access_level", access_level},
+        {"panel_id", panel_id},
+        {"promotion_gate", promotion_gate},
     };
 }
 
@@ -796,8 +825,41 @@ AppCapabilityRegistry AppCapabilityRegistry::buildDefault() {
          {"plan_creator_command", "validate_creator_plan", "apply_creator_plan"},
          {"/maps", "/creator_command_history"},
          {"chatbot", "ai", "generate", "make", "house", "shop", "inn", "npc", "puzzle"}},
+        {"editor_panel_navigation",
+         "Editor Panel Navigation",
+         "Productivity",
+         "editor shell route/help surface",
+         {"describe_panel", "list_panel_actions", "route_to_panel"},
+         {"/editor_panels"},
+         {"panel", "route", "navigate", "explain", "workflow", "help"},
+         "all",
+         "dev_discoverable",
+         "*",
+         "readonly_panel_support_only"},
     };
-    for (const auto& capability : defaults) {
+    for (auto capability : defaults) {
+        if (capability.id == "map_authoring") {
+            capability.panel_id = "spatial_authoring";
+        } else if (capability.id == "event_authoring") {
+            capability.panel_id = "diagnostics";
+        } else if (capability.id == "dialogue_authoring") {
+            capability.panel_id = "diagnostics";
+        } else if (capability.id == "ability_authoring") {
+            capability.panel_id = "ability";
+        } else if (capability.id == "battle_vfx_authoring") {
+            capability.panel_id = "diagnostics";
+        } else if (capability.id == "save_lab") {
+            capability.panel_id = "diagnostics";
+        } else if (capability.id == "export_preview") {
+            capability.panel_id = "diagnostics";
+            capability.access_level = "release_readonly";
+        } else if (capability.id == "asset_pipeline") {
+            capability.panel_id = "assets";
+        } else if (capability.id == "template_authoring") {
+            capability.panel_id = "mod";
+        } else if (capability.id == "creator_command") {
+            capability.panel_id = "spatial_authoring";
+        }
         registry.registerCapability(capability);
     }
     return registry;
@@ -1181,21 +1243,22 @@ DocumentationKnowledgeIndex DocumentationKnowledgeIndex::buildDefault() {
                     "Release status and readiness evidence.",
                     {"release", "readiness", "status"}});
     for (const auto& panel : urpg::editor::editorPanelRegistry()) {
-        if (panel.exposure != urpg::editor::EditorPanelExposure::ReleaseTopLevel) {
-            continue;
-        }
+        const auto exposure = editorExposureName(panel.exposure);
+        const auto accessLevel = accessLevelForExposure(panel.exposure);
         index.addEntry({
             "editor_panel:" + panel.id,
             "editor_panel",
             panel.title,
             "editor://" + panel.id,
             panel.reason,
-            {panel.id, panel.title, panel.category, panel.owner, "wysiwyg", "editor", "panel"},
+            {panel.id, panel.title, panel.category, panel.owner, "wysiwyg", "editor", "panel", exposure, accessLevel},
             {
                 {"panel_id", panel.id},
                 {"category", panel.category},
                 {"owner", panel.owner},
-                {"exposure", "release_top_level"},
+                {"exposure", exposure},
+                {"access_level", accessLevel},
+                {"promotion_gate", promotionGateForExposure(panel.exposure, panel.reason)},
             },
         });
     }
@@ -1210,6 +1273,10 @@ nlohmann::json AiToolDefinition::toJson() const {
         {"mutates_project", mutates_project},
         {"requires_approval", requires_approval},
         {"required_fields", required_fields},
+        {"editor_exposure", editor_exposure},
+        {"access_level", access_level},
+        {"panel_id", panel_id},
+        {"promotion_gate", promotion_gate},
     };
 }
 
@@ -1366,6 +1433,12 @@ std::vector<AiKnowledgeDiagnostic> AiToolRegistry::validatePlan(const AiTaskPlan
         if (tool->requires_approval && !step.approved) {
             diagnostics.push_back(
                 diagnostic("ai_tool_unapproved", "Mutating AI tool step requires approval before apply.", step.id));
+        }
+        if ((step.tool_id == "describe_panel" || step.tool_id == "list_panel_actions" ||
+             step.tool_id == "route_to_panel") &&
+            urpg::editor::findEditorPanelRegistryEntry(step.arguments.value("panel_id", "")) == nullptr) {
+            diagnostics.push_back(
+                diagnostic("ai_panel_unknown", "AI panel support tool references an unknown editor panel.", step.id));
         }
     }
     return diagnostics;
@@ -1536,6 +1609,39 @@ AiToolApplyResult AiToolRegistry::applyApprovedPlan(const AiTaskPlan& plan, cons
             ensureArray(result.project_data, "ai_tool_previews")
                 .push_back(makeAiToolPreview("export_preview_configuration", step.arguments.value("profile", "default"),
                                              step, result.project_data["last_ai_export_preview"]));
+        } else if (step.tool_id == "describe_panel" || step.tool_id == "list_panel_actions" ||
+                   step.tool_id == "route_to_panel") {
+            const auto panelId = step.arguments.value("panel_id", "");
+            const auto* panel = urpg::editor::findEditorPanelRegistryEntry(panelId);
+            const auto exposure = panel != nullptr ? editorExposureName(panel->exposure) : std::string("unknown");
+            const auto accessLevel =
+                panel != nullptr ? accessLevelForExposure(panel->exposure) : std::string("unsupported");
+            const auto promotionGate =
+                panel != nullptr ? promotionGateForExposure(panel->exposure, panel->reason) : "unknown_panel";
+            nlohmann::json panelPreview = {
+                {"panel_id", panelId},
+                {"route", "editor://" + panelId},
+                {"known_panel", panel != nullptr},
+                {"title", panel != nullptr ? panel->title : ""},
+                {"category", panel != nullptr ? panel->category : ""},
+                {"owner", panel != nullptr ? panel->owner : ""},
+                {"exposure", exposure},
+                {"access_level", accessLevel},
+                {"promotion_gate", promotionGate},
+                {"mutating_actions_enabled", false},
+                {"preview_surface", "editor_panel_router"},
+            };
+            if (step.tool_id == "list_panel_actions") {
+                panelPreview["safe_actions"] = nlohmann::json::array(
+                    {"describe_panel", "list_panel_actions", "route_to_panel"});
+                panelPreview["mutating_actions"] =
+                    accessLevel == "release_readonly" || accessLevel == "dev_discoverable"
+                        ? nlohmann::json::array()
+                        : nlohmann::json::array({"review_gated_capability_tools"});
+            }
+            ensureArray(result.project_data, "ai_tool_previews")
+                .push_back(makeAiToolPreview(step.tool_id, panelId.empty() ? "unknown_panel" : panelId, step,
+                                             panelPreview));
         } else if (step.tool_id == "plan_creator_command") {
             auto& commands = result.project_data["creator_command_requests"];
             if (!commands.is_array()) {
@@ -1610,6 +1716,36 @@ AiToolRegistry AiToolRegistry::buildDefault() {
                            true,
                            true,
                            {"prompt", "map_id", "tile_x", "tile_y"}});
+    registry.registerTool({"describe_panel",
+                           "Describe Editor Panel",
+                           "editor_panel_navigation",
+                           false,
+                           false,
+                           {"panel_id"},
+                           "all",
+                           "dev_discoverable",
+                           "*",
+                           "readonly_panel_support_only"});
+    registry.registerTool({"list_panel_actions",
+                           "List Panel Actions",
+                           "editor_panel_navigation",
+                           false,
+                           false,
+                           {"panel_id"},
+                           "all",
+                           "dev_discoverable",
+                           "*",
+                           "readonly_panel_support_only"});
+    registry.registerTool({"route_to_panel",
+                           "Route To Editor Panel",
+                           "editor_panel_navigation",
+                           false,
+                           false,
+                           {"panel_id"},
+                           "all",
+                           "dev_discoverable",
+                           "*",
+                           "readonly_panel_support_only"});
     return registry;
 }
 
@@ -1617,11 +1753,46 @@ AiTaskPlan AiTaskPlanner::planTask(const std::string& userRequest, const AppCapa
                                    const ProjectKnowledgeIndex& projectIndex, const DocumentationKnowledgeIndex& docs,
                                    const AiToolRegistry& tools) const {
     (void)projectIndex;
-    (void)docs;
     AiTaskPlan plan;
     plan.id = stablePlanId(userRequest);
     plan.user_request = userRequest;
     const auto lowered = lowerCopy(userRequest);
+    const auto findRequestedPanelId = [&]() -> std::string {
+        const auto matches = docs.search(userRequest);
+        std::string bestPanelId;
+        int bestScore = -1;
+        const auto query = lowerCopy(userRequest);
+        for (const auto& entry : matches) {
+            if (entry.type == "editor_panel" && entry.metadata.contains("panel_id") &&
+                entry.metadata["panel_id"].is_string()) {
+                const auto panelId = entry.metadata["panel_id"].get<std::string>();
+                auto spacedPanelId = panelId;
+                std::replace(spacedPanelId.begin(), spacedPanelId.end(), '_', ' ');
+                int score = 1;
+                if (query.find(lowerCopy(panelId)) != std::string::npos) {
+                    score += 8;
+                }
+                if (query.find(lowerCopy(spacedPanelId)) != std::string::npos) {
+                    score += 6;
+                }
+                if (query.find(lowerCopy(entry.title)) != std::string::npos) {
+                    score += 10;
+                }
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestPanelId = panelId;
+                }
+            }
+        }
+        return bestPanelId;
+    };
+    const bool asksForPanelSupport = lowered.find("panel") != std::string::npos ||
+                                     lowered.find("workflow") != std::string::npos ||
+                                     lowered.find("route") != std::string::npos ||
+                                     lowered.find("navigate") != std::string::npos ||
+                                     lowered.find("open ") != std::string::npos ||
+                                     lowered.find("describe") != std::string::npos ||
+                                     lowered.find("actions") != std::string::npos;
     auto addCapability = [&](const std::string& id) {
         if (capabilities.find(id) == nullptr) {
             plan.diagnostics.push_back(
@@ -1637,7 +1808,30 @@ AiTaskPlan AiTaskPlanner::planTask(const std::string& userRequest, const AppCapa
         plan.steps.push_back(std::move(step));
     };
 
-    if (lowered.find("house") != std::string::npos || lowered.find("shop") != std::string::npos ||
+    if (asksForPanelSupport && !findRequestedPanelId().empty()) {
+        const auto panelId = findRequestedPanelId();
+        addCapability("editor_panel_navigation");
+        if (lowered.find("action") != std::string::npos || lowered.find("can it do") != std::string::npos) {
+            addStep({"step_panel_actions",
+                     "list_panel_actions",
+                     "List available chatbot-safe actions for the editor panel.",
+                     {{"panel_id", panelId}},
+                     true});
+        } else if (lowered.find("route") != std::string::npos || lowered.find("navigate") != std::string::npos ||
+                   lowered.find("open ") != std::string::npos) {
+            addStep({"step_route_panel",
+                     "route_to_panel",
+                     "Show the editor route for this panel without mutating project data.",
+                     {{"panel_id", panelId}},
+                     true});
+        } else {
+            addStep({"step_describe_panel",
+                     "describe_panel",
+                     "Describe the editor panel and current chatbot access level.",
+                     {{"panel_id", panelId}},
+                     true});
+        }
+    } else if (lowered.find("house") != std::string::npos || lowered.find("shop") != std::string::npos ||
         lowered.find("inn") != std::string::npos ||
         (lowered.find("npc") != std::string::npos && lowered.find("schedule") == std::string::npos) ||
         lowered.find("chest") != std::string::npos || lowered.find("puzzle") != std::string::npos) {

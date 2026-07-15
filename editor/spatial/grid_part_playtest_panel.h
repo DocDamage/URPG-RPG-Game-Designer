@@ -30,6 +30,8 @@ struct GridPartPlaytestResult {
     std::vector<urpg::map::GridPartDiagnostic> diagnostics;
 };
 
+class PlaytestSessionController;
+
 class GridPartPlaytestPanel : public EditorPanel {
   public:
     struct RenderSnapshot {
@@ -51,6 +53,8 @@ class GridPartPlaytestPanel : public EditorPanel {
     void SetTargets(urpg::map::GridPartDocument* document, const urpg::map::GridPartCatalog* catalog);
     void SetRulesetProfile(urpg::map::GridRulesetProfile ruleset);
     void SetObjective(urpg::map::MapObjective objective);
+    void SetProjectRoot(std::filesystem::path root) { project_root_ = std::move(root); }
+    void bindPlaytestController(PlaytestSessionController* controller) { playtest_controller_ = controller; }
 
     bool PlaytestFromStart();
     bool PlaytestFromHere(int32_t start_x, int32_t start_y);
@@ -76,6 +80,8 @@ class GridPartPlaytestPanel : public EditorPanel {
     bool returned_to_editor_ = false;
     GridPartPlaytestResult latest_result_;
     RenderSnapshot last_render_snapshot_;
+    std::filesystem::path project_root_;
+    PlaytestSessionController* playtest_controller_ = nullptr;
 };
 
 } // namespace urpg::editor

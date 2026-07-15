@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iomanip>
 #include <map>
+#include <mutex>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <sstream>
@@ -18,6 +19,7 @@ namespace {
 
 constexpr char kAssetLicenseManifestFilename[] = "asset_licenses.json";
 constexpr char kAssetLicenseManifestFormat[] = "URPG_ASSET_LICENSES_V1";
+constexpr std::uintmax_t kLargeBundleManifestBytes = 1u * 1024u * 1024u;
 
 struct AssetDiscoveryRoot {
     std::filesystem::path sourcePath;
@@ -128,6 +130,84 @@ std::vector<AssetDiscoveryRoot> assetDiscoveryRoots(const ExportConfig& config) 
 std::vector<std::uint8_t> readFileBytes(const std::filesystem::path& path) {
     std::ifstream in(path, std::ios::binary);
     return std::vector<std::uint8_t>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+}
+
+class BundleDistributionProbe final : public nlohmann::json_sax<nlohmann::json> {
+public:
+    using JsonSax = nlohmann::json_sax<nlohmann::json>;
+    using number_integer_t = JsonSax::number_integer_t;
+    using number_unsigned_t = JsonSax::number_unsigned_t;
+    using number_float_t = JsonSax::number_float_t;
+    using string_t = JsonSax::string_t;
+    using binary_t = JsonSax::binary_t;
+
+    bool null() override { return true; }
+    bool boolean(bool) override { return true; }
+    bool number_integer(number_integer_t) override { return true; }
+    bool number_unsigned(number_unsigned_t) override { return true; }
+    bool number_float(number_float_t, const string_t&) override { return true; }
+    bool binary(binary_t&) override { return true; }
+    bool start_object(std::size_t) override { return true; }
+    bool end_object() override { return true; }
+    bool start_array(std::size_t) override { return true; }
+    bool end_array() override { return true; }
+
+    bool key(string_t& value) override {
+        key_ = value;
+        return true;
+    }
+
+    bool string(string_t& value) override {
+        if (key_ == "distribution" && value == "bundled") {
+            foundBundledDistribution_ = true;
+            return false;
+        }
+        return true;
+    }
+
+    bool parse_error(std::size_t, const std::string&, const nlohmann::detail::exception& exception) override {
+        parseError_ = exception.what();
+        return false;
+    }
+
+    bool foundBundledDistribution() const { return foundBundledDistribution_; }
+    const std::string& parseError() const { return parseError_; }
+
+private:
+    std::string key_;
+    std::string parseError_;
+    bool foundBundledDistribution_ = false;
+};
+
+std::optional<bool> oversizedBundleCanContainBundledAsset(const std::filesystem::path& path,
+                                                           std::vector<std::string>& errors) {
+    std::error_code error;
+    const auto size = std::filesystem::file_size(path, error);
+    if (error || size <= kLargeBundleManifestBytes) {
+        return true;
+    }
+
+    // A deferred promoted-library manifest with no bundled distribution cannot
+    // contribute payload to an exact-ship export. Stream large manifests so we
+    // still validate their JSON syntax without constructing a large DOM solely
+    // to prove that absence. If a bundled asset is found, the caller performs
+    // its existing complete DOM-backed governance audit.
+    std::ifstream in(path, std::ios::binary);
+    if (!in) {
+        errors.push_back("Malformed asset bundle manifest: " + path.string() + " (unable to read file)");
+        return std::nullopt;
+    }
+
+    BundleDistributionProbe probe;
+    const bool parsed = nlohmann::json::sax_parse(in, &probe);
+    if (probe.foundBundledDistribution()) {
+        return true;
+    }
+    if (!parsed) {
+        errors.push_back("Malformed asset bundle manifest: " + path.string() + " (" + probe.parseError() + ")");
+        return std::nullopt;
+    }
+    return false;
 }
 
 std::string toLowerAscii(std::string value) {
@@ -283,6 +363,23 @@ std::map<std::string, AssetLicenseManifestEntry> readAssetLicenseManifest(
 } // namespace
 
 bool auditPromotedAssetBundleLicenses(const ExportConfig& config, std::vector<std::string>& errors) {
+    // The repository bundle inventory includes large, immutable promoted-library
+    // manifests. A single export process can invoke this audit several times
+    // (preflight, export, and post-export validation), so avoid reparsing that
+    // same repository-wide evidence for every phase. Overrides remain uncached
+    // because tests and tools deliberately mutate their temporary fixtures.
+    static std::mutex defaultAuditCacheMutex;
+    static std::optional<std::vector<std::string>> defaultAuditCache;
+    const bool useDefaultRepositoryCache = config.assetBundleManifestRootOverride.empty();
+    if (useDefaultRepositoryCache) {
+        std::scoped_lock lock(defaultAuditCacheMutex);
+        if (defaultAuditCache.has_value()) {
+            errors.insert(errors.end(), defaultAuditCache->begin(), defaultAuditCache->end());
+            return errors.empty();
+        }
+    }
+
+    const auto errorOffset = errors.size();
     const auto manifestRoot = assetBundleManifestRoot(config);
     const auto sourceRoot = assetSourceManifestRoot(config);
     if (!std::filesystem::exists(manifestRoot) || !std::filesystem::is_directory(manifestRoot)) {
@@ -299,6 +396,11 @@ bool auditPromotedAssetBundleLicenses(const ExportConfig& config, std::vector<st
     std::sort(manifestFiles.begin(), manifestFiles.end());
 
     for (const auto& manifestPath : manifestFiles) {
+        const auto canContainBundledAsset = oversizedBundleCanContainBundledAsset(manifestPath, errors);
+        if (!canContainBundledAsset.has_value() || !*canContainBundledAsset) {
+            continue;
+        }
+
         nlohmann::json manifest;
         try {
             const auto manifestBytes = readFileBytes(manifestPath);
@@ -318,11 +420,13 @@ bool auditPromotedAssetBundleLicenses(const ExportConfig& config, std::vector<st
             continue;
         }
 
-        bool hasPromotedAsset = false;
+        bool hasPromotedBundledAsset = false;
         for (const auto& asset : manifest["assets"]) {
-            hasPromotedAsset = hasPromotedAsset || (asset.is_object() && asset.value("status", "") == "promoted");
+            hasPromotedBundledAsset = hasPromotedBundledAsset ||
+                                      (asset.is_object() && asset.value("status", "") == "promoted" &&
+                                       asset.value("distribution", "bundled") == "bundled");
         }
-        if (!hasPromotedAsset) {
+        if (!hasPromotedBundledAsset) {
             continue;
         }
 
@@ -371,6 +475,11 @@ bool auditPromotedAssetBundleLicenses(const ExportConfig& config, std::vector<st
         }
     }
 
+    if (useDefaultRepositoryCache) {
+        std::scoped_lock lock(defaultAuditCacheMutex);
+        defaultAuditCache = std::vector<std::string>(errors.begin() + static_cast<std::ptrdiff_t>(errorOffset),
+                                                      errors.end());
+    }
     return errors.empty();
 }
 

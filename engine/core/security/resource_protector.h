@@ -16,8 +16,8 @@ namespace urpg::security {
     /**
      * @brief Resource protection helpers for the current export/runtime boundary.
      * The shipped in-tree contract is lightweight real protection only:
-     * URPG-RLE compression plus XOR obfuscation. This is not a full encrypted
-     * or shipping-hardened content pipeline.
+     * URPG-RLE compression plus XOR obfuscation. This is not an advanced
+     * content-protection pipeline.
      * Part of Wave 4 Engine Polish (4.6).
      */
     class ResourceProtector {
@@ -38,7 +38,7 @@ namespace urpg::security {
         }
 
         /**
-         * @brief Obfuscate a byte buffer (XOR or similar light-weight encryption).
+         * @brief Obfuscate a byte buffer with the current reversible XOR layer.
          * Used to protect assets from simple rippers.
          */
         void obfuscate(std::vector<uint8_t>& data, const std::string& key) {
@@ -86,39 +86,47 @@ namespace urpg::security {
         }
 
         /**
-         * @brief Compute a keyed SHA-256 digest for bundle-level authenticity checks.
-         * This is a symmetric cryptographic verification seam, not public-key code signing.
+         * @brief Compute HMAC-SHA256 for bundle-level authenticity checks.
+         * This is a symmetric verification boundary, not public-key code signing.
          */
         [[nodiscard]] std::string computeCryptographicSignature(std::string_view scope,
                                                                 const std::vector<uint8_t>& data,
                                                                 const std::string& key) const {
-            std::vector<std::uint8_t> message;
-            message.reserve(key.size() + scope.size() + data.size() + 2u);
+            constexpr std::size_t kBlockSize = 64u;
+            std::vector<std::uint8_t> keyBytes(key.begin(), key.end());
+            if (keyBytes.size() > kBlockSize) {
+                const auto digest = Sha256::compute(keyBytes);
+                keyBytes.assign(digest.begin(), digest.end());
+            }
+            keyBytes.resize(kBlockSize, 0u);
 
-            for (const auto ch : key) {
+            std::vector<std::uint8_t> innerPad(kBlockSize, 0x36u);
+            std::vector<std::uint8_t> outerPad(kBlockSize, 0x5cu);
+            for (std::size_t i = 0; i < kBlockSize; ++i) {
+                innerPad[i] ^= keyBytes[i];
+                outerPad[i] ^= keyBytes[i];
+            }
+
+            std::vector<std::uint8_t> message;
+            message.reserve(scope.size() + data.size() + 1u);
+            for (const auto ch : scope) {
                 message.push_back(static_cast<std::uint8_t>(ch));
             }
             message.push_back(0xffu);
 
-            for (const auto ch : scope) {
-                message.push_back(static_cast<std::uint8_t>(ch));
-            }
-            message.push_back(0xfeu);
-
             message.insert(message.end(), data.begin(), data.end());
-            return Sha256::toHex(Sha256::compute(message));
-        }
 
-        /**
-         * @brief Script Logic Obfuscator (Stub).
-         * Replaces readable symbol names with non-descript ones.
-         */
-        std::string obfuscateScript(const std::string& scriptSource) {
-            std::string result = scriptSource;
-            // Simplified: Represents a JS/Lua source-to-source obfuscator
-            // This would normally involve a parser/transformer (e.g., Babel/Uglify)
-            std::string logMsg = "/* [URPG Obfuscation Applied] */\n";
-            return logMsg + result;
+            std::vector<std::uint8_t> inner;
+            inner.reserve(innerPad.size() + message.size());
+            inner.insert(inner.end(), innerPad.begin(), innerPad.end());
+            inner.insert(inner.end(), message.begin(), message.end());
+            const auto innerDigest = Sha256::compute(inner);
+
+            std::vector<std::uint8_t> outer;
+            outer.reserve(outerPad.size() + innerDigest.size());
+            outer.insert(outer.end(), outerPad.begin(), outerPad.end());
+            outer.insert(outer.end(), innerDigest.begin(), innerDigest.end());
+            return Sha256::toHex(Sha256::compute(outer));
         }
     };
 

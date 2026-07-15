@@ -1,5 +1,7 @@
 #include "engine/core/shop/vendor_catalog.h"
 
+#include <stdexcept>
+
 #include <algorithm>
 #include <utility>
 
@@ -38,6 +40,38 @@ std::vector<VendorDiagnostic> VendorCatalog::validate() const {
         }
     }
     return diagnostics;
+}
+
+nlohmann::json VendorCatalog::serialize() const {
+    nlohmann::json vendors = nlohmann::json::array();
+    for (const auto& [id, vendor] : vendors_) {
+        nlohmann::json stock = nlohmann::json::array();
+        for (const auto& item : vendor.stock) {
+            stock.push_back({{"item_id", item.item_id}, {"quantity", item.quantity}, {"buy_price", item.buy_price},
+                             {"sell_price", item.sell_price}, {"required_flags", item.required_flags}});
+        }
+        vendors.push_back({{"id", id}, {"stock", std::move(stock)}});
+    }
+    return {{"schema", "urpg.vendor_catalog.v1"}, {"known_items", known_items_}, {"vendors", std::move(vendors)}};
+}
+
+VendorCatalog VendorCatalog::deserialize(const nlohmann::json& json) {
+    if (!json.is_object() || json.value("schema", "") != "urpg.vendor_catalog.v1") {
+        throw std::invalid_argument("Vendor catalog JSON has an unsupported schema.");
+    }
+    VendorCatalog catalog;
+    catalog.setKnownItems(json.value("known_items", std::set<std::string>{}));
+    for (const auto& source_vendor : json.value("vendors", nlohmann::json::array())) {
+        VendorDefinition vendor;
+        vendor.id = source_vendor.value("id", "");
+        for (const auto& source_item : source_vendor.value("stock", nlohmann::json::array())) {
+            vendor.stock.push_back({source_item.value("item_id", ""), source_item.value("quantity", 0),
+                                    source_item.value("buy_price", 0), source_item.value("sell_price", 0),
+                                    source_item.value("required_flags", std::set<std::string>{})});
+        }
+        catalog.addVendor(std::move(vendor));
+    }
+    return catalog;
 }
 
 } // namespace urpg::shop

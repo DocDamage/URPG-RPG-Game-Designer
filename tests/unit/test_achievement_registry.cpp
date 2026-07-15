@@ -295,6 +295,23 @@ TEST_CASE("AchievementPlatformProfile validates command backend configuration",
     REQUIRE(diagnostics[0].code == "missing_command_executable");
 }
 
+TEST_CASE("CommandAchievementPlatformBackend invokes executable with payload argument",
+          "[Achievement][achievement][platform]") {
+    CommandAchievementPlatformBackend backend("urpg-local", "python",
+                                              {"-c", "import json, pathlib, sys; "
+                                                     "payload=json.loads(pathlib.Path(sys.argv[1]).read_text()); "
+                                                     "sys.exit(0 if payload['achievementId']=='ach_command' and "
+                                                     "payload['platform']=='urpg-local' else 3)",
+                                               "{payload}"});
+
+    const auto result = backend.submitProgress({"", "ach_command", 1, 1, true, "deterministic_timestamp"});
+
+    REQUIRE(result.success);
+    REQUIRE(result.platform == "urpg-local");
+    REQUIRE(result.achievementId == "ach_command");
+    REQUIRE(backend.snapshot()["submittedCount"] == 1);
+}
+
 TEST_CASE("AchievementPlatformProfile reports release provider profile status vocabulary",
           "[achievement][platform][profile][phase7]") {
     AchievementPlatformProfile disabled;

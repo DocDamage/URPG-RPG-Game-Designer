@@ -22,6 +22,9 @@ struct RuntimeCliOptions {
     std::uint32_t height = 720;
     bool width_provided = false;
     bool height_provided = false;
+    std::string map;
+    std::string spawn;
+    std::filesystem::path session_manifest;
     std::filesystem::path project_root = std::filesystem::current_path();
 };
 
@@ -35,6 +38,7 @@ struct EditorCliOptions {
     bool list_panels = false;
     bool render_all_panels = false;
     bool smoke = false;
+    bool project_root_provided = false;
     std::optional<std::string> open_panel_id;
     std::filesystem::path project_root = std::filesystem::current_path();
     std::filesystem::path smoke_output;

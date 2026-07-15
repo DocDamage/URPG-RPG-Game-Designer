@@ -327,6 +327,54 @@ TEST_CASE("AudioManager: SE channels are reclaimed after playback completion", "
     REQUIRE(am.getChannel(expectedSeName) == nullptr);
 }
 
+TEST_CASE("AudioManager: destroying active role channels clears role IDs safely", "[audio_manager][lifetime]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopBgm();
+    am.stopBgs();
+    am.stopMe();
+    am.stopSe();
+
+    am.playBgm("destroy_bgm", 90.0, 100.0);
+    REQUIRE(am.getChannel("bgm") != nullptr);
+    const uint32_t bgmId = am.getChannel("bgm")->id;
+    am.destroyChannel(bgmId);
+    am.update();
+    am.stopBgm();
+    am.destroyChannel(bgmId);
+    REQUIRE_FALSE(am.isBgmPlaying());
+    REQUIRE(am.getCurrentBgm().name.empty());
+
+    am.playBgs("destroy_bgs", 90.0, 100.0);
+    REQUIRE(am.getChannel("bgs") != nullptr);
+    const uint32_t bgsId = am.getChannel("bgs")->id;
+    am.destroyChannel(bgsId);
+    am.update();
+    am.stopBgs();
+    am.destroyChannel(bgsId);
+    REQUIRE(am.getChannel("bgs") == nullptr);
+
+    am.playMe("destroy_me", 90.0, 100.0);
+    REQUIRE(am.getChannel("me") != nullptr);
+    const uint32_t meId = am.getChannel("me")->id;
+    am.destroyChannel(meId);
+    am.update();
+    am.stopMe();
+    am.destroyChannel(meId);
+    REQUIRE(am.getChannel("me") == nullptr);
+
+    const uint32_t markerId = am.createChannel("se_destroy_probe", AudioBus::SE);
+    am.destroyChannel(markerId);
+    const auto expectedSeName = "se_" + std::to_string(markerId + 1);
+    am.playSe("destroy_se", 90.0, 100.0);
+    REQUIRE(am.getChannel(expectedSeName) != nullptr);
+    const uint32_t seId = am.getChannel(expectedSeName)->id;
+    am.destroyChannel(seId);
+    am.update();
+    am.stopSe();
+    am.destroyChannel(seId);
+    REQUIRE(am.getChannel(expectedSeName) == nullptr);
+}
+
 TEST_CASE("AudioManager: SE channel growth is bounded across play/update cycles", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
     am.stopSe();

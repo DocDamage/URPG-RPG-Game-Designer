@@ -324,6 +324,7 @@ TEST_CASE("AssetLibraryModel attaches selected promoted assets to a project",
             (projectRoot / "content" / "assets" / "manifests" / "asset.hero.json").generic_string());
     REQUIRE((*heroPicker)["picker_kind"] == "sprite");
     REQUIRE((*heroPicker)["picker_targets"][0] == "level_builder");
+    REQUIRE((*heroPicker)["picker_targets"][1] == "spatial_authoring");
 
     const auto audioPicker = std::find_if(model.snapshot().project_asset_picker_rows.begin(),
                                           model.snapshot().project_asset_picker_rows.end(),
@@ -613,6 +614,7 @@ TEST_CASE("AssetLibraryModel reloads project asset attachment manifests",
     REQUIRE(model.snapshot().project_asset_picker_rows[0]["manifest_path"] == projectManifest.generic_string());
     REQUIRE(model.snapshot().project_asset_picker_rows[0]["picker_kind"] == "sprite");
     REQUIRE(model.snapshot().project_asset_picker_rows[0]["picker_targets"][0] == "level_builder");
+    REQUIRE(model.snapshot().project_asset_picker_rows[0]["picker_targets"][1] == "spatial_authoring");
 
     std::filesystem::remove_all(root);
 }

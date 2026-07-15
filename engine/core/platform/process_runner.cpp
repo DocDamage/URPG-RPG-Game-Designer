@@ -1,0 +1,695 @@
+#include "engine/core/platform/process_runner.h"
+
+#include <algorithm>
+#include <chrono>
+#include <thread>
+
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+extern char** environ;
+#endif
+
+namespace urpg::platform {
+namespace {
+
+constexpr size_t kMaxCapturedOutputBytes = 1024 * 1024;
+
+void boundCapturedOutput(std::string& output) {
+    if (output.size() > kMaxCapturedOutputBytes) {
+        output.erase(0, output.size() - kMaxCapturedOutputBytes);
+    }
+}
+
+#ifdef _WIN32
+std::wstring utf8ToWide(const std::string& value) {
+    if (value.empty()) {
+        return {};
+    }
+    const int size =
+        MultiByteToWideChar(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), nullptr, 0);
+    std::wstring out(static_cast<size_t>(size), L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), out.data(), size);
+    return out;
+}
+
+std::wstring pathToWide(const std::filesystem::path& path) {
+    return path.wstring();
+}
+
+std::wstring quoteWindowsArg(const std::wstring& value) {
+    if (value.empty()) {
+        return L"\"\"";
+    }
+    const bool needsQuotes = value.find_first_of(L" \t\"") != std::wstring::npos;
+    std::wstring out;
+    if (needsQuotes) {
+        out.push_back(L'"');
+    }
+    size_t backslashes = 0;
+    for (const wchar_t ch : value) {
+        if (ch == L'\\') {
+            ++backslashes;
+            continue;
+        }
+        if (ch == L'"') {
+            out.append(backslashes * 2 + 1, L'\\');
+            out.push_back(L'"');
+            backslashes = 0;
+            continue;
+        }
+        out.append(backslashes, L'\\');
+        backslashes = 0;
+        out.push_back(ch);
+    }
+    if (needsQuotes) {
+        out.append(backslashes * 2, L'\\');
+        out.push_back(L'"');
+    } else {
+        out.append(backslashes, L'\\');
+    }
+    return out;
+}
+
+std::wstring buildCommandLine(const ProcessCommand& command) {
+    std::wstring line = quoteWindowsArg(pathToWide(command.executable));
+    for (const auto& arg : command.arguments) {
+        line.push_back(L' ');
+        line += quoteWindowsArg(utf8ToWide(arg));
+    }
+    return line;
+}
+
+bool createPipe(HANDLE& readHandle, HANDLE& writeHandle, bool inheritWrite) {
+    SECURITY_ATTRIBUTES security{};
+    security.nLength = sizeof(security);
+    security.bInheritHandle = TRUE;
+    if (!CreatePipe(&readHandle, &writeHandle, &security, 0)) {
+        return false;
+    }
+    SetHandleInformation(inheritWrite ? readHandle : writeHandle, HANDLE_FLAG_INHERIT, 0);
+    return true;
+}
+
+std::string readPipe(HANDLE handle) {
+    std::string out;
+    char buffer[4096];
+    DWORD read = 0;
+    while (ReadFile(handle, buffer, sizeof(buffer), &read, nullptr) && read > 0) {
+        out.append(buffer, buffer + read);
+    }
+    return out;
+}
+#else
+void setCloseOnExec(int fd) {
+    const int flags = fcntl(fd, F_GETFD);
+    if (flags >= 0) {
+        fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
+    }
+}
+
+void setNonBlocking(int fd) {
+    const int flags = fcntl(fd, F_GETFL);
+    if (flags >= 0) {
+        fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+    }
+}
+
+void readAvailable(int fd, std::string& out) {
+    char buffer[4096];
+    for (;;) {
+        const ssize_t count = read(fd, buffer, sizeof(buffer));
+        if (count > 0) {
+            out.append(buffer, buffer + count);
+            continue;
+        }
+        break;
+    }
+}
+#endif
+
+} // namespace
+
+ProcessResult runProcess(const ProcessCommand& command) {
+    ProcessResult result;
+    if (command.executable.empty()) {
+        result.error = "process executable is empty";
+        return result;
+    }
+
+#ifdef _WIN32
+    HANDLE stdoutRead = nullptr;
+    HANDLE stdoutWrite = nullptr;
+    HANDLE stderrRead = nullptr;
+    HANDLE stderrWrite = nullptr;
+    if (command.captureStdout && !createPipe(stdoutRead, stdoutWrite, true)) {
+        result.error = "failed to create stdout pipe";
+        return result;
+    }
+    if (command.captureStderr && !createPipe(stderrRead, stderrWrite, true)) {
+        if (stdoutRead != nullptr) {
+            CloseHandle(stdoutRead);
+            CloseHandle(stdoutWrite);
+        }
+        result.error = "failed to create stderr pipe";
+        return result;
+    }
+
+    STARTUPINFOW startup{};
+    startup.cb = sizeof(startup);
+    if (command.captureStdout || command.captureStderr) {
+        startup.dwFlags |= STARTF_USESTDHANDLES;
+        startup.hStdOutput = command.captureStdout ? stdoutWrite : GetStdHandle(STD_OUTPUT_HANDLE);
+        startup.hStdError = command.captureStderr ? stderrWrite : GetStdHandle(STD_ERROR_HANDLE);
+        startup.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    }
+
+    PROCESS_INFORMATION process{};
+    auto commandLine = buildCommandLine(command);
+    auto executable = pathToWide(command.executable);
+    const bool useExplicitApplicationName = command.executable.is_absolute() || command.executable.has_parent_path();
+    auto workingDirectory = command.workingDirectory.empty() ? std::wstring{} : pathToWide(command.workingDirectory);
+    const BOOL launched =
+        CreateProcessW(useExplicitApplicationName ? executable.c_str() : nullptr, commandLine.data(), nullptr, nullptr,
+                       TRUE, CREATE_NO_WINDOW, nullptr,
+                       workingDirectory.empty() ? nullptr : workingDirectory.c_str(), &startup, &process);
+    if (stdoutWrite != nullptr) {
+        CloseHandle(stdoutWrite);
+    }
+    if (stderrWrite != nullptr) {
+        CloseHandle(stderrWrite);
+    }
+    if (!launched) {
+        if (stdoutRead != nullptr) {
+            CloseHandle(stdoutRead);
+        }
+        if (stderrRead != nullptr) {
+            CloseHandle(stderrRead);
+        }
+        result.error = "failed to launch process: " + std::to_string(GetLastError());
+        return result;
+    }
+
+    const DWORD waitMs = command.timeout.count() <= 0 ? INFINITE : static_cast<DWORD>(command.timeout.count());
+    const DWORD waitResult = WaitForSingleObject(process.hProcess, waitMs);
+    if (waitResult == WAIT_TIMEOUT) {
+        TerminateProcess(process.hProcess, 1);
+        result.timedOut = true;
+        result.error = "process timed out";
+    }
+
+    DWORD exitCode = 1;
+    GetExitCodeProcess(process.hProcess, &exitCode);
+    result.exitCode = static_cast<int>(exitCode);
+    CloseHandle(process.hThread);
+    CloseHandle(process.hProcess);
+    if (stdoutRead != nullptr) {
+        result.stdoutText = readPipe(stdoutRead);
+        CloseHandle(stdoutRead);
+    }
+    if (stderrRead != nullptr) {
+        result.stderrText = readPipe(stderrRead);
+        CloseHandle(stderrRead);
+    }
+    return result;
+#else
+    int stdoutPipe[2] = {-1, -1};
+    int stderrPipe[2] = {-1, -1};
+    if (command.captureStdout && pipe(stdoutPipe) != 0) {
+        result.error = "failed to create stdout pipe";
+        return result;
+    }
+    if (command.captureStderr && pipe(stderrPipe) != 0) {
+        if (stdoutPipe[0] >= 0) {
+            close(stdoutPipe[0]);
+            close(stdoutPipe[1]);
+        }
+        result.error = "failed to create stderr pipe";
+        return result;
+    }
+
+    const pid_t pid = fork();
+    if (pid == 0) {
+        if (!command.workingDirectory.empty()) {
+            chdir(command.workingDirectory.c_str());
+        }
+        if (command.captureStdout) {
+            dup2(stdoutPipe[1], STDOUT_FILENO);
+        }
+        if (command.captureStderr) {
+            dup2(stderrPipe[1], STDERR_FILENO);
+        }
+        if (stdoutPipe[0] >= 0) {
+            close(stdoutPipe[0]);
+            close(stdoutPipe[1]);
+        }
+        if (stderrPipe[0] >= 0) {
+            close(stderrPipe[0]);
+            close(stderrPipe[1]);
+        }
+
+        std::vector<std::string> argvStorage;
+        argvStorage.push_back(command.executable.string());
+        argvStorage.insert(argvStorage.end(), command.arguments.begin(), command.arguments.end());
+        std::vector<char*> argv;
+        for (auto& value : argvStorage) {
+            argv.push_back(value.data());
+        }
+        argv.push_back(nullptr);
+
+        if (command.environment.empty()) {
+            execvp(argv[0], argv.data());
+        } else {
+            std::vector<std::string> envStorage;
+            for (char** entry = environ; *entry != nullptr; ++entry) {
+                envStorage.emplace_back(*entry);
+            }
+            for (const auto& [key, value] : command.environment) {
+                const std::string prefix = key + "=";
+                envStorage.erase(std::remove_if(envStorage.begin(), envStorage.end(), [&](const std::string& item) {
+                                     return item.rfind(prefix, 0) == 0;
+                                 }),
+                                 envStorage.end());
+                envStorage.push_back(prefix + value);
+            }
+            std::vector<char*> envp;
+            for (auto& value : envStorage) {
+                envp.push_back(value.data());
+            }
+            envp.push_back(nullptr);
+            execve(argv[0], argv.data(), envp.data());
+        }
+        _exit(127);
+    }
+    if (pid < 0) {
+        result.error = "failed to fork process";
+        return result;
+    }
+
+    if (stdoutPipe[1] >= 0) {
+        close(stdoutPipe[1]);
+        setCloseOnExec(stdoutPipe[0]);
+        setNonBlocking(stdoutPipe[0]);
+    }
+    if (stderrPipe[1] >= 0) {
+        close(stderrPipe[1]);
+        setCloseOnExec(stderrPipe[0]);
+        setNonBlocking(stderrPipe[0]);
+    }
+
+    const auto deadline = std::chrono::steady_clock::now() + command.timeout;
+    int status = 0;
+    bool exited = false;
+    while (!exited) {
+        if (stdoutPipe[0] >= 0) {
+            readAvailable(stdoutPipe[0], result.stdoutText);
+        }
+        if (stderrPipe[0] >= 0) {
+            readAvailable(stderrPipe[0], result.stderrText);
+        }
+        const pid_t waited = waitpid(pid, &status, WNOHANG);
+        if (waited == pid) {
+            exited = true;
+            break;
+        }
+        if (command.timeout.count() > 0 && std::chrono::steady_clock::now() >= deadline) {
+            kill(pid, SIGKILL);
+            waitpid(pid, &status, 0);
+            result.timedOut = true;
+            result.error = "process timed out";
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+    if (stdoutPipe[0] >= 0) {
+        readAvailable(stdoutPipe[0], result.stdoutText);
+        close(stdoutPipe[0]);
+    }
+    if (stderrPipe[0] >= 0) {
+        readAvailable(stderrPipe[0], result.stderrText);
+        close(stderrPipe[0]);
+    }
+    if (WIFEXITED(status)) {
+        result.exitCode = WEXITSTATUS(status);
+    } else if (WIFSIGNALED(status)) {
+        result.exitCode = 128 + WTERMSIG(status);
+    }
+    return result;
+#endif
+}
+
+std::filesystem::path g_PlaytestOverlayDir;
+
+std::filesystem::path resolvePlaytestPath(const std::filesystem::path& path) {
+    if (path.empty()) {
+        return path;
+    }
+    if (!g_PlaytestOverlayDir.empty()) {
+        std::filesystem::path relative;
+        bool foundRoot = false;
+        for (const auto& part : path.lexically_normal()) {
+            const auto value = part.generic_string();
+            if (!foundRoot && (value == "content" || value == "data" || value == "config")) {
+                foundRoot = true;
+            }
+            if (foundRoot) {
+                if (value == "..") {
+                    return path;
+                }
+                relative /= part;
+            }
+        }
+        if (foundRoot) {
+            const auto overlayRoot = g_PlaytestOverlayDir.lexically_normal();
+            const auto overlayFile = (overlayRoot / relative).lexically_normal();
+            const auto mismatch = std::mismatch(overlayRoot.begin(), overlayRoot.end(), overlayFile.begin(), overlayFile.end());
+            if (mismatch.first == overlayRoot.end() && std::filesystem::is_regular_file(overlayFile)) {
+                return overlayFile;
+            }
+        }
+    }
+    return path;
+}
+
+Process::Process() {
+#ifdef _WIN32
+    hProcess = nullptr;
+    hThread = nullptr;
+    stdoutRead = nullptr;
+    stderrRead = nullptr;
+#else
+    pid = -1;
+    stdoutFd = -1;
+    stderrFd = -1;
+#endif
+}
+
+Process::~Process() {
+    terminate();
+}
+
+#ifdef _WIN32
+bool Process::launch(const ProcessCommand& command) {
+    cleanup();
+    error.clear();
+    stdoutText.clear();
+    stderrText.clear();
+
+    HANDLE stdoutReadTmp = nullptr;
+    HANDLE stdoutWrite = nullptr;
+    HANDLE stderrReadTmp = nullptr;
+    HANDLE stderrWrite = nullptr;
+
+    if (command.captureStdout && !createPipe(stdoutReadTmp, stdoutWrite, true)) {
+        error = "failed to create stdout pipe";
+        return false;
+    }
+    if (command.captureStderr && !createPipe(stderrReadTmp, stderrWrite, true)) {
+        if (stdoutReadTmp != nullptr) {
+            CloseHandle(stdoutReadTmp);
+            CloseHandle(stdoutWrite);
+        }
+        error = "failed to create stderr pipe";
+        return false;
+    }
+
+    stdoutRead = stdoutReadTmp;
+    stderrRead = stderrReadTmp;
+
+    STARTUPINFOW startup{};
+    startup.cb = sizeof(startup);
+    if (command.captureStdout || command.captureStderr) {
+        startup.dwFlags |= STARTF_USESTDHANDLES;
+        startup.hStdOutput = command.captureStdout ? stdoutWrite : GetStdHandle(STD_OUTPUT_HANDLE);
+        startup.hStdError = command.captureStderr ? stderrWrite : GetStdHandle(STD_ERROR_HANDLE);
+        startup.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    }
+
+    PROCESS_INFORMATION processInfo{};
+    auto commandLine = buildCommandLine(command);
+    auto executable = pathToWide(command.executable);
+    const bool useExplicitApplicationName = command.executable.is_absolute() || command.executable.has_parent_path();
+    auto workingDirectory = command.workingDirectory.empty() ? std::wstring{} : pathToWide(command.workingDirectory);
+
+    const BOOL launched =
+        CreateProcessW(useExplicitApplicationName ? executable.c_str() : nullptr, commandLine.data(), nullptr, nullptr,
+                       TRUE, CREATE_NO_WINDOW, nullptr,
+                       workingDirectory.empty() ? nullptr : workingDirectory.c_str(), &startup, &processInfo);
+
+    if (stdoutWrite != nullptr) CloseHandle(stdoutWrite);
+    if (stderrWrite != nullptr) CloseHandle(stderrWrite);
+
+    if (!launched) {
+        if (stdoutRead != nullptr) { CloseHandle(stdoutRead); stdoutRead = nullptr; }
+        if (stderrRead != nullptr) { CloseHandle(stderrRead); stderrRead = nullptr; }
+        error = "failed to launch process: " + std::to_string(GetLastError());
+        return false;
+    }
+
+    hProcess = processInfo.hProcess;
+    hThread = processInfo.hThread;
+    return true;
+}
+
+bool Process::isRunning(int* exitCodeOut) {
+    if (hProcess == nullptr) {
+        if (exitCodeOut) *exitCodeOut = -1;
+        return false;
+    }
+    DWORD winExitCode = 0;
+    if (GetExitCodeProcess(hProcess, &winExitCode)) {
+        if (winExitCode == STILL_ACTIVE) {
+            if (stdoutRead != nullptr) {
+                DWORD avail = 0;
+                if (PeekNamedPipe(stdoutRead, nullptr, 0, nullptr, &avail, nullptr) && avail > 0) {
+                    std::string chunk(avail, '\0');
+                    DWORD read = 0;
+                    if (ReadFile(stdoutRead, chunk.data(), avail, &read, nullptr) && read > 0) {
+                        chunk.resize(read);
+                        stdoutText += chunk;
+                        boundCapturedOutput(stdoutText);
+                    }
+                }
+            }
+            if (stderrRead != nullptr) {
+                DWORD avail = 0;
+                if (PeekNamedPipe(stderrRead, nullptr, 0, nullptr, &avail, nullptr) && avail > 0) {
+                    std::string chunk(avail, '\0');
+                    DWORD read = 0;
+                    if (ReadFile(stderrRead, chunk.data(), avail, &read, nullptr) && read > 0) {
+                        chunk.resize(read);
+                        stderrText += chunk;
+                        boundCapturedOutput(stderrText);
+                    }
+                }
+            }
+            return true;
+        }
+        if (exitCodeOut) *exitCodeOut = static_cast<int>(winExitCode);
+        if (stdoutRead != nullptr) {
+            stdoutText += readPipe(stdoutRead);
+            boundCapturedOutput(stdoutText);
+        }
+        if (stderrRead != nullptr) {
+            stderrText += readPipe(stderrRead);
+            boundCapturedOutput(stderrText);
+        }
+        cleanup();
+        return false;
+    }
+    if (exitCodeOut) *exitCodeOut = -1;
+    return false;
+}
+
+void Process::terminate() {
+    if (hProcess != nullptr) {
+        TerminateProcess(hProcess, 1);
+        (void)WaitForSingleObject(hProcess, 5000);
+        cleanup();
+    }
+}
+
+void Process::cleanup() {
+    if (hProcess != nullptr) {
+        CloseHandle(hProcess);
+        hProcess = nullptr;
+    }
+    if (hThread != nullptr) {
+        CloseHandle(hThread);
+        hThread = nullptr;
+    }
+    if (stdoutRead != nullptr) {
+        CloseHandle(stdoutRead);
+        stdoutRead = nullptr;
+    }
+    if (stderrRead != nullptr) {
+        CloseHandle(stderrRead);
+        stderrRead = nullptr;
+    }
+}
+#else
+bool Process::launch(const ProcessCommand& command) {
+    cleanup();
+    error.clear();
+    stdoutText.clear();
+    stderrText.clear();
+
+    int stdoutPipe[2] = {-1, -1};
+    int stderrPipe[2] = {-1, -1};
+    if (command.captureStdout && pipe(stdoutPipe) != 0) {
+        error = "failed to create stdout pipe";
+        return false;
+    }
+    if (command.captureStderr && pipe(stderrPipe) != 0) {
+        if (stdoutPipe[0] >= 0) {
+            close(stdoutPipe[0]);
+            close(stdoutPipe[1]);
+        }
+        error = "failed to create stderr pipe";
+        return false;
+    }
+
+    pid = fork();
+    if (pid == 0) {
+        if (!command.workingDirectory.empty()) {
+            chdir(command.workingDirectory.c_str());
+        }
+        if (command.captureStdout) {
+            dup2(stdoutPipe[1], STDOUT_FILENO);
+        }
+        if (command.captureStderr) {
+            dup2(stderrPipe[1], STDERR_FILENO);
+        }
+        if (stdoutPipe[0] >= 0) {
+            close(stdoutPipe[0]);
+            close(stdoutPipe[1]);
+        }
+        if (stderrPipe[0] >= 0) {
+            close(stderrPipe[0]);
+            close(stderrPipe[1]);
+        }
+
+        std::vector<std::string> argvStorage;
+        argvStorage.push_back(command.executable.string());
+        argvStorage.insert(argvStorage.end(), command.arguments.begin(), command.arguments.end());
+        std::vector<char*> argv;
+        for (auto& value : argvStorage) {
+            argv.push_back(value.data());
+        }
+        argv.push_back(nullptr);
+
+        if (command.environment.empty()) {
+            execvp(argv[0], argv.data());
+        } else {
+            std::vector<std::string> envStorage;
+            for (char** entry = environ; *entry != nullptr; ++entry) {
+                envStorage.emplace_back(*entry);
+            }
+            for (const auto& [key, value] : command.environment) {
+                const std::string prefix = key + "=";
+                envStorage.erase(std::remove_if(envStorage.begin(), envStorage.end(), [&](const std::string& item) {
+                                     return item.rfind(prefix, 0) == 0;
+                                 }),
+                                 envStorage.end());
+                envStorage.push_back(prefix + value);
+            }
+            std::vector<char*> envp;
+            for (auto& value : envStorage) {
+                envp.push_back(value.data());
+            }
+            envp.push_back(nullptr);
+            execve(argv[0], argv.data(), envp.data());
+        }
+        _exit(127);
+    }
+
+    if (pid < 0) {
+        if (stdoutPipe[0] >= 0) { close(stdoutPipe[0]); close(stdoutPipe[1]); }
+        if (stderrPipe[0] >= 0) { close(stderrPipe[0]); close(stderrPipe[1]); }
+        error = "failed to fork process";
+        return false;
+    }
+
+    if (stdoutPipe[1] >= 0) {
+        close(stdoutPipe[1]);
+        setCloseOnExec(stdoutPipe[0]);
+        setNonBlocking(stdoutPipe[0]);
+        stdoutFd = stdoutPipe[0];
+    }
+    if (stderrPipe[1] >= 0) {
+        close(stderrPipe[1]);
+        setCloseOnExec(stderrPipe[0]);
+        setNonBlocking(stderrPipe[0]);
+        stderrFd = stderrPipe[0];
+    }
+
+    return true;
+}
+
+bool Process::isRunning(int* exitCodeOut) {
+    if (pid < 0) {
+        if (exitCodeOut) *exitCodeOut = -1;
+        return false;
+    }
+    if (stdoutFd >= 0) {
+        readAvailable(stdoutFd, stdoutText);
+        boundCapturedOutput(stdoutText);
+    }
+    if (stderrFd >= 0) {
+        readAvailable(stderrFd, stderrText);
+        boundCapturedOutput(stderrText);
+    }
+
+    int status = 0;
+    const pid_t waited = waitpid(pid, &status, WNOHANG);
+    if (waited == pid) {
+        int code = -1;
+        if (WIFEXITED(status)) {
+            code = WEXITSTATUS(status);
+        } else if (WIFSIGNALED(status)) {
+            code = 128 + WTERMSIG(status);
+        }
+        if (exitCodeOut) *exitCodeOut = code;
+        cleanup();
+        return false;
+    }
+    if (waited < 0) {
+        if (exitCodeOut) *exitCodeOut = -1;
+        cleanup();
+        return false;
+    }
+    return true;
+}
+
+void Process::terminate() {
+    if (pid >= 0) {
+        kill(pid, SIGKILL);
+        int status = 0;
+        waitpid(pid, &status, 0);
+        cleanup();
+    }
+}
+
+void Process::cleanup() {
+    if (stdoutFd >= 0) {
+        close(stdoutFd);
+        stdoutFd = -1;
+    }
+    if (stderrFd >= 0) {
+        close(stderrFd);
+        stderrFd = -1;
+    }
+    pid = -1;
+}
+#endif
+
+} // namespace urpg::platform

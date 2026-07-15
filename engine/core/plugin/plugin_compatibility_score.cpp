@@ -103,6 +103,70 @@ void lowerScore(PluginCompatibilityResult& result, int32_t amount) {
     result.score = std::max<int32_t>(0, result.score - amount);
 }
 
+void appendSuggestion(PluginCompatibilityResult& result,
+                      std::string code,
+                      std::string message,
+                      std::string target,
+                      int32_t estimated_minutes) {
+    PluginMigrationSuggestion suggestion;
+    suggestion.code = std::move(code);
+    suggestion.message = std::move(message);
+    suggestion.target = std::move(target);
+    suggestion.estimated_minutes = estimated_minutes;
+    result.estimated_repair_minutes += estimated_minutes;
+    result.migration_suggestions.push_back(std::move(suggestion));
+}
+
+int32_t suggestionPriority(const std::string& code) {
+    if (code == "grant_or_replace_permission") {
+        return 0;
+    }
+    if (code == "replace_with_native_shim") {
+        return 1;
+    }
+    if (code == "manual_js_api_review") {
+        return 2;
+    }
+    if (code == "replace_fixture_only_behavior") {
+        return 3;
+    }
+    if (code == "remove_compat_fallback") {
+        return 4;
+    }
+    if (code == "restore_missing_dependency") {
+        return 5;
+    }
+    if (code == "break_load_order_cycle") {
+        return 6;
+    }
+    if (code == "resolve_override_conflict") {
+        return 7;
+    }
+    return 100;
+}
+
+void finalizeRepairEstimate(PluginCompatibilityResult& result) {
+    std::sort(result.migration_suggestions.begin(), result.migration_suggestions.end(), [](const auto& a, const auto& b) {
+        const int32_t a_priority = suggestionPriority(a.code);
+        const int32_t b_priority = suggestionPriority(b.code);
+        if (a_priority != b_priority) {
+            return a_priority < b_priority;
+        }
+        if (a.target != b.target) {
+            return a.target < b.target;
+        }
+        return a.code < b.code;
+    });
+
+    if (result.estimated_repair_minutes >= 120 || result.score < 50) {
+        result.confidence = "low";
+    } else if (result.estimated_repair_minutes > 0 || result.score < 90) {
+        result.confidence = "medium";
+    } else {
+        result.confidence = "high";
+    }
+}
+
 void sortIssueVectors(PluginCompatibilityResult& result) {
     auto sortUnique = [](std::vector<std::string>& values) {
         std::sort(values.begin(), values.end());
@@ -117,6 +181,8 @@ void sortIssueVectors(PluginCompatibilityResult& result) {
     std::sort(result.shim_hints.begin(), result.shim_hints.end(), [](const auto& a, const auto& b) {
         return a.api < b.api;
     });
+
+    finalizeRepairEstimate(result);
 
     std::sort(result.issues.begin(), result.issues.end(), [](const auto& a, const auto& b) {
         if (a.blocking != b.blocking) {
@@ -437,6 +503,13 @@ PluginCompatibilityReport AnalyzePluginCompatibility(const PluginCompatibilityAn
             if (missing && !dependency.optional && !profile_allowed_missing) {
                 result.missing_dependencies.push_back(dependency.plugin_id);
                 lowerScore(result, 35);
+                appendSuggestion(
+                    result,
+                    "restore_missing_dependency",
+                    "Add the missing dependency or replace the dependent plugin path with native data.",
+                    dependency.plugin_id,
+                    45
+                );
                 appendIssue(
                     result,
                     PluginCompatibilityIssueKind::MissingDependency,
@@ -461,6 +534,13 @@ PluginCompatibilityReport AnalyzePluginCompatibility(const PluginCompatibilityAn
             if (!input.granted_permissions.contains(permission)) {
                 result.denied_permissions.push_back(permission);
                 lowerScore(result, 45);
+                appendSuggestion(
+                    result,
+                    "grant_or_replace_permission",
+                    "Review the requested sandbox permission and replace it with a native service when release policy denies it.",
+                    permission,
+                    60
+                );
                 appendIssue(
                     result,
                     PluginCompatibilityIssueKind::PermissionDenied,
@@ -480,6 +560,21 @@ PluginCompatibilityReport AnalyzePluginCompatibility(const PluginCompatibilityAn
                 hint_it != input.native_shim_hints.end()) {
                 hint = hint_it->second;
                 result.shim_hints.push_back(*hint);
+                appendSuggestion(
+                    result,
+                    "replace_with_native_shim",
+                    "Replace this JavaScript API use with the mapped native URPG feature.",
+                    api,
+                    45
+                );
+            } else {
+                appendSuggestion(
+                    result,
+                    "manual_js_api_review",
+                    "Review this unsupported JavaScript API manually; no native shim is registered yet.",
+                    api,
+                    90
+                );
             }
             appendIssue(
                 result,
@@ -494,6 +589,13 @@ PluginCompatibilityReport AnalyzePluginCompatibility(const PluginCompatibilityAn
 
         for (const auto& behavior : manifest.fixture_only_behaviors) {
             lowerScore(result, 15);
+            appendSuggestion(
+                result,
+                "replace_fixture_only_behavior",
+                "Replace fixture-only behavior with native runtime data or a supported compat command.",
+                behavior,
+                30
+            );
             appendIssue(
                 result,
                 PluginCompatibilityIssueKind::FixtureOnlyBehavior,
@@ -506,6 +608,13 @@ PluginCompatibilityReport AnalyzePluginCompatibility(const PluginCompatibilityAn
 
         for (const auto& fallback : manifest.fallback_paths) {
             lowerScore(result, 10);
+            appendSuggestion(
+                result,
+                "remove_compat_fallback",
+                "Remove reliance on this compatibility fallback before treating migration as clean.",
+                fallback,
+                15
+            );
             appendIssue(
                 result,
                 PluginCompatibilityIssueKind::FallbackPath,
@@ -530,6 +639,13 @@ PluginCompatibilityReport AnalyzePluginCompatibility(const PluginCompatibilityAn
                 continue;
             }
             lowerScore(*it, 40);
+            appendSuggestion(
+                *it,
+                "break_load_order_cycle",
+                "Break the plugin dependency cycle or migrate the behavior into a native subsystem.",
+                plugin_id,
+                90
+            );
             appendIssue(
                 *it,
                 PluginCompatibilityIssueKind::LoadOrderCycle,
@@ -556,6 +672,13 @@ PluginCompatibilityReport AnalyzePluginCompatibility(const PluginCompatibilityAn
                 continue;
             }
             lowerScore(*it, 20);
+            appendSuggestion(
+                *it,
+                "resolve_override_conflict",
+                "Resolve the method override conflict or replace the shared monkey patch with native behavior.",
+                method,
+                30
+            );
             appendIssue(
                 *it,
                 PluginCompatibilityIssueKind::OverrideConflict,
@@ -638,6 +761,8 @@ nlohmann::json PluginCompatibilityReportToJson(const PluginCompatibilityReport& 
         plugin_json["missing_dependencies"] = plugin.missing_dependencies;
         plugin_json["denied_permissions"] = plugin.denied_permissions;
         plugin_json["unsupported_apis"] = plugin.unsupported_apis;
+        plugin_json["estimated_repair_minutes"] = plugin.estimated_repair_minutes;
+        plugin_json["confidence"] = plugin.confidence;
 
         plugin_json["shim_hints"] = nlohmann::json::array();
         for (const auto& hint : plugin.shim_hints) {
@@ -645,6 +770,16 @@ nlohmann::json PluginCompatibilityReportToJson(const PluginCompatibilityReport& 
                 {"api", hint.api},
                 {"native_feature", hint.native_feature},
                 {"note", hint.note},
+            });
+        }
+
+        plugin_json["migration_suggestions"] = nlohmann::json::array();
+        for (const auto& suggestion : plugin.migration_suggestions) {
+            plugin_json["migration_suggestions"].push_back({
+                {"code", suggestion.code},
+                {"message", suggestion.message},
+                {"target", suggestion.target},
+                {"estimated_minutes", suggestion.estimated_minutes},
             });
         }
 

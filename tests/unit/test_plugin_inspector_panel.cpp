@@ -32,10 +32,14 @@ TEST_CASE("PluginInspectorPanel renders compatibility inspector summary", "[edit
     REQUIRE(panel.lastRenderSnapshot().permission_denial_count == 1);
     REQUIRE(panel.lastRenderSnapshot().unsupported_api_count == 1);
     REQUIRE(panel.lastRenderSnapshot().shim_hint_count == 1);
+    REQUIRE(panel.lastRenderSnapshot().estimated_repair_minutes == 150);
+    REQUIRE(panel.lastRenderSnapshot().low_confidence_plugin_count == 1);
     REQUIRE_FALSE(panel.lastRenderSnapshot().release_authoritative);
 
     const auto exported = panel.model().exportSnapshotJson();
     REQUIRE(exported["snapshot"]["plugin_count"] == 2);
+    REQUIRE(exported["snapshot"]["estimated_repair_minutes"] == 150);
+    REQUIRE(exported["snapshot"]["low_confidence_plugin_count"] == 1);
     REQUIRE(exported["snapshot"]["release_authoritative"] == false);
     REQUIRE(exported["plugins"].is_array());
 }

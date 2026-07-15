@@ -267,7 +267,7 @@ class MapScene : public GameScene {
 
     // Dialogue & AI Runtime
     urpg::message::MessageFlowRunner m_messageRunner;
-    std::unique_ptr<urpg::ai::ChatbotComponent> m_activeChatbot;
+    std::shared_ptr<urpg::ai::ChatbotComponent> m_activeChatbot;
     std::unique_ptr<urpg::ui::ChatWindow> m_chatUI;
     std::shared_ptr<urpg::audio::AudioCore> m_audioCore;
     bool m_isChatInputOpen = false;
