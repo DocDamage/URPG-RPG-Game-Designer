@@ -139,6 +139,7 @@ struct EditorPanelRuntime {
     urpg::analytics::AnalyticsPrivacyController analytics_privacy_controller;
     std::filesystem::path project_root;
     std::filesystem::path external_asset_library_root;
+    std::vector<std::string> available_map_ids;
     std::string character_draft_id = "protagonist";
     bool creator_mode = false;
     bool focus_workspace_next_frame = true;
@@ -483,8 +484,28 @@ void captureScheduledRecoverySnapshot(EditorPanelRuntime& runtime) {
     runtime.next_recovery_snapshot_at = now + std::chrono::minutes(5);
 }
 
-void bindMapAuthoringProject(EditorPanelRuntime& runtime, const std::filesystem::path& projectRoot) {
+void bindMapAuthoringProject(EditorPanelRuntime& runtime,
+                             const std::filesystem::path& projectRoot,
+                             std::string requestedMapId = {}) {
     runtime.project_root = projectRoot;
+    runtime.available_map_ids.clear();
+    std::error_code mapDirectoryError;
+    const auto mapsDirectory = projectRoot / "content" / "maps";
+    for (const auto& entry : std::filesystem::directory_iterator(mapsDirectory, mapDirectoryError)) {
+        if (mapDirectoryError || !entry.is_regular_file() || entry.path().extension() != ".json") {
+            continue;
+        }
+        std::ifstream mapInput(entry.path(), std::ios::binary);
+        const auto mapJson = nlohmann::json::parse(mapInput, nullptr, false);
+        if (!mapJson.is_object() || mapJson.value("schema", "") != "urpg.map.v1") {
+            continue;
+        }
+        const auto mapId = mapJson.value("id", "");
+        if (!mapId.empty()) runtime.available_map_ids.push_back(mapId);
+    }
+    std::sort(runtime.available_map_ids.begin(), runtime.available_map_ids.end());
+    runtime.available_map_ids.erase(std::unique(runtime.available_map_ids.begin(), runtime.available_map_ids.end()),
+                                    runtime.available_map_ids.end());
     runtime.character_draft_id = "protagonist";
     {
         std::ifstream manifestInput(projectRoot / "project.json", std::ios::binary);
@@ -512,7 +533,10 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime, const std::filesystem:
     } else {
         runtime.character_creator_model.resetDraft();
     }
-    const auto mapId = starterMapIdForProject(projectRoot);
+    const auto starterMapId = starterMapIdForProject(projectRoot);
+    const auto requestedMapExists = std::find(runtime.available_map_ids.begin(), runtime.available_map_ids.end(), requestedMapId) !=
+                                    runtime.available_map_ids.end();
+    const auto mapId = requestedMapExists ? requestedMapId : starterMapId;
     runtime.level_builder_document = urpg::map::GridPartDocument{mapId, 16, 12};
     const auto gridPath = projectRoot / "content" / "maps" / (mapId + ".grid.json");
     if (std::ifstream gridInput(gridPath, std::ios::binary); gridInput.good()) {
@@ -2217,6 +2241,26 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                 snapshot.context.validation.diagnosticCount, snapshot.context.validation.blockingCount,
                 snapshot.context.playtestState.c_str(), snapshot.context.packageState.c_str());
     ImGui::TextWrapped("%s", snapshot.nextAction.c_str());
+    if (runtime.available_map_ids.size() > 1) {
+        ImGui::SameLine();
+        if (ImGui::BeginCombo("##MapSelector", snapshot.context.activeMapId.c_str())) {
+            for (const auto& mapId : runtime.available_map_ids) {
+                const bool selected = mapId == snapshot.context.activeMapId;
+                if (ImGui::Selectable(mapId.c_str(), selected)) {
+                    const auto guard = runtime.dirty_state_registry.resolveNavigation(
+                        urpg::editor::EditorNavigationDecision::Save);
+                    if (!guard.allowed) {
+                        runtime.map_save_status = "Map switch blocked: " + guard.diagnostic.message;
+                    } else {
+                        bindMapAuthoringProject(runtime, runtime.project_root, mapId);
+                        runtime.map_save_status = "Opened map '" + mapId + "' through the native Map workspace.";
+                    }
+                }
+                if (selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+    }
     ImGui::Separator();
     ImGui::TextUnformatted("Contextual Authoring");
     ImGui::TextDisabled("Current character draft: %s", runtime.character_draft_id.c_str());
