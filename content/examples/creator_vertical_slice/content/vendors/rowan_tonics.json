@@ -1,0 +1,17 @@
+{
+  "schema": "urpg.vendor_catalog.v1",
+  "vendors": [
+    {
+      "id": "rowan_tonics",
+      "stock": [
+        {
+          "item_id": "moonwell_lantern",
+          "quantity": 1,
+          "buy_price": 75,
+          "sell_price": 35,
+          "required_flags": []
+        }
+      ]
+    }
+  ]
+}

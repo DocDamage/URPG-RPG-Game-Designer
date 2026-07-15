@@ -1,0 +1,13 @@
+{
+  "ability_id": "willow_strike",
+  "cooldown_seconds": 3.0,
+  "mp_cost": 5.0,
+  "effect_id": "willow_strike.damage",
+  "effect_attribute": "Attack",
+  "effect_operation": "Add",
+  "effect_value": 10.0,
+  "effect_duration": 0.0,
+  "active_condition": "",
+  "passive_condition": "",
+  "pattern": { "name": "Willow Strike", "points": [{ "x": 0, "y": 0 }] }
+}

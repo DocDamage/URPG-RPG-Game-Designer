@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "Willow Hero",
+  "portraitId": "portrait_ranger_01",
+  "bodySpriteId": "sprite_ranger_body",
+  "portraitAssetId": "",
+  "fieldSpriteAssetId": "",
+  "battleSpriteAssetId": "",
+  "classId": "class_ranger",
+  "speciesId": "",
+  "originId": "",
+  "backgroundId": "",
+  "baseAttributes": { "Attack": 12.0, "Defense": 8.0 },
+  "appearanceTokens": [],
+  "layeredPartAssetIds": []
+}

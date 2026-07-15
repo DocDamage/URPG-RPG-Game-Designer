@@ -1,0 +1,89 @@
+{
+  "document_kind": "urpg.perspective_2d.map",
+  "version": 1,
+  "map_id": "moonwell_shrine",
+  "width": 16,
+  "height": 12,
+  "selected_layer_id": "events",
+  "selected_palette_option_id": "",
+  "selected_tileset_id": "",
+  "selected_tile_id": "",
+  "layers": [
+    { "id": "events", "label": "Events", "kind": "event", "visible": true, "locked": false, "order": 0 }
+  ],
+  "tiles": [],
+  "events": [
+    {
+      "event_id": "shrine_wisp_encounter",
+      "label": "Shrine Wisp",
+      "trigger_id": "confirm_interact",
+      "layer_id": "events",
+      "x": 8,
+      "y": 5,
+      "selected_page_id": "page_1",
+      "commands": [],
+      "pages": [
+        {
+          "page_id": "page_1",
+          "label": "Page 1",
+          "trigger_id": "confirm_interact",
+          "order": 0,
+          "conditions": [],
+          "commands": [
+            { "code": "start_battle", "argument": "shrine_wisp" }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "recover_moonwell_lantern",
+      "label": "Moonwell Lantern",
+      "trigger_id": "confirm_interact",
+      "layer_id": "events",
+      "x": 10,
+      "y": 5,
+      "selected_page_id": "page_1",
+      "commands": [],
+      "pages": [
+        {
+          "page_id": "page_1",
+          "label": "Page 1",
+          "trigger_id": "confirm_interact",
+          "order": 0,
+          "conditions": [],
+          "commands": [
+            { "code": "change_item", "argument": "moonwell_lantern:1" },
+            { "code": "change_switch", "argument": "lantern_recovered=true" }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "return_to_elder",
+      "label": "Return to Elder Mira",
+      "trigger_id": "confirm_interact",
+      "layer_id": "events",
+      "x": 2,
+      "y": 5,
+      "selected_page_id": "page_1",
+      "commands": [],
+      "pages": [
+        {
+          "page_id": "page_1",
+          "label": "Page 1",
+          "trigger_id": "confirm_interact",
+          "order": 0,
+          "conditions": [],
+          "commands": [
+            { "code": "transfer_player", "argument": "willow_village:4,6" }
+          ]
+        }
+      ]
+    }
+  ],
+  "tileset_pages": [],
+  "tile_definitions": [],
+  "tile_palette": [],
+  "prop_palette": [],
+  "project_database": {}
+}

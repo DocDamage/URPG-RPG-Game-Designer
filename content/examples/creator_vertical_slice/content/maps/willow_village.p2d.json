@@ -1,0 +1,90 @@
+{
+  "document_kind": "urpg.perspective_2d.map",
+  "version": 1,
+  "map_id": "willow_village",
+  "width": 16,
+  "height": 12,
+  "selected_layer_id": "events",
+  "selected_palette_option_id": "",
+  "selected_tileset_id": "",
+  "selected_tile_id": "",
+  "layers": [
+    { "id": "events", "label": "Events", "kind": "event", "visible": true, "locked": false, "order": 0 }
+  ],
+  "tiles": [],
+  "events": [
+    {
+      "event_id": "elder_mira_intro",
+      "label": "Elder Mira",
+      "trigger_id": "confirm_interact",
+      "layer_id": "events",
+      "x": 5,
+      "y": 5,
+      "selected_page_id": "page_1",
+      "commands": [],
+      "pages": [
+        {
+          "page_id": "page_1",
+          "label": "Page 1",
+          "trigger_id": "confirm_interact",
+          "order": 0,
+          "conditions": [],
+          "commands": [
+            { "code": "show_text", "argument": "The moonwell lantern has gone dark." },
+            { "code": "show_choice", "argument": "accept_lantern_quest" },
+            { "code": "change_switch", "argument": "lantern_quest_started=true" }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "vendor_rowan",
+      "label": "Rowan's Tonics",
+      "trigger_id": "confirm_interact",
+      "layer_id": "events",
+      "x": 7,
+      "y": 5,
+      "selected_page_id": "page_1",
+      "commands": [],
+      "pages": [
+        {
+          "page_id": "page_1",
+          "label": "Page 1",
+          "trigger_id": "confirm_interact",
+          "order": 0,
+          "conditions": [],
+          "commands": [
+            { "code": "open_vendor", "argument": "rowan_tonics" }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "walk_to_shrine",
+      "label": "Path to Moonwell Shrine",
+      "trigger_id": "confirm_interact",
+      "layer_id": "events",
+      "x": 14,
+      "y": 6,
+      "selected_page_id": "page_1",
+      "commands": [],
+      "pages": [
+        {
+          "page_id": "page_1",
+          "label": "Page 1",
+          "trigger_id": "confirm_interact",
+          "order": 0,
+          "conditions": [],
+          "commands": [
+            { "code": "transfer_player", "argument": "moonwell_shrine:3,5" }
+          ]
+        }
+      ]
+    }
+  ],
+  "tileset_pages": [],
+  "tile_definitions": [],
+  "tile_palette": [],
+  "prop_palette": [],
+  "project_database": {}
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "urpg.database.v1",
+  "actors": [
+    { "id": "willow_hero", "name": "Willow Hero", "class_id": "ranger", "max_hp": 100, "attack": 12 }
+  ],
+  "items": [
+    { "id": "moonwell_lantern", "name": "Moonwell Lantern", "price": 75, "tags": ["quest", "vendor"] }
+  ]
+}

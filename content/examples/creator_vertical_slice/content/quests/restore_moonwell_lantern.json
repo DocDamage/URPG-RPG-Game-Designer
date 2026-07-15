@@ -1,0 +1,22 @@
+{
+  "schema_version": "urpg.quest_objective_graph.v1",
+  "quest_id": "restore_moonwell_lantern",
+  "title": "Restore the Moonwell Lantern",
+  "nodes": [
+    { "id": "start", "type": "start", "title": "Begin", "objective_id": "", "localization_key": "", "conditions": [], "rewards": [] },
+    {
+      "id": "recover_lantern",
+      "type": "objective",
+      "title": "Recover the lantern",
+      "objective_id": "recover_moonwell_lantern",
+      "localization_key": "",
+      "conditions": [{ "type": "item", "id": "moonwell_lantern", "value": 0 }],
+      "rewards": [{ "type": "gold", "id": "elder_mira", "value": 100 }]
+    },
+    { "id": "complete", "type": "complete", "title": "Complete", "objective_id": "", "localization_key": "", "conditions": [], "rewards": [] }
+  ],
+  "links": [
+    { "from": "start", "to": "recover_lantern" },
+    { "from": "recover_lantern", "to": "complete" }
+  ]
+}
