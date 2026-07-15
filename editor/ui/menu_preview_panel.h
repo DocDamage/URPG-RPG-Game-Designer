@@ -8,6 +8,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace urpg::editor {
@@ -29,7 +30,10 @@ public:
   struct RenderSnapshot {
     std::string active_scene_id;
     urpg::ui::MenuDesignCanvas design_canvas;
+    urpg::ui::MenuDesignCanvas preview_canvas;
+    bool previewing_target_canvas = false;
     std::vector<PaneSnapshot> visible_panes;
+    std::vector<std::string> responsive_diagnostics;
     std::string last_blocked_command_id;
     std::string last_blocked_reason;
     bool has_data = false;
@@ -38,10 +42,15 @@ public:
   MenuPreviewPanel();
 
   using LayoutChangeHandler = std::function<bool(size_t, urpg::ui::MenuPaneLayout)>;
+  using LayoutBatchChangeHandler =
+      std::function<bool(const std::vector<std::pair<size_t, urpg::ui::MenuPaneLayout>>&)>;
 
   void bindRuntime(urpg::ui::MenuSceneGraph& scene_graph);
   void clearRuntime();
   void setLayoutChangeHandler(LayoutChangeHandler handler);
+  void setLayoutBatchChangeHandler(LayoutBatchChangeHandler handler);
+  bool setPreviewTargetCanvas(urpg::ui::MenuDesignCanvas canvas);
+  void clearPreviewTargetCanvas();
 
   void Render(const urpg::FrameContext &context) override;
   void refresh();
@@ -68,7 +77,10 @@ private:
 
   urpg::ui::MenuSceneGraph* scene_graph_ = nullptr;
   LayoutChangeHandler layout_change_handler_;
+  LayoutBatchChangeHandler layout_batch_change_handler_;
   std::optional<DragState> drag_state_;
+  std::vector<size_t> selected_pane_indices_;
+  std::optional<urpg::ui::MenuDesignCanvas> preview_target_canvas_;
   int snap_grid_size_ = 16;
   bool has_rendered_frame_ = false;
   RenderSnapshot last_render_snapshot_;

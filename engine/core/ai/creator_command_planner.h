@@ -135,6 +135,8 @@ CreatorCommandPlan parseCreatorCommandPlan(const nlohmann::json& json);
 nlohmann::json extractCreatorPlanJsonFromProviderResponse(const nlohmann::json& response);
 std::vector<urpg::map::MapDiagnostic> validateCreatorCommandPlan(const CreatorCommandRequest& request,
                                                                   const CreatorCommandPlan& plan);
+// Legacy compatibility preview only. It deliberately never mutates project
+// JSON; reviewed creator plans must go through a domain-owned native command.
 CreatorCommandApplyResult applyCreatorCommandPlan(const CreatorCommandRequest& request,
                                                   const CreatorCommandPlan& plan,
                                                   const nlohmann::json& projectData);
@@ -165,6 +167,7 @@ private:
     CreatorCommandPlan planLockedDoor(const CreatorCommandRequest& request) const;
     CreatorCommandPlan planPuzzle(const CreatorCommandRequest& request) const;
     CreatorCommandPlan planFarmPlot(const CreatorCommandRequest& request) const;
+    CreatorCommandPlan planTileStamp(const CreatorCommandRequest& request) const;
     CreatorCommandPlan unsupportedIntent(const CreatorCommandRequest& request) const;
 };
 

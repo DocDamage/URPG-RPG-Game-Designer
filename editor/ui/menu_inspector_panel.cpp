@@ -288,17 +288,38 @@ void MenuInspectorPanel::RenderSelectedCommandDetails() {
     int rectangle[] = {row.pane_layout.x, row.pane_layout.y, row.pane_layout.width, row.pane_layout.height};
     int layer = row.pane_layout.z_order;
     int focus_order = row.pane_layout.focus_order;
+    bool anchors[] = {row.pane_layout.anchor_left, row.pane_layout.anchor_top,
+                      row.pane_layout.anchor_right, row.pane_layout.anchor_bottom};
+    int minimum_size[] = {row.pane_layout.min_width, row.pane_layout.min_height};
     const bool rectangle_changed = ImGui::InputInt4("Pane rectangle (x y w h)", rectangle);
     const bool layer_changed = ImGui::InputInt("Pane layer", &layer);
     const bool focus_changed = ImGui::InputInt("Pane focus order (-1 uses insertion order)", &focus_order);
-    if (rectangle_changed || layer_changed || focus_changed) {
-        urpg::ui::MenuPaneLayout layout;
+    ImGui::Text("Responsive anchors:");
+    const bool left_anchor_changed = ImGui::Checkbox("Left", &anchors[0]);
+    ImGui::SameLine();
+    const bool top_anchor_changed = ImGui::Checkbox("Top", &anchors[1]);
+    ImGui::SameLine();
+    const bool right_anchor_changed = ImGui::Checkbox("Right", &anchors[2]);
+    ImGui::SameLine();
+    const bool bottom_anchor_changed = ImGui::Checkbox("Bottom", &anchors[3]);
+    const bool anchors_changed = left_anchor_changed || top_anchor_changed || right_anchor_changed ||
+                                 bottom_anchor_changed;
+    const bool minimum_changed = ImGui::InputInt2("Minimum pane size", minimum_size);
+    ImGui::TextDisabled("Opposite anchors preserve margins and stretch; a trailing-only anchor follows the target edge.");
+    if (rectangle_changed || layer_changed || focus_changed || anchors_changed || minimum_changed) {
+        auto layout = row.pane_layout;
         layout.x = rectangle[0];
         layout.y = rectangle[1];
         layout.width = rectangle[2];
         layout.height = rectangle[3];
         layout.z_order = layer;
         layout.focus_order = focus_order;
+        layout.anchor_left = anchors[0];
+        layout.anchor_top = anchors[1];
+        layout.anchor_right = anchors[2];
+        layout.anchor_bottom = anchors[3];
+        layout.min_width = minimum_size[0];
+        layout.min_height = minimum_size[1];
         if (model_->UpdatePaneLayout(row.pane_index, layout)) {
             if (apply_changes_handler_) {
                 (void)apply_changes_handler_();

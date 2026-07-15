@@ -6,7 +6,8 @@ using namespace urpg::accessibility;
 
 std::vector<UiElementSnapshot> AccessibilitySpatialAdapter::ingest(
     const ElevationBrushPanel::RenderSnapshot& elevationSnapshot,
-    const PropPlacementPanel::RenderSnapshot& propSnapshot) {
+    const PropPlacementPanel::RenderSnapshot& propSnapshot,
+    const MapAuthoringWorkspaceSnapshot* mapSnapshot) {
     std::vector<UiElementSnapshot> elements;
 
     // Element 1: elevation brush panel presence
@@ -55,6 +56,34 @@ std::vector<UiElementSnapshot> AccessibilitySpatialAdapter::ingest(
         el.contrastRatio = 0.0f;
         el.sourceContext = "editor/spatial/prop_placement_panel.h";
         elements.push_back(std::move(el));
+    }
+
+    // The coordinator is the native owner of the creator-facing Map mode
+    // route. Surface its currently available modes as structured alternatives
+    // to interacting with an unlabelled canvas-only control.
+    if (mapSnapshot != nullptr) {
+        int focusOrder = 10;
+        for (const auto& mode : mapSnapshot->modes) {
+            UiElementSnapshot el;
+            el.id = "map.mode." + mode.id;
+            el.label = mode.label;
+            el.hasFocus = mode.active && mode.available;
+            el.focusOrder = focusOrder++;
+            el.contrastRatio = 0.0f;
+            el.sourceContext = "editor/spatial/map_authoring_workspace.h";
+            elements.push_back(std::move(el));
+        }
+
+        UiElementSnapshot context;
+        context.id = "map.context";
+        context.label = mapSnapshot->context.activeMapId.empty()
+                            ? "Map context unavailable"
+                            : "Map context: " + mapSnapshot->context.activeMapId;
+        context.hasFocus = false;
+        context.focusOrder = 0;
+        context.contrastRatio = 0.0f;
+        context.sourceContext = "editor/spatial/map_authoring_workspace.h";
+        elements.push_back(std::move(context));
     }
 
     return elements;

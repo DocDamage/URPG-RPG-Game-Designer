@@ -4,13 +4,30 @@
 
 #include <nlohmann/json.hpp>
 
+#include <cstdint>
+#include <string>
+#include <vector>
+
 namespace urpg::editor {
+
+class SpatialAuthoringWorkspace;
 
 class CreatorCommandPanel {
 public:
+    struct TilePaletteBinding {
+        int32_t planned_tile_id = 0;
+        std::string planned_layer_id;
+        std::string layer_id;
+        std::string tileset_id;
+        std::string tile_id;
+    };
+
     void setRequest(urpg::ai::CreatorCommandRequest request);
-    void setProjectData(nlohmann::json projectData);
     void setTransportConfig(urpg::ai::CreatorProviderTransportConfig transportConfig);
+    // Creator plans do not own a project JSON copy. Bind the active native Map
+    // owner and resolve its numeric planning IDs to reviewed palette entries.
+    void setMapWorkspace(SpatialAuthoringWorkspace* workspace);
+    void setTilePaletteBindings(std::vector<TilePaletteBinding> bindings);
     void render();
     bool applyCurrentPlan();
     const nlohmann::json& lastRenderSnapshot() const;
@@ -18,7 +35,9 @@ public:
 private:
     urpg::ai::CreatorCommandRequest request_;
     urpg::ai::CreatorProviderTransportConfig transport_config_;
-    nlohmann::json project_data_ = nlohmann::json::object();
+    SpatialAuthoringWorkspace* map_workspace_ = nullptr;
+    std::vector<TilePaletteBinding> tile_palette_bindings_;
+    std::string reviewed_document_revision_;
     urpg::ai::CreatorCommandPlan current_plan_;
     nlohmann::json last_render_snapshot_ = nlohmann::json::object();
 };

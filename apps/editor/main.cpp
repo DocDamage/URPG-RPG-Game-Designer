@@ -2,8 +2,10 @@
 #include "editor/ability/ability_inspector_panel.h"
 #include "editor/ability/pattern_field_panel.h"
 #include "editor/analytics/analytics_panel.h"
+#include "editor/ai/creator_command_panel.h"
 #include "editor/accessibility/accessibility_audio_adapter.h"
 #include "editor/accessibility/accessibility_battle_adapter.h"
+#include "editor/accessibility/accessibility_menu_adapter.h"
 #include "editor/accessibility/accessibility_panel.h"
 #include "editor/accessibility/accessibility_spatial_adapter.h"
 #include "editor/assets/asset_library_panel.h"
@@ -55,6 +57,8 @@
 #include "engine/core/map/grid_part_ruleset.h"
 #include "engine/core/map/grid_part_serializer.h"
 #include "engine/core/localization/locale_catalog.h"
+#include "engine/core/localization/project_localization_audit.h"
+#include "engine/core/localization/pseudo_localization.h"
 #include "engine/core/message/message_core.h"
 #include "engine/core/mod/mod_loader.h"
 #include "engine/core/mod/mod_registry.h"
@@ -86,6 +90,7 @@
 #endif
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cctype>
 #include <cstdint>
@@ -96,6 +101,8 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <limits>
+#include <map>
 #include <optional>
 #include <set>
 #include <string>
@@ -153,9 +160,14 @@ struct EditorPanelRuntime {
     std::optional<urpg::dialogue::DialogueGraph> dialogue_draft;
     std::vector<urpg::dialogue::DialogueGraph> dialogue_undo_history;
     std::vector<urpg::dialogue::DialogueGraph> dialogue_redo_history;
+    std::map<std::string, int> dialogue_preview_values;
+    std::string dialogue_preview_node_id;
+    std::vector<std::string> dialogue_preview_trace;
+    std::vector<urpg::dialogue::DialogueGraphDiagnostic> dialogue_preview_diagnostics;
     urpg::database::RpgDatabase database_draft;
     urpg::shop::VendorCatalog vendor_draft;
     urpg::editor::PatternFieldModel pattern_field_model;
+    urpg::editor::CreatorCommandPanel creator_command_panel;
     urpg::editor::PatternFieldPanel pattern_field_panel;
     urpg::editor::ModManagerPanel mod_manager_panel;
     urpg::editor::PluginInspectorPanel mz_plugin_inspector_panel;
@@ -826,6 +838,9 @@ bool applyDialogueGraphMutation(EditorPanelRuntime& runtime, urpg::dialogue::Dia
     }
     runtime.dialogue_redo_history.clear();
     runtime.dialogue_draft = std::move(next);
+    runtime.dialogue_preview_node_id.clear();
+    runtime.dialogue_preview_trace.clear();
+    runtime.dialogue_preview_diagnostics.clear();
     (void)runtime.dirty_state_registry.markDirty(kDialogueDirtyDocumentId, true);
     return true;
 }
@@ -837,6 +852,9 @@ bool undoDialogueGraphMutation(EditorPanelRuntime& runtime) {
     runtime.dialogue_redo_history.push_back(*runtime.dialogue_draft);
     runtime.dialogue_draft = std::move(runtime.dialogue_undo_history.back());
     runtime.dialogue_undo_history.pop_back();
+    runtime.dialogue_preview_node_id.clear();
+    runtime.dialogue_preview_trace.clear();
+    runtime.dialogue_preview_diagnostics.clear();
     (void)runtime.dirty_state_registry.markDirty(kDialogueDirtyDocumentId, true);
     return true;
 }
@@ -848,6 +866,9 @@ bool redoDialogueGraphMutation(EditorPanelRuntime& runtime) {
     runtime.dialogue_undo_history.push_back(*runtime.dialogue_draft);
     runtime.dialogue_draft = std::move(runtime.dialogue_redo_history.back());
     runtime.dialogue_redo_history.pop_back();
+    runtime.dialogue_preview_node_id.clear();
+    runtime.dialogue_preview_trace.clear();
+    runtime.dialogue_preview_diagnostics.clear();
     (void)runtime.dirty_state_registry.markDirty(kDialogueDirtyDocumentId, true);
     return true;
 }
@@ -2930,6 +2951,33 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                         ImGui::TextDisabled("Impact diagnostic: %s", diagnostic.c_str());
                     }
                 }
+                if (row.value("media_kind", "") == "image" &&
+                    ImGui::CollapsingHeader("Replace Active Map References")) {
+                    ImGui::TextDisabled("Owner-scoped: changes only the active Perspective 2D Map and keeps this source attached.");
+                    ImGui::BeginChild("ActiveMapAssetReplacementDrop", ImVec2(0.0f, 46.0f), true);
+                    ImGui::TextUnformatted("Drop an attached image asset here to replace supported active Map references");
+                    if (ImGui::BeginDragDropTarget()) {
+                        if (const auto* drag = ImGui::AcceptDragDropPayload("URPG_EDITOR_ASSET_V1")) {
+                            const auto* begin = static_cast<const std::uint8_t*>(drag->Data);
+                            std::vector<std::uint8_t> bytes(begin, begin + drag->DataSize);
+                            urpg::editor::EditorAssetDragPayload replacement;
+                            const auto parsed = urpg::editor::deserializeEditorAssetDragPayload(bytes, &replacement);
+                            if (!parsed.accepted) {
+                                assetWorkflowStatus = parsed.message;
+                            } else {
+                                const auto replacementResult =
+                                    runtime.map_authoring_workspace.replaceActiveMapAttachedAssetReferences(
+                                        row.value("asset_id", ""), replacement);
+                                assetWorkflowStatus = replacementResult.message +
+                                                      (replacementResult.remediation.empty()
+                                                           ? ""
+                                                           : " " + replacementResult.remediation);
+                            }
+                        }
+                        ImGui::EndDragDropTarget();
+                    }
+                    ImGui::EndChild();
+                }
             }
             for (const auto& collection : panel.lastRenderSnapshot().user_curation.value("collections", nlohmann::json::array())) {
                 const auto collectionId = collection.value("id", "");
@@ -3544,6 +3592,117 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
         ImGui::PopID();
     }
 
+    if (ImGui::CollapsingHeader("Developer: Reviewed Creator Tile Command")) {
+        static std::string creatorPrompt = "Paint tile";
+        static int creatorTileX = 0;
+        static int creatorTileY = 0;
+        static int creatorPlannedTileId = 2;
+        static std::string creatorLayerId;
+        static std::string creatorPaletteOptionId;
+
+        const auto tileLayer = std::find_if(
+            snapshot.perspective_2d_layers.begin(), snapshot.perspective_2d_layers.end(),
+            [](const auto& layer) { return layer.kind == "tile" && layer.visible && !layer.locked; });
+        const auto selectedCreatorLayer = std::find_if(
+            snapshot.perspective_2d_layers.begin(), snapshot.perspective_2d_layers.end(),
+            [&](const auto& layer) { return layer.id == creatorLayerId; });
+        if (creatorLayerId.empty() || selectedCreatorLayer == snapshot.perspective_2d_layers.end() ||
+            selectedCreatorLayer->kind != "tile" || !selectedCreatorLayer->visible || selectedCreatorLayer->locked) {
+            creatorLayerId = tileLayer == snapshot.perspective_2d_layers.end() ? "" : tileLayer->id;
+        }
+        if (creatorPaletteOptionId.empty() ||
+            std::none_of(snapshot.perspective_2d_palette.tile_options.begin(),
+                         snapshot.perspective_2d_palette.tile_options.end(), [&](const auto& option) {
+                             return option.option_id == creatorPaletteOptionId;
+                         })) {
+            creatorPaletteOptionId = snapshot.perspective_2d_palette.tile_options.empty()
+                                         ? ""
+                                         : snapshot.perspective_2d_palette.tile_options.front().option_id;
+        }
+        const auto selectedPaletteOption = std::find_if(
+            snapshot.perspective_2d_palette.tile_options.begin(), snapshot.perspective_2d_palette.tile_options.end(),
+            [&](const auto& option) { return option.option_id == creatorPaletteOptionId; });
+
+        ImGui::TextDisabled("Developer-only. Reviews a local deterministic plan; provider transport is dry-run only.");
+        ImGui::TextDisabled("Only a tile-only 'paint tile' or 'stamp tile' plan can apply through the active Map owner.");
+        ImGui::InputText("Creator Tile Prompt", &creatorPrompt);
+        ImGui::InputInt("Creator Tile X", &creatorTileX);
+        ImGui::InputInt("Creator Tile Y", &creatorTileY);
+        ImGui::InputInt("Creator Planned Tile ID", &creatorPlannedTileId);
+        if (ImGui::BeginCombo("Creator Target Layer", creatorLayerId.empty() ? "Select tile layer" : creatorLayerId.c_str())) {
+            for (const auto& layer : snapshot.perspective_2d_layers) {
+                const bool supported = layer.kind == "tile" && layer.visible && !layer.locked;
+                if (!supported) ImGui::BeginDisabled();
+                const bool selected = layer.id == creatorLayerId;
+                if (ImGui::Selectable(layer.label.c_str(), selected) && supported) {
+                    creatorLayerId = layer.id;
+                }
+                if (!supported) ImGui::EndDisabled();
+                if (selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        const char* creatorPaletteLabel = selectedPaletteOption == snapshot.perspective_2d_palette.tile_options.end()
+                                              ? "Select active palette tile"
+                                              : selectedPaletteOption->label.c_str();
+        if (ImGui::BeginCombo("Creator Palette Tile", creatorPaletteLabel)) {
+            for (const auto& option : snapshot.perspective_2d_palette.tile_options) {
+                const bool selected = option.option_id == creatorPaletteOptionId;
+                if (ImGui::Selectable(option.label.c_str(), selected)) {
+                    creatorPaletteOptionId = option.option_id;
+                }
+                if (selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        const bool canReviewCreatorTilePlan = !workspace.activePerspectiveMapId().empty() &&
+                                              tileLayer != snapshot.perspective_2d_layers.end() && !creatorLayerId.empty() &&
+                                              selectedPaletteOption != snapshot.perspective_2d_palette.tile_options.end();
+        if (!canReviewCreatorTilePlan) ImGui::BeginDisabled();
+        if (ImGui::Button("Review Native Tile Plan")) {
+            urpg::ai::CreatorCommandRequest request;
+            request.prompt = creatorPrompt;
+            request.project_id = runtime.project_session.isOpen()
+                                     ? runtime.project_session.activeProject().project_id
+                                     : "";
+            request.map_id = workspace.activePerspectiveMapId();
+            request.tile_x = creatorTileX;
+            request.tile_y = creatorTileY;
+            request.width = static_cast<int32_t>(snapshot.perspective_2d_project.width);
+            request.height = static_cast<int32_t>(snapshot.perspective_2d_project.height);
+            request.selected_tile_id = creatorPlannedTileId;
+            request.provider = urpg::ai::CreatorAiProvider::LocalDeterministic;
+            runtime.creator_command_panel.setMapWorkspace(&workspace);
+            runtime.creator_command_panel.setTilePaletteBindings(
+                {{creatorPlannedTileId, "terrain", creatorLayerId, selectedPaletteOption->tileset_id,
+                  selectedPaletteOption->tile_id}});
+            runtime.creator_command_panel.setRequest(std::move(request));
+            runtime.creator_command_panel.render();
+        }
+        if (!canReviewCreatorTilePlan) ImGui::EndDisabled();
+
+        const auto& creatorSnapshot = runtime.creator_command_panel.lastRenderSnapshot();
+        if (!creatorSnapshot.empty()) {
+            const auto applyPreview = creatorSnapshot.value("apply_preview", nlohmann::json::object());
+            ImGui::TextWrapped("Review: %s", applyPreview.value("message", "No native Map review is available.").c_str());
+            ImGui::TextDisabled("Plan: %s | tile edits: %zu | diagnostics: %zu",
+                                creatorSnapshot["plan"].value("intent", "unplanned").c_str(),
+                                creatorSnapshot["plan"].value("tile_edits", nlohmann::json::array()).size(),
+                                creatorSnapshot.value("validation_diagnostics", size_t{0}));
+            const bool canApplyCreatorTilePlan = applyPreview.value("would_apply", false);
+            if (!canApplyCreatorTilePlan) ImGui::BeginDisabled();
+            if (ImGui::Button("Apply Reviewed Native Tile Plan")) {
+                const bool applied = runtime.creator_command_panel.applyCurrentPlan();
+                const auto& apply = runtime.creator_command_panel.lastRenderSnapshot()["last_apply"];
+                runtime.map_save_status = applied
+                                              ? "Creator tile plan applied through the active Map owner; save Map to publish it."
+                                              : "Creator tile plan was not applied: " +
+                                                    apply.value("message", apply.value("code", "unknown failure"));
+            }
+            if (!canApplyCreatorTilePlan) ImGui::EndDisabled();
+        }
+    }
+
     ImGui::Separator();
     ImGui::TextUnformatted("Event Authoring");
     ImGui::TextDisabled("Creates a durable map event, its first page, and one supported native command.");
@@ -3991,16 +4150,40 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         }
     }
     if (ImGui::CollapsingHeader("Accessibility Audit")) {
-        ImGui::TextDisabled("Audits the active native audio mix, battle-preview, and spatial Map controls.");
+        ImGui::TextDisabled("Audits the active native audio mix, battle-preview, menu focus rows, and spatial Map controls.");
         if (ImGui::Button("Audit Current Creator Surfaces")) {
-            auto elements = urpg::editor::AccessibilityAudioAdapter::ingest(runtime.audio_mix_draft);
-            const auto battleElements = urpg::editor::AccessibilityBattleAdapter::ingest(
+            std::vector<urpg::accessibility::UiElementSnapshot> elements;
+            int32_t nextAccessibilityFocusOrder = 1;
+            const auto appendAccessibilityElements = [&](std::vector<urpg::accessibility::UiElementSnapshot> source) {
+                int32_t firstLocalFocusOrder = std::numeric_limits<int32_t>::max();
+                int32_t lastLocalFocusOrder = 0;
+                for (const auto& element : source) {
+                    if (element.focusOrder > 0) {
+                        firstLocalFocusOrder = std::min(firstLocalFocusOrder, element.focusOrder);
+                        lastLocalFocusOrder = std::max(lastLocalFocusOrder, element.focusOrder);
+                    }
+                }
+                if (lastLocalFocusOrder > 0) {
+                    for (auto& element : source) {
+                        if (element.focusOrder > 0) {
+                            element.focusOrder += nextAccessibilityFocusOrder - firstLocalFocusOrder;
+                        }
+                    }
+                    nextAccessibilityFocusOrder += lastLocalFocusOrder - firstLocalFocusOrder + 1;
+                }
+                elements.insert(elements.end(), std::make_move_iterator(source.begin()), std::make_move_iterator(source.end()));
+            };
+            appendAccessibilityElements(urpg::editor::AccessibilityAudioAdapter::ingest(runtime.audio_mix_draft));
+            auto battleElements = urpg::editor::AccessibilityBattleAdapter::ingest(
                 runtime.diagnostics_workspace.battlePanel().getModel());
-            elements.insert(elements.end(), battleElements.begin(), battleElements.end());
+            appendAccessibilityElements(std::move(battleElements));
+            auto menuElements = urpg::editor::AccessibilityMenuAdapter::ingest(
+                runtime.diagnostics_workspace.menuPanel().getModel());
+            appendAccessibilityElements(std::move(menuElements));
             const auto& spatialSnapshot = runtime.perspective_2d_workspace.lastRenderSnapshot();
-            const auto spatialElements = urpg::editor::AccessibilitySpatialAdapter::ingest(
-                spatialSnapshot.elevation, spatialSnapshot.props);
-            elements.insert(elements.end(), spatialElements.begin(), spatialElements.end());
+            auto spatialElements = urpg::editor::AccessibilitySpatialAdapter::ingest(
+                spatialSnapshot.elevation, spatialSnapshot.props, &runtime.map_authoring_workspace.snapshot());
+            appendAccessibilityElements(std::move(spatialElements));
             runtime.accessibility_auditor.clear();
             runtime.accessibility_auditor.ingestElements(elements);
             runtime.accessibility_panel.render();
@@ -4019,6 +4202,65 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             }
         } else {
             ImGui::TextDisabled("Run the audit to inspect the current native creator surfaces.");
+        }
+    }
+    if (ImGui::CollapsingHeader("Localization Reference Audit")) {
+        static urpg::localization::ProjectLocalizationAudit localizationReferenceAudit;
+        static bool localizationReferenceAuditRan = false;
+        static std::string pseudoLocalizationPreview = "Review localization layout before shipping.";
+        ImGui::TextDisabled("Read-only audit of saved Dialogue and Quest localization references.");
+        ImGui::InputText("Pseudo-localization Preview", &pseudoLocalizationPreview);
+        ImGui::TextWrapped("%s", urpg::localization::pseudoLocalize(pseudoLocalizationPreview).c_str());
+        ImGui::TextDisabled("Preview only: no locale bundle is changed.");
+        if (runtime.project_root.empty()) ImGui::BeginDisabled();
+        if (ImGui::Button("Audit Project Localization References")) {
+            localizationReferenceAudit = urpg::localization::buildProjectLocalizationAudit(runtime.project_root);
+            localizationReferenceAuditRan = true;
+        }
+        if (runtime.project_root.empty()) ImGui::EndDisabled();
+        if (localizationReferenceAuditRan) {
+            ImGui::Text("Referenced keys: %zu | Available keys: %zu", localizationReferenceAudit.references.size(),
+                        localizationReferenceAudit.available_keys.size());
+            for (const auto& key : localizationReferenceAudit.missing_referenced_keys) {
+                ImGui::BulletText("Missing referenced key: %s", key.c_str());
+            }
+            for (const auto& locale : localizationReferenceAudit.missing_font_profile_locales) {
+                ImGui::BulletText("Locale without font profile: %s", locale.c_str());
+            }
+            ImGui::Text("Locale coverage gaps: %zu", localizationReferenceAudit.missing_referenced_locale_keys.size());
+            if (ImGui::TreeNode("Missing Referenced Locale Keys")) {
+                constexpr size_t kMaxDisplayedLocaleCoverageGaps = 64;
+                size_t displayed = 0;
+                for (const auto& gap : localizationReferenceAudit.missing_referenced_locale_keys) {
+                    if (displayed++ == kMaxDisplayedLocaleCoverageGaps) {
+                        ImGui::TextDisabled("Additional locale coverage gaps are retained by the audit result.");
+                        break;
+                    }
+                    ImGui::BulletText("%s | %s", gap.locale.c_str(), gap.key.c_str());
+                }
+                ImGui::TreePop();
+            }
+            for (const auto& key : localizationReferenceAudit.unused_key_candidates) {
+                ImGui::BulletText("Unused-key candidate: %s", key.c_str());
+            }
+            for (const auto& diagnostic : localizationReferenceAudit.diagnostics) {
+                ImGui::TextDisabled("Localization audit diagnostic: %s", diagnostic.c_str());
+            }
+            if (ImGui::TreeNode("Indexed Localization References")) {
+                constexpr size_t kMaxDisplayedLocalizationReferences = 64;
+                size_t displayed = 0;
+                for (const auto& reference : localizationReferenceAudit.references) {
+                    if (displayed++ == kMaxDisplayedLocalizationReferences) {
+                        ImGui::TextDisabled("Additional references are retained by the audit result.");
+                        break;
+                    }
+                    ImGui::BulletText("%s | %s | %s | %s", reference.key.c_str(),
+                                      reference.document_path.generic_string().c_str(), reference.owner_kind.c_str(),
+                                      reference.local_id.c_str());
+                }
+                ImGui::TreePop();
+            }
+            ImGui::TextDisabled("Unused-key candidates are not deletion authority; unindexed owners may still use them.");
         }
     }
     if (ImGui::CollapsingHeader("Export Diagnostics")) {
@@ -4627,6 +4869,10 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                     runtime.dialogue_draft_id = dialogueId;
                     runtime.dialogue_undo_history.clear();
                     runtime.dialogue_redo_history.clear();
+                    runtime.dialogue_preview_values.clear();
+                    runtime.dialogue_preview_node_id.clear();
+                    runtime.dialogue_preview_trace.clear();
+                    runtime.dialogue_preview_diagnostics.clear();
                     (void)runtime.dirty_state_registry.markDirty(kDialogueDirtyDocumentId, true);
                     runtime.map_save_status = "Dialogue graph authored in the active project; save it before switching context.";
                 }
@@ -4892,7 +5138,18 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             }
 
             ImGui::InputText("Choice Condition Key", &dialogueConditionKey);
-            ImGui::InputText("Choice Condition Operator", &dialogueConditionOp);
+            constexpr std::array<const char*, 7> supportedDialogueConditionOperators{
+                "=", "==", "!=", ">", ">=", "<", "<="};
+            if (ImGui::BeginCombo("Choice Condition Operator", dialogueConditionOp.c_str())) {
+                for (const auto* candidate : supportedDialogueConditionOperators) {
+                    const bool selected = dialogueConditionOp == candidate;
+                    if (ImGui::Selectable(candidate, selected)) {
+                        dialogueConditionOp = candidate;
+                    }
+                    if (selected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
             ImGui::InputInt("Choice Condition Value", &dialogueConditionValue);
             if (ImGui::Button("Add Dialogue Choice Condition")) {
                 auto next = *runtime.dialogue_draft;
@@ -4961,11 +5218,86 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                 }
             }
         }
-        if (ImGui::Button("Preview Dialogue") && runtime.dialogue_draft.has_value()) {
-            const auto route = runtime.dialogue_draft->previewRoute();
-            runtime.map_save_status = "Dialogue preview route contains " + std::to_string(route.size()) + " node(s).";
+        if (ImGui::CollapsingHeader("Interactive Dialogue Condition Preview")) {
+            static std::string previewValueKey = "guide_affinity";
+            static int previewValue = 0;
+            ImGui::TextDisabled("Session-local values and selected choices never modify the saved dialogue graph.");
+            ImGui::InputText("Preview Value Key", &previewValueKey);
+            ImGui::InputInt("Preview Value", &previewValue);
+            if (ImGui::Button("Set Preview Value") && !previewValueKey.empty()) {
+                runtime.dialogue_preview_values[previewValueKey] = previewValue;
+                runtime.dialogue_preview_diagnostics.clear();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Clear Preview Values")) {
+                runtime.dialogue_preview_values.clear();
+                runtime.dialogue_preview_diagnostics.clear();
+            }
+            if (ImGui::Button("Start / Reset Dialogue Preview")) {
+                if (!runtime.dialogue_draft.has_value() || runtime.dialogue_draft->startNode().empty() ||
+                    runtime.dialogue_draft->findNode(runtime.dialogue_draft->startNode()) == nullptr) {
+                    runtime.dialogue_preview_diagnostics = {{"preview_start_node_missing",
+                                                            "Select a valid start node before previewing choices.", "", ""}};
+                } else {
+                    runtime.dialogue_preview_node_id = runtime.dialogue_draft->startNode();
+                    runtime.dialogue_preview_trace = {runtime.dialogue_preview_node_id};
+                    runtime.dialogue_preview_diagnostics.clear();
+                }
+            }
+            if (!runtime.dialogue_preview_node_id.empty() && runtime.dialogue_draft.has_value()) {
+                const auto* preview_node = runtime.dialogue_draft->findNode(runtime.dialogue_preview_node_id);
+                if (preview_node == nullptr) {
+                    runtime.dialogue_preview_diagnostics = {{"preview_node_missing",
+                                                            "The selected preview node is no longer present in the graph.",
+                                                            runtime.dialogue_preview_node_id, ""}};
+                    runtime.dialogue_preview_node_id.clear();
+                } else {
+                    ImGui::Text("Preview node: %s", preview_node->id.c_str());
+                    ImGui::TextDisabled("%s", preview_node->text_preview.c_str());
+                    if (preview_node->ending) {
+                        ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "Ending node reached.");
+                    }
+                    for (const auto& choice : runtime.dialogue_draft->previewChoices(
+                             runtime.dialogue_preview_node_id, runtime.dialogue_preview_values)) {
+                        ImGui::PushID(choice.id.c_str());
+                        if (!choice.enabled) ImGui::BeginDisabled();
+                        const bool selected = ImGui::Button(choice.label.empty() ? choice.id.c_str() : choice.label.c_str());
+                        if (!choice.enabled) ImGui::EndDisabled();
+                        if (selected && choice.enabled) {
+                            if (runtime.dialogue_preview_trace.size() >= 64) {
+                                runtime.dialogue_preview_diagnostics = {{"preview_step_limit_reached",
+                                                                        "Dialogue preview stopped after 64 selected choices.",
+                                                                        runtime.dialogue_preview_node_id, choice.id}};
+                            } else {
+                                const auto transition = runtime.dialogue_draft->previewChoice(
+                                    runtime.dialogue_preview_node_id, choice.id, runtime.dialogue_preview_values);
+                                runtime.dialogue_preview_diagnostics = transition.diagnostics;
+                                if (transition.applied) {
+                                    runtime.dialogue_preview_values = transition.values;
+                                    runtime.dialogue_preview_node_id = transition.next_node_id;
+                                    runtime.dialogue_preview_trace.push_back(runtime.dialogue_preview_node_id);
+                                }
+                            }
+                        }
+                        for (const auto& diagnostic : choice.diagnostics) {
+                            ImGui::SameLine();
+                            ImGui::TextDisabled("%s", diagnostic.code.c_str());
+                        }
+                        ImGui::PopID();
+                    }
+                }
+            }
+            if (!runtime.dialogue_preview_trace.empty()) {
+                ImGui::Text("Preview trace: %zu node(s)", runtime.dialogue_preview_trace.size());
+            }
+            for (const auto& [key, value] : runtime.dialogue_preview_values) {
+                ImGui::TextDisabled("%s = %d", key.c_str(), value);
+            }
+            for (const auto& diagnostic : runtime.dialogue_preview_diagnostics) {
+                ImGui::TextColored(ImVec4(1.0f, 0.58f, 0.22f, 1.0f), "%s: %s", diagnostic.code.c_str(),
+                                   diagnostic.message.c_str());
+            }
         }
-        ImGui::SameLine();
         if (ImGui::Button("Save Dialogue")) {
             const auto result = runtime.dirty_state_registry.save(kDialogueDirtyDocumentId);
             runtime.map_save_status = result.message;
@@ -5047,23 +5379,42 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
     }
     ImGui::Separator();
     ImGui::Text("Mode");
+    const auto activateMapModeById = [&](const std::string& modeId) {
+        if (modeId == "canvas") return workspace.activateMode(urpg::editor::MapAuthoringMode::Canvas);
+        if (modeId == "tiles") return workspace.activateMode(urpg::editor::MapAuthoringMode::Tiles);
+        if (modeId == "parts") return workspace.activateMode(urpg::editor::MapAuthoringMode::Parts);
+        if (modeId == "props") return workspace.activateMode(urpg::editor::MapAuthoringMode::Props);
+        if (modeId == "events") return workspace.activateMode(urpg::editor::MapAuthoringMode::Events);
+        if (modeId == "abilities") return workspace.activateMode(urpg::editor::MapAuthoringMode::Abilities);
+        if (modeId == "world") return workspace.activateMode(urpg::editor::MapAuthoringMode::World);
+        if (modeId == "validate") return workspace.activateMode(urpg::editor::MapAuthoringMode::Validate);
+        if (modeId == "playtest") return workspace.activateMode(urpg::editor::MapAuthoringMode::Playtest);
+        if (modeId == "package") return workspace.activateMode(urpg::editor::MapAuthoringMode::Package);
+        return false;
+    };
+    const auto& io = ImGui::GetIO();
+    static constexpr std::array<ImGuiKey, 10> kMapModeShortcutKeys = {
+        ImGuiKey_1, ImGuiKey_2, ImGuiKey_3, ImGuiKey_4, ImGuiKey_5,
+        ImGuiKey_6, ImGuiKey_7, ImGuiKey_8, ImGuiKey_9, ImGuiKey_0,
+    };
+    if (!io.WantTextInput && io.KeyAlt && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)) {
+        for (size_t index = 0; index < snapshot.modes.size() && index < kMapModeShortcutKeys.size(); ++index) {
+            if (snapshot.modes[index].available && ImGui::IsKeyPressed(kMapModeShortcutKeys[index], false) &&
+                activateMapModeById(snapshot.modes[index].id)) {
+                workspace.clearNextActionHint();
+                runtime.map_save_status = "Map mode activated with Alt+" +
+                                          std::to_string(index == 9 ? 0 : static_cast<int>(index + 1)) + ".";
+            }
+        }
+    }
+    ImGui::TextDisabled("Keyboard: Alt+1 through Alt+0 select Canvas through Package.");
     for (const auto& mode : snapshot.modes) {
         ImGui::PushID(mode.id.c_str());
         if (!mode.available) {
             ImGui::BeginDisabled();
         }
         if (ImGui::Button(mode.label.c_str(), ImVec2(94.0f, 0.0f))) {
-            if (mode.id == "canvas") (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Canvas);
-            else if (mode.id == "tiles") (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Tiles);
-            else if (mode.id == "parts") (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Parts);
-            else if (mode.id == "props") (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Props);
-            else if (mode.id == "events") (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Events);
-            else if (mode.id == "abilities") (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Abilities);
-            else if (mode.id == "world") (void)workspace.activateMode(urpg::editor::MapAuthoringMode::World);
-            else if (mode.id == "validate") (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Validate);
-            else if (mode.id == "playtest") (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Playtest);
-            else if (mode.id == "package") (void)workspace.activateMode(urpg::editor::MapAuthoringMode::Package);
-            workspace.clearNextActionHint();
+            if (activateMapModeById(mode.id)) workspace.clearNextActionHint();
         }
         if (!mode.available) {
             ImGui::EndDisabled();
@@ -5087,7 +5438,6 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         runtime.map_save_status = result.allowed ? "All registered map documents saved."
                                                   : "Save All failed: " + result.diagnostic.message;
     };
-    const auto& io = ImGui::GetIO();
     if (!io.WantTextInput && io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_S, false)) {
         if (io.KeyShift) saveAll();
         else saveMap();
@@ -5152,6 +5502,12 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                             runtime.playtest_session.mapId().c_str(), runtime.playtest_session.spawn().c_str(),
                             static_cast<long long>(runtime.playtest_session.elapsed().count()), runtime.playtest_session.exitCode(),
                             runtime.playtest_session.sessionDirectory().generic_string().c_str());
+        if (ImGui::SmallButton("Write Redacted Playtest Support Summary")) {
+            const auto supportBundle = runtime.playtest_session.writeRedactedSupportBundle();
+            runtime.map_save_status = supportBundle.message;
+        }
+        ImGui::SameLine();
+        ImGui::TextDisabled("Excludes paths, process output, diagnostic messages, source paths, and object IDs.");
     }
     for (size_t runtimeDiagnosticIndex = 0;
          runtimeDiagnosticIndex < runtime.playtest_session.diagnostics().size(); ++runtimeDiagnosticIndex) {

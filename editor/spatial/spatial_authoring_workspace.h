@@ -188,6 +188,39 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::vector<std::string> blocker_codes;
     };
 
+    // Result for one owner-scoped replacement of attached visual asset
+    // references in the active Perspective 2D map. This is intentionally not
+    // a project-wide replacement or deletion operation.
+    struct AttachedAssetReplacementResult {
+        bool success = false;
+        std::string code;
+        std::string message;
+        size_t tile_palette_count = 0;
+        size_t painted_tile_count = 0;
+        size_t prop_palette_count = 0;
+        size_t prop_instance_count = 0;
+        size_t event_metadata_count = 0;
+    };
+
+    // A narrow native document command used by reviewed creator-intent
+    // adapters. The adapter must resolve every planned tile to an existing
+    // authoring palette entry before this owner accepts the command.
+    struct Perspective2DNativeTileEdit {
+        std::string layer_id;
+        std::string tileset_id;
+        std::string tile_id;
+        int32_t tile_x = 0;
+        int32_t tile_y = 0;
+    };
+
+    struct Perspective2DNativeCommandResult {
+        bool success = false;
+        std::string code;
+        std::string message;
+        std::string document_revision;
+        size_t applied_tile_count = 0;
+    };
+
     struct Perspective2DPaletteOption {
         std::string option_id;
         std::string label;
@@ -528,6 +561,16 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                            const std::string& project_path,
                                            float screen_x,
                                            float screen_y);
+    AttachedAssetReplacementResult replaceAttachedAssetReferences(const std::string& source_asset_id,
+                                                                   const std::string& replacement_asset_id,
+                                                                   const std::string& replacement_project_path);
+    // Applies resolved tile edits to the live Perspective 2D document as one
+    // undoable command. The caller must supply the revision it reviewed.
+    std::string activePerspectiveMapId() const;
+    std::string perspectiveDocumentRevision() const;
+    Perspective2DNativeCommandResult applyNativeTileEdits(
+        const std::string& expected_document_revision,
+        const std::vector<Perspective2DNativeTileEdit>& edits);
     bool SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages);
     bool SetPerspectiveTileDefinition(Perspective2DTileDefinition definition);
     Perspective2DTilePreviewResult PreviewPerspectiveTileAt(int32_t tile_x, int32_t tile_y);

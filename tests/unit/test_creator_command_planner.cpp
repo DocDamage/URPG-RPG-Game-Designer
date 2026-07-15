@@ -210,7 +210,7 @@ TEST_CASE("creator command validation rejects unsafe provider plans before apply
     REQUIRE(result.project_data["project_id"] == "p1");
 }
 
-TEST_CASE("creator command apply writes tiles props logic and history into project data",
+TEST_CASE("creator command compatibility apply refuses detached project JSON mutation",
           "[creator_command][ai][providers][apply]") {
     urpg::ai::CreatorCommandPlanner planner;
     urpg::ai::CreatorCommandRequest request;
@@ -222,12 +222,12 @@ TEST_CASE("creator command apply writes tiles props logic and history into proje
     const auto plan = planner.plan(request);
 
     const auto result = urpg::ai::applyCreatorCommandPlan(request, plan, {{"project_id", "p1"}});
-    REQUIRE(result.applied);
-    REQUIRE(result.diagnostics.empty());
-    REQUIRE_FALSE(result.project_data["maps"]["town"]["tile_edits"].empty());
-    REQUIRE(result.project_data["maps"]["town"]["prop_edits"].size() == 2);
-    REQUIRE(result.project_data["maps"]["town"]["logic_edits"].size() == 3);
-    REQUIRE(result.project_data["creator_command_history"].size() == 1);
+    REQUIRE_FALSE(result.applied);
+    const nlohmann::json expected_project = {{"project_id", "p1"}};
+    REQUIRE(result.project_data == expected_project);
+    REQUIRE(std::any_of(result.diagnostics.begin(), result.diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "creator_generic_project_mutation_removed";
+    }));
 }
 
 TEST_CASE("creator command deterministic planner supports common creator intents",
@@ -263,7 +263,7 @@ TEST_CASE("creator command deterministic planner supports common creator intents
     }
 }
 
-TEST_CASE("creator command panel snapshots selected tile preview and apply readiness",
+TEST_CASE("creator command panel snapshots selected tile preview and native unavailable state",
           "[creator_command][ai][wysiwyg][editor]") {
     urpg::editor::CreatorCommandPanel panel;
     urpg::ai::CreatorCommandRequest request;
@@ -283,11 +283,12 @@ TEST_CASE("creator command panel snapshots selected tile preview and apply readi
     REQUIRE(snapshot["plan"]["provider_id"] == "gemini");
     REQUIRE(snapshot["plan"]["can_apply"] == true);
     REQUIRE(snapshot["plan"]["logic_edits"].size() == 3);
-    REQUIRE(snapshot["apply_preview"]["would_apply"] == true);
+    REQUIRE(snapshot["apply_preview"]["would_apply"] == false);
+    REQUIRE(snapshot["apply_preview"]["code"] == "creator_native_domain_not_available");
     REQUIRE(snapshot["provider_transport"]["message"] == "dry_run");
     REQUIRE(snapshot["provider_request"]["provider"] == "gemini");
     REQUIRE(snapshot["preview"]["layer_count"] == 3);
 
-    REQUIRE(panel.applyCurrentPlan());
-    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["applied"] == true);
+    REQUIRE_FALSE(panel.applyCurrentPlan());
+    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["code"] == "creator_native_domain_not_available");
 }

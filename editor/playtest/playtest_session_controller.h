@@ -4,13 +4,22 @@
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 
 #include <chrono>
+#include <cstddef>
 #include <filesystem>
 #include <ios>
 #include <string>
+#include <vector>
 
 namespace urpg::editor {
 
 enum class PlaytestSessionState { Inactive, Starting, Running, Stopping, Exited, Crashed, Returned };
+
+struct PlaytestSupportBundleResult {
+    bool success = false;
+    std::filesystem::path path;
+    std::string message;
+    size_t diagnostic_count = 0;
+};
 
 // Owns exactly one runtime child process started by the editor. Each launch
 // receives a private, disposable overlay containing the current unsaved map
@@ -42,6 +51,10 @@ class PlaytestSessionController {
     const std::vector<diagnostics::RuntimeDiagnostic>& diagnostics() const { return diagnostics_; }
     const std::string& capturedStdout() const { return process_.stdoutText(); }
     const std::string& capturedStderr() const { return process_.stderrText(); }
+    // Writes bounded support evidence from this disposable session. It omits
+    // project/session paths, process output, diagnostic messages/source paths,
+    // and runtime object IDs.
+    PlaytestSupportBundleResult writeRedactedSupportBundle() const;
 
   private:
     std::filesystem::path resolveRuntimeExecutable() const;

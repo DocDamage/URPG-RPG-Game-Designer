@@ -686,44 +686,22 @@ CreatorCommandApplyResult applyCreatorCommandPlan(const CreatorCommandRequest& r
     if (!result.diagnostics.empty()) {
         return result;
     }
-    result.project_data["schema"] = result.project_data.value("schema", "urpg.project.creator_command.v1");
-    auto& maps = result.project_data["maps"];
-    if (!maps.is_object()) {
-        maps = nlohmann::json::object();
-    }
-    auto& map = maps[request.map_id.empty() ? "default_map" : request.map_id];
-    map["width"] = request.width;
-    map["height"] = request.height;
-    auto& tileEdits = map["tile_edits"];
-    auto& propEdits = map["prop_edits"];
-    auto& logicEdits = map["logic_edits"];
-    if (!tileEdits.is_array()) tileEdits = nlohmann::json::array();
-    if (!propEdits.is_array()) propEdits = nlohmann::json::array();
-    if (!logicEdits.is_array()) logicEdits = nlohmann::json::array();
-    const auto planJson = plan.toJson();
-    for (const auto& item : planJson["tile_edits"]) tileEdits.push_back(item);
-    for (const auto& item : planJson["prop_edits"]) propEdits.push_back(item);
-    for (const auto& item : planJson["logic_edits"]) logicEdits.push_back(item);
-    auto& history = result.project_data["creator_command_history"];
-    if (!history.is_array()) {
-        history = nlohmann::json::array();
-    }
-    history.push_back({
-        {"intent", plan.intent},
-        {"provider_id", plan.provider_id},
-        {"prompt", request.prompt},
-        {"map_id", request.map_id},
-        {"applied", true},
-        {"tile_edit_count", plan.tile_edits.size()},
-        {"prop_edit_count", plan.prop_edits.size()},
-        {"logic_edit_count", plan.logic_edits.size()},
-    });
-    result.applied = true;
+    // A detached nlohmann::json value is never an authoritative project
+    // document. Preserve it for callers that still need a compatibility
+    // preview, but refuse durable application until a domain adapter invokes
+    // the active native owner with its own revision and history semantics.
+    result.diagnostics.push_back(makeDiagnostic(
+        "creator_generic_project_mutation_removed",
+        "Creator plans cannot apply to a detached project JSON copy. Use a reviewed native domain command instead.",
+        request.tile_x, request.tile_y, plan.intent));
     return result;
 }
 
 CreatorCommandPlan CreatorCommandPlanner::plan(const CreatorCommandRequest& request) const {
     const auto prompt = lowerCopy(request.prompt);
+    if (prompt.find("paint tile") != std::string::npos || prompt.find("stamp tile") != std::string::npos) {
+        return planTileStamp(request);
+    }
     if (prompt.find("shop") != std::string::npos || prompt.find("store") != std::string::npos) return planShop(request);
     if (prompt.find("inn") != std::string::npos) return planInn(request);
     if (prompt.find("dungeon") != std::string::npos || prompt.find("room") != std::string::npos) return planDungeonRoom(request);
@@ -737,6 +715,28 @@ CreatorCommandPlan CreatorCommandPlanner::plan(const CreatorCommandRequest& requ
         return planHouse(request);
     }
     return unsupportedIntent(request);
+}
+
+CreatorCommandPlan CreatorCommandPlanner::planTileStamp(const CreatorCommandRequest& request) const {
+    CreatorCommandPlan plan;
+    const auto profile = creatorAiProviderProfile(request.provider);
+    plan.intent = "paint_tile";
+    plan.provider_id = profile.id;
+    plan.provider_network_required = profile.network_required;
+    plan.deterministic_fallback_used = true;
+    if (request.tile_x < 0 || request.tile_y < 0 || request.tile_x >= request.width || request.tile_y >= request.height) {
+        plan.diagnostics.push_back({"creator_plan_out_of_bounds", "The selected tile is outside the Map bounds.",
+                                    request.tile_x, request.tile_y, request.map_id});
+        return plan;
+    }
+    if (request.selected_tile_id < 0) {
+        plan.diagnostics.push_back({"creator_tile_id_invalid", "The selected tile must have a nonnegative ID.",
+                                    request.tile_x, request.tile_y, request.map_id});
+        return plan;
+    }
+    plan.tile_edits.push_back({"terrain", request.tile_x, request.tile_y, request.selected_tile_id});
+    plan.can_apply = true;
+    return plan;
 }
 
 CreatorCommandPlan CreatorCommandPlanner::planFootprint(const CreatorCommandRequest& request,

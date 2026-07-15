@@ -38,6 +38,7 @@ The in-tree runtime is interface-first:
 - `make_locked_door`
 - `make_puzzle`
 - `make_farm_plot`
+- `paint_tile` (the currently bound native Map command)
 
 Plans include terrain/decor/collision tile edits, prop edits, runtime logic edits, diagnostics, and an apply-ready JSON contract. Building plans include passable doors and transfer logic. Interaction plans include the runtime logic they need, such as shop-open, party recovery, quest-state, item grants, locked-door checks, switches/variables, and crop planting.
 
@@ -52,7 +53,7 @@ The in-tree transport can build and execute a `curl` request from project config
 
 Provider responses are imported through `extractCreatorPlanJsonFromProviderResponse` and `parseCreatorCommandPlan`. The importer supports direct URPG plan JSON, OpenAI Responses `output_text`/`output`, OpenAI-compatible chat `choices`, Gemini `candidates.content.parts`, Anthropic `content`, and Cohere-style message content. Malformed or unsupported responses become non-applyable diagnostic plans instead of throwing.
 
-Before any plan is applied, `validateCreatorCommandPlan` checks schema, apply readiness, map bounds, nonnegative tile ids, complete prop/logic records, and intent-specific runtime requirements. `applyCreatorCommandPlan` writes validated tile, prop, and logic edits into project JSON under the selected map and appends creator-command history for review. `CreatorCommandPanel` exposes the selected tile, provider payload, dry-run transport command, live preview metrics, validation diagnostics, apply preview, and last-apply result for WYSIWYG editor surfaces.
+Before any plan is applied, `validateCreatorCommandPlan` checks schema, apply readiness, map bounds, nonnegative tile ids, complete prop/logic records, and intent-specific runtime requirements. Detached project JSON is preview-only and `applyCreatorCommandPlan` deliberately refuses durable mutation. The developer-only `CreatorCommandPanel` can bind a reviewed, tile-only `paint_tile` plan to the matching active `SpatialAuthoringWorkspace` Map: each numeric planning tile/layer ID must be explicitly resolved to an existing native palette entry, the live Perspective 2D document revision is checked at apply time, and the owner records one local undo step. Plans that include props or event logic remain visibly unavailable until those separate native domain commands are reviewed. The panel exposes the selected tile, provider payload, dry-run transport command, live preview metrics, validation diagnostics, native apply availability, and last-apply result for WYSIWYG editor surfaces.
 
 ### 2b. App Knowledge and Tool Registry
 The chatbot now has an in-tree knowledge foundation in `engine/core/ai/ai_knowledge_base.*`. It is deterministic and safe to run without a live model provider.

@@ -635,6 +635,8 @@ set(URPG_CORE_SOURCES
     engine/core/localization/locale_catalog.cpp
     engine/core/localization/localization_document_tools.cpp
     engine/core/localization/completeness_checker.cpp
+    engine/core/localization/project_localization_audit.cpp
+    engine/core/localization/pseudo_localization.cpp
     engine/core/localization/template_localization_audit.cpp
     engine/core/accessibility/accessibility_auditor.cpp
     engine/core/accessibility/accessibility_fix_advisor.cpp

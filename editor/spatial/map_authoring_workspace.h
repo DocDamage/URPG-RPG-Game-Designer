@@ -63,6 +63,11 @@ class MapAuthoringWorkspace {
                                            std::string_view target_mode,
                                            float canvas_screen_x,
                                            float canvas_screen_y);
+    // Replaces supported attached visual references in the active Perspective
+    // 2D Map only. The source remains attached; deletion and project-wide
+    // replacement require their own domain-owner operations.
+    EditorAssetDropDecision replaceActiveMapAttachedAssetReferences(
+        std::string_view source_asset_id, const EditorAssetDragPayload& replacement);
     void setNextActionHint(std::string hint);
     void clearNextActionHint();
     void setProjectRoot(std::filesystem::path projectRoot);

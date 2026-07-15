@@ -54,6 +54,23 @@ struct DialogueGraphDiagnostic {
     std::string choice_id;
 };
 
+// Authoring-preview state only. It never mutates the saved dialogue graph or
+// gameplay/runtime state.
+struct DialoguePreviewChoiceState {
+    std::string id;
+    std::string label;
+    std::string target_node_id;
+    bool enabled = false;
+    std::vector<DialogueGraphDiagnostic> diagnostics;
+};
+
+struct DialoguePreviewTransition {
+    bool applied = false;
+    std::string next_node_id;
+    std::map<std::string, int> values;
+    std::vector<DialogueGraphDiagnostic> diagnostics;
+};
+
 class DialogueGraph {
 public:
     bool addNode(DialogueNode node);
@@ -77,6 +94,10 @@ public:
     const std::map<std::string, DialogueNode>& nodes() const;
     const std::string& startNode() const;
     std::vector<std::string> previewRoute(std::size_t max_steps = 16) const;
+    std::vector<DialoguePreviewChoiceState> previewChoices(
+        const std::string& node_id, const std::map<std::string, int>& values) const;
+    DialoguePreviewTransition previewChoice(const std::string& node_id, const std::string& choice_id,
+                                            const std::map<std::string, int>& values) const;
     // Authoring-only diagnostics. These do not change preview traversal or
     // runtime dialogue behavior for existing graphs.
     std::vector<DialogueGraphDiagnostic> validate() const;

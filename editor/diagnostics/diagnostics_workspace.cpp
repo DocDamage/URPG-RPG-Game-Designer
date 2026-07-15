@@ -334,6 +334,13 @@ void DiagnosticsWorkspace::bindMenuRuntime(urpg::ui::MenuSceneGraph& scene_graph
             }
             return changed;
         });
+        menu_preview_panel_->setLayoutBatchChangeHandler(
+            [this](const std::vector<std::pair<size_t, urpg::ui::MenuPaneLayout>>& layouts) {
+                if (!menu_model_ || !menu_scene_graph_) return false;
+                const bool changed = menu_model_->UpdatePaneLayouts(layouts);
+                if (changed) (void)applyMenuChangesToRuntime();
+                return changed;
+            });
     }
     refreshMenuSnapshotIfActive();
 }

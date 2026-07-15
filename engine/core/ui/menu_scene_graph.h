@@ -34,13 +34,45 @@ struct MenuPaneLayout {
     int z_order = 0;
     // A negative value preserves legacy pane insertion order.
     int focus_order = -1;
+    // Native responsive anchors are evaluated from the authored design canvas
+    // against a selected runtime target canvas. A pane with opposite anchors
+    // stretches while a single trailing anchor preserves its trailing margin.
+    bool anchor_left = true;
+    bool anchor_top = true;
+    bool anchor_right = false;
+    bool anchor_bottom = false;
+    int min_width = 1;
+    int min_height = 1;
 
     bool isValid() const {
         return x >= -8192 && x <= 8192 && y >= -8192 && y <= 8192 &&
                width >= 1 && width <= 8192 && height >= 1 && height <= 8192 &&
-               z_order >= -1024 && z_order <= 1024 && focus_order >= -1 && focus_order <= 4096;
+               z_order >= -1024 && z_order <= 1024 && focus_order >= -1 && focus_order <= 4096 &&
+               min_width >= 1 && min_width <= width && min_height >= 1 && min_height <= height;
     }
 };
+
+inline MenuPaneLayout resolveMenuPaneLayoutForCanvas(const MenuPaneLayout& authored_layout,
+                                                     const MenuDesignCanvas& authored_canvas,
+                                                     const MenuDesignCanvas& target_canvas) {
+    auto resolved = authored_layout;
+    if (!authored_canvas.isValid() || !target_canvas.isValid()) {
+        return resolved;
+    }
+    const int delta_width = target_canvas.width - authored_canvas.width;
+    const int delta_height = target_canvas.height - authored_canvas.height;
+    if (authored_layout.anchor_left && authored_layout.anchor_right) {
+        resolved.width = std::max(authored_layout.min_width, authored_layout.width + delta_width);
+    } else if (!authored_layout.anchor_left && authored_layout.anchor_right) {
+        resolved.x = authored_layout.x + delta_width;
+    }
+    if (authored_layout.anchor_top && authored_layout.anchor_bottom) {
+        resolved.height = std::max(authored_layout.min_height, authored_layout.height + delta_height);
+    } else if (!authored_layout.anchor_top && authored_layout.anchor_bottom) {
+        resolved.y = authored_layout.y + delta_height;
+    }
+    return resolved;
+}
 
 /**
  * @brief Represents a single UI pane or view within a scene.

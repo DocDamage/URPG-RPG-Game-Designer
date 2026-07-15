@@ -2,6 +2,7 @@
 
 #include "engine/core/accessibility/accessibility_auditor.h"
 #include "editor/spatial/elevation_brush_panel.h"
+#include "editor/spatial/map_authoring_workspace.h"
 #include "editor/spatial/prop_placement_panel.h"
 #include <vector>
 
@@ -19,7 +20,8 @@ class AccessibilitySpatialAdapter {
 public:
     static std::vector<urpg::accessibility::UiElementSnapshot> ingest(
         const ElevationBrushPanel::RenderSnapshot& elevationSnapshot,
-        const PropPlacementPanel::RenderSnapshot& propSnapshot);
+        const PropPlacementPanel::RenderSnapshot& propSnapshot,
+        const MapAuthoringWorkspaceSnapshot* mapSnapshot = nullptr);
 };
 
 } // namespace urpg::editor

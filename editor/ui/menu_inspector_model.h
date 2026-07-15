@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace urpg::editor {
@@ -111,6 +112,8 @@ public:
     bool UpdateCommandLabel(size_t row_index, std::string label);
     bool UpdateCommandRoute(size_t row_index, urpg::MenuRouteTarget route, std::string custom_route_id);
     bool UpdatePaneLayout(size_t pane_index, urpg::ui::MenuPaneLayout layout);
+    // Applies all valid pane rectangles as one native history mutation.
+    bool UpdatePaneLayouts(const std::vector<std::pair<size_t, urpg::ui::MenuPaneLayout>>& layouts);
     bool ApplyPaneLayoutTemplate(size_t pane_index, MenuPaneLayoutTemplate layout_template);
     bool UpdateDesignCanvas(urpg::ui::MenuDesignCanvas canvas);
     bool CanUndo() const;

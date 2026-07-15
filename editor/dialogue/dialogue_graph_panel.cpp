@@ -6,6 +6,45 @@ namespace urpg::editor {
 
 void DialogueGraphPanel::setGraph(urpg::dialogue::DialogueGraph graph) {
     graph_ = std::move(graph);
+    preview_node_id_.clear();
+    preview_trace_.clear();
+    preview_diagnostics_.clear();
+}
+
+void DialogueGraphPanel::setPreviewValues(std::map<std::string, int> values) {
+    preview_values_ = std::move(values);
+    preview_diagnostics_.clear();
+}
+
+bool DialogueGraphPanel::beginInteractivePreview() {
+    if (graph_.startNode().empty() || graph_.findNode(graph_.startNode()) == nullptr) {
+        preview_diagnostics_ = {{"preview_start_node_missing", "Select a valid start node before previewing choices.", "", ""}};
+        return false;
+    }
+    preview_node_id_ = graph_.startNode();
+    preview_trace_ = {preview_node_id_};
+    preview_diagnostics_.clear();
+    return true;
+}
+
+bool DialogueGraphPanel::choosePreviewChoice(const std::string& choice_id) {
+    if (preview_node_id_.empty() && !beginInteractivePreview()) {
+        return false;
+    }
+    if (preview_trace_.size() >= 64) {
+        preview_diagnostics_ = {{"preview_step_limit_reached",
+                                 "Dialogue preview stopped after 64 selected choices.", preview_node_id_, choice_id}};
+        return false;
+    }
+    const auto transition = graph_.previewChoice(preview_node_id_, choice_id, preview_values_);
+    preview_diagnostics_ = transition.diagnostics;
+    if (!transition.applied) {
+        return false;
+    }
+    preview_values_ = transition.values;
+    preview_node_id_ = transition.next_node_id;
+    preview_trace_.push_back(preview_node_id_);
+    return true;
 }
 
 void DialogueGraphPanel::render() {
@@ -33,6 +72,31 @@ void DialogueGraphPanel::render() {
                                    {"node_id", diagnostic.node_id},
                                    {"choice_id", diagnostic.choice_id}});
     }
+    nlohmann::json preview_values = nlohmann::json::object();
+    for (const auto& [key, value] : preview_values_) {
+        preview_values[key] = value;
+    }
+    nlohmann::json interactive_choices = nlohmann::json::array();
+    if (!preview_node_id_.empty()) {
+        for (const auto& choice : graph_.previewChoices(preview_node_id_, preview_values_)) {
+            nlohmann::json choice_diagnostics = nlohmann::json::array();
+            for (const auto& diagnostic : choice.diagnostics) {
+                choice_diagnostics.push_back({{"code", diagnostic.code}, {"message", diagnostic.message}});
+            }
+            interactive_choices.push_back({{"id", choice.id},
+                                           {"label", choice.label},
+                                           {"target_node_id", choice.target_node_id},
+                                           {"enabled", choice.enabled},
+                                           {"diagnostics", std::move(choice_diagnostics)}});
+        }
+    }
+    nlohmann::json interactive_diagnostics = nlohmann::json::array();
+    for (const auto& diagnostic : preview_diagnostics_) {
+        interactive_diagnostics.push_back({{"code", diagnostic.code},
+                                           {"message", diagnostic.message},
+                                           {"node_id", diagnostic.node_id},
+                                           {"choice_id", diagnostic.choice_id}});
+    }
     snapshot_ = {
         {"panel", "dialogue_graph"},
         {"graph", graph_.serialize()},
@@ -46,6 +110,12 @@ void DialogueGraphPanel::render() {
         {"diagnostic_count", diagnostics.size()},
         {"ux_focus_lane", has_start ? "route_preview" : "start_node"},
         {"primary_action", has_start ? "Preview route, choices, and ending coverage." : "Select a valid start node."},
+        {"interactive_preview", {{"active_node_id", preview_node_id_},
+                                  {"trace", preview_trace_},
+                                  {"values", std::move(preview_values)},
+                                  {"choices", std::move(interactive_choices)},
+                                  {"diagnostics", std::move(interactive_diagnostics)},
+                                  {"non_persistent", true}}},
     };
 }
 

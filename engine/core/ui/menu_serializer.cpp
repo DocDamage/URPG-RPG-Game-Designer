@@ -131,6 +131,12 @@ bool ParsePaneLayout(const nlohmann::json& pane_json, MenuPaneLayout& layout) {
     layout.height = layout_json.value("height", layout.height);
     layout.z_order = layout_json.value("z_order", layout.z_order);
     layout.focus_order = layout_json.value("focus_order", layout.focus_order);
+    layout.anchor_left = layout_json.value("anchor_left", layout.anchor_left);
+    layout.anchor_top = layout_json.value("anchor_top", layout.anchor_top);
+    layout.anchor_right = layout_json.value("anchor_right", layout.anchor_right);
+    layout.anchor_bottom = layout_json.value("anchor_bottom", layout.anchor_bottom);
+    layout.min_width = layout_json.value("min_width", layout.min_width);
+    layout.min_height = layout_json.value("min_height", layout.min_height);
     return layout.isValid();
 }
 
@@ -149,6 +155,12 @@ nlohmann::json SerializePaneLayout(const MenuPaneLayout& layout) {
         {"height", layout.height},
         {"z_order", layout.z_order},
         {"focus_order", layout.focus_order},
+        {"anchor_left", layout.anchor_left},
+        {"anchor_top", layout.anchor_top},
+        {"anchor_right", layout.anchor_right},
+        {"anchor_bottom", layout.anchor_bottom},
+        {"min_width", layout.min_width},
+        {"min_height", layout.min_height},
     };
 }
 

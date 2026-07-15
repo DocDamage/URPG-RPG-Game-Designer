@@ -5,6 +5,7 @@
 
 #include <array>
 #include <algorithm>
+#include <filesystem>
 
 namespace urpg::editor {
 namespace {
@@ -212,6 +213,56 @@ EditorAssetDropDecision MapAuthoringWorkspace::placeAssetDrop(const EditorAssetD
                                     ? "Attached image event metadata was authored as one undoable action; event sprite rendering remains separate."
                                     : "Attached asset was placed on the Map as one undoable action.";
     return {true, "asset_drop_placed", message, ""};
+}
+
+EditorAssetDropDecision MapAuthoringWorkspace::replaceActiveMapAttachedAssetReferences(
+    const std::string_view source_asset_id, const EditorAssetDragPayload& replacement) {
+    if (source_asset_id.empty()) {
+        return {false, "map_asset_replacement_source_missing", "Select an attached source asset before replacement.",
+                "Open Assets and choose the source asset's active Map replacement target."};
+    }
+    if (replacement.mediaKind != "image") {
+        return {false, "map_asset_replacement_requires_image",
+                "Active Map replacement accepts attached image assets only.",
+                "Drag an attached image asset from Assets onto this replacement target."};
+    }
+    if (replacement.provenance != EditorAssetProvenanceState::Attached) {
+        return {false, "map_asset_replacement_requires_attached_asset",
+                "Active Map replacement requires an attached project image asset.",
+                "Attach the image in Assets, then drag its current attached revision here."};
+    }
+    const auto imported_root =
+        (context_.snapshot().projectRoot / "content" / "assets" / "imported" / replacement.assetId).lexically_normal();
+    const auto replacement_path = std::filesystem::path(replacement.projectPath).lexically_normal();
+    const auto relative_path = replacement_path.lexically_relative(imported_root);
+    if (relative_path.empty() || relative_path == "." || relative_path.begin() == relative_path.end() ||
+        *relative_path.begin() == "..") {
+        return {false, "map_asset_replacement_project_path_invalid",
+                "The replacement image path is outside its attached project asset directory.",
+                "Refresh Assets and drag the current attached image revision again."};
+    }
+    auto decision = assessEditorAssetDrop(replacement, true);
+    if (!decision.accepted) {
+        return decision;
+    }
+    decision = validateEditorAssetAttachmentRevision(replacement, context_.snapshot().projectRoot);
+    if (!decision.accepted) {
+        return decision;
+    }
+    if (perspective_2d_ == nullptr) {
+        return {false, "map_asset_replacement_workspace_unbound",
+                "The active Perspective 2D Map workspace is not available.",
+                "Open a project map before replacing its attached references."};
+    }
+    const auto result = perspective_2d_->replaceAttachedAssetReferences(
+        std::string(source_asset_id), replacement.assetId, replacement.projectPath);
+    if (!result.success) {
+        return {false, result.code, result.message,
+                "Review the active Map references or choose a different attached image replacement."};
+    }
+    context_.setDocumentDirty(MapAuthoringDocumentOwner::Perspective2D, true);
+    rebuildSnapshot();
+    return {true, result.code, result.message, "Save the active Map to publish this owner-scoped replacement."};
 }
 
 void MapAuthoringWorkspace::setNextActionHint(std::string hint) {

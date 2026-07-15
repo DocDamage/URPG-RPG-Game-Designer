@@ -21,26 +21,44 @@ urpg::ui::MenuPaneLayout layoutForTemplate(const urpg::ui::MenuPaneLayout& exist
         layout.y = kMargin;
         layout.width = std::min(384, std::max(1, canvas.width - kMargin * 2));
         layout.height = std::min(560, std::max(1, canvas.height - kMargin * 2));
+        layout.anchor_left = true;
+        layout.anchor_top = true;
+        layout.anchor_right = false;
+        layout.anchor_bottom = false;
         break;
     case MenuPaneLayoutTemplate::CenteredDialog:
         layout.width = std::min(960, std::max(1, canvas.width - kMargin * 2));
         layout.height = std::min(360, std::max(1, canvas.height - kMargin * 2));
         layout.x = std::max(0, (canvas.width - layout.width) / 2);
         layout.y = std::max(0, (canvas.height - layout.height) / 2);
+        layout.anchor_left = false;
+        layout.anchor_top = false;
+        layout.anchor_right = false;
+        layout.anchor_bottom = false;
         break;
     case MenuPaneLayoutTemplate::BottomOverlay:
         layout.x = kMargin;
         layout.width = std::max(1, canvas.width - kMargin * 2);
         layout.height = std::min(280, std::max(1, canvas.height - kMargin * 2));
         layout.y = std::max(0, canvas.height - layout.height - kMargin);
+        layout.anchor_left = true;
+        layout.anchor_top = false;
+        layout.anchor_right = true;
+        layout.anchor_bottom = true;
         break;
     case MenuPaneLayoutTemplate::FullCanvas:
         layout.x = 0;
         layout.y = 0;
         layout.width = canvas.width;
         layout.height = canvas.height;
+        layout.anchor_left = true;
+        layout.anchor_top = true;
+        layout.anchor_right = true;
+        layout.anchor_bottom = true;
         break;
     }
+    layout.min_width = std::min(layout.min_width, layout.width);
+    layout.min_height = std::min(layout.min_height, layout.height);
     return layout;
 }
 
@@ -589,11 +607,45 @@ bool MenuInspectorModel::UpdatePaneLayout(size_t pane_index, urpg::ui::MenuPaneL
     const auto& existing = panes_[pane_index].layout;
     if (existing.x == layout.x && existing.y == layout.y && existing.width == layout.width &&
         existing.height == layout.height && existing.z_order == layout.z_order &&
-        existing.focus_order == layout.focus_order) {
+        existing.focus_order == layout.focus_order && existing.anchor_left == layout.anchor_left &&
+        existing.anchor_top == layout.anchor_top && existing.anchor_right == layout.anchor_right &&
+        existing.anchor_bottom == layout.anchor_bottom && existing.min_width == layout.min_width &&
+        existing.min_height == layout.min_height) {
         return false;
     }
     RecordHistoryBeforeMutation();
     panes_[pane_index].layout = layout;
+    RebuildFromPanes();
+    return true;
+}
+
+bool MenuInspectorModel::UpdatePaneLayouts(
+    const std::vector<std::pair<size_t, urpg::ui::MenuPaneLayout>>& layouts) {
+    if (layouts.empty()) {
+        return false;
+    }
+    std::vector<bool> updated_indices(panes_.size(), false);
+    bool changed = false;
+    for (const auto& [pane_index, layout] : layouts) {
+        if (pane_index >= panes_.size() || updated_indices[pane_index] || !layout.isValid()) {
+            return false;
+        }
+        updated_indices[pane_index] = true;
+        const auto& existing = panes_[pane_index].layout;
+        changed = changed || existing.x != layout.x || existing.y != layout.y ||
+                  existing.width != layout.width || existing.height != layout.height ||
+                  existing.z_order != layout.z_order || existing.focus_order != layout.focus_order ||
+                  existing.anchor_left != layout.anchor_left || existing.anchor_top != layout.anchor_top ||
+                  existing.anchor_right != layout.anchor_right || existing.anchor_bottom != layout.anchor_bottom ||
+                  existing.min_width != layout.min_width || existing.min_height != layout.min_height;
+    }
+    if (!changed) {
+        return false;
+    }
+    RecordHistoryBeforeMutation();
+    for (const auto& [pane_index, layout] : layouts) {
+        panes_[pane_index].layout = layout;
+    }
     RebuildFromPanes();
     return true;
 }

@@ -1233,6 +1233,223 @@ bool SpatialAuthoringWorkspace::PlaceAttachedAssetEventFromScreen(const std::str
     return true;
 }
 
+SpatialAuthoringWorkspace::AttachedAssetReplacementResult
+SpatialAuthoringWorkspace::replaceAttachedAssetReferences(const std::string& source_asset_id,
+                                                           const std::string& replacement_asset_id,
+                                                           const std::string& replacement_project_path) {
+    AttachedAssetReplacementResult result;
+    if (source_asset_id.empty() || replacement_asset_id.empty() || replacement_project_path.empty()) {
+        result.code = "map_asset_replacement_input_invalid";
+        result.message = "Active Map replacement needs stable source and replacement asset identities.";
+        return result;
+    }
+    if (source_asset_id == replacement_asset_id) {
+        result.code = "map_asset_replacement_same_asset";
+        result.message = "The replacement asset is already the selected source asset.";
+        return result;
+    }
+    if (m_target_overlay == nullptr) {
+        result.code = "map_asset_replacement_target_unavailable";
+        result.message = "Open a Perspective 2D map before replacing its attached asset references.";
+        return result;
+    }
+
+    const auto before = serializePerspectiveMapDraft();
+
+    auto replacement_tile_palette = std::find_if(
+        perspective_tile_palette_options_.begin(), perspective_tile_palette_options_.end(),
+        [&](const Perspective2DPaletteOption& option) {
+            return option.asset_id == replacement_asset_id && option.category_id == "attached";
+        });
+    const auto replacement_tile_option_id = replacement_tile_palette == perspective_tile_palette_options_.end()
+                                                ? std::string{}
+                                                : replacement_tile_palette->option_id;
+    for (auto iterator = perspective_tile_palette_options_.begin();
+         iterator != perspective_tile_palette_options_.end();) {
+        if (iterator->asset_id != source_asset_id || iterator->category_id != "attached") {
+            ++iterator;
+            continue;
+        }
+        ++result.tile_palette_count;
+        if (!replacement_tile_option_id.empty()) {
+            if (selected_palette_option_id_ == iterator->option_id) {
+                selected_palette_option_id_ = replacement_tile_option_id;
+            }
+            iterator = perspective_tile_palette_options_.erase(iterator);
+            continue;
+        }
+        iterator->asset_id = replacement_asset_id;
+        iterator->label = replacement_asset_id;
+        iterator->tileset_id = replacement_asset_id;
+        iterator->project_path = replacement_project_path;
+        iterator->thumbnail_path = replacement_project_path;
+        ++iterator;
+    }
+    if (selected_tileset_id_ == source_asset_id && selected_tile_id_ == "tile") {
+        selected_tileset_id_ = replacement_asset_id;
+    }
+    for (auto& tile : perspective_tiles_) {
+        if (tile.tileset_id == source_asset_id && tile.tile_id == "tile") {
+            tile.tileset_id = replacement_asset_id;
+            ++result.painted_tile_count;
+        }
+    }
+
+    auto prop_options = prop_panel_.lastRenderSnapshot().project_asset_options;
+    const bool replacement_prop_option_exists = std::any_of(
+        prop_options.begin(), prop_options.end(), [&](const PropPlacementPanel::ProjectAssetOption& option) {
+            return option.asset_id == replacement_asset_id;
+        });
+    std::vector<PropPlacementPanel::ProjectAssetOption> rewritten_prop_options;
+    rewritten_prop_options.reserve(prop_options.size());
+    for (auto& option : prop_options) {
+        if (option.asset_id != source_asset_id) {
+            rewritten_prop_options.push_back(std::move(option));
+            continue;
+        }
+        ++result.prop_palette_count;
+        if (replacement_prop_option_exists) {
+            continue;
+        }
+        option.asset_id = replacement_asset_id;
+        option.project_path = replacement_project_path;
+        rewritten_prop_options.push_back(std::move(option));
+    }
+    if (result.prop_palette_count > 0) {
+        prop_panel_.SetProjectAssetOptions(std::move(rewritten_prop_options));
+    }
+    for (auto& prop : m_target_overlay->props) {
+        if (prop.assetId == source_asset_id) {
+            prop.assetId = replacement_asset_id;
+            ++result.prop_instance_count;
+        }
+    }
+    for (auto& event : perspective_events_) {
+        if (event.asset_id == source_asset_id) {
+            event.asset_id = replacement_asset_id;
+            event.asset_project_path = replacement_project_path;
+            ++result.event_metadata_count;
+        }
+    }
+
+    const auto affected_count = result.tile_palette_count + result.painted_tile_count + result.prop_palette_count +
+                                result.prop_instance_count + result.event_metadata_count;
+    if (affected_count == 0) {
+        result.code = "map_asset_replacement_no_active_references";
+        result.message = "The active Map has no supported attached references to replace.";
+        return result;
+    }
+    perspective_undo_drafts_.push_back(before);
+    perspective_redo_drafts_.clear();
+    perspective_has_unsaved_changes_ = true;
+    perspective_playtest_ready_ = false;
+    captureRenderSnapshot();
+    result.success = true;
+    result.code = "map_asset_replacement_applied";
+    result.message = "Replaced " + std::to_string(affected_count) +
+                     " supported attached reference(s) in the active Map as one undoable action.";
+    return result;
+}
+
+std::string SpatialAuthoringWorkspace::perspectiveDocumentRevision() const {
+    // The revision is derived from the owner document rather than a panel-local
+    // counter, so every persisted field participates in the stale-plan check.
+    const auto document = serializePerspectiveMapDraft();
+    uint64_t hash = 14695981039346656037ULL;
+    for (const unsigned char character : document) {
+        hash ^= character;
+        hash *= 1099511628211ULL;
+    }
+    return "p2d-" + std::to_string(hash);
+}
+
+std::string SpatialAuthoringWorkspace::activePerspectiveMapId() const {
+    return m_target_overlay == nullptr ? std::string{} : m_target_overlay->mapId;
+}
+
+SpatialAuthoringWorkspace::Perspective2DNativeCommandResult
+SpatialAuthoringWorkspace::applyNativeTileEdits(const std::string& expected_document_revision,
+                                                const std::vector<Perspective2DNativeTileEdit>& edits) {
+    Perspective2DNativeCommandResult result;
+    result.document_revision = perspectiveDocumentRevision();
+    if (m_target_overlay == nullptr) {
+        result.code = "creator_native_map_unavailable";
+        result.message = "Open a Perspective 2D map before applying a creator tile command.";
+        return result;
+    }
+    if (expected_document_revision.empty() || expected_document_revision != result.document_revision) {
+        result.code = "creator_native_map_revision_conflict";
+        result.message = "The Map changed after this creator plan was reviewed. Refresh the plan before applying it.";
+        return result;
+    }
+    if (edits.empty()) {
+        result.code = "creator_native_tile_command_empty";
+        result.message = "The reviewed creator command contains no resolved tile edits.";
+        return result;
+    }
+
+    for (size_t index = 0; index < edits.size(); ++index) {
+        const auto& edit = edits[index];
+        const auto layer = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                        [&](const PerspectiveLayer& candidate) {
+                                            return candidate.id == edit.layer_id;
+                                        });
+        const bool palette_contains_tile = std::any_of(
+            perspective_tile_palette_options_.begin(), perspective_tile_palette_options_.end(),
+            [&](const Perspective2DPaletteOption& option) {
+                return option.tileset_id == edit.tileset_id && option.tile_id == edit.tile_id;
+            });
+        const bool duplicate_target = std::any_of(
+            edits.begin(), edits.begin() + static_cast<std::ptrdiff_t>(index),
+            [&](const Perspective2DNativeTileEdit& prior) {
+                return prior.layer_id == edit.layer_id && prior.tile_x == edit.tile_x && prior.tile_y == edit.tile_y;
+            });
+        if (edit.layer_id.empty() || edit.tileset_id.empty() || edit.tile_id.empty() ||
+            layer == perspective_layers_.end() || layer->kind != "tile" || !layer->visible || layer->locked ||
+            !palette_contains_tile || edit.tile_x < 0 || edit.tile_y < 0 ||
+            edit.tile_x >= static_cast<int32_t>(m_target_overlay->elevation.width) ||
+            edit.tile_y >= static_cast<int32_t>(m_target_overlay->elevation.height) || duplicate_target) {
+            result.code = "creator_native_tile_command_invalid";
+            result.message = "A creator tile edit does not target an unlocked visible tile layer, current palette tile, or valid unique map cell.";
+            return result;
+        }
+    }
+
+    const auto before = serializePerspectiveMapDraft();
+    for (const auto& edit : edits) {
+        const auto existing = std::find_if(perspective_tiles_.begin(), perspective_tiles_.end(),
+                                           [&](const PerspectiveTilePaint& paint) {
+                                               return paint.layer_id == edit.layer_id &&
+                                                      paint.tile_x == edit.tile_x && paint.tile_y == edit.tile_y;
+                                           });
+        if (existing == perspective_tiles_.end()) {
+            perspective_tiles_.push_back({edit.layer_id, edit.tileset_id, edit.tile_id, edit.tile_x, edit.tile_y});
+            ++result.applied_tile_count;
+        } else if (existing->tileset_id != edit.tileset_id || existing->tile_id != edit.tile_id) {
+            existing->tileset_id = edit.tileset_id;
+            existing->tile_id = edit.tile_id;
+            ++result.applied_tile_count;
+        }
+    }
+    if (result.applied_tile_count == 0) {
+        result.code = "creator_native_tile_command_no_change";
+        result.message = "The reviewed creator tile command is already reflected in the live Map.";
+        return result;
+    }
+
+    perspective_undo_drafts_.push_back(before);
+    perspective_redo_drafts_.clear();
+    perspective_has_unsaved_changes_ = true;
+    perspective_playtest_ready_ = false;
+    captureRenderSnapshot();
+    result.success = true;
+    result.code = "creator_native_tile_command_applied";
+    result.message = "Applied " + std::to_string(result.applied_tile_count) +
+                     " reviewed creator tile edit(s) to the active Map as one undoable command.";
+    result.document_revision = perspectiveDocumentRevision();
+    return result;
+}
+
 bool SpatialAuthoringWorkspace::SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages) {
     if (pages.empty()) {
         return false;

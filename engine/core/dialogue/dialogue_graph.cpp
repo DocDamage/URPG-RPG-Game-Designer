@@ -5,6 +5,28 @@
 #include <utility>
 
 namespace urpg::dialogue {
+namespace {
+
+std::optional<bool> evaluatePreviewCondition(const DialogueCondition& condition,
+                                             const std::map<std::string, int>& values) {
+    const auto found = values.find(condition.key);
+    const int actual = found == values.end() ? 0 : found->second;
+    if (condition.op == "=" || condition.op == "==") return actual == condition.value;
+    if (condition.op == "!=") return actual != condition.value;
+    if (condition.op == ">") return actual > condition.value;
+    if (condition.op == ">=") return actual >= condition.value;
+    if (condition.op == "<") return actual < condition.value;
+    if (condition.op == "<=") return actual <= condition.value;
+    return std::nullopt;
+}
+
+const DialogueChoice* findChoice(const DialogueNode& node, const std::string& choice_id) {
+    const auto choice = std::find_if(node.choices.begin(), node.choices.end(),
+                                     [&](const DialogueChoice& candidate) { return candidate.id == choice_id; });
+    return choice == node.choices.end() ? nullptr : &(*choice);
+}
+
+} // namespace
 
 bool DialogueGraph::addNode(DialogueNode node) {
     if (node.id.empty() || nodes_.contains(node.id)) {
@@ -252,6 +274,75 @@ std::vector<std::string> DialogueGraph::previewRoute(std::size_t max_steps) cons
         current = node->choices.front().target_node_id;
     }
     return route;
+}
+
+std::vector<DialoguePreviewChoiceState> DialogueGraph::previewChoices(
+    const std::string& node_id, const std::map<std::string, int>& values) const {
+    std::vector<DialoguePreviewChoiceState> result;
+    const auto* node = findNode(node_id);
+    if (node == nullptr) {
+        return result;
+    }
+    for (const auto& choice : node->choices) {
+        DialoguePreviewChoiceState state;
+        state.id = choice.id;
+        state.label = choice.label;
+        state.target_node_id = choice.target_node_id;
+        state.enabled = true;
+        if (choice.target_node_id.empty() || findNode(choice.target_node_id) == nullptr) {
+            state.enabled = false;
+            state.diagnostics.push_back({"preview_choice_target_missing",
+                                         "Dialogue preview choice target does not exist.", node_id, choice.id});
+        }
+        for (const auto& condition : choice.conditions) {
+            const auto matches = evaluatePreviewCondition(condition, values);
+            if (!matches.has_value()) {
+                state.enabled = false;
+                state.diagnostics.push_back({"preview_condition_operator_unsupported",
+                                             "Dialogue preview does not support this condition operator.",
+                                             node_id, choice.id});
+            } else if (!*matches) {
+                state.enabled = false;
+                state.diagnostics.push_back({"preview_choice_condition_unmet",
+                                             "Dialogue choice conditions are not met by the current preview values.",
+                                             node_id, choice.id});
+            }
+        }
+        result.push_back(std::move(state));
+    }
+    return result;
+}
+
+DialoguePreviewTransition DialogueGraph::previewChoice(const std::string& node_id, const std::string& choice_id,
+                                                       const std::map<std::string, int>& values) const {
+    DialoguePreviewTransition result;
+    result.values = values;
+    const auto* node = findNode(node_id);
+    if (node == nullptr) {
+        result.diagnostics.push_back({"preview_node_missing", "Dialogue preview node does not exist.", node_id, choice_id});
+        return result;
+    }
+    const auto* choice = findChoice(*node, choice_id);
+    if (choice == nullptr) {
+        result.diagnostics.push_back({"preview_choice_missing", "Dialogue preview choice does not exist.", node_id, choice_id});
+        return result;
+    }
+    const auto states = previewChoices(node_id, values);
+    const auto state = std::find_if(states.begin(), states.end(), [&](const DialoguePreviewChoiceState& candidate) {
+        return candidate.id == choice_id;
+    });
+    if (state == states.end() || !state->enabled) {
+        if (state != states.end()) {
+            result.diagnostics = state->diagnostics;
+        }
+        return result;
+    }
+    for (const auto& effect : choice->effects) {
+        result.values[effect.key] += effect.delta;
+    }
+    result.next_node_id = choice->target_node_id;
+    result.applied = true;
+    return result;
 }
 
 std::vector<DialogueGraphDiagnostic> DialogueGraph::validate() const {

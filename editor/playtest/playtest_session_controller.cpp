@@ -35,6 +35,29 @@ bool isSafeMapId(const std::string& map_id) {
            map_id != "..";
 }
 
+const char* stateName(const PlaytestSessionState state) {
+    switch (state) {
+    case PlaytestSessionState::Inactive: return "inactive";
+    case PlaytestSessionState::Starting: return "starting";
+    case PlaytestSessionState::Running: return "running";
+    case PlaytestSessionState::Stopping: return "stopping";
+    case PlaytestSessionState::Exited: return "exited";
+    case PlaytestSessionState::Crashed: return "crashed";
+    case PlaytestSessionState::Returned: return "returned";
+    }
+    return "unknown";
+}
+
+const char* severityName(const diagnostics::DiagnosticSeverity severity) {
+    switch (severity) {
+    case diagnostics::DiagnosticSeverity::Info: return "info";
+    case diagnostics::DiagnosticSeverity::Warning: return "warning";
+    case diagnostics::DiagnosticSeverity::Error: return "error";
+    case diagnostics::DiagnosticSeverity::Fatal: return "fatal";
+    }
+    return "unknown";
+}
+
 } // namespace
 
 PlaytestSessionController::PlaytestSessionController(std::filesystem::path runtime_executable)
@@ -141,6 +164,48 @@ bool PlaytestSessionController::start(const std::filesystem::path& project_root,
 std::chrono::seconds PlaytestSessionController::elapsed() const {
     if (started_at_ == std::chrono::steady_clock::time_point{}) return {};
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - started_at_);
+}
+
+PlaytestSupportBundleResult PlaytestSessionController::writeRedactedSupportBundle() const {
+    PlaytestSupportBundleResult result;
+    if (session_directory_.empty() || !std::filesystem::is_directory(session_directory_)) {
+        result.message = "Start a playtest session before writing a redacted support summary.";
+        return result;
+    }
+    nlohmann::json diagnostics = nlohmann::json::array();
+    for (const auto& diagnostic : diagnostics_) {
+        diagnostics.push_back({{"severity", severityName(diagnostic.severity)},
+                               {"subsystem", diagnostic.subsystem},
+                               {"code", diagnostic.code},
+                               {"map_id", diagnostic.map_id}});
+    }
+    const nlohmann::json bundle = {
+        {"schema", "urpg.playtest_support_summary.v1"},
+        {"redaction", {"project_paths", "omitted"},
+                       {"session_paths", "omitted"},
+                       {"process_output", "omitted"},
+                       {"diagnostic_messages", "omitted"},
+                       {"diagnostic_source_paths", "omitted"},
+                       {"runtime_object_ids", "omitted"}}},
+        {"session_state", stateName(state_)},
+        {"exit_code", exit_code_},
+        {"elapsed_seconds", elapsed().count()},
+        {"map_id", map_id_},
+        {"spawn", spawn_},
+        {"diagnostic_count", diagnostics_.size()},
+        {"diagnostics", diagnostics},
+    };
+    std::string error;
+    result.path = session_directory_ / "redacted_support_summary.json";
+    if (!SaveJournal::WriteAtomically(result.path, bundle.dump(2) + "\n", &error)) {
+        result.path.clear();
+        result.message = "Could not write the redacted playtest support summary: " + error;
+        return result;
+    }
+    result.success = true;
+    result.diagnostic_count = diagnostics_.size();
+    result.message = "Redacted playtest support summary was written without process output or local paths.";
+    return result;
 }
 
 void PlaytestSessionController::update() {
