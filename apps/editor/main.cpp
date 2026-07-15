@@ -42,6 +42,7 @@
 #include "engine/core/platform/headless_surface.h"
 #include "engine/core/presentation/presentation_schema.h"
 #include "engine/core/project/project_snapshot_store.h"
+#include "engine/core/quest/quest_objective_graph.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/settings/app_settings_store.h"
@@ -71,6 +72,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -116,6 +118,7 @@ struct EditorPanelRuntime {
     urpg::editor::AbilityInspectorPanel ability_inspector_panel;
     urpg::editor::CharacterCreatorModel character_creator_model;
     urpg::editor::CharacterCreatorPanel character_creator_panel;
+    std::optional<urpg::quest::QuestObjectiveGraphDocument> quest_draft;
     urpg::editor::PatternFieldModel pattern_field_model;
     urpg::editor::PatternFieldPanel pattern_field_panel;
     urpg::editor::ModManagerPanel mod_manager_panel;
@@ -141,6 +144,7 @@ struct EditorPanelRuntime {
     std::filesystem::path external_asset_library_root;
     std::vector<std::string> available_map_ids;
     std::string character_draft_id = "protagonist";
+    std::string quest_draft_id = "quest_draft";
     bool creator_mode = false;
     bool focus_workspace_next_frame = true;
     std::string last_workspace_panel_id;
@@ -154,11 +158,13 @@ struct EditorPanelRuntime {
     bool perspective_2d_dirty_surface_registered = false;
     bool ability_dirty_surface_registered = false;
     bool character_dirty_surface_registered = false;
+    bool quest_dirty_surface_registered = false;
 };
 
 constexpr const char* kMapDirtyDocumentId = "map.grid_parts";
 constexpr const char* kPerspective2DDirtyDocumentId = "map.perspective_2d";
 constexpr const char* kCharacterDirtyDocumentId = "character.creator";
+constexpr const char* kQuestDirtyDocumentId = "quest.draft";
 
 std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asset) {
     std::string stem;
@@ -430,13 +436,31 @@ urpg::editor::EditorDirtySaveResult saveCharacterDraft(EditorPanelRuntime& runti
             "Saved character draft to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
+std::filesystem::path questDraftPath(const EditorPanelRuntime& runtime) {
+    return runtime.project_root / "content" / "quests" / (runtime.quest_draft_id + ".json");
+}
+
+urpg::editor::EditorDirtySaveResult saveQuestDraft(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty() || !runtime.quest_draft.has_value()) {
+        return {false, "quest_save_unavailable", "Create or open a quest draft before saving it."};
+    }
+    std::string error;
+    const auto target = questDraftPath(runtime);
+    if (!atomicWriteTextFile(target, runtime.quest_draft->toJson().dump(2) + "\n", &error)) {
+        return {false, "quest_save_failed", "Failed to save quest draft: " + error};
+    }
+    return {true, "quest_saved",
+            "Saved quest draft to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
+}
+
 void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     if (!runtime.project_session.isOpen() || runtime.project_root.empty()) return;
     const auto mapDirty = runtime.dirty_state_registry.isDirty(kMapDirtyDocumentId) ||
                           runtime.dirty_state_registry.isDirty(kPerspective2DDirtyDocumentId);
     const auto abilityDirty = runtime.dirty_state_registry.isDirty("ability.draft");
     const auto characterDirty = runtime.dirty_state_registry.isDirty(kCharacterDirtyDocumentId);
-    if (!mapDirty && !abilityDirty && !characterDirty) return;
+    const auto questDirty = runtime.dirty_state_registry.isDirty(kQuestDirtyDocumentId);
+    if (!mapDirty && !abilityDirty && !characterDirty && !questDirty) return;
 
     std::vector<urpg::editor::RecoveryDocumentDraft> drafts;
     if (mapDirty) {
@@ -461,6 +485,11 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
         drafts.push_back({kCharacterDirtyDocumentId, std::filesystem::path("content") / "characters" /
                                                         (runtime.character_draft_id + ".json"),
                           runtime.character_creator_model.getIdentity().toJson().dump(2) + "\n"});
+    }
+    if (questDirty && runtime.quest_draft.has_value()) {
+        drafts.push_back({kQuestDirtyDocumentId, std::filesystem::path("content") / "quests" /
+                                                   (runtime.quest_draft_id + ".json"),
+                          runtime.quest_draft->toJson().dump(2) + "\n"});
     }
 
     const auto dirtyDocumentIds = runtime.dirty_state_registry.dirtyDocumentIds();
@@ -507,12 +536,14 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
     runtime.available_map_ids.erase(std::unique(runtime.available_map_ids.begin(), runtime.available_map_ids.end()),
                                     runtime.available_map_ids.end());
     runtime.character_draft_id = "protagonist";
+    runtime.quest_draft_id = "quest_draft";
     {
         std::ifstream manifestInput(projectRoot / "project.json", std::ios::binary);
         const auto manifest = nlohmann::json::parse(manifestInput, nullptr, false);
         if (manifest.is_object() && manifest.contains("creator") && manifest["creator"].is_object() &&
             manifest["creator"].value("vertical_slice_seed", "") == "lantern_of_the_willow_draft") {
             runtime.character_draft_id = "willow_hero";
+            runtime.quest_draft_id = "restore_moonwell_lantern";
         }
     }
     const auto characterPath = characterDraftPath(runtime);
@@ -532,6 +563,13 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
         runtime.character_creator_model.loadIdentity(hero);
     } else {
         runtime.character_creator_model.resetDraft();
+    }
+    runtime.quest_draft.reset();
+    if (std::ifstream questInput(questDraftPath(runtime), std::ios::binary); questInput.good()) {
+        const auto questJson = nlohmann::json::parse(questInput, nullptr, false);
+        if (questJson.is_object() && questJson.value("schema_version", "") == "urpg.quest_objective_graph.v1") {
+            runtime.quest_draft = urpg::quest::QuestObjectiveGraphDocument::fromJson(questJson);
+        }
     }
     const auto starterMapId = starterMapIdForProject(projectRoot);
     const auto requestedMapExists = std::find(runtime.available_map_ids.begin(), runtime.available_map_ids.end(), requestedMapId) !=
@@ -767,6 +805,14 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
         "character_creator",
         false,
         [&runtime] { return saveCharacterDraft(runtime); },
+        [] {},
+        {},
+    });
+    runtime.quest_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        kQuestDirtyDocumentId,
+        "map_authoring",
+        false,
+        [&runtime] { return saveQuestDraft(runtime); },
         [] {},
         {},
     });
@@ -2289,6 +2335,51 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
     }
     ImGui::SameLine();
     ImGui::TextDisabled("Keeps the active project and Map context intact.");
+    static std::string questId = "restore_moonwell_lantern";
+    static std::string questTitle = "Restore the Moonwell Lantern";
+    static std::string objectiveId = "return_lantern_to_elder";
+    static std::string conditionType = "item";
+    static std::string conditionId = "moonwell_lantern";
+    ImGui::TextDisabled("Quest draft: %s", runtime.quest_draft_id.c_str());
+    if (ImGui::CollapsingHeader("Quest Authoring", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::InputText("Quest ID", &questId);
+        ImGui::InputText("Quest Title", &questTitle);
+        ImGui::InputText("Objective ID", &objectiveId);
+        ImGui::InputText("Completion Type", &conditionType);
+        ImGui::InputText("Completion ID", &conditionId);
+        if (ImGui::Button("Create Quest Graph")) {
+            urpg::quest::QuestObjectiveGraphDocument graph;
+            graph.quest_id = questId;
+            graph.title = questTitle;
+            graph.nodes = {
+                {"start", "start", "Start", "", "", {}, {}},
+                {"objective", "objective", objectiveId, objectiveId, "", {{conditionType, conditionId, 0}}, {}},
+                {"complete", "complete", "Complete", "", "", {}, {}},
+            };
+            graph.links = {{"start", "objective"}, {"objective", "complete"}};
+            if (graph.validate().empty()) {
+                runtime.quest_draft = std::move(graph);
+                runtime.quest_draft_id = questId;
+                (void)runtime.dirty_state_registry.markDirty(kQuestDirtyDocumentId, true);
+                runtime.map_save_status = "Quest graph authored in the active project; save it before switching context.";
+            } else {
+                runtime.map_save_status = "Quest graph needs a non-empty quest ID, objective ID, and completion condition.";
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Preview Quest") && runtime.quest_draft.has_value()) {
+            const auto preview = runtime.quest_draft->preview({});
+            runtime.map_save_status = preview.diagnostics.empty()
+                                          ? "Quest preview completed: " + std::to_string(preview.ready_node_ids.size()) +
+                                                " ready node(s), " + std::to_string(preview.blocked_node_ids.size()) + " blocked."
+                                          : "Quest preview has validation diagnostics.";
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save Quest")) {
+            const auto result = runtime.dirty_state_registry.save(kQuestDirtyDocumentId);
+            runtime.map_save_status = result.message;
+        }
+    }
     if (ImGui::CollapsingHeader("Map Layout")) {
         auto layout = snapshot.layout;
         bool changed = false;
