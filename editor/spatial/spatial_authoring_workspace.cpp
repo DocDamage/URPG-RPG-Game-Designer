@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iterator>
@@ -1623,6 +1624,105 @@ bool SpatialAuthoringWorkspace::SetPerspectiveTilesetPages(std::vector<Perspecti
     markPerspectiveDirty();
     captureRenderSnapshot();
     return true;
+}
+
+bool SpatialAuthoringWorkspace::ImportAssignedTilesetBundle(const std::filesystem::path& assignment_manifest_path,
+                                                             std::string* error_message) {
+    const auto fail = [&](const std::string& message) {
+        if (error_message != nullptr) *error_message = message;
+        return false;
+    };
+    std::ifstream input(assignment_manifest_path, std::ios::binary);
+    const auto manifest = nlohmann::json::parse(input, nullptr, false);
+    try {
+        if (manifest.is_discarded() ||
+            manifest.value("schema", "") != "urpg.project_derived_tileset_assignment.v1") {
+            return fail("The project tileset assignment manifest is invalid.");
+        }
+        const auto tilesetId = manifest.value("tileset_id", "");
+        const auto safeId = !tilesetId.empty() && std::all_of(tilesetId.begin(), tilesetId.end(), [](const unsigned char character) {
+            return std::isalnum(character) || character == '.' || character == '-' || character == '_';
+        });
+        if (!safeId || !manifest.contains("grid") || !manifest["grid"].is_object() ||
+            !manifest.contains("tile_paths") || !manifest["tile_paths"].is_array()) {
+            return fail("The project tileset assignment manifest is incomplete.");
+        }
+        const auto& grid = manifest["grid"];
+        const int columns = grid.value("columns", 0);
+        const int rows = grid.value("rows", 0);
+        const int tileWidth = grid.value("tile_width", 0);
+        const int tileHeight = grid.value("tile_height", 0);
+        const int tileCount = grid.value("tile_count", 0);
+        if (columns < 1 || rows < 1 || tileWidth < 1 || tileHeight < 1 || tileCount != columns * rows ||
+            manifest["tile_paths"].size() != static_cast<size_t>(tileCount)) {
+            return fail("The project tileset assignment grid is invalid.");
+        }
+        std::error_code error;
+        const auto manifestPath = std::filesystem::weakly_canonical(assignment_manifest_path, error);
+        if (error || !std::filesystem::is_regular_file(manifestPath)) {
+            return fail("The project tileset assignment manifest is missing.");
+        }
+        const auto tilesetRoot = manifestPath.parent_path();
+        const auto expectedManifest = tilesetRoot / (tilesetId + ".json");
+        const auto tileDirectory = std::filesystem::weakly_canonical(tilesetRoot / tilesetId / "tiles", error);
+        if (error || manifestPath != expectedManifest || !std::filesystem::is_directory(tileDirectory)) {
+            return fail("The project tileset assignment paths are not canonical.");
+        }
+        std::vector<std::filesystem::path> tilePaths;
+        tilePaths.reserve(static_cast<size_t>(tileCount));
+        for (size_t index = 0; index < static_cast<size_t>(tileCount); ++index) {
+            const auto& tile = manifest["tile_paths"][index];
+            if (!tile.is_object() || tile.value("index", size_t{tileCount}) != index || !tile["path"].is_string()) {
+                return fail("The project tileset assignment tile list is invalid.");
+            }
+            std::ostringstream filename;
+            filename << std::setw(6) << std::setfill('0') << index << ".png";
+            const auto projectRoot = tilesetRoot.parent_path().parent_path();
+            const auto expectedPath = projectRoot / std::filesystem::path(tile["path"].get<std::string>());
+            const auto tilePath = std::filesystem::weakly_canonical(expectedPath, error);
+            if (error || !std::filesystem::is_regular_file(tilePath) || tilePath.parent_path() != tileDirectory ||
+                tilePath.filename() != filename.str()) {
+                return fail("A project tileset PNG is missing or does not match its assignment manifest.");
+            }
+            tilePaths.push_back(tilePath);
+        }
+        if (perspective_history_checkpoint_.empty()) perspective_history_checkpoint_ = serializePerspectiveMapDraft();
+        perspective_tileset_pages_.erase(
+            std::remove_if(perspective_tileset_pages_.begin(), perspective_tileset_pages_.end(),
+                           [&](const auto& page) { return page.page_id == tilesetId; }),
+            perspective_tileset_pages_.end());
+        perspective_tile_definitions_.erase(
+            std::remove_if(perspective_tile_definitions_.begin(), perspective_tile_definitions_.end(),
+                           [&](const auto& definition) { return definition.tileset_id == tilesetId; }),
+            perspective_tile_definitions_.end());
+        perspective_tile_palette_options_.erase(
+            std::remove_if(perspective_tile_palette_options_.begin(), perspective_tile_palette_options_.end(),
+                           [&](const auto& option) { return option.tileset_id == tilesetId; }),
+            perspective_tile_palette_options_.end());
+        perspective_tileset_pages_.push_back(
+            {tilesetId, tilesetId, tilesetId, (std::filesystem::path("content") / "tilesets" / (tilesetId + ".json")).generic_string(),
+             columns, rows, tileWidth, tileHeight});
+        for (size_t index = 0; index < tilePaths.size(); ++index) {
+            std::ostringstream suffix;
+            suffix << std::setw(6) << std::setfill('0') << index;
+            const auto tileId = "tile-" + suffix.str();
+            const auto projectPath =
+                (std::filesystem::path("content") / "tilesets" / tilesetId / "tiles" / (suffix.str() + ".png")).generic_string();
+            perspective_tile_definitions_.push_back({tilesetId, tileId, tilesetId, false, {}, false, {}, 0,
+                                                     true, true, true, true, false, 0, 0, 0, false, projectPath});
+            perspective_tile_palette_options_.push_back(
+                {tilesetId + "." + tileId, tileId, tilesetId, tileId, tilesetId, projectPath, "derived_tileset", projectPath});
+        }
+        selected_palette_option_id_ = perspective_tile_palette_options_.empty()
+                                          ? ""
+                                          : perspective_tile_palette_options_.back().option_id;
+        markPerspectiveDirty();
+        captureRenderSnapshot();
+        if (error_message != nullptr) error_message->clear();
+        return true;
+    } catch (const nlohmann::json::exception&) {
+        return fail("The project tileset assignment manifest is malformed.");
+    }
 }
 
 bool SpatialAuthoringWorkspace::SetPerspectiveTileDefinition(Perspective2DTileDefinition definition) {

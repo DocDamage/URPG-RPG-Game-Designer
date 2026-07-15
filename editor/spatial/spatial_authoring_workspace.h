@@ -15,6 +15,7 @@
 #include "editor/ui/editor_panel.h"
 
 #include <cstdint>
+#include <filesystem>
 #include <optional>
 #include <string>
 #include <vector>
@@ -616,6 +617,11 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         const std::vector<Perspective2DNativeEventMessageEdit>& edits);
     bool SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages);
     bool SetPerspectiveTileDefinition(Perspective2DTileDefinition definition);
+    // Imports one project-owned tileset bundle produced by the derived-tileset
+    // assignment owner. It updates the Map palette, pages, and tile metadata
+    // as one undoable Perspective 2D document change.
+    bool ImportAssignedTilesetBundle(const std::filesystem::path& assignment_manifest_path,
+                                     std::string* error_message = nullptr);
     Perspective2DTilePreviewResult PreviewPerspectiveTileAt(int32_t tile_x, int32_t tile_y);
     void SetPerspectiveTilePaletteFilter(const std::string& search_text,
                                          const std::string& tileset_id,

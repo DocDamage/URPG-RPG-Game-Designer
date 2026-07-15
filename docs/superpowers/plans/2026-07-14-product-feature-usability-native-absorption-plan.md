@@ -464,6 +464,8 @@ Tileset assignment update (2026-07-15): a validated `tileset_slice` manifest can
 
 Derived-image preview update (2026-07-15): the Assets workspace now renders the latest source-scoped crop, palette, extracted-palette, or first sliced-tile result through its existing render-thread thumbnail cache only after the immutable manifest resolves the exact expected output path. It is read-only and fails closed for malformed/missing/unexpected outputs; visual crop selection, source/derived comparison, and Map/runtime integration remain open.
 
+Tileset Map-consumption update (2026-07-15): an assigned project tileset can now enter the active Perspective 2D Map through its existing document/history owner. Import revalidates the assignment manifest, grid, deterministic tile list, and project-local PNG locations, then adds a tileset page, palette choices, and default tile metadata as one undoable map change. This does not yet pack or render a runtime tileset texture, author collision metadata, or manage cross-map/detach recovery.
+
 ### PFU-04 - Deepen extensions, recipes, menu, quest, and dialogue authoring
 
 **Source IDs:** F04-F07, I03-I08

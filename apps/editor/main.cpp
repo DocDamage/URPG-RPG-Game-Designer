@@ -2491,6 +2491,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     static nlohmann::json pendingDerivedTilesetAssignmentPlan = nlohmann::json::object();
     static std::string derivedRevisionManifestPath;
     static std::string derivedRevisionSourcePath;
+    static std::string assignedTilesetManifestPath;
     static std::string transformOperationId = "image-crop-scale";
     static int transformCropX = 0;
     static int transformCropY = 0;
@@ -2595,6 +2596,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
         if (!result.value("success", false)) return;
         derivedRevisionManifestPath = result.value("manifest_path", "");
         derivedRevisionSourcePath = source_path;
+        assignedTilesetManifestPath.clear();
         pendingDerivedRevisionAttachmentPlan = nlohmann::json::object();
         pendingDerivedTilesetAssignmentPlan = nlohmann::json::object();
     };
@@ -3145,6 +3147,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                             pendingDerivedTilesetAssignmentPlan.value("operation_id", ""), policy);
                         assetWorkflowStatus = result.value("message", "Derived tileset assignment did not return a status.");
                         if (result.value("success", false)) {
+                            assignedTilesetManifestPath = pendingDerivedTilesetAssignmentPlan.value("manifest_path", "");
                             pendingDerivedTilesetAssignmentPlan = nlohmann::json::object();
                         }
                     }
@@ -3159,6 +3162,19 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                                         pendingDerivedTilesetAssignmentPlan.value("tileset_id", "").c_str(),
                                         pendingDerivedTilesetAssignmentPlan.value("columns", 0),
                                         pendingDerivedTilesetAssignmentPlan.value("rows", 0));
+                }
+            }
+            if (derivedRevisionSourcePath == path && !assignedTilesetManifestPath.empty()) {
+                ImGui::SameLine();
+                if (ImGui::Button("Add Assigned Tileset to Active Map")) {
+                    std::string importError;
+                    if (runtime.perspective_2d_workspace.ImportAssignedTilesetBundle(assignedTilesetManifestPath,
+                                                                                       &importError)) {
+                        runtime.map_authoring_workspace.refresh();
+                        assetWorkflowStatus = "Assigned tileset added to the active Map palette and history.";
+                    } else {
+                        assetWorkflowStatus = importError;
+                    }
                 }
             }
             if (cropRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
