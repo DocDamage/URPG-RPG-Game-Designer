@@ -1794,6 +1794,18 @@ bool SpatialAuthoringWorkspace::SetPerspectiveTileDefinition(Perspective2DTileDe
     return true;
 }
 
+std::optional<SpatialAuthoringWorkspace::Perspective2DTileDefinition>
+SpatialAuthoringWorkspace::perspectiveTileDefinition(const std::string& tileset_id, const std::string& tile_id) const {
+    const auto definition = std::find_if(perspective_tile_definitions_.begin(), perspective_tile_definitions_.end(),
+                                         [&](const Perspective2DTileDefinition& candidate) {
+                                             return candidate.tileset_id == tileset_id && candidate.tile_id == tile_id;
+                                         });
+    if (definition == perspective_tile_definitions_.end()) {
+        return std::nullopt;
+    }
+    return *definition;
+}
+
 SpatialAuthoringWorkspace::Perspective2DTilePreviewResult
 SpatialAuthoringWorkspace::PreviewPerspectiveTileAt(int32_t tile_x, int32_t tile_y) {
     Perspective2DTilePreviewResult result;

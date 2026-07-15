@@ -620,6 +620,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         const std::vector<Perspective2DNativeEventMessageEdit>& edits);
     bool SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages);
     bool SetPerspectiveTileDefinition(Perspective2DTileDefinition definition);
+    std::optional<Perspective2DTileDefinition> perspectiveTileDefinition(const std::string& tileset_id,
+                                                                          const std::string& tile_id) const;
     // Imports one project-owned tileset bundle produced by the derived-tileset
     // assignment owner. It updates the Map palette, pages, and tile metadata
     // as one undoable Perspective 2D document change.

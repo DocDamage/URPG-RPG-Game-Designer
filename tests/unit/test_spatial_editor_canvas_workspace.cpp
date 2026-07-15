@@ -1982,6 +1982,10 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D exposes RPG Maker
     water_tile.star_passability = true;
     water_tile.preview_path = "content/tiles/water_edge.preview.png";
     REQUIRE(workspace.SetPerspectiveTileDefinition(water_tile));
+    const auto authoredDefinition = workspace.perspectiveTileDefinition("overworld", "water_edge");
+    REQUIRE(authoredDefinition.has_value());
+    REQUIRE(authoredDefinition->collision);
+    REQUIRE_FALSE(authoredDefinition->passable_down);
 
     REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
     workspace.SetPerspectiveTilePaletteOptions({
@@ -2028,6 +2032,49 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D exposes RPG Maker
     REQUIRE(snapshot.perspective_2d_tiles.collision_tile_count == 1);
     REQUIRE(snapshot.perspective_2d_tiles.star_passability_tile_count == 1);
     REQUIRE(snapshot.perspective_2d_tiles.latest_preview.success);
+}
+
+TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D tile collision metadata projects to MapScene",
+          "[editor][spatial][p2d_depth]") {
+    SpatialMapOverlay overlay;
+    overlay.mapId = "p2d_runtime_tile_collision";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene map("p2d_runtime_tile_collision", 8, 8);
+    SpatialAuthoringWorkspace workspace;
+    workspace.SetTargets(&map, &overlay);
+    (void)workspace.SetProjectRoot(".");
+
+    PropPlacementPanel::ScreenProjectionSettings projection;
+    projection.viewportWidth = 160.0f;
+    projection.viewportHeight = 160.0f;
+    projection.cameraCenterX = 4.0f;
+    projection.cameraCenterZ = 4.0f;
+    projection.worldUnitsPerPixel = 0.1f;
+    workspace.SetProjectionSettings(projection);
+
+    REQUIRE(workspace.SetPerspectiveTilesetPages(
+        {{"derived", "Derived", "derived", "content/tilesets/derived.json", 1, 1, 48, 48,
+          "content/tilesets/derived/atlas.png"}}));
+    SpatialAuthoringWorkspace::Perspective2DTileDefinition definition;
+    definition.tileset_id = "derived";
+    definition.tile_id = "tile-000000";
+    definition.page_id = "derived";
+    definition.collision = true;
+    REQUIRE(workspace.SetPerspectiveTileDefinition(definition));
+    REQUIRE(workspace.AddPerspectiveLayer("ground", "Ground", "tile"));
+    workspace.SetPerspectiveTilePaletteOptions(
+        {{"derived.tile-000000", "Tile 0", "derived", "tile-000000", "derived",
+          "content/tilesets/derived/tiles/000000.png", "derived_tileset", ""}});
+    REQUIRE(workspace.SelectPerspectiveLayer("ground"));
+    REQUIRE(workspace.SelectPerspectiveTilePaletteOption("derived.tile-000000"));
+    REQUIRE(workspace.PaintPerspectiveTileFromScreen(80.0f, 80.0f));
+    REQUIRE(map.checkCollision(4, 4));
+
+    definition.collision = false;
+    REQUIRE(workspace.SetPerspectiveTileDefinition(definition));
+    REQUIRE_FALSE(map.checkCollision(4, 4));
 }
 
 TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D product workflow analyzes playable package proof",

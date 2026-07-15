@@ -3828,6 +3828,53 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
         ImGui::PopID();
     }
 
+    ImGui::Separator();
+    if (ImGui::CollapsingHeader("Tile Collision and Passage")) {
+        ImGui::PushID("tile_collision_authoring");
+        static std::string collisionTileOptionId;
+        const auto selectedOption = std::find_if(
+            snapshot.perspective_2d_palette.tile_options.begin(), snapshot.perspective_2d_palette.tile_options.end(),
+            [&](const auto& option) { return option.option_id == collisionTileOptionId; });
+        if (collisionTileOptionId.empty() || selectedOption == snapshot.perspective_2d_palette.tile_options.end()) {
+            collisionTileOptionId = snapshot.perspective_2d_palette.tile_options.empty()
+                                        ? ""
+                                        : snapshot.perspective_2d_palette.tile_options.front().option_id;
+        }
+        const auto activeOption = std::find_if(
+            snapshot.perspective_2d_palette.tile_options.begin(), snapshot.perspective_2d_palette.tile_options.end(),
+            [&](const auto& option) { return option.option_id == collisionTileOptionId; });
+        if (ImGui::BeginCombo("Tile", activeOption == snapshot.perspective_2d_palette.tile_options.end()
+                                          ? "Select a Map tile"
+                                          : activeOption->label.c_str())) {
+            for (const auto& option : snapshot.perspective_2d_palette.tile_options) {
+                const bool selected = option.option_id == collisionTileOptionId;
+                if (ImGui::Selectable(option.label.c_str(), selected)) {
+                    collisionTileOptionId = option.option_id;
+                }
+                if (selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        if (activeOption == snapshot.perspective_2d_palette.tile_options.end()) {
+            ImGui::TextDisabled("Import or attach a tile before authoring its collision metadata.");
+        } else if (auto definition = workspace.perspectiveTileDefinition(activeOption->tileset_id, activeOption->tile_id)) {
+            ImGui::TextDisabled("Map runtime blocks movement when this tile is solid or any passage direction is blocked.");
+            bool changed = ImGui::Checkbox("Solid Collision", &definition->collision);
+            changed = ImGui::Checkbox("Passable Down", &definition->passable_down) || changed;
+            ImGui::SameLine();
+            changed = ImGui::Checkbox("Passable Left", &definition->passable_left) || changed;
+            changed = ImGui::Checkbox("Passable Right", &definition->passable_right) || changed;
+            ImGui::SameLine();
+            changed = ImGui::Checkbox("Passable Up", &definition->passable_up) || changed;
+            if (changed && workspace.SetPerspectiveTileDefinition(*definition)) {
+                runtime.map_save_status = "Tile collision metadata updated in the active Map document; save Map to publish it.";
+            }
+        } else {
+            ImGui::TextDisabled("The selected Map tile has no editable metadata.");
+        }
+        ImGui::PopID();
+    }
+
     if (ImGui::CollapsingHeader("Developer: Reviewed Creator Commands")) {
         static std::string creatorPrompt = "paint tile";
         static int creatorTileX = 0;
