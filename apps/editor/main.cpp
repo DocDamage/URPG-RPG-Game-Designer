@@ -2224,17 +2224,23 @@ void renderPerspectiveWorkspace(EditorPanelRuntime& runtime) {
 
     ImGui::Separator();
     ImGui::TextUnformatted("Event Authoring");
-    ImGui::TextDisabled("Creates a durable map event, its first page, and an optional native dialogue command.");
+    ImGui::TextDisabled("Creates a durable map event, its first page, and one supported native command.");
     static std::string eventId = "elder_mira_intro";
     static std::string eventLabel = "Elder Mira";
     static std::string eventTrigger = "confirm_interact";
-    static std::string dialogueText = "The moonwell lantern has gone dark.";
+    static constexpr const char* eventCommandCodes[] = {
+        "show_text", "transfer_player", "change_switch", "change_variable", "change_self_switch", "change_gold",
+        "change_item", "move_route", "call_common_event", "start_battle",
+    };
+    static int eventCommandIndex = 0;
+    static std::string commandArgument = "The moonwell lantern has gone dark.";
     static float eventScreenX = 80.0f;
     static float eventScreenY = 80.0f;
     ImGui::InputText("Event ID", &eventId);
     ImGui::InputText("Label", &eventLabel);
     ImGui::InputText("Trigger", &eventTrigger);
-    ImGui::InputText("Dialogue", &dialogueText);
+    ImGui::Combo("Command", &eventCommandIndex, eventCommandCodes, IM_ARRAYSIZE(eventCommandCodes));
+    ImGui::InputText("Command Argument", &commandArgument);
     ImGui::InputFloat("Map X", &eventScreenX, 1.0f, 8.0f, "%.0f");
     ImGui::InputFloat("Map Y", &eventScreenY, 1.0f, 8.0f, "%.0f");
     if (ImGui::Button("Create Event Page")) {
@@ -2250,10 +2256,11 @@ void renderPerspectiveWorkspace(EditorPanelRuntime& runtime) {
             const bool created = workspace.AddPerspectiveEventFromScreen(eventId, eventLabel, eventTrigger,
                                                                            eventScreenX, eventScreenY);
             const bool addedPage = created && workspace.AddPerspectiveEventPage(eventId, pageId, eventLabel, eventTrigger);
-            const bool addedDialogue = addedPage &&
-                                       (dialogueText.empty() ||
-                                        workspace.AddPerspectiveEventPageCommand(eventId, pageId, "show_text", dialogueText));
-            runtime.map_save_status = addedDialogue
+            const bool addedCommand = addedPage &&
+                                      workspace.AddPerspectiveEventPageCommand(eventId, pageId,
+                                                                              eventCommandCodes[eventCommandIndex],
+                                                                              commandArgument);
+            runtime.map_save_status = addedCommand
                                           ? "Event page authored in the active Map document; save Map to publish it."
                                           : "Event creation was rejected; event IDs and page IDs must be unique.";
         }
