@@ -4301,9 +4301,6 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
                     }
                 }
             }
-            if (dialogue_id.empty() && message_pages.empty()) {
-                return std::nullopt;
-            }
             const size_t state_write_limit = dialogue_id.empty() ? first_message_command_index : dialogue_command_index;
 
             std::vector<urpg::scene::MapScene::AuthoredDialogueInteraction::StateWrite> state_writes;
@@ -4358,6 +4355,9 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
                         });
                     }
                 }
+            }
+            if (dialogue_id.empty() && message_pages.empty() && state_writes.empty()) {
+                return std::nullopt;
             }
             urpg::scene::MapScene::AuthoredDialogueInteraction::PageCandidate candidate;
             candidate.page_id = page_id;

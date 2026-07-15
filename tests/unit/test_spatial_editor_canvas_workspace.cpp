@@ -1829,6 +1829,28 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
     REQUIRE(workspace.SetPerspectiveEventBlocksMovement("rune_sign", false));
     REQUIRE_FALSE(map.checkCollision(rune_tile_x, rune_tile_y));
 
+    REQUIRE(workspace.AddPerspectiveEventFromScreen("state_signal", "State Signal", "confirm_interact", 30.0f, 40.0f));
+    REQUIRE(workspace.AddPerspectiveEventPage("state_signal", "main", "Main", "confirm_interact"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("state_signal", "main", "change_switch", "signal_lit=true"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("state_signal", "main", "change_variable", "signal_count=3"));
+    REQUIRE(workspace.AddPerspectiveEventPageCommand("state_signal", "main", "change_self_switch", "B=true"));
+    const auto state_interaction = std::find_if(map.authoredDialogueInteractions().begin(),
+                                                map.authoredDialogueInteractions().end(), [](const auto& candidate) {
+                                                    return candidate.event_id == "state_signal";
+                                                });
+    REQUIRE(state_interaction != map.authoredDialogueInteractions().end());
+    REQUIRE(state_interaction->page_candidates.size() == 1);
+    REQUIRE(state_interaction->page_candidates.front().dialogue_id.empty());
+    REQUIRE(state_interaction->page_candidates.front().message_pages.empty());
+    REQUIRE(map.triggerAuthoredDialogueInteractionAtTile("confirm_interact", state_interaction->tile_x,
+                                                          state_interaction->tile_y));
+    REQUIRE(global_state.getSwitch("signal_lit"));
+    REQUIRE(std::get<int32_t>(global_state.getVariable("signal_count")) == 3);
+    const auto state_only_snapshot = map.authoredDialogueStateSnapshot();
+    REQUIRE(std::find_if(state_only_snapshot.self_switches.begin(), state_only_snapshot.self_switches.end(),
+                         [](const auto& entry) { return entry.key == "state_signal:B" && entry.value == "true"; }) !=
+            state_only_snapshot.self_switches.end());
+
     auto duplicate = original_interaction;
     duplicate.event_id = "duplicate";
     REQUIRE_FALSE(map.setAuthoredDialogueInteractions({original_interaction, duplicate}));

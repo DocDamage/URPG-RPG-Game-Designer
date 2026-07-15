@@ -37,6 +37,9 @@ without adding a general script or arbitrary file-loading command.
   the saved graph before applying them through `GlobalStateHub`, then evaluates
   supported dialogue choice conditions against that same authority. Missing or
   invalid graphs therefore cannot partially apply projected writes.
+- A matched page containing only supported switch, integer-variable, or
+  event-local self-switch writes runs through that same typed state owner and
+  consumes the interaction without opening a native message or graph.
 - `MapScene` versions its authored dialogue state after projected writes and
   dialogue-choice effects. The bound Perspective 2D workspace consumes that
   versioned snapshot on its normal render pass, updating its preview switches,
@@ -53,7 +56,7 @@ without adding a general script or arbitrary file-loading command.
 
 This supports visible switch/integer-variable/event-local-self-switch
 conditional map-event pages and the existing native `confirm_interact` path;
-other event commands, interaction animation, dialogue-choice-effect
+other event commands beyond bounded state writes, interaction animation, dialogue-choice-effect
 synchronization beyond native dialogue state into the Perspective 2D
 preview-state document, and playthrough/package/
 release qualification remain open. Builds and test execution remain deferred

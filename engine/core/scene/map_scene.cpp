@@ -1004,7 +1004,7 @@ bool MapScene::setAuthoredDialogueInteractions(std::vector<AuthoredDialogueInter
         }
         for (const auto& page : interaction.page_candidates) {
             if (page.page_id.empty() ||
-                (page.dialogue_id.empty() && page.message_pages.empty()) ||
+                (page.dialogue_id.empty() && page.message_pages.empty() && page.state_writes.empty()) ||
                 (!page.dialogue_id.empty() && !isStableDialogueProjectId(page.dialogue_id)) ||
                 std::any_of(page.message_pages.begin(), page.message_pages.end(),
                             [](const std::string& message) { return message.empty(); }) ||
@@ -1210,6 +1210,15 @@ bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigg
             m_pendingAuthoredDialogue = {std::move(*pending_graph), std::move(pending_conversation_id)};
         }
         m_messageRunner.begin(std::move(pages));
+        return true;
+    }
+    if (selected_page != nullptr && selected_page->dialogue_id.empty()) {
+        m_dialogueRuntimeDiagnostics.clear();
+        if (!validateAuthoredDialogueStateWrites(state_writes)) {
+            m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_event_trigger_failed:" + interaction->event_id);
+            return true;
+        }
+        applyAuthoredDialogueStateWrites(state_writes);
         return true;
     }
     if (!startAuthoredDialogueFromProjectWithStateWrites(dialogue_id, state_writes)) {
