@@ -95,6 +95,15 @@ The current `development` implementation has completed the bounded M0-M5 foundat
 
 Focused evidence recorded for this checkpoint includes the creator-journey gate, 25 passing Python asset-import/catalog tests with one platform skip, thumbnail and Map-history tests, all three `dev-spatial` tests, 73 selected M1/M5 CTests, a successful editor headless frame, and successful `urpg_editor`/`urpg_tests` builds. Re-run the milestone commands before using that evidence for a new release target.
 
+### PFU-I1 Qualification Contract Record (2026-07-15)
+
+`development` is the selected integration base for the next bounded creator-product increment. The target-state contract is intentionally separate from the historical M0 baseline:
+
+- `content/fixtures/creator_journey_qualification_spec.json` defines the required PFU-I1 creator steps, evidence kinds, diagnostic policy, deterministic budgets, and Debug/Release provenance requirements.
+- `tools/ci/check_creator_journey_qualification.ps1` accepts only a complete passed report with clean, commit-matched build and evidence provenance; it rejects partial/deferred status, duplicate/missing/unknown steps, fallback diagnostics, missing artifacts, and evidence from another commit.
+
+This contract is a gate definition, not a qualification result. The historical creator-journey report remains the current mixed passed/partial/deferred baseline until native creator workflows produce the required target evidence.
+
 ---
 
 ## M0 - Establish The Creator-Journey Baseline
