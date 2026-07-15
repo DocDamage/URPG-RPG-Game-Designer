@@ -63,6 +63,9 @@ bool PlaytestSessionController::start(const std::filesystem::path& project_root,
     returnToEditor();
     message_.clear();
     exit_code_ = 0;
+    map_id_.clear();
+    spawn_.clear();
+    started_at_ = {};
     diagnostics_.clear();
     diagnostics_offset_ = 0;
     if (!std::filesystem::is_directory(project_root) || !isSafeMapId(map_id)) {
@@ -127,9 +130,17 @@ bool PlaytestSessionController::start(const std::filesystem::path& project_root,
         message_ = "Could not launch URPG Runtime: " + process_.error();
         return false;
     }
+    map_id_ = map_id;
+    spawn_ = spawn;
+    started_at_ = std::chrono::steady_clock::now();
     state_ = PlaytestSessionState::Starting;
     message_ = "Playtest started with the current unsaved map overlay.";
     return true;
+}
+
+std::chrono::seconds PlaytestSessionController::elapsed() const {
+    if (started_at_ == std::chrono::steady_clock::time_point{}) return {};
+    return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - started_at_);
 }
 
 void PlaytestSessionController::update() {

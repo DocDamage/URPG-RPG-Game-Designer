@@ -67,6 +67,9 @@ TEST_CASE("PlaytestSessionController stages a private current-map overlay", "[pl
         REQUIRE(manifest["map_id"] == "starter");
         REQUIRE(manifest["spawn"] == "3,4");
         REQUIRE(manifest["diagnostics_path"] == (session / "diagnostics.jsonl").generic_string());
+        REQUIRE(controller.mapId() == "starter");
+        REQUIRE(controller.spawn() == "3,4");
+        REQUIRE(controller.elapsed() >= std::chrono::seconds::zero());
         controller.returnToEditor();
         REQUIRE(controller.state() == urpg::editor::PlaytestSessionState::Returned);
     }

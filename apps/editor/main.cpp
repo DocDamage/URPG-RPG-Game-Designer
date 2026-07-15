@@ -2165,8 +2165,9 @@ void renderMapAuthoringWorkspace(EditorPanelRuntime& runtime) {
     ImGui::TextDisabled("Ctrl+S Save  |  Ctrl+Shift+S Save All  |  Ctrl+Z/Y Undo/Redo  |  F5 Play/Stop  |  Shift+F5 Restart");
     if (!runtime.map_save_status.empty()) ImGui::TextWrapped("%s", runtime.map_save_status.c_str());
     if (!runtime.playtest_session.sessionDirectory().empty()) {
-        ImGui::TextDisabled("Playtest %s | exit %d | overlay %s", playtestStateLabel,
-                            runtime.playtest_session.exitCode(),
+        ImGui::TextDisabled("Playtest %s | %s @ %s | %llds | exit %d | overlay %s", playtestStateLabel,
+                            runtime.playtest_session.mapId().c_str(), runtime.playtest_session.spawn().c_str(),
+                            static_cast<long long>(runtime.playtest_session.elapsed().count()), runtime.playtest_session.exitCode(),
                             runtime.playtest_session.sessionDirectory().generic_string().c_str());
     }
     for (const auto& diagnostic : runtime.playtest_session.diagnostics()) {

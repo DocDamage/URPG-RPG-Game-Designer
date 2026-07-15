@@ -3,6 +3,7 @@
 #include "engine/core/platform/process_runner.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 
+#include <chrono>
 #include <filesystem>
 #include <ios>
 #include <string>
@@ -34,6 +35,9 @@ class PlaytestSessionController {
     }
     int exitCode() const { return exit_code_; }
     const std::filesystem::path& sessionDirectory() const { return session_directory_; }
+    const std::string& mapId() const { return map_id_; }
+    const std::string& spawn() const { return spawn_; }
+    std::chrono::seconds elapsed() const;
     const std::string& message() const { return message_; }
     const std::vector<diagnostics::RuntimeDiagnostic>& diagnostics() const { return diagnostics_; }
     const std::string& capturedStdout() const { return process_.stdoutText(); }
@@ -49,6 +53,9 @@ class PlaytestSessionController {
     platform::Process process_;
     PlaytestSessionState state_ = PlaytestSessionState::Inactive;
     int exit_code_ = 0;
+    std::string map_id_;
+    std::string spawn_;
+    std::chrono::steady_clock::time_point started_at_{};
     std::string message_;
     std::vector<diagnostics::RuntimeDiagnostic> diagnostics_;
     std::streamoff diagnostics_offset_ = 0;
