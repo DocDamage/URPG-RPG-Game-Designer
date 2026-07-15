@@ -9,6 +9,11 @@
 5. If the command matches zero tests, fix the test names or the plan command so the check is meaningful.
 6. Summarize changed files and verification.
 
+## Creator-product preflight
+
+Before changing code for the active creator-product plan, run
+`./tools/ci/check_workspace_identity.ps1 -ExpectedRoot 'G:\URPG Maker-development'` on this workstation. The guard requires a clean worktree by default, validates the native URPG repository markers and normalized origin, and reports branch/upstream/integration-base/PR visibility. Use `-RequireClean:$false` only for read-only diagnosis of a deliberately dirty workspace; it is not a feature-work entry gate.
+
 ## For Non-Plan Tasks
 
 1. Search first with `rg`.

@@ -102,6 +102,70 @@ std::vector<urpg::MenuCommandCondition> ParseRules(const nlohmann::json& command
     return rules;
 }
 
+bool ParseDesignCanvas(const nlohmann::json& scene_json, MenuDesignCanvas& canvas) {
+    if (!scene_json.contains("canvas")) {
+        return true;
+    }
+    if (!scene_json["canvas"].is_object()) {
+        return false;
+    }
+
+    const auto& canvas_json = scene_json["canvas"];
+    canvas.width = canvas_json.value("width", canvas.width);
+    canvas.height = canvas_json.value("height", canvas.height);
+    return canvas.isValid();
+}
+
+bool ParsePaneLayout(const nlohmann::json& pane_json, MenuPaneLayout& layout) {
+    if (!pane_json.contains("layout")) {
+        return true;
+    }
+    if (!pane_json["layout"].is_object()) {
+        return false;
+    }
+
+    const auto& layout_json = pane_json["layout"];
+    layout.x = layout_json.value("x", layout.x);
+    layout.y = layout_json.value("y", layout.y);
+    layout.width = layout_json.value("width", layout.width);
+    layout.height = layout_json.value("height", layout.height);
+    layout.z_order = layout_json.value("z_order", layout.z_order);
+    layout.focus_order = layout_json.value("focus_order", layout.focus_order);
+    return layout.isValid();
+}
+
+nlohmann::json SerializeDesignCanvas(const MenuDesignCanvas& canvas) {
+    return {
+        {"width", canvas.width},
+        {"height", canvas.height},
+    };
+}
+
+nlohmann::json SerializePaneLayout(const MenuPaneLayout& layout) {
+    return {
+        {"x", layout.x},
+        {"y", layout.y},
+        {"width", layout.width},
+        {"height", layout.height},
+        {"z_order", layout.z_order},
+        {"focus_order", layout.focus_order},
+    };
+}
+
+MenuPaneLayout LegacyPaneLayout(size_t pane_index, const MenuDesignCanvas& canvas) {
+    MenuPaneLayout layout;
+    const int pane_width = std::min(320, canvas.width);
+    const int pane_height = std::min(180, canvas.height);
+    const int column_width = pane_width + 16;
+    const int row_height = pane_height + 16;
+    const size_t columns = std::max<size_t>(1, static_cast<size_t>(canvas.width / column_width));
+    layout.x = static_cast<int>(pane_index % columns) * column_width;
+    layout.y = static_cast<int>(pane_index / columns) * row_height;
+    layout.width = pane_width;
+    layout.height = pane_height;
+    return layout;
+}
+
 bool TryImportRichMainMenu(const nlohmann::json& legacy_data, MenuPane& mainPane) {
     if (!legacy_data.contains("mainMenu") || !legacy_data["mainMenu"].is_object()) {
         return false;
@@ -140,14 +204,32 @@ bool MenuSceneSerializer::Deserialize(const nlohmann::json& j, MenuSceneGraph& g
     try {
         if (!j.contains("scene_id") || !j.contains("panes") || !j["panes"].is_array())
             return false;
+        if (j.contains("layout_version") &&
+            (!j["layout_version"].is_number_integer() || j["layout_version"].get<int>() != 1)) {
+            return false;
+        }
 
         std::string scene_id = j["scene_id"];
         auto scene = std::make_shared<MenuScene>(scene_id);
+        MenuDesignCanvas canvas = scene->getDesignCanvas();
+        if (!ParseDesignCanvas(j, canvas) || !scene->setDesignCanvas(canvas)) {
+            return false;
+        }
 
-        for (const auto& j_pane : j["panes"]) {
+        for (size_t pane_index = 0; pane_index < j["panes"].size(); ++pane_index) {
+            const auto& j_pane = j["panes"][pane_index];
+            if (!j_pane.is_object()) {
+                return false;
+            }
             MenuPane pane;
             pane.id = j_pane.value("id", "");
             pane.displayName = j_pane.value("label", "");
+            if (!ParsePaneLayout(j_pane, pane.layout)) {
+                return false;
+            }
+            if (!j_pane.contains("layout")) {
+                pane.layout = LegacyPaneLayout(pane_index, canvas);
+            }
 
             if (j_pane.contains("commands") && j_pane["commands"].is_array()) {
                 for (const auto& j_cmd : j_pane["commands"]) {
@@ -178,13 +260,16 @@ namespace {
 
 nlohmann::json SerializeScene(const std::shared_ptr<MenuScene>& scene) {
     nlohmann::json root;
+    root["layout_version"] = 1;
     root["scene_id"] = scene->getId();
+    root["canvas"] = SerializeDesignCanvas(scene->getDesignCanvas());
     root["panes"] = nlohmann::json::array();
 
     for (const auto& pane : scene->getPanes()) {
         nlohmann::json pane_json;
         pane_json["id"] = pane.id;
         pane_json["label"] = pane.displayName;
+        pane_json["layout"] = SerializePaneLayout(pane.layout);
         pane_json["commands"] = nlohmann::json::array();
 
         for (const auto& command : pane.commands) {
@@ -245,6 +330,7 @@ nlohmann::json MenuSceneSerializer::Serialize(const MenuSceneGraph& graph) {
 
 nlohmann::json MenuSceneSerializer::SerializeGraph(const MenuSceneGraph& graph) {
     nlohmann::json root;
+    root["schema"] = "urpg.menu_graph.v1";
     root["scenes"] = nlohmann::json::array();
     for (const auto& [id, scene] : graph.getRegisteredScenes()) {
         (void)id;
@@ -252,20 +338,61 @@ nlohmann::json MenuSceneSerializer::SerializeGraph(const MenuSceneGraph& graph) 
             root["scenes"].push_back(SerializeScene(scene));
         }
     }
+    if (const auto active_scene = graph.getActiveScene(); active_scene) {
+        root["active_scene_id"] = active_scene->getId();
+    }
     return root;
 }
 
 bool MenuSceneSerializer::DeserializeGraph(const nlohmann::json& j, MenuSceneGraph& graph) {
-    if (!j.contains("scenes") || !j["scenes"].is_array()) {
+    if (!j.is_object() || !j.contains("scenes") || !j["scenes"].is_array()) {
         return false;
     }
-    bool any = false;
+    if (j.contains("schema") && (!j["schema"].is_string() || j["schema"].get<std::string>() != "urpg.menu_graph.v1")) {
+        return false;
+    }
+
+    std::optional<std::string> active_scene_id;
+    if (j.contains("active_scene_id")) {
+        if (!j["active_scene_id"].is_string() || j["active_scene_id"].get<std::string>().empty()) {
+            return false;
+        }
+        active_scene_id = j["active_scene_id"].get<std::string>();
+    }
+
+    MenuSceneGraph staged_graph;
     for (const auto& scene_json : j["scenes"]) {
-        if (Deserialize(scene_json, graph)) {
-            any = true;
+        if (!scene_json.is_object() || !scene_json.contains("scene_id") || !scene_json["scene_id"].is_string()) {
+            return false;
+        }
+        const auto scene_id = scene_json["scene_id"].get<std::string>();
+        if (scene_id.empty() || staged_graph.getRegisteredScenes().contains(scene_id) ||
+            !Deserialize(scene_json, staged_graph)) {
+            return false;
         }
     }
-    return any;
+    if (staged_graph.getRegisteredScenes().empty()) {
+        return false;
+    }
+    if (!active_scene_id.has_value()) {
+        if (const auto current_active_scene = graph.getActiveScene(); current_active_scene &&
+            staged_graph.getRegisteredScenes().contains(current_active_scene->getId())) {
+            active_scene_id = current_active_scene->getId();
+        }
+    }
+    if (active_scene_id.has_value() && !staged_graph.restoreActiveScene(*active_scene_id)) {
+        return false;
+    }
+
+    graph.clearRegisteredScenes();
+    for (const auto& [scene_id, scene] : staged_graph.getRegisteredScenes()) {
+        (void)scene_id;
+        graph.registerScene(scene);
+    }
+    if (active_scene_id.has_value()) {
+        return graph.restoreActiveScene(*active_scene_id);
+    }
+    return true;
 }
 
 bool MenuSceneSerializer::ImportLegacy(const nlohmann::json& legacy_data, MenuSceneGraph& out_graph) {

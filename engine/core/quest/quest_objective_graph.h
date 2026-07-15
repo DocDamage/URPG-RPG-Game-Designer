@@ -4,6 +4,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include <cstdint>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -23,6 +25,9 @@ struct QuestGraphNode {
     std::string localization_key;
     std::vector<QuestCondition> conditions;
     std::vector<QuestReward> rewards;
+    int32_t canvas_x = 0;
+    int32_t canvas_y = 0;
+    bool has_canvas_position = false;
 };
 
 struct QuestGraphLink {
@@ -55,6 +60,11 @@ public:
     nlohmann::json toJson() const;
 
     std::vector<QuestGraphDiagnostic> validate() const;
+    std::vector<QuestGraphDiagnostic> validateLocalizationKeys(const std::set<std::string>& localization_keys) const;
+    // Authoring-only topology diagnostics. This preserves the compatibility
+    // validator above while exposing unreachable nodes and completion softlocks
+    // to native quest editors before a graph is saved or played.
+    std::vector<QuestGraphDiagnostic> analyzeFlow() const;
     QuestDefinition toQuestDefinition() const;
     QuestGraphPreview preview(const QuestWorldState& world) const;
     QuestGraphPreview applyReadyObjectives(QuestRegistry& registry, const QuestWorldState& world,

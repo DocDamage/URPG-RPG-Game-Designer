@@ -125,6 +125,8 @@ class DiagnosticsWorkspace {
     bool dispatchMenuPreviewAction(urpg::input::InputAction action);
     bool updateMenuCommandLabel(size_t row_index, std::string_view label);
     bool updateMenuCommandRoute(size_t row_index, urpg::MenuRouteTarget route, std::string_view custom_route_id);
+    bool updateMenuPaneLayout(size_t pane_index, const urpg::ui::MenuPaneLayout& layout);
+    bool updateMenuDesignCanvas(const urpg::ui::MenuDesignCanvas& canvas);
     bool removeMenuCommand(size_t row_index);
     bool addMenuCommand(size_t pane_index, const urpg::MenuCommandMeta& command);
     bool applyMenuChangesToRuntime();

@@ -465,3 +465,49 @@ TEST_CASE("MenuInspectorModel edit preserves selection when still visible",
     REQUIRE(model.SelectedRow().has_value());
     REQUIRE(model.SelectedRow()->command_label == "Updated Save");
 }
+
+TEST_CASE("MenuInspectorModel undo and redo restore bounded native document edits",
+          "[ui][editor][menu_inspector][model][history]") {
+    urpg::ui::MenuCommandRegistry registry;
+    auto item_command = MakeCommand("urpg.menu.item", "Item", urpg::MenuRouteTarget::Item, 10);
+    registry.registerCommand(item_command);
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("HistoryMenu");
+    urpg::ui::MenuPane pane;
+    pane.id = "main_pane";
+    pane.displayName = "Main Pane";
+    pane.isVisible = true;
+    pane.isActive = true;
+    pane.layout = {.x = 24, .y = 32, .width = 320, .height = 180, .z_order = 0, .focus_order = 0};
+    pane.commands = {item_command};
+    menu->addPane(pane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("HistoryMenu");
+
+    urpg::editor::MenuInspectorModel model;
+    model.LoadFromRuntime(graph, registry, {}, {});
+    REQUIRE_FALSE(model.CanUndo());
+    REQUIRE_FALSE(model.CanRedo());
+
+    REQUIRE(model.UpdateCommandLabel(0, "Updated Item"));
+    REQUIRE(model.UpdatePaneLayout(0, {.x = 64, .y = 72, .width = 360, .height = 200, .z_order = 1, .focus_order = 2}));
+    REQUIRE(model.CanUndo());
+    REQUIRE_FALSE(model.CanRedo());
+
+    REQUIRE(model.Undo());
+    REQUIRE(model.VisibleRows()[0].pane_layout.x == 24);
+    REQUIRE(model.VisibleRows()[0].command_label == "Updated Item");
+    REQUIRE(model.CanRedo());
+
+    REQUIRE(model.Undo());
+    REQUIRE(model.VisibleRows()[0].command_label == "Item");
+    REQUIRE(model.Redo());
+    REQUIRE(model.VisibleRows()[0].command_label == "Updated Item");
+    REQUIRE(model.Redo());
+    REQUIRE(model.VisibleRows()[0].pane_layout.focus_order == 2);
+
+    REQUIRE(model.ApplyToRuntime(graph));
+    REQUIRE(graph.getActiveScene()->getPanes()[0].layout.x == 64);
+}

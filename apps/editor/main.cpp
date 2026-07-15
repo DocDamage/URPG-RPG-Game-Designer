@@ -5,6 +5,7 @@
 #include "editor/accessibility/accessibility_audio_adapter.h"
 #include "editor/accessibility/accessibility_battle_adapter.h"
 #include "editor/accessibility/accessibility_panel.h"
+#include "editor/accessibility/accessibility_spatial_adapter.h"
 #include "editor/assets/asset_library_panel.h"
 #include "editor/assets/editor_asset_drag_payload.h"
 #include "editor/assets/editor_thumbnail_cache.h"
@@ -12,6 +13,7 @@
 #include "editor/character/character_creator_model.h"
 #include "editor/character/character_creator_panel.h"
 #include "editor/export/export_diagnostics_panel.h"
+#include "editor/gameplay/gameplay_recipe_panel.h"
 #include "editor/project/creator_checklist_panel.h"
 #include "editor/project/main_menu_panel.h"
 #include "editor/project/new_project_wizard_model.h"
@@ -19,11 +21,13 @@
 #include "editor/project/editor_dirty_state_registry.h"
 #include "editor/project/editor_recovery_service.h"
 #include "editor/playtest/playtest_session_controller.h"
+#include "editor/plugin/plugin_inspector_panel.h"
 #include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/mod/mod_manager_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/map_authoring_workspace.h"
 #include "engine/core/battle/battle_core.h"
+#include "engine/core/character/character_identity.h"
 #include "editor/spatial/map_authoring_persistence.h"
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/analytics/analytics_dispatcher.h"
@@ -32,11 +36,15 @@
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/audio/audio_mix_presets.h"
 #include "engine/core/app_cli.h"
+#include "engine/core/assets/asset_promotion_manifest.h"
+#include "engine/core/assets/project_asset_reference_index.h"
+#include "engine/core/security/sha256.h"
 
 #include <type_traits>
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/diagnostics/startup_diagnostics.h"
 #include "engine/core/database/rpg_database.h"
+#include "engine/core/dialogue/dialogue_graph.h"
 #include "engine/core/editor/editor_panel_registry.h"
 #include "engine/core/editor/editor_shell.h"
 #include "engine/core/engine_context.h"
@@ -46,6 +54,7 @@
 #include "engine/core/map/grid_part_document.h"
 #include "engine/core/map/grid_part_ruleset.h"
 #include "engine/core/map/grid_part_serializer.h"
+#include "engine/core/localization/locale_catalog.h"
 #include "engine/core/message/message_core.h"
 #include "engine/core/mod/mod_loader.h"
 #include "engine/core/mod/mod_registry.h"
@@ -57,8 +66,10 @@
 #include "engine/core/save/save_catalog.h"
 #include "engine/core/shop/vendor_catalog.h"
 #include "engine/core/scene/map_scene.h"
+#include "engine/core/scene/menu_scene.h"
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/settings/app_settings_store.h"
+#include "engine/core/ui/menu_serializer.h"
 #include "engine/core/version.h"
 #include <nlohmann/json.hpp>
 
@@ -86,9 +97,11 @@
 #include <iterator>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <thread>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #ifdef _WIN32
@@ -129,15 +142,23 @@ struct EditorPanelRuntime {
     urpg::editor::EditorRecoveryService recovery_service;
     urpg::editor::EditorDirtyStateRegistry dirty_state_registry;
     urpg::editor::AbilityInspectorPanel ability_inspector_panel;
+    urpg::editor::gameplay::GameplayRecipePanel gameplay_recipe_panel;
+    std::vector<urpg::gameplay::GameplayRecipe> gameplay_recipe_templates;
     urpg::editor::CharacterCreatorModel character_creator_model;
     urpg::editor::CharacterCreatorPanel character_creator_panel;
     std::optional<urpg::quest::QuestObjectiveGraphDocument> quest_draft;
     urpg::quest::QuestWorldState quest_preview_world;
+    std::vector<urpg::quest::QuestObjectiveGraphDocument> quest_undo_history;
+    std::vector<urpg::quest::QuestObjectiveGraphDocument> quest_redo_history;
+    std::optional<urpg::dialogue::DialogueGraph> dialogue_draft;
+    std::vector<urpg::dialogue::DialogueGraph> dialogue_undo_history;
+    std::vector<urpg::dialogue::DialogueGraph> dialogue_redo_history;
     urpg::database::RpgDatabase database_draft;
     urpg::shop::VendorCatalog vendor_draft;
     urpg::editor::PatternFieldModel pattern_field_model;
     urpg::editor::PatternFieldPanel pattern_field_panel;
     urpg::editor::ModManagerPanel mod_manager_panel;
+    urpg::editor::PluginInspectorPanel mz_plugin_inspector_panel;
     urpg::editor::AnalyticsPanel analytics_panel;
     urpg::editor::LevelBuilderWorkspace level_builder_workspace;
     urpg::editor::SpatialAuthoringWorkspace perspective_2d_workspace;
@@ -164,6 +185,7 @@ struct EditorPanelRuntime {
     urpg::presentation::SpatialMapOverlay level_builder_overlay;
     std::unique_ptr<urpg::scene::MapScene> perspective_2d_scene =
         std::make_unique<urpg::scene::MapScene>("EditorPreview", 16, 12);
+    urpg::scene::MenuScene menu_studio_runtime{"editor_menu_studio"};
     urpg::mod::ModRegistry mod_registry;
     std::unique_ptr<urpg::mod::ModLoader> mod_loader;
     urpg::analytics::AnalyticsDispatcher analytics_dispatcher;
@@ -172,8 +194,14 @@ struct EditorPanelRuntime {
     std::filesystem::path project_root;
     std::filesystem::path external_asset_library_root;
     std::vector<std::string> available_map_ids;
+    std::vector<std::string> dialogue_localization_key_options;
+    std::vector<std::pair<std::string, std::string>> dialogue_speaker_options;
+    std::vector<std::string> dialogue_voice_asset_options;
+    nlohmann::json mz_plugin_lock_draft = nlohmann::json::object();
+    bool mz_plugin_lock_source_current = false;
     std::string character_draft_id = "protagonist";
     std::string quest_draft_id = "quest_draft";
+    std::string dialogue_draft_id = "dialogue_draft";
     std::string vendor_draft_id = "vendor_draft";
     std::string battle_preview_encounter_id;
     std::string audio_mix_preset = "Default";
@@ -184,6 +212,12 @@ struct EditorPanelRuntime {
     bool focus_workspace_next_frame = true;
     std::string last_workspace_panel_id;
     std::string map_save_status;
+    std::string gameplay_recipe_load_status;
+    std::string gameplay_recipe_save_status;
+    std::string menu_studio_load_status;
+    std::string menu_studio_save_status;
+    std::string menu_studio_persisted_json;
+    std::string mz_plugin_lock_status;
     std::string map_asset_drop_status;
     std::string project_session_status;
     std::string recovery_status;
@@ -194,20 +228,209 @@ struct EditorPanelRuntime {
     bool ability_dirty_surface_registered = false;
     bool character_dirty_surface_registered = false;
     bool quest_dirty_surface_registered = false;
+    bool dialogue_dirty_surface_registered = false;
     bool database_dirty_surface_registered = false;
     bool vendor_dirty_surface_registered = false;
     bool audio_mix_dirty_surface_registered = false;
     bool input_remap_dirty_surface_registered = false;
+    bool gameplay_recipe_dirty_surface_registered = false;
+    bool menu_studio_dirty_surface_registered = false;
+    bool mz_plugin_lock_dirty_surface_registered = false;
 };
 
 constexpr const char* kMapDirtyDocumentId = "map.grid_parts";
 constexpr const char* kPerspective2DDirtyDocumentId = "map.perspective_2d";
 constexpr const char* kCharacterDirtyDocumentId = "character.creator";
 constexpr const char* kQuestDirtyDocumentId = "quest.draft";
+constexpr const char* kDialogueDirtyDocumentId = "dialogue.draft";
 constexpr const char* kDatabaseDirtyDocumentId = "database.project";
 constexpr const char* kVendorDirtyDocumentId = "vendor.catalog";
 constexpr const char* kAudioMixDirtyDocumentId = "audio.mix";
 constexpr const char* kInputRemapDirtyDocumentId = "input.remap";
+constexpr const char* kGameplayRecipeDirtyDocumentId = "gameplay.recipes";
+constexpr const char* kMenuStudioDirtyDocumentId = "menu.studio";
+constexpr const char* kMzPluginLockDirtyDocumentId = "compat.mz_plugin_lock";
+
+std::vector<std::string> collectProjectLocalizationKeys(const std::filesystem::path& project_root) {
+    std::set<std::string> keys;
+    std::error_code directory_error;
+    const auto localization_directory = project_root / "content" / "localization";
+    for (const auto& entry : std::filesystem::directory_iterator(localization_directory, directory_error)) {
+        if (directory_error || !entry.is_regular_file() || entry.path().extension() != ".json") {
+            continue;
+        }
+        std::ifstream input(entry.path(), std::ios::binary);
+        const auto bundle = nlohmann::json::parse(input, nullptr, false);
+        if (!urpg::localization::LocaleCatalog::validateBundleJson(bundle)) {
+            continue;
+        }
+        urpg::localization::LocaleCatalog catalog;
+        try {
+            catalog.loadFromJson(bundle);
+            const auto bundle_keys = catalog.getAllKeys();
+            keys.insert(bundle_keys.begin(), bundle_keys.end());
+        } catch (const std::invalid_argument&) {
+            // A malformed locale bundle is a diagnostics concern; it must not
+            // provide a misleading stable-reference option to dialogue editing.
+        }
+    }
+    return {keys.begin(), keys.end()};
+}
+
+std::vector<std::pair<std::string, std::string>> collectProjectDialogueSpeakerOptions(
+    const std::filesystem::path& project_root) {
+    std::vector<std::pair<std::string, std::string>> options;
+    std::error_code directory_error;
+    const auto character_directory = project_root / "content" / "characters";
+    for (const auto& entry : std::filesystem::directory_iterator(character_directory, directory_error)) {
+        if (directory_error || !entry.is_regular_file() || entry.path().extension() != ".json") {
+            continue;
+        }
+        std::ifstream input(entry.path(), std::ios::binary);
+        const auto identity_json = nlohmann::json::parse(input, nullptr, false);
+        if (!identity_json.is_object()) {
+            continue;
+        }
+        try {
+            const auto identity = urpg::character::CharacterIdentity::fromJson(identity_json);
+            const auto speaker_id = entry.path().stem().string();
+            if (!speaker_id.empty()) {
+                options.emplace_back(speaker_id, identity.getDisplayName());
+            }
+        } catch (const std::exception&) {
+            // A malformed character draft is not a valid stable dialogue
+            // speaker reference and must remain out of the picker.
+        }
+    }
+    std::sort(options.begin(), options.end(), [](const auto& left, const auto& right) {
+        return left.first < right.first;
+    });
+    return options;
+}
+
+std::vector<std::string> collectProjectDialogueVoiceAssetOptions(const std::filesystem::path& project_root) {
+    std::set<std::string> asset_ids;
+    std::error_code directory_error;
+    const auto manifest_directory = project_root / "content" / "assets" / "manifests";
+    for (const auto& entry : std::filesystem::directory_iterator(manifest_directory, directory_error)) {
+        if (directory_error || !entry.is_regular_file() || entry.path().extension() != ".json") {
+            continue;
+        }
+        try {
+            std::ifstream input(entry.path(), std::ios::binary);
+            const auto manifest = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json::parse(input));
+            const auto payload_directory = project_root / "content" / "assets" / "imported" / manifest.assetId;
+            if (manifest.assetId.empty() || manifest.preview.kind != "audio" ||
+                !std::filesystem::is_directory(payload_directory, directory_error) || directory_error) {
+                directory_error.clear();
+                continue;
+            }
+            asset_ids.insert(manifest.assetId);
+        } catch (const std::exception&) {
+            // A malformed attachment manifest is never a selectable dialogue voice reference.
+        }
+    }
+    return {asset_ids.begin(), asset_ids.end()};
+}
+
+std::string sha256File(const std::filesystem::path& path) {
+    std::ifstream input(path, std::ios::binary);
+    if (!input.good()) {
+        return {};
+    }
+    const std::vector<std::uint8_t> bytes{std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+    return urpg::security::Sha256::toHex(urpg::security::Sha256::compute(bytes));
+}
+
+nlohmann::json buildMzPluginStaticLock(const std::filesystem::path& project_root) {
+    const auto inspection = urpg::plugin::InspectMzPluginScriptsFromDirectory(project_root / "js" / "plugins");
+    urpg::plugin::PluginCompatibilityAnalysisInput analysis_input;
+    analysis_input.manifests = inspection.manifests;
+    analysis_input.native_shim_hints = urpg::plugin::DefaultNativePluginShimHints();
+    const auto report = urpg::plugin::AnalyzePluginCompatibility(analysis_input);
+
+    nlohmann::json plugins = nlohmann::json::array();
+    for (const auto& manifest : inspection.manifests) {
+        std::error_code relative_error;
+        auto relative_path = std::filesystem::relative(manifest.source_path, project_root, relative_error);
+        if (relative_error || relative_path.empty() || relative_path.is_absolute()) {
+            relative_path = std::filesystem::path("js") / "plugins" /
+                            (manifest.plugin_id.empty() ? "unknown.js" : manifest.plugin_id + ".js");
+        }
+        nlohmann::json dependencies = nlohmann::json::array();
+        for (const auto& dependency : manifest.dependencies) {
+            dependencies.push_back({{"plugin_id", dependency.plugin_id},
+                                    {"version_range", dependency.version_range},
+                                    {"optional", dependency.optional}});
+        }
+        plugins.push_back({{"plugin_id", manifest.plugin_id},
+                           {"version", manifest.version},
+                           {"enabled", manifest.enabled},
+                           {"relative_source_path", relative_path.generic_string()},
+                           {"source_sha256", sha256File(manifest.source_path)},
+                           {"dependencies", std::move(dependencies)}});
+    }
+    return {{"schema_version", "urpg.mz_plugin_static_lock.v1"},
+            {"inspection_only", true},
+            {"plugins", std::move(plugins)},
+            {"load_order", report.load_order}};
+}
+
+bool isValidMzPluginStaticLock(const nlohmann::json& lock) {
+    if (!lock.is_object() || lock.value("schema_version", "") != "urpg.mz_plugin_static_lock.v1" ||
+        !lock.contains("inspection_only") || !lock["inspection_only"].is_boolean() || !lock["inspection_only"] ||
+        !lock.contains("plugins") || !lock["plugins"].is_array() || !lock.contains("load_order") ||
+        !lock["load_order"].is_array()) {
+        return false;
+    }
+    const auto is_safe_relative_path = [](const std::string& value) {
+        const auto path = std::filesystem::path(value).lexically_normal();
+        if (value.empty() || path.is_absolute()) {
+            return false;
+        }
+        return std::none_of(path.begin(), path.end(), [](const std::filesystem::path& segment) {
+            return segment == "..";
+        });
+    };
+    const auto is_sha256_hex = [](const std::string& value) {
+        return value.size() == 64 && std::all_of(value.begin(), value.end(), [](const unsigned char character) {
+            return std::isxdigit(character) != 0;
+        });
+    };
+    std::set<std::string> plugin_ids;
+    for (const auto& plugin : lock["plugins"]) {
+        if (!plugin.is_object() || !plugin.contains("plugin_id") || !plugin["plugin_id"].is_string()) {
+            return false;
+        }
+        const auto plugin_id = plugin["plugin_id"].get<std::string>();
+        if (plugin_id.empty() || !plugin_ids.insert(plugin_id).second || !plugin.contains("version") ||
+            !plugin["version"].is_string() || !plugin.contains("enabled") || !plugin["enabled"].is_boolean() ||
+            !plugin.contains("relative_source_path") || !plugin["relative_source_path"].is_string() ||
+            !is_safe_relative_path(plugin["relative_source_path"].get<std::string>()) ||
+            !plugin.contains("source_sha256") || !plugin["source_sha256"].is_string() ||
+            !is_sha256_hex(plugin["source_sha256"].get<std::string>()) ||
+            !plugin.contains("dependencies") || !plugin["dependencies"].is_array()) {
+            return false;
+        }
+        for (const auto& dependency : plugin["dependencies"]) {
+            if (!dependency.is_object() || !dependency.contains("plugin_id") || !dependency["plugin_id"].is_string() ||
+                !dependency.contains("version_range") || !dependency["version_range"].is_string() ||
+                dependency["plugin_id"].get<std::string>().empty() || !dependency.contains("optional") ||
+                !dependency["optional"].is_boolean()) {
+                return false;
+            }
+        }
+    }
+    std::set<std::string> ordered_plugin_ids;
+    for (const auto& plugin_id : lock["load_order"]) {
+        if (!plugin_id.is_string() || plugin_id.get<std::string>().empty() ||
+            !plugin_ids.contains(plugin_id.get<std::string>()) ||
+            !ordered_plugin_ids.insert(plugin_id.get<std::string>()).second) {
+            return false;
+        }
+    }
+    return ordered_plugin_ids == plugin_ids;
+}
 
 std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asset) {
     std::string stem;
@@ -445,6 +668,12 @@ std::string starterMapIdForProject(const std::filesystem::path& projectRoot) {
 }
 
 bool atomicWriteTextFile(const std::filesystem::path& target, std::string_view contents, std::string* error);
+std::filesystem::path gameplayRecipeProjectPath(const EditorPanelRuntime& runtime);
+bool loadGameplayRecipeProject(EditorPanelRuntime& runtime, std::string* error);
+urpg::editor::EditorDirtySaveResult saveGameplayRecipeProject(EditorPanelRuntime& runtime);
+std::filesystem::path menuStudioProjectPath(const EditorPanelRuntime& runtime);
+bool loadMenuStudioProject(EditorPanelRuntime& runtime, std::string* error);
+urpg::editor::EditorDirtySaveResult saveMenuStudioProject(EditorPanelRuntime& runtime);
 
 urpg::editor::EditorDirtySaveResult saveAbilityDraft(EditorPanelRuntime& runtime) {
     if (runtime.project_root.empty()) {
@@ -494,6 +723,133 @@ urpg::editor::EditorDirtySaveResult saveQuestDraft(EditorPanelRuntime& runtime) 
     }
     return {true, "quest_saved",
             "Saved quest draft to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
+}
+
+std::filesystem::path dialogueDraftPath(const EditorPanelRuntime& runtime) {
+    return runtime.project_root / "content" / "dialogues" / (runtime.dialogue_draft_id + ".json");
+}
+
+urpg::editor::EditorDirtySaveResult saveDialogueDraft(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty() || !runtime.dialogue_draft.has_value()) {
+        return {false, "dialogue_save_unavailable", "Create or open a dialogue draft before saving it."};
+    }
+    std::string error;
+    const auto target = dialogueDraftPath(runtime);
+    if (!atomicWriteTextFile(target, runtime.dialogue_draft->serialize().dump(2) + "\n", &error)) {
+        return {false, "dialogue_save_failed", "Failed to save dialogue draft: " + error};
+    }
+    return {true, "dialogue_saved",
+            "Saved dialogue draft to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
+}
+
+std::filesystem::path mzPluginStaticLockPath(const EditorPanelRuntime& runtime) {
+    return runtime.project_root / "content" / "compat" / "mz_plugin_lock.json";
+}
+
+urpg::editor::EditorDirtySaveResult saveMzPluginStaticLock(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty() || !isValidMzPluginStaticLock(runtime.mz_plugin_lock_draft)) {
+        return {false, "mz_plugin_lock_save_invalid",
+                "Refresh the static MZ plugin lock before saving it to the active project."};
+    }
+    std::string error;
+    const auto target = mzPluginStaticLockPath(runtime);
+    if (!atomicWriteTextFile(target, runtime.mz_plugin_lock_draft.dump(2) + "\n", &error)) {
+        return {false, "mz_plugin_lock_save_failed", "Failed to save the MZ plugin lock: " + error};
+    }
+    return {true, "mz_plugin_lock_saved",
+            "Saved static MZ plugin lock to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
+}
+
+void loadMzPluginStaticLock(EditorPanelRuntime& runtime) {
+    runtime.mz_plugin_lock_draft = nlohmann::json::object();
+    runtime.mz_plugin_lock_status.clear();
+    std::ifstream input(mzPluginStaticLockPath(runtime), std::ios::binary);
+    if (!input.good()) {
+        runtime.mz_plugin_lock_status = "No static MZ plugin lock is saved for this project.";
+        return;
+    }
+    const auto parsed = nlohmann::json::parse(input, nullptr, false);
+    if (!isValidMzPluginStaticLock(parsed)) {
+        runtime.mz_plugin_lock_status = "Saved MZ plugin lock is invalid and was not loaded.";
+        return;
+    }
+    runtime.mz_plugin_lock_draft = parsed;
+    runtime.mz_plugin_lock_status = "Loaded static MZ plugin lock; it remains non-executing compatibility metadata.";
+}
+
+constexpr size_t kQuestHistoryLimit = 64;
+constexpr size_t kDialogueHistoryLimit = 64;
+
+bool applyQuestGraphMutation(EditorPanelRuntime& runtime, urpg::quest::QuestObjectiveGraphDocument next) {
+    if (!runtime.quest_draft.has_value() || runtime.quest_draft->toJson() == next.toJson()) {
+        return false;
+    }
+    runtime.quest_undo_history.push_back(*runtime.quest_draft);
+    if (runtime.quest_undo_history.size() > kQuestHistoryLimit) {
+        runtime.quest_undo_history.erase(runtime.quest_undo_history.begin());
+    }
+    runtime.quest_redo_history.clear();
+    runtime.quest_draft = std::move(next);
+    (void)runtime.dirty_state_registry.markDirty(kQuestDirtyDocumentId, true);
+    return true;
+}
+
+bool undoQuestGraphMutation(EditorPanelRuntime& runtime) {
+    if (!runtime.quest_draft.has_value() || runtime.quest_undo_history.empty()) {
+        return false;
+    }
+    runtime.quest_redo_history.push_back(*runtime.quest_draft);
+    runtime.quest_draft = std::move(runtime.quest_undo_history.back());
+    runtime.quest_undo_history.pop_back();
+    (void)runtime.dirty_state_registry.markDirty(kQuestDirtyDocumentId, true);
+    return true;
+}
+
+bool redoQuestGraphMutation(EditorPanelRuntime& runtime) {
+    if (!runtime.quest_draft.has_value() || runtime.quest_redo_history.empty()) {
+        return false;
+    }
+    runtime.quest_undo_history.push_back(*runtime.quest_draft);
+    runtime.quest_draft = std::move(runtime.quest_redo_history.back());
+    runtime.quest_redo_history.pop_back();
+    (void)runtime.dirty_state_registry.markDirty(kQuestDirtyDocumentId, true);
+    return true;
+}
+
+bool applyDialogueGraphMutation(EditorPanelRuntime& runtime, urpg::dialogue::DialogueGraph next) {
+    if (!runtime.dialogue_draft.has_value() || runtime.dialogue_draft->serialize() == next.serialize()) {
+        return false;
+    }
+    runtime.dialogue_undo_history.push_back(*runtime.dialogue_draft);
+    if (runtime.dialogue_undo_history.size() > kDialogueHistoryLimit) {
+        runtime.dialogue_undo_history.erase(runtime.dialogue_undo_history.begin());
+    }
+    runtime.dialogue_redo_history.clear();
+    runtime.dialogue_draft = std::move(next);
+    (void)runtime.dirty_state_registry.markDirty(kDialogueDirtyDocumentId, true);
+    return true;
+}
+
+bool undoDialogueGraphMutation(EditorPanelRuntime& runtime) {
+    if (!runtime.dialogue_draft.has_value() || runtime.dialogue_undo_history.empty()) {
+        return false;
+    }
+    runtime.dialogue_redo_history.push_back(*runtime.dialogue_draft);
+    runtime.dialogue_draft = std::move(runtime.dialogue_undo_history.back());
+    runtime.dialogue_undo_history.pop_back();
+    (void)runtime.dirty_state_registry.markDirty(kDialogueDirtyDocumentId, true);
+    return true;
+}
+
+bool redoDialogueGraphMutation(EditorPanelRuntime& runtime) {
+    if (!runtime.dialogue_draft.has_value() || runtime.dialogue_redo_history.empty()) {
+        return false;
+    }
+    runtime.dialogue_undo_history.push_back(*runtime.dialogue_draft);
+    runtime.dialogue_draft = std::move(runtime.dialogue_redo_history.back());
+    runtime.dialogue_redo_history.pop_back();
+    (void)runtime.dirty_state_registry.markDirty(kDialogueDirtyDocumentId, true);
+    return true;
 }
 
 std::set<std::string> databaseItemIds(const urpg::database::RpgDatabase& database) {
@@ -643,6 +999,159 @@ urpg::editor::EditorDirtySaveResult saveInputRemapDraft(EditorPanelRuntime& runt
             "Saved input remaps to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
+std::filesystem::path gameplayRecipeProjectPath(const EditorPanelRuntime& runtime) {
+    return runtime.project_root / "content" / "gameplay" / "recipes.json";
+}
+
+bool loadGameplayRecipeProject(EditorPanelRuntime& runtime, std::string* error) {
+    const auto target = gameplayRecipeProjectPath(runtime);
+    if (!std::filesystem::exists(target)) {
+        runtime.gameplay_recipe_panel.loadProject({});
+        return true;
+    }
+    std::ifstream input(target, std::ios::binary);
+    const auto json = nlohmann::json::parse(input, nullptr, false);
+    if (!json.is_object()) {
+        if (error) *error = "The gameplay recipe project document is not a JSON object.";
+        return false;
+    }
+    const auto document = urpg::gameplay::GameplayRecipeProjectDocument::fromJson(json);
+    const auto diagnostics = document.validate();
+    if (!diagnostics.empty()) {
+        if (error) {
+            *error = "Gameplay recipe project validation failed: " + diagnostics.front().code + ".";
+        }
+        return false;
+    }
+    runtime.gameplay_recipe_panel.loadProject(document);
+    return true;
+}
+
+urpg::editor::EditorDirtySaveResult saveGameplayRecipeProject(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty()) {
+        return {false, "gameplay_recipe_save_project_unavailable", "Open a project before saving gameplay recipes."};
+    }
+    const auto diagnostics = runtime.gameplay_recipe_panel.project().validate();
+    if (!diagnostics.empty()) {
+        return {false, "gameplay_recipe_save_invalid", "Gameplay recipe project is invalid: " + diagnostics.front().code + "."};
+    }
+    std::string error;
+    const auto target = gameplayRecipeProjectPath(runtime);
+    if (!atomicWriteTextFile(target, runtime.gameplay_recipe_panel.project().toJson().dump(2) + "\n", &error)) {
+        return {false, "gameplay_recipe_save_failed", "Failed to save gameplay recipes: " + error};
+    }
+    runtime.gameplay_recipe_panel.markProjectDocumentPersisted();
+    return {true, "gameplay_recipe_saved",
+            "Saved gameplay recipes to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
+}
+
+std::filesystem::path menuStudioProjectPath(const EditorPanelRuntime& runtime) {
+    return runtime.project_root / "content" / "ui" / "menus.json";
+}
+
+void registerNativeMenuStudioCommands(urpg::ui::MenuCommandRegistry& registry) {
+    registry.clear();
+    const std::vector<urpg::MenuCommandMeta> commands = {
+        {"urpg.menu.item", "Items", "", urpg::MenuRouteTarget::Item},
+        {"urpg.menu.status", "Status", "", urpg::MenuRouteTarget::Status},
+        {"urpg.menu.options", "Options", "", urpg::MenuRouteTarget::Options},
+        {"urpg.menu.save", "Save", "", urpg::MenuRouteTarget::Save},
+    };
+    for (const auto& command : commands) {
+        registry.registerCommand(command);
+    }
+}
+
+void initializeNativeMenuStudioDefault(EditorPanelRuntime& runtime) {
+    auto& menu_runtime = runtime.menu_studio_runtime;
+    auto& graph = menu_runtime.getSceneGraphMutable();
+    auto& registry = menu_runtime.getRegistryMutable();
+    graph.clearRegisteredScenes();
+    registerNativeMenuStudioCommands(registry);
+
+    auto scene = std::make_shared<urpg::ui::MenuScene>("MainMenu");
+    urpg::ui::MenuPane pane;
+    pane.id = "main";
+    pane.displayName = "Main Menu";
+    pane.isActive = true;
+    pane.layout = {.x = 64, .y = 64, .width = 360, .height = 260, .z_order = 0, .focus_order = 0};
+    pane.commands = registry.listCommands();
+    scene->addPane(pane);
+    graph.registerScene(std::move(scene));
+    (void)graph.restoreActiveScene("MainMenu");
+    graph.setCommandStateFromRegistry(registry, {}, {});
+}
+
+std::string menuStudioSerializedGraph(const EditorPanelRuntime& runtime) {
+    return urpg::ui::MenuSceneSerializer::SerializeGraph(runtime.menu_studio_runtime.getSceneGraph()).dump(2);
+}
+
+bool loadMenuStudioProject(EditorPanelRuntime& runtime, std::string* error) {
+    const auto target = menuStudioProjectPath(runtime);
+    if (!std::filesystem::exists(target)) {
+        initializeNativeMenuStudioDefault(runtime);
+        runtime.menu_studio_persisted_json = menuStudioSerializedGraph(runtime);
+        return true;
+    }
+
+    std::ifstream input(target, std::ios::binary);
+    const auto document = nlohmann::json::parse(input, nullptr, false);
+    nlohmann::json graph_document;
+    if (document.is_object() && document.contains("scenes") && document["scenes"].is_array()) {
+        graph_document = document;
+    } else {
+        graph_document = {{"scenes", nlohmann::json::array({document})}};
+    }
+    if (!document.is_object() || !urpg::ui::MenuSceneSerializer::DeserializeGraph(
+                                   graph_document, runtime.menu_studio_runtime.getSceneGraphMutable())) {
+        if (error) *error = "The native menu document is invalid and was not loaded.";
+        return false;
+    }
+
+    auto& registry = runtime.menu_studio_runtime.getRegistryMutable();
+    registerNativeMenuStudioCommands(registry);
+    urpg::ui::MenuCommandRegistry::SwitchState switches;
+    urpg::ui::MenuCommandRegistry::VariableState variables;
+    urpg::ui::MenuCommandRegistry::captureGlobalState(switches, variables);
+    runtime.menu_studio_runtime.getSceneGraphMutable().setCommandStateFromRegistry(registry, switches, variables);
+    runtime.menu_studio_persisted_json = menuStudioSerializedGraph(runtime);
+    return true;
+}
+
+urpg::editor::EditorDirtySaveResult saveMenuStudioProject(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty()) {
+        return {false, "menu_studio_save_project_unavailable", "Open a project before saving the native menu document."};
+    }
+    std::string error;
+    const auto target = menuStudioProjectPath(runtime);
+    const auto serialized = menuStudioSerializedGraph(runtime);
+    if (!atomicWriteTextFile(target, serialized + "\n", &error)) {
+        return {false, "menu_studio_save_failed", "Failed to save the native menu document: " + error};
+    }
+    runtime.menu_studio_persisted_json = serialized;
+    return {true, "menu_studio_saved",
+            "Saved native menu document to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
+}
+
+void bindMenuStudioProject(EditorPanelRuntime& runtime, const std::filesystem::path& project_root) {
+    runtime.project_root = project_root;
+    std::string error;
+    if (!loadMenuStudioProject(runtime, &error)) {
+        initializeNativeMenuStudioDefault(runtime);
+        runtime.menu_studio_persisted_json = menuStudioSerializedGraph(runtime);
+        runtime.menu_studio_load_status = error;
+    } else {
+        runtime.menu_studio_load_status.clear();
+    }
+    runtime.menu_studio_save_status.clear();
+
+    urpg::ui::MenuCommandRegistry::SwitchState switches;
+    urpg::ui::MenuCommandRegistry::VariableState variables;
+    urpg::ui::MenuCommandRegistry::captureGlobalState(switches, variables);
+    runtime.diagnostics_workspace.bindMenuRuntime(runtime.menu_studio_runtime.getSceneGraphMutable(),
+                                                  runtime.menu_studio_runtime.getRegistry(), switches, variables);
+}
+
 void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     if (!runtime.project_session.isOpen() || runtime.project_root.empty()) return;
     const auto mapDirty = runtime.dirty_state_registry.isDirty(kMapDirtyDocumentId) ||
@@ -650,12 +1159,16 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     const auto abilityDirty = runtime.dirty_state_registry.isDirty("ability.draft");
     const auto characterDirty = runtime.dirty_state_registry.isDirty(kCharacterDirtyDocumentId);
     const auto questDirty = runtime.dirty_state_registry.isDirty(kQuestDirtyDocumentId);
+    const auto dialogueDirty = runtime.dirty_state_registry.isDirty(kDialogueDirtyDocumentId);
     const auto databaseDirty = runtime.dirty_state_registry.isDirty(kDatabaseDirtyDocumentId);
     const auto vendorDirty = runtime.dirty_state_registry.isDirty(kVendorDirtyDocumentId);
     const auto audioMixDirty = runtime.dirty_state_registry.isDirty(kAudioMixDirtyDocumentId);
     const auto inputRemapDirty = runtime.dirty_state_registry.isDirty(kInputRemapDirtyDocumentId);
-    if (!mapDirty && !abilityDirty && !characterDirty && !questDirty && !databaseDirty && !vendorDirty && !audioMixDirty &&
-        !inputRemapDirty) return;
+    const auto gameplayRecipeDirty = runtime.dirty_state_registry.isDirty(kGameplayRecipeDirtyDocumentId);
+    const auto menuStudioDirty = runtime.dirty_state_registry.isDirty(kMenuStudioDirtyDocumentId);
+    const auto mzPluginLockDirty = runtime.dirty_state_registry.isDirty(kMzPluginLockDirtyDocumentId);
+    if (!mapDirty && !abilityDirty && !characterDirty && !questDirty && !dialogueDirty && !databaseDirty && !vendorDirty &&
+        !audioMixDirty && !inputRemapDirty && !gameplayRecipeDirty && !menuStudioDirty && !mzPluginLockDirty) return;
 
     std::vector<urpg::editor::RecoveryDocumentDraft> drafts;
     if (mapDirty) {
@@ -686,6 +1199,11 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
                                                    (runtime.quest_draft_id + ".json"),
                           runtime.quest_draft->toJson().dump(2) + "\n"});
     }
+    if (dialogueDirty && runtime.dialogue_draft.has_value()) {
+        drafts.push_back({kDialogueDirtyDocumentId, std::filesystem::path("content") / "dialogues" /
+                                                     (runtime.dialogue_draft_id + ".json"),
+                          runtime.dialogue_draft->serialize().dump(2) + "\n"});
+    }
     if (databaseDirty) {
         drafts.push_back({kDatabaseDirtyDocumentId, std::filesystem::path("content") / "database.json",
                           runtime.database_draft.toJson().dump(2) + "\n"});
@@ -702,6 +1220,19 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     if (inputRemapDirty) {
         drafts.push_back({kInputRemapDirtyDocumentId, std::filesystem::path("config") / "input_remap.json",
                           runtime.input_remap_draft.saveToJson().dump(2) + "\n"});
+    }
+    if (gameplayRecipeDirty) {
+        drafts.push_back({kGameplayRecipeDirtyDocumentId, std::filesystem::path("content") / "gameplay" / "recipes.json",
+                          runtime.gameplay_recipe_panel.project().toJson().dump(2) + "\n"});
+    }
+    if (menuStudioDirty) {
+        drafts.push_back({kMenuStudioDirtyDocumentId, std::filesystem::path("content") / "ui" / "menus.json",
+                          menuStudioSerializedGraph(runtime) + "\n"});
+    }
+    if (mzPluginLockDirty && isValidMzPluginStaticLock(runtime.mz_plugin_lock_draft)) {
+        drafts.push_back({kMzPluginLockDirtyDocumentId, std::filesystem::path("content") / "compat" /
+                                                             "mz_plugin_lock.json",
+                          runtime.mz_plugin_lock_draft.dump(2) + "\n"});
     }
 
     const auto dirtyDocumentIds = runtime.dirty_state_registry.dirtyDocumentIds();
@@ -729,6 +1260,24 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
                              const std::filesystem::path& projectRoot,
                              std::string requestedMapId = {}) {
     runtime.project_root = projectRoot;
+    runtime.dialogue_localization_key_options = collectProjectLocalizationKeys(projectRoot);
+    runtime.dialogue_speaker_options = collectProjectDialogueSpeakerOptions(projectRoot);
+    runtime.dialogue_voice_asset_options = collectProjectDialogueVoiceAssetOptions(projectRoot);
+    std::string gameplayRecipeError;
+    if (!loadGameplayRecipeProject(runtime, &gameplayRecipeError)) {
+        runtime.gameplay_recipe_panel.loadProject({});
+        runtime.map_save_status = gameplayRecipeError;
+        runtime.gameplay_recipe_load_status = gameplayRecipeError;
+    } else {
+        runtime.gameplay_recipe_load_status.clear();
+    }
+    runtime.gameplay_recipe_save_status.clear();
+    (void)runtime.mz_plugin_inspector_panel.model().inspectMzPluginScriptsFromDirectory(
+        projectRoot / "js" / "plugins");
+    runtime.mz_plugin_inspector_panel.render();
+    loadMzPluginStaticLock(runtime);
+    runtime.mz_plugin_lock_source_current = isValidMzPluginStaticLock(runtime.mz_plugin_lock_draft) &&
+                                            runtime.mz_plugin_lock_draft == buildMzPluginStaticLock(projectRoot);
     runtime.available_map_ids.clear();
     std::error_code mapDirectoryError;
     const auto mapsDirectory = projectRoot / "content" / "maps";
@@ -749,6 +1298,7 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
                                     runtime.available_map_ids.end());
     runtime.character_draft_id = "protagonist";
     runtime.quest_draft_id = "quest_draft";
+    runtime.dialogue_draft_id = "dialogue_draft";
     runtime.vendor_draft_id = "vendor_draft";
     bool isCreatorVerticalSlice = false;
     {
@@ -760,6 +1310,7 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
             isCreatorVerticalSlice = true;
             runtime.character_draft_id = "willow_hero";
             runtime.quest_draft_id = "restore_moonwell_lantern";
+            runtime.dialogue_draft_id = "moonwell_intro";
             runtime.vendor_draft_id = "rowan_tonics";
         }
     }
@@ -803,10 +1354,23 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
         }
     }
     runtime.quest_draft.reset();
+    runtime.quest_undo_history.clear();
+    runtime.quest_redo_history.clear();
     if (std::ifstream questInput(questDraftPath(runtime), std::ios::binary); questInput.good()) {
         const auto questJson = nlohmann::json::parse(questInput, nullptr, false);
         if (questJson.is_object() && questJson.value("schema_version", "") == "urpg.quest_objective_graph.v1") {
             runtime.quest_draft = urpg::quest::QuestObjectiveGraphDocument::fromJson(questJson);
+        }
+    }
+    runtime.dialogue_draft.reset();
+    runtime.dialogue_undo_history.clear();
+    runtime.dialogue_redo_history.clear();
+    if (std::ifstream dialogueInput(dialogueDraftPath(runtime), std::ios::binary); dialogueInput.good()) {
+        const auto dialogueJson = nlohmann::json::parse(dialogueInput, nullptr, false);
+        if (const auto dialogue = urpg::dialogue::DialogueGraph::fromJson(dialogueJson); dialogue.has_value()) {
+            runtime.dialogue_draft = std::move(*dialogue);
+        } else {
+            runtime.map_save_status = "Saved dialogue draft is invalid and was not loaded.";
         }
     }
     runtime.database_draft = {};
@@ -1013,6 +1577,10 @@ bool startCurrentMapPlaytest(EditorPanelRuntime& runtime, bool fromSelectedPart 
 
 bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRuntime& runtime) {
     runtime.ability_inspector_panel.update(runtime.ability_runtime);
+    runtime.gameplay_recipe_templates = urpg::gameplay::builtInGameplayRecipeTemplates();
+    if (!runtime.gameplay_recipe_templates.empty()) {
+        runtime.gameplay_recipe_panel.selectRecipe(runtime.gameplay_recipe_templates.front());
+    }
     runtime.ability_inspector_panel.setCommandCallbacks({
         [&runtime] {
             const bool ok = runtime.ability_inspector_panel.previewSelectedAbility(runtime.ability_runtime);
@@ -1100,6 +1668,14 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
         [] {},
         {},
     });
+    runtime.dialogue_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        kDialogueDirtyDocumentId,
+        "map_authoring",
+        false,
+        [&runtime] { return saveDialogueDraft(runtime); },
+        [] {},
+        {},
+    });
     runtime.database_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
         kDatabaseDirtyDocumentId,
         "map_authoring",
@@ -1129,6 +1705,30 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
         "map_authoring",
         false,
         [&runtime] { return saveInputRemapDraft(runtime); },
+        [] {},
+        {},
+    });
+    runtime.gameplay_recipe_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        kGameplayRecipeDirtyDocumentId,
+        "ability",
+        false,
+        [&runtime] { return saveGameplayRecipeProject(runtime); },
+        [] {},
+        {},
+    });
+    runtime.menu_studio_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        kMenuStudioDirtyDocumentId,
+        "diagnostics",
+        false,
+        [&runtime] { return saveMenuStudioProject(runtime); },
+        [] {},
+        {},
+    });
+    runtime.mz_plugin_lock_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        kMzPluginLockDirtyDocumentId,
+        "mod_manager",
+        false,
+        [&runtime] { return saveMzPluginStaticLock(runtime); },
         [] {},
         {},
     });
@@ -1892,6 +2492,20 @@ void renderDiagnosticsWorkspace(EditorPanelRuntime& runtime) {
         renderMessageDiagnostics(diagnostics.messagePanel());
     } else if (activeTab == urpg::editor::DiagnosticsTab::Battle) {
         renderBattleDiagnostics(diagnostics.battlePanel());
+    } else if (activeTab == urpg::editor::DiagnosticsTab::Menu) {
+        ImGui::TextUnformatted("Native Menu Studio");
+        ImGui::TextDisabled("Project document: content/ui/menus.json");
+        if (!runtime.menu_studio_load_status.empty()) {
+            ImGui::TextWrapped("Menu document was not loaded: %s", runtime.menu_studio_load_status.c_str());
+        }
+        if (ImGui::Button("Save Native Menu Document")) {
+            const auto result = runtime.dirty_state_registry.save(kMenuStudioDirtyDocumentId);
+            runtime.menu_studio_save_status = result.message;
+        }
+        if (!runtime.menu_studio_save_status.empty()) {
+            ImGui::TextDisabled("Save: %s", runtime.menu_studio_save_status.c_str());
+        }
+        diagnostics.render();
     } else if (activeTab == urpg::editor::DiagnosticsTab::Audio) {
         renderAudioDiagnostics(diagnostics.audioPanel());
     } else if (activeTab == urpg::editor::DiagnosticsTab::MigrationWizard) {
@@ -1923,7 +2537,50 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     static std::unordered_map<std::string, uint32_t> gifFrameCounts;
     runtime.asset_thumbnail_pinned_requests.clear();
     static int attachmentConflictPolicy = 0;
+    static nlohmann::json pendingAssetAttachmentPlan = nlohmann::json::object();
+    static nlohmann::json pendingDerivedRevisionAttachmentPlan = nlohmann::json::object();
+    static std::string derivedRevisionManifestPath;
+    static std::string transformOperationId = "image-crop-scale";
+    static int transformCropX = 0;
+    static int transformCropY = 0;
+    static int transformCropWidth = 0;
+    static int transformCropHeight = 0;
+    static int transformOutputWidth = 0;
+    static int transformOutputHeight = 0;
+    static std::string paletteOperationId = "image-fixed-palette";
+    static float paletteColorA[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+    static float paletteColorB[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    static std::string audioOperationId = "audio-trim-fade-gain";
+    static int audioStartFrame = 0;
+    static int audioEndFrame = 0;
+    static int audioFadeInFrames = 0;
+    static int audioFadeOutFrames = 0;
+    static int audioGainMilliDb = 0;
+    static bool audioUseLoop = false;
+    static int audioLoopStartFrame = 0;
+    static int audioLoopEndFrame = 0;
+    static std::string tilesetOperationId = "tileset-slice";
+    static int tilesetTileWidth = 32;
+    static int tilesetTileHeight = 32;
+    static int tilesetMargin = 0;
+    static int tilesetSpacing = 0;
+    static std::string atlasOperationId = "atlas-metadata";
+    static int atlasWidth = 0;
+    static int atlasHeight = 0;
+    static int atlasFrameWidth = 32;
+    static int atlasFrameHeight = 32;
+    static std::string inspectedMapReferenceAssetId;
+    static std::vector<urpg::assets::ProjectAssetReference> inspectedMapReferences;
+    static std::vector<std::string> inspectedMapReferenceDiagnostics;
+    static std::string inspectedRemovalImpactAssetId;
+    static urpg::assets::ProjectAssetRemovalImpactPlan inspectedRemovalImpact;
+    static std::vector<std::string> inspectedOrphanedAssetIds;
+    static bool orphanCandidatesInspected = false;
     static std::string assetWorkflowStatus;
+    static std::string curationCollectionId;
+    static std::string curationCollectionLabel;
+    static std::string comparisonLeftPath;
+    static std::string comparisonRightPath;
     const auto configuredLibraryRoot = runtime.external_asset_library_root;
     if (ImGui::Button("Load Reports")) {
         std::string error;
@@ -2099,9 +2756,127 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
         }
 
         const char* conflictLabels[] = {"Cancel on conflict", "Replace", "Keep Both", "Relink Existing"};
+        const char* conflictPolicyIds[] = {"cancel", "replace", "keep_both", "relink_existing"};
         ImGui::Combo("If attachment conflicts", &attachmentConflictPolicy, conflictLabels, IM_ARRAYSIZE(conflictLabels));
         const auto policy = static_cast<urpg::assets::ProjectAssetAttachmentConflictPolicy>(attachmentConflictPolicy);
+        ImGui::InputText("Derived revision manifest", &derivedRevisionManifestPath);
+        ImGui::TextDisabled("A reviewed PNG/WAV revision is attached through the same project transaction as promoted media.");
+        const bool cropRevisionOpen =
+            ImGui::CollapsingHeader("Deterministic Image Crop and Scale", ImGuiTreeNodeFlags_DefaultOpen);
+        if (cropRevisionOpen) {
+            ImGui::TextWrapped("Create a non-destructive PNG revision from a promoted image. Zero width or height uses the source preview dimension.");
+            ImGui::InputText("Transform operation ID", &transformOperationId);
+            ImGui::InputInt("Crop X", &transformCropX);
+            ImGui::SameLine();
+            ImGui::InputInt("Crop Y", &transformCropY);
+            ImGui::InputInt("Crop width", &transformCropWidth);
+            ImGui::SameLine();
+            ImGui::InputInt("Crop height", &transformCropHeight);
+            ImGui::InputInt("Output width", &transformOutputWidth);
+            ImGui::SameLine();
+            ImGui::InputInt("Output height", &transformOutputHeight);
+            if (configuredLibraryRoot.empty()) {
+                ImGui::TextDisabled("A configured external asset library is required to store derived revisions.");
+            }
+        }
+        const bool paletteRevisionOpen =
+            ImGui::CollapsingHeader("Deterministic Fixed Palette", ImGuiTreeNodeFlags_DefaultOpen);
+        if (paletteRevisionOpen) {
+            ImGui::TextWrapped("Map every pixel to the nearest explicitly chosen RGBA entry. The initial editor control intentionally exposes two colors.");
+            ImGui::InputText("Palette operation ID", &paletteOperationId);
+            ImGui::ColorEdit4("Palette color A", paletteColorA);
+            ImGui::ColorEdit4("Palette color B", paletteColorB);
+            if (configuredLibraryRoot.empty()) {
+                ImGui::TextDisabled("A configured external asset library is required to store derived revisions.");
+            }
+        }
+        const bool audioRevisionOpen =
+            ImGui::CollapsingHeader("PCM16 Audio Trim, Fade, and Gain", ImGuiTreeNodeFlags_DefaultOpen);
+        if (audioRevisionOpen) {
+            ImGui::TextWrapped("Create a non-destructive PCM16 WAV revision. Frame positions are exact source/output frame indices; unsupported codecs remain governed conversion work.");
+            ImGui::InputText("Audio operation ID", &audioOperationId);
+            ImGui::InputInt("Audio start frame", &audioStartFrame);
+            ImGui::SameLine();
+            ImGui::InputInt("Audio end frame", &audioEndFrame);
+            ImGui::InputInt("Fade in frames", &audioFadeInFrames);
+            ImGui::SameLine();
+            ImGui::InputInt("Fade out frames", &audioFadeOutFrames);
+            ImGui::InputInt("Gain (milli-dB)", &audioGainMilliDb);
+            ImGui::Checkbox("Enable output loop", &audioUseLoop);
+            if (audioUseLoop) {
+                ImGui::InputInt("Loop start frame", &audioLoopStartFrame);
+                ImGui::SameLine();
+                ImGui::InputInt("Loop end frame", &audioLoopEndFrame);
+            }
+            if (configuredLibraryRoot.empty()) {
+                ImGui::TextDisabled("A configured external asset library is required to store derived revisions.");
+            }
+        }
+        const bool tilesetRevisionOpen =
+            ImGui::CollapsingHeader("Deterministic Tileset Slice", ImGuiTreeNodeFlags_DefaultOpen);
+        if (tilesetRevisionOpen) {
+            ImGui::TextWrapped("Produce a row-major PNG tile directory from an exact image grid. Tileset assignment remains a separate native owner.");
+            ImGui::InputText("Tileset operation ID", &tilesetOperationId);
+            ImGui::InputInt("Tile width", &tilesetTileWidth);
+            ImGui::SameLine();
+            ImGui::InputInt("Tile height", &tilesetTileHeight);
+            ImGui::InputInt("Tileset margin", &tilesetMargin);
+            ImGui::SameLine();
+            ImGui::InputInt("Tileset spacing", &tilesetSpacing);
+            if (configuredLibraryRoot.empty()) {
+                ImGui::TextDisabled("A configured external asset library is required to store derived revisions.");
+            }
+        }
+        const bool atlasRevisionOpen =
+            ImGui::CollapsingHeader("Deterministic Atlas Metadata", ImGuiTreeNodeFlags_DefaultOpen);
+        if (atlasRevisionOpen) {
+            ImGui::TextWrapped("Record validated atlas/frame dimensions without changing source pixels. Atlas metadata is not a directly attachable media revision.");
+            ImGui::InputText("Atlas operation ID", &atlasOperationId);
+            ImGui::InputInt("Atlas width", &atlasWidth);
+            ImGui::SameLine();
+            ImGui::InputInt("Atlas height", &atlasHeight);
+            ImGui::InputInt("Atlas frame width", &atlasFrameWidth);
+            ImGui::SameLine();
+            ImGui::InputInt("Atlas frame height", &atlasFrameHeight);
+            if (configuredLibraryRoot.empty()) {
+                ImGui::TextDisabled("A configured external asset library is required to store derived revisions.");
+            }
+        }
         const auto& actionRows = panel.lastRenderSnapshot().asset_action_rows;
+        if (!runtime.project_root.empty()) {
+            if (ImGui::Button("Find Orphan Candidates")) {
+                inspectedOrphanedAssetIds = urpg::assets::findOrphanedAttachedAssetIds(runtime.project_root);
+                orphanCandidatesInspected = true;
+            }
+            ImGui::SameLine();
+            ImGui::TextDisabled("Read-only: unindexed owners can still reference these assets.");
+            if (!inspectedOrphanedAssetIds.empty()) {
+                ImGui::TextDisabled("Orphan candidates (%zu):", inspectedOrphanedAssetIds.size());
+                for (const auto& asset_id : inspectedOrphanedAssetIds) {
+                    ImGui::BulletText("%s", asset_id.c_str());
+                }
+            } else if (orphanCandidatesInspected) {
+                ImGui::TextDisabled("No orphan candidates were found among the currently indexed owners.");
+            }
+        }
+        if (ImGui::CollapsingHeader("Favorites and Collections", ImGuiTreeNodeFlags_DefaultOpen)) {
+            const auto& curation = panel.lastRenderSnapshot().user_curation;
+            ImGui::Text("Favorites: %zu | Collections: %zu", panel.lastRenderSnapshot().favorite_asset_count,
+                        panel.lastRenderSnapshot().asset_collection_count);
+            ImGui::InputText("Collection ID", &curationCollectionId);
+            ImGui::SameLine();
+            ImGui::InputText("Collection label", &curationCollectionLabel);
+            ImGui::SameLine();
+            if (ImGui::Button("Create Collection")) {
+                const bool created = panel.model().createAssetCollection(curationCollectionId, curationCollectionLabel);
+                assetWorkflowStatus = created ? "Collection created." : "Collection ID and label must be unique and non-empty.";
+                if (created) { curationCollectionId.clear(); curationCollectionLabel.clear(); panel.render(); }
+            }
+            for (const auto& collection : curation.value("collections", nlohmann::json::array())) {
+                ImGui::TextDisabled("%s (%zu assets)", collection.value("label", "collection").c_str(),
+                                    collection.value("asset_count", size_t{0}));
+            }
+        }
         for (const auto& row : actionRows) {
             const auto attach = row.value("attach_button", nlohmann::json::object());
             const bool projectAttached = row.value("project_attached", false);
@@ -2109,11 +2884,208 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
             const auto path = row.value("path", "");
             ImGui::PushID(row.value("asset_id", path).c_str());
             ImGui::Text("%s: %s", projectAttached ? "Attached" : "Ready", row.value("asset_id", "asset").c_str());
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Compare Left")) comparisonLeftPath = path;
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Compare Right")) comparisonRightPath = path;
+            ImGui::SameLine();
+            const bool favorite = panel.model().isAssetFavorite(path);
+            if (ImGui::SmallButton(favorite ? "Unfavorite" : "Favorite")) {
+                (void)panel.model().setAssetFavorite(path, !favorite);
+                panel.render();
+            }
+            if (projectAttached && !runtime.project_root.empty()) {
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Project References")) {
+                    const auto index = urpg::assets::buildProjectAssetReferenceIndex(runtime.project_root);
+                    inspectedMapReferenceAssetId = row.value("asset_id", "");
+                    inspectedMapReferences = index.inboundForAsset(inspectedMapReferenceAssetId);
+                    inspectedMapReferenceDiagnostics = index.diagnostics;
+                }
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Removal Impact")) {
+                    inspectedRemovalImpactAssetId = row.value("asset_id", "");
+                    inspectedRemovalImpact = urpg::assets::buildProjectAssetRemovalImpactPlan(
+                        runtime.project_root, inspectedRemovalImpactAssetId);
+                }
+                if (inspectedMapReferenceAssetId == row.value("asset_id", "")) {
+                    ImGui::TextDisabled("Project references: %zu", inspectedMapReferences.size());
+                    for (const auto& reference : inspectedMapReferences) {
+                        ImGui::BulletText("%s | %s | %s", reference.document_path.generic_string().c_str(),
+                                          reference.owner_kind.c_str(), reference.local_id.c_str());
+                    }
+                    for (const auto& diagnostic : inspectedMapReferenceDiagnostics) {
+                        ImGui::TextDisabled("Index diagnostic: %s", diagnostic.c_str());
+                    }
+                }
+                if (inspectedRemovalImpactAssetId == row.value("asset_id", "")) {
+                    ImGui::TextDisabled("Removal impact: %zu indexed inbound reference(s).",
+                                        inspectedRemovalImpact.inbound_references.size());
+                    ImGui::TextDisabled("Read-only: removal is not authorized; unindexed owners may still reference it.");
+                    for (const auto& reference : inspectedRemovalImpact.inbound_references) {
+                        ImGui::BulletText("%s | %s | %s", reference.document_path.generic_string().c_str(),
+                                          reference.owner_kind.c_str(), reference.local_id.c_str());
+                    }
+                    for (const auto& diagnostic : inspectedRemovalImpact.diagnostics) {
+                        ImGui::TextDisabled("Impact diagnostic: %s", diagnostic.c_str());
+                    }
+                }
+            }
+            for (const auto& collection : panel.lastRenderSnapshot().user_curation.value("collections", nlohmann::json::array())) {
+                const auto collectionId = collection.value("id", "");
+                ImGui::SameLine();
+                if (ImGui::SmallButton(("Toggle " + collection.value("label", collectionId)).c_str())) {
+                    const bool included = panel.model().isAssetInCollection(collectionId, path);
+                    (void)panel.model().setAssetCollectionMembership(collectionId, path, !included);
+                    panel.render();
+                }
+            }
             if (attach.value("enabled", false)) {
                 ImGui::SameLine();
-                if (ImGui::Button("Attach To Project")) {
-                    const auto result = panel.attachSelectedPromotedAssetsToProject({path}, runtime.project_root, policy);
-                    assetWorkflowStatus = result.value("message", "Attachment did not return a status.");
+                const bool isPendingPlan = pendingAssetAttachmentPlan.value("success", false) &&
+                                           pendingAssetAttachmentPlan.value("path", "") == path &&
+                                           pendingAssetAttachmentPlan.value("project_root", "") ==
+                                               runtime.project_root.generic_string() &&
+                                           pendingAssetAttachmentPlan.value("conflict_policy", "") ==
+                                               conflictPolicyIds[attachmentConflictPolicy];
+                if (!isPendingPlan && ImGui::Button("Review Attachment")) {
+                    pendingAssetAttachmentPlan = panel.planPromotedAssetAttachmentToProject(path, runtime.project_root, policy);
+                    assetWorkflowStatus = pendingAssetAttachmentPlan.value("message", "Attachment plan did not return a status.");
+                }
+                if (isPendingPlan) {
+                    ImGui::SameLine();
+                    if (ImGui::Button("Confirm Attach")) {
+                        const auto result = panel.confirmPromotedAssetAttachmentToProject(
+                            path, runtime.project_root, pendingAssetAttachmentPlan.value("expected_source_revision", ""),
+                            pendingAssetAttachmentPlan.value("operation_id", ""), policy);
+                        assetWorkflowStatus = result.value("message", "Attachment confirmation did not return a status.");
+                        if (result.value("success", false)) {
+                            pendingAssetAttachmentPlan = nlohmann::json::object();
+                        }
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Refresh Review")) {
+                        pendingAssetAttachmentPlan = panel.planPromotedAssetAttachmentToProject(path, runtime.project_root, policy);
+                        assetWorkflowStatus = pendingAssetAttachmentPlan.value("message", "Attachment plan did not return a status.");
+                    }
+                    ImGui::TextDisabled("Revision: %.16s", pendingAssetAttachmentPlan.value("expected_source_revision", "").c_str());
+                }
+            }
+            if (!derivedRevisionManifestPath.empty() && (attach.value("enabled", false) || projectAttached)) {
+                ImGui::SameLine();
+                const bool isPendingDerivedPlan = pendingDerivedRevisionAttachmentPlan.value("success", false) &&
+                                                  pendingDerivedRevisionAttachmentPlan.value("path", "") == path &&
+                                                  pendingDerivedRevisionAttachmentPlan.value("derived_manifest_path", "") ==
+                                                      std::filesystem::path(derivedRevisionManifestPath).generic_string() &&
+                                                  pendingDerivedRevisionAttachmentPlan.value("project_root", "") ==
+                                                      runtime.project_root.generic_string() &&
+                                                  pendingDerivedRevisionAttachmentPlan.value("conflict_policy", "") ==
+                                                      conflictPolicyIds[attachmentConflictPolicy];
+                if (!isPendingDerivedPlan && ImGui::Button("Review Derived Revision")) {
+                    pendingDerivedRevisionAttachmentPlan = panel.planDerivedRevisionAttachmentToProject(
+                        path, derivedRevisionManifestPath, runtime.project_root, policy);
+                    assetWorkflowStatus = pendingDerivedRevisionAttachmentPlan.value(
+                        "message", "Derived revision attachment plan did not return a status.");
+                }
+                if (isPendingDerivedPlan) {
+                    ImGui::SameLine();
+                    if (ImGui::Button("Confirm Derived Revision")) {
+                        const auto result = panel.confirmDerivedRevisionAttachmentToProject(
+                            path, derivedRevisionManifestPath, runtime.project_root,
+                            pendingDerivedRevisionAttachmentPlan.value("expected_source_revision", ""),
+                            pendingDerivedRevisionAttachmentPlan.value("operation_id", ""), policy);
+                        assetWorkflowStatus = result.value("message", "Derived revision attachment confirmation did not return a status.");
+                        if (result.value("success", false)) {
+                            pendingDerivedRevisionAttachmentPlan = nlohmann::json::object();
+                        }
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Refresh Derived Review")) {
+                        pendingDerivedRevisionAttachmentPlan = panel.planDerivedRevisionAttachmentToProject(
+                            path, derivedRevisionManifestPath, runtime.project_root, policy);
+                        assetWorkflowStatus = pendingDerivedRevisionAttachmentPlan.value(
+                            "message", "Derived revision attachment plan did not return a status.");
+                    }
+                    ImGui::TextDisabled("Derived revision: %.16s",
+                                        pendingDerivedRevisionAttachmentPlan.value("expected_source_revision", "").c_str());
+                }
+            }
+            if (cropRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
+                ImGui::SameLine();
+                if (ImGui::Button("Create Crop Revision")) {
+                    const int sourceWidth = row.value("preview_width", 0);
+                    const int sourceHeight = row.value("preview_height", 0);
+                    const int cropWidth = transformCropWidth > 0 ? transformCropWidth : sourceWidth;
+                    const int cropHeight = transformCropHeight > 0 ? transformCropHeight : sourceHeight;
+                    const int outputWidth = transformOutputWidth > 0 ? transformOutputWidth : cropWidth;
+                    const int outputHeight = transformOutputHeight > 0 ? transformOutputHeight : cropHeight;
+                    const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
+                    const auto result = panel.createImageCropScaleRevision(
+                        path, derivedRoot, transformOperationId, transformCropX, transformCropY, cropWidth, cropHeight,
+                        outputWidth, outputHeight);
+                    assetWorkflowStatus = result.value("message", "Image revision did not return a status.");
+                    if (result.value("success", false)) {
+                        derivedRevisionManifestPath = result.value("manifest_path", "");
+                    }
+                }
+            }
+            if (paletteRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
+                ImGui::SameLine();
+                if (ImGui::Button("Create Palette Revision")) {
+                    const auto toRgba = [](const float* color) {
+                        const auto channel = [](const float value) {
+                            return static_cast<uint32_t>(std::clamp(value, 0.0f, 1.0f) * 255.0f + 0.5f);
+                        };
+                        return (channel(color[0]) << 24U) | (channel(color[1]) << 16U) |
+                               (channel(color[2]) << 8U) | channel(color[3]);
+                    };
+                    const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
+                    const auto result = panel.createImagePaletteRevision(
+                        path, derivedRoot, paletteOperationId, {toRgba(paletteColorA), toRgba(paletteColorB)});
+                    assetWorkflowStatus = result.value("message", "Palette revision did not return a status.");
+                    if (result.value("success", false)) {
+                        derivedRevisionManifestPath = result.value("manifest_path", "");
+                    }
+                }
+            }
+            if (audioRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "audio") {
+                ImGui::SameLine();
+                if (ImGui::Button("Create Audio Revision")) {
+                    const auto nonnegativeFrames = [](const int value) {
+                        return static_cast<uint64_t>(std::max(value, 0));
+                    };
+                    const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
+                    const auto result = panel.createAudioTrimFadeGainRevision(
+                        path, derivedRoot, audioOperationId, nonnegativeFrames(audioStartFrame),
+                        nonnegativeFrames(audioEndFrame), nonnegativeFrames(audioFadeInFrames),
+                        nonnegativeFrames(audioFadeOutFrames), audioGainMilliDb,
+                        audioUseLoop ? static_cast<int64_t>(std::max(audioLoopStartFrame, 0)) : -1,
+                        audioUseLoop ? static_cast<int64_t>(std::max(audioLoopEndFrame, 0)) : -1);
+                    assetWorkflowStatus = result.value("message", "Audio revision did not return a status.");
+                    if (result.value("success", false)) {
+                        derivedRevisionManifestPath = result.value("manifest_path", "");
+                    }
+                }
+            }
+            if (tilesetRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
+                ImGui::SameLine();
+                if (ImGui::Button("Create Tileset Revision")) {
+                    const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
+                    const auto result = panel.createTilesetSliceRevision(
+                        path, derivedRoot, tilesetOperationId, tilesetTileWidth, tilesetTileHeight, tilesetMargin,
+                        tilesetSpacing);
+                    assetWorkflowStatus = result.value("message", "Tileset revision did not return a status.");
+                }
+            }
+            if (atlasRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
+                ImGui::SameLine();
+                if (ImGui::Button("Create Atlas Metadata")) {
+                    const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
+                    const auto result = panel.createAtlasMetadataRevision(
+                        path, derivedRoot, atlasOperationId, atlasWidth > 0 ? atlasWidth : row.value("preview_width", 0),
+                        atlasHeight > 0 ? atlasHeight : row.value("preview_height", 0), atlasFrameWidth,
+                        atlasFrameHeight);
+                    assetWorkflowStatus = result.value("message", "Atlas metadata revision did not return a status.");
                 }
             }
             if (projectAttached && ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
@@ -2124,6 +3096,16 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                 dragPayload.projectPath =
                     (runtime.project_root / "content" / "assets" / "imported" / assetId / sourceFilename).generic_string();
                 dragPayload.mediaKind = row.value("media_kind", "image");
+                if (std::ifstream manifestInput(runtime.project_root / "content" / "assets" / "manifests" /
+                                                (assetId + ".json"),
+                                                std::ios::binary);
+                    manifestInput.good()) {
+                    const auto manifestJson = nlohmann::json::parse(manifestInput, nullptr, false);
+                    if (!manifestJson.is_discarded()) {
+                        const auto manifest = urpg::assets::deserializeAssetPromotionManifest(manifestJson);
+                        if (manifest.assetId == assetId) dragPayload.attachmentRevision = manifest.sourceSha256;
+                    }
+                }
                 dragPayload.width = row.value("preview_width", uint32_t{0});
                 dragPayload.height = row.value("preview_height", uint32_t{0});
                 dragPayload.provenance = urpg::editor::EditorAssetProvenanceState::Attached;
@@ -2133,6 +3115,48 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                 ImGui::EndDragDropSource();
             }
             ImGui::PopID();
+        }
+        if (!comparisonLeftPath.empty() && !comparisonRightPath.empty()) {
+            const auto findComparisonRow = [&](const std::string& path) {
+                return std::find_if(actionRows.begin(), actionRows.end(), [&](const auto& row) {
+                    return row.value("path", "") == path;
+                });
+            };
+            const auto left = findComparisonRow(comparisonLeftPath);
+            const auto right = findComparisonRow(comparisonRightPath);
+            if (left != actionRows.end() && right != actionRows.end() &&
+                ImGui::CollapsingHeader("Read-only Asset Comparison", ImGuiTreeNodeFlags_DefaultOpen)) {
+                ImGui::TextDisabled("Comparison is read-only; it does not promote, attach, or modify either asset.");
+                const auto renderComparison = [&](const nlohmann::json& row, const char* label) {
+                    ImGui::BeginGroup();
+                    ImGui::TextUnformatted(label);
+                    ImGui::TextWrapped("%s", row.value("asset_id", row.value("path", "asset")).c_str());
+                    ImGui::Text("Kind: %s | %d x %d", row.value("media_kind", "unknown").c_str(),
+                                row.value("preview_width", 0), row.value("preview_height", 0));
+                    ImGui::Text("Category: %s", row.value("category", "unclassified").c_str());
+                    const auto previewPath = row.value("preview_path", "");
+                    if (row.value("preview_kind", "") == "image" && !previewPath.empty()) {
+                        urpg::editor::EditorThumbnailRequest request;
+                        request.sourcePath = previewPath;
+                        request.requestedWidth = 128;
+                        request.requestedHeight = 128;
+                        runtime.asset_thumbnail_pinned_requests.push_back(request);
+                        runtime.asset_thumbnail_cache.pumpUploads();
+                        const auto thumbnail = runtime.asset_thumbnail_cache.snapshotFor(request);
+                        if (thumbnail.state == urpg::editor::EditorThumbnailState::Ready && thumbnail.textureId != 0) {
+                            const auto texture = [](uint32_t textureId) -> ImTextureID {
+                                if constexpr (std::is_pointer_v<ImTextureID>) return reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(textureId));
+                                return static_cast<ImTextureID>(textureId);
+                            }(thumbnail.textureId);
+                            ImGui::Image(texture, ImVec2(128.0f, 128.0f));
+                        } else ImGui::Button("Preview unavailable", ImVec2(128.0f, 48.0f));
+                    }
+                    ImGui::EndGroup();
+                };
+                renderComparison(*left, "Left");
+                ImGui::SameLine();
+                renderComparison(*right, "Right");
+            }
         }
     }
     ImGui::Separator();
@@ -2367,6 +3391,66 @@ void renderModWorkspace(EditorPanelRuntime& runtime) {
     ImGui::Separator();
     ImGui::Text("Mods");
     renderJsonLines(snapshot.value("mods", nlohmann::json::array()), 6);
+
+    runtime.mz_plugin_inspector_panel.render();
+    const auto& mzSnapshot = runtime.mz_plugin_inspector_panel.lastRenderSnapshot();
+    const auto mzReport = runtime.mz_plugin_inspector_panel.model().exportSnapshotJson();
+    ImGui::Separator();
+    ImGui::TextUnformatted("RPG Maker MZ Plugin Compatibility (Read-only)");
+    ImGui::TextDisabled("Static source inspection only: no JavaScript is loaded, evaluated, or activated here.");
+    ImGui::Text("Source: %s", mzSnapshot.source_kind.empty() ? "not inspected" : mzSnapshot.source_kind.c_str());
+    ImGui::Text("Discovered: %zu | Issues: %zu | Score: %d", mzSnapshot.plugin_count, mzSnapshot.issue_count,
+                mzSnapshot.project_score);
+    renderJsonLines(nlohmann::json(mzSnapshot.discovery_diagnostics), 4);
+    if (mzSnapshot.has_data) {
+        renderJsonLines(mzReport.value("plugins", nlohmann::json::array()), 8);
+    } else {
+        ImGui::TextDisabled("No MZ plugin source was available for inspection in this project.");
+    }
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Project MZ Plugin Lock (Compatibility Only)");
+    ImGui::TextDisabled("Locks static source hashes and dependency order; it never authorizes, loads, or executes MZ plugins.");
+    if (ImGui::Button("Refresh Static MZ Plugin Lock")) {
+        runtime.mz_plugin_lock_draft = buildMzPluginStaticLock(runtime.project_root);
+        if (isValidMzPluginStaticLock(runtime.mz_plugin_lock_draft)) {
+            (void)runtime.dirty_state_registry.markDirty(kMzPluginLockDirtyDocumentId, true);
+            runtime.mz_plugin_lock_source_current = true;
+            runtime.mz_plugin_lock_status = "Static MZ plugin lock refreshed from source text without JavaScript execution.";
+        } else {
+            runtime.mz_plugin_lock_source_current = false;
+            runtime.mz_plugin_lock_status =
+                "Static MZ plugin lock was not created because at least one scanned source could not be locked safely.";
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Check Static MZ Plugin Lock")) {
+        runtime.mz_plugin_lock_source_current = isValidMzPluginStaticLock(runtime.mz_plugin_lock_draft) &&
+                                                  runtime.mz_plugin_lock_draft == buildMzPluginStaticLock(runtime.project_root);
+        runtime.mz_plugin_lock_status = runtime.mz_plugin_lock_source_current
+                                            ? "Static MZ plugin lock matches the current non-executing source scan."
+                                            : "Static MZ plugin lock differs from the current source scan; refresh and review it.";
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Save Static MZ Plugin Lock")) {
+        const auto result = runtime.dirty_state_registry.save(kMzPluginLockDirtyDocumentId);
+        runtime.mz_plugin_lock_status = result.message;
+    }
+    if (isValidMzPluginStaticLock(runtime.mz_plugin_lock_draft)) {
+        ImGui::Text("Locked plugins: %zu | State: %s",
+                    runtime.mz_plugin_lock_draft["plugins"].size(),
+                    runtime.mz_plugin_lock_source_current ? "current" : "check required/source changed");
+        if (!runtime.mz_plugin_lock_source_current) {
+            ImGui::TextColored(ImVec4(1.0f, 0.65f, 0.25f, 1.0f),
+                               "Refresh and review the static lock before relying on this compatibility report.");
+        }
+        renderJsonLines(runtime.mz_plugin_lock_draft.value("plugins", nlohmann::json::array()), 8);
+    } else {
+        ImGui::TextDisabled("No valid project lock is loaded. Refresh to create a static compatibility record.");
+    }
+    if (!runtime.mz_plugin_lock_status.empty()) {
+        ImGui::TextWrapped("%s", runtime.mz_plugin_lock_status.c_str());
+    }
 }
 
 void renderLevelBuilderWorkspace(EditorPanelRuntime& runtime) {
@@ -2508,7 +3592,12 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
         for (const auto& event : snapshot.perspective_2d_events) {
             ImGui::PushID(event.event_id.c_str());
             ImGui::Text("%s (%zu pages)", event.event_id.c_str(), event.page_count);
-            ImGui::SameLine();
+            if (!event.asset_id.empty()) {
+                ImGui::TextDisabled("Attached image metadata: %s", event.asset_id.c_str());
+                ImGui::TextDisabled("Project path: %s (sprite rendering remains separate)",
+                                    event.asset_project_path.c_str());
+            }
+            if (event.asset_id.empty()) ImGui::SameLine();
             if (ImGui::SmallButton("Preview")) {
                 const auto result = workspace.PreviewPerspectiveEventExecution(event.event_id);
                 runtime.map_save_status = result.success
@@ -2776,12 +3865,15 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                 std::vector<std::uint8_t> bytes(begin, begin + drag->DataSize);
                 urpg::editor::EditorAssetDragPayload asset;
                 const auto parsed = urpg::editor::deserializeEditorAssetDragPayload(bytes, &asset);
-                const auto accepted = parsed.accepted && asset.mediaKind == "audio"
-                                          ? urpg::editor::assessEditorAssetDrop(asset, true)
-                                          : urpg::editor::EditorAssetDropDecision{
-                                                false, "audio_mix_asset_drop_requires_audio",
-                                                "Audio Mix accepts attached audio assets only.",
-                                                "Attach an audio asset in Assets, then drag it here."};
+                auto accepted = parsed.accepted && asset.mediaKind == "audio"
+                                    ? urpg::editor::assessEditorAssetDrop(asset, true)
+                                    : urpg::editor::EditorAssetDropDecision{
+                                          false, "audio_mix_asset_drop_requires_audio",
+                                          "Audio Mix accepts attached audio assets only.",
+                                          "Attach an audio asset in Assets, then drag it here."};
+                if (accepted.accepted) {
+                    accepted = urpg::editor::validateEditorAssetAttachmentRevision(asset, runtime.project_root);
+                }
                 if (!accepted.accepted) {
                     runtime.map_asset_drop_status = accepted.message +
                                                     (accepted.remediation.empty() ? "" : " " + accepted.remediation);
@@ -2899,12 +3991,16 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         }
     }
     if (ImGui::CollapsingHeader("Accessibility Audit")) {
-        ImGui::TextDisabled("Audits the active native audio mix and battle-preview surfaces.");
+        ImGui::TextDisabled("Audits the active native audio mix, battle-preview, and spatial Map controls.");
         if (ImGui::Button("Audit Current Creator Surfaces")) {
             auto elements = urpg::editor::AccessibilityAudioAdapter::ingest(runtime.audio_mix_draft);
             const auto battleElements = urpg::editor::AccessibilityBattleAdapter::ingest(
                 runtime.diagnostics_workspace.battlePanel().getModel());
             elements.insert(elements.end(), battleElements.begin(), battleElements.end());
+            const auto& spatialSnapshot = runtime.perspective_2d_workspace.lastRenderSnapshot();
+            const auto spatialElements = urpg::editor::AccessibilitySpatialAdapter::ingest(
+                spatialSnapshot.elevation, spatialSnapshot.props);
+            elements.insert(elements.end(), spatialElements.begin(), spatialElements.end());
             runtime.accessibility_auditor.clear();
             runtime.accessibility_auditor.ingestElements(elements);
             runtime.accessibility_panel.render();
@@ -3044,8 +4140,68 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
     static std::string objectiveId = "return_lantern_to_elder";
     static std::string conditionType = "item";
     static std::string conditionId = "moonwell_lantern";
+    static std::string graphNodeId = "optional_objective";
+    static std::string graphNodeType = "objective";
+    static std::string graphNodeTitle = "Optional Objective";
+    static std::string graphObjectiveId = "optional_objective";
+    static std::string graphLocalizationKey;
+    static std::string graphLinkFrom = "objective";
+    static std::string graphLinkTo = "complete";
+    static std::string graphConditionNodeId = "optional_objective";
+    static std::string graphConditionType = "switch";
+    static std::string graphConditionId = "optional_ready";
+    static int graphConditionValue = 1;
+    static std::string graphRewardNodeId = "optional_objective";
+    static std::string graphRewardType = "gold";
+    static std::string graphRewardId = "gold";
+    static int graphRewardValue = 25;
+    static std::string questCanvasDragNodeId;
+    static int32_t questCanvasDragStartX = 0;
+    static int32_t questCanvasDragStartY = 0;
+    static std::string dialogueId = "moonwell_intro";
+    static std::string dialogueStartNodeId = "start";
+    static std::string dialogueSpeakerId = "elder_rowan";
+    static std::string dialogueSpeakerName = "Elder Rowan";
+    static std::string dialogueLocalizationKey = "dialogue.moonwell_intro";
+    static std::string dialogueTextPreview = "The Moonwell has grown quiet.";
+    static std::string dialogueNodeId = "farewell";
+    static std::string dialogueNodeSpeakerId = "elder_rowan";
+    static std::string dialogueNodeSpeakerName = "Elder Rowan";
+    static std::string dialogueNodeLocalizationKey = "dialogue.moonwell_farewell";
+    static std::string dialogueNodeTextPreview = "Travel safely, then.";
+    static bool dialogueNodeEnding = true;
+    static std::string dialogueNodeVoiceAssetId;
+    static std::string dialogueNodeCaptionLocalizationKey;
+    static std::string dialogueCanvasDragNodeId;
+    static int32_t dialogueCanvasDragStartX = 0;
+    static int32_t dialogueCanvasDragStartY = 0;
+    static std::string dialogueChoiceSourceId = "start";
+    static std::string dialogueChoiceId = "ask_moonwell";
+    static std::string dialogueChoiceLabel = "Ask about the Moonwell";
+    static std::string dialogueChoiceTargetId = "farewell";
+    static std::string dialogueConditionKey = "moonwell_ready";
+    static std::string dialogueConditionOp = ">=";
+    static int dialogueConditionValue = 1;
+    static std::string dialogueEffectKey = "elder_affinity";
+    static int dialogueEffectDelta = 1;
     ImGui::TextDisabled("Quest draft: %s", runtime.quest_draft_id.c_str());
     if (ImGui::CollapsingHeader("Quest Authoring", ImGuiTreeNodeFlags_DefaultOpen)) {
+        const auto pick_quest_localization_key = [&runtime](const char* label, std::string& localization_key) {
+            if (runtime.dialogue_localization_key_options.empty()) {
+                ImGui::TextDisabled("No valid project localization bundle is available for selection.");
+                return;
+            }
+            if (ImGui::BeginCombo(label, localization_key.empty() ? "Select project key" : localization_key.c_str())) {
+                for (const auto& candidate : runtime.dialogue_localization_key_options) {
+                    const bool selected = candidate == localization_key;
+                    if (ImGui::Selectable(candidate.c_str(), selected)) {
+                        localization_key = candidate;
+                    }
+                    if (selected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+        };
         ImGui::InputText("Quest ID", &questId);
         ImGui::InputText("Quest Title", &questTitle);
         ImGui::InputText("Objective ID", &objectiveId);
@@ -3064,6 +4220,8 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             if (graph.validate().empty()) {
                 runtime.quest_draft = std::move(graph);
                 runtime.quest_draft_id = questId;
+                runtime.quest_undo_history.clear();
+                runtime.quest_redo_history.clear();
                 (void)runtime.dirty_state_registry.markDirty(kQuestDirtyDocumentId, true);
                 runtime.map_save_status = "Quest graph authored in the active project; save it before switching context.";
             } else {
@@ -3074,6 +4232,330 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         ImGui::TextDisabled("Runtime preview: %zu choice(s), %zu item(s), %zu battle-preview result(s)",
                             runtime.quest_preview_world.dialogue_choices.size(), runtime.quest_preview_world.items.size(),
                             runtime.quest_preview_world.battles.size());
+        if (runtime.quest_draft.has_value()) {
+            const auto node_exists = [&runtime](const std::string& node_id) {
+                return std::any_of(runtime.quest_draft->nodes.begin(), runtime.quest_draft->nodes.end(),
+                                   [&](const auto& node) { return node.id == node_id; });
+            };
+            ImGui::Separator();
+            ImGui::Text("Quest graph: %zu node(s), %zu link(s)", runtime.quest_draft->nodes.size(),
+                        runtime.quest_draft->links.size());
+            if (ImGui::Button("Undo Quest Edit") && undoQuestGraphMutation(runtime)) {
+                runtime.map_save_status = "Quest graph edit undone.";
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Redo Quest Edit") && redoQuestGraphMutation(runtime)) {
+                runtime.map_save_status = "Quest graph edit redone.";
+            }
+            ImGui::SameLine();
+            ImGui::TextDisabled("%zu undo / %zu redo", runtime.quest_undo_history.size(), runtime.quest_redo_history.size());
+
+            ImGui::TextUnformatted("Quest Graph Canvas");
+            ImGui::TextDisabled("Click a node to load its ID into the graph controls. Drag a node to persist its canvas position.");
+            const ImVec2 quest_canvas_card_size{168.0f, 56.0f};
+            if (ImGui::BeginChild("QuestGraphCanvas", ImVec2(0.0f, 270.0f), true,
+                                  ImGuiWindowFlags_HorizontalScrollbar)) {
+                const ImVec2 canvas_origin = ImGui::GetCursorScreenPos();
+                const auto add = [](const ImVec2 left, const ImVec2 right) {
+                    return ImVec2(left.x + right.x, left.y + right.y);
+                };
+                const auto canvas_position = [](const urpg::quest::QuestGraphNode& node, const size_t index) {
+                    if (node.has_canvas_position) {
+                        return ImVec2(static_cast<float>(node.canvas_x), static_cast<float>(node.canvas_y));
+                    }
+                    return ImVec2(16.0f + static_cast<float>(index % 3U) * 184.0f,
+                                  16.0f + static_cast<float>(index / 3U) * 78.0f);
+                };
+                const auto node_position = [&](const std::string& node_id) {
+                    for (size_t index = 0; index < runtime.quest_draft->nodes.size(); ++index) {
+                        const auto& node = runtime.quest_draft->nodes[index];
+                        if (node.id == node_id) return canvas_position(node, index);
+                    }
+                    return ImVec2{};
+                };
+                auto* draw_list = ImGui::GetWindowDrawList();
+                for (const auto& link : runtime.quest_draft->links) {
+                    const auto source = add(add(canvas_origin, node_position(link.from)),
+                                            ImVec2(quest_canvas_card_size.x, quest_canvas_card_size.y * 0.5f));
+                    const auto target = add(add(canvas_origin, node_position(link.to)),
+                                            ImVec2(0.0f, quest_canvas_card_size.y * 0.5f));
+                    draw_list->AddLine(source, target, IM_COL32(115, 210, 150, 220), 2.0f);
+                }
+                for (size_t index = 0; index < runtime.quest_draft->nodes.size(); ++index) {
+                    const auto& node = runtime.quest_draft->nodes[index];
+                    bool canvas_position_changed = false;
+                    const auto position = canvas_position(node, index);
+                    ImGui::SetCursorScreenPos(add(canvas_origin, position));
+                    ImGui::PushID(node.id.c_str());
+                    const auto label = node.id + "  [" + node.type + "]";
+                    if (ImGui::Button(label.c_str(), quest_canvas_card_size)) {
+                        graphNodeId = node.id;
+                        graphNodeType = node.type;
+                        graphNodeTitle = node.title;
+                        graphObjectiveId = node.objective_id;
+                        graphLocalizationKey = node.localization_key;
+                        graphConditionNodeId = node.id;
+                        graphRewardNodeId = node.id;
+                    }
+                    if (ImGui::IsItemActivated()) {
+                        questCanvasDragNodeId = node.id;
+                        questCanvasDragStartX = static_cast<int32_t>(position.x);
+                        questCanvasDragStartY = static_cast<int32_t>(position.y);
+                    }
+                    if (ImGui::IsItemDeactivated() && questCanvasDragNodeId == node.id) {
+                        const auto delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+                        if (delta.x != 0.0f || delta.y != 0.0f) {
+                            auto next = *runtime.quest_draft;
+                            const auto moved = std::find_if(next.nodes.begin(), next.nodes.end(), [&](const auto& candidate) {
+                                return candidate.id == node.id;
+                            });
+                            if (moved != next.nodes.end()) {
+                                moved->canvas_x = std::max<int32_t>(0, questCanvasDragStartX + static_cast<int32_t>(delta.x));
+                                moved->canvas_y = std::max<int32_t>(0, questCanvasDragStartY + static_cast<int32_t>(delta.y));
+                                moved->has_canvas_position = true;
+                                if (applyQuestGraphMutation(runtime, std::move(next))) {
+                                    runtime.map_save_status = "Quest node canvas position updated as one undoable project edit.";
+                                    canvas_position_changed = true;
+                                }
+                            }
+                        }
+                        ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
+                        questCanvasDragNodeId.clear();
+                    }
+                    ImGui::PopID();
+                    if (canvas_position_changed) break;
+                }
+                ImGui::SetCursorScreenPos(add(canvas_origin, ImVec2(0.0f, 252.0f)));
+                ImGui::Dummy(ImVec2(620.0f, 1.0f));
+            }
+            ImGui::EndChild();
+
+            ImGui::InputText("Graph Node ID", &graphNodeId);
+            ImGui::InputText("Graph Node Type", &graphNodeType);
+            ImGui::InputText("Graph Node Title", &graphNodeTitle);
+            ImGui::InputText("Graph Objective ID", &graphObjectiveId);
+            ImGui::InputText("Graph Localization Key", &graphLocalizationKey);
+            pick_quest_localization_key("Pick Graph Localization Key", graphLocalizationKey);
+            if (ImGui::Button("Add Quest Node")) {
+                auto next = *runtime.quest_draft;
+                if (graphNodeId.empty() || graphNodeType.empty() || node_exists(graphNodeId)) {
+                    runtime.map_save_status = "Quest node requires a unique ID and a type.";
+                } else if (graphNodeType == "objective" && graphObjectiveId.empty()) {
+                    runtime.map_save_status = "Objective nodes require an objective ID.";
+                } else {
+                    next.nodes.push_back({graphNodeId, graphNodeType, graphNodeTitle,
+                                          graphNodeType == "objective" ? graphObjectiveId : "", graphLocalizationKey,
+                                          {}, {}});
+                    if (applyQuestGraphMutation(runtime, std::move(next))) {
+                        runtime.map_save_status = "Quest node added as one undoable project edit.";
+                    }
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Update Quest Node")) {
+                auto next = *runtime.quest_draft;
+                const auto node = std::find_if(next.nodes.begin(), next.nodes.end(), [&](const auto& candidate) {
+                    return candidate.id == graphNodeId;
+                });
+                const auto start_count = std::count_if(next.nodes.begin(), next.nodes.end(), [](const auto& candidate) {
+                    return candidate.type == "start";
+                });
+                if (node == next.nodes.end() || graphNodeType.empty() ||
+                    (graphNodeType == "objective" && graphObjectiveId.empty())) {
+                    runtime.map_save_status = "Update an existing quest node with a type and required objective ID.";
+                } else if (node->type == "start" && graphNodeType != "start" && start_count <= 1) {
+                    runtime.map_save_status = "A quest graph must retain at least one start node.";
+                } else {
+                    node->type = graphNodeType;
+                    node->title = graphNodeTitle;
+                    node->objective_id = graphNodeType == "objective" ? graphObjectiveId : "";
+                    node->localization_key = graphLocalizationKey;
+                    if (applyQuestGraphMutation(runtime, std::move(next))) {
+                        runtime.map_save_status = "Quest node updated as one undoable project edit.";
+                    } else {
+                        runtime.map_save_status = "Quest node update made no change.";
+                    }
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove Quest Node")) {
+                auto next = *runtime.quest_draft;
+                const auto node = std::find_if(next.nodes.begin(), next.nodes.end(), [&](const auto& candidate) {
+                    return candidate.id == graphNodeId;
+                });
+                const auto start_count = std::count_if(next.nodes.begin(), next.nodes.end(), [](const auto& candidate) {
+                    return candidate.type == "start";
+                });
+                if (node == next.nodes.end()) {
+                    runtime.map_save_status = "Enter an existing quest node ID to remove it.";
+                } else if (node->type == "start" && start_count <= 1) {
+                    runtime.map_save_status = "A quest graph must retain at least one start node.";
+                } else {
+                    next.nodes.erase(node);
+                    next.links.erase(std::remove_if(next.links.begin(), next.links.end(), [&](const auto& link) {
+                        return link.from == graphNodeId || link.to == graphNodeId;
+                    }), next.links.end());
+                    if (applyQuestGraphMutation(runtime, std::move(next))) {
+                        runtime.map_save_status = "Quest node and its links removed as one undoable project edit.";
+                    }
+                }
+            }
+
+            ImGui::InputText("Quest Link From", &graphLinkFrom);
+            ImGui::InputText("Quest Link To", &graphLinkTo);
+            if (ImGui::Button("Add Quest Link")) {
+                auto next = *runtime.quest_draft;
+                const bool duplicate = std::any_of(next.links.begin(), next.links.end(), [&](const auto& link) {
+                    return link.from == graphLinkFrom && link.to == graphLinkTo;
+                });
+                if (!node_exists(graphLinkFrom) || !node_exists(graphLinkTo) || graphLinkFrom == graphLinkTo) {
+                    runtime.map_save_status = "Quest links require two distinct existing node IDs.";
+                } else if (duplicate) {
+                    runtime.map_save_status = "That quest link already exists.";
+                } else {
+                    next.links.push_back({graphLinkFrom, graphLinkTo});
+                    if (applyQuestGraphMutation(runtime, std::move(next))) {
+                        runtime.map_save_status = "Quest link added as one undoable project edit.";
+                    }
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove Quest Link")) {
+                auto next = *runtime.quest_draft;
+                const auto previous_size = next.links.size();
+                next.links.erase(std::remove_if(next.links.begin(), next.links.end(), [&](const auto& link) {
+                    return link.from == graphLinkFrom && link.to == graphLinkTo;
+                }), next.links.end());
+                if (next.links.size() == previous_size) {
+                    runtime.map_save_status = "That quest link does not exist.";
+                } else if (applyQuestGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Quest link removed as one undoable project edit.";
+                }
+            }
+
+            ImGui::InputText("Condition Node ID", &graphConditionNodeId);
+            ImGui::InputText("Condition Type", &graphConditionType);
+            ImGui::InputText("Condition ID", &graphConditionId);
+            ImGui::InputInt("Condition Value", &graphConditionValue);
+            if (ImGui::Button("Add Quest Condition")) {
+                auto next = *runtime.quest_draft;
+                const auto node = std::find_if(next.nodes.begin(), next.nodes.end(), [&](const auto& candidate) {
+                    return candidate.id == graphConditionNodeId;
+                });
+                if (node == next.nodes.end() || graphConditionType.empty() || graphConditionId.empty()) {
+                    runtime.map_save_status = "Quest conditions require an existing node plus type and ID.";
+                } else {
+                    const urpg::quest::QuestCondition condition{graphConditionType, graphConditionId, graphConditionValue};
+                    const bool duplicate = std::any_of(node->conditions.begin(), node->conditions.end(),
+                                                       [&](const auto& candidate) {
+                                                           return candidate.type == condition.type &&
+                                                                  candidate.id == condition.id &&
+                                                                  candidate.value == condition.value;
+                                                       });
+                    if (duplicate) {
+                        runtime.map_save_status = "That quest condition already exists on the selected node.";
+                    } else {
+                        node->conditions.push_back(condition);
+                    }
+                    if (!duplicate && applyQuestGraphMutation(runtime, std::move(next))) {
+                        runtime.map_save_status = "Quest condition added as one undoable project edit.";
+                    }
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove Quest Condition")) {
+                auto next = *runtime.quest_draft;
+                const auto node = std::find_if(next.nodes.begin(), next.nodes.end(), [&](const auto& candidate) {
+                    return candidate.id == graphConditionNodeId;
+                });
+                if (node == next.nodes.end()) {
+                    runtime.map_save_status = "Enter an existing quest node ID to remove a condition.";
+                } else {
+                    const auto previous_size = node->conditions.size();
+                    node->conditions.erase(std::remove_if(node->conditions.begin(), node->conditions.end(),
+                                                          [&](const auto& candidate) {
+                                                              return candidate.type == graphConditionType &&
+                                                                     candidate.id == graphConditionId &&
+                                                                     candidate.value == graphConditionValue;
+                                                          }),
+                                           node->conditions.end());
+                    if (node->conditions.size() == previous_size) {
+                        runtime.map_save_status = "That quest condition does not exist on the selected node.";
+                    } else if (applyQuestGraphMutation(runtime, std::move(next))) {
+                        runtime.map_save_status = "Quest condition removed as one undoable project edit.";
+                    }
+                }
+            }
+
+            ImGui::InputText("Reward Node ID", &graphRewardNodeId);
+            ImGui::InputText("Reward Type", &graphRewardType);
+            ImGui::InputText("Reward ID", &graphRewardId);
+            ImGui::InputInt("Reward Value", &graphRewardValue);
+            if (ImGui::Button("Add Quest Reward")) {
+                auto next = *runtime.quest_draft;
+                const auto node = std::find_if(next.nodes.begin(), next.nodes.end(), [&](const auto& candidate) {
+                    return candidate.id == graphRewardNodeId;
+                });
+                if (node == next.nodes.end() || graphRewardType.empty() || graphRewardId.empty()) {
+                    runtime.map_save_status = "Quest rewards require an existing node plus type and ID.";
+                } else {
+                    const urpg::quest::QuestReward reward{graphRewardType, graphRewardId, graphRewardValue};
+                    const bool duplicate = std::any_of(node->rewards.begin(), node->rewards.end(),
+                                                       [&](const auto& candidate) {
+                                                           return candidate.type == reward.type && candidate.id == reward.id &&
+                                                                  candidate.value == reward.value;
+                                                       });
+                    if (duplicate) {
+                        runtime.map_save_status = "That quest reward already exists on the selected node.";
+                    } else {
+                        node->rewards.push_back(reward);
+                    }
+                    if (!duplicate && applyQuestGraphMutation(runtime, std::move(next))) {
+                        runtime.map_save_status = "Quest reward added as one undoable project edit.";
+                    }
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove Quest Reward")) {
+                auto next = *runtime.quest_draft;
+                const auto node = std::find_if(next.nodes.begin(), next.nodes.end(), [&](const auto& candidate) {
+                    return candidate.id == graphRewardNodeId;
+                });
+                if (node == next.nodes.end()) {
+                    runtime.map_save_status = "Enter an existing quest node ID to remove a reward.";
+                } else {
+                    const auto previous_size = node->rewards.size();
+                    node->rewards.erase(std::remove_if(node->rewards.begin(), node->rewards.end(),
+                                                       [&](const auto& candidate) {
+                                                           return candidate.type == graphRewardType &&
+                                                                  candidate.id == graphRewardId &&
+                                                                  candidate.value == graphRewardValue;
+                                                       }),
+                                        node->rewards.end());
+                    if (node->rewards.size() == previous_size) {
+                        runtime.map_save_status = "That quest reward does not exist on the selected node.";
+                    } else if (applyQuestGraphMutation(runtime, std::move(next))) {
+                        runtime.map_save_status = "Quest reward removed as one undoable project edit.";
+                    }
+                }
+            }
+
+            auto diagnostics = runtime.quest_draft->validate();
+            const auto flow_diagnostics = runtime.quest_draft->analyzeFlow();
+            diagnostics.insert(diagnostics.end(), flow_diagnostics.begin(), flow_diagnostics.end());
+            const std::set<std::string> localization_keys(runtime.dialogue_localization_key_options.begin(),
+                                                           runtime.dialogue_localization_key_options.end());
+            const auto localization_diagnostics = runtime.quest_draft->validateLocalizationKeys(localization_keys);
+            diagnostics.insert(diagnostics.end(), localization_diagnostics.begin(), localization_diagnostics.end());
+            if (diagnostics.empty()) {
+                ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "Quest graph validation: ready");
+            } else {
+                ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.4f, 1.0f), "Quest graph validation: %zu issue(s)", diagnostics.size());
+                for (const auto& diagnostic : diagnostics) {
+                    ImGui::BulletText("%s: %s", diagnostic.code.c_str(), diagnostic.message.c_str());
+                }
+            }
+        }
         if (ImGui::Button("Preview Quest") && runtime.quest_draft.has_value()) {
             const auto preview = runtime.quest_draft->preview(runtime.quest_preview_world);
             runtime.map_save_status = preview.diagnostics.empty()
@@ -3084,6 +4566,408 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         ImGui::SameLine();
         if (ImGui::Button("Save Quest")) {
             const auto result = runtime.dirty_state_registry.save(kQuestDirtyDocumentId);
+            runtime.map_save_status = result.message;
+        }
+    }
+    ImGui::TextDisabled("Dialogue draft: %s", runtime.dialogue_draft_id.c_str());
+    if (ImGui::CollapsingHeader("Dialogue Authoring", ImGuiTreeNodeFlags_DefaultOpen)) {
+        const auto pick_localization_key = [&runtime](const char* label, std::string& localization_key) {
+            if (runtime.dialogue_localization_key_options.empty()) {
+                ImGui::TextDisabled("No valid project localization bundle is available for selection.");
+                return;
+            }
+            if (ImGui::BeginCombo(label, localization_key.empty() ? "Select project key" : localization_key.c_str())) {
+                for (const auto& candidate : runtime.dialogue_localization_key_options) {
+                    const bool selected = candidate == localization_key;
+                    if (ImGui::Selectable(candidate.c_str(), selected)) {
+                        localization_key = candidate;
+                    }
+                    if (selected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+        };
+        const auto pick_speaker = [&runtime](const char* label, std::string& speaker_id, std::string& speaker_name) {
+            if (runtime.dialogue_speaker_options.empty()) {
+                ImGui::TextDisabled("No valid project character draft is available for speaker selection.");
+                return;
+            }
+            if (ImGui::BeginCombo(label, speaker_id.empty() ? "Select project character" : speaker_id.c_str())) {
+                for (const auto& [candidate_id, candidate_name] : runtime.dialogue_speaker_options) {
+                    const bool selected = candidate_id == speaker_id;
+                    const auto label_text = candidate_id + " (" + candidate_name + ")";
+                    if (ImGui::Selectable(label_text.c_str(), selected)) {
+                        speaker_id = candidate_id;
+                        speaker_name = candidate_name;
+                    }
+                    if (selected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+        };
+        ImGui::InputText("Dialogue ID", &dialogueId);
+        ImGui::InputText("Start Node ID", &dialogueStartNodeId);
+        ImGui::InputText("Start Speaker ID", &dialogueSpeakerId);
+        ImGui::InputText("Start Speaker Name", &dialogueSpeakerName);
+        pick_speaker("Pick Start Speaker", dialogueSpeakerId, dialogueSpeakerName);
+        ImGui::InputText("Start Localization Key", &dialogueLocalizationKey);
+        pick_localization_key("Pick Start Localization Key", dialogueLocalizationKey);
+        ImGui::InputText("Start Text Preview", &dialogueTextPreview);
+        if (ImGui::Button("Create Dialogue Graph")) {
+            if (dialogueId.empty() || dialogueStartNodeId.empty() || dialogueSpeakerId.empty() ||
+                dialogueLocalizationKey.empty()) {
+                runtime.map_save_status = "Dialogue requires an ID, start node, speaker ID, and localization key.";
+            } else {
+                urpg::dialogue::DialogueGraph graph;
+                if (!graph.addNode({dialogueStartNodeId, dialogueSpeakerId, dialogueSpeakerName,
+                                    dialogueLocalizationKey, dialogueTextPreview, false, {}})) {
+                    runtime.map_save_status = "Dialogue start node ID is invalid or duplicated.";
+                } else {
+                    runtime.dialogue_draft = std::move(graph);
+                    runtime.dialogue_draft_id = dialogueId;
+                    runtime.dialogue_undo_history.clear();
+                    runtime.dialogue_redo_history.clear();
+                    (void)runtime.dirty_state_registry.markDirty(kDialogueDirtyDocumentId, true);
+                    runtime.map_save_status = "Dialogue graph authored in the active project; save it before switching context.";
+                }
+            }
+        }
+
+        if (runtime.dialogue_draft.has_value()) {
+            const auto node_exists = [&runtime](const std::string& node_id) {
+                return runtime.dialogue_draft->findNode(node_id) != nullptr;
+            };
+            ImGui::Separator();
+            ImGui::Text("Dialogue graph: %zu node(s)", runtime.dialogue_draft->nodes().size());
+            if (ImGui::Button("Undo Dialogue Edit") && undoDialogueGraphMutation(runtime)) {
+                runtime.map_save_status = "Dialogue graph edit undone.";
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Redo Dialogue Edit") && redoDialogueGraphMutation(runtime)) {
+                runtime.map_save_status = "Dialogue graph edit redone.";
+            }
+            ImGui::SameLine();
+            ImGui::TextDisabled("%zu undo / %zu redo", runtime.dialogue_undo_history.size(),
+                                runtime.dialogue_redo_history.size());
+
+            ImGui::TextUnformatted("Dialogue Graph Canvas");
+            ImGui::TextDisabled("Click a node to load it into the editor controls. Drag a node to persist its canvas position.");
+            const ImVec2 dialogue_canvas_card_size{168.0f, 56.0f};
+            if (ImGui::BeginChild("DialogueGraphCanvas", ImVec2(0.0f, 270.0f), true,
+                                  ImGuiWindowFlags_HorizontalScrollbar)) {
+                const ImVec2 canvas_origin = ImGui::GetCursorScreenPos();
+                const auto add = [](const ImVec2 left, const ImVec2 right) {
+                    return ImVec2(left.x + right.x, left.y + right.y);
+                };
+                const auto canvas_position = [&](const urpg::dialogue::DialogueNode& node, const size_t index) {
+                    if (node.has_canvas_position) {
+                        return ImVec2(static_cast<float>(node.canvas_x), static_cast<float>(node.canvas_y));
+                    }
+                    return ImVec2(16.0f + static_cast<float>(index % 3U) * 184.0f,
+                                  16.0f + static_cast<float>(index / 3U) * 78.0f);
+                };
+                const auto node_index = [&](const std::string& node_id) {
+                    size_t index = 0;
+                    for (const auto& [candidate_id, _] : runtime.dialogue_draft->nodes()) {
+                        if (candidate_id == node_id) return index;
+                        ++index;
+                    }
+                    return size_t{0};
+                };
+                const auto node_position = [&](const std::string& node_id) {
+                    const auto* node = runtime.dialogue_draft->findNode(node_id);
+                    return node == nullptr ? ImVec2{} : canvas_position(*node, node_index(node_id));
+                };
+                auto* draw_list = ImGui::GetWindowDrawList();
+                size_t node_index_value = 0;
+                for (const auto& [node_id, node] : runtime.dialogue_draft->nodes()) {
+                    const auto source = add(add(canvas_origin, canvas_position(node, node_index_value)),
+                                            ImVec2(dialogue_canvas_card_size.x, dialogue_canvas_card_size.y * 0.5f));
+                    for (const auto& choice : node.choices) {
+                        const auto target = add(add(canvas_origin, node_position(choice.target_node_id)),
+                                                ImVec2(0.0f, dialogue_canvas_card_size.y * 0.5f));
+                        draw_list->AddLine(source, target, IM_COL32(105, 165, 230, 220), 2.0f);
+                    }
+                    ++node_index_value;
+                }
+                node_index_value = 0;
+                for (const auto& [node_id, node] : runtime.dialogue_draft->nodes()) {
+                    bool canvas_position_changed = false;
+                    const auto position = canvas_position(node, node_index_value++);
+                    ImGui::SetCursorScreenPos(add(canvas_origin, position));
+                    ImGui::PushID(node_id.c_str());
+                    const auto label = node_id + (node.ending ? "  [end]" : "");
+                    if (ImGui::Button(label.c_str(), dialogue_canvas_card_size)) {
+                        dialogueNodeId = node_id;
+                        dialogueNodeSpeakerId = node.speaker_id;
+                        dialogueNodeSpeakerName = node.speaker_name;
+                        dialogueNodeLocalizationKey = node.localization_key;
+                        dialogueNodeTextPreview = node.text_preview;
+                        dialogueNodeEnding = node.ending;
+                        dialogueNodeVoiceAssetId = node.voice_asset_id;
+                        dialogueNodeCaptionLocalizationKey = node.caption_localization_key;
+                    }
+                    if (ImGui::IsItemActivated()) {
+                        dialogueCanvasDragNodeId = node_id;
+                        dialogueCanvasDragStartX = static_cast<int32_t>(position.x);
+                        dialogueCanvasDragStartY = static_cast<int32_t>(position.y);
+                    }
+                    if (ImGui::IsItemDeactivated() && dialogueCanvasDragNodeId == node_id) {
+                        const auto delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+                        if (delta.x != 0.0f || delta.y != 0.0f) {
+                            auto next = *runtime.dialogue_draft;
+                            const auto next_x =
+                                std::max<int32_t>(0, dialogueCanvasDragStartX + static_cast<int32_t>(delta.x));
+                            const auto next_y =
+                                std::max<int32_t>(0, dialogueCanvasDragStartY + static_cast<int32_t>(delta.y));
+                            if (next.updateNodeCanvasPosition(node_id, next_x, next_y) &&
+                                applyDialogueGraphMutation(runtime, std::move(next))) {
+                                runtime.map_save_status = "Dialogue node canvas position updated as one undoable project edit.";
+                                canvas_position_changed = true;
+                            }
+                        }
+                        ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
+                        dialogueCanvasDragNodeId.clear();
+                    }
+                    ImGui::PopID();
+                    if (canvas_position_changed) break;
+                }
+                ImGui::SetCursorScreenPos(add(canvas_origin, ImVec2(0.0f, 252.0f)));
+                ImGui::Dummy(ImVec2(620.0f, 1.0f));
+            }
+            ImGui::EndChild();
+
+            ImGui::InputText("Dialogue Node ID", &dialogueNodeId);
+            ImGui::InputText("Node Speaker ID", &dialogueNodeSpeakerId);
+            ImGui::InputText("Node Speaker Name", &dialogueNodeSpeakerName);
+            pick_speaker("Pick Node Speaker", dialogueNodeSpeakerId, dialogueNodeSpeakerName);
+            ImGui::InputText("Node Localization Key", &dialogueNodeLocalizationKey);
+            pick_localization_key("Pick Node Localization Key", dialogueNodeLocalizationKey);
+            ImGui::InputText("Node Text Preview", &dialogueNodeTextPreview);
+            ImGui::Checkbox("Node Is Ending", &dialogueNodeEnding);
+            if (ImGui::Button("Add Dialogue Node")) {
+                auto next = *runtime.dialogue_draft;
+                if (dialogueNodeId.empty() || dialogueNodeSpeakerId.empty() || dialogueNodeLocalizationKey.empty() ||
+                    node_exists(dialogueNodeId)) {
+                    runtime.map_save_status = "Dialogue nodes require unique IDs, speaker IDs, and localization keys.";
+                } else if (next.addNode({dialogueNodeId, dialogueNodeSpeakerId, dialogueNodeSpeakerName,
+                                         dialogueNodeLocalizationKey, dialogueNodeTextPreview, dialogueNodeEnding, {}}) &&
+                           applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Dialogue node added as one undoable project edit.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Update Dialogue Node")) {
+                auto next = *runtime.dialogue_draft;
+                if (next.updateNode(dialogueNodeId, dialogueNodeSpeakerId, dialogueNodeSpeakerName,
+                                    dialogueNodeLocalizationKey, dialogueNodeTextPreview, dialogueNodeEnding) &&
+                    applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Dialogue node updated as one undoable project edit.";
+                } else {
+                    runtime.map_save_status = "Update an existing dialogue node with a speaker ID and localization key.";
+                }
+            }
+            ImGui::TextDisabled("Node voice asset: %s",
+                                dialogueNodeVoiceAssetId.empty() ? "(none)" : dialogueNodeVoiceAssetId.c_str());
+            ImGui::BeginChild("DialogueNodeVoiceAssetDrop", ImVec2(0.0f, 46.0f), true);
+            ImGui::TextUnformatted("Drop an attached audio asset here");
+            if (ImGui::BeginDragDropTarget()) {
+                if (const auto* drag = ImGui::AcceptDragDropPayload("URPG_EDITOR_ASSET_V1")) {
+                    const auto* begin = static_cast<const std::uint8_t*>(drag->Data);
+                    std::vector<std::uint8_t> bytes(begin, begin + drag->DataSize);
+                    urpg::editor::EditorAssetDragPayload asset;
+                    const auto parsed = urpg::editor::deserializeEditorAssetDragPayload(bytes, &asset);
+                    auto accepted = parsed.accepted && asset.mediaKind == "audio"
+                                        ? urpg::editor::assessEditorAssetDrop(asset, true)
+                                        : urpg::editor::EditorAssetDropDecision{
+                                              false, "dialogue_voice_drop_requires_audio",
+                                              "Dialogue voice accepts attached audio assets only.",
+                                              "Attach an audio asset in Assets, then drag it here."};
+                    if (accepted.accepted) {
+                        accepted = urpg::editor::validateEditorAssetAttachmentRevision(asset, runtime.project_root);
+                    }
+                    if (!accepted.accepted) {
+                        runtime.map_save_status = accepted.message +
+                                                  (accepted.remediation.empty() ? "" : " " + accepted.remediation);
+                    } else {
+                        dialogueNodeVoiceAssetId = asset.assetId;
+                        runtime.map_save_status = "Attached audio asset selected for the dialogue node voice reference.";
+                    }
+                }
+                ImGui::EndDragDropTarget();
+            }
+            ImGui::EndChild();
+            pick_localization_key("Node Caption Localization Key", dialogueNodeCaptionLocalizationKey);
+            if (ImGui::Button("Load Dialogue Node Media")) {
+                if (const auto* node = runtime.dialogue_draft->findNode(dialogueNodeId)) {
+                    dialogueNodeVoiceAssetId = node->voice_asset_id;
+                    dialogueNodeCaptionLocalizationKey = node->caption_localization_key;
+                    runtime.map_save_status = "Dialogue node voice/caption references loaded into the authoring controls.";
+                } else {
+                    runtime.map_save_status = "Enter an existing dialogue node ID to load its media references.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Update Dialogue Node Media")) {
+                auto next = *runtime.dialogue_draft;
+                if (next.updateNodeMediaReferences(dialogueNodeId, dialogueNodeVoiceAssetId,
+                                                   dialogueNodeCaptionLocalizationKey) &&
+                    applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Dialogue node voice/caption references updated as one undoable project edit.";
+                } else {
+                    runtime.map_save_status = "Select an existing dialogue node and change its voice or caption reference.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Clear Dialogue Node Voice")) {
+                dialogueNodeVoiceAssetId.clear();
+                runtime.map_save_status = "Dialogue node voice selection cleared; update node media to save the change.";
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Clear Dialogue Node Caption")) {
+                dialogueNodeCaptionLocalizationKey.clear();
+                runtime.map_save_status = "Dialogue node caption selection cleared; update node media to save the change.";
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove Dialogue Node")) {
+                auto next = *runtime.dialogue_draft;
+                if (!node_exists(dialogueNodeId)) {
+                    runtime.map_save_status = "Enter an existing dialogue node ID to remove it.";
+                } else if (dialogueNodeId == next.startNode()) {
+                    runtime.map_save_status = "Set a different start node before removing this dialogue node.";
+                } else if (next.removeNode(dialogueNodeId) && applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Dialogue node and its inbound choices removed as one undoable project edit.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Set Dialogue Start")) {
+                auto next = *runtime.dialogue_draft;
+                if (!node_exists(dialogueNodeId)) {
+                    runtime.map_save_status = "Enter an existing dialogue node ID as the start node.";
+                } else {
+                    next.setStartNode(dialogueNodeId);
+                    if (applyDialogueGraphMutation(runtime, std::move(next))) {
+                        runtime.map_save_status = "Dialogue start node changed as one undoable project edit.";
+                    }
+                }
+            }
+
+            ImGui::InputText("Choice Source Node", &dialogueChoiceSourceId);
+            ImGui::InputText("Dialogue Choice ID", &dialogueChoiceId);
+            ImGui::InputText("Dialogue Choice Label", &dialogueChoiceLabel);
+            ImGui::InputText("Choice Target Node", &dialogueChoiceTargetId);
+            if (ImGui::Button("Add Dialogue Choice")) {
+                auto next = *runtime.dialogue_draft;
+                if (!node_exists(dialogueChoiceSourceId) || !node_exists(dialogueChoiceTargetId) ||
+                    dialogueChoiceId.empty() || dialogueChoiceLabel.empty()) {
+                    runtime.map_save_status = "Dialogue choices require existing source/target nodes plus an ID and label.";
+                } else if (next.addChoice(dialogueChoiceSourceId,
+                                           {dialogueChoiceId, dialogueChoiceLabel, dialogueChoiceTargetId, {}, {}}) &&
+                           applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Dialogue choice added as one undoable project edit.";
+                } else {
+                    runtime.map_save_status = "Dialogue choice ID must be unique within its source node.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Update Dialogue Choice")) {
+                auto next = *runtime.dialogue_draft;
+                if (next.updateChoice(dialogueChoiceSourceId, dialogueChoiceId, dialogueChoiceLabel,
+                                      dialogueChoiceTargetId) &&
+                    applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Dialogue choice updated as one undoable project edit.";
+                } else {
+                    runtime.map_save_status = "Update an existing choice with a non-empty label and existing target node.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove Dialogue Choice")) {
+                auto next = *runtime.dialogue_draft;
+                if (next.removeChoice(dialogueChoiceSourceId, dialogueChoiceId) &&
+                    applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Dialogue choice removed as one undoable project edit.";
+                } else {
+                    runtime.map_save_status = "Enter an existing source node and choice ID to remove a dialogue choice.";
+                }
+            }
+
+            ImGui::InputText("Choice Condition Key", &dialogueConditionKey);
+            ImGui::InputText("Choice Condition Operator", &dialogueConditionOp);
+            ImGui::InputInt("Choice Condition Value", &dialogueConditionValue);
+            if (ImGui::Button("Add Dialogue Choice Condition")) {
+                auto next = *runtime.dialogue_draft;
+                if (next.addChoiceCondition(dialogueChoiceSourceId, dialogueChoiceId,
+                                            {dialogueConditionKey, dialogueConditionOp, dialogueConditionValue}) &&
+                    applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Dialogue choice condition added as one undoable project edit.";
+                } else {
+                    runtime.map_save_status = "Dialogue conditions require an existing choice plus a unique key and operator.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove Dialogue Choice Condition")) {
+                auto next = *runtime.dialogue_draft;
+                if (next.removeChoiceCondition(dialogueChoiceSourceId, dialogueChoiceId,
+                                               {dialogueConditionKey, dialogueConditionOp, dialogueConditionValue}) &&
+                    applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Dialogue choice condition removed as one undoable project edit.";
+                } else {
+                    runtime.map_save_status = "Enter an existing choice condition to remove it.";
+                }
+            }
+
+            ImGui::InputText("Choice Effect Key", &dialogueEffectKey);
+            ImGui::InputInt("Choice Effect Delta", &dialogueEffectDelta);
+            if (ImGui::Button("Add Dialogue Choice Effect")) {
+                auto next = *runtime.dialogue_draft;
+                if (next.addChoiceEffect(dialogueChoiceSourceId, dialogueChoiceId,
+                                         {dialogueEffectKey, dialogueEffectDelta}) &&
+                    applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Dialogue choice effect added as one undoable project edit.";
+                } else {
+                    runtime.map_save_status = "Dialogue effects require an existing choice plus a unique key and delta.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove Dialogue Choice Effect")) {
+                auto next = *runtime.dialogue_draft;
+                if (next.removeChoiceEffect(dialogueChoiceSourceId, dialogueChoiceId,
+                                            {dialogueEffectKey, dialogueEffectDelta}) &&
+                    applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Dialogue choice effect removed as one undoable project edit.";
+                } else {
+                    runtime.map_save_status = "Enter an existing choice effect to remove it.";
+                }
+            }
+
+            auto diagnostics = runtime.dialogue_draft->validate();
+            const auto flow_diagnostics = runtime.dialogue_draft->analyzeFlow();
+            diagnostics.insert(diagnostics.end(), flow_diagnostics.begin(), flow_diagnostics.end());
+            const std::set<std::string> localization_keys(runtime.dialogue_localization_key_options.begin(),
+                                                           runtime.dialogue_localization_key_options.end());
+            const auto localization_diagnostics = runtime.dialogue_draft->validateLocalizationKeys(localization_keys);
+            diagnostics.insert(diagnostics.end(), localization_diagnostics.begin(), localization_diagnostics.end());
+            const std::set<std::string> voice_asset_ids(runtime.dialogue_voice_asset_options.begin(),
+                                                        runtime.dialogue_voice_asset_options.end());
+            const auto voice_diagnostics = runtime.dialogue_draft->validateVoiceAssetIds(voice_asset_ids);
+            diagnostics.insert(diagnostics.end(), voice_diagnostics.begin(), voice_diagnostics.end());
+            if (diagnostics.empty()) {
+                ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "Dialogue graph validation: ready");
+            } else {
+                ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.4f, 1.0f), "Dialogue graph validation: %zu issue(s)",
+                                   diagnostics.size());
+                for (const auto& diagnostic : diagnostics) {
+                    ImGui::BulletText("%s: %s", diagnostic.code.c_str(), diagnostic.message.c_str());
+                }
+            }
+        }
+        if (ImGui::Button("Preview Dialogue") && runtime.dialogue_draft.has_value()) {
+            const auto route = runtime.dialogue_draft->previewRoute();
+            runtime.map_save_status = "Dialogue preview route contains " + std::to_string(route.size()) + " node(s).";
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save Dialogue")) {
+            const auto result = runtime.dirty_state_registry.save(kDialogueDirtyDocumentId);
             runtime.map_save_status = result.message;
         }
     }
@@ -3320,7 +5204,7 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
     };
 
     ImGui::Separator();
-    ImGui::TextDisabled("Drop attached project assets on the Map canvas. Tiles place immediately; Props enroll in their palette.");
+    ImGui::TextDisabled("Drop attached project assets on the Map canvas. Tiles, Props, and image Events place immediately.");
     if (!runtime.map_asset_drop_status.empty()) ImGui::TextWrapped("%s", runtime.map_asset_drop_status.c_str());
 
     const auto layout = snapshot.layout;
@@ -3472,6 +5356,97 @@ void renderAbilityWorkspaceInline(EditorPanelRuntime& runtime) {
             ImGui::BulletText("%s", line.c_str());
         }
     }
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Gameplay Recipe Gallery");
+    ImGui::TextDisabled("Typed native templates only. Apply and revert changes use the project save and recovery flow.");
+    if (!runtime.gameplay_recipe_load_status.empty()) {
+        ImGui::TextWrapped("Project recipe document was not loaded: %s", runtime.gameplay_recipe_load_status.c_str());
+    }
+    auto& recipePanel = runtime.gameplay_recipe_panel;
+    recipePanel.render();
+    const auto& recipeSnapshot = recipePanel.snapshot();
+    if (!recipeSnapshot.has_recipe) {
+        ImGui::TextDisabled("No native gameplay recipe template is selected.");
+        return;
+    }
+
+    const auto selectedTemplate = std::find_if(runtime.gameplay_recipe_templates.begin(),
+                                               runtime.gameplay_recipe_templates.end(),
+                                               [&recipeSnapshot](const auto& templateRecipe) {
+                                                   return templateRecipe.id == recipeSnapshot.recipe_id;
+                                               });
+    const auto selectedTemplateLabel = selectedTemplate == runtime.gameplay_recipe_templates.end()
+                                           ? recipeSnapshot.recipe_id
+                                           : selectedTemplate->display_name;
+    if (ImGui::BeginCombo("Native template", selectedTemplateLabel.c_str())) {
+        for (const auto& templateRecipe : runtime.gameplay_recipe_templates) {
+            const bool selected = templateRecipe.id == recipeSnapshot.recipe_id;
+            const auto label = templateRecipe.display_name + "##" + templateRecipe.id;
+            if (ImGui::Selectable(label.c_str(), selected)) {
+                recipePanel.selectRecipe(templateRecipe);
+            }
+            if (selected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::Text("%s (v%s)", recipeSnapshot.recipe_id.c_str(), recipeSnapshot.recipe_version.c_str());
+    const auto recipeParameters = recipeSnapshot.parameters;
+    for (const auto& parameter : recipeParameters) {
+        const auto key = parameter.value("key", std::string{"parameter"});
+        const auto label = parameter.value("label", key) + "##" + key;
+        if (parameter.value("kind", "string") == "integer") {
+            auto value = parameter.value("value", int32_t{0});
+            if (ImGui::InputInt(label.c_str(), &value)) {
+                (void)recipePanel.setSelectedIntegerParameter(key, value);
+            }
+            if (parameter.value("has_range", false)) {
+                ImGui::TextDisabled("Allowed range: %d to %d", parameter.value("minimum", value),
+                                    parameter.value("maximum", value));
+            }
+        } else {
+            auto value = parameter.value("value", std::string{});
+            if (ImGui::InputText(label.c_str(), &value)) {
+                (void)recipePanel.setSelectedStringParameter(key, std::move(value));
+            }
+        }
+    }
+    const auto runtimePreview = recipeSnapshot.preview.value("runtime_preview", nlohmann::json::object());
+    ImGui::TextDisabled("Target: %s", runtimePreview.value("feature_id", "(none)").c_str());
+    ImGui::TextDisabled("Preview rules: %zu", runtimePreview.value("active_rules", nlohmann::json::array()).size());
+    ImGui::TextDisabled("Status: %s", recipeSnapshot.status.c_str());
+
+    if (!recipeSnapshot.can_apply) ImGui::BeginDisabled();
+    if (ImGui::Button("Apply Native Recipe")) {
+        (void)recipePanel.applySelectedRecipe();
+    }
+    if (!recipeSnapshot.can_apply) ImGui::EndDisabled();
+    ImGui::SameLine();
+    if (!recipeSnapshot.can_revert) ImGui::BeginDisabled();
+    if (ImGui::Button("Revert Recipe-Owned Target")) {
+        (void)recipePanel.revertSelectedRecipe();
+    }
+    if (!recipeSnapshot.can_revert) ImGui::EndDisabled();
+    ImGui::SameLine();
+    const bool recipeDocumentDirty = recipePanel.hasUnsavedProjectDocument();
+    if (!recipeDocumentDirty) ImGui::BeginDisabled();
+    if (ImGui::Button("Save Recipe Document")) {
+        const auto result = runtime.dirty_state_registry.save(kGameplayRecipeDirtyDocumentId);
+        runtime.gameplay_recipe_save_status = result.message;
+    }
+    if (!recipeDocumentDirty) ImGui::EndDisabled();
+    if (!runtime.gameplay_recipe_save_status.empty()) {
+        ImGui::TextDisabled("Save: %s", runtime.gameplay_recipe_save_status.c_str());
+    }
+
+    const auto diagnostics = recipeSnapshot.preview.value("diagnostics", nlohmann::json::array());
+    if (!diagnostics.empty()) {
+        ImGui::TextUnformatted("Recipe diagnostics");
+        for (const auto& diagnostic : diagnostics) {
+            ImGui::BulletText("%s: %s", diagnostic.value("code", "diagnostic").c_str(),
+                              diagnostic.value("message", "").c_str());
+        }
+    }
 }
 
 void renderCharacterCreatorWorkspaceInline(EditorPanelRuntime& runtime) {
@@ -3510,12 +5485,15 @@ void renderCharacterCreatorWorkspaceInline(EditorPanelRuntime& runtime) {
             std::vector<std::uint8_t> bytes(begin, begin + drag->DataSize);
             urpg::editor::EditorAssetDragPayload asset;
             const auto parsed = urpg::editor::deserializeEditorAssetDragPayload(bytes, &asset);
-            const auto accepted = parsed.accepted && asset.mediaKind == "image"
-                                      ? urpg::editor::assessEditorAssetDrop(asset, true)
-                                      : urpg::editor::EditorAssetDropDecision{
-                                            false, "character_asset_drop_requires_image",
-                                            "Character Creator accepts attached image assets only.",
-                                            "Attach an image in Assets, then drag it here."};
+            auto accepted = parsed.accepted && asset.mediaKind == "image"
+                                ? urpg::editor::assessEditorAssetDrop(asset, true)
+                                : urpg::editor::EditorAssetDropDecision{
+                                      false, "character_asset_drop_requires_image",
+                                      "Character Creator accepts attached image assets only.",
+                                      "Attach an image in Assets, then drag it here."};
+            if (accepted.accepted) {
+                accepted = urpg::editor::validateEditorAssetAttachmentRevision(asset, runtime.project_root);
+            }
             if (!accepted.accepted) {
                 runtime.map_asset_drop_status = accepted.message +
                                                 (accepted.remediation.empty() ? "" : " " + accepted.remediation);
@@ -3897,6 +5875,15 @@ bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& e
                 (void)panelRuntime->dirty_state_registry.markDirty(
                     kCharacterDirtyDocumentId, panelRuntime->character_creator_model.hasUnsavedDraft());
             }
+            if (panelRuntime->gameplay_recipe_dirty_surface_registered) {
+                (void)panelRuntime->dirty_state_registry.markDirty(
+                    kGameplayRecipeDirtyDocumentId, panelRuntime->gameplay_recipe_panel.hasUnsavedProjectDocument());
+            }
+            if (panelRuntime->menu_studio_dirty_surface_registered) {
+                const auto menuStudioDirty =
+                    menuStudioSerializedGraph(*panelRuntime) != panelRuntime->menu_studio_persisted_json;
+                (void)panelRuntime->dirty_state_registry.markDirty(kMenuStudioDirtyDocumentId, menuStudioDirty);
+            }
             panelRuntime->project_session.setDirtySurfaceSummaries(panelRuntime->dirty_state_registry.dirtyDocumentIds());
             captureScheduledRecoverySnapshot(*panelRuntime);
         }
@@ -4151,6 +6138,7 @@ int main(int argc, char** argv) {
         panelRuntime.project_root = activeProjectRoot;
         panelRuntime.creator_mode = creatorMode;
         panelRuntime.main_menu_model.applySettings(settingsLoad.settings);
+        panelRuntime.asset_library_panel.model().applyUserAssetCuration(settingsLoad.settings);
         panelRuntime.map_authoring_workspace.setLayout({
             settingsLoad.settings.map_workspace_layout.palette_width_fraction,
             settingsLoad.settings.map_workspace_layout.inspector_width_fraction,
@@ -4166,6 +6154,16 @@ int main(int argc, char** argv) {
         panelRuntime.project_session.addSwitchListener([&panelRuntime](const urpg::editor::EditorProjectIdentity& identity) {
             const bool unclean = panelRuntime.recovery_service.hasUncleanSessionMarker(identity.root);
             bindMapAuthoringProject(panelRuntime, identity.root);
+            bindMenuStudioProject(panelRuntime, identity.root);
+            if (panelRuntime.gameplay_recipe_dirty_surface_registered) {
+                (void)panelRuntime.dirty_state_registry.markDirty(kGameplayRecipeDirtyDocumentId, false);
+            }
+            if (panelRuntime.menu_studio_dirty_surface_registered) {
+                (void)panelRuntime.dirty_state_registry.markDirty(kMenuStudioDirtyDocumentId, false);
+            }
+            if (panelRuntime.mz_plugin_lock_dirty_surface_registered) {
+                (void)panelRuntime.dirty_state_registry.markDirty(kMzPluginLockDirtyDocumentId, false);
+            }
             panelRuntime.next_recovery_snapshot_at = {};
             panelRuntime.creator_checklist_panel.setProjectRoot(identity.root);
             if (panelRuntime.recovery_service.writeSessionMarker(identity.root)) {
@@ -4178,6 +6176,25 @@ int main(int argc, char** argv) {
         });
         panelRuntime.project_session.addCloseListener([&panelRuntime](const urpg::editor::EditorProjectIdentity& identity) {
             (void)panelRuntime.recovery_service.clearSessionMarker(identity.root);
+            panelRuntime.gameplay_recipe_panel.loadProject({});
+            if (panelRuntime.gameplay_recipe_dirty_surface_registered) {
+                (void)panelRuntime.dirty_state_registry.markDirty(kGameplayRecipeDirtyDocumentId, false);
+            }
+            panelRuntime.menu_studio_runtime.getSceneGraphMutable().clearRegisteredScenes();
+            panelRuntime.menu_studio_runtime.getRegistryMutable().clear();
+            panelRuntime.diagnostics_workspace.clearMenuRuntime();
+            panelRuntime.menu_studio_persisted_json.clear();
+            panelRuntime.menu_studio_load_status.clear();
+            panelRuntime.menu_studio_save_status.clear();
+            if (panelRuntime.menu_studio_dirty_surface_registered) {
+                (void)panelRuntime.dirty_state_registry.markDirty(kMenuStudioDirtyDocumentId, false);
+            }
+            panelRuntime.mz_plugin_lock_draft = nlohmann::json::object();
+            panelRuntime.mz_plugin_lock_source_current = false;
+            panelRuntime.mz_plugin_lock_status.clear();
+            if (panelRuntime.mz_plugin_lock_dirty_surface_registered) {
+                (void)panelRuntime.dirty_state_registry.markDirty(kMzPluginLockDirtyDocumentId, false);
+            }
         });
         // A supplied/recent path is not editor state until the session accepts
         // its manifest. This prevents a stale directory from becoming an
@@ -4289,6 +6306,7 @@ int main(int argc, char** argv) {
             analyticsConsentToSettings(panelRuntime.analytics_privacy_controller.getConsentState());
         settingsLoad.settings.analytics_upload_enabled = panelRuntime.analytics_dispatcher.isOptIn();
         panelRuntime.main_menu_model.writeSettings(&settingsLoad.settings);
+        panelRuntime.asset_library_panel.model().writeUserAssetCuration(&settingsLoad.settings);
         const auto& mapLayout = panelRuntime.map_authoring_workspace.snapshot().layout;
         settingsLoad.settings.map_workspace_layout.palette_width_fraction = mapLayout.paletteWidthFraction;
         settingsLoad.settings.map_workspace_layout.inspector_width_fraction = mapLayout.inspectorWidthFraction;

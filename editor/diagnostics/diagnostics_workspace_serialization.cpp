@@ -4,11 +4,61 @@
 
 #include <nlohmann/json.hpp>
 
+#include <filesystem>
 #include <fstream>
+#include <string_view>
+#include <system_error>
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 
 namespace urpg::editor {
 
 namespace {
+
+bool AtomicWriteMenuStateFile(const std::filesystem::path& target, std::string_view contents) {
+    if (target.empty() || target.filename().empty()) {
+        return false;
+    }
+    std::error_code error;
+    const auto parent = target.parent_path();
+    if (!parent.empty()) {
+        std::filesystem::create_directories(parent, error);
+        if (error) {
+            return false;
+        }
+    }
+
+    const auto temporary_directory = parent.empty() ? std::filesystem::current_path(error) : parent;
+    if (error) {
+        return false;
+    }
+    const auto temporary = temporary_directory / ("." + target.filename().string() + ".tmp");
+    {
+        std::ofstream output(temporary, std::ios::binary | std::ios::trunc);
+        output << contents;
+        if (!output) {
+            std::filesystem::remove(temporary, error);
+            return false;
+        }
+    }
+
+#ifdef _WIN32
+    if (!MoveFileExW(temporary.c_str(), target.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        std::filesystem::remove(temporary, error);
+        return false;
+    }
+#else
+    std::filesystem::rename(temporary, target, error);
+    if (error) {
+        std::filesystem::remove(temporary, error);
+        return false;
+    }
+#endif
+    return true;
+}
 
 const char* MessagePresentationModeName(urpg::message::MessagePresentationMode mode) {
     switch (mode) {
@@ -217,14 +267,8 @@ bool DiagnosticsWorkspace::saveMenuStateToFile(const std::string& path) {
     if (!menu_scene_graph_) {
         return false;
     }
-
-    std::ofstream ofs(path);
-    if (!ofs) {
-        return false;
-    }
-
-    ofs << urpg::ui::MenuSceneSerializer::SerializeGraph(*menu_scene_graph_).dump(2);
-    return ofs.good();
+    return AtomicWriteMenuStateFile(std::filesystem::path(path),
+                                    urpg::ui::MenuSceneSerializer::SerializeGraph(*menu_scene_graph_).dump(2) + "\n");
 }
 
 bool DiagnosticsWorkspace::loadMenuStateFromFile(const std::string& path) {
@@ -244,10 +288,20 @@ bool DiagnosticsWorkspace::loadMenuStateFromFile(const std::string& path) {
         return false;
     }
 
+    nlohmann::json graph_document;
     if (j.contains("scenes") && j["scenes"].is_array()) {
-        return urpg::ui::MenuSceneSerializer::DeserializeGraph(j, *menu_scene_graph_);
+        graph_document = std::move(j);
+    } else {
+        graph_document = {
+            {"scenes", nlohmann::json::array({std::move(j)})},
+        };
     }
-    return urpg::ui::MenuSceneSerializer::Deserialize(j, *menu_scene_graph_);
+    const bool loaded = urpg::ui::MenuSceneSerializer::DeserializeGraph(graph_document, *menu_scene_graph_);
+    if (loaded && menu_model_ && menu_registry_) {
+        menu_model_->LoadFromRuntime(*menu_scene_graph_, *menu_registry_, menu_switches_, menu_variables_);
+        refreshMenuSnapshotIfActive();
+    }
+    return loaded;
 }
 
 std::string DiagnosticsWorkspace::exportAbilityDraftStateJson() const {

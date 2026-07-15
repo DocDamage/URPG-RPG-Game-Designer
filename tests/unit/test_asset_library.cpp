@@ -2,6 +2,7 @@
 #include "engine/core/assets/asset_import_session.h"
 #include "engine/core/assets/asset_library.h"
 #include "engine/core/assets/asset_promotion_manifest.h"
+#include "engine/core/assets/asset_transform_revision_service.h"
 #include "engine/core/assets/global_asset_library_store.h"
 #include "engine/core/assets/global_asset_promotion_service.h"
 #include "engine/core/assets/project_asset_attachment_service.h"
@@ -9,9 +10,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
+#include <stb_image.h>
 
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -32,6 +35,31 @@ void writeBinaryFile(const std::filesystem::path& path, std::string_view payload
 std::string readBinaryFile(const std::filesystem::path& path) {
     std::ifstream input(path, std::ios::binary);
     return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+}
+
+void writePcm16Wav(const std::filesystem::path& path, const std::vector<int16_t>& samples, uint16_t channels = 1,
+                   uint32_t sampleRate = 1000) {
+    const auto append16 = [](std::string* bytes, const uint16_t value) {
+        bytes->push_back(static_cast<char>(value & 0xFFU));
+        bytes->push_back(static_cast<char>((value >> 8U) & 0xFFU));
+    };
+    const auto append32 = [](std::string* bytes, const uint32_t value) {
+        for (uint32_t shift = 0; shift < 32; shift += 8) bytes->push_back(static_cast<char>((value >> shift) & 0xFFU));
+    };
+    std::string bytes = "RIFF";
+    append32(&bytes, 36U + static_cast<uint32_t>(samples.size() * sizeof(int16_t)));
+    bytes += "WAVEfmt ";
+    append32(&bytes, 16U);
+    append16(&bytes, 1U);
+    append16(&bytes, channels);
+    append32(&bytes, sampleRate);
+    append32(&bytes, sampleRate * channels * 2U);
+    append16(&bytes, static_cast<uint16_t>(channels * 2U));
+    append16(&bytes, 16U);
+    bytes += "data";
+    append32(&bytes, static_cast<uint32_t>(samples.size() * sizeof(int16_t)));
+    for (const auto sample : samples) append16(&bytes, static_cast<uint16_t>(sample));
+    writeBinaryFile(path, bytes);
 }
 
 } // namespace
@@ -770,6 +798,304 @@ TEST_CASE("AssetPromotionManifest validates package and readiness blockers", "[a
                       "archived_asset_packaged") != archivedPackaged.diagnostics.end());
 }
 
+TEST_CASE("AssetTransformRevisionService creates deterministic atlas metadata revisions",
+          "[assets][asset_library][asset_transform]") {
+    const auto root = uniqueAssetTempRoot("urpg_asset_transform_revision");
+    std::filesystem::remove_all(root);
+    const auto sourcePayload = root / ".urpg" / "asset-library" / "promoted" / "asset.atlas" / "payloads" / "atlas.png";
+    writeBinaryFile(sourcePayload, "atlas-source-payload");
+
+    urpg::assets::AssetPromotionManifest source;
+    source.assetId = "asset.atlas";
+    source.sourcePath = "imports/raw/atlas.png";
+    source.promotedPath = sourcePayload.generic_string();
+    source.licenseId = "project_private";
+    source.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+    source.preview.kind = "image";
+    source.preview.thumbnailPath = sourcePayload.generic_string();
+    source.preview.width = 64;
+    source.preview.height = 32;
+    source.package.includeInRuntime = true;
+
+    urpg::assets::AssetAtlasMetadataPlan plan;
+    plan.operationId = "atlas-grid-8";
+    plan.source = source;
+    plan.derivedRoot = root / ".urpg" / "asset-library" / "derived";
+    plan.atlasWidth = 64;
+    plan.atlasHeight = 32;
+    plan.frameWidth = 8;
+    plan.frameHeight = 8;
+
+    urpg::assets::AssetTransformRevisionService service;
+    const auto created = service.createAtlasMetadataRevision(plan);
+    REQUIRE(created.success);
+    REQUIRE(created.code == "asset_transform_revision_created");
+    REQUIRE(std::filesystem::is_regular_file(created.manifestPath));
+    const auto reused = service.createAtlasMetadataRevision(plan);
+    REQUIRE(reused.success);
+    REQUIRE(reused.code == "asset_transform_revision_reused");
+    REQUIRE(reused.derivedRevision == created.derivedRevision);
+    REQUIRE(readBinaryFile(sourcePayload) == "atlas-source-payload");
+
+    const urpg::assets::AssetTransformRevisionRemovalRequest removal{
+        plan.derivedRoot, source.assetId, created.derivedRevision};
+    const auto removed = service.removeDerivedRevision(removal);
+    REQUIRE(removed.success);
+    REQUIRE(removed.code == "asset_transform_revision_removed");
+    REQUIRE_FALSE(std::filesystem::exists(created.manifestPath));
+    REQUIRE(readBinaryFile(sourcePayload) == "atlas-source-payload");
+    const auto missing = service.removeDerivedRevision(removal);
+    REQUIRE_FALSE(missing.success);
+    REQUIRE(missing.code == "asset_transform_revision_missing");
+
+    plan.frameWidth = 7;
+    const auto invalid = service.createAtlasMetadataRevision(plan);
+    REQUIRE_FALSE(invalid.success);
+    REQUIRE(invalid.code == "asset_transform_atlas_plan_invalid");
+
+    const auto cropPayload = root / ".urpg" / "asset-library" / "promoted" / "asset.crop" / "payloads" / "crop.ppm";
+    std::string ppm = "P6\n3 1\n255\n";
+    ppm.append({static_cast<char>(0xFF), 0, 0, 0, static_cast<char>(0xFF), 0, 0, 0, static_cast<char>(0xFF)});
+    writeBinaryFile(cropPayload, ppm);
+    auto cropSource = source;
+    cropSource.assetId = "asset.crop";
+    cropSource.sourcePath = "imports/raw/crop.ppm";
+    cropSource.promotedPath = cropPayload.generic_string();
+    cropSource.preview.thumbnailPath = cropPayload.generic_string();
+    cropSource.preview.width = 3;
+    cropSource.preview.height = 1;
+    urpg::assets::AssetImageCropScalePlan cropPlan;
+    cropPlan.operationId = "crop-green-blue";
+    cropPlan.source = cropSource;
+    cropPlan.derivedRoot = plan.derivedRoot;
+    cropPlan.cropX = 1;
+    cropPlan.cropY = 0;
+    cropPlan.cropWidth = 2;
+    cropPlan.cropHeight = 1;
+    cropPlan.outputWidth = 4;
+    cropPlan.outputHeight = 2;
+    const auto crop = service.createImageCropScaleRevision(cropPlan);
+    REQUIRE(crop.success);
+    REQUIRE(crop.code == "asset_transform_revision_created");
+    REQUIRE(std::filesystem::is_regular_file(crop.outputPath));
+    REQUIRE(readBinaryFile(cropPayload) == ppm);
+    const auto reusedCrop = service.createImageCropScaleRevision(cropPlan);
+    REQUIRE(reusedCrop.success);
+    REQUIRE(reusedCrop.code == "asset_transform_revision_reused");
+    cropPlan.cropX = 2;
+    cropPlan.cropWidth = 2;
+    const auto outOfBounds = service.createImageCropScaleRevision(cropPlan);
+    REQUIRE_FALSE(outOfBounds.success);
+    REQUIRE(outOfBounds.code == "asset_transform_crop_out_of_bounds");
+
+    urpg::assets::AssetImagePalettePlan palettePlan;
+    palettePlan.operationId = "two-color-palette";
+    palettePlan.source = cropSource;
+    palettePlan.derivedRoot = plan.derivedRoot;
+    palettePlan.colorsRgba = {0xFF0000FFU, 0x0000FFFFU};
+    const auto palette = service.createImagePaletteRevision(palettePlan);
+    REQUIRE(palette.success);
+    REQUIRE(std::filesystem::is_regular_file(palette.outputPath));
+    int paletteWidth = 0;
+    int paletteHeight = 0;
+    int paletteChannels = 0;
+    stbi_uc* palettePixels = stbi_load(palette.outputPath.string().c_str(), &paletteWidth, &paletteHeight,
+                                      &paletteChannels, STBI_rgb_alpha);
+    REQUIRE(palettePixels != nullptr);
+    REQUIRE(paletteWidth == 3);
+    REQUIRE(paletteHeight == 1);
+    REQUIRE(palettePixels[0] == 0xFF);
+    REQUIRE(palettePixels[4] == 0xFF);
+    REQUIRE(palettePixels[8] == 0x00);
+    REQUIRE(palettePixels[10] == 0xFF);
+    stbi_image_free(palettePixels);
+    REQUIRE(service.createImagePaletteRevision(palettePlan).code == "asset_transform_revision_reused");
+    palettePlan.colorsRgba = {0xFF0000FFU, 0xFF0000FFU};
+    const auto invalidPalette = service.createImagePaletteRevision(palettePlan);
+    REQUIRE_FALSE(invalidPalette.success);
+    REQUIRE(invalidPalette.code == "asset_transform_palette_plan_invalid");
+
+    urpg::assets::AssetTilesetSlicePlan tilesetPlan;
+    tilesetPlan.operationId = "slice-one-pixel-tiles";
+    tilesetPlan.source = cropSource;
+    tilesetPlan.derivedRoot = plan.derivedRoot;
+    tilesetPlan.tileWidth = 1;
+    tilesetPlan.tileHeight = 1;
+    const auto tileset = service.createTilesetSliceRevision(tilesetPlan);
+    REQUIRE(tileset.success);
+    REQUIRE(std::filesystem::is_directory(tileset.outputPath));
+    std::ifstream tilesetManifestStream(tileset.manifestPath);
+    const auto tilesetManifest = nlohmann::json::parse(tilesetManifestStream);
+    REQUIRE(tilesetManifest["grid"]["tile_count"] == 3);
+    REQUIRE(tilesetManifest["output_paths"].size() == 3);
+    tilesetManifestStream.close();
+    REQUIRE(service.createTilesetSliceRevision(tilesetPlan).code == "asset_transform_revision_reused");
+    const urpg::assets::AssetTransformRevisionRemovalRequest tilesetRemoval{
+        tilesetPlan.derivedRoot, cropSource.assetId, tileset.derivedRevision};
+    REQUIRE(service.removeDerivedRevision(tilesetRemoval).success);
+    REQUIRE_FALSE(std::filesystem::exists(tileset.manifestPath));
+    REQUIRE_FALSE(std::filesystem::exists(tileset.outputPath));
+    tilesetPlan.tileWidth = 2;
+    const auto invalidTileset = service.createTilesetSliceRevision(tilesetPlan);
+    REQUIRE_FALSE(invalidTileset.success);
+    REQUIRE(invalidTileset.code == "asset_transform_tileset_grid_invalid");
+
+    const auto audioPayload = root / ".urpg" / "asset-library" / "promoted" / "asset.audio" / "payloads" / "tone.wav";
+    const std::vector<int16_t> originalAudio = {10000, 10000, 10000, 10000, 10000, 10000};
+    writePcm16Wav(audioPayload, originalAudio);
+    const auto originalAudioBytes = readBinaryFile(audioPayload);
+    auto audioSource = source;
+    audioSource.assetId = "asset.audio";
+    audioSource.sourcePath = "imports/raw/tone.wav";
+    audioSource.promotedPath = audioPayload.generic_string();
+    audioSource.preview.kind = "audio";
+    audioSource.preview.thumbnailPath = audioPayload.generic_string();
+    urpg::assets::AssetAudioTrimFadeGainPlan audioPlan;
+    audioPlan.operationId = "trim-tone";
+    audioPlan.source = audioSource;
+    audioPlan.derivedRoot = plan.derivedRoot;
+    audioPlan.startFrame = 1;
+    audioPlan.endFrame = 5;
+    audioPlan.fadeInFrames = 1;
+    audioPlan.fadeOutFrames = 1;
+    audioPlan.gainMilliDb = 0;
+    audioPlan.loopStartFrame = 1;
+    audioPlan.loopEndFrame = 3;
+    const auto audio = service.createAudioTrimFadeGainRevision(audioPlan);
+    REQUIRE(audio.success);
+    REQUIRE(audio.code == "asset_transform_revision_created");
+    REQUIRE(std::filesystem::is_regular_file(audio.outputPath));
+    REQUIRE(readBinaryFile(audioPayload) == originalAudioBytes);
+    std::ifstream audioManifestStream(audio.manifestPath);
+    const auto audioManifest = nlohmann::json::parse(audioManifestStream);
+    REQUIRE(audioManifest["codec"] == "pcm_s16le_wav");
+    REQUIRE(audioManifest["frame_count"] == 4);
+    REQUIRE(audioManifest["waveform_peaks"].size() == 64);
+    REQUIRE(audioManifest["loop"]["start_frame"] == 1);
+    audioManifestStream.close();
+    REQUIRE(service.createAudioTrimFadeGainRevision(audioPlan).code == "asset_transform_revision_reused");
+    const urpg::assets::AssetTransformRevisionRemovalRequest audioRemoval{
+        audioPlan.derivedRoot, audioSource.assetId, audio.derivedRevision};
+    REQUIRE(service.removeDerivedRevision(audioRemoval).success);
+    REQUIRE_FALSE(std::filesystem::exists(audio.manifestPath));
+    REQUIRE_FALSE(std::filesystem::exists(audio.outputPath));
+    audioPlan.endFrame = 7;
+    const auto invalidAudio = service.createAudioTrimFadeGainRevision(audioPlan);
+    REQUIRE_FALSE(invalidAudio.success);
+    REQUIRE(invalidAudio.code == "asset_transform_audio_range_invalid");
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("ProjectAssetAttachmentService attaches validated single-output derived revisions",
+          "[assets][asset_library][asset_attachment][asset_transform]") {
+    const auto root = uniqueAssetTempRoot("urpg_derived_revision_attachment");
+    std::filesystem::remove_all(root);
+    const auto sourcePayload = root / ".urpg" / "asset-library" / "promoted" / "asset.hero" / "payloads" / "hero.ppm";
+    const auto derivedRoot = root / ".urpg" / "asset-library" / "derived";
+    const auto projectRoot = root / "project";
+    std::string ppm = "P6\n2 1\n255\n";
+    ppm.append({static_cast<char>(0xFF), 0, 0, 0, static_cast<char>(0xFF), 0});
+    writeBinaryFile(sourcePayload, ppm);
+
+    urpg::assets::AssetPromotionManifest source;
+    source.assetId = "asset.hero";
+    source.sourcePath = "imports/raw/characters/hero.ppm";
+    source.promotedPath = sourcePayload.generic_string();
+    source.licenseId = "project_private";
+    source.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+    source.preview.kind = "image";
+    source.preview.thumbnailPath = source.promotedPath;
+    source.preview.width = 2;
+    source.preview.height = 1;
+    source.package.includeInRuntime = true;
+
+    urpg::assets::AssetTransformRevisionService transforms;
+    urpg::assets::AssetImageCropScalePlan crop;
+    crop.operationId = "crop-stale-check";
+    crop.source = source;
+    crop.derivedRoot = derivedRoot;
+    crop.cropWidth = 2;
+    crop.cropHeight = 1;
+    crop.outputWidth = 2;
+    crop.outputHeight = 1;
+    const auto staleRevision = transforms.createImageCropScaleRevision(crop);
+    REQUIRE(staleRevision.success);
+
+    urpg::assets::ProjectAssetAttachmentService attachments;
+    const auto stalePlan = attachments.planDerivedRevisionAttachment(source, staleRevision.manifestPath, projectRoot);
+    REQUIRE(stalePlan.valid);
+    writeBinaryFile(staleRevision.outputPath, "changed-derived-output");
+    urpg::assets::ProjectDerivedAssetAttachmentRequest staleRequest;
+    staleRequest.source = source;
+    staleRequest.derivedManifestPath = staleRevision.manifestPath;
+    staleRequest.projectRoot = projectRoot;
+    staleRequest.operationId = "derived-attach-stale";
+    staleRequest.expectedSourceRevision = stalePlan.sourceRevision;
+    const auto stale = attachments.attachDerivedRevision(staleRequest);
+    REQUIRE_FALSE(stale.success);
+    REQUIRE(stale.code == "asset_attachment_source_revision_mismatch");
+
+    urpg::assets::AssetImagePalettePlan palette;
+    palette.operationId = "palette-attach";
+    palette.source = source;
+    palette.derivedRoot = derivedRoot;
+    palette.colorsRgba = {0xFF0000FFU, 0x00FF00FFU};
+    const auto revision = transforms.createImagePaletteRevision(palette);
+    REQUIRE(revision.success);
+    const auto plan = attachments.planDerivedRevisionAttachment(source, revision.manifestPath, projectRoot);
+    REQUIRE(plan.valid);
+    REQUIRE(plan.assetId == "asset.hero.revision." + revision.derivedRevision.substr(0, 16));
+    REQUIRE(plan.sourceRevision.size() == 64);
+
+    urpg::assets::ProjectDerivedAssetAttachmentRequest request;
+    request.source = source;
+    request.derivedManifestPath = revision.manifestPath;
+    request.projectRoot = projectRoot;
+    request.operationId = "derived-attach-palette";
+    request.expectedSourceRevision = plan.sourceRevision;
+    const auto attached = attachments.attachDerivedRevision(request);
+    REQUIRE(attached.success);
+    REQUIRE(attached.code == "project_asset_attached");
+    REQUIRE(std::filesystem::is_regular_file(attached.payloadPath));
+    REQUIRE(readBinaryFile(attached.payloadPath) == readBinaryFile(revision.outputPath));
+    REQUIRE(std::filesystem::is_regular_file(attached.manifestPath));
+    std::ifstream projectManifestStream(attached.manifestPath);
+    const auto projectManifest = nlohmann::json::parse(projectManifestStream);
+    REQUIRE(projectManifest["authoredMetadata"]["derived_revision"]["schema"] ==
+            "urpg.project_asset_derived_revision.v1");
+    REQUIRE(projectManifest["authoredMetadata"]["derived_revision"]["derived_revision"] == revision.derivedRevision);
+    REQUIRE(projectManifest["authoredMetadata"]["derived_revision"]["source_asset_id"] == source.assetId);
+
+    const urpg::assets::AssetTransformRevisionRemovalRequest attachedRemoval{
+        derivedRoot, source.assetId, revision.derivedRevision};
+    const auto removalBlocked = transforms.removeDerivedRevision(attachedRemoval);
+    REQUIRE_FALSE(removalBlocked.success);
+    REQUIRE(removalBlocked.code == "asset_transform_revision_attached");
+    REQUIRE(std::filesystem::is_regular_file(revision.manifestPath));
+    REQUIRE(std::filesystem::is_regular_file(revision.outputPath));
+
+    const auto replayed = attachments.attachDerivedRevision(request);
+    REQUIRE(replayed.success);
+    REQUIRE(replayed.code == "project_asset_attached");
+    REQUIRE(replayed.message.find("without reapplying") != std::string::npos);
+
+    urpg::editor::AssetLibraryModel model;
+    std::string loadError;
+    REQUIRE(model.loadProjectAssetAttachments(projectRoot, &loadError));
+    REQUIRE(loadError.empty());
+    const auto picker = std::find_if(model.snapshot().project_asset_picker_rows.begin(),
+                                     model.snapshot().project_asset_picker_rows.end(), [&](const auto& row) {
+                                         return row["asset_id"] == plan.assetId;
+                                     });
+    REQUIRE(picker != model.snapshot().project_asset_picker_rows.end());
+    REQUIRE((*picker)["project_path"] == attached.payloadPath.generic_string());
+    REQUIRE((*picker)["picker_kind"] == "portrait");
+    REQUIRE((*picker)["picker_targets"][0] == "sprite_selector");
+
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("ProjectAssetAttachmentService copies promoted payloads and writes project manifests",
           "[assets][asset_library][asset_attachment]") {
     const auto root = uniqueAssetTempRoot("urpg_project_asset_attachment");
@@ -821,6 +1147,11 @@ TEST_CASE("ProjectAssetAttachmentService copies promoted payloads and writes pro
         manifest, projectRoot, urpg::assets::ProjectAssetAttachmentConflictPolicy::Replace);
     REQUIRE(replaced.success);
     REQUIRE(readBinaryFile(replaced.payloadPath) == "updated-hero-payload");
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(projectRoot)) {
+        const auto filename = entry.path().filename().string();
+        REQUIRE(filename.find(".urpg-stage-") == std::string::npos);
+        REQUIRE(filename.find(".urpg-backup-") == std::string::npos);
+    }
 
     {
         std::ifstream manifestStream(result.manifestPath);
@@ -868,6 +1199,137 @@ TEST_CASE("ProjectAssetAttachmentService rejects blocked or missing promoted pay
     const auto missing = service.attachPromotedAsset(missingPayload, root / "project");
     REQUIRE_FALSE(missing.success);
     REQUIRE(missing.code == "promoted_payload_missing");
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("ProjectAssetAttachmentService restores interrupted attachment transactions",
+          "[assets][asset_library][asset_attachment][recovery]") {
+    const auto root = uniqueAssetTempRoot("urpg_project_asset_attachment_recovery");
+    std::filesystem::remove_all(root);
+    const auto projectRoot = root / "project";
+    const auto sourcePayload = root / ".urpg" / "asset-library" / "promoted" / "asset.recovery" / "payloads" /
+                               "hero.png";
+    const auto payload = projectRoot / "content" / "assets" / "imported" / "asset.recovery" / "hero.png";
+    const auto manifestPath = projectRoot / "content" / "assets" / "manifests" / "asset.recovery.json";
+    const auto stagedPayload = payload.parent_path() / "hero.png.urpg-stage-payload-crash";
+    const auto stagedManifest = manifestPath.parent_path() / "asset.recovery.json.urpg-stage-manifest-crash";
+    const auto payloadBackup = payload.parent_path() / "hero.png.urpg-backup-payload-crash";
+    const auto manifestBackup = manifestPath.parent_path() / "asset.recovery.json.urpg-backup-manifest-crash";
+    writeBinaryFile(sourcePayload, "source-new");
+    writeBinaryFile(payload, "interrupted-new");
+    writeBinaryFile(payloadBackup, "prior-payload");
+    writeBinaryFile(manifestBackup, "prior-manifest");
+    writeBinaryFile(stagedPayload, "staged-payload");
+    writeBinaryFile(stagedManifest, "staged-manifest");
+
+    const auto journalPath = projectRoot / ".urpg" / "asset-attachment-transactions" / "attachment-crash.json";
+    std::filesystem::create_directories(journalPath.parent_path());
+    {
+        std::ofstream journal(journalPath, std::ios::binary | std::ios::trunc);
+        journal << nlohmann::json({
+                       {"schema", "urpg.asset_attachment_transaction.v1"},
+                       {"state", "payload_published"},
+                       {"payload_path", "content/assets/imported/asset.recovery/hero.png"},
+                       {"manifest_path", "content/assets/manifests/asset.recovery.json"},
+                       {"staged_payload_path", "content/assets/imported/asset.recovery/hero.png.urpg-stage-payload-crash"},
+                       {"staged_manifest_path", "content/assets/manifests/asset.recovery.json.urpg-stage-manifest-crash"},
+                       {"payload_backup_path", "content/assets/imported/asset.recovery/hero.png.urpg-backup-payload-crash"},
+                       {"manifest_backup_path", "content/assets/manifests/asset.recovery.json.urpg-backup-manifest-crash"},
+                       {"had_payload", true},
+                       {"had_manifest", true},
+                   }).dump(2)
+                << '\n';
+    }
+
+    urpg::assets::AssetPromotionManifest manifest;
+    manifest.schemaVersion = "1.0.0";
+    manifest.assetId = "asset.recovery";
+    manifest.sourcePath = "imports/raw/hero.png";
+    manifest.promotedPath = sourcePayload.generic_string();
+    manifest.licenseId = "project_private";
+    manifest.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+    manifest.preview.kind = "image";
+    manifest.preview.thumbnailPath = sourcePayload.generic_string();
+    manifest.preview.width = 48;
+    manifest.preview.height = 48;
+    manifest.package.includeInRuntime = true;
+
+    urpg::assets::ProjectAssetAttachmentService service;
+    const auto attached = service.attachPromotedAsset(
+        manifest, projectRoot, urpg::assets::ProjectAssetAttachmentConflictPolicy::KeepBoth);
+    REQUIRE(attached.success);
+    REQUIRE(readBinaryFile(payload) == "prior-payload");
+    REQUIRE(readBinaryFile(manifestPath) == "prior-manifest");
+    REQUIRE_FALSE(std::filesystem::exists(journalPath));
+    REQUIRE_FALSE(std::filesystem::exists(stagedPayload));
+    REQUIRE_FALSE(std::filesystem::exists(stagedManifest));
+    REQUIRE_FALSE(std::filesystem::exists(payloadBackup));
+    REQUIRE_FALSE(std::filesystem::exists(manifestBackup));
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("ProjectAssetAttachmentService applies checked revisions and operation receipts",
+          "[assets][asset_library][asset_attachment][revision]") {
+    const auto root = uniqueAssetTempRoot("urpg_project_asset_attachment_revision");
+    std::filesystem::remove_all(root);
+    const auto projectRoot = root / "project";
+    const auto globalPayload = root / ".urpg" / "asset-library" / "promoted" / "asset.revision" / "payloads" /
+                               "hero.png";
+    std::filesystem::create_directories(projectRoot / "content");
+    writeBinaryFile(globalPayload, "revision-one");
+
+    urpg::assets::AssetPromotionManifest manifest;
+    manifest.assetId = "asset.revision";
+    manifest.sourcePath = "imports/raw/hero.png";
+    manifest.promotedPath = globalPayload.string();
+    manifest.licenseId = "user_license_note";
+    manifest.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+    manifest.preview.kind = "image";
+    manifest.preview.thumbnailPath = globalPayload.string();
+    manifest.preview.width = 48;
+    manifest.preview.height = 48;
+    manifest.package.includeInRuntime = true;
+
+    urpg::assets::ProjectAssetAttachmentService service;
+    const auto plan = service.planPromotedAssetAttachment(manifest, projectRoot);
+    REQUIRE(plan.valid);
+    REQUIRE_FALSE(plan.sourceRevision.empty());
+
+    urpg::assets::ProjectAssetAttachmentRequest request;
+    request.manifest = manifest;
+    request.projectRoot = projectRoot;
+    request.operationId = "attach-revision-1";
+    request.expectedSourceRevision = plan.sourceRevision;
+    const auto applied = service.attachPromotedAsset(request);
+    REQUIRE(applied.success);
+    REQUIRE(applied.code == "project_asset_attached");
+    REQUIRE(applied.sourceRevision == plan.sourceRevision);
+    REQUIRE(std::filesystem::is_regular_file(projectRoot / ".urpg" / "asset-attachment-operations" /
+                                              "attach-revision-1.json"));
+
+    const auto replayed = service.attachPromotedAsset(request);
+    REQUIRE(replayed.success);
+    REQUIRE(replayed.code == "project_asset_attached");
+    REQUIRE(replayed.message.find("without reapplying") != std::string::npos);
+
+    auto conflictingRequest = request;
+    conflictingRequest.manifest.licenseId = "different_license";
+    const auto conflicting = service.attachPromotedAsset(conflictingRequest);
+    REQUIRE_FALSE(conflicting.success);
+    REQUIRE(conflicting.code == "asset_attachment_operation_mismatch");
+
+    writeBinaryFile(globalPayload, "revision-two");
+    urpg::assets::ProjectAssetAttachmentRequest staleRequest;
+    staleRequest.manifest = manifest;
+    staleRequest.projectRoot = projectRoot;
+    staleRequest.operationId = "attach-revision-2";
+    staleRequest.expectedSourceRevision = plan.sourceRevision;
+    const auto stale = service.attachPromotedAsset(staleRequest);
+    REQUIRE_FALSE(stale.success);
+    REQUIRE(stale.code == "asset_attachment_source_revision_mismatch");
+    REQUIRE(readBinaryFile(applied.payloadPath) == "revision-one");
 
     std::filesystem::remove_all(root);
 }

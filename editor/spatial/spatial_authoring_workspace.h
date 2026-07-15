@@ -34,6 +34,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         Parts = 4,
         Worldbuilding = 5,
         Tiles = 6,
+        Events = 7,
     };
 
     struct ToolbarAction {
@@ -135,6 +136,10 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string label;
         std::string trigger_id;
         std::string layer_id;
+        // Authoring metadata for an attached image placed as an event. This is
+        // intentionally not a runtime sprite/rendering contract.
+        std::string asset_id;
+        std::string asset_project_path;
         int32_t tile_x = 0;
         int32_t tile_y = 0;
         bool visible_in_playtest = true;
@@ -509,6 +514,20 @@ class SpatialAuthoringWorkspace : public EditorPanel {
                                           const std::string& project_path,
                                           float screen_x,
                                           float screen_y);
+    // Atomically registers an attached prop asset and places its stable asset
+    // reference at the canvas drop coordinate. One Perspective 2D undo
+    // reverses both the palette binding and the prop instance.
+    bool PlaceAttachedAssetPropFromScreen(const std::string& asset_id,
+                                          const std::string& project_path,
+                                          float screen_x,
+                                          float screen_y);
+    // Creates one authored event from a governed attached image drop. The
+    // asset reference is retained in the Perspective 2D document and history;
+    // it does not add event-sprite runtime rendering.
+    bool PlaceAttachedAssetEventFromScreen(const std::string& asset_id,
+                                           const std::string& project_path,
+                                           float screen_x,
+                                           float screen_y);
     bool SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages);
     bool SetPerspectiveTileDefinition(Perspective2DTileDefinition definition);
     Perspective2DTilePreviewResult PreviewPerspectiveTileAt(int32_t tile_x, int32_t tile_y);
@@ -696,6 +715,8 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string label;
         std::string trigger_id;
         std::string layer_id;
+        std::string asset_id;
+        std::string asset_project_path;
         int32_t tile_x = 0;
         int32_t tile_y = 0;
         std::string selected_page_id;

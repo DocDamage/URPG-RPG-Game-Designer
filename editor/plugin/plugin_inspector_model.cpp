@@ -8,6 +8,9 @@ void PluginInspectorModel::analyze(const plugin::PluginCompatibilityAnalysisInpu
 }
 
 bool PluginInspectorModel::loadManifestsFromDirectory(const std::filesystem::path& directory, std::string* error_message) {
+    inspection_only_ = false;
+    source_kind_ = "native compatibility manifests";
+    discovery_diagnostics_.clear();
     plugin::PluginCompatibilityAnalysisInput input;
     input.manifests = plugin::LoadPluginCompatibilityManifestsFromDirectory(directory, error_message);
     input.native_shim_hints = plugin::DefaultNativePluginShimHints();
@@ -19,9 +22,33 @@ bool PluginInspectorModel::loadManifestsFromDirectory(const std::filesystem::pat
     return true;
 }
 
+bool PluginInspectorModel::inspectMzPluginScriptsFromDirectory(const std::filesystem::path& directory,
+                                                                std::string* error_message) {
+    inspection_only_ = true;
+    source_kind_ = "MZ plugin source (static inspection only)";
+    const auto inspection = plugin::InspectMzPluginScriptsFromDirectory(directory);
+    discovery_diagnostics_ = inspection.diagnostics;
+    if (error_message != nullptr) {
+        *error_message = discovery_diagnostics_.empty() ? std::string{} : discovery_diagnostics_.front();
+    }
+    plugin::PluginCompatibilityAnalysisInput input;
+    input.manifests = inspection.manifests;
+    input.native_shim_hints = plugin::DefaultNativePluginShimHints();
+    if (input.manifests.empty()) {
+        report_ = {};
+        refreshSnapshot();
+        return discovery_diagnostics_.empty();
+    }
+    analyze(input);
+    return true;
+}
+
 void PluginInspectorModel::clear() {
     report_ = {};
     snapshot_ = {};
+    inspection_only_ = false;
+    source_kind_.clear();
+    discovery_diagnostics_.clear();
 }
 
 nlohmann::json PluginInspectorModel::exportSnapshotJson() const {
@@ -39,6 +66,9 @@ nlohmann::json PluginInspectorModel::exportSnapshotJson() const {
         {"low_confidence_plugin_count", snapshot_.low_confidence_plugin_count},
         {"project_score", snapshot_.project_score},
         {"release_authoritative", snapshot_.release_authoritative},
+        {"inspection_only", snapshot_.inspection_only},
+        {"source_kind", snapshot_.source_kind},
+        {"discovery_diagnostics", snapshot_.discovery_diagnostics},
     };
     return root;
 }
@@ -50,6 +80,9 @@ void PluginInspectorModel::refreshSnapshot() {
     snapshot_.cycle_count = report_.dependency_cycles.size();
     snapshot_.project_score = report_.project_score;
     snapshot_.release_authoritative = report_.release_authoritative;
+    snapshot_.inspection_only = inspection_only_;
+    snapshot_.source_kind = source_kind_;
+    snapshot_.discovery_diagnostics = discovery_diagnostics_;
 
     for (const auto& plugin : report_.plugins) {
         snapshot_.issue_count += plugin.issues.size();

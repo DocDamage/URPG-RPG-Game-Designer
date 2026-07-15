@@ -5,6 +5,7 @@
 #include "engine/core/assets/global_asset_promotion_service.h"
 #include "engine/core/assets/project_asset_attachment_service.h"
 #include "engine/core/platform/process_runner.h"
+#include "engine/core/security/sha256.h"
 
 #include <algorithm>
 #include <cctype>
@@ -24,6 +25,15 @@ namespace urpg::editor {
 namespace {
 
 constexpr const char* kExternalExtractorEnv = "URPG_ASSET_ARCHIVE_EXTRACTOR";
+
+std::string curationKeyForRecord(const urpg::assets::AssetRecord& asset) {
+    if (!asset.asset_id.empty()) {
+        return "promoted:" + asset.asset_id;
+    }
+    const auto identity = !asset.normalized_path.empty() ? asset.normalized_path : asset.path;
+    return "catalog:" + urpg::security::Sha256::toHex(
+                            urpg::security::Sha256::compute({identity.begin(), identity.end()}));
+}
 
 struct ParsedExternalExtractorCommand {
     std::vector<std::string> arguments;
@@ -1045,6 +1055,31 @@ std::string projectAttachmentManifestPath(const urpg::assets::AssetRecord& asset
     return {};
 }
 
+std::string attachmentConflictPolicyName(const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    switch (policy) {
+    case urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel:
+        return "cancel";
+    case urpg::assets::ProjectAssetAttachmentConflictPolicy::Replace:
+        return "replace";
+    case urpg::assets::ProjectAssetAttachmentConflictPolicy::KeepBoth:
+        return "keep_both";
+    case urpg::assets::ProjectAssetAttachmentConflictPolicy::RelinkExisting:
+        return "relink_existing";
+    }
+    return "unknown";
+}
+
+std::string attachmentOperationId(std::string asset_id, const std::string& source_revision,
+                                  const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    for (auto& ch : asset_id) {
+        if (!std::isalnum(static_cast<unsigned char>(ch)) && ch != '-' && ch != '_') {
+            ch = '-';
+        }
+    }
+    const auto revision_prefix = source_revision.substr(0, std::min<size_t>(16, source_revision.size()));
+    return "asset-attach-" + asset_id + "-" + attachmentConflictPolicyName(policy) + "-" + revision_prefix;
+}
+
 std::string pickerKindForAsset(const urpg::assets::AssetRecord& asset,
                                const urpg::assets::AssetPromotionManifest& manifest) {
     const auto mediaKind = asset.media_kind.empty() ? manifest.preview.kind : asset.media_kind;
@@ -1931,15 +1966,59 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::archiveAsset(std::stri
     return result;
 }
 
-urpg::assets::AssetLibraryActionResult
-AssetLibraryModel::attachPromotedAssetToProject(
+nlohmann::json AssetLibraryModel::planPromotedAssetAttachmentToProject(
     std::string path, const std::filesystem::path& project_root,
     const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
     std::replace(path.begin(), path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "plan_project_asset_attachment"},
+        {"path", path},
+        {"project_root", project_root.generic_string()},
+        {"conflict_policy", attachmentConflictPolicyName(policy)},
+    };
     const auto found = library_.findAsset(path);
     if (!found.has_value()) {
-        urpg::assets::AssetLibraryActionResult result{"attach_project_asset", path, false, "asset_not_found",
+        action["success"] = false;
+        action["code"] = "asset_not_found";
+        action["message"] = "Asset was not found in the library.";
+    } else {
+        urpg::assets::ProjectAssetAttachmentService service;
+        const auto plan = service.planPromotedAssetAttachment(manifestFromAssetRecord(*found), project_root, policy);
+        action["asset_id"] = found->asset_id;
+        action["success"] = plan.valid;
+        action["code"] = plan.valid ? "project_asset_attachment_planned" : "project_asset_attachment_plan_invalid";
+        action["message"] = plan.valid ? "Review the attachment paths and revision before confirming."
+                                      : "The project asset attachment cannot be planned.";
+        action["expected_source_revision"] = plan.sourceRevision;
+        action["operation_id"] = plan.valid ? attachmentOperationId(found->asset_id, plan.sourceRevision, policy) : "";
+        action["payload_path"] = plan.payloadPath.empty() ? "" : plan.payloadPath.generic_string();
+        action["manifest_path"] = plan.manifestPath.empty() ? "" : plan.manifestPath.generic_string();
+        action["diagnostics"] = plan.diagnostics;
+    }
+    action_history_.push_back(action);
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+urpg::assets::AssetLibraryActionResult AssetLibraryModel::confirmPromotedAssetAttachmentToProject(
+    std::string path, const std::filesystem::path& project_root, std::string expected_source_revision,
+    std::string operation_id, const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    std::replace(path.begin(), path.end(), '\\', '/');
+    const auto found = library_.findAsset(path);
+    if (!found.has_value()) {
+        urpg::assets::AssetLibraryActionResult result{"confirm_project_asset_attachment", path, false, "asset_not_found",
                                                       "Asset was not found in the library."};
+        action_history_.push_back(result.toJson());
+        refreshSnapshot();
+        snapshot_.last_action = result.toJson();
+        snapshot_.action_history = action_history_;
+        return result;
+    }
+    if (expected_source_revision.empty() || operation_id.empty()) {
+        urpg::assets::AssetLibraryActionResult result{
+            "confirm_project_asset_attachment", path, false, "attachment_confirmation_missing",
+            "Attachment confirmation requires the source revision and operation ID from a current plan."};
         action_history_.push_back(result.toJson());
         refreshSnapshot();
         snapshot_.last_action = result.toJson();
@@ -1948,17 +2027,375 @@ AssetLibraryModel::attachPromotedAssetToProject(
     }
 
     urpg::assets::ProjectAssetAttachmentService service;
-    const auto attachResult = service.attachPromotedAsset(manifestFromAssetRecord(*found), project_root, policy);
-    urpg::assets::AssetLibraryActionResult result{"attach_project_asset", path, attachResult.success, attachResult.code,
-                                                  attachResult.message};
-    if (attachResult.success) {
-        library_.addUsageReference(path, "project_asset_attachment:" + attachResult.manifestPath.generic_string());
+    urpg::assets::ProjectAssetAttachmentRequest request;
+    request.manifest = manifestFromAssetRecord(*found);
+    request.projectRoot = project_root;
+    request.conflictPolicy = policy;
+    request.operationId = std::move(operation_id);
+    request.expectedSourceRevision = std::move(expected_source_revision);
+    const auto attach_result = service.attachPromotedAsset(request);
+    urpg::assets::AssetLibraryActionResult result{"confirm_project_asset_attachment", path, attach_result.success,
+                                                  attach_result.code, attach_result.message};
+    if (attach_result.success) {
+        library_.addUsageReference(path, "project_asset_attachment:" + attach_result.manifestPath.generic_string());
     }
     action_history_.push_back(result.toJson());
     rebuildCleanupPreview();
     snapshot_.last_action = result.toJson();
     snapshot_.action_history = action_history_;
     return result;
+}
+
+nlohmann::json AssetLibraryModel::planDerivedRevisionAttachmentToProject(
+    std::string source_path, const std::filesystem::path& derived_manifest_path,
+    const std::filesystem::path& project_root, const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "plan_derived_project_asset_attachment"},
+        {"path", source_path},
+        {"derived_manifest_path", derived_manifest_path.generic_string()},
+        {"project_root", project_root.generic_string()},
+        {"conflict_policy", attachmentConflictPolicyName(policy)},
+        {"success", false},
+        {"code", "asset_not_found"},
+        {"message", "Asset was not found in the library."},
+        {"expected_source_revision", ""},
+        {"operation_id", ""},
+        {"payload_path", ""},
+        {"manifest_path", ""},
+        {"diagnostics", nlohmann::json::array()},
+    };
+    const auto found = library_.findAsset(source_path);
+    if (found.has_value()) {
+        urpg::assets::ProjectAssetAttachmentService service;
+        const auto plan = service.planDerivedRevisionAttachment(manifestFromAssetRecord(*found), derived_manifest_path,
+                                                                 project_root, policy);
+        action["asset_id"] = plan.assetId;
+        action["success"] = plan.valid;
+        action["code"] = plan.valid ? "project_derived_asset_attachment_planned"
+                                      : "project_derived_asset_attachment_plan_invalid";
+        action["message"] = plan.valid ? "Review the derived revision and attachment paths before confirming."
+                                         : "The derived revision attachment cannot be planned.";
+        action["expected_source_revision"] = plan.sourceRevision;
+        action["operation_id"] = plan.valid ? attachmentOperationId(plan.assetId, plan.sourceRevision, policy) : "";
+        action["payload_path"] = plan.payloadPath.empty() ? "" : plan.payloadPath.generic_string();
+        action["manifest_path"] = plan.manifestPath.empty() ? "" : plan.manifestPath.generic_string();
+        action["diagnostics"] = plan.diagnostics;
+    }
+    action_history_.push_back(action);
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+urpg::assets::AssetLibraryActionResult AssetLibraryModel::confirmDerivedRevisionAttachmentToProject(
+    std::string source_path, const std::filesystem::path& derived_manifest_path,
+    const std::filesystem::path& project_root, std::string expected_source_revision, std::string operation_id,
+    const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    const auto found = library_.findAsset(source_path);
+    if (!found.has_value()) {
+        urpg::assets::AssetLibraryActionResult result{"confirm_derived_project_asset_attachment", source_path, false,
+                                                      "asset_not_found", "Asset was not found in the library."};
+        action_history_.push_back(result.toJson());
+        refreshSnapshot();
+        snapshot_.last_action = result.toJson();
+        snapshot_.action_history = action_history_;
+        return result;
+    }
+    if (expected_source_revision.empty() || operation_id.empty()) {
+        urpg::assets::AssetLibraryActionResult result{
+            "confirm_derived_project_asset_attachment", source_path, false, "attachment_confirmation_missing",
+            "Derived revision attachment confirmation requires the source revision and operation ID from a current plan."};
+        action_history_.push_back(result.toJson());
+        refreshSnapshot();
+        snapshot_.last_action = result.toJson();
+        snapshot_.action_history = action_history_;
+        return result;
+    }
+
+    urpg::assets::ProjectDerivedAssetAttachmentRequest request;
+    request.source = manifestFromAssetRecord(*found);
+    request.derivedManifestPath = derived_manifest_path;
+    request.projectRoot = project_root;
+    request.conflictPolicy = policy;
+    request.operationId = std::move(operation_id);
+    request.expectedSourceRevision = std::move(expected_source_revision);
+    urpg::assets::ProjectAssetAttachmentService service;
+    const auto attachResult = service.attachDerivedRevision(request);
+    urpg::assets::AssetLibraryActionResult result{"confirm_derived_project_asset_attachment", source_path,
+                                                  attachResult.success, attachResult.code, attachResult.message};
+    if (attachResult.success && std::filesystem::is_regular_file(attachResult.manifestPath)) {
+        std::ifstream manifestStream(attachResult.manifestPath);
+        const auto attachedManifest = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json::parse(manifestStream));
+        library_.ingestPromotionManifest(attachedManifest);
+        const auto attachedPath = findAssetPathById(library_, attachedManifest.assetId);
+        if (!attachedPath.empty()) {
+            library_.addUsageReference(attachedPath,
+                                       "project_asset_attachment:" + attachResult.manifestPath.generic_string());
+        }
+    }
+    action_history_.push_back(result.toJson());
+    rebuildCleanupPreview();
+    snapshot_.last_action = result.toJson();
+    snapshot_.action_history = action_history_;
+    return result;
+}
+
+nlohmann::json AssetLibraryModel::createImageCropScaleRevision(
+    std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+    const int32_t crop_x, const int32_t crop_y, const int32_t crop_width, const int32_t crop_height,
+    const int32_t output_width, const int32_t output_height) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "create_image_crop_scale_revision"},
+        {"path", source_path},
+        {"derived_root", derived_root.generic_string()},
+        {"operation_id", operation_id},
+        {"success", false},
+        {"code", "asset_not_found"},
+        {"message", "Asset was not found in the library."},
+        {"manifest_path", ""},
+        {"output_path", ""},
+        {"source_revision", ""},
+        {"derived_revision", ""},
+        {"diagnostics", nlohmann::json::array()},
+    };
+    const auto found = library_.findAsset(source_path);
+    if (found.has_value()) {
+        urpg::assets::AssetImageCropScalePlan plan;
+        plan.operationId = std::move(operation_id);
+        plan.source = manifestFromAssetRecord(*found);
+        plan.derivedRoot = derived_root;
+        plan.cropX = crop_x;
+        plan.cropY = crop_y;
+        plan.cropWidth = crop_width;
+        plan.cropHeight = crop_height;
+        plan.outputWidth = output_width;
+        plan.outputHeight = output_height;
+        urpg::assets::AssetTransformRevisionService service;
+        const auto result = service.createImageCropScaleRevision(plan);
+        action["asset_id"] = found->asset_id;
+        action["success"] = result.success;
+        action["code"] = result.code;
+        action["message"] = result.message;
+        action["manifest_path"] = result.manifestPath.generic_string();
+        action["output_path"] = result.outputPath.generic_string();
+        action["source_revision"] = result.sourceRevision;
+        action["derived_revision"] = result.derivedRevision;
+        action["diagnostics"] = result.diagnostics;
+    }
+    action_history_.push_back(action);
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+nlohmann::json AssetLibraryModel::createImagePaletteRevision(std::string source_path,
+                                                              const std::filesystem::path& derived_root,
+                                                              std::string operation_id,
+                                                              std::vector<uint32_t> colors_rgba) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "create_image_palette_revision"},
+        {"path", source_path},
+        {"derived_root", derived_root.generic_string()},
+        {"operation_id", operation_id},
+        {"success", false},
+        {"code", "asset_not_found"},
+        {"message", "Asset was not found in the library."},
+        {"manifest_path", ""},
+        {"output_path", ""},
+        {"source_revision", ""},
+        {"derived_revision", ""},
+        {"diagnostics", nlohmann::json::array()},
+    };
+    const auto found = library_.findAsset(source_path);
+    if (found.has_value()) {
+        urpg::assets::AssetImagePalettePlan plan;
+        plan.operationId = std::move(operation_id);
+        plan.source = manifestFromAssetRecord(*found);
+        plan.derivedRoot = derived_root;
+        plan.colorsRgba = std::move(colors_rgba);
+        urpg::assets::AssetTransformRevisionService service;
+        const auto result = service.createImagePaletteRevision(plan);
+        action["asset_id"] = found->asset_id;
+        action["success"] = result.success;
+        action["code"] = result.code;
+        action["message"] = result.message;
+        action["manifest_path"] = result.manifestPath.generic_string();
+        action["output_path"] = result.outputPath.generic_string();
+        action["source_revision"] = result.sourceRevision;
+        action["derived_revision"] = result.derivedRevision;
+        action["diagnostics"] = result.diagnostics;
+    }
+    action_history_.push_back(action);
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+nlohmann::json AssetLibraryModel::createAudioTrimFadeGainRevision(
+    std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+    const uint64_t start_frame, const uint64_t end_frame, const uint64_t fade_in_frames,
+    const uint64_t fade_out_frames, const int32_t gain_milli_db, const int64_t loop_start_frame,
+    const int64_t loop_end_frame) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "create_audio_trim_fade_gain_revision"},
+        {"path", source_path},
+        {"derived_root", derived_root.generic_string()},
+        {"operation_id", operation_id},
+        {"success", false},
+        {"code", "asset_not_found"},
+        {"message", "Asset was not found in the library."},
+        {"manifest_path", ""},
+        {"output_path", ""},
+        {"source_revision", ""},
+        {"derived_revision", ""},
+        {"diagnostics", nlohmann::json::array()},
+    };
+    const auto found = library_.findAsset(source_path);
+    if (found.has_value()) {
+        urpg::assets::AssetAudioTrimFadeGainPlan plan;
+        plan.operationId = std::move(operation_id);
+        plan.source = manifestFromAssetRecord(*found);
+        plan.derivedRoot = derived_root;
+        plan.startFrame = start_frame;
+        plan.endFrame = end_frame;
+        plan.fadeInFrames = fade_in_frames;
+        plan.fadeOutFrames = fade_out_frames;
+        plan.gainMilliDb = gain_milli_db;
+        plan.loopStartFrame = loop_start_frame;
+        plan.loopEndFrame = loop_end_frame;
+        urpg::assets::AssetTransformRevisionService service;
+        const auto result = service.createAudioTrimFadeGainRevision(plan);
+        action["asset_id"] = found->asset_id;
+        action["success"] = result.success;
+        action["code"] = result.code;
+        action["message"] = result.message;
+        action["manifest_path"] = result.manifestPath.generic_string();
+        action["output_path"] = result.outputPath.generic_string();
+        action["source_revision"] = result.sourceRevision;
+        action["derived_revision"] = result.derivedRevision;
+        action["diagnostics"] = result.diagnostics;
+    }
+    action_history_.push_back(action);
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+nlohmann::json AssetLibraryModel::createTilesetSliceRevision(
+    std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+    const int32_t tile_width, const int32_t tile_height, const int32_t margin, const int32_t spacing) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "create_tileset_slice_revision"},
+        {"path", source_path},
+        {"derived_root", derived_root.generic_string()},
+        {"operation_id", operation_id},
+        {"success", false},
+        {"code", "asset_not_found"},
+        {"message", "Asset was not found in the library."},
+        {"manifest_path", ""},
+        {"output_path", ""},
+        {"source_revision", ""},
+        {"derived_revision", ""},
+        {"diagnostics", nlohmann::json::array()},
+    };
+    const auto found = library_.findAsset(source_path);
+    if (found.has_value()) {
+        urpg::assets::AssetTilesetSlicePlan plan;
+        plan.operationId = std::move(operation_id);
+        plan.source = manifestFromAssetRecord(*found);
+        plan.derivedRoot = derived_root;
+        plan.tileWidth = tile_width;
+        plan.tileHeight = tile_height;
+        plan.margin = margin;
+        plan.spacing = spacing;
+        urpg::assets::AssetTransformRevisionService service;
+        const auto result = service.createTilesetSliceRevision(plan);
+        action["asset_id"] = found->asset_id;
+        action["success"] = result.success;
+        action["code"] = result.code;
+        action["message"] = result.message;
+        action["manifest_path"] = result.manifestPath.generic_string();
+        action["output_path"] = result.outputPath.generic_string();
+        action["source_revision"] = result.sourceRevision;
+        action["derived_revision"] = result.derivedRevision;
+        action["diagnostics"] = result.diagnostics;
+    }
+    action_history_.push_back(action);
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+nlohmann::json AssetLibraryModel::createAtlasMetadataRevision(
+    std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+    const int32_t atlas_width, const int32_t atlas_height, const int32_t frame_width, const int32_t frame_height) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "create_atlas_metadata_revision"},
+        {"path", source_path},
+        {"derived_root", derived_root.generic_string()},
+        {"operation_id", operation_id},
+        {"success", false},
+        {"code", "asset_not_found"},
+        {"message", "Asset was not found in the library."},
+        {"manifest_path", ""},
+        {"source_revision", ""},
+        {"derived_revision", ""},
+        {"diagnostics", nlohmann::json::array()},
+    };
+    const auto found = library_.findAsset(source_path);
+    if (found.has_value()) {
+        urpg::assets::AssetAtlasMetadataPlan plan;
+        plan.operationId = std::move(operation_id);
+        plan.source = manifestFromAssetRecord(*found);
+        plan.derivedRoot = derived_root;
+        plan.atlasWidth = atlas_width;
+        plan.atlasHeight = atlas_height;
+        plan.frameWidth = frame_width;
+        plan.frameHeight = frame_height;
+        urpg::assets::AssetTransformRevisionService service;
+        const auto result = service.createAtlasMetadataRevision(plan);
+        action["asset_id"] = found->asset_id;
+        action["success"] = result.success;
+        action["code"] = result.code;
+        action["message"] = result.message;
+        action["manifest_path"] = result.manifestPath.generic_string();
+        action["source_revision"] = result.sourceRevision;
+        action["derived_revision"] = result.derivedRevision;
+        action["diagnostics"] = result.diagnostics;
+    }
+    action_history_.push_back(action);
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
+urpg::assets::AssetLibraryActionResult
+AssetLibraryModel::attachPromotedAssetToProject(
+    std::string path, const std::filesystem::path& project_root,
+    const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    const auto plan = planPromotedAssetAttachmentToProject(path, project_root, policy);
+    if (!plan.value("success", false)) {
+        return {"attach_project_asset", path, false, plan.value("code", "project_asset_attachment_plan_invalid"),
+                plan.value("message", "The project asset attachment cannot be planned.")};
+    }
+    const auto confirmed = confirmPromotedAssetAttachmentToProject(path, project_root,
+                                                                    plan.value("expected_source_revision", ""),
+                                                                    plan.value("operation_id", ""), policy);
+    auto compatibility_action = confirmed.toJson();
+    compatibility_action["action"] = "attach_project_asset";
+    if (!action_history_.empty()) {
+        action_history_.back() = compatibility_action;
+    }
+    snapshot_.last_action = compatibility_action;
+    snapshot_.action_history = action_history_;
+    return {"attach_project_asset", path, confirmed.success, confirmed.code, confirmed.message};
 }
 
 nlohmann::json AssetLibraryModel::attachPromotedAssetsToProject(std::vector<std::string> paths,
@@ -1969,7 +2406,6 @@ nlohmann::json AssetLibraryModel::attachPromotedAssetsToProject(std::vector<std:
     size_t blockedCount = 0;
     size_t missingCount = 0;
 
-    urpg::assets::ProjectAssetAttachmentService service;
     for (auto path : paths) {
         std::replace(path.begin(), path.end(), '\\', '/');
         const auto found = library_.findAsset(path);
@@ -1987,9 +2423,18 @@ nlohmann::json AssetLibraryModel::attachPromotedAssetsToProject(std::vector<std:
             continue;
         }
 
-        const auto attachResult = service.attachPromotedAsset(manifestFromAssetRecord(*found), project_root, policy);
+        const auto plan = planPromotedAssetAttachmentToProject(path, project_root, policy);
+        const auto attachResult = plan.value("success", false)
+                                      ? [&] {
+                                            return confirmPromotedAssetAttachmentToProject(
+                                                path, project_root, plan.value("expected_source_revision", ""),
+                                                plan.value("operation_id", ""), policy);
+                                        }()
+                                      : urpg::assets::AssetLibraryActionResult{
+                                            "confirm_project_asset_attachment", path, false,
+                                            plan.value("code", "project_asset_attachment_plan_invalid"),
+                                            plan.value("message", "The project asset attachment cannot be planned.")};
         if (attachResult.success) {
-            library_.addUsageReference(path, "project_asset_attachment:" + attachResult.manifestPath.generic_string());
             ++attachedCount;
         } else {
             ++blockedCount;
@@ -2000,9 +2445,8 @@ nlohmann::json AssetLibraryModel::attachPromotedAssetsToProject(std::vector<std:
             {"success", attachResult.success},
             {"code", attachResult.code},
             {"message", attachResult.message},
-            {"payload_path", attachResult.payloadPath.empty() ? "" : attachResult.payloadPath.generic_string()},
-            {"manifest_path", attachResult.manifestPath.empty() ? "" : attachResult.manifestPath.generic_string()},
-            {"diagnostics", attachResult.diagnostics},
+            {"expected_source_revision", plan.value("expected_source_revision", "")},
+            {"operation_id", plan.value("operation_id", "")},
         });
     }
 
@@ -2158,6 +2602,85 @@ bool AssetLibraryModel::applyQuickFilter(std::string_view filter_id) {
     return false;
 }
 
+void AssetLibraryModel::applyUserAssetCuration(const urpg::settings::EditorSettings& settings) {
+    favorite_asset_keys_ = settings.asset_favorite_keys;
+    asset_collections_ = settings.asset_collections;
+    refreshSnapshot();
+}
+
+void AssetLibraryModel::writeUserAssetCuration(urpg::settings::EditorSettings* settings) const {
+    if (settings == nullptr) {
+        return;
+    }
+    settings->asset_favorite_keys = favorite_asset_keys_;
+    settings->asset_collections = asset_collections_;
+}
+
+std::string AssetLibraryModel::curationKeyForPath(std::string_view path) const {
+    const auto asset = library_.findAsset(path);
+    return asset.has_value() ? curationKeyForRecord(*asset) : std::string{};
+}
+
+bool AssetLibraryModel::setAssetFavorite(std::string_view path, bool favorite) {
+    const auto key = curationKeyForPath(path);
+    if (key.empty()) {
+        return false;
+    }
+    const auto found = std::find(favorite_asset_keys_.begin(), favorite_asset_keys_.end(), key);
+    if (favorite && found == favorite_asset_keys_.end()) {
+        favorite_asset_keys_.push_back(key);
+    } else if (!favorite && found != favorite_asset_keys_.end()) {
+        favorite_asset_keys_.erase(found);
+    }
+    refreshSnapshot();
+    return true;
+}
+
+bool AssetLibraryModel::isAssetFavorite(std::string_view path) const {
+    const auto key = curationKeyForPath(path);
+    return !key.empty() && std::find(favorite_asset_keys_.begin(), favorite_asset_keys_.end(), key) !=
+                              favorite_asset_keys_.end();
+}
+
+bool AssetLibraryModel::isAssetInCollection(std::string_view collectionId, std::string_view path) const {
+    const auto key = curationKeyForPath(path);
+    const auto collection = std::find_if(asset_collections_.begin(), asset_collections_.end(),
+                                         [&](const auto& item) { return item.id == collectionId; });
+    return !key.empty() && collection != asset_collections_.end() &&
+           std::find(collection->asset_keys.begin(), collection->asset_keys.end(), key) != collection->asset_keys.end();
+}
+
+bool AssetLibraryModel::createAssetCollection(std::string id, std::string label) {
+    if (id.empty() || label.empty() || std::any_of(asset_collections_.begin(), asset_collections_.end(),
+                                                   [&](const auto& collection) { return collection.id == id; })) {
+        return false;
+    }
+    asset_collections_.push_back({std::move(id), std::move(label), {}});
+    refreshSnapshot();
+    return true;
+}
+
+bool AssetLibraryModel::setAssetCollectionMembership(std::string_view collection_id, std::string_view path,
+                                                      bool included) {
+    const auto key = curationKeyForPath(path);
+    if (key.empty()) {
+        return false;
+    }
+    const auto collection = std::find_if(asset_collections_.begin(), asset_collections_.end(),
+                                         [&](const auto& item) { return item.id == collection_id; });
+    if (collection == asset_collections_.end()) {
+        return false;
+    }
+    const auto found = std::find(collection->asset_keys.begin(), collection->asset_keys.end(), key);
+    if (included && found == collection->asset_keys.end()) {
+        collection->asset_keys.push_back(key);
+    } else if (!included && found != collection->asset_keys.end()) {
+        collection->asset_keys.erase(found);
+    }
+    refreshSnapshot();
+    return true;
+}
+
 void AssetLibraryModel::rebuildCleanupPreview() {
     cleanup_plan_ = cleanup_planner_.buildDuplicateCleanupPlan(library_);
     refreshSnapshot();
@@ -2222,6 +2745,16 @@ void AssetLibraryModel::refreshSnapshot() {
     snapshot_.filtered_asset_count = filteredAssets.size();
     snapshot_.filter_controls = filterControls(filter_, asset_snapshot, snapshot_.filtered_asset_count,
                                                snapshot_.project_attached_count, snapshot_.project_attachable_count);
+    snapshot_.favorite_asset_count = favorite_asset_keys_.size();
+    snapshot_.asset_collection_count = asset_collections_.size();
+    snapshot_.user_curation = {{"favorite_count", snapshot_.favorite_asset_count},
+                               {"favorites", favorite_asset_keys_},
+                               {"collections", nlohmann::json::array()}};
+    for (const auto& collection : asset_collections_) {
+        snapshot_.user_curation["collections"].push_back(
+            {{"id", collection.id}, {"label", collection.label}, {"asset_count", collection.asset_keys.size()},
+             {"asset_keys", collection.asset_keys}});
+    }
     snapshot_.cleanup_allowed_count = cleanup_plan_.allowed_count;
     snapshot_.cleanup_refused_count = cleanup_plan_.refused_count;
     snapshot_.export_eligible = asset_snapshot.export_eligible;

@@ -41,6 +41,7 @@ class MenuCommandRegistry {
     }
 
     void registerCommand(const MenuCommandMeta& command) { _commands[command.id] = command; }
+    void clear() { _commands.clear(); }
 
     const MenuCommandMeta* getCommand(const std::string& id) const {
         auto it = _commands.find(id);

@@ -204,6 +204,8 @@ const char* SpatialAuthoringWorkspace::modeName(ToolMode mode) {
         return "worldbuilding";
     case ToolMode::Tiles:
         return "tiles";
+    case ToolMode::Events:
+        return "events";
     }
 
     return "composite";
@@ -355,6 +357,10 @@ bool SpatialAuthoringWorkspace::ActivateToolbarAction(const std::string& action_
         SetActiveMode(ToolMode::Tiles);
         return true;
     }
+    if (action_id == "events") {
+        SetActiveMode(ToolMode::Events);
+        return true;
+    }
     if (action_id == "resolve_conflict") {
         const auto& canvas_snapshot = canvas_panel_.lastRenderSnapshot();
         if (canvas_snapshot.conflicts.empty()) {
@@ -440,11 +446,22 @@ bool SpatialAuthoringWorkspace::RouteCanvasPrimaryAction(float screen_x, float s
         return true;
     }
     case ToolMode::Props: {
-        const auto selected_asset_id = prop_panel_.lastRenderSnapshot().selected_asset_id;
-        if (selected_asset_id.empty()) {
+        const auto props = prop_panel_.lastRenderSnapshot();
+        if (!props.selected_project_asset_id.empty()) {
+            const auto selected = std::find_if(props.project_asset_options.begin(), props.project_asset_options.end(),
+                                               [&](const auto& option) {
+                                                   return option.asset_id == props.selected_project_asset_id;
+                                               });
+            if (selected != props.project_asset_options.end()) {
+                return PlaceAttachedAssetPropFromScreen(selected->asset_id, selected->project_path, screen_x,
+                                                        screen_y);
+            }
+        }
+        if (props.selected_asset_id.empty()) {
             return false;
         }
-        const bool placed = prop_panel_.AddPropFromScreen(selected_asset_id, screen_x, screen_y, projection_settings_);
+        const bool placed =
+            prop_panel_.AddPropFromScreen(props.selected_asset_id, screen_x, screen_y, projection_settings_);
         captureRenderSnapshot();
         return placed;
     }
@@ -478,6 +495,10 @@ bool SpatialAuthoringWorkspace::RouteCanvasPrimaryAction(float screen_x, float s
     }
     case ToolMode::Tiles:
         return PaintPerspectiveTileFromScreen(screen_x, screen_y);
+    case ToolMode::Events:
+        // Event creation is explicit (the Event Authoring controls or an
+        // attached-image drop) so a canvas click never invents an event.
+        return false;
     }
 
     return false;
@@ -507,6 +528,9 @@ bool SpatialAuthoringWorkspace::RouteCanvasSecondaryAction(float screen_x, float
         captureRenderSnapshot();
         return false;
     case ToolMode::Tiles:
+        captureRenderSnapshot();
+        return false;
+    case ToolMode::Events:
         captureRenderSnapshot();
         return false;
     }
@@ -540,6 +564,9 @@ bool SpatialAuthoringWorkspace::RouteCanvasHover(float screen_x, float screen_y)
         captureRenderSnapshot();
         return handled;
     }
+    case ToolMode::Events:
+        captureRenderSnapshot();
+        return false;
     }
 
     return false;
@@ -1046,6 +1073,18 @@ bool SpatialAuthoringWorkspace::PlaceAttachedAssetTileFromScreen(const std::stri
         return false;
     }
 
+    const auto existing = std::find_if(perspective_tiles_.begin(), perspective_tiles_.end(),
+                                       [&](const PerspectiveTilePaint& paint) {
+                                           return paint.layer_id == selected_perspective_layer_id_ &&
+                                                  paint.tile_x == tile_x && paint.tile_y == tile_y;
+                                       });
+    if (existing != perspective_tiles_.end() &&
+        (existing->tileset_id != asset_id || existing->tile_id != "tile")) {
+        // Attached drops are deliberately conservative: replacing another
+        // authored tile requires an explicit tile-edit action, not a drop.
+        return false;
+    }
+
     const auto before = serializePerspectiveMapDraft();
     const auto palette = std::find_if(perspective_tile_palette_options_.begin(), perspective_tile_palette_options_.end(),
                                       [&](const auto& option) { return option.asset_id == asset_id; });
@@ -1061,17 +1100,8 @@ bool SpatialAuthoringWorkspace::PlaceAttachedAssetTileFromScreen(const std::stri
     selected_tileset_id_ = selected->tileset_id;
     selected_tile_id_ = selected->tile_id;
 
-    const auto existing = std::find_if(perspective_tiles_.begin(), perspective_tiles_.end(),
-                                       [&](const PerspectiveTilePaint& paint) {
-                                           return paint.layer_id == selected_perspective_layer_id_ &&
-                                                  paint.tile_x == tile_x && paint.tile_y == tile_y;
-                                       });
     if (existing == perspective_tiles_.end()) {
         perspective_tiles_.push_back({selected_perspective_layer_id_, selected_tileset_id_, selected_tile_id_, tile_x, tile_y});
-        changed = true;
-    } else if (existing->tileset_id != selected_tileset_id_ || existing->tile_id != selected_tile_id_) {
-        existing->tileset_id = selected_tileset_id_;
-        existing->tile_id = selected_tile_id_;
         changed = true;
     }
     if (changed) {
@@ -1080,6 +1110,125 @@ bool SpatialAuthoringWorkspace::PlaceAttachedAssetTileFromScreen(const std::stri
         perspective_has_unsaved_changes_ = true;
         perspective_playtest_ready_ = false;
     }
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::PlaceAttachedAssetPropFromScreen(const std::string& asset_id,
+                                                                  const std::string& project_path,
+                                                                  const float screen_x,
+                                                                  const float screen_y) {
+    if (asset_id.empty() || project_path.empty() || m_target_overlay == nullptr) {
+        return false;
+    }
+
+    float world_x = 0.0f;
+    float world_y = 0.0f;
+    float world_z = 0.0f;
+    if (!PropPlacementPanel::TryProjectScreenToGround(*m_target_overlay, screen_x, screen_y, projection_settings_,
+                                                      world_x, world_y, world_z)) {
+        return false;
+    }
+
+    const auto before = serializePerspectiveMapDraft();
+    std::vector<PropPlacementPanel::ProjectAssetOption> options;
+    for (const auto& option : prop_panel_.lastRenderSnapshot().project_asset_options) {
+        options.push_back({option.asset_id, option.project_path, option.picker_kind, option.picker_targets,
+                           option.targeted_for_level_builder, option.targeted_for_perspective_2d});
+    }
+    const auto palette_entry = std::find_if(options.begin(), options.end(), [&](const auto& option) {
+        return option.asset_id == asset_id;
+    });
+    if (palette_entry == options.end()) {
+        options.push_back({asset_id, project_path, "prop", {"spatial_authoring"}, false, true});
+    }
+
+    int32_t instance_index = 0;
+    const auto instance_id_for = [&]() {
+        return m_target_overlay->mapId + ":" + asset_id + ":" + std::to_string(instance_index);
+    };
+    while (std::any_of(m_target_overlay->props.begin(), m_target_overlay->props.end(), [&](const auto& prop) {
+        return prop.instanceId == instance_id_for();
+    })) {
+        ++instance_index;
+    }
+    m_target_overlay->props.emplace_back(instance_id_for(), asset_id, world_x, world_y, world_z, 0.0f, 1.0f);
+    prop_panel_.SetProjectAssetOptions(std::move(options));
+
+    perspective_undo_drafts_.push_back(before);
+    perspective_redo_drafts_.clear();
+    perspective_has_unsaved_changes_ = true;
+    perspective_playtest_ready_ = false;
+    captureRenderSnapshot();
+    return true;
+}
+
+bool SpatialAuthoringWorkspace::PlaceAttachedAssetEventFromScreen(const std::string& asset_id,
+                                                                   const std::string& project_path,
+                                                                   const float screen_x,
+                                                                   const float screen_y) {
+    if (asset_id.empty() || project_path.empty() || m_target_overlay == nullptr) {
+        return false;
+    }
+
+    auto layer = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                              [&](const PerspectiveLayer& candidate) {
+                                  return candidate.id == selected_perspective_layer_id_ &&
+                                         (candidate.kind == "event" || candidate.kind == "object") &&
+                                         candidate.visible && !candidate.locked;
+                              });
+    if (layer == perspective_layers_.end()) {
+        layer = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                             [](const PerspectiveLayer& candidate) {
+                                 return (candidate.kind == "event" || candidate.kind == "object") &&
+                                        candidate.visible && !candidate.locked;
+                             });
+    }
+    if (layer == perspective_layers_.end()) {
+        return false;
+    }
+
+    int32_t tile_x = 0;
+    int32_t tile_y = 0;
+    if (!projectScreenToTile(screen_x, screen_y, tile_x, tile_y) ||
+        tile_x >= static_cast<int32_t>(m_target_overlay->elevation.width) ||
+        tile_y >= static_cast<int32_t>(m_target_overlay->elevation.height)) {
+        return false;
+    }
+
+    std::string id_stem = "asset_event_";
+    for (const unsigned char character : asset_id) {
+        id_stem += std::isalnum(character) != 0 || character == '_' || character == '-' ?
+                       static_cast<char>(character) : '_';
+    }
+    size_t suffix = 1;
+    std::string event_id = id_stem;
+    const auto event_id_in_use = [&](const std::string& candidate) {
+        return std::any_of(perspective_events_.begin(), perspective_events_.end(),
+                           [&](const PerspectiveEvent& event) { return event.event_id == candidate; });
+    };
+    while (event_id_in_use(event_id)) {
+        event_id = id_stem + "_" + std::to_string(suffix++);
+    }
+
+    const auto before = serializePerspectiveMapDraft();
+    PerspectiveEvent event;
+    event.event_id = std::move(event_id);
+    event.label = asset_id;
+    event.trigger_id = "confirm_interact";
+    event.layer_id = layer->id;
+    event.asset_id = asset_id;
+    event.asset_project_path = project_path;
+    event.tile_x = tile_x;
+    event.tile_y = tile_y;
+    perspective_events_.push_back(std::move(event));
+    selected_perspective_layer_id_ = layer->id;
+    selected_perspective_layer_ids_ = {layer->id};
+
+    perspective_undo_drafts_.push_back(before);
+    perspective_redo_drafts_.clear();
+    perspective_has_unsaved_changes_ = true;
+    perspective_playtest_ready_ = false;
     captureRenderSnapshot();
     return true;
 }
@@ -1896,6 +2045,7 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
     json["tile_definitions"] = nlohmann::json::array();
     json["tile_palette"] = nlohmann::json::array();
     json["prop_palette"] = nlohmann::json::array();
+    json["props"] = nlohmann::json::array();
     json["project_database"] =
         serializeProjectReferences(perspective_project_references_,
                                    perspective_starting_party_,
@@ -1959,6 +2109,17 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
                                          {"targeted_for_level_builder", option.targeted_for_level_builder},
                                          {"targeted_for_perspective_2d", option.targeted_for_perspective_2d}});
     }
+    if (m_target_overlay != nullptr) {
+        for (const auto& prop : m_target_overlay->props) {
+            json["props"].push_back({{"instance_id", prop.instanceId},
+                                      {"asset_id", prop.assetId},
+                                      {"x", prop.posX},
+                                      {"y", prop.posY},
+                                      {"z", prop.posZ},
+                                      {"rotation_y", prop.rotY},
+                                      {"scale", prop.scale}});
+        }
+    }
     for (const auto& tile : perspective_tiles_) {
         json["tiles"].push_back({{"layer_id", tile.layer_id},
                                  {"tileset_id", tile.tileset_id},
@@ -1983,15 +2144,20 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
                              {"conditions", std::move(conditions)},
                              {"commands", serialize_commands(page.commands)}});
         }
-        json["events"].push_back({{"event_id", event.event_id},
-                                  {"label", event.label},
-                                  {"trigger_id", event.trigger_id},
-                                  {"layer_id", event.layer_id},
-                                  {"x", event.tile_x},
-                                  {"y", event.tile_y},
-                                  {"selected_page_id", event.selected_page_id},
-                                  {"commands", serialize_commands(event.commands)},
-                                  {"pages", std::move(pages)}});
+        nlohmann::json event_json = {{"event_id", event.event_id},
+                                     {"label", event.label},
+                                     {"trigger_id", event.trigger_id},
+                                     {"layer_id", event.layer_id},
+                                     {"x", event.tile_x},
+                                     {"y", event.tile_y},
+                                     {"selected_page_id", event.selected_page_id},
+                                     {"commands", serialize_commands(event.commands)},
+                                     {"pages", std::move(pages)}};
+        if (!event.asset_id.empty()) {
+            event_json["asset_id"] = event.asset_id;
+            event_json["asset_project_path"] = event.asset_project_path;
+        }
+        json["events"].push_back(std::move(event_json));
     }
 
     return json.dump(2);
@@ -2368,6 +2534,57 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
         return last_perspective_load_result_;
     }
 
+    std::vector<urpg::presentation::PropInstance> restored_props;
+    const bool has_serialized_props = json.contains("props");
+    if (has_serialized_props) {
+        const auto& props_json = json["props"];
+        if (!props_json.is_array()) {
+            result.message = "Perspective 2D map draft props are not an array.";
+            result.blocker_codes.push_back("p2d_draft_props_invalid");
+            last_perspective_load_result_ = result;
+            captureRenderSnapshot();
+            return last_perspective_load_result_;
+        }
+        for (const auto& prop_json : props_json) {
+            if (!prop_json.is_object()) {
+                result.message = "Perspective 2D map draft contains an invalid prop entry.";
+                result.blocker_codes.push_back("p2d_draft_props_invalid");
+                last_perspective_load_result_ = result;
+                captureRenderSnapshot();
+                return last_perspective_load_result_;
+            }
+            const bool valid_types = prop_json.contains("asset_id") && prop_json["asset_id"].is_string() &&
+                                     prop_json.contains("x") && prop_json["x"].is_number() &&
+                                     prop_json.contains("y") && prop_json["y"].is_number() &&
+                                     prop_json.contains("z") && prop_json["z"].is_number() &&
+                                     prop_json.contains("rotation_y") && prop_json["rotation_y"].is_number() &&
+                                     prop_json.contains("scale") && prop_json["scale"].is_number() &&
+                                     (!prop_json.contains("instance_id") || prop_json["instance_id"].is_string());
+            if (!valid_types) {
+                result.message = "Perspective 2D map draft contains a prop with invalid field types.";
+                result.blocker_codes.push_back("p2d_draft_props_invalid");
+                last_perspective_load_result_ = result;
+                captureRenderSnapshot();
+                return last_perspective_load_result_;
+            }
+            const auto asset_id = prop_json["asset_id"].get<std::string>();
+            const auto x = prop_json["x"].get<float>();
+            const auto y = prop_json["y"].get<float>();
+            const auto z = prop_json["z"].get<float>();
+            const auto rotation_y = prop_json["rotation_y"].get<float>();
+            const auto scale = prop_json["scale"].get<float>();
+            if (asset_id.empty() || !std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z) ||
+                !std::isfinite(rotation_y) || !std::isfinite(scale) || scale <= 0.0f) {
+                result.message = "Perspective 2D map draft contains an invalid prop placement.";
+                result.blocker_codes.push_back("p2d_draft_props_invalid");
+                last_perspective_load_result_ = result;
+                captureRenderSnapshot();
+                return last_perspective_load_result_;
+            }
+            restored_props.emplace_back(prop_json.value("instance_id", ""), asset_id, x, y, z, rotation_y, scale);
+        }
+    }
+
     perspective_layers_.clear();
     perspective_tiles_.clear();
     perspective_events_.clear();
@@ -2476,6 +2693,10 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
         }
     }
     prop_panel_.SetProjectAssetOptions(std::move(prop_options));
+    if (has_serialized_props && m_target_overlay != nullptr) {
+        m_target_overlay->props = std::move(restored_props);
+        urpg::presentation::EnsureStablePropInstanceIds(*m_target_overlay);
+    }
     const auto project_json = json.value("project_database", nlohmann::json::object());
     const auto load_references = [&](const nlohmann::json& rows, const std::string& kind) {
         for (const auto& row : rows) {
@@ -2542,6 +2763,8 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
         event.label = event_json.value("label", event.event_id);
         event.trigger_id = event_json.value("trigger_id", "confirm_interact");
         event.layer_id = event_json.value("layer_id", "");
+        event.asset_id = event_json.value("asset_id", "");
+        event.asset_project_path = event_json.value("asset_project_path", "");
         event.tile_x = event_json.value("x", 0);
         event.tile_y = event_json.value("y", 0);
         event.selected_page_id = event_json.value("selected_page_id", "");
@@ -3601,6 +3824,8 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
         event_snapshot.label = event.label;
         event_snapshot.trigger_id = event.trigger_id;
         event_snapshot.layer_id = event.layer_id;
+        event_snapshot.asset_id = event.asset_id;
+        event_snapshot.asset_project_path = event.asset_project_path;
         event_snapshot.tile_x = event.tile_x;
         event_snapshot.tile_y = event.tile_y;
         event_snapshot.selected_page_id = event.selected_page_id;
@@ -3800,6 +4025,8 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
          last_render_snapshot_.has_target_overlay},
         {"tiles", "Tiles", active_mode_ == ToolMode::Tiles,
          last_render_snapshot_.has_target_overlay && !selected_perspective_layer_id_.empty()},
+        {"events", "Events", active_mode_ == ToolMode::Events,
+         last_render_snapshot_.has_target_overlay},
         {"resolve_conflict", "Resolve Conflict", false, last_render_snapshot_.canvas.has_conflicts},
     };
     canvas_panel_.SetActiveMode(last_render_snapshot_.toolbar.active_mode);

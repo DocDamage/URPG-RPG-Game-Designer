@@ -35,6 +35,7 @@ class MenuScene : public GameScene {
     const ui::MenuSceneGraph& getSceneGraph() const { return scene_graph_; }
     ui::MenuSceneGraph& getSceneGraphMutable() { return scene_graph_; }
     const ui::MenuCommandRegistry& getRegistry() const { return registry_; }
+    ui::MenuCommandRegistry& getRegistryMutable() { return registry_; }
 
   protected:
     std::string scene_id_;

@@ -70,6 +70,15 @@ QuestObjectiveGraphDocument QuestObjectiveGraphDocument::fromJson(const nlohmann
             node.title = node_json.value("title", "");
             node.objective_id = node_json.value("objective_id", "");
             node.localization_key = node_json.value("localization_key", "");
+            if (node_json.contains("canvas_x") && node_json["canvas_x"].is_number_integer()) {
+                node.canvas_x = node_json["canvas_x"].get<int32_t>();
+            }
+            if (node_json.contains("canvas_y") && node_json["canvas_y"].is_number_integer()) {
+                node.canvas_y = node_json["canvas_y"].get<int32_t>();
+            }
+            if (node_json.contains("has_canvas_position") && node_json["has_canvas_position"].is_boolean()) {
+                node.has_canvas_position = node_json["has_canvas_position"].get<bool>();
+            }
             if (node_json.contains("conditions") && node_json["conditions"].is_array()) {
                 for (const auto& condition_json : node_json["conditions"]) {
                     node.conditions.push_back(conditionFromJson(condition_json));
@@ -103,13 +112,19 @@ nlohmann::json QuestObjectiveGraphDocument::toJson() const {
         for (const auto& reward : node.rewards) {
             rewards.push_back(rewardToJson(reward));
         }
-        node_array.push_back({{"id", node.id},
-                              {"type", node.type},
-                              {"title", node.title},
-                              {"objective_id", node.objective_id},
-                              {"localization_key", node.localization_key},
-                              {"conditions", std::move(conditions)},
-                              {"rewards", std::move(rewards)}});
+        nlohmann::json node_json = {{"id", node.id},
+                                    {"type", node.type},
+                                    {"title", node.title},
+                                    {"objective_id", node.objective_id},
+                                    {"localization_key", node.localization_key},
+                                    {"conditions", std::move(conditions)},
+                                    {"rewards", std::move(rewards)}};
+        if (node.has_canvas_position) {
+            node_json["canvas_x"] = node.canvas_x;
+            node_json["canvas_y"] = node.canvas_y;
+            node_json["has_canvas_position"] = true;
+        }
+        node_array.push_back(std::move(node_json));
     }
 
     nlohmann::json link_array = nlohmann::json::array();
@@ -167,6 +182,80 @@ std::vector<QuestGraphDiagnostic> QuestObjectiveGraphDocument::validate() const 
         }
         if (!node_ids.contains(link.to)) {
             diagnostics.push_back({"missing_link_target", "Quest graph link target does not exist.", link.to});
+        }
+    }
+    return diagnostics;
+}
+
+std::vector<QuestGraphDiagnostic> QuestObjectiveGraphDocument::validateLocalizationKeys(
+    const std::set<std::string>& localization_keys) const {
+    std::vector<QuestGraphDiagnostic> diagnostics;
+    if (localization_keys.empty()) {
+        return diagnostics;
+    }
+    for (const auto& node : nodes) {
+        if (!node.localization_key.empty() && !localization_keys.contains(node.localization_key)) {
+            diagnostics.push_back({"missing_localization_key",
+                                   "Quest node localization key is not present in the active project catalog.", node.id});
+        }
+    }
+    return diagnostics;
+}
+
+std::vector<QuestGraphDiagnostic> QuestObjectiveGraphDocument::analyzeFlow() const {
+    if (!validate().empty()) {
+        return {};
+    }
+
+    std::vector<std::string> starts;
+    std::vector<std::string> completions;
+    for (const auto& node : nodes) {
+        if (node.type == "start") {
+            starts.push_back(node.id);
+        }
+        if (node.type == "complete") {
+            completions.push_back(node.id);
+        }
+    }
+
+    std::set<std::string> reachable;
+    std::vector<std::string> pending = starts;
+    for (size_t index = 0; index < pending.size(); ++index) {
+        const auto& current = pending[index];
+        if (!reachable.insert(current).second) {
+            continue;
+        }
+        for (const auto& link : links) {
+            if (link.from == current) {
+                pending.push_back(link.to);
+            }
+        }
+    }
+
+    std::set<std::string> can_complete;
+    pending = completions;
+    for (size_t index = 0; index < pending.size(); ++index) {
+        const auto& current = pending[index];
+        if (!can_complete.insert(current).second) {
+            continue;
+        }
+        for (const auto& link : links) {
+            if (link.to == current) {
+                pending.push_back(link.from);
+            }
+        }
+    }
+
+    std::vector<QuestGraphDiagnostic> diagnostics;
+    if (completions.empty()) {
+        diagnostics.push_back({"missing_complete_node", "Quest graph has no completion node.", ""});
+    }
+    for (const auto& node : nodes) {
+        if (!reachable.contains(node.id)) {
+            diagnostics.push_back({"unreachable_node", "Quest graph node is unreachable from every start node.", node.id});
+        } else if (!can_complete.contains(node.id)) {
+            diagnostics.push_back(
+                {"softlock_no_completion_path", "Quest graph node cannot reach a completion node.", node.id});
         }
     }
     return diagnostics;

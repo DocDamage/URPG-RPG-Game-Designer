@@ -118,12 +118,18 @@ struct PluginCompatibilityAnalysisInput {
     std::string failure_diagnostics_jsonl;
 };
 
+struct MzPluginStaticInspectionResult {
+    std::vector<PluginCompatibilityManifest> manifests;
+    std::vector<std::string> diagnostics;
+};
+
 PluginCompatibilityManifest ParsePluginCompatibilityManifest(const nlohmann::json& manifest_json,
                                                              std::string source_path = {});
 std::vector<PluginCompatibilityManifest> LoadPluginCompatibilityManifestsFromDirectory(
     const std::filesystem::path& directory,
     std::string* error_message = nullptr
 );
+MzPluginStaticInspectionResult InspectMzPluginScriptsFromDirectory(const std::filesystem::path& directory);
 
 PluginCompatibilityReport AnalyzePluginCompatibility(const PluginCompatibilityAnalysisInput& input);
 

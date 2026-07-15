@@ -319,8 +319,21 @@ void DiagnosticsWorkspace::bindMenuRuntime(urpg::ui::MenuSceneGraph& scene_graph
     if (menu_model_) {
         menu_model_->LoadFromRuntime(scene_graph, registry, switches, variables);
     }
+    if (menu_panel_) {
+        menu_panel_->setApplyChangesHandler([this]() { return applyMenuChangesToRuntime(); });
+    }
     if (menu_preview_panel_) {
         menu_preview_panel_->bindRuntime(*menu_scene_graph_);
+        menu_preview_panel_->setLayoutChangeHandler([this](size_t pane_index, urpg::ui::MenuPaneLayout layout) {
+            if (!menu_model_ || !menu_scene_graph_) {
+                return false;
+            }
+            const bool changed = menu_model_->UpdatePaneLayout(pane_index, layout);
+            if (changed) {
+                (void)applyMenuChangesToRuntime();
+            }
+            return changed;
+        });
     }
     refreshMenuSnapshotIfActive();
 }
@@ -332,6 +345,9 @@ void DiagnosticsWorkspace::clearMenuRuntime() {
     menu_variables_.clear();
     if (menu_model_) {
         menu_model_->Clear();
+    }
+    if (menu_panel_) {
+        menu_panel_->setApplyChangesHandler({});
     }
     if (menu_preview_panel_) {
         menu_preview_panel_->clearRuntime();
@@ -414,6 +430,28 @@ bool DiagnosticsWorkspace::updateMenuCommandRoute(size_t row_index, urpg::MenuRo
         return false;
     }
     const bool changed = menu_model_->UpdateCommandRoute(row_index, route, std::string(custom_route_id));
+    if (changed) {
+        refreshMenuSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::updateMenuPaneLayout(size_t pane_index, const urpg::ui::MenuPaneLayout& layout) {
+    if (!menu_model_) {
+        return false;
+    }
+    const bool changed = menu_model_->UpdatePaneLayout(pane_index, layout);
+    if (changed) {
+        refreshMenuSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::updateMenuDesignCanvas(const urpg::ui::MenuDesignCanvas& canvas) {
+    if (!menu_model_) {
+        return false;
+    }
+    const bool changed = menu_model_->UpdateDesignCanvas(canvas);
     if (changed) {
         refreshMenuSnapshotIfActive();
     }

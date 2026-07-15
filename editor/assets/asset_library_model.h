@@ -6,6 +6,8 @@
 #include "engine/core/assets/asset_library.h"
 #include "engine/core/assets/local_asset_catalog.h"
 #include "engine/core/assets/project_asset_attachment_service.h"
+#include "engine/core/assets/asset_transform_revision_service.h"
+#include "engine/core/settings/app_settings_store.h"
 
 #include <nlohmann/json.hpp>
 
@@ -53,6 +55,8 @@ struct AssetLibraryModelSnapshot {
     size_t filtered_asset_count = 0;
     size_t cleanup_allowed_count = 0;
     size_t cleanup_refused_count = 0;
+    size_t favorite_asset_count = 0;
+    size_t asset_collection_count = 0;
     bool export_eligible = false;
     bool reports_loaded = false;
     std::string promotion_status;
@@ -68,6 +72,7 @@ struct AssetLibraryModelSnapshot {
     nlohmann::json archive_browser = nlohmann::json::object();
     nlohmann::json last_action = nlohmann::json::object();
     nlohmann::json action_history = nlohmann::json::array();
+    nlohmann::json user_curation = nlohmann::json::object();
     std::map<std::string, size_t> category_counts;
     std::map<std::string, size_t> game_use_category_counts;
     std::map<std::string, size_t> game_use_tag_counts;
@@ -156,6 +161,45 @@ class AssetLibraryModel {
     void addUsageReference(std::string path, std::string owner_id);
     urpg::assets::AssetLibraryActionResult promoteAsset(std::string path);
     urpg::assets::AssetLibraryActionResult archiveAsset(std::string path, std::string reason = {});
+    // A plan is creator-visible and contains the revision that must be supplied
+    // unchanged when confirming the attachment.
+    nlohmann::json planPromotedAssetAttachmentToProject(
+        std::string path, const std::filesystem::path& project_root,
+        urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+            urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
+    urpg::assets::AssetLibraryActionResult confirmPromotedAssetAttachmentToProject(
+        std::string path, const std::filesystem::path& project_root, std::string expected_source_revision,
+        std::string operation_id,
+        urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+            urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
+    nlohmann::json planDerivedRevisionAttachmentToProject(
+        std::string source_path, const std::filesystem::path& derived_manifest_path,
+        const std::filesystem::path& project_root,
+        urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+            urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
+    urpg::assets::AssetLibraryActionResult confirmDerivedRevisionAttachmentToProject(
+        std::string source_path, const std::filesystem::path& derived_manifest_path,
+        const std::filesystem::path& project_root, std::string expected_source_revision, std::string operation_id,
+        urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+            urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
+    nlohmann::json createImageCropScaleRevision(
+        std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+        int32_t crop_x, int32_t crop_y, int32_t crop_width, int32_t crop_height, int32_t output_width,
+        int32_t output_height);
+    nlohmann::json createImagePaletteRevision(std::string source_path, const std::filesystem::path& derived_root,
+                                              std::string operation_id, std::vector<uint32_t> colors_rgba);
+    nlohmann::json createAudioTrimFadeGainRevision(
+        std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+        uint64_t start_frame, uint64_t end_frame, uint64_t fade_in_frames, uint64_t fade_out_frames,
+        int32_t gain_milli_db, int64_t loop_start_frame = -1, int64_t loop_end_frame = -1);
+    nlohmann::json createTilesetSliceRevision(std::string source_path, const std::filesystem::path& derived_root,
+                                              std::string operation_id, int32_t tile_width, int32_t tile_height,
+                                              int32_t margin, int32_t spacing);
+    nlohmann::json createAtlasMetadataRevision(std::string source_path, const std::filesystem::path& derived_root,
+                                               std::string operation_id, int32_t atlas_width, int32_t atlas_height,
+                                               int32_t frame_width, int32_t frame_height);
+    // Compatibility shortcut. New creator-facing callers should show the plan
+    // and invoke the confirmation overload with its revision and operation ID.
     urpg::assets::AssetLibraryActionResult attachPromotedAssetToProject(std::string path,
                                                                         const std::filesystem::path& project_root,
                                                                         urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
@@ -167,6 +211,13 @@ class AssetLibraryModel {
     bool loadProjectAssetAttachments(const std::filesystem::path& project_root, std::string* error_message = nullptr);
     void setFilter(urpg::assets::AssetLibraryFilter filter);
     bool applyQuickFilter(std::string_view filter_id);
+    void applyUserAssetCuration(const urpg::settings::EditorSettings& settings);
+    void writeUserAssetCuration(urpg::settings::EditorSettings* settings) const;
+    bool isAssetFavorite(std::string_view path) const;
+    bool isAssetInCollection(std::string_view collection_id, std::string_view path) const;
+    bool setAssetFavorite(std::string_view path, bool favorite);
+    bool createAssetCollection(std::string id, std::string label);
+    bool setAssetCollectionMembership(std::string_view collection_id, std::string_view path, bool included);
     void rebuildCleanupPreview();
     void clear();
 
@@ -178,6 +229,7 @@ class AssetLibraryModel {
     bool persistImportSession(const urpg::assets::AssetImportSession& session, std::string* error_message);
     void refreshSnapshot();
     void refreshExternalCatalogSnapshot();
+    std::string curationKeyForPath(std::string_view path) const;
 
     urpg::assets::AssetLibrary library_;
     urpg::assets::AssetCleanupPlanner cleanup_planner_;
@@ -198,6 +250,8 @@ class AssetLibraryModel {
     nlohmann::json action_history_ = nlohmann::json::array();
     nlohmann::json pending_import_request_ = nlohmann::json::object();
     std::vector<std::string> import_tool_command_ = {"python", "tools/assets/global_asset_import.py"};
+    std::vector<std::string> favorite_asset_keys_;
+    std::vector<urpg::settings::AssetLibraryCollectionSettings> asset_collections_;
     std::uintmax_t duplicate_csv_detail_limit_bytes_ = 8ull * 1024ull * 1024ull;
     std::uintmax_t promotion_catalog_detail_limit_bytes_ = 4ull * 1024ull * 1024ull;
 };

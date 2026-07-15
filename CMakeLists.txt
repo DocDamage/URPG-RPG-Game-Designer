@@ -458,6 +458,7 @@ set(URPG_CORE_SOURCES
     engine/core/editor/editor_panel_registry.cpp
     engine/core/engine_shell.cpp
     engine/core/gameplay/gameplay_wysiwyg_system.cpp
+    engine/core/gameplay/gameplay_recipe_document.cpp
     engine/core/community/community_wysiwyg_feature.cpp
     engine/core/maker/maker_wysiwyg_feature.cpp
     engine/core/input/input_remap_store.cpp
@@ -605,6 +606,8 @@ set(URPG_CORE_SOURCES
     engine/core/assets/asset_import_session.cpp
     engine/core/assets/asset_library.cpp
     engine/core/assets/asset_promotion_manifest.cpp
+    engine/core/assets/project_asset_reference_index.cpp
+    engine/core/assets/asset_transform_revision_service.cpp
     engine/core/assets/local_asset_catalog.cpp
     engine/core/assets/archive_catalog.cpp
     engine/core/assets/project_asset_attachment_service.cpp
@@ -652,6 +655,7 @@ set(URPG_CORE_SOURCES
     editor/events/event_authoring_panel.cpp
     editor/events/event_command_graph_panel.cpp
     editor/gameplay/gameplay_wysiwyg_panel.cpp
+    editor/gameplay/gameplay_recipe_panel.cpp
     editor/community/community_wysiwyg_panel.cpp
     editor/maker/maker_wysiwyg_panel.cpp
     editor/plugin/plugin_inspector_model.cpp
@@ -1736,6 +1740,7 @@ add_executable(urpg_tests
     tests/unit/test_cutscene_timeline.cpp
     tests/unit/test_event_macro_recorder.cpp
     tests/unit/test_gameplay_wysiwyg_systems.cpp
+    tests/unit/test_gameplay_recipe_document.cpp
     tests/unit/test_community_wysiwyg_features.cpp
     tests/unit/test_maker_wysiwyg_features.cpp
     tests/unit/test_replay_recorder.cpp

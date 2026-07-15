@@ -245,6 +245,53 @@ TEST_CASE("AssetLibraryModel attaches promoted assets to a project",
     std::filesystem::remove_all(root);
 }
 
+TEST_CASE("AssetLibraryModel previews and confirms a revision-bound project attachment",
+          "[assets][asset_library][editor][asset_attachment]") {
+    const auto root = uniqueTempRoot("urpg_asset_library_model_attachment_confirmation");
+    std::filesystem::remove_all(root);
+    const auto payload = root / ".urpg" / "asset-library" / "promoted" / "asset.hero" / "payloads" / "hero.png";
+    const auto projectRoot = root / "project";
+    writeBinaryFile(payload, "hero-payload-v1");
+
+    urpg::editor::AssetLibraryModel model;
+    model.ingestPromotionManifest(urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", "asset.hero"},
+        {"sourcePath", "imports/raw/example/hero.png"},
+        {"promotedPath", payload.string()},
+        {"licenseId", "user_license_note"},
+        {"status", "runtime_ready"},
+        {"preview", {{"kind", "image"}, {"thumbnailPath", payload.string()}, {"width", 48}, {"height", 48}}},
+        {"package", {{"includeInRuntime", true}, {"requiredForRelease", false}}},
+        {"diagnostics", nlohmann::json::array()},
+    }));
+
+    const auto plan = model.planPromotedAssetAttachmentToProject("imports/raw/example/hero.png", projectRoot);
+    REQUIRE(plan["success"] == true);
+    REQUIRE(plan["code"] == "project_asset_attachment_planned");
+    REQUIRE(plan["expected_source_revision"].get<std::string>().size() == 64);
+    REQUIRE(plan["operation_id"].get<std::string>().rfind("asset-attach-asset-hero-", 0) == 0);
+    REQUIRE(!std::filesystem::exists(projectRoot / "content" / "assets" / "imported" / "asset.hero" / "hero.png"));
+
+    writeBinaryFile(payload, "hero-payload-v2");
+    const auto stale = model.confirmPromotedAssetAttachmentToProject(
+        "imports/raw/example/hero.png", projectRoot, plan["expected_source_revision"].get<std::string>(),
+        plan["operation_id"].get<std::string>());
+    REQUIRE(stale.success == false);
+    REQUIRE(stale.code == "asset_attachment_source_revision_mismatch");
+    REQUIRE(!std::filesystem::exists(projectRoot / "content" / "assets" / "imported" / "asset.hero" / "hero.png"));
+
+    const auto refreshed = model.planPromotedAssetAttachmentToProject("imports/raw/example/hero.png", projectRoot);
+    const auto confirmed = model.confirmPromotedAssetAttachmentToProject(
+        "imports/raw/example/hero.png", projectRoot, refreshed["expected_source_revision"].get<std::string>(),
+        refreshed["operation_id"].get<std::string>());
+    REQUIRE(confirmed.success);
+    REQUIRE(confirmed.code == "project_asset_attached");
+    REQUIRE(std::filesystem::is_regular_file(projectRoot / "content" / "assets" / "imported" / "asset.hero" / "hero.png"));
+
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("AssetLibraryModel attaches selected promoted assets to a project",
           "[assets][asset_library][editor][asset_attachment]") {
     const auto root = uniqueTempRoot("urpg_asset_library_model_attach_selected");

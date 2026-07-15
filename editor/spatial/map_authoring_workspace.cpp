@@ -63,6 +63,7 @@ bool MapAuthoringWorkspace::activateMode(MapAuthoringMode mode) {
         case MapAuthoringMode::Tiles: (void)perspective_2d_->ActivateToolbarAction("tiles"); break;
         case MapAuthoringMode::Parts: (void)perspective_2d_->ActivateToolbarAction("parts"); break;
         case MapAuthoringMode::Props: (void)perspective_2d_->ActivateToolbarAction("props"); break;
+        case MapAuthoringMode::Events: (void)perspective_2d_->ActivateToolbarAction("events"); break;
         case MapAuthoringMode::Abilities: (void)perspective_2d_->ActivateToolbarAction("abilities"); break;
         case MapAuthoringMode::World: (void)perspective_2d_->ActivateToolbarAction("worldbuilding"); break;
         default: (void)perspective_2d_->ActivateToolbarAction("composite"); break;
@@ -131,6 +132,10 @@ EditorAssetDropDecision MapAuthoringWorkspace::acceptAssetDrop(const EditorAsset
     if (!decision.accepted) {
         return decision;
     }
+    decision = validateEditorAssetAttachmentRevision(payload, context_.snapshot().projectRoot);
+    if (!decision.accepted) {
+        return decision;
+    }
     if (perspective_2d_ == nullptr) {
         return {false, "asset_drop_workspace_unbound", "The Perspective 2D Map workspace is not available.",
                 "Open a project map before dropping an asset."};
@@ -162,22 +167,51 @@ EditorAssetDropDecision MapAuthoringWorkspace::placeAssetDrop(const EditorAssetD
     if (!decision.accepted) {
         return decision;
     }
-    if (target_mode != "tiles") {
-        return acceptAssetDrop(payload, target_mode);
+    decision = validateEditorAssetAttachmentRevision(payload, context_.snapshot().projectRoot);
+    if (!decision.accepted) {
+        return decision;
     }
     if (perspective_2d_ == nullptr) {
         return {false, "asset_drop_workspace_unbound", "The Perspective 2D Map workspace is not available.",
                 "Open a project map before dropping an asset."};
     }
-    if (!perspective_2d_->PlaceAttachedAssetTileFromScreen(payload.assetId, payload.projectPath, canvas_screen_x,
-                                                            canvas_screen_y)) {
-        return {false, "asset_drop_tile_placement_rejected",
-                "The attached asset could not be placed on the current tile layer.",
-                "Select a visible unlocked tile layer and drop inside the map canvas."};
+    if (target_mode == "tiles") {
+        if (!perspective_2d_->PlaceAttachedAssetTileFromScreen(payload.assetId, payload.projectPath, canvas_screen_x,
+                                                                canvas_screen_y)) {
+            return {false, "asset_drop_tile_placement_rejected",
+                    "The attached asset could not be placed on the current tile layer.",
+                    "Select a visible unlocked empty tile cell, or use the tile editor to replace an existing tile."};
+        }
+    } else if (target_mode == "props") {
+        if (!perspective_2d_->PlaceAttachedAssetPropFromScreen(payload.assetId, payload.projectPath, canvas_screen_x,
+                                                                canvas_screen_y)) {
+            return {false, "asset_drop_prop_placement_rejected",
+                    "The attached asset could not be placed on the current map surface.",
+                    "Drop inside the map canvas while Props mode is active."};
+        }
+    } else if (target_mode == "events") {
+        if (payload.mediaKind != "image") {
+            return {false, "asset_drop_event_requires_image",
+                    "Only attached image assets can be placed as authored map events.",
+                    "Drop an attached image asset while Events mode is active."};
+        }
+        if (!perspective_2d_->PlaceAttachedAssetEventFromScreen(payload.assetId, payload.projectPath, canvas_screen_x,
+                                                                 canvas_screen_y)) {
+            return {false, "asset_drop_event_placement_rejected",
+                    "The attached image could not be placed as an authored map event.",
+                    "Select a visible unlocked event or object layer and drop inside the map canvas."};
+        }
+    } else {
+        return {false, "asset_drop_target_requires_tiles_props_or_events",
+                "This Map mode does not accept an asset drop yet.",
+                "Switch to Tiles, Props, or Events and drop inside the map canvas."};
     }
     context_.setDocumentDirty(MapAuthoringDocumentOwner::Perspective2D, true);
     rebuildSnapshot();
-    return {true, "asset_drop_placed", "Attached asset was placed on the Map tile layer as one undoable action.", ""};
+    const std::string message = target_mode == "events"
+                                    ? "Attached image event metadata was authored as one undoable action; event sprite rendering remains separate."
+                                    : "Attached asset was placed on the Map as one undoable action.";
+    return {true, "asset_drop_placed", message, ""};
 }
 
 void MapAuthoringWorkspace::setNextActionHint(std::string hint) {

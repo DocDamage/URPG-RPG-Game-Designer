@@ -46,6 +46,14 @@ struct MapWorkspaceLayoutSettings {
     bool diagnostics_visible = true;
 };
 
+// User-only curation. These opaque asset keys never establish promotion,
+// attachment, licensing, or package eligibility.
+struct AssetLibraryCollectionSettings {
+    std::string id;
+    std::string label;
+    std::vector<std::string> asset_keys;
+};
+
 struct RuntimeSettings {
     WindowSettings window;
     AudioSettings audio;
@@ -68,6 +76,8 @@ struct EditorSettings {
     bool onboarding_enabled = true;
     bool help_tips_enabled = true;
     std::string asset_browser_layout = "left_collapsible_folder_tree";
+    std::vector<std::string> asset_favorite_keys;
+    std::vector<AssetLibraryCollectionSettings> asset_collections;
     MapWorkspaceLayoutSettings map_workspace_layout;
     std::filesystem::path external_asset_library_root;
 };

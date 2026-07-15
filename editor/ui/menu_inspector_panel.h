@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <optional>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -29,6 +30,7 @@ public:
   void Render(const urpg::FrameContext &context) override;
   void refresh();
   void update();
+  void setApplyChangesHandler(std::function<bool()> handler);
 
   MenuInspectorModel& getModel() { return *model_; }
   const MenuInspectorModel& getModel() const { return *model_; }
@@ -42,6 +44,7 @@ private:
   void RenderSelectedCommandDetails();
 
   std::shared_ptr<MenuInspectorModel> model_;
+  std::function<bool()> apply_changes_handler_;
   bool has_rendered_frame_ = false;
   RenderSnapshot last_render_snapshot_;
 };

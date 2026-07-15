@@ -542,6 +542,47 @@ TEST_CASE("AssetLibraryModel exposes filters and used-by reference counts",
     REQUIRE(model.snapshot().filtered_asset_count == 1);
 }
 
+TEST_CASE("AssetLibraryModel persists user-only favorites and collections by stable asset keys",
+          "[assets][asset_library][editor][curation]") {
+    urpg::editor::AssetLibraryModel model;
+    model.ingestReports(
+        nlohmann::json{{"file_count", 1}, {"duplicate_groups", 0}, {"oversize_count", 0}},
+        nlohmann::json{{"sources", nlohmann::json::array()}},
+        nlohmann::json{{"source_id", "SRC-007"},
+                       {"assets",
+                        nlohmann::json::array({{{"source_path", "imports/raw/characters/hero.png"},
+                                                {"normalized_path", "asset://src-007/characters/hero.png"},
+                                                {"preview_path", "imports/raw/characters/hero.png"},
+                                                {"preview_kind", "image"},
+                                                {"media_kind", "image"},
+                                                {"category", "characters"},
+                                                {"license", "project_private"}}})}},
+        "");
+
+    REQUIRE(model.setAssetFavorite("imports/raw/characters/hero.png", true));
+    REQUIRE(model.createAssetCollection("characters", "Characters"));
+    REQUIRE(model.setAssetCollectionMembership("characters", "imports/raw/characters/hero.png", true));
+    REQUIRE(model.isAssetFavorite("imports/raw/characters/hero.png"));
+    REQUIRE(model.isAssetInCollection("characters", "imports/raw/characters/hero.png"));
+    REQUIRE(model.snapshot().favorite_asset_count == 1);
+    REQUIRE(model.snapshot().asset_collection_count == 1);
+    REQUIRE(model.snapshot().user_curation["collections"][0]["asset_count"] == 1);
+    REQUIRE(model.snapshot().user_curation["favorites"][0].get<std::string>().rfind("catalog:", 0) == 0);
+
+    const auto paths = urpg::settings::appSettingsPaths(uniqueTempRoot("urpg_asset_library_curation"));
+    auto settings = urpg::settings::defaultEditorSettings(paths);
+    model.writeUserAssetCuration(&settings);
+    REQUIRE(urpg::settings::saveEditorSettings(paths.editor_settings, settings));
+    const auto reloaded = urpg::settings::loadEditorSettings(paths.editor_settings, paths);
+    urpg::editor::AssetLibraryModel restored;
+    restored.applyUserAssetCuration(reloaded.settings);
+    REQUIRE(restored.snapshot().favorite_asset_count == 1);
+    REQUIRE(restored.snapshot().asset_collection_count == 1);
+    REQUIRE(restored.snapshot().user_curation["collections"][0]["asset_keys"].size() == 1);
+
+    std::filesystem::remove_all(paths.root.parent_path());
+}
+
 TEST_CASE("AssetLibraryModel builds virtual game-use catalog from governed bundle manifests",
           "[assets][asset_library][editor][browser][virtual_catalog]") {
     const auto root = uniqueTempRoot("urpg_asset_library_virtual_catalog");

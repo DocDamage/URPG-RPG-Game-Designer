@@ -1,11 +1,21 @@
 #include "engine/core/assets/project_asset_attachment_service.h"
+#include "engine/core/security/sha256.h"
 
 #include <algorithm>
+#include <atomic>
+#include <cctype>
+#include <chrono>
 #include <fstream>
+#include <iterator>
+#include <nlohmann/json.hpp>
+#include <string_view>
+#include <vector>
 
 namespace urpg::assets {
 
 namespace {
+
+std::atomic_uint64_t attachmentStagingSequence{0};
 
 std::string sanitizeSegment(std::string value) {
     for (auto& ch : value) {
@@ -35,7 +45,463 @@ ProjectAssetAttachmentResult blocked(std::string code, std::string message, std:
     return result;
 }
 
+std::string hashFile(const std::filesystem::path& path) {
+    std::ifstream input(path, std::ios::binary);
+    const std::vector<std::uint8_t> bytes(std::istreambuf_iterator<char>(input), {});
+    return security::Sha256::toHex(security::Sha256::compute(bytes));
+}
+
+std::string attachmentRevision(const AssetPromotionManifest& manifest,
+                               const std::filesystem::path& payload,
+                               const std::filesystem::path& attachmentManifest) {
+    nlohmann::json identity = {{"schema", "urpg.project_asset_attachment_revision.v1"},
+                               {"asset_id", manifest.assetId},
+                               {"reviewed_source", manifest.sourcePath},
+                               {"promoted_payload", manifest.promotedPath},
+                               {"promoted_payload_sha256", hashFile(manifest.promotedPath)},
+                               {"destination_payload_sha256", std::filesystem::is_regular_file(payload) ? hashFile(payload) : ""},
+                               {"destination_manifest_sha256",
+                                std::filesystem::is_regular_file(attachmentManifest) ? hashFile(attachmentManifest) : ""}};
+    const auto serialized = identity.dump();
+    return security::Sha256::toHex(security::Sha256::compute({serialized.begin(), serialized.end()}));
+}
+
+bool isSafeOperationId(const std::string& value) {
+    return !value.empty() && std::all_of(value.begin(), value.end(), [](const unsigned char character) {
+        return std::isalnum(character) || character == '_' || character == '-' || character == '.';
+    });
+}
+
+std::filesystem::path operationReceiptPath(const std::filesystem::path& projectRoot, const std::string& operationId) {
+    return projectRoot / ".urpg" / "asset-attachment-operations" / (operationId + ".json");
+}
+
+std::string requestFingerprint(const ProjectAssetAttachmentRequest& request, const std::string& sourceRevision) {
+    const nlohmann::json value = {{"schema", "urpg.project_asset_attachment_request.v1"},
+                                  {"asset", serializeAssetPromotionManifest(request.manifest)},
+                                  {"project_root", request.projectRoot.generic_string()},
+                                  {"policy", static_cast<int>(request.conflictPolicy)},
+                                  {"source_revision", sourceRevision}};
+    const auto serialized = value.dump();
+    return security::Sha256::toHex(security::Sha256::compute({serialized.begin(), serialized.end()}));
+}
+
+std::filesystem::path siblingWorkingPath(const std::filesystem::path& target, const std::string_view purpose) {
+    const auto sequence = attachmentStagingSequence.fetch_add(1, std::memory_order_relaxed);
+    const auto timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                               std::chrono::steady_clock::now().time_since_epoch())
+                               .count();
+    return target.parent_path() /
+           (target.filename().string() + ".urpg-" + std::string(purpose) + "-" + std::to_string(timestamp) + "-" +
+            std::to_string(sequence));
+}
+
+void removeIfPresent(const std::filesystem::path& path) {
+    std::error_code error;
+    std::filesystem::remove_all(path, error);
+}
+
+bool writeJsonFile(const std::filesystem::path& path, const nlohmann::json& value) {
+    std::ofstream output(path, std::ios::binary | std::ios::trunc);
+    output << value.dump(2) << '\n';
+    return static_cast<bool>(output);
+}
+
+std::filesystem::path attachmentJournalRoot(const std::filesystem::path& projectRoot) {
+    return projectRoot / ".urpg" / "asset-attachment-transactions";
+}
+
+bool isSafeRelativePath(const std::filesystem::path& path) {
+    if (path.empty() || path.is_absolute()) return false;
+    return std::none_of(path.begin(), path.end(), [](const auto& part) { return part == ".."; });
+}
+
+struct DerivedAttachmentCandidate {
+    bool valid = false;
+    std::string code;
+    std::string message;
+    std::vector<std::string> diagnostics;
+    AssetPromotionManifest manifest;
+};
+
+DerivedAttachmentCandidate derivedAttachmentCandidate(const AssetPromotionManifest& source,
+                                                      const std::filesystem::path& derivedManifestPath) {
+    auto sourceDiagnostics = validateAssetPromotionManifest(source);
+    sourceDiagnostics.insert(sourceDiagnostics.end(), source.diagnostics.begin(), source.diagnostics.end());
+    if (!sourceDiagnostics.empty() ||
+        source.status != AssetPromotionStatus::RuntimeReady || !source.package.includeInRuntime) {
+        return {false, "asset_derived_attachment_source_invalid",
+                "Only a valid runtime-ready promoted asset can supply a derived attachment.", sourceDiagnostics, {}};
+    }
+    if (!std::filesystem::is_regular_file(source.promotedPath)) {
+        return {false, "asset_derived_attachment_source_payload_missing", "The promoted source payload is missing.", {}, {}};
+    }
+    if (!std::filesystem::is_regular_file(derivedManifestPath)) {
+        return {false, "asset_derived_revision_manifest_missing", "The derived revision manifest is missing.", {}, {}};
+    }
+
+    std::ifstream input(derivedManifestPath, std::ios::binary);
+    const auto revision = nlohmann::json::parse(input, nullptr, false);
+    if (revision.is_discarded() || revision.value("schema", "") != "urpg.asset_transform_revision.v1") {
+        return {false, "asset_derived_revision_manifest_invalid", "The derived revision manifest is invalid.", {}, {}};
+    }
+    const auto operation = revision.value("operation", "");
+    if (operation != "image_crop_scale" && operation != "image_palette" && operation != "audio_trim_fade_gain_pcm16") {
+        return {false, "asset_derived_revision_not_attachable",
+                "This revision has no single media output that can be attached through the project asset owner.", {}, {}};
+    }
+    const auto derivedRevision = revision.value("derived_revision", "");
+    const auto outputPath = std::filesystem::path(revision.value("output_path", ""));
+    if (derivedRevision.size() != 64 ||
+        !std::all_of(derivedRevision.begin(), derivedRevision.end(), [](unsigned char character) { return std::isxdigit(character); }) ||
+        revision.value("source_asset_id", "") != source.assetId || revision.value("source_revision", "") != hashFile(source.promotedPath) ||
+        outputPath.empty() || !std::filesystem::is_regular_file(outputPath)) {
+        return {false, "asset_derived_revision_provenance_invalid",
+                "The derived revision no longer matches its reviewed promoted source or output.", {}, {}};
+    }
+
+    std::error_code error;
+    const auto manifestDirectory = std::filesystem::weakly_canonical(derivedManifestPath.parent_path(), error);
+    const auto canonicalOutput = std::filesystem::weakly_canonical(outputPath, error);
+    const auto expectedFilename = derivedRevision + (operation == "audio_trim_fade_gain_pcm16" ? ".wav" : ".png");
+    if (error || canonicalOutput.parent_path() != manifestDirectory || canonicalOutput.filename() != expectedFilename) {
+        return {false, "asset_derived_revision_output_invalid",
+                "The derived output must be the deterministic single file beside its revision manifest.", {}, {}};
+    }
+
+    AssetPromotionManifest attached = source;
+    attached.assetId = source.assetId + ".revision." + derivedRevision.substr(0, 16);
+    attached.sourcePath = source.promotedPath;
+    attached.sourceSha256 = hashFile(outputPath);
+    attached.promotedPath = canonicalOutput.generic_string();
+    attached.preview.thumbnailPath = attached.promotedPath;
+    attached.authoredMetadata["derived_revision"] = {
+        {"schema", "urpg.project_asset_derived_revision.v1"},
+        {"operation", operation},
+        {"source_asset_id", source.assetId},
+        {"source_revision", revision.value("source_revision", "")},
+        {"derived_revision", derivedRevision},
+        {"manifest_path", std::filesystem::weakly_canonical(derivedManifestPath).generic_string()},
+        {"output_sha256", attached.sourceSha256},
+    };
+    return {true, {}, {}, {}, std::move(attached)};
+}
+
+std::string hashText(const std::string& value) {
+    return security::Sha256::toHex(security::Sha256::compute({value.begin(), value.end()}));
+}
+
+std::filesystem::path derivedAttachmentReferencePath(const std::filesystem::path& derivedManifestPath,
+                                                     const std::filesystem::path& projectRoot) {
+    std::error_code error;
+    const auto normalizedProject = std::filesystem::exists(projectRoot)
+                                       ? std::filesystem::weakly_canonical(projectRoot, error)
+                                       : std::filesystem::absolute(projectRoot, error).lexically_normal();
+    if (error) return {};
+    return derivedManifestPath.parent_path() / (derivedManifestPath.stem().string() + ".attachment-refs") /
+           (hashText(normalizedProject.generic_string()) + ".json");
+}
+
+struct DerivedAttachmentReferencePreparation {
+    bool success = false;
+    bool created = false;
+    std::filesystem::path markerPath;
+    std::string code;
+    std::string message;
+};
+
+DerivedAttachmentReferencePreparation prepareDerivedAttachmentReference(
+    const AssetPromotionManifest& attached, const std::filesystem::path& derivedManifestPath,
+    const std::filesystem::path& projectRoot, const std::string& operationId) {
+    const auto markerPath = derivedAttachmentReferencePath(derivedManifestPath, projectRoot);
+    if (markerPath.empty()) {
+        return {false, false, {}, "asset_derived_attachment_reference_path_invalid",
+                "The derived attachment reference path could not be resolved."};
+    }
+    std::error_code error;
+    std::filesystem::create_directories(markerPath.parent_path(), error);
+    if (error) {
+        return {false, false, markerPath, "asset_derived_attachment_reference_directory_failed", error.message()};
+    }
+    if (std::filesystem::is_regular_file(markerPath)) {
+        std::ifstream input(markerPath, std::ios::binary);
+        const auto existing = nlohmann::json::parse(input, nullptr, false);
+        if (existing.is_discarded() ||
+            existing.value("schema", "") != "urpg.asset_transform_attachment_reference.v1" ||
+            existing.value("derived_asset_id", "") != attached.assetId) {
+            return {false, false, markerPath, "asset_derived_attachment_reference_invalid",
+                    "The existing derived attachment reference is invalid."};
+        }
+        if (existing.value("state", "") == "attached") return {true, false, markerPath, {}, {}};
+        if (existing.value("state", "") == "prepared" && existing.value("operation_id", "") == operationId) {
+            return {true, false, markerPath, {}, {}};
+        }
+        return {false, false, markerPath, "asset_derived_attachment_recovery_required",
+                "A prior derived attachment did not finish. Recover or inspect it before attaching this revision."};
+    }
+    const nlohmann::json marker = {
+        {"schema", "urpg.asset_transform_attachment_reference.v1"},
+        {"state", "prepared"},
+        {"operation_id", operationId},
+        {"derived_asset_id", attached.assetId},
+        {"derived_manifest_path", std::filesystem::weakly_canonical(derivedManifestPath).generic_string()},
+        {"project_root", std::filesystem::absolute(projectRoot, error).lexically_normal().generic_string()},
+    };
+    if (error) {
+        return {false, false, markerPath, "asset_derived_attachment_reference_path_invalid", error.message()};
+    }
+    const auto staged = siblingWorkingPath(markerPath, "stage-derived-reference");
+    if (!writeJsonFile(staged, marker)) {
+        removeIfPresent(staged);
+        return {false, false, markerPath, "asset_derived_attachment_reference_write_failed",
+                "The derived attachment reference could not be staged."};
+    }
+    std::filesystem::rename(staged, markerPath, error);
+    if (error) {
+        removeIfPresent(staged);
+        return {false, false, markerPath, "asset_derived_attachment_reference_publish_failed", error.message()};
+    }
+    return {true, true, markerPath, {}, {}};
+}
+
+bool finalizeDerivedAttachmentReference(const std::filesystem::path& markerPath,
+                                        const std::filesystem::path& projectManifestPath) {
+    std::ifstream input(markerPath, std::ios::binary);
+    auto marker = nlohmann::json::parse(input, nullptr, false);
+    if (marker.is_discarded() || marker.value("schema", "") != "urpg.asset_transform_attachment_reference.v1") {
+        return false;
+    }
+    marker["state"] = "attached";
+    marker["project_manifest_path"] = projectManifestPath.generic_string();
+    return writeJsonFile(markerPath, marker);
+}
+
+std::filesystem::path journalPathFor(const std::filesystem::path& projectRoot) {
+    const auto sequence = attachmentStagingSequence.fetch_add(1, std::memory_order_relaxed);
+    return attachmentJournalRoot(projectRoot) / ("attachment-" + std::to_string(sequence) + ".json");
+}
+
+void recoverAttachmentTransactions(const std::filesystem::path& projectRoot) {
+    const auto journalRoot = attachmentJournalRoot(projectRoot);
+    std::error_code error;
+    if (!std::filesystem::is_directory(journalRoot, error) || error) return;
+    for (const auto& entry : std::filesystem::directory_iterator(journalRoot, error)) {
+        if (error || !entry.is_regular_file()) continue;
+        std::ifstream input(entry.path(), std::ios::binary);
+        const auto journal = nlohmann::json::parse(input, nullptr, false);
+        input.close();
+        const auto readPath = [&](const char* key) {
+            const auto relative = std::filesystem::path(journal.value(key, ""));
+            return isSafeRelativePath(relative) ? projectRoot / relative : std::filesystem::path{};
+        };
+        if (journal.is_discarded() || journal.value("schema", "") != "urpg.asset_attachment_transaction.v1") continue;
+        const auto payload = readPath("payload_path");
+        const auto manifest = readPath("manifest_path");
+        const auto stagedPayload = readPath("staged_payload_path");
+        const auto stagedManifest = readPath("staged_manifest_path");
+        const auto payloadBackup = readPath("payload_backup_path");
+        const auto manifestBackup = readPath("manifest_backup_path");
+        if (payload.empty() || manifest.empty() || stagedPayload.empty() || stagedManifest.empty() ||
+            payloadBackup.empty() || manifestBackup.empty()) {
+            continue;
+        }
+        const bool hadPayload = journal.value("had_payload", false);
+        const bool hadManifest = journal.value("had_manifest", false);
+        const auto state = journal.value("state", "prepared");
+        if (std::filesystem::exists(payloadBackup)) {
+            removeIfPresent(payload);
+            std::filesystem::rename(payloadBackup, payload, error);
+        } else if (!hadPayload && state == "payload_published") {
+            removeIfPresent(payload);
+        }
+        if (std::filesystem::exists(manifestBackup)) {
+            removeIfPresent(manifest);
+            std::filesystem::rename(manifestBackup, manifest, error);
+        } else if (!hadManifest && state == "payload_published") {
+            removeIfPresent(manifest);
+        }
+        removeIfPresent(stagedPayload);
+        removeIfPresent(stagedManifest);
+        if (std::filesystem::exists(payload) == hadPayload && std::filesystem::exists(manifest) == hadManifest) {
+            removeIfPresent(payloadBackup);
+            removeIfPresent(manifestBackup);
+            removeIfPresent(entry.path());
+        }
+    }
+}
+
 } // namespace
+
+ProjectAssetAttachmentPlan ProjectAssetAttachmentService::planPromotedAssetAttachment(
+    const AssetPromotionManifest& manifest,
+    const std::filesystem::path& projectRoot,
+    const ProjectAssetAttachmentConflictPolicy conflictPolicy) const {
+    ProjectAssetAttachmentPlan plan;
+    plan.assetId = manifest.assetId;
+    auto diagnostics = validateAssetPromotionManifest(manifest);
+    diagnostics.insert(diagnostics.end(), manifest.diagnostics.begin(), manifest.diagnostics.end());
+    if (!diagnostics.empty()) {
+        plan.diagnostics = std::move(diagnostics);
+        return plan;
+    }
+    if (manifest.status != AssetPromotionStatus::RuntimeReady || !manifest.package.includeInRuntime) {
+        plan.diagnostics.push_back("asset_not_runtime_ready");
+        return plan;
+    }
+    if (manifest.promotedPath.empty() || !std::filesystem::is_regular_file(manifest.promotedPath)) {
+        plan.diagnostics.push_back("promoted_payload_missing");
+        return plan;
+    }
+    if (projectRoot.empty()) {
+        plan.diagnostics.push_back("project_root_missing");
+        return plan;
+    }
+
+    const auto assetSegment = sanitizeSegment(manifest.assetId);
+    plan.payloadPath = projectRoot / "content" / "assets" / "imported" / assetSegment /
+                       std::filesystem::path(manifest.promotedPath).filename();
+    plan.manifestPath = projectRoot / "content" / "assets" / "manifests" / (assetSegment + ".json");
+    const auto projectContent = projectRoot / "content";
+    std::error_code error;
+    // Planning is read-only, so a new project need not have created its
+    // content directory yet. Resolve existing paths canonically and use an
+    // absolute lexical containment check for not-yet-created destinations.
+    const auto normalizedRoot = std::filesystem::exists(projectContent)
+                                    ? std::filesystem::weakly_canonical(projectContent, error)
+                                    : std::filesystem::absolute(projectContent, error).lexically_normal();
+    if (error) {
+        plan.diagnostics.push_back("project_attachment_path_unresolvable");
+        return plan;
+    }
+    const auto normalizedPayload = std::filesystem::exists(plan.payloadPath.parent_path())
+                                       ? std::filesystem::weakly_canonical(plan.payloadPath.parent_path(), error) /
+                                             plan.payloadPath.filename()
+                                       : std::filesystem::absolute(plan.payloadPath, error).lexically_normal();
+    if (error || !pathInside(normalizedRoot, normalizedPayload)) {
+        plan.diagnostics.push_back("project_attachment_path_escape");
+        return plan;
+    }
+    plan.sourceRevision = attachmentRevision(manifest, plan.payloadPath, plan.manifestPath);
+    // Conflict policy is enforced by apply. A plan must remain inspectable for
+    // an existing attachment so its revision can detect an external edit
+    // before a caller chooses Replace, Keep Both, or Relink Existing.
+    (void)conflictPolicy;
+    plan.valid = true;
+    return plan;
+}
+
+ProjectAssetAttachmentPlan ProjectAssetAttachmentService::planDerivedRevisionAttachment(
+    const AssetPromotionManifest& source, const std::filesystem::path& derivedManifestPath,
+    const std::filesystem::path& projectRoot, const ProjectAssetAttachmentConflictPolicy conflictPolicy) const {
+    const auto candidate = derivedAttachmentCandidate(source, derivedManifestPath);
+    if (!candidate.valid) {
+        ProjectAssetAttachmentPlan plan;
+        plan.assetId = source.assetId;
+        plan.diagnostics = candidate.diagnostics;
+        plan.diagnostics.insert(plan.diagnostics.begin(), candidate.code);
+        return plan;
+    }
+    return planPromotedAssetAttachment(candidate.manifest, projectRoot, conflictPolicy);
+}
+
+ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachDerivedRevision(
+    const ProjectDerivedAssetAttachmentRequest& request) const {
+    if (request.operationId.empty()) {
+        return blocked("asset_derived_attachment_operation_id_required",
+                       "Derived revision attachment requires the stable operation ID from its reviewed plan.");
+    }
+    const auto candidate = derivedAttachmentCandidate(request.source, request.derivedManifestPath);
+    if (!candidate.valid) {
+        return blocked(candidate.code, candidate.message, candidate.diagnostics);
+    }
+    const auto reference = prepareDerivedAttachmentReference(candidate.manifest, request.derivedManifestPath,
+                                                              request.projectRoot, request.operationId);
+    if (!reference.success) return blocked(reference.code, reference.message);
+    ProjectAssetAttachmentRequest attachment;
+    attachment.manifest = candidate.manifest;
+    attachment.projectRoot = request.projectRoot;
+    attachment.conflictPolicy = request.conflictPolicy;
+    attachment.operationId = request.operationId;
+    attachment.expectedSourceRevision = request.expectedSourceRevision;
+    auto result = attachPromotedAsset(attachment);
+    if (!result.success) {
+        if (reference.created) removeIfPresent(reference.markerPath);
+        return result;
+    }
+    if (!finalizeDerivedAttachmentReference(reference.markerPath, result.manifestPath)) {
+        result.code = "project_asset_attached_reference_tracking_pending";
+        result.message = "The project asset was attached, but its derived revision remains protected until reference tracking is recovered.";
+        result.diagnostics.push_back("asset_derived_attachment_reference_finalize_failed");
+    }
+    return result;
+}
+
+ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachPromotedAsset(
+    const ProjectAssetAttachmentRequest& request) const {
+    if (!request.operationId.empty() && !isSafeOperationId(request.operationId)) {
+        return blocked("asset_attachment_operation_id_invalid", "Attachment operation IDs must be stable safe identifiers.");
+    }
+    if (!request.operationId.empty() && request.expectedSourceRevision.empty()) {
+        return blocked("asset_attachment_source_revision_required",
+                       "Checked asset attachment operations require the planned source revision.");
+    }
+    const auto fingerprint = requestFingerprint(request, request.expectedSourceRevision);
+    const auto receiptPath = request.operationId.empty() ? std::filesystem::path{} :
+                                                        operationReceiptPath(request.projectRoot, request.operationId);
+    if (!receiptPath.empty() && std::filesystem::is_regular_file(receiptPath)) {
+        std::ifstream input(receiptPath, std::ios::binary);
+        const auto receipt = nlohmann::json::parse(input, nullptr, false);
+        if (receipt.is_discarded() || receipt.value("schema", "") != "urpg.project_asset_attachment_receipt.v1") {
+            return blocked("asset_attachment_operation_receipt_invalid", "The existing attachment operation receipt is invalid.");
+        }
+        if (receipt.value("request_fingerprint", "") != fingerprint) {
+            return blocked("asset_attachment_operation_mismatch",
+                           "The operation ID was already used for a different attachment request.");
+        }
+        ProjectAssetAttachmentResult result;
+        result.success = receipt.value("success", false);
+        result.code = receipt.value("code", "asset_attachment_operation_receipt_invalid");
+        result.message = "The completed attachment operation was returned without reapplying it.";
+        result.payloadPath = receipt.value("payload_path", "");
+        result.manifestPath = receipt.value("manifest_path", "");
+        result.sourceRevision = receipt.value("source_revision", "");
+        result.operationId = request.operationId;
+        return result;
+    }
+    const auto plan = planPromotedAssetAttachment(request.manifest, request.projectRoot, request.conflictPolicy);
+    if (!plan.valid) {
+        return blocked(plan.diagnostics.empty() ? "asset_attachment_plan_invalid" : plan.diagnostics.front(),
+                       "Asset attachment plan is no longer valid.", plan.diagnostics);
+    }
+    if (!request.expectedSourceRevision.empty() && request.expectedSourceRevision != plan.sourceRevision) {
+        return blocked("asset_attachment_source_revision_mismatch",
+                       "The reviewed attachment source changed. Refresh the plan before applying it.");
+    }
+    auto result = attachPromotedAsset(request.manifest, request.projectRoot, request.conflictPolicy);
+    result.sourceRevision = plan.sourceRevision;
+    result.operationId = request.operationId;
+    if (!result.success || receiptPath.empty()) {
+        return result;
+    }
+    std::error_code error;
+    std::filesystem::create_directories(receiptPath.parent_path(), error);
+    if (error) {
+        return blocked("asset_attachment_operation_receipt_write_failed", error.message());
+    }
+    const nlohmann::json receipt = {{"schema", "urpg.project_asset_attachment_receipt.v1"},
+                                    {"request_fingerprint", fingerprint},
+                                    {"success", result.success},
+                                    {"code", result.code},
+                                    {"payload_path", result.payloadPath.generic_string()},
+                                    {"manifest_path", result.manifestPath.generic_string()},
+                                    {"source_revision", result.sourceRevision}};
+    std::ofstream output(receiptPath, std::ios::binary | std::ios::trunc);
+    output << receipt.dump(2) << '\n';
+    if (!output) {
+        return blocked("asset_attachment_operation_receipt_write_failed", "The attachment succeeded but its operation receipt could not be written.");
+    }
+    return result;
+}
 
 ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachPromotedAsset(
     const AssetPromotionManifest& manifest, const std::filesystem::path& projectRoot,
@@ -51,11 +517,16 @@ ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachPromotedAsset(
     if (manifest.promotedPath.empty()) {
         return blocked("promoted_payload_missing", "Promoted asset payload path is empty.");
     }
+    if (projectRoot.empty()) {
+        return blocked("project_root_missing", "A project root is required for attachment.");
+    }
 
     const auto sourcePayload = std::filesystem::path(manifest.promotedPath);
     if (!std::filesystem::is_regular_file(sourcePayload)) {
         return blocked("promoted_payload_missing", "Promoted asset payload file does not exist.");
     }
+
+    recoverAttachmentTransactions(projectRoot);
 
     const auto projectContent = projectRoot / "content";
     const auto importedRoot = projectContent / "assets" / "imported";
@@ -105,12 +576,6 @@ ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachPromotedAsset(
         return blocked("project_asset_directory_create_failed", error.message());
     }
 
-    std::filesystem::copy_file(sourcePayload, destinationPayload, std::filesystem::copy_options::overwrite_existing,
-                               error);
-    if (error) {
-        return blocked("project_asset_copy_failed", error.message());
-    }
-
     auto projectManifest = manifest;
     projectManifest.sourcePath = manifest.promotedPath;
     projectManifest.promotedPath = destinationPayload.generic_string();
@@ -121,15 +586,125 @@ ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachPromotedAsset(
     projectManifest.package.requiredForRelease = manifest.package.requiredForRelease;
     projectManifest.diagnostics.clear();
 
-    std::ofstream out(destinationManifest, std::ios::binary | std::ios::trunc);
+    const auto stagedPayload = siblingWorkingPath(destinationPayload, "stage-payload");
+    const auto stagedManifest = siblingWorkingPath(destinationManifest, "stage-manifest");
+    std::filesystem::copy_file(sourcePayload, stagedPayload, std::filesystem::copy_options::overwrite_existing, error);
+    if (error) {
+        return blocked("project_asset_stage_copy_failed", error.message());
+    }
+    std::ofstream out(stagedManifest, std::ios::binary | std::ios::trunc);
     if (!out) {
-        return blocked("project_manifest_write_failed", "Project asset manifest could not be opened for writing.");
+        removeIfPresent(stagedPayload);
+        return blocked("project_manifest_stage_write_failed", "Project asset manifest staging file could not be opened.");
     }
     out << serializeAssetPromotionManifest(projectManifest).dump(2);
     out << '\n';
     if (!out) {
-        return blocked("project_manifest_write_failed", "Project asset manifest could not be written.");
+        out.close();
+        removeIfPresent(stagedPayload);
+        removeIfPresent(stagedManifest);
+        return blocked("project_manifest_stage_write_failed", "Project asset manifest staging file could not be written.");
     }
+    out.close();
+
+    const auto payloadBackup = siblingWorkingPath(destinationPayload, "backup-payload");
+    const auto manifestBackup = siblingWorkingPath(destinationManifest, "backup-manifest");
+    const bool hadPayload = std::filesystem::exists(destinationPayload);
+    const bool hadManifest = std::filesystem::exists(destinationManifest);
+    const auto transactionPath = journalPathFor(projectRoot);
+    std::filesystem::create_directories(transactionPath.parent_path(), error);
+    if (error) {
+        removeIfPresent(stagedPayload);
+        removeIfPresent(stagedManifest);
+        return blocked("project_attachment_journal_create_failed", error.message());
+    }
+    const auto relativePath = [&](const std::filesystem::path& path) {
+        return path.lexically_relative(projectRoot).generic_string();
+    };
+    const nlohmann::json transaction = {
+        {"schema", "urpg.asset_attachment_transaction.v1"},
+        {"state", "prepared"},
+        {"payload_path", relativePath(destinationPayload)},
+        {"manifest_path", relativePath(destinationManifest)},
+        {"staged_payload_path", relativePath(stagedPayload)},
+        {"staged_manifest_path", relativePath(stagedManifest)},
+        {"payload_backup_path", relativePath(payloadBackup)},
+        {"manifest_backup_path", relativePath(manifestBackup)},
+        {"had_payload", hadPayload},
+        {"had_manifest", hadManifest},
+    };
+    auto mutableTransaction = transaction;
+    if (!writeJsonFile(transactionPath, mutableTransaction)) {
+        removeIfPresent(stagedPayload);
+        removeIfPresent(stagedManifest);
+        removeIfPresent(transactionPath);
+        return blocked("project_attachment_journal_write_failed", "Attachment transaction journal could not be written.");
+    }
+    bool payloadBackedUp = false;
+    bool manifestBackedUp = false;
+    bool payloadPublished = false;
+    bool manifestPublished = false;
+    const auto rollback = [&] {
+        if (manifestPublished) removeIfPresent(destinationManifest);
+        if (payloadPublished) removeIfPresent(destinationPayload);
+        if (manifestBackedUp) {
+            std::error_code restoreError;
+            std::filesystem::rename(manifestBackup, destinationManifest, restoreError);
+        }
+        if (payloadBackedUp) {
+            std::error_code restoreError;
+            std::filesystem::rename(payloadBackup, destinationPayload, restoreError);
+        }
+        removeIfPresent(stagedPayload);
+        removeIfPresent(stagedManifest);
+        removeIfPresent(transactionPath);
+    };
+    if (hadPayload) {
+        std::filesystem::rename(destinationPayload, payloadBackup, error);
+        if (error) {
+            rollback();
+            return blocked("project_attachment_backup_failed", error.message());
+        }
+        payloadBackedUp = true;
+        mutableTransaction["state"] = "payload_backed_up";
+        if (!writeJsonFile(transactionPath, mutableTransaction)) {
+            rollback();
+            return blocked("project_attachment_journal_write_failed", "Attachment transaction journal could not be updated.");
+        }
+    }
+    if (hadManifest) {
+        std::filesystem::rename(destinationManifest, manifestBackup, error);
+        if (error) {
+            rollback();
+            return blocked("project_attachment_backup_failed", error.message());
+        }
+        manifestBackedUp = true;
+        mutableTransaction["state"] = "backed_up";
+        if (!writeJsonFile(transactionPath, mutableTransaction)) {
+            rollback();
+            return blocked("project_attachment_journal_write_failed", "Attachment transaction journal could not be updated.");
+        }
+    }
+    std::filesystem::rename(stagedPayload, destinationPayload, error);
+    if (error) {
+        rollback();
+        return blocked("project_attachment_publish_failed", error.message());
+    }
+    payloadPublished = true;
+    mutableTransaction["state"] = "payload_published";
+    if (!writeJsonFile(transactionPath, mutableTransaction)) {
+        rollback();
+        return blocked("project_attachment_journal_write_failed", "Attachment transaction journal could not be updated.");
+    }
+    std::filesystem::rename(stagedManifest, destinationManifest, error);
+    if (error) {
+        rollback();
+        return blocked("project_attachment_publish_failed", error.message());
+    }
+    manifestPublished = true;
+    if (payloadBackedUp) removeIfPresent(payloadBackup);
+    if (manifestBackedUp) removeIfPresent(manifestBackup);
+    removeIfPresent(transactionPath);
 
     ProjectAssetAttachmentResult result;
     result.success = true;

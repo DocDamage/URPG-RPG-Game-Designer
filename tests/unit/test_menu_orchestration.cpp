@@ -96,3 +96,32 @@ TEST_CASE("MenuSceneGraph: Command Orchestration", "[ui][menu][orchestration]") 
         REQUIRE(graph.getActiveScene()->getId() == "main_menu");
     }
 }
+
+TEST_CASE("MenuSceneGraph: Explicit pane focus order overrides insertion order", "[ui][menu][focus]") {
+    MenuSceneGraph graph;
+    auto scene = std::make_shared<MenuScene>("focus_menu");
+
+    const auto make_pane = [](std::string id, int focus_order, bool active) {
+        MenuPane pane;
+        pane.id = std::move(id);
+        pane.isActive = active;
+        pane.layout.focus_order = focus_order;
+        pane.commands.push_back({pane.id + ".command", pane.id, "", MenuRouteTarget::Options});
+        return pane;
+    };
+
+    scene->addPane(make_pane("first_inserted", 2, true));
+    scene->addPane(make_pane("explicit_first", 0, false));
+    scene->addPane(make_pane("legacy_last", -1, false));
+    graph.registerScene(scene);
+    graph.pushScene("focus_menu");
+
+    graph.handleInput(urpg::input::InputAction::MoveLeft, urpg::input::ActionState::Pressed);
+    REQUIRE(graph.getActiveScene()->getPanes()[1].isActive);
+
+    graph.handleInput(urpg::input::InputAction::MoveRight, urpg::input::ActionState::Pressed);
+    REQUIRE(graph.getActiveScene()->getPanes()[0].isActive);
+
+    graph.handleInput(urpg::input::InputAction::MoveRight, urpg::input::ActionState::Pressed);
+    REQUIRE(graph.getActiveScene()->getPanes()[2].isActive);
+}

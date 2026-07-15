@@ -468,6 +468,95 @@ nlohmann::json AssetLibraryPanel::promoteSelectedImportRecords(std::string sessi
     return result;
 }
 
+nlohmann::json AssetLibraryPanel::planPromotedAssetAttachmentToProject(
+    std::string path, const std::filesystem::path& project_root,
+    const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    auto result = model_.planPromotedAssetAttachmentToProject(std::move(path), project_root, policy);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::confirmPromotedAssetAttachmentToProject(
+    std::string path, const std::filesystem::path& project_root, std::string expected_source_revision,
+    std::string operation_id, const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    auto result = model_.confirmPromotedAssetAttachmentToProject(std::move(path), project_root,
+                                                                  std::move(expected_source_revision),
+                                                                  std::move(operation_id), policy);
+    refreshRenderSnapshotsFromModel();
+    return result.toJson();
+}
+
+nlohmann::json AssetLibraryPanel::planDerivedRevisionAttachmentToProject(
+    std::string source_path, const std::filesystem::path& derived_manifest_path,
+    const std::filesystem::path& project_root, const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    auto result = model_.planDerivedRevisionAttachmentToProject(std::move(source_path), derived_manifest_path,
+                                                                 project_root, policy);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::confirmDerivedRevisionAttachmentToProject(
+    std::string source_path, const std::filesystem::path& derived_manifest_path,
+    const std::filesystem::path& project_root, std::string expected_source_revision, std::string operation_id,
+    const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
+    auto result = model_.confirmDerivedRevisionAttachmentToProject(
+        std::move(source_path), derived_manifest_path, project_root, std::move(expected_source_revision),
+        std::move(operation_id), policy);
+    refreshRenderSnapshotsFromModel();
+    return result.toJson();
+}
+
+nlohmann::json AssetLibraryPanel::createImageCropScaleRevision(
+    std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+    const int32_t crop_x, const int32_t crop_y, const int32_t crop_width, const int32_t crop_height,
+    const int32_t output_width, const int32_t output_height) {
+    auto result = model_.createImageCropScaleRevision(std::move(source_path), derived_root, std::move(operation_id),
+                                                       crop_x, crop_y, crop_width, crop_height, output_width,
+                                                       output_height);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::createImagePaletteRevision(std::string source_path,
+                                                              const std::filesystem::path& derived_root,
+                                                              std::string operation_id,
+                                                              std::vector<uint32_t> colors_rgba) {
+    auto result = model_.createImagePaletteRevision(std::move(source_path), derived_root, std::move(operation_id),
+                                                    std::move(colors_rgba));
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::createAudioTrimFadeGainRevision(
+    std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+    const uint64_t start_frame, const uint64_t end_frame, const uint64_t fade_in_frames,
+    const uint64_t fade_out_frames, const int32_t gain_milli_db, const int64_t loop_start_frame,
+    const int64_t loop_end_frame) {
+    auto result = model_.createAudioTrimFadeGainRevision(
+        std::move(source_path), derived_root, std::move(operation_id), start_frame, end_frame, fade_in_frames,
+        fade_out_frames, gain_milli_db, loop_start_frame, loop_end_frame);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::createTilesetSliceRevision(
+    std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+    const int32_t tile_width, const int32_t tile_height, const int32_t margin, const int32_t spacing) {
+    auto result = model_.createTilesetSliceRevision(std::move(source_path), derived_root, std::move(operation_id),
+                                                    tile_width, tile_height, margin, spacing);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::createAtlasMetadataRevision(
+    std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+    const int32_t atlas_width, const int32_t atlas_height, const int32_t frame_width, const int32_t frame_height) {
+    auto result = model_.createAtlasMetadataRevision(std::move(source_path), derived_root, std::move(operation_id),
+                                                     atlas_width, atlas_height, frame_width, frame_height);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
 nlohmann::json AssetLibraryPanel::attachSelectedPromotedAssetsToProject(std::vector<std::string> paths,
                                                                         const std::filesystem::path& project_root,
                                                                         const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {

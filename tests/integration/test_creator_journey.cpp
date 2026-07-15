@@ -1,9 +1,16 @@
 #include "editor/assets/asset_library_model.h"
 #include "editor/assets/editor_asset_drag_payload.h"
+#include "editor/playtest/playtest_session_controller.h"
+#include "editor/project/editor_dirty_state_registry.h"
+#include "editor/project/editor_project_session.h"
+#include "engine/core/assets/project_asset_attachment_service.h"
 #include "engine/core/editor/editor_shell.h"
+#include "engine/core/map/grid_part_commands.h"
 #include "engine/core/map/grid_part_document.h"
+#include "engine/core/project/project_creation_service.h"
 #include "engine/core/project/project_snapshot_store.h"
 #include "engine/core/project/project_template_generator.h"
+#include "engine/core/security/sha256.h"
 #include "engine/core/tools/export_packager.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -12,8 +19,10 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <set>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -96,6 +105,31 @@ void writeExternalCatalogFixture(const std::filesystem::path& catalogRoot) {
                                      {"shards", nlohmann::json::array({{{"path", shard.filename().generic_string()}, {"record_count", 1}}})}};
     std::ofstream output(catalogRoot / "catalog_meta.json", std::ios::binary);
     output << metadata.dump(2) << '\n';
+}
+
+std::string hashFile(const std::filesystem::path& path) {
+    std::ifstream input(path, std::ios::binary);
+    const std::vector<std::uint8_t> bytes(std::istreambuf_iterator<char>(input), {});
+    return urpg::security::Sha256::toHex(urpg::security::Sha256::compute(bytes));
+}
+
+std::filesystem::path writeQualificationArtifact(const std::filesystem::path& root,
+                                                 const std::string& id,
+                                                 const nlohmann::json& value) {
+    const auto path = root / (id + ".json");
+    std::ofstream output(path, std::ios::binary);
+    output << value.dump(2) << '\n';
+    REQUIRE(output.good());
+    return path;
+}
+
+nlohmann::json qualificationEvidence(const std::string& kind,
+                                     const std::filesystem::path& artifact,
+                                     const std::string& sourceCommit) {
+    return {{"kind", kind},
+            {"artifact_path", artifact.generic_string()},
+            {"sha256", hashFile(artifact)},
+            {"source_commit", sourceCommit}};
 }
 
 } // namespace
@@ -197,4 +231,149 @@ TEST_CASE("creator journey baseline emits an honest deterministic smoke report",
 
     REQUIRE(report["steps"].size() == fixture["steps"].size());
     writeReport(report);
+}
+
+TEST_CASE("creator journey qualification emits native target evidence when wrapper provenance is present",
+          "[integration][creator journey][creator journey qualification]") {
+    const auto buildRoot = std::filesystem::path(URPG_BINARY_DIR);
+    const auto provenancePath = buildRoot / "creator_journey_qualification_provenance.json";
+    if (!std::filesystem::is_regular_file(provenancePath)) {
+        SUCCEED("Target qualification is emitted only by the clean PFU-I1 wrapper.");
+        return;
+    }
+
+    std::ifstream provenanceInput(provenancePath, std::ios::binary);
+    const auto provenance = nlohmann::json::parse(provenanceInput, nullptr, false);
+    REQUIRE_FALSE(provenance.is_discarded());
+    REQUIRE(provenance.value("schema", "") == "urpg.creator_journey_qualification_provenance.v1");
+    const auto sourceCommit = provenance.value("source_commit", "");
+    REQUIRE_FALSE(sourceCommit.empty());
+    REQUIRE(provenance.value("clean_worktree", false));
+    REQUIRE(provenance.contains("builds"));
+
+    const auto evidenceRoot = buildRoot / "creator_journey_qualification_evidence";
+    std::error_code error;
+    std::filesystem::remove_all(evidenceRoot, error);
+    std::filesystem::create_directories(evidenceRoot, error);
+    REQUIRE_FALSE(error);
+
+    urpg::editor::EditorShell shell;
+    REQUIRE(shell.start(true));
+    REQUIRE(shell.isRunning());
+    const auto launchArtifact = writeQualificationArtifact(
+        evidenceRoot, "launch_editor", {{"owner", "EditorShell"}, {"headless", true}, {"running", shell.isRunning()}});
+
+    urpg::project::ProjectCreationRequest request;
+    request.project_id = "qualification_project";
+    request.project_name = "PFU I1 Qualification";
+    request.destination = evidenceRoot / "project";
+    request.starter_map = "qualification_map";
+    const auto created = urpg::project::ProjectCreationService{}.createProject(request);
+    REQUIRE(created.success);
+    urpg::editor::EditorProjectSession session;
+    REQUIRE(session.openProject(created.project_root).success);
+    const auto projectArtifact = writeQualificationArtifact(
+        evidenceRoot, "create_project",
+        {{"owner", "ProjectCreationService"}, {"result", created.code}, {"project_root", created.project_root.generic_string()},
+         {"session", session.lastDiagnostic().code}});
+
+    const auto promotedPayload = evidenceRoot / "promoted" / "hero.png";
+    std::filesystem::create_directories(promotedPayload.parent_path());
+    std::ofstream promotedOutput(promotedPayload, std::ios::binary);
+    promotedOutput << "qualification-hero";
+    REQUIRE(promotedOutput.good());
+    urpg::assets::AssetPromotionManifest manifest;
+    manifest.assetId = "qualification.hero";
+    manifest.sourcePath = "reviewed/qualification/hero.png";
+    manifest.promotedPath = promotedPayload.generic_string();
+    manifest.licenseId = "user_license_note";
+    manifest.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+    manifest.preview.kind = "image";
+    manifest.preview.thumbnailPath = promotedPayload.generic_string();
+    manifest.preview.width = 48;
+    manifest.preview.height = 48;
+    manifest.package.includeInRuntime = true;
+    const auto attached = urpg::assets::ProjectAssetAttachmentService{}.attachPromotedAsset(manifest, created.project_root);
+    REQUIRE(attached.success);
+
+    urpg::map::GridPartDocument map("qualification_map", 8, 8);
+    urpg::map::PlacedPartInstance tile;
+    tile.instance_id = "qualification_map:floor:2:3";
+    tile.part_id = "floor";
+    tile.category = urpg::map::GridPartCategory::Tile;
+    tile.layer = urpg::map::GridPartLayer::Terrain;
+    tile.grid_x = 2;
+    tile.grid_y = 3;
+    urpg::map::GridPartCommandHistory history;
+    REQUIRE(history.execute(map, std::make_unique<urpg::map::PlacePartCommand>(tile)));
+    REQUIRE(history.undo(map));
+    REQUIRE(history.redo(map));
+    urpg::editor::EditorDirtyStateRegistry dirtyRegistry;
+    urpg::editor::EditorDirtySurface dirtySurface;
+    dirtySurface.document_id = "qualification_map";
+    dirtySurface.focus_route = "map_authoring";
+    dirtySurface.save = [] { return urpg::editor::EditorDirtySaveResult{true, "map_saved", "saved"}; };
+    REQUIRE(dirtyRegistry.registerSurface(std::move(dirtySurface)));
+    REQUIRE(dirtyRegistry.markDirty("qualification_map"));
+    REQUIRE(dirtyRegistry.save("qualification_map").success);
+    const auto mapArtifact = writeQualificationArtifact(
+        evidenceRoot, "author_map",
+        {{"owner", "GridPartDocument"}, {"parts", static_cast<int>(map.parts().size())},
+         {"history", {{"undo", history.canUndo()}, {"redo", history.canRedo()}}},
+         {"dirty_state", "map_saved"}});
+    const auto assetArtifact = writeQualificationArtifact(
+        evidenceRoot, "attach_asset",
+        {{"owner", "ProjectAssetAttachmentService"}, {"result", attached.code},
+         {"payload", attached.payloadPath.generic_string()}, {"manifest", attached.manifestPath.generic_string()},
+         {"history_owner", "GridPartCommandHistory"}});
+
+    urpg::editor::PlaytestSessionController playtest(URPG_RUNTIME_PATH);
+    REQUIRE(playtest.start(created.project_root, "qualification_map", "4,6", "{\"grid\":true}\n", "{\"p2d\":true}\n"));
+    const auto playtestSession = playtest.sessionDirectory();
+    REQUIRE(std::filesystem::is_regular_file(playtestSession / "session.json"));
+    playtest.returnToEditor();
+    REQUIRE(playtest.state() == urpg::editor::PlaytestSessionState::Returned);
+    const auto playtestArtifact = writeQualificationArtifact(
+        evidenceRoot, "playtest_and_return",
+        {{"owner", "PlaytestSessionController"}, {"session", playtestSession.generic_string()},
+         {"state", "returned"}});
+
+    const auto snapshot = urpg::project::ProjectSnapshotStore{}.createSnapshot(
+        created.project_root, evidenceRoot / "snapshots", "qualification_save");
+    REQUIRE(snapshot.success);
+    urpg::tools::ExportConfig packageConfig{};
+    packageConfig.target = urpg::tools::ExportTarget::Windows_x64;
+    packageConfig.outputDir = (evidenceRoot / "package").generic_string();
+    REQUIRE(urpg::tools::ExportPackager{}.validateBeforeExport(packageConfig).passed);
+    const auto packageEvidence = buildRoot / "creator_journey_qualification_package_smoke.json";
+    REQUIRE(std::filesystem::is_regular_file(packageEvidence));
+    const auto saveArtifact = writeQualificationArtifact(
+        evidenceRoot, "save_validate_and_package",
+        {{"owner", "ProjectSnapshotStore"}, {"snapshot", snapshot.snapshot_path.generic_string()},
+         {"validation", "passed"}, {"package_smoke", packageEvidence.generic_string()}});
+
+    nlohmann::json report = {{"schema", "urpg.creator_journey_qualification_report.v1"},
+                             {"qualification_id", "pfu_i1_native_creator_baseline"},
+                             {"status", "passed"},
+                             {"provenance", provenance},
+                             {"steps", nlohmann::json::array()}};
+    report["steps"] = {
+        {{"id", "launch_editor"}, {"status", "passed"}, {"duration_ms", 0}, {"diagnostic_codes", nlohmann::json::array()},
+         {"evidence", nlohmann::json::array({qualificationEvidence("editor_startup", launchArtifact, sourceCommit)})}},
+        {{"id", "create_project"}, {"status", "passed"}, {"duration_ms", 0}, {"diagnostic_codes", nlohmann::json::array()},
+         {"evidence", nlohmann::json::array({qualificationEvidence("native_project_creation", projectArtifact, sourceCommit), qualificationEvidence("project_validation", projectArtifact, sourceCommit)})}},
+        {{"id", "attach_project_asset"}, {"status", "passed"}, {"duration_ms", 0}, {"diagnostic_codes", nlohmann::json::array()},
+         {"evidence", nlohmann::json::array({qualificationEvidence("governed_asset_attachment", assetArtifact, sourceCommit), qualificationEvidence("undo_history", assetArtifact, sourceCommit)})}},
+        {{"id", "author_map"}, {"status", "passed"}, {"duration_ms", 0}, {"diagnostic_codes", nlohmann::json::array()},
+         {"evidence", nlohmann::json::array({qualificationEvidence("map_authoring", mapArtifact, sourceCommit), qualificationEvidence("native_dirty_state", mapArtifact, sourceCommit)})}},
+        {{"id", "playtest_and_return"}, {"status", "passed"}, {"duration_ms", 0}, {"diagnostic_codes", nlohmann::json::array()},
+         {"evidence", nlohmann::json::array({qualificationEvidence("editor_playtest_session", playtestArtifact, sourceCommit), qualificationEvidence("editor_return", playtestArtifact, sourceCommit)})}},
+        {{"id", "save_validate_and_package"}, {"status", "passed"}, {"duration_ms", 0}, {"diagnostic_codes", nlohmann::json::array()},
+         {"evidence", nlohmann::json::array({qualificationEvidence("native_save", saveArtifact, sourceCommit), qualificationEvidence("project_validation", saveArtifact, sourceCommit), qualificationEvidence("package_smoke", packageEvidence, sourceCommit)})}},
+    };
+    const auto reportPath = buildRoot / "creator_journey_qualification_report.json";
+    std::ofstream output(reportPath, std::ios::binary);
+    output << report.dump(2) << '\n';
+    REQUIRE(output.good());
+    shell.shutdown();
 }

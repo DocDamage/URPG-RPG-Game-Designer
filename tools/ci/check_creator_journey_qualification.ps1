@@ -14,7 +14,13 @@ function Get-RequiredProperty {
   )
 
   $property = $Object.PSObject.Properties[$Name]
-  if ($null -eq $property -or $null -eq $property.Value -or [string]::IsNullOrWhiteSpace([string]$property.Value)) {
+  $missing = $null -eq $property -or $null -eq $property.Value
+  if (-not $missing -and $property.Value -is [array]) {
+    $missing = $property.Value.Count -eq 0
+  } elseif (-not $missing) {
+    $missing = [string]::IsNullOrWhiteSpace([string]$property.Value)
+  }
+  if ($missing) {
     throw "$Context is missing required property '$Name'."
   }
   return $property.Value
@@ -32,6 +38,22 @@ function Get-StringArray {
     throw "$Context is missing required array '$Name'."
   }
   return @($property.Value | ForEach-Object { [string]$_ })
+}
+
+function Assert-ArtifactHash {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$ExpectedHash,
+    [Parameter(Mandatory = $true)][string]$Context
+  )
+
+  if ($ExpectedHash -notmatch '^[0-9a-fA-F]{64}$') {
+    throw "$Context must provide a SHA-256 hex digest."
+  }
+  $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
+  if ($actualHash -ne $ExpectedHash.ToLowerInvariant()) {
+    throw "$Context hash does not match the referenced artifact."
+  }
 }
 
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
@@ -72,14 +94,18 @@ if ([string]::IsNullOrWhiteSpace($ExpectedCommit)) {
   $ExpectedCommit = (& git -C $repoRoot rev-parse HEAD).Trim()
   if ($LASTEXITCODE -ne 0) { throw "Unable to resolve the current Git commit." }
 }
-$provenance = Get-RequiredProperty -Object $report -Name "provenance" -Context "Qualification report"
+[void](Get-RequiredProperty -Object $report -Name "provenance" -Context "Qualification report")
+$provenance = $report.provenance
 if ((Get-RequiredProperty -Object $provenance -Name "source_commit" -Context "Qualification provenance") -ne $ExpectedCommit) {
   throw "Qualification provenance source_commit does not match expected commit '$ExpectedCommit'."
 }
 if ((Get-RequiredProperty -Object $provenance -Name "clean_worktree" -Context "Qualification provenance") -ne $true) {
   throw "Qualification provenance does not prove a clean worktree."
 }
-$builds = Get-RequiredProperty -Object $provenance -Name "builds" -Context "Qualification provenance"
+if ($null -eq $provenance.PSObject.Properties['builds'] -or $null -eq $provenance.builds) {
+  throw "Qualification provenance is missing required property 'builds'."
+}
+$builds = @($provenance.builds)
 foreach ($configuration in @($spec.required_provenance.build_configurations)) {
   $build = @($builds | Where-Object { $_.configuration -eq $configuration })
   if ($build.Count -ne 1) {
@@ -122,18 +148,20 @@ foreach ($specStep in $expectedSteps) {
       throw "Qualification step '$id' contains unsupported diagnostic '$diagnostic'."
     }
   }
-  $evidence = Get-RequiredProperty -Object $step -Name "evidence" -Context "Qualification step '$id'"
+  [void](Get-RequiredProperty -Object $step -Name "evidence" -Context "Qualification step '$id'")
+  $evidence = @($step.evidence)
   $evidenceKinds = @()
   foreach ($item in @($evidence)) {
     $kind = Get-RequiredProperty -Object $item -Name "kind" -Context "Qualification evidence for '$id'"
     $artifact = Get-RequiredProperty -Object $item -Name "artifact_path" -Context "Qualification evidence for '$id'"
-    [void](Get-RequiredProperty -Object $item -Name "sha256" -Context "Qualification evidence for '$id'")
-    if ($item.source_commit -ne $ExpectedCommit) {
+    $expectedHash = Get-RequiredProperty -Object $item -Name "sha256" -Context "Qualification evidence for '$id'"
+    if ((Get-RequiredProperty -Object $item -Name "source_commit" -Context "Qualification evidence for '$id'") -ne $ExpectedCommit) {
       throw "Qualification evidence '$kind' for '$id' does not match expected commit '$ExpectedCommit'."
     }
     if (-not (Test-Path -LiteralPath $artifact -PathType Leaf)) {
       throw "Qualification evidence '$kind' for '$id' points to a missing artifact: $artifact"
     }
+    Assert-ArtifactHash -Path $artifact -ExpectedHash $expectedHash -Context "Qualification evidence '$kind' for '$id'"
     $evidenceKinds += $kind
   }
   foreach ($requiredKind in @($specStep.required_evidence_kinds)) {

@@ -268,3 +268,49 @@ TEST_CASE("MenuSceneSerializer: SerializeGraph round-trips multi-scene graphs", 
     REQUIRE(active->getId() == "Settings");
     REQUIRE(active->getPanes()[0].commands[0].id == "audio");
 }
+
+TEST_CASE("MenuSceneSerializer: graph documents preserve active scene and replace only after staged validation",
+          "[ui][menu][serialize][transaction]") {
+    MenuSceneGraph source;
+
+    auto main_scene = std::make_shared<MenuScene>("MainMenu");
+    MenuPane main_pane;
+    main_pane.id = "main";
+    main_pane.layout = {.x = 16, .y = 24, .width = 360, .height = 220, .z_order = 1, .focus_order = 2};
+    main_pane.commands.push_back({"item", "Items", "", urpg::MenuRouteTarget::Item});
+    main_scene->addPane(main_pane);
+    source.registerScene(main_scene);
+
+    auto settings_scene = std::make_shared<MenuScene>("Settings");
+    MenuPane settings_pane;
+    settings_pane.id = "settings";
+    settings_pane.layout = {.x = 400, .y = 24, .width = 320, .height = 220, .z_order = 2, .focus_order = 0};
+    settings_pane.commands.push_back({"options", "Options", "", urpg::MenuRouteTarget::Options});
+    settings_scene->addPane(settings_pane);
+    source.registerScene(settings_scene);
+    source.pushScene("Settings");
+
+    const auto serialized = MenuSceneSerializer::SerializeGraph(source);
+    REQUIRE(serialized["schema"] == "urpg.menu_graph.v1");
+    REQUIRE(serialized["active_scene_id"] == "Settings");
+
+    MenuSceneGraph target;
+    auto old_scene = std::make_shared<MenuScene>("OldMenu");
+    target.registerScene(old_scene);
+    target.pushScene("OldMenu");
+
+    REQUIRE(MenuSceneSerializer::DeserializeGraph(serialized, target));
+    REQUIRE(target.getRegisteredScenes().size() == 2);
+    REQUIRE_FALSE(target.getRegisteredScenes().contains("OldMenu"));
+    REQUIRE(target.getActiveScene());
+    REQUIRE(target.getActiveScene()->getId() == "Settings");
+    REQUIRE(target.getRegisteredScenes().at("MainMenu")->getPanes()[0].layout.x == 16);
+    REQUIRE(target.getRegisteredScenes().at("Settings")->getPanes()[0].layout.focus_order == 0);
+
+    auto invalid = serialized;
+    invalid["scenes"].push_back(invalid["scenes"][0]);
+    REQUIRE_FALSE(MenuSceneSerializer::DeserializeGraph(invalid, target));
+    REQUIRE(target.getRegisteredScenes().size() == 2);
+    REQUIRE(target.getActiveScene());
+    REQUIRE(target.getActiveScene()->getId() == "Settings");
+}

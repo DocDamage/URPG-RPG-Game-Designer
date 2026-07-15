@@ -8,6 +8,42 @@ namespace urpg::editor {
 
 namespace {
 
+constexpr size_t kMaximumMenuHistoryEntries = 64;
+
+urpg::ui::MenuPaneLayout layoutForTemplate(const urpg::ui::MenuPaneLayout& existing,
+                                           const urpg::ui::MenuDesignCanvas& canvas,
+                                           MenuPaneLayoutTemplate layout_template) {
+    constexpr int kMargin = 32;
+    auto layout = existing;
+    switch (layout_template) {
+    case MenuPaneLayoutTemplate::CompactList:
+        layout.x = kMargin;
+        layout.y = kMargin;
+        layout.width = std::min(384, std::max(1, canvas.width - kMargin * 2));
+        layout.height = std::min(560, std::max(1, canvas.height - kMargin * 2));
+        break;
+    case MenuPaneLayoutTemplate::CenteredDialog:
+        layout.width = std::min(960, std::max(1, canvas.width - kMargin * 2));
+        layout.height = std::min(360, std::max(1, canvas.height - kMargin * 2));
+        layout.x = std::max(0, (canvas.width - layout.width) / 2);
+        layout.y = std::max(0, (canvas.height - layout.height) / 2);
+        break;
+    case MenuPaneLayoutTemplate::BottomOverlay:
+        layout.x = kMargin;
+        layout.width = std::max(1, canvas.width - kMargin * 2);
+        layout.height = std::min(280, std::max(1, canvas.height - kMargin * 2));
+        layout.y = std::max(0, canvas.height - layout.height - kMargin);
+        break;
+    case MenuPaneLayoutTemplate::FullCanvas:
+        layout.x = 0;
+        layout.y = 0;
+        layout.width = canvas.width;
+        layout.height = canvas.height;
+        break;
+    }
+    return layout;
+}
+
 std::string RouteBindingLabel(urpg::MenuRouteTarget route, const std::string& custom_route_id) {
     switch (route) {
     case urpg::MenuRouteTarget::None:
@@ -83,6 +119,9 @@ void MenuInspectorModel::LoadFromRuntime(
     summary_ = {};
     panes_.clear();
     scene_id_.clear();
+    design_canvas_ = {};
+    undo_history_.clear();
+    redo_history_.clear();
     registry_ = &registry;
     switches_ = switches;
     variables_ = variables;
@@ -103,6 +142,7 @@ void MenuInspectorModel::LoadFromRuntime(
     }
 
     scene_id_ = active_scene->getId();
+    design_canvas_ = active_scene->getDesignCanvas();
     panes_ = active_scene->getPanes();
     RebuildFromPanes();
     summary_.stack_depth = scene_graph.stackSize();
@@ -114,6 +154,7 @@ void MenuInspectorModel::RebuildFromPanes() {
     issues_.clear();
     summary_ = {};
     summary_.active_scene_id = scene_id_;
+    summary_.design_canvas = design_canvas_;
     summary_.total_panes = panes_.size();
 
     std::vector<size_t> issue_count_by_row;
@@ -153,8 +194,17 @@ void MenuInspectorModel::RebuildFromPanes() {
         } else if (issue_code == "missing_switch_state" || issue_code == "missing_variable_state" ||
                    issue_code == "empty_rule") {
             ++summary_.rule_validation_issues;
+        } else if (issue_code == "invalid_design_canvas" || issue_code == "invalid_pane_layout" ||
+                   issue_code == "pane_outside_canvas" || issue_code == "pane_overlap") {
+            ++summary_.layout_issues;
         }
     };
+
+    if (!design_canvas_.isValid()) {
+        addIssue(std::nullopt, std::nullopt, std::nullopt, MenuInspectorIssueSeverity::Error,
+                 "invalid_design_canvas", scene_id_, "", "",
+                 "Menu design canvas is outside the supported native bounds.");
+    }
 
     for (size_t pane_index = 0; pane_index < panes_.size(); ++pane_index) {
         const auto& pane = panes_[pane_index];
@@ -202,6 +252,7 @@ void MenuInspectorModel::RebuildFromPanes() {
                                       ? registry_->isEnabled(command, switches_, variables_)
                                       : pane.isVisible;
             row.row_navigable = row.command_visible && row.command_enabled;
+            row.pane_layout = pane.layout;
 
             ++summary_.total_commands;
             if (row.command_visible) {
@@ -223,6 +274,19 @@ void MenuInspectorModel::RebuildFromPanes() {
                 addIssue(row_index, pane_index, command_index, MenuInspectorIssueSeverity::Warning,
                          "missing_registry_entry", row.scene_id, row.pane_id, row.command_id,
                          "Command is not registered in the runtime command registry.");
+            }
+
+            if (!pane.layout.isValid()) {
+                addIssue(row_index, pane_index, command_index, MenuInspectorIssueSeverity::Error,
+                         "invalid_pane_layout", row.scene_id, row.pane_id, row.command_id,
+                         "Pane layout is outside the supported native bounds.");
+            } else if (design_canvas_.isValid() &&
+                       (pane.layout.x < 0 || pane.layout.y < 0 ||
+                        pane.layout.x + pane.layout.width > design_canvas_.width ||
+                        pane.layout.y + pane.layout.height > design_canvas_.height)) {
+                addIssue(row_index, pane_index, command_index, MenuInspectorIssueSeverity::Warning,
+                         "pane_outside_canvas", row.scene_id, row.pane_id, row.command_id,
+                         "Pane rectangle extends outside the native design canvas.");
             }
 
             if (command.route == urpg::MenuRouteTarget::None &&
@@ -282,6 +346,31 @@ void MenuInspectorModel::RebuildFromPanes() {
         }
     }
 
+    for (size_t left_index = 0; left_index < panes_.size(); ++left_index) {
+        const auto& left = panes_[left_index];
+        if (!left.isVisible || !left.layout.isValid()) {
+            continue;
+        }
+        for (size_t right_index = left_index + 1; right_index < panes_.size(); ++right_index) {
+            const auto& right = panes_[right_index];
+            if (!right.isVisible || !right.layout.isValid()) {
+                continue;
+            }
+            const bool overlaps = left.layout.x < right.layout.x + right.layout.width &&
+                                  right.layout.x < left.layout.x + left.layout.width &&
+                                  left.layout.y < right.layout.y + right.layout.height &&
+                                  right.layout.y < left.layout.y + left.layout.height;
+            if (overlaps) {
+                addIssue(std::nullopt, left_index, std::nullopt, MenuInspectorIssueSeverity::Warning,
+                         "pane_overlap", scene_id_, PaneFallbackLabel(left, left_index), "",
+                         "Visible pane rectangle overlaps another visible pane.");
+                addIssue(std::nullopt, right_index, std::nullopt, MenuInspectorIssueSeverity::Warning,
+                         "pane_overlap", scene_id_, PaneFallbackLabel(right, right_index), "",
+                         "Visible pane rectangle overlaps another visible pane.");
+            }
+        }
+    }
+
     for (const auto& [command_id, row_indexes] : row_indexes_by_command_id) {
         if (row_indexes.size() <= 1) {
             continue;
@@ -316,6 +405,9 @@ void MenuInspectorModel::Clear() {
     summary_ = {};
     panes_.clear();
     scene_id_.clear();
+    design_canvas_ = {};
+    undo_history_.clear();
+    redo_history_.clear();
     registry_ = nullptr;
     switches_.clear();
     variables_.clear();
@@ -458,6 +550,10 @@ bool MenuInspectorModel::UpdateCommandLabel(size_t row_index, std::string label)
     if (row.command_index >= pane.commands.size()) {
         return false;
     }
+    if (pane.commands[row.command_index].label == label) {
+        return false;
+    }
+    RecordHistoryBeforeMutation();
     pane.commands[row.command_index].label = std::move(label);
     RebuildFromPanes();
     return true;
@@ -475,9 +571,81 @@ bool MenuInspectorModel::UpdateCommandRoute(size_t row_index, urpg::MenuRouteTar
     if (row.command_index >= pane.commands.size()) {
         return false;
     }
+    if (pane.commands[row.command_index].route == route &&
+        pane.commands[row.command_index].custom_route_id == custom_route_id) {
+        return false;
+    }
+    RecordHistoryBeforeMutation();
     pane.commands[row.command_index].route = route;
     pane.commands[row.command_index].custom_route_id = std::move(custom_route_id);
     RebuildFromPanes();
+    return true;
+}
+
+bool MenuInspectorModel::UpdatePaneLayout(size_t pane_index, urpg::ui::MenuPaneLayout layout) {
+    if (pane_index >= panes_.size() || !layout.isValid()) {
+        return false;
+    }
+    const auto& existing = panes_[pane_index].layout;
+    if (existing.x == layout.x && existing.y == layout.y && existing.width == layout.width &&
+        existing.height == layout.height && existing.z_order == layout.z_order &&
+        existing.focus_order == layout.focus_order) {
+        return false;
+    }
+    RecordHistoryBeforeMutation();
+    panes_[pane_index].layout = layout;
+    RebuildFromPanes();
+    return true;
+}
+
+bool MenuInspectorModel::ApplyPaneLayoutTemplate(size_t pane_index, MenuPaneLayoutTemplate layout_template) {
+    if (pane_index >= panes_.size() || !design_canvas_.isValid()) {
+        return false;
+    }
+    return UpdatePaneLayout(pane_index, layoutForTemplate(panes_[pane_index].layout, design_canvas_, layout_template));
+}
+
+bool MenuInspectorModel::UpdateDesignCanvas(urpg::ui::MenuDesignCanvas canvas) {
+    if (!canvas.isValid() || (design_canvas_.width == canvas.width && design_canvas_.height == canvas.height)) {
+        return false;
+    }
+    RecordHistoryBeforeMutation();
+    design_canvas_ = canvas;
+    RebuildFromPanes();
+    return true;
+}
+
+bool MenuInspectorModel::CanUndo() const {
+    return !undo_history_.empty();
+}
+
+bool MenuInspectorModel::CanRedo() const {
+    return !redo_history_.empty();
+}
+
+bool MenuInspectorModel::Undo() {
+    if (undo_history_.empty()) {
+        return false;
+    }
+    const auto selected_command_id = SelectedCommandId();
+    redo_history_.push_back(CaptureDocumentState());
+    auto state = std::move(undo_history_.back());
+    undo_history_.pop_back();
+    RestoreDocumentState(std::move(state));
+    RestoreSelectionByCommandId(selected_command_id);
+    return true;
+}
+
+bool MenuInspectorModel::Redo() {
+    if (redo_history_.empty()) {
+        return false;
+    }
+    const auto selected_command_id = SelectedCommandId();
+    undo_history_.push_back(CaptureDocumentState());
+    auto state = std::move(redo_history_.back());
+    redo_history_.pop_back();
+    RestoreDocumentState(std::move(state));
+    RestoreSelectionByCommandId(selected_command_id);
     return true;
 }
 
@@ -493,6 +661,7 @@ bool MenuInspectorModel::RemoveCommand(size_t row_index) {
     if (row.command_index >= pane.commands.size()) {
         return false;
     }
+    RecordHistoryBeforeMutation();
     pane.commands.erase(pane.commands.begin() + static_cast<int64_t>(row.command_index));
     RebuildFromPanes();
     return true;
@@ -502,9 +671,28 @@ bool MenuInspectorModel::AddCommand(size_t pane_index, urpg::MenuCommandMeta com
     if (pane_index >= panes_.size()) {
         return false;
     }
+    RecordHistoryBeforeMutation();
     panes_[pane_index].commands.push_back(std::move(command));
     RebuildFromPanes();
     return true;
+}
+
+void MenuInspectorModel::RecordHistoryBeforeMutation() {
+    if (undo_history_.size() == kMaximumMenuHistoryEntries) {
+        undo_history_.erase(undo_history_.begin());
+    }
+    undo_history_.push_back(CaptureDocumentState());
+    redo_history_.clear();
+}
+
+MenuInspectorModel::DocumentState MenuInspectorModel::CaptureDocumentState() const {
+    return {panes_, design_canvas_};
+}
+
+void MenuInspectorModel::RestoreDocumentState(DocumentState state) {
+    panes_ = std::move(state.panes);
+    design_canvas_ = state.design_canvas;
+    RebuildFromPanes();
 }
 
 bool MenuInspectorModel::ApplyToRuntime(urpg::ui::MenuSceneGraph& scene_graph) const {
@@ -513,6 +701,12 @@ bool MenuInspectorModel::ApplyToRuntime(urpg::ui::MenuSceneGraph& scene_graph) c
     }
     const auto active_scene = scene_graph.getActiveScene();
     if (!active_scene || active_scene->getId() != scene_id_) {
+        return false;
+    }
+    if (!design_canvas_.isValid()) {
+        return false;
+    }
+    if (!active_scene->setDesignCanvas(design_canvas_)) {
         return false;
     }
     active_scene->getPanesMutable() = panes_;

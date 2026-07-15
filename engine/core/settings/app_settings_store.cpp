@@ -73,6 +73,53 @@ std::vector<std::string> readStringList(const nlohmann::json& object, const char
     return values;
 }
 
+std::vector<std::string> readAssetKeyList(const nlohmann::json& object, const char* key) {
+    std::vector<std::string> values;
+    if (!object.contains(key) || !object.at(key).is_array()) {
+        return values;
+    }
+    for (const auto& value : object.at(key)) {
+        if (!value.is_string() || value.get<std::string>().empty()) {
+            continue;
+        }
+        const auto entry = value.get<std::string>();
+        if (std::find(values.begin(), values.end(), entry) == values.end()) {
+            values.push_back(entry);
+        }
+        if (values.size() == 10000) {
+            break;
+        }
+    }
+    return values;
+}
+
+std::vector<AssetLibraryCollectionSettings> readAssetCollections(const nlohmann::json& creator) {
+    std::vector<AssetLibraryCollectionSettings> collections;
+    if (!creator.contains("asset_collections") || !creator.at("asset_collections").is_array()) {
+        return collections;
+    }
+    for (const auto& value : creator.at("asset_collections")) {
+        if (!value.is_object()) {
+            continue;
+        }
+        AssetLibraryCollectionSettings collection;
+        collection.id = readString(value, "id", "");
+        collection.label = readString(value, "label", "");
+        collection.asset_keys = readAssetKeyList(value, "asset_keys");
+        if (collection.id.empty() || collection.label.empty() ||
+            std::any_of(collections.begin(), collections.end(), [&](const auto& existing) {
+                return existing.id == collection.id;
+            })) {
+            continue;
+        }
+        collections.push_back(std::move(collection));
+        if (collections.size() == 100) {
+            break;
+        }
+    }
+    return collections;
+}
+
 std::string normalizeConsentState(std::string state) {
     if (state == "granted" || state == "denied" || state == "unknown") {
         return state;
@@ -319,6 +366,8 @@ EditorSettingsLoadResult loadEditorSettings(const std::filesystem::path& path, c
             result.settings.onboarding_enabled = readBool(creator, "onboarding_enabled", result.settings.onboarding_enabled);
             result.settings.help_tips_enabled = readBool(creator, "help_tips_enabled", result.settings.help_tips_enabled);
             result.settings.asset_browser_layout = readString(creator, "asset_browser_layout", result.settings.asset_browser_layout);
+            result.settings.asset_favorite_keys = readAssetKeyList(creator, "asset_favorite_keys");
+            result.settings.asset_collections = readAssetCollections(creator);
             result.settings.map_workspace_layout = readMapWorkspaceLayout(creator, result.settings.map_workspace_layout);
             result.settings.external_asset_library_root = readPath(creator, "external_asset_library_root", result.settings.external_asset_library_root);
         }
@@ -350,7 +399,7 @@ bool saveRuntimeSettings(const std::filesystem::path& path, const RuntimeSetting
 }
 
 bool saveEditorSettings(const std::filesystem::path& path, const EditorSettings& settings, std::string* error) {
-    const nlohmann::json payload = {
+    nlohmann::json payload = {
         {"schema", "urpg.editor_settings.v1"},
         {"window", windowToJson(settings.window)},
         {"accessibility", accessibilityToJson(settings.accessibility)},
@@ -371,6 +420,8 @@ bool saveEditorSettings(const std::filesystem::path& path, const EditorSettings&
              {"onboarding_enabled", settings.onboarding_enabled},
              {"help_tips_enabled", settings.help_tips_enabled},
              {"asset_browser_layout", settings.asset_browser_layout},
+             {"asset_favorite_keys", settings.asset_favorite_keys},
+             {"asset_collections", nlohmann::json::array()},
              {"map_workspace_layout",
               {{"palette_width_fraction", settings.map_workspace_layout.palette_width_fraction},
                {"inspector_width_fraction", settings.map_workspace_layout.inspector_width_fraction},
@@ -381,6 +432,10 @@ bool saveEditorSettings(const std::filesystem::path& path, const EditorSettings&
              {"external_asset_library_root", settings.external_asset_library_root.generic_string()},
          }},
     };
+    for (const auto& collection : settings.asset_collections) {
+        payload["creator"]["asset_collections"].push_back(
+            {{"id", collection.id}, {"label", collection.label}, {"asset_keys", collection.asset_keys}});
+    }
     return writeJsonFile(path, payload, error);
 }
 

@@ -82,6 +82,11 @@ if (@(& git -C $repoRoot status --porcelain).Count -ne 0) {
   throw "PFU-I1 qualification requires a clean worktree. Commit or remove all local changes first."
 }
 
+$targetReportPath = Join-Path $debugBuild "creator_journey_qualification_report.json"
+$targetProvenancePath = Join-Path $debugBuild "creator_journey_qualification_provenance.json"
+$packageEvidencePath = Join-Path $debugBuild "creator_journey_qualification_package_smoke.json"
+Remove-Item -LiteralPath $targetReportPath, $targetProvenancePath, $packageEvidencePath -Force -ErrorAction SilentlyContinue
+
 $commands = @()
 if (-not $SkipBuild) {
   Invoke-QualificationCommand "build_debug" "Build the clean Debug target" {
@@ -122,15 +127,32 @@ Invoke-QualificationCommand "package_install" "Run package and install smoke" {
   & (Join-Path $repoRoot "tools\ci\check_package_smoke.ps1") -RepoRoot $repoRoot -BuildDirectory $releaseBuild -PackageRoot $packageRoot
   & (Join-Path $repoRoot "tools\ci\check_install_smoke.ps1") -RepoRoot $repoRoot -BuildDirectory $releaseBuild
 }
+$buildProvenance = @(
+  (Get-BinaryProvenance -Configuration "Debug" -BuildDirectory $debugBuild),
+  (Get-BinaryProvenance -Configuration "Release" -BuildDirectory $releaseBuild)
+)
+$packageEvidence = [ordered]@{
+  schema = "urpg.creator_journey_qualification_package_smoke.v1"
+  status = "passed"
+  source_commit = $ExpectedCommit
+  package_root = $packageRoot
+  generated_utc = [DateTimeOffset]::UtcNow.ToString("o")
+}
+[System.IO.File]::WriteAllText($packageEvidencePath, ($packageEvidence | ConvertTo-Json -Depth 6) + [Environment]::NewLine)
+$targetProvenance = [ordered]@{
+  schema = "urpg.creator_journey_qualification_provenance.v1"
+  source_commit = $ExpectedCommit
+  clean_worktree = $true
+  builds = $buildProvenance
+}
+[System.IO.File]::WriteAllText($targetProvenancePath, ($targetProvenance | ConvertTo-Json -Depth 8) + [Environment]::NewLine)
+Invoke-QualificationCommand "target_creator_journey" "Emit native target creator-journey evidence" {
+  & ctest --test-dir $debugBuild -R "creator journey qualification" --output-on-failure
+}
 Invoke-QualificationCommand "strict_creator_qualification" "Validate the complete target creator-journey report" {
   & (Join-Path $repoRoot "tools\ci\check_creator_journey_qualification.ps1") -BuildDirectory $debugBuild -ExpectedCommit $ExpectedCommit
 }
 
-$provenance = @(
-  (Get-BinaryProvenance -Configuration "Debug" -BuildDirectory $debugBuild),
-  (Get-BinaryProvenance -Configuration "Release" -BuildDirectory $releaseBuild)
-)
-$reportPath = Join-Path $debugBuild "creator_journey_qualification_report.json"
 $manifest = [ordered]@{
   schema = "urpg.pfu_i1_qualification_manifest.v1"
   qualification_id = "pfu_i1_native_creator_baseline"
@@ -138,11 +160,11 @@ $manifest = [ordered]@{
   source_commit = $ExpectedCommit
   clean_worktree = $true
   generated_utc = [DateTimeOffset]::UtcNow.ToString("o")
-  builds = $provenance
+  builds = $buildProvenance
   commands = $commands
   target_report = [ordered]@{
-    path = $reportPath
-    sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $reportPath).Hash.ToLowerInvariant()
+    path = $targetReportPath
+    sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $targetReportPath).Hash.ToLowerInvariant()
   }
 }
 $manifestPath = Join-Path $debugBuild "pfu_i1_qualification_manifest.json"

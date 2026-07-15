@@ -5,7 +5,9 @@
 #include "menu_command_registry.h"
 #include "../input/input_core.h"
 #include "../audio/audio_core.h"
+#include <algorithm>
 #include <functional>
+#include <iterator>
 #include <string_view>
 #include <vector>
 #include <string>
@@ -14,6 +16,31 @@
 #include <optional>
 
 namespace urpg::ui {
+
+struct MenuDesignCanvas {
+    int width = 1280;
+    int height = 720;
+
+    bool isValid() const {
+        return width >= 64 && width <= 8192 && height >= 64 && height <= 8192;
+    }
+};
+
+struct MenuPaneLayout {
+    int x = 0;
+    int y = 0;
+    int width = 320;
+    int height = 180;
+    int z_order = 0;
+    // A negative value preserves legacy pane insertion order.
+    int focus_order = -1;
+
+    bool isValid() const {
+        return x >= -8192 && x <= 8192 && y >= -8192 && y <= 8192 &&
+               width >= 1 && width <= 8192 && height >= 1 && height <= 8192 &&
+               z_order >= -1024 && z_order <= 1024 && focus_order >= -1 && focus_order <= 4096;
+    }
+};
 
 /**
  * @brief Represents a single UI pane or view within a scene.
@@ -28,6 +55,7 @@ struct MenuPane {
     std::string selectionSound = "se_cursor";
     std::string confirmSound = "se_ok";
     std::string blockedSound = "se_buzzer";
+    MenuPaneLayout layout;
 
     void nextCommand(audio::AudioCore* audio = nullptr) {
         if (commands.empty()) return;
@@ -65,6 +93,15 @@ public:
 
     const std::string& getId() const { return m_id; }
 
+    const MenuDesignCanvas& getDesignCanvas() const { return m_designCanvas; }
+    bool setDesignCanvas(MenuDesignCanvas canvas) {
+        if (!canvas.isValid()) {
+            return false;
+        }
+        m_designCanvas = canvas;
+        return true;
+    }
+
     void addPane(const MenuPane& pane) {
         m_panes.push_back(pane);
     }
@@ -84,6 +121,7 @@ public:
 
 private:
     std::string m_id;
+    MenuDesignCanvas m_designCanvas;
     std::vector<MenuPane> m_panes;
     uint32_t m_stateHandle = 0;
     bool m_needsRefresh = false;
@@ -117,6 +155,22 @@ public:
         if (scene) {
             m_scenes[scene->getId()] = scene;
         }
+    }
+
+    void clearRegisteredScenes() {
+        m_sceneStack.clear();
+        m_scenes.clear();
+        clearLastBlockedCommand();
+    }
+
+    bool restoreActiveScene(const std::string& sceneId) {
+        if (m_scenes.count(sceneId) == 0) {
+            return false;
+        }
+        m_sceneStack.clear();
+        m_sceneStack.push_back(sceneId);
+        clearLastBlockedCommand();
+        return true;
     }
 
     std::shared_ptr<MenuScene> getActiveScene() const {
@@ -276,12 +330,8 @@ private:
     }
 
     int findFirstNavigablePaneIndex(const std::vector<MenuPane>& panes) const {
-        for (size_t i = 0; i < panes.size(); ++i) {
-            if (isPaneNavigable(panes[i])) {
-                return static_cast<int>(i);
-            }
-        }
-        return -1;
+        const auto ordered = navigablePaneIndexes(panes);
+        return ordered.empty() ? -1 : static_cast<int>(ordered.front());
     }
 
     void advanceActivePane(std::vector<MenuPane>& panes, int currentIndex, int direction) {
@@ -289,24 +339,51 @@ private:
             return;
         }
 
-        const size_t count = panes.size();
-        for (size_t step = 1; step <= count; ++step) {
-            const int raw = currentIndex + (direction * static_cast<int>(step));
-            int wrapped = raw % static_cast<int>(count);
-            if (wrapped < 0) {
-                wrapped += static_cast<int>(count);
-            }
-
-            MenuPane& candidate = panes[static_cast<size_t>(wrapped)];
-            if (!isPaneNavigable(candidate)) {
-                continue;
-            }
-
-            panes[static_cast<size_t>(currentIndex)].isActive = false;
-            candidate.isActive = true;
-            if (m_audio) m_audio->playSound(candidate.selectionSound, audio::AudioCategory::System);
+        const auto ordered = navigablePaneIndexes(panes);
+        if (ordered.empty()) {
             return;
         }
+
+        const auto current = std::find(ordered.begin(), ordered.end(), static_cast<size_t>(currentIndex));
+        const size_t current_order = current == ordered.end()
+            ? 0
+            : static_cast<size_t>(std::distance(ordered.begin(), current));
+        const int raw = static_cast<int>(current_order) + direction;
+        const int count = static_cast<int>(ordered.size());
+        const size_t next_order = static_cast<size_t>((raw % count + count) % count);
+        if (ordered[next_order] == static_cast<size_t>(currentIndex)) {
+            return;
+        }
+
+        panes[static_cast<size_t>(currentIndex)].isActive = false;
+        MenuPane& candidate = panes[ordered[next_order]];
+        candidate.isActive = true;
+        if (m_audio) m_audio->playSound(candidate.selectionSound, audio::AudioCategory::System);
+    }
+
+    std::vector<size_t> navigablePaneIndexes(const std::vector<MenuPane>& panes) const {
+        std::vector<size_t> indexes;
+        for (size_t index = 0; index < panes.size(); ++index) {
+            if (isPaneNavigable(panes[index])) {
+                indexes.push_back(index);
+            }
+        }
+
+        std::stable_sort(indexes.begin(), indexes.end(), [&panes](size_t left, size_t right) {
+            const int left_order = panes[left].layout.focus_order;
+            const int right_order = panes[right].layout.focus_order;
+            if (left_order < 0 && right_order < 0) {
+                return false;
+            }
+            if (left_order < 0) {
+                return false;
+            }
+            if (right_order < 0) {
+                return true;
+            }
+            return left_order < right_order;
+        });
+        return indexes;
     }
 
     bool isPaneNavigable(const MenuPane& pane) const {

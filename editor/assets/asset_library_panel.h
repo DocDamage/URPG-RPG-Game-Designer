@@ -95,6 +95,41 @@ class AssetLibraryPanel {
     nlohmann::json promoteSelectedImportRecords(std::string session_id, std::vector<std::string> asset_ids,
                                                 std::string license_id, std::string promoted_root,
                                                 bool include_in_runtime = true);
+    nlohmann::json planPromotedAssetAttachmentToProject(
+        std::string path, const std::filesystem::path& project_root,
+        urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+            urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
+    nlohmann::json confirmPromotedAssetAttachmentToProject(
+        std::string path, const std::filesystem::path& project_root, std::string expected_source_revision,
+        std::string operation_id,
+        urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+            urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
+    nlohmann::json planDerivedRevisionAttachmentToProject(
+        std::string source_path, const std::filesystem::path& derived_manifest_path,
+        const std::filesystem::path& project_root,
+        urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+            urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
+    nlohmann::json confirmDerivedRevisionAttachmentToProject(
+        std::string source_path, const std::filesystem::path& derived_manifest_path,
+        const std::filesystem::path& project_root, std::string expected_source_revision, std::string operation_id,
+        urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
+            urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
+    nlohmann::json createImageCropScaleRevision(
+        std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+        int32_t crop_x, int32_t crop_y, int32_t crop_width, int32_t crop_height, int32_t output_width,
+        int32_t output_height);
+    nlohmann::json createImagePaletteRevision(std::string source_path, const std::filesystem::path& derived_root,
+                                              std::string operation_id, std::vector<uint32_t> colors_rgba);
+    nlohmann::json createAudioTrimFadeGainRevision(
+        std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+        uint64_t start_frame, uint64_t end_frame, uint64_t fade_in_frames, uint64_t fade_out_frames,
+        int32_t gain_milli_db, int64_t loop_start_frame = -1, int64_t loop_end_frame = -1);
+    nlohmann::json createTilesetSliceRevision(std::string source_path, const std::filesystem::path& derived_root,
+                                              std::string operation_id, int32_t tile_width, int32_t tile_height,
+                                              int32_t margin, int32_t spacing);
+    nlohmann::json createAtlasMetadataRevision(std::string source_path, const std::filesystem::path& derived_root,
+                                               std::string operation_id, int32_t atlas_width, int32_t atlas_height,
+                                               int32_t frame_width, int32_t frame_height);
     nlohmann::json attachSelectedPromotedAssetsToProject(std::vector<std::string> paths,
                                                          const std::filesystem::path& project_root,
                                                          urpg::assets::ProjectAssetAttachmentConflictPolicy policy =

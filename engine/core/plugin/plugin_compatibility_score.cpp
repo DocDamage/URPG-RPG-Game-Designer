@@ -1,6 +1,7 @@
 #include "engine/core/plugin/plugin_compatibility_score.h"
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <functional>
 #include <fstream>
@@ -55,6 +56,92 @@ std::vector<std::string> stringArrayValue(const nlohmann::json& object, std::ini
     std::sort(values.begin(), values.end());
     values.erase(std::unique(values.begin(), values.end()), values.end());
     return values;
+}
+
+std::string trim(std::string value) {
+    const auto first = std::find_if_not(value.begin(), value.end(), [](unsigned char character) {
+        return std::isspace(character) != 0;
+    });
+    const auto last = std::find_if_not(value.rbegin(), value.rend(), [](unsigned char character) {
+        return std::isspace(character) != 0;
+    }).base();
+    return first >= last ? std::string{} : std::string(first, last);
+}
+
+void sortUnique(std::vector<std::string>& values) {
+    std::sort(values.begin(), values.end());
+    values.erase(std::unique(values.begin(), values.end()), values.end());
+}
+
+PluginCompatibilityManifest inspectMzPluginScript(const std::filesystem::path& file) {
+    constexpr uintmax_t kMaximumPluginSourceBytes = 2ULL * 1024ULL * 1024ULL;
+    PluginCompatibilityManifest manifest;
+    manifest.plugin_id = file.stem().string();
+    manifest.name = manifest.plugin_id;
+    manifest.source_path = file.generic_string();
+
+    std::error_code error;
+    const auto sourceSize = std::filesystem::file_size(file, error);
+    if (error || sourceSize > kMaximumPluginSourceBytes) {
+        manifest.malformed = true;
+        manifest.malformed_reason = error ? "Unable to measure plugin source." : "Plugin source exceeds inspection limit.";
+        return manifest;
+    }
+    std::ifstream input(file, std::ios::binary);
+    if (!input) {
+        manifest.malformed = true;
+        manifest.malformed_reason = "Unable to open plugin source for static inspection.";
+        return manifest;
+    }
+    const std::string source{std::istreambuf_iterator<char>(input), {}};
+    if (!input.good() && !input.eof()) {
+        manifest.malformed = true;
+        manifest.malformed_reason = "Unable to read plugin source for static inspection.";
+        return manifest;
+    }
+
+    std::istringstream lines(source);
+    std::string line;
+    std::set<std::string> dependencyIds;
+    while (std::getline(lines, line)) {
+        auto tagLine = trim(line);
+        if (!tagLine.empty() && tagLine.front() == '*') {
+            tagLine = trim(tagLine.substr(1));
+        }
+        if (tagLine.empty() || tagLine.front() != '@') {
+            continue;
+        }
+        const auto split = tagLine.find_first_of(" \t");
+        const auto tag = tagLine.substr(1, split == std::string::npos ? std::string::npos : split - 1);
+        const auto value = split == std::string::npos ? std::string{} : trim(tagLine.substr(split + 1));
+        if (tag == "plugindesc" && !value.empty()) {
+            manifest.name = value;
+        } else if (tag == "base" && !value.empty() && dependencyIds.insert(value).second) {
+            manifest.dependencies.push_back({value, "*", false});
+        }
+    }
+
+    static constexpr std::array<std::string_view, 5> kKnownApiTokens = {
+        "PluginManager.registerCommand",
+        "AudioManager.playBgm",
+        "BattleManager.startBattle",
+        "DataManager.saveGame",
+        "Window_Base.drawText",
+    };
+    for (const auto token : kKnownApiTokens) {
+        if (source.find(token) != std::string::npos) {
+            manifest.used_apis.emplace_back(token);
+        }
+    }
+    sortUnique(manifest.used_apis);
+    std::sort(manifest.dependencies.begin(), manifest.dependencies.end(), [](const auto& left, const auto& right) {
+        return left.plugin_id < right.plugin_id;
+    });
+    if (manifest.plugin_id.empty()) {
+        manifest.malformed = true;
+        manifest.malformed_reason = "MZ plugin source has no stable filename stem.";
+    }
+    return manifest;
 }
 
 std::string canonicalPluginId(const nlohmann::json& manifest_json, const std::string& source_path) {
@@ -449,6 +536,37 @@ std::vector<PluginCompatibilityManifest> LoadPluginCompatibilityManifestsFromDir
     }
 
     return manifests;
+}
+
+MzPluginStaticInspectionResult InspectMzPluginScriptsFromDirectory(const std::filesystem::path& directory) {
+    MzPluginStaticInspectionResult result;
+    std::error_code error;
+    if (!std::filesystem::is_directory(directory, error) || error) {
+        result.diagnostics.push_back("MZ plugin directory not found: " + directory.generic_string());
+        return result;
+    }
+    std::vector<std::filesystem::path> scripts;
+    for (const auto& entry : std::filesystem::directory_iterator(directory, error)) {
+        if (error) {
+            result.diagnostics.push_back("Could not enumerate the MZ plugin directory: " + error.message());
+            return result;
+        }
+        if (entry.is_regular_file(error) && !error && entry.path().extension() == ".js") {
+            scripts.push_back(entry.path());
+        }
+        if (error) {
+            result.diagnostics.push_back("Could not inspect an MZ plugin directory entry: " + error.message());
+            return result;
+        }
+    }
+    std::sort(scripts.begin(), scripts.end());
+    for (const auto& script : scripts) {
+        result.manifests.push_back(inspectMzPluginScript(script));
+    }
+    if (result.manifests.empty()) {
+        result.diagnostics.push_back("No MZ plugin source files were found for static inspection.");
+    }
+    return result;
 }
 
 PluginCompatibilityReport AnalyzePluginCompatibility(const PluginCompatibilityAnalysisInput& input) {

@@ -92,6 +92,9 @@ TEST_CASE("Editor settings persist ImGui and workspace paths", "[settings][persi
     settings.onboarding_enabled = false;
     settings.help_tips_enabled = false;
     settings.asset_browser_layout = "compact_list";
+    settings.asset_favorite_keys = {"promoted:asset.hero", "catalog:abc123"};
+    settings.asset_collections = {{"characters", "Characters", {"promoted:asset.hero"}},
+                                  {"ui", "UI", {"catalog:abc123"}}};
     settings.map_workspace_layout.palette_width_fraction = 0.30f;
     settings.map_workspace_layout.inspector_width_fraction = 0.18f;
     settings.map_workspace_layout.diagnostics_height_fraction = 0.32f;
@@ -118,6 +121,10 @@ TEST_CASE("Editor settings persist ImGui and workspace paths", "[settings][persi
     REQUIRE_FALSE(loaded.settings.onboarding_enabled);
     REQUIRE_FALSE(loaded.settings.help_tips_enabled);
     REQUIRE(loaded.settings.asset_browser_layout == "compact_list");
+    REQUIRE(loaded.settings.asset_favorite_keys == settings.asset_favorite_keys);
+    REQUIRE(loaded.settings.asset_collections.size() == 2);
+    REQUIRE(loaded.settings.asset_collections[0].id == "characters");
+    REQUIRE(loaded.settings.asset_collections[1].asset_keys == std::vector<std::string>{"catalog:abc123"});
     REQUIRE(loaded.settings.map_workspace_layout.palette_width_fraction == 0.30f);
     REQUIRE(loaded.settings.map_workspace_layout.inspector_width_fraction == 0.18f);
     REQUIRE(loaded.settings.map_workspace_layout.diagnostics_height_fraction == 0.32f);

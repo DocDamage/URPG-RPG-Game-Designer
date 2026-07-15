@@ -1,5 +1,6 @@
 #include "editor/ui/menu_inspector_panel.h"
 #include "engine/core/engine_context.h"
+#include <algorithm>
 #include <utility>
 
 /**
@@ -24,6 +25,10 @@ void MenuInspectorPanel::refresh() {
 
 void MenuInspectorPanel::update() {
     refresh();
+}
+
+void MenuInspectorPanel::setApplyChangesHandler(std::function<bool()> handler) {
+    apply_changes_handler_ = std::move(handler);
 }
 
 void MenuInspectorPanel::Render(const urpg::FrameContext& context) {
@@ -191,6 +196,69 @@ void MenuInspectorPanel::RenderSceneGraphState() {
 #ifdef URPG_IMGUI_ENABLED
     const auto& summary = last_render_snapshot_.summary;
     ImGui::Text("Visible panes: %zu / %zu", summary.visible_panes, summary.total_panes);
+    ImGui::Text("Native canvas: %d x %d", summary.design_canvas.width, summary.design_canvas.height);
+    ImGui::Text("Layout diagnostics: %zu", summary.layout_issues);
+    int canvas_size[] = {summary.design_canvas.width, summary.design_canvas.height};
+    if (ImGui::InputInt2("Design canvas", canvas_size)) {
+        if (model_->UpdateDesignCanvas({canvas_size[0], canvas_size[1]})) {
+            if (apply_changes_handler_) {
+                (void)apply_changes_handler_();
+            }
+            CaptureRenderSnapshot();
+            return;
+        }
+    }
+    ImGui::TextDisabled("Target presets preserve pane rectangles and report any resulting overflow.");
+    const auto apply_canvas_preset = [this](int width, int height) {
+        if (!model_->UpdateDesignCanvas({width, height})) {
+            return false;
+        }
+        if (apply_changes_handler_) {
+            (void)apply_changes_handler_();
+        }
+        CaptureRenderSnapshot();
+        return true;
+    };
+    if (ImGui::Button("1280 x 720")) {
+        if (apply_canvas_preset(1280, 720)) {
+            return;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("1920 x 1080")) {
+        if (apply_canvas_preset(1920, 1080)) {
+            return;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("800 x 600")) {
+        if (apply_canvas_preset(800, 600)) {
+            return;
+        }
+    }
+    const bool can_undo = model_->CanUndo();
+    const bool can_redo = model_->CanRedo();
+    if (!can_undo) ImGui::BeginDisabled();
+    if (ImGui::Button("Undo Menu Edit") && model_->Undo()) {
+        if (apply_changes_handler_) {
+            (void)apply_changes_handler_();
+        }
+        CaptureRenderSnapshot();
+        if (!can_undo) ImGui::EndDisabled();
+        return;
+    }
+    if (!can_undo) ImGui::EndDisabled();
+    ImGui::SameLine();
+    if (!can_redo) ImGui::BeginDisabled();
+    if (ImGui::Button("Redo Menu Edit") && model_->Redo()) {
+        if (apply_changes_handler_) {
+            (void)apply_changes_handler_();
+        }
+        CaptureRenderSnapshot();
+        if (!can_redo) ImGui::EndDisabled();
+        return;
+    }
+    if (!can_redo) ImGui::EndDisabled();
     ImGui::Text("Active panes: %zu", summary.active_panes);
     ImGui::Text("Navigable panes: %zu", summary.navigable_panes);
     ImGui::Text("Visible commands: %zu / %zu", summary.visible_commands, summary.total_commands);
@@ -214,6 +282,121 @@ void MenuInspectorPanel::RenderSelectedCommandDetails() {
     ImGui::Text("Command: %s", row.command_id.c_str());
     ImGui::Text("Label: %s", row.command_label.c_str());
     ImGui::Text("Pane: %s", row.pane_label.c_str());
+    ImGui::Text("Pane rectangle: %d, %d, %d x %d", row.pane_layout.x, row.pane_layout.y,
+                row.pane_layout.width, row.pane_layout.height);
+    ImGui::Text("Layer / focus order: %d / %d", row.pane_layout.z_order, row.pane_layout.focus_order);
+    int rectangle[] = {row.pane_layout.x, row.pane_layout.y, row.pane_layout.width, row.pane_layout.height};
+    int layer = row.pane_layout.z_order;
+    int focus_order = row.pane_layout.focus_order;
+    const bool rectangle_changed = ImGui::InputInt4("Pane rectangle (x y w h)", rectangle);
+    const bool layer_changed = ImGui::InputInt("Pane layer", &layer);
+    const bool focus_changed = ImGui::InputInt("Pane focus order (-1 uses insertion order)", &focus_order);
+    if (rectangle_changed || layer_changed || focus_changed) {
+        urpg::ui::MenuPaneLayout layout;
+        layout.x = rectangle[0];
+        layout.y = rectangle[1];
+        layout.width = rectangle[2];
+        layout.height = rectangle[3];
+        layout.z_order = layer;
+        layout.focus_order = focus_order;
+        if (model_->UpdatePaneLayout(row.pane_index, layout)) {
+            if (apply_changes_handler_) {
+                (void)apply_changes_handler_();
+            }
+            CaptureRenderSnapshot();
+            return;
+        }
+    }
+    const auto& canvas = last_render_snapshot_.summary.design_canvas;
+    const auto apply_alignment = [this, &row](int x, int y, bool align_x, bool align_y) {
+        auto layout = row.pane_layout;
+        if (align_x) {
+            layout.x = x;
+        }
+        if (align_y) {
+            layout.y = y;
+        }
+        if (!model_->UpdatePaneLayout(row.pane_index, layout)) {
+            return false;
+        }
+        if (apply_changes_handler_) {
+            (void)apply_changes_handler_();
+        }
+        CaptureRenderSnapshot();
+        return true;
+    };
+    ImGui::Text("Align selected pane to native canvas:");
+    if (ImGui::Button("Align Left")) {
+        if (apply_alignment(0, 0, true, false)) {
+            return;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Align Center X")) {
+        if (apply_alignment(std::max(0, (canvas.width - row.pane_layout.width) / 2), 0, true, false)) {
+            return;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Align Right")) {
+        if (apply_alignment(std::max(0, canvas.width - row.pane_layout.width), 0, true, false)) {
+            return;
+        }
+    }
+    if (ImGui::Button("Align Top")) {
+        if (apply_alignment(0, 0, false, true)) {
+            return;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Align Center Y")) {
+        if (apply_alignment(0, std::max(0, (canvas.height - row.pane_layout.height) / 2), false, true)) {
+            return;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Align Bottom")) {
+        if (apply_alignment(0, std::max(0, canvas.height - row.pane_layout.height), false, true)) {
+            return;
+        }
+    }
+    ImGui::TextDisabled("Oversized panes stay origin-aligned and remain visible to layout diagnostics.");
+    const auto apply_layout_template = [this, &row](MenuPaneLayoutTemplate layout_template) {
+        if (!model_->ApplyPaneLayoutTemplate(row.pane_index, layout_template)) {
+            return false;
+        }
+        if (apply_changes_handler_) {
+            (void)apply_changes_handler_();
+        }
+        CaptureRenderSnapshot();
+        return true;
+    };
+    ImGui::Text("Apply native pane template:");
+    if (ImGui::Button("Compact List")) {
+        if (apply_layout_template(MenuPaneLayoutTemplate::CompactList)) {
+            return;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Centered Dialog")) {
+        if (apply_layout_template(MenuPaneLayoutTemplate::CenteredDialog)) {
+            return;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Bottom Overlay")) {
+        if (apply_layout_template(MenuPaneLayoutTemplate::BottomOverlay)) {
+            return;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Full Canvas")) {
+        if (apply_layout_template(MenuPaneLayoutTemplate::FullCanvas)) {
+            return;
+        }
+    }
+    ImGui::TextDisabled("Templates keep the pane's layer, focus order, commands, and identity intact.");
+    ImGui::TextDisabled("Edits update the native runtime graph; durable project save remains a separate owner.");
     ImGui::Text("Route: %s", row.route_label.c_str());
     ImGui::Text("Summary: %s", row.summary.c_str());
     ImGui::Text("Visible / Enabled / Navigable: %s / %s / %s", row.command_visible ? "yes" : "no",
