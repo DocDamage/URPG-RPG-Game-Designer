@@ -2069,6 +2069,49 @@ void renderPerspectiveWorkspace(EditorPanelRuntime& runtime) {
         ImGui::TextDisabled("%s", layer.kind.c_str());
         ImGui::PopID();
     }
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Event Authoring");
+    ImGui::TextDisabled("Creates a durable map event, its first page, and an optional native dialogue command.");
+    static std::string eventId = "elder_mira_intro";
+    static std::string eventLabel = "Elder Mira";
+    static std::string eventTrigger = "confirm_interact";
+    static std::string dialogueText = "The moonwell lantern has gone dark.";
+    static float eventScreenX = 80.0f;
+    static float eventScreenY = 80.0f;
+    ImGui::InputText("Event ID", &eventId);
+    ImGui::InputText("Label", &eventLabel);
+    ImGui::InputText("Trigger", &eventTrigger);
+    ImGui::InputText("Dialogue", &dialogueText);
+    ImGui::InputFloat("Map X", &eventScreenX, 1.0f, 8.0f, "%.0f");
+    ImGui::InputFloat("Map Y", &eventScreenY, 1.0f, 8.0f, "%.0f");
+    if (ImGui::Button("Create Event Page")) {
+        const auto layer = std::find_if(snapshot.perspective_2d_layers.begin(), snapshot.perspective_2d_layers.end(),
+                                        [](const auto& candidate) {
+                                            return candidate.kind == "event" || candidate.kind == "object";
+                                        });
+        if (layer == snapshot.perspective_2d_layers.end()) {
+            runtime.map_save_status = "Event creation needs a visible event or object layer.";
+        } else {
+            (void)workspace.SelectPerspectiveLayer(layer->id);
+            const auto pageId = eventId + "_main";
+            const bool created = workspace.AddPerspectiveEventFromScreen(eventId, eventLabel, eventTrigger,
+                                                                           eventScreenX, eventScreenY);
+            const bool addedPage = created && workspace.AddPerspectiveEventPage(eventId, pageId, eventLabel, eventTrigger);
+            const bool addedDialogue = addedPage &&
+                                       (dialogueText.empty() ||
+                                        workspace.AddPerspectiveEventPageCommand(eventId, pageId, "show_text", dialogueText));
+            runtime.map_save_status = addedDialogue
+                                          ? "Event page authored in the active Map document; save Map to publish it."
+                                          : "Event creation was rejected; event IDs and page IDs must be unique.";
+        }
+    }
+    if (!snapshot.perspective_2d_events.empty()) {
+        ImGui::Text("Authored events: %zu", snapshot.perspective_2d_events.size());
+        for (const auto& event : snapshot.perspective_2d_events) {
+            ImGui::BulletText("%s (%zu pages)", event.event_id.c_str(), event.page_count);
+        }
+    }
 }
 
 void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRuntime& runtime) {
