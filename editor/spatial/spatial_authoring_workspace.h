@@ -213,12 +213,37 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         int32_t tile_y = 0;
     };
 
+    // A reviewed creator-prop command can only reference an existing native
+    // Perspective 2D prop-palette asset. The owner derives the stable instance
+    // ID and records all edits as one local history entry.
+    struct Perspective2DNativePropEdit {
+        std::string operation_id;
+        std::string asset_id;
+        std::string project_path;
+        int32_t tile_x = 0;
+        int32_t tile_y = 0;
+    };
+
+    // A reviewed creator event message has one fixed native behavior: a
+    // visible, unlocked event/object layer receives an event with one
+    // confirm-interact show-text page. Other event logic remains separate.
+    struct Perspective2DNativeEventMessageEdit {
+        std::string operation_id;
+        std::string layer_id;
+        std::string label;
+        std::string message;
+        int32_t tile_x = 0;
+        int32_t tile_y = 0;
+    };
+
     struct Perspective2DNativeCommandResult {
         bool success = false;
         std::string code;
         std::string message;
         std::string document_revision;
         size_t applied_tile_count = 0;
+        size_t applied_prop_count = 0;
+        size_t applied_event_count = 0;
     };
 
     struct Perspective2DPaletteOption {
@@ -571,6 +596,12 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     Perspective2DNativeCommandResult applyNativeTileEdits(
         const std::string& expected_document_revision,
         const std::vector<Perspective2DNativeTileEdit>& edits);
+    Perspective2DNativeCommandResult applyNativePropEdits(
+        const std::string& expected_document_revision,
+        const std::vector<Perspective2DNativePropEdit>& edits);
+    Perspective2DNativeCommandResult applyNativeEventMessageEdits(
+        const std::string& expected_document_revision,
+        const std::vector<Perspective2DNativeEventMessageEdit>& edits);
     bool SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages);
     bool SetPerspectiveTileDefinition(Perspective2DTileDefinition definition);
     Perspective2DTilePreviewResult PreviewPerspectiveTileAt(int32_t tile_x, int32_t tile_y);

@@ -7,20 +7,23 @@
 ## Scope
 
 Include the existing native Perspective 2D spatial-control snapshots in the
-creator's Accessibility Audit. This covers the current Elevation Brush and
-Prop Placement controls, including the selected/last-added prop state already
-represented by the native spatial accessibility adapter, plus the Map
-coordinator's current mode and project-context state. The same audit run also
-ingests the existing native Menu Inspector's visible focus rows without
-changing the menu owner or its runtime behavior.
+creator's Accessibility Audit. This covers the current Elevation Brush, Prop
+Placement, and Grid Part Placement controls, including the selected/last-added
+prop state and selected smart-prefab review/apply alternatives represented by
+the native spatial accessibility adapter, plus the Map coordinator's current
+mode and project-context state. The same audit run also ingests the existing
+native Menu Inspector's visible focus rows without changing the menu owner or
+its runtime behavior.
 
 ## Contract
 
 1. The Map workspace continues to own its canvas and tool snapshots.
 2. The existing `AccessibilitySpatialAdapter` converts those snapshots into
    structured auditor elements. It also exposes the current available Map
-   modes and active Map context as labelled virtual elements; the main creator
-   route now ingests them with the existing Audio Mix and battle-preview
+  modes, active Map context, and selected Grid Part smart-prefab review/apply
+   actions as labelled virtual elements. Current reviewed native creator-plan
+   review/apply state is also exposed as labelled virtual actions; the main
+   creator route now ingests them with the existing Audio Mix and battle-preview
    elements.
 3. The audit remains read-only. It does not alter Map state, focus, or the
    accessibility findings themselves.

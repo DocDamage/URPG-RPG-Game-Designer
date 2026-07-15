@@ -14,10 +14,14 @@ class GridPartCatalog {
     bool addDefinition(GridPartDefinition definition);
     const GridPartDefinition* find(const std::string& part_id) const;
 
+    bool addSmartPrefab(GridPartSmartPrefab prefab);
+    const GridPartSmartPrefab* findSmartPrefab(const std::string& prefab_id) const;
+
     std::vector<GridPartDefinition> allDefinitions() const;
     std::vector<GridPartDefinition> filterByCategory(GridPartCategory category) const;
     std::vector<GridPartDefinition> filterByRuleset(GridPartRuleset ruleset) const;
     std::vector<GridPartDefinition> search(const std::string& query) const;
+    std::vector<GridPartSmartPrefab> allSmartPrefabs() const;
 
     size_t size() const;
 
@@ -25,6 +29,7 @@ class GridPartCatalog {
     static void sortByPartId(std::vector<GridPartDefinition>& definitions);
 
     std::unordered_map<std::string, GridPartDefinition> definitions_;
+    std::unordered_map<std::string, GridPartSmartPrefab> smart_prefabs_;
 };
 
 } // namespace urpg::map

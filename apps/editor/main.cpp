@@ -53,6 +53,7 @@
 #include "engine/core/engine_shell.h"
 #include "engine/core/input/input_remap_store.h"
 #include "engine/core/map/grid_part_catalog.h"
+#include "engine/core/map/grid_part_catalog_loader.h"
 #include "engine/core/map/grid_part_document.h"
 #include "engine/core/map/grid_part_ruleset.h"
 #include "engine/core/map/grid_part_serializer.h"
@@ -461,143 +462,11 @@ std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asse
     return stem + ".json";
 }
 
-urpg::map::GridPartCategory gridPartCategoryFromString(const std::string& value) {
-    using Category = urpg::map::GridPartCategory;
-    static const std::unordered_map<std::string, Category> categories = {
-        {"Tile", Category::Tile},
-        {"Wall", Category::Wall},
-        {"Platform", Category::Platform},
-        {"Hazard", Category::Hazard},
-        {"Door", Category::Door},
-        {"Npc", Category::Npc},
-        {"Enemy", Category::Enemy},
-        {"TreasureChest", Category::TreasureChest},
-        {"SavePoint", Category::SavePoint},
-        {"Trigger", Category::Trigger},
-        {"CutsceneZone", Category::CutsceneZone},
-        {"Shop", Category::Shop},
-        {"QuestItem", Category::QuestItem},
-        {"Prop", Category::Prop},
-        {"LevelBlock", Category::LevelBlock},
-    };
-
-    const auto found = categories.find(value);
-    return found == categories.end() ? Category::Prop : found->second;
-}
-
-urpg::map::GridPartLayer gridPartLayerFromString(const std::string& value) {
-    using Layer = urpg::map::GridPartLayer;
-    static const std::unordered_map<std::string, Layer> layers = {
-        {"Terrain", Layer::Terrain},     {"Decoration", Layer::Decoration}, {"Collision", Layer::Collision},
-        {"Object", Layer::Object},       {"Actor", Layer::Actor},           {"Trigger", Layer::Trigger},
-        {"Region", Layer::Region},       {"Overlay", Layer::Overlay},
-    };
-
-    const auto found = layers.find(value);
-    return found == layers.end() ? Layer::Object : found->second;
-}
-
-urpg::map::GridPartCollisionPolicy gridPartCollisionPolicyFromString(const std::string& value) {
-    using Policy = urpg::map::GridPartCollisionPolicy;
-    static const std::unordered_map<std::string, Policy> policies = {
-        {"None", Policy::None},
-        {"Solid", Policy::Solid},
-        {"Hazard", Policy::Hazard},
-        {"TriggerOnly", Policy::TriggerOnly},
-        {"Custom", Policy::Custom},
-    };
-
-    const auto found = policies.find(value);
-    return found == policies.end() ? Policy::None : found->second;
-}
-
-urpg::map::GridPartRuleset gridPartRulesetFromString(const std::string& value) {
-    using Ruleset = urpg::map::GridPartRuleset;
-    static const std::unordered_map<std::string, Ruleset> rulesets = {
-        {"TopDownJRPG", Ruleset::TopDownJRPG},
-        {"SideScrollerAction", Ruleset::SideScrollerAction},
-        {"TacticalGrid", Ruleset::TacticalGrid},
-        {"DungeonRoomBuilder", Ruleset::DungeonRoomBuilder},
-        {"WorldMap", Ruleset::WorldMap},
-        {"TownHub", Ruleset::TownHub},
-        {"BattleArena", Ruleset::BattleArena},
-        {"CutsceneStage", Ruleset::CutsceneStage},
-    };
-
-    const auto found = rulesets.find(value);
-    return found == rulesets.end() ? Ruleset::TopDownJRPG : found->second;
-}
-
 bool loadGridPartCatalog(const std::filesystem::path& projectRoot, urpg::map::GridPartCatalog& catalog) {
-    const auto catalogPath = projectRoot / "content" / "part_catalogs" / "base_jrpg_parts.json";
-    std::ifstream stream(catalogPath, std::ios::binary);
-    if (!stream) {
-        return false;
-    }
-
-    nlohmann::json payload;
-    try {
-        payload = nlohmann::json::parse(stream);
-    } catch (const nlohmann::json::exception&) {
-        return false;
-    }
-
-    if (!payload.contains("parts") || !payload["parts"].is_array()) {
-        return false;
-    }
-
-    urpg::map::GridPartCatalog loaded;
-    for (const auto& part : payload["parts"]) {
-        if (!part.is_object() || !part.contains("partId") || !part["partId"].is_string()) {
-            return false;
-        }
-
-        urpg::map::GridPartDefinition definition;
-        definition.part_id = part["partId"].get<std::string>();
-        definition.display_name = part.value("displayName", definition.part_id);
-        definition.description = part.value("description", "");
-        definition.category = gridPartCategoryFromString(part.value("category", "Prop"));
-        definition.default_layer = gridPartLayerFromString(part.value("defaultLayer", "Object"));
-        definition.collision_policy = gridPartCollisionPolicyFromString(part.value("collisionPolicy", "None"));
-        definition.asset_id = part.value("assetId", "");
-        definition.prefab_path = part.value("prefabPath", "");
-        definition.tile_id = part.value("tileId", 0);
-
-        const auto footprint = part.value("footprint", nlohmann::json::object());
-        definition.footprint.width = footprint.value("width", 1);
-        definition.footprint.height = footprint.value("height", 1);
-        definition.footprint.allow_overlap = footprint.value("allowOverlap", false);
-        definition.footprint.blocks_navigation = footprint.value("blocksNavigation", false);
-
-        for (const auto& ruleset : part.value("supportedRulesets", nlohmann::json::array())) {
-            if (ruleset.is_string()) {
-                definition.supported_rulesets.push_back(gridPartRulesetFromString(ruleset.get<std::string>()));
-            }
-        }
-        if (definition.supported_rulesets.empty()) {
-            definition.supported_rulesets.push_back(urpg::map::GridPartRuleset::TopDownJRPG);
-        }
-
-        for (const auto& tag : part.value("tags", nlohmann::json::array())) {
-            if (tag.is_string()) {
-                definition.tags.push_back(tag.get<std::string>());
-            }
-        }
-
-        const auto properties = part.value("defaultProperties", nlohmann::json::object());
-        for (const auto& [key, value] : properties.items()) {
-            if (value.is_string()) {
-                definition.default_properties[key] = value.get<std::string>();
-            }
-        }
-
-        if (!loaded.addDefinition(std::move(definition))) {
-            return false;
-        }
-    }
-
-    catalog = std::move(loaded);
-    return catalog.size() > 0;
+    std::string error;
+    return urpg::map::LoadGridPartCatalogFromProject(
+               projectRoot, catalog, std::filesystem::path("content") / "part_catalogs" / "base_jrpg_parts.json", &error) &&
+           catalog.size() > 0;
 }
 
 urpg::editor::PropPlacementPanel::ScreenProjectionSettings
@@ -3547,6 +3416,81 @@ void renderLevelBuilderWorkspace(EditorPanelRuntime& runtime) {
         ImGui::TextDisabled("%s", entry.category.c_str());
         ImGui::PopID();
     }
+    if (!snapshot.placement.smart_prefabs.empty() && ImGui::CollapsingHeader("Native Smart Prefabs")) {
+        static int smartPrefabGridX = 0;
+        static int smartPrefabGridY = 0;
+        static std::unordered_map<std::string, std::string> smartPrefabParameterValues;
+        ImGui::TextDisabled("Versioned operation groups validate every referenced part, parameter, conflict tag, and footprint before one undoable Map edit.");
+        for (const auto& prefab : snapshot.placement.smart_prefabs) {
+            ImGui::PushID(prefab.prefab_id.c_str());
+            const auto label = prefab.display_name + " (v" + prefab.version + ")";
+            if (ImGui::Selectable(label.c_str(), prefab.selected)) {
+                smartPrefabParameterValues.clear();
+                for (const auto& parameter : prefab.parameters) {
+                    smartPrefabParameterValues[parameter.key] = parameter.default_value;
+                }
+                (void)workspace.placementPanel().SetSelectedSmartPrefabId(prefab.prefab_id);
+            }
+            if (prefab.selected) {
+                ImGui::TextDisabled("%s", prefab.description.c_str());
+                ImGui::TextDisabled("%zu operation(s), %zu dependency reference(s), %zu conflict tag(s)",
+                                    prefab.operation_count, prefab.dependencies.size(), prefab.conflict_tags.size());
+                ImGui::InputInt("Anchor X", &smartPrefabGridX);
+                ImGui::InputInt("Anchor Y", &smartPrefabGridY);
+                for (const auto& parameter : prefab.parameters) {
+                    const auto inserted = smartPrefabParameterValues.emplace(parameter.key, parameter.default_value);
+                    ImGui::InputText((parameter.key + "##smart_prefab_parameter").c_str(), &inserted.first->second);
+                    if (!parameter.allowed_values.empty()) {
+                        std::string allowedValues;
+                        for (const auto& value : parameter.allowed_values) {
+                            if (!allowedValues.empty()) allowedValues += ", ";
+                            allowedValues += value;
+                        }
+                        ImGui::TextDisabled("Allowed: %s", allowedValues.c_str());
+                    }
+                    if (parameter.required) ImGui::TextDisabled("Required");
+                }
+                if (ImGui::Button("Review Smart Prefab Placement")) {
+                    const auto review = workspace.placementPanel().PreviewSelectedSmartPrefabAtGrid(
+                        smartPrefabGridX, smartPrefabGridY, smartPrefabParameterValues);
+                    runtime.map_save_status = review.accepted
+                                                  ? "Smart prefab review is ready: " +
+                                                        std::to_string(review.accepted_operation_count) +
+                                                        " native operations will be applied together."
+                                                  : "Smart prefab review blocked: " + review.message;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Apply Smart Prefab")) {
+                    const bool applied = workspace.placementPanel().PlaceSelectedSmartPrefabAtGrid(
+                        smartPrefabGridX, smartPrefabGridY, smartPrefabParameterValues);
+                    const auto& result = workspace.placementPanel().lastRenderSnapshot().last_smart_prefab_result;
+                    runtime.map_save_status = applied ? std::string{"Smart prefab applied as one native undoable Map operation."}
+                                                       : "Smart prefab apply blocked: " + result.message;
+                }
+                const auto& result = snapshot.placement.last_smart_prefab_result;
+                if (!result.code.empty()) {
+                    ImGui::TextDisabled("Prefab status: %s", result.message.c_str());
+                    if (!result.reviewed_operation_ids.empty()) {
+                        std::string reviewedOperations;
+                        for (const auto& operationId : result.reviewed_operation_ids) {
+                            if (!reviewedOperations.empty()) reviewedOperations += ", ";
+                            reviewedOperations += operationId;
+                        }
+                        ImGui::TextDisabled("Preflight-ready operation IDs: %s", reviewedOperations.c_str());
+                    }
+                    if (!result.rejected_operation_ids.empty()) {
+                        std::string rejectedOperations;
+                        for (const auto& operationId : result.rejected_operation_ids) {
+                            if (!rejectedOperations.empty()) rejectedOperations += ", ";
+                            rejectedOperations += operationId.empty() ? "<missing>" : operationId;
+                        }
+                        ImGui::TextDisabled("Blocked operation IDs: %s", rejectedOperations.c_str());
+                    }
+                }
+            }
+            ImGui::PopID();
+        }
+    }
 }
 
 void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRuntime& runtime) {
@@ -3592,13 +3536,21 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
         ImGui::PopID();
     }
 
-    if (ImGui::CollapsingHeader("Developer: Reviewed Creator Tile Command")) {
-        static std::string creatorPrompt = "Paint tile";
+    if (ImGui::CollapsingHeader("Developer: Reviewed Creator Commands")) {
+        static std::string creatorPrompt = "paint tile";
         static int creatorTileX = 0;
         static int creatorTileY = 0;
         static int creatorPlannedTileId = 2;
         static std::string creatorLayerId;
         static std::string creatorPaletteOptionId;
+        static int creatorPropX = 0;
+        static int creatorPropY = 0;
+        static std::string creatorPropPaletteAssetId;
+        static int creatorEventX = 0;
+        static int creatorEventY = 0;
+        static std::string creatorEventLayerId;
+        static std::string creatorEventLabel = "Creator Message";
+        static std::string creatorEventMessage = "A reviewed native Map message event.";
 
         const auto tileLayer = std::find_if(
             snapshot.perspective_2d_layers.begin(), snapshot.perspective_2d_layers.end(),
@@ -3622,9 +3574,41 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
         const auto selectedPaletteOption = std::find_if(
             snapshot.perspective_2d_palette.tile_options.begin(), snapshot.perspective_2d_palette.tile_options.end(),
             [&](const auto& option) { return option.option_id == creatorPaletteOptionId; });
+        const auto selectedPropOption = std::find_if(
+            snapshot.props.project_asset_options.begin(), snapshot.props.project_asset_options.end(),
+            [&](const auto& option) { return option.asset_id == creatorPropPaletteAssetId; });
+        if (creatorPropPaletteAssetId.empty() || selectedPropOption == snapshot.props.project_asset_options.end() ||
+            !selectedPropOption->targeted_for_perspective_2d) {
+            const auto firstPropOption = std::find_if(
+                snapshot.props.project_asset_options.begin(), snapshot.props.project_asset_options.end(),
+                [](const auto& option) { return option.targeted_for_perspective_2d; });
+            creatorPropPaletteAssetId = firstPropOption == snapshot.props.project_asset_options.end()
+                                             ? ""
+                                             : firstPropOption->asset_id;
+        }
+        const auto activePropOption = std::find_if(
+            snapshot.props.project_asset_options.begin(), snapshot.props.project_asset_options.end(),
+            [&](const auto& option) { return option.asset_id == creatorPropPaletteAssetId; });
+        const auto selectedCreatorEventLayer = std::find_if(
+            snapshot.perspective_2d_layers.begin(), snapshot.perspective_2d_layers.end(),
+            [&](const auto& layer) { return layer.id == creatorEventLayerId; });
+        if (creatorEventLayerId.empty() || selectedCreatorEventLayer == snapshot.perspective_2d_layers.end() ||
+            (selectedCreatorEventLayer->kind != "event" && selectedCreatorEventLayer->kind != "object") ||
+            !selectedCreatorEventLayer->visible || selectedCreatorEventLayer->locked) {
+            const auto firstCreatorEventLayer = std::find_if(
+                snapshot.perspective_2d_layers.begin(), snapshot.perspective_2d_layers.end(), [](const auto& layer) {
+                    return (layer.kind == "event" || layer.kind == "object") && layer.visible && !layer.locked;
+                });
+            creatorEventLayerId = firstCreatorEventLayer == snapshot.perspective_2d_layers.end()
+                                      ? ""
+                                      : firstCreatorEventLayer->id;
+        }
+        const auto activeCreatorEventLayer = std::find_if(
+            snapshot.perspective_2d_layers.begin(), snapshot.perspective_2d_layers.end(),
+            [&](const auto& layer) { return layer.id == creatorEventLayerId; });
 
         ImGui::TextDisabled("Developer-only. Reviews a local deterministic plan; provider transport is dry-run only.");
-        ImGui::TextDisabled("Only a tile-only 'paint tile' or 'stamp tile' plan can apply through the active Map owner.");
+        ImGui::TextDisabled("Only separate tile-only and prop-only plans can apply through the active Map owner.");
         ImGui::InputText("Creator Tile Prompt", &creatorPrompt);
         ImGui::InputInt("Creator Tile X", &creatorTileX);
         ImGui::InputInt("Creator Tile Y", &creatorTileY);
@@ -3655,9 +3639,14 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
             }
             ImGui::EndCombo();
         }
-        const bool canReviewCreatorTilePlan = !workspace.activePerspectiveMapId().empty() &&
+        const bool creatorTileIntentSupported = creatorPrompt.find("paint tile") != std::string::npos ||
+                                                creatorPrompt.find("stamp tile") != std::string::npos;
+        const bool canReviewCreatorTilePlan = creatorTileIntentSupported && !workspace.activePerspectiveMapId().empty() &&
                                               tileLayer != snapshot.perspective_2d_layers.end() && !creatorLayerId.empty() &&
                                               selectedPaletteOption != snapshot.perspective_2d_palette.tile_options.end();
+        if (!creatorTileIntentSupported) {
+            ImGui::TextDisabled("Tile review accepts only the deterministic 'paint tile' or 'stamp tile' intent.");
+        }
         if (!canReviewCreatorTilePlan) ImGui::BeginDisabled();
         if (ImGui::Button("Review Native Tile Plan")) {
             urpg::ai::CreatorCommandRequest request;
@@ -3676,30 +3665,133 @@ void renderPerspectiveWorkspace(urpg::editor::EditorShell& editorShell, EditorPa
             runtime.creator_command_panel.setTilePaletteBindings(
                 {{creatorPlannedTileId, "terrain", creatorLayerId, selectedPaletteOption->tileset_id,
                   selectedPaletteOption->tile_id}});
+            runtime.creator_command_panel.setPropAssetBindings({});
+            runtime.creator_command_panel.setEventLayerBindings({});
             runtime.creator_command_panel.setRequest(std::move(request));
             runtime.creator_command_panel.render();
         }
         if (!canReviewCreatorTilePlan) ImGui::EndDisabled();
 
+        ImGui::Separator();
+        ImGui::TextDisabled("Native prop plan: resolves one planned prop only to an existing attached Perspective 2D palette entry.");
+        ImGui::InputInt("Creator Prop X", &creatorPropX);
+        ImGui::InputInt("Creator Prop Y", &creatorPropY);
+        const char* creatorPropLabel = activePropOption == snapshot.props.project_asset_options.end()
+                                           ? "Select attached prop palette asset"
+                                           : activePropOption->asset_id.c_str();
+        if (ImGui::BeginCombo("Creator Prop Palette Asset", creatorPropLabel)) {
+            for (const auto& option : snapshot.props.project_asset_options) {
+                if (!option.targeted_for_perspective_2d) continue;
+                const bool selected = option.asset_id == creatorPropPaletteAssetId;
+                if (ImGui::Selectable(option.asset_id.c_str(), selected)) {
+                    creatorPropPaletteAssetId = option.asset_id;
+                }
+                if (selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        const bool canReviewCreatorPropPlan = !workspace.activePerspectiveMapId().empty() &&
+                                              activePropOption != snapshot.props.project_asset_options.end() &&
+                                              activePropOption->targeted_for_perspective_2d &&
+                                              !activePropOption->project_path.empty();
+        if (!canReviewCreatorPropPlan) ImGui::BeginDisabled();
+        if (ImGui::Button("Review Native Prop Plan")) {
+            urpg::ai::CreatorCommandRequest request;
+            request.prompt = "place prop";
+            request.project_id = runtime.project_session.isOpen()
+                                     ? runtime.project_session.activeProject().project_id
+                                     : "";
+            request.map_id = workspace.activePerspectiveMapId();
+            request.tile_x = creatorPropX;
+            request.tile_y = creatorPropY;
+            request.width = static_cast<int32_t>(snapshot.perspective_2d_project.width);
+            request.height = static_cast<int32_t>(snapshot.perspective_2d_project.height);
+            request.selected_prop_asset_id = activePropOption->asset_id;
+            request.provider = urpg::ai::CreatorAiProvider::LocalDeterministic;
+            runtime.creator_command_panel.setMapWorkspace(&workspace);
+            runtime.creator_command_panel.setTilePaletteBindings({});
+            runtime.creator_command_panel.setPropAssetBindings(
+                {{activePropOption->asset_id, activePropOption->asset_id, activePropOption->project_path}});
+            runtime.creator_command_panel.setEventLayerBindings({});
+            runtime.creator_command_panel.setRequest(std::move(request));
+            runtime.creator_command_panel.render();
+        }
+        if (!canReviewCreatorPropPlan) ImGui::EndDisabled();
+
+        ImGui::Separator();
+        ImGui::TextDisabled("Native message-event plan: creates one confirm-interact show-text event on a visible unlocked Map layer.");
+        ImGui::InputInt("Creator Event X", &creatorEventX);
+        ImGui::InputInt("Creator Event Y", &creatorEventY);
+        ImGui::InputText("Creator Event Label", &creatorEventLabel);
+        ImGui::InputTextMultiline("Creator Event Message", &creatorEventMessage, ImVec2(-1.0f, 60.0f));
+        const char* creatorEventLayerLabel = activeCreatorEventLayer == snapshot.perspective_2d_layers.end()
+                                                 ? "Select visible event layer"
+                                                 : activeCreatorEventLayer->label.c_str();
+        if (ImGui::BeginCombo("Creator Event Layer", creatorEventLayerLabel)) {
+            for (const auto& layer : snapshot.perspective_2d_layers) {
+                const bool supported = (layer.kind == "event" || layer.kind == "object") && layer.visible && !layer.locked;
+                if (!supported) ImGui::BeginDisabled();
+                const bool selected = layer.id == creatorEventLayerId;
+                if (ImGui::Selectable(layer.label.c_str(), selected) && supported) {
+                    creatorEventLayerId = layer.id;
+                }
+                if (!supported) ImGui::EndDisabled();
+                if (selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        const bool canReviewCreatorEventPlan = !workspace.activePerspectiveMapId().empty() &&
+                                               activeCreatorEventLayer != snapshot.perspective_2d_layers.end() &&
+                                               !creatorEventLabel.empty() && creatorEventLabel.size() <= 120 &&
+                                               !creatorEventMessage.empty() &&
+                                               creatorEventMessage.size() <= 1024;
+        if (!canReviewCreatorEventPlan) ImGui::BeginDisabled();
+        if (ImGui::Button("Review Native Message Event Plan")) {
+            urpg::ai::CreatorCommandRequest request;
+            request.prompt = "place message event";
+            request.project_id = runtime.project_session.isOpen()
+                                     ? runtime.project_session.activeProject().project_id
+                                     : "";
+            request.map_id = workspace.activePerspectiveMapId();
+            request.tile_x = creatorEventX;
+            request.tile_y = creatorEventY;
+            request.width = static_cast<int32_t>(snapshot.perspective_2d_project.width);
+            request.height = static_cast<int32_t>(snapshot.perspective_2d_project.height);
+            request.selected_event_layer_id = activeCreatorEventLayer->id;
+            request.event_label = creatorEventLabel;
+            request.event_message = creatorEventMessage;
+            request.provider = urpg::ai::CreatorAiProvider::LocalDeterministic;
+            runtime.creator_command_panel.setMapWorkspace(&workspace);
+            runtime.creator_command_panel.setTilePaletteBindings({});
+            runtime.creator_command_panel.setPropAssetBindings({});
+            runtime.creator_command_panel.setEventLayerBindings(
+                {{activeCreatorEventLayer->id, activeCreatorEventLayer->id}});
+            runtime.creator_command_panel.setRequest(std::move(request));
+            runtime.creator_command_panel.render();
+        }
+        if (!canReviewCreatorEventPlan) ImGui::EndDisabled();
+
         const auto& creatorSnapshot = runtime.creator_command_panel.lastRenderSnapshot();
         if (!creatorSnapshot.empty()) {
             const auto applyPreview = creatorSnapshot.value("apply_preview", nlohmann::json::object());
             ImGui::TextWrapped("Review: %s", applyPreview.value("message", "No native Map review is available.").c_str());
-            ImGui::TextDisabled("Plan: %s | tile edits: %zu | diagnostics: %zu",
+            ImGui::TextDisabled("Plan: %s | tile edits: %zu | prop edits: %zu | event edits: %zu | diagnostics: %zu",
                                 creatorSnapshot["plan"].value("intent", "unplanned").c_str(),
                                 creatorSnapshot["plan"].value("tile_edits", nlohmann::json::array()).size(),
+                                creatorSnapshot["plan"].value("prop_edits", nlohmann::json::array()).size(),
+                                creatorSnapshot["plan"].value("logic_edits", nlohmann::json::array()).size(),
                                 creatorSnapshot.value("validation_diagnostics", size_t{0}));
-            const bool canApplyCreatorTilePlan = applyPreview.value("would_apply", false);
-            if (!canApplyCreatorTilePlan) ImGui::BeginDisabled();
-            if (ImGui::Button("Apply Reviewed Native Tile Plan")) {
+            const bool canApplyCreatorPlan = applyPreview.value("would_apply", false);
+            if (!canApplyCreatorPlan) ImGui::BeginDisabled();
+            if (ImGui::Button("Apply Reviewed Native Map Plan")) {
                 const bool applied = runtime.creator_command_panel.applyCurrentPlan();
                 const auto& apply = runtime.creator_command_panel.lastRenderSnapshot()["last_apply"];
                 runtime.map_save_status = applied
-                                              ? "Creator tile plan applied through the active Map owner; save Map to publish it."
-                                              : "Creator tile plan was not applied: " +
+                                              ? "Creator Map plan applied through the active Map owner; save Map to publish it."
+                                              : "Creator Map plan was not applied: " +
                                                     apply.value("message", apply.value("code", "unknown failure"));
             }
-            if (!canApplyCreatorTilePlan) ImGui::EndDisabled();
+            if (!canApplyCreatorPlan) ImGui::EndDisabled();
         }
     }
 
@@ -4182,8 +4274,12 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             appendAccessibilityElements(std::move(menuElements));
             const auto& spatialSnapshot = runtime.perspective_2d_workspace.lastRenderSnapshot();
             auto spatialElements = urpg::editor::AccessibilitySpatialAdapter::ingest(
-                spatialSnapshot.elevation, spatialSnapshot.props, &runtime.map_authoring_workspace.snapshot());
+                spatialSnapshot.elevation, spatialSnapshot.props, spatialSnapshot.parts_placement,
+                &runtime.map_authoring_workspace.snapshot());
             appendAccessibilityElements(std::move(spatialElements));
+            auto creatorCommandElements = urpg::editor::AccessibilitySpatialAdapter::ingestCreatorCommand(
+                runtime.creator_command_panel.lastRenderSnapshot());
+            appendAccessibilityElements(std::move(creatorCommandElements));
             runtime.accessibility_auditor.clear();
             runtime.accessibility_auditor.ingestElements(elements);
             runtime.accessibility_panel.render();

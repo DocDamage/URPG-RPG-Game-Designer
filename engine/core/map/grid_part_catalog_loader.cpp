@@ -112,6 +112,138 @@ void copyAtlasRectProperties(const nlohmann::json& part, GridPartDefinition& def
     definition.default_properties["atlasRect.height"] = std::to_string(atlas_rect->value("height", 0));
 }
 
+bool addPayloadSmartPrefabs(const nlohmann::json& payload, GridPartCatalog& loaded, std::string* error_message) {
+    const auto prefabs = payload.find("smartPrefabs");
+    if (prefabs == payload.end()) {
+        return true;
+    }
+    if (!prefabs->is_array()) {
+        setError(error_message, "catalog_smart_prefabs_invalid");
+        return false;
+    }
+
+    for (const auto& prefab_json : *prefabs) {
+        if (!prefab_json.is_object() || !prefab_json.contains("prefabId") || !prefab_json["prefabId"].is_string() ||
+            !prefab_json.contains("version") || !prefab_json["version"].is_string() ||
+            !prefab_json.contains("operations") || !prefab_json["operations"].is_array()) {
+            setError(error_message, "catalog_smart_prefab_incomplete");
+            return false;
+        }
+        const auto has_invalid_optional_type = [&](const char* key, const nlohmann::json::value_t type) {
+            const auto value = prefab_json.find(key);
+            return value != prefab_json.end() && value->type() != type;
+        };
+        if (has_invalid_optional_type("displayName", nlohmann::json::value_t::string) ||
+            has_invalid_optional_type("description", nlohmann::json::value_t::string) ||
+            has_invalid_optional_type("dependencies", nlohmann::json::value_t::array) ||
+            has_invalid_optional_type("conflictTags", nlohmann::json::value_t::array) ||
+            has_invalid_optional_type("parameters", nlohmann::json::value_t::array)) {
+            setError(error_message, "catalog_smart_prefab_field_type_invalid");
+            return false;
+        }
+        GridPartSmartPrefab prefab;
+        prefab.prefab_id = prefab_json["prefabId"].get<std::string>();
+        prefab.version = prefab_json["version"].get<std::string>();
+        prefab.display_name = prefab_json.value("displayName", prefab.prefab_id);
+        prefab.description = prefab_json.value("description", "");
+        if (prefab.prefab_id.empty() || prefab.version.empty()) {
+            setError(error_message, "catalog_smart_prefab_identity_invalid");
+            return false;
+        }
+        for (const auto& dependency : prefab_json.value("dependencies", nlohmann::json::array())) {
+            if (!dependency.is_string() || dependency.get<std::string>().empty()) {
+                setError(error_message, "catalog_smart_prefab_dependency_invalid");
+                return false;
+            }
+            prefab.dependencies.push_back(dependency.get<std::string>());
+        }
+        for (const auto& tag : prefab_json.value("conflictTags", nlohmann::json::array())) {
+            if (!tag.is_string() || tag.get<std::string>().empty()) {
+                setError(error_message, "catalog_smart_prefab_conflict_tag_invalid");
+                return false;
+            }
+            prefab.conflict_tags.push_back(tag.get<std::string>());
+        }
+        for (const auto& parameter_json : prefab_json.value("parameters", nlohmann::json::array())) {
+            if (!parameter_json.is_object() || !parameter_json.contains("key") || !parameter_json["key"].is_string() ||
+                !parameter_json.contains("defaultValue") || !parameter_json["defaultValue"].is_string()) {
+                setError(error_message, "catalog_smart_prefab_parameter_invalid");
+                return false;
+            }
+            const auto required = parameter_json.find("required");
+            const auto allowed_values = parameter_json.find("allowedValues");
+            if ((required != parameter_json.end() && !required->is_boolean()) ||
+                (allowed_values != parameter_json.end() && !allowed_values->is_array())) {
+                setError(error_message, "catalog_smart_prefab_parameter_type_invalid");
+                return false;
+            }
+            GridPartPrefabParameter parameter;
+            parameter.key = parameter_json["key"].get<std::string>();
+            parameter.default_value = parameter_json["defaultValue"].get<std::string>();
+            parameter.required = parameter_json.value("required", false);
+            if (parameter.key.empty()) {
+                setError(error_message, "catalog_smart_prefab_parameter_key_invalid");
+                return false;
+            }
+            for (const auto& value : parameter_json.value("allowedValues", nlohmann::json::array())) {
+                if (!value.is_string()) {
+                    setError(error_message, "catalog_smart_prefab_parameter_value_invalid");
+                    return false;
+                }
+                parameter.allowed_values.push_back(value.get<std::string>());
+            }
+            prefab.parameters.push_back(std::move(parameter));
+        }
+        for (const auto& operation_json : prefab_json["operations"]) {
+            if (!operation_json.is_object() || !operation_json.contains("operationId") ||
+                !operation_json["operationId"].is_string() || !operation_json.contains("partId") ||
+                !operation_json["partId"].is_string()) {
+                setError(error_message, "catalog_smart_prefab_operation_invalid");
+                return false;
+            }
+            const auto offset_x = operation_json.find("offsetX");
+            const auto offset_y = operation_json.find("offsetY");
+            const auto offset_z = operation_json.find("offsetZ");
+            const auto overrides_json = operation_json.find("propertyOverrides");
+            if ((offset_x != operation_json.end() && !offset_x->is_number_integer()) ||
+                (offset_y != operation_json.end() && !offset_y->is_number_integer()) ||
+                (offset_z != operation_json.end() && !offset_z->is_number_integer()) ||
+                (overrides_json != operation_json.end() && !overrides_json->is_object())) {
+                setError(error_message, "catalog_smart_prefab_operation_type_invalid");
+                return false;
+            }
+            GridPartPrefabOperation operation;
+            operation.operation_id = operation_json["operationId"].get<std::string>();
+            operation.part_id = operation_json["partId"].get<std::string>();
+            operation.offset_x = operation_json.value("offsetX", 0);
+            operation.offset_y = operation_json.value("offsetY", 0);
+            operation.offset_z = operation_json.value("offsetZ", 0);
+            if (operation.operation_id.empty() || operation.part_id.empty()) {
+                setError(error_message, "catalog_smart_prefab_operation_identity_invalid");
+                return false;
+            }
+            const auto overrides = operation_json.value("propertyOverrides", nlohmann::json::object());
+            if (!overrides.is_object()) {
+                setError(error_message, "catalog_smart_prefab_property_overrides_invalid");
+                return false;
+            }
+            for (const auto& [key, value] : overrides.items()) {
+                if (!value.is_string()) {
+                    setError(error_message, "catalog_smart_prefab_property_override_invalid");
+                    return false;
+                }
+                operation.property_overrides[key] = value.get<std::string>();
+            }
+            prefab.operations.push_back(std::move(operation));
+        }
+        if (!loaded.addSmartPrefab(std::move(prefab))) {
+            setError(error_message, "catalog_smart_prefab_duplicate_or_empty");
+            return false;
+        }
+    }
+    return true;
+}
+
 bool addPayloadParts(const nlohmann::json& payload, GridPartCatalog& loaded, std::string* error_message) {
     if (!payload.contains("parts") || !payload["parts"].is_array()) {
         setError(error_message, "catalog_parts_missing");
@@ -203,7 +335,8 @@ bool loadCatalogInto(const std::filesystem::path& catalog_path, GridPartCatalog&
         }
     }
 
-    const bool added = addPayloadParts(payload, loaded, error_message);
+    const bool added = addPayloadParts(payload, loaded, error_message) &&
+                       addPayloadSmartPrefabs(payload, loaded, error_message);
     active.erase(absolute_path);
     return added;
 }

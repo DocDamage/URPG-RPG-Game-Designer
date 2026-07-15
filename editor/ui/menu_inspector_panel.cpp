@@ -382,8 +382,12 @@ void MenuInspectorPanel::RenderSelectedCommandDetails() {
         }
     }
     ImGui::TextDisabled("Oversized panes stay origin-aligned and remain visible to layout diagnostics.");
-    const auto apply_layout_template = [this, &row](MenuPaneLayoutTemplate layout_template) {
-        if (!model_->ApplyPaneLayoutTemplate(row.pane_index, layout_template)) {
+    static int template_margin = 32;
+    static int template_preferred_width = 0;
+    static int template_preferred_height = 0;
+    const auto apply_layout_template = [this, &row](MenuPaneLayoutTemplate layout_template,
+                                                    MenuPaneLayoutTemplateParameters parameters) {
+        if (!model_->ApplyPaneLayoutTemplateWithParameters(row.pane_index, layout_template, parameters)) {
             return false;
         }
         if (apply_changes_handler_) {
@@ -392,31 +396,36 @@ void MenuInspectorPanel::RenderSelectedCommandDetails() {
         CaptureRenderSnapshot();
         return true;
     };
-    ImGui::Text("Apply native pane template:");
+    ImGui::Text("Apply parameterized native pane template:");
+    ImGui::InputInt("Template margin", &template_margin);
+    ImGui::InputInt("Template preferred width (0 default)", &template_preferred_width);
+    ImGui::InputInt("Template preferred height (0 default)", &template_preferred_height);
+    const MenuPaneLayoutTemplateParameters template_parameters = {
+        template_margin, template_preferred_width, template_preferred_height};
     if (ImGui::Button("Compact List")) {
-        if (apply_layout_template(MenuPaneLayoutTemplate::CompactList)) {
+        if (apply_layout_template(MenuPaneLayoutTemplate::CompactList, template_parameters)) {
             return;
         }
     }
     ImGui::SameLine();
     if (ImGui::Button("Centered Dialog")) {
-        if (apply_layout_template(MenuPaneLayoutTemplate::CenteredDialog)) {
+        if (apply_layout_template(MenuPaneLayoutTemplate::CenteredDialog, template_parameters)) {
             return;
         }
     }
     ImGui::SameLine();
     if (ImGui::Button("Bottom Overlay")) {
-        if (apply_layout_template(MenuPaneLayoutTemplate::BottomOverlay)) {
+        if (apply_layout_template(MenuPaneLayoutTemplate::BottomOverlay, template_parameters)) {
             return;
         }
     }
     ImGui::SameLine();
     if (ImGui::Button("Full Canvas")) {
-        if (apply_layout_template(MenuPaneLayoutTemplate::FullCanvas)) {
+        if (apply_layout_template(MenuPaneLayoutTemplate::FullCanvas, template_parameters)) {
             return;
         }
     }
-    ImGui::TextDisabled("Templates keep the pane's layer, focus order, commands, and identity intact.");
+    ImGui::TextDisabled("Zero preferred dimensions use the selected template defaults. Templates keep layer, focus order, commands, and identity intact.");
     ImGui::TextDisabled("Edits update the native runtime graph; durable project save remains a separate owner.");
     ImGui::Text("Route: %s", row.route_label.c_str());
     ImGui::Text("Summary: %s", row.summary.c_str());

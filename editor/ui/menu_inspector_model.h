@@ -19,6 +19,20 @@ enum class MenuPaneLayoutTemplate {
     FullCanvas,
 };
 
+// Optional template overrides. Zero preferred dimensions retain the selected
+// native template's default dimension; positive dimensions are clamped to the
+// authored canvas after the requested margin is applied.
+struct MenuPaneLayoutTemplateParameters {
+    int margin = 32;
+    int preferred_width = 0;
+    int preferred_height = 0;
+
+    bool isValid() const {
+        return margin >= 0 && margin <= 4096 && preferred_width >= 0 && preferred_width <= 8192 &&
+               preferred_height >= 0 && preferred_height <= 8192;
+    }
+};
+
 enum class MenuInspectorIssueSeverity {
     Info,
     Warning,
@@ -115,6 +129,8 @@ public:
     // Applies all valid pane rectangles as one native history mutation.
     bool UpdatePaneLayouts(const std::vector<std::pair<size_t, urpg::ui::MenuPaneLayout>>& layouts);
     bool ApplyPaneLayoutTemplate(size_t pane_index, MenuPaneLayoutTemplate layout_template);
+    bool ApplyPaneLayoutTemplateWithParameters(size_t pane_index, MenuPaneLayoutTemplate layout_template,
+                                               MenuPaneLayoutTemplateParameters parameters);
     bool UpdateDesignCanvas(urpg::ui::MenuDesignCanvas canvas);
     bool CanUndo() const;
     bool CanRedo() const;

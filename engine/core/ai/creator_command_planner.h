@@ -75,6 +75,10 @@ struct CreatorCommandRequest {
     int32_t width = 32;
     int32_t height = 32;
     int32_t selected_tile_id = 2;
+    std::string selected_prop_asset_id;
+    std::string selected_event_layer_id;
+    std::string event_label;
+    std::string event_message;
     CreatorAiProvider provider = CreatorAiProvider::LocalDeterministic;
 };
 
@@ -168,6 +172,8 @@ private:
     CreatorCommandPlan planPuzzle(const CreatorCommandRequest& request) const;
     CreatorCommandPlan planFarmPlot(const CreatorCommandRequest& request) const;
     CreatorCommandPlan planTileStamp(const CreatorCommandRequest& request) const;
+    CreatorCommandPlan planPropPlacement(const CreatorCommandRequest& request) const;
+    CreatorCommandPlan planEventMessage(const CreatorCommandRequest& request) const;
     CreatorCommandPlan unsupportedIntent(const CreatorCommandRequest& request) const;
 };
 

@@ -8,11 +8,41 @@
 #include "engine/core/presentation/presentation_schema.h"
 
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace urpg::editor {
 
 class GridPartPlacementPanel : public EditorPanel {
   public:
+    struct SmartPrefabParameterSnapshot {
+        std::string key;
+        std::string default_value;
+        bool required = false;
+        std::vector<std::string> allowed_values;
+    };
+
+    struct SmartPrefabSnapshot {
+        std::string prefab_id;
+        std::string version;
+        std::string display_name;
+        std::string description;
+        size_t operation_count = 0;
+        std::vector<std::string> dependencies;
+        std::vector<std::string> conflict_tags;
+        std::vector<SmartPrefabParameterSnapshot> parameters;
+        bool selected = false;
+    };
+
+    struct SmartPrefabPlacementResult {
+        bool accepted = false;
+        std::string code;
+        std::string message;
+        size_t accepted_operation_count = 0;
+        std::vector<std::string> reviewed_operation_ids;
+        std::vector<std::string> rejected_operation_ids;
+    };
+
     struct RenderSnapshot {
         bool visible = true;
         bool has_document = false;
@@ -35,6 +65,9 @@ class GridPartPlacementPanel : public EditorPanel {
 
         bool can_undo = false;
         bool can_redo = false;
+        std::string selected_smart_prefab_id;
+        std::vector<SmartPrefabSnapshot> smart_prefabs;
+        SmartPrefabPlacementResult last_smart_prefab_result;
     };
 
     GridPartPlacementPanel() : EditorPanel("Grid Part Placement") {}
@@ -50,6 +83,11 @@ class GridPartPlacementPanel : public EditorPanel {
     bool PlaceSelectedPartAtGrid(int32_t grid_x, int32_t grid_y);
     bool PlaceSelectedPartFromScreen(float screen_x, float screen_y);
     bool FillSelectedPartRectangle(int32_t min_x, int32_t min_y, int32_t max_x, int32_t max_y);
+    bool SetSelectedSmartPrefabId(const std::string& prefab_id);
+    SmartPrefabPlacementResult PreviewSelectedSmartPrefabAtGrid(
+        int32_t grid_x, int32_t grid_y, const std::unordered_map<std::string, std::string>& parameter_values = {}) const;
+    bool PlaceSelectedSmartPrefabAtGrid(int32_t grid_x, int32_t grid_y,
+                                        const std::unordered_map<std::string, std::string>& parameter_values = {});
     bool Undo();
     bool Redo();
 
@@ -61,6 +99,10 @@ class GridPartPlacementPanel : public EditorPanel {
     bool projectScreenToGrid(float screen_x, float screen_y, int32_t& out_grid_x, int32_t& out_grid_y) const;
     urpg::map::PlacedPartInstance makeInstance(const urpg::map::GridPartDefinition& definition, int32_t grid_x,
                                                int32_t grid_y) const;
+    SmartPrefabPlacementResult buildSmartPrefabInstances(
+        const urpg::map::GridPartSmartPrefab& prefab, int32_t grid_x, int32_t grid_y,
+        const std::unordered_map<std::string, std::string>& parameter_values,
+        std::vector<urpg::map::PlacedPartInstance>& instances) const;
     std::string makeInstanceId(const std::string& part_id, int32_t grid_x, int32_t grid_y) const;
 
     urpg::map::GridPartDocument* document_ = nullptr;
@@ -69,6 +111,8 @@ class GridPartPlacementPanel : public EditorPanel {
     PropPlacementPanel::ScreenProjectionSettings projection_settings_;
     urpg::map::GridPartCommandHistory history_;
     std::string selected_part_id_;
+    std::string selected_smart_prefab_id_;
+    SmartPrefabPlacementResult last_smart_prefab_result_;
     bool hover_active_ = false;
     bool hover_valid_ = false;
     std::string hover_reason_;

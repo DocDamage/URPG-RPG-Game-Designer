@@ -71,6 +71,36 @@ struct GridPartDefinition {
     std::unordered_map<std::string, std::string> default_properties;
 };
 
+// A smart prefab is an explicitly versioned, native operation group. It
+// expands only into catalog-owned grid parts and can therefore reuse the Map
+// owner's validation and local undo history.
+struct GridPartPrefabParameter {
+    std::string key;
+    std::string default_value;
+    bool required = false;
+    std::vector<std::string> allowed_values;
+};
+
+struct GridPartPrefabOperation {
+    std::string operation_id;
+    std::string part_id;
+    int32_t offset_x = 0;
+    int32_t offset_y = 0;
+    int32_t offset_z = 0;
+    std::unordered_map<std::string, std::string> property_overrides;
+};
+
+struct GridPartSmartPrefab {
+    std::string prefab_id;
+    std::string version;
+    std::string display_name;
+    std::string description;
+    std::vector<std::string> dependencies;
+    std::vector<std::string> conflict_tags;
+    std::vector<GridPartPrefabParameter> parameters;
+    std::vector<GridPartPrefabOperation> operations;
+};
+
 struct PlacedPartInstance {
     std::string instance_id;
     std::string part_id;

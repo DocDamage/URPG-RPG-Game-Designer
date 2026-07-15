@@ -12,23 +12,30 @@ constexpr size_t kMaximumMenuHistoryEntries = 64;
 
 urpg::ui::MenuPaneLayout layoutForTemplate(const urpg::ui::MenuPaneLayout& existing,
                                            const urpg::ui::MenuDesignCanvas& canvas,
-                                           MenuPaneLayoutTemplate layout_template) {
-    constexpr int kMargin = 32;
+                                           MenuPaneLayoutTemplate layout_template,
+                                           const MenuPaneLayoutTemplateParameters& parameters) {
+    const int maximum_margin = std::max(0, std::min(canvas.width, canvas.height) / 2 - 1);
+    const int margin = std::min(parameters.margin, maximum_margin);
+    const int available_width = std::max(1, canvas.width - margin * 2);
+    const int available_height = std::max(1, canvas.height - margin * 2);
+    const auto preferred = [](const int requested, const int default_value, const int maximum) {
+        return std::min(requested > 0 ? requested : default_value, maximum);
+    };
     auto layout = existing;
     switch (layout_template) {
     case MenuPaneLayoutTemplate::CompactList:
-        layout.x = kMargin;
-        layout.y = kMargin;
-        layout.width = std::min(384, std::max(1, canvas.width - kMargin * 2));
-        layout.height = std::min(560, std::max(1, canvas.height - kMargin * 2));
+        layout.x = margin;
+        layout.y = margin;
+        layout.width = preferred(parameters.preferred_width, 384, available_width);
+        layout.height = preferred(parameters.preferred_height, 560, available_height);
         layout.anchor_left = true;
         layout.anchor_top = true;
         layout.anchor_right = false;
         layout.anchor_bottom = false;
         break;
     case MenuPaneLayoutTemplate::CenteredDialog:
-        layout.width = std::min(960, std::max(1, canvas.width - kMargin * 2));
-        layout.height = std::min(360, std::max(1, canvas.height - kMargin * 2));
+        layout.width = preferred(parameters.preferred_width, 960, available_width);
+        layout.height = preferred(parameters.preferred_height, 360, available_height);
         layout.x = std::max(0, (canvas.width - layout.width) / 2);
         layout.y = std::max(0, (canvas.height - layout.height) / 2);
         layout.anchor_left = false;
@@ -37,10 +44,10 @@ urpg::ui::MenuPaneLayout layoutForTemplate(const urpg::ui::MenuPaneLayout& exist
         layout.anchor_bottom = false;
         break;
     case MenuPaneLayoutTemplate::BottomOverlay:
-        layout.x = kMargin;
-        layout.width = std::max(1, canvas.width - kMargin * 2);
-        layout.height = std::min(280, std::max(1, canvas.height - kMargin * 2));
-        layout.y = std::max(0, canvas.height - layout.height - kMargin);
+        layout.x = margin;
+        layout.width = available_width;
+        layout.height = preferred(parameters.preferred_height, 280, available_height);
+        layout.y = std::max(0, canvas.height - layout.height - margin);
         layout.anchor_left = true;
         layout.anchor_top = false;
         layout.anchor_right = true;
@@ -651,10 +658,19 @@ bool MenuInspectorModel::UpdatePaneLayouts(
 }
 
 bool MenuInspectorModel::ApplyPaneLayoutTemplate(size_t pane_index, MenuPaneLayoutTemplate layout_template) {
+    return ApplyPaneLayoutTemplateWithParameters(pane_index, layout_template, {});
+}
+
+bool MenuInspectorModel::ApplyPaneLayoutTemplateWithParameters(
+    size_t pane_index, MenuPaneLayoutTemplate layout_template, MenuPaneLayoutTemplateParameters parameters) {
     if (pane_index >= panes_.size() || !design_canvas_.isValid()) {
         return false;
     }
-    return UpdatePaneLayout(pane_index, layoutForTemplate(panes_[pane_index].layout, design_canvas_, layout_template));
+    if (!parameters.isValid()) {
+        return false;
+    }
+    return UpdatePaneLayout(pane_index,
+                            layoutForTemplate(panes_[pane_index].layout, design_canvas_, layout_template, parameters));
 }
 
 bool MenuInspectorModel::UpdateDesignCanvas(urpg::ui::MenuDesignCanvas canvas) {

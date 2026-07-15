@@ -1450,6 +1450,158 @@ SpatialAuthoringWorkspace::applyNativeTileEdits(const std::string& expected_docu
     return result;
 }
 
+SpatialAuthoringWorkspace::Perspective2DNativeCommandResult
+SpatialAuthoringWorkspace::applyNativePropEdits(const std::string& expected_document_revision,
+                                                const std::vector<Perspective2DNativePropEdit>& edits) {
+    Perspective2DNativeCommandResult result;
+    result.document_revision = perspectiveDocumentRevision();
+    if (m_target_overlay == nullptr) {
+        result.code = "creator_native_map_unavailable";
+        result.message = "Open a Perspective 2D map before applying a creator prop command.";
+        return result;
+    }
+    if (expected_document_revision.empty() || expected_document_revision != result.document_revision) {
+        result.code = "creator_native_map_revision_conflict";
+        result.message = "The Map changed after this creator plan was reviewed. Refresh the plan before applying it.";
+        return result;
+    }
+    if (edits.empty()) {
+        result.code = "creator_native_prop_command_empty";
+        result.message = "The reviewed creator command contains no resolved prop edits.";
+        return result;
+    }
+
+    const auto options = prop_panel_.lastRenderSnapshot().project_asset_options;
+    std::vector<std::string> planned_instance_ids;
+    planned_instance_ids.reserve(edits.size());
+    for (const auto& edit : edits) {
+        const bool palette_contains_asset = std::any_of(
+            options.begin(), options.end(), [&](const PropPlacementPanel::ProjectAssetOption& option) {
+                return option.asset_id == edit.asset_id && option.project_path == edit.project_path &&
+                       option.targeted_for_perspective_2d;
+            });
+        const std::string instance_id = m_target_overlay->mapId + ":creator_prop:" + edit.operation_id + ":" +
+                                        edit.asset_id + ":" + std::to_string(edit.tile_x) + ":" +
+                                        std::to_string(edit.tile_y);
+        const bool duplicate_operation = std::find(planned_instance_ids.begin(), planned_instance_ids.end(), instance_id) !=
+                                         planned_instance_ids.end();
+        const bool existing_instance = std::any_of(m_target_overlay->props.begin(), m_target_overlay->props.end(),
+                                                   [&](const auto& prop) { return prop.instanceId == instance_id; });
+        if (edit.operation_id.empty() || edit.asset_id.empty() || edit.project_path.empty() || !palette_contains_asset ||
+            edit.tile_x < 0 || edit.tile_y < 0 ||
+            edit.tile_x >= static_cast<int32_t>(m_target_overlay->elevation.width) ||
+            edit.tile_y >= static_cast<int32_t>(m_target_overlay->elevation.height) || duplicate_operation ||
+            existing_instance) {
+            result.code = "creator_native_prop_command_invalid";
+            result.message = "A creator prop edit lacks an active attached palette asset, valid unique Map target, or stable operation ID.";
+            return result;
+        }
+        planned_instance_ids.push_back(instance_id);
+    }
+
+    const auto before = serializePerspectiveMapDraft();
+    for (size_t index = 0; index < edits.size(); ++index) {
+        const auto& edit = edits[index];
+        m_target_overlay->props.emplace_back(planned_instance_ids[index], edit.asset_id,
+                                             static_cast<float>(edit.tile_x) + 0.5f, 0.0f,
+                                             static_cast<float>(edit.tile_y) + 0.5f, 0.0f, 1.0f);
+    }
+    perspective_undo_drafts_.push_back(before);
+    perspective_redo_drafts_.clear();
+    perspective_has_unsaved_changes_ = true;
+    perspective_playtest_ready_ = false;
+    result.applied_prop_count = edits.size();
+    captureRenderSnapshot();
+    result.success = true;
+    result.code = "creator_native_prop_command_applied";
+    result.message = "Applied " + std::to_string(result.applied_prop_count) +
+                     " reviewed creator prop edit(s) to the active Map as one undoable command.";
+    result.document_revision = perspectiveDocumentRevision();
+    return result;
+}
+
+SpatialAuthoringWorkspace::Perspective2DNativeCommandResult
+SpatialAuthoringWorkspace::applyNativeEventMessageEdits(
+    const std::string& expected_document_revision, const std::vector<Perspective2DNativeEventMessageEdit>& edits) {
+    Perspective2DNativeCommandResult result;
+    result.document_revision = perspectiveDocumentRevision();
+    if (m_target_overlay == nullptr) {
+        result.code = "creator_native_map_unavailable";
+        result.message = "Open a Perspective 2D map before applying a creator event-message command.";
+        return result;
+    }
+    if (expected_document_revision.empty() || expected_document_revision != result.document_revision) {
+        result.code = "creator_native_map_revision_conflict";
+        result.message = "The Map changed after this creator plan was reviewed. Refresh the plan before applying it.";
+        return result;
+    }
+    if (edits.empty()) {
+        result.code = "creator_native_event_message_command_empty";
+        result.message = "The reviewed creator command contains no event-message edits.";
+        return result;
+    }
+
+    std::vector<std::string> planned_event_ids;
+    planned_event_ids.reserve(edits.size());
+    for (const auto& edit : edits) {
+        const auto layer = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                        [&](const PerspectiveLayer& candidate) { return candidate.id == edit.layer_id; });
+        const bool valid_operation_id = !edit.operation_id.empty() && std::all_of(
+            edit.operation_id.begin(), edit.operation_id.end(), [](const unsigned char character) {
+                return std::isalnum(character) != 0 || character == '_' || character == '-';
+            });
+        const std::string event_id = m_target_overlay->mapId + ":creator_event_message:" + edit.operation_id + ":" +
+                                     std::to_string(edit.tile_x) + ":" + std::to_string(edit.tile_y);
+        const bool duplicate_event = std::find(planned_event_ids.begin(), planned_event_ids.end(), event_id) !=
+                                     planned_event_ids.end();
+        const bool existing_event = std::any_of(perspective_events_.begin(), perspective_events_.end(),
+                                                [&](const PerspectiveEvent& event) { return event.event_id == event_id; });
+        if (!valid_operation_id || edit.label.empty() || edit.label.size() > 120 || edit.message.empty() ||
+            edit.message.size() > 1024 || layer == perspective_layers_.end() ||
+            (layer->kind != "event" && layer->kind != "object") || !layer->visible || layer->locked ||
+            edit.tile_x < 0 || edit.tile_y < 0 ||
+            edit.tile_x >= static_cast<int32_t>(m_target_overlay->elevation.width) ||
+            edit.tile_y >= static_cast<int32_t>(m_target_overlay->elevation.height) || duplicate_event || existing_event) {
+            result.code = "creator_native_event_message_command_invalid";
+            result.message = "A creator event-message edit lacks a valid operation, visible unlocked event layer, unique target, label, or message.";
+            return result;
+        }
+        planned_event_ids.push_back(event_id);
+    }
+
+    const auto before = serializePerspectiveMapDraft();
+    for (size_t index = 0; index < edits.size(); ++index) {
+        const auto& edit = edits[index];
+        PerspectiveEvent event;
+        event.event_id = planned_event_ids[index];
+        event.label = edit.label;
+        event.trigger_id = "confirm_interact";
+        event.layer_id = edit.layer_id;
+        event.tile_x = edit.tile_x;
+        event.tile_y = edit.tile_y;
+        event.selected_page_id = event.event_id + ":message";
+        PerspectiveEvent::Page page;
+        page.page_id = event.selected_page_id;
+        page.label = edit.label;
+        page.trigger_id = event.trigger_id;
+        page.commands.push_back({"show_text", edit.message});
+        event.pages.push_back(std::move(page));
+        perspective_events_.push_back(std::move(event));
+    }
+    perspective_undo_drafts_.push_back(before);
+    perspective_redo_drafts_.clear();
+    perspective_has_unsaved_changes_ = true;
+    perspective_playtest_ready_ = false;
+    result.applied_event_count = edits.size();
+    captureRenderSnapshot();
+    result.success = true;
+    result.code = "creator_native_event_message_command_applied";
+    result.message = "Applied " + std::to_string(result.applied_event_count) +
+                     " reviewed creator event-message edit(s) to the active Map as one undoable command.";
+    result.document_revision = perspectiveDocumentRevision();
+    return result;
+}
+
 bool SpatialAuthoringWorkspace::SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages) {
     if (pages.empty()) {
         return false;

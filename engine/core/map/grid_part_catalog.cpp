@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <set>
 
 namespace urpg::map {
 
@@ -53,6 +54,37 @@ const GridPartDefinition* GridPartCatalog::find(const std::string& part_id) cons
     return found == definitions_.end() ? nullptr : &found->second;
 }
 
+bool GridPartCatalog::addSmartPrefab(GridPartSmartPrefab prefab) {
+    if (prefab.prefab_id.empty() || prefab.version.empty() || prefab.operations.empty() ||
+        smart_prefabs_.contains(prefab.prefab_id)) {
+        return false;
+    }
+
+    std::set<std::string> parameter_keys;
+    for (const auto& parameter : prefab.parameters) {
+        if (parameter.key.empty() || !parameter_keys.insert(parameter.key).second) {
+            return false;
+        }
+    }
+
+    std::set<std::string> operation_ids;
+    for (const auto& operation : prefab.operations) {
+        if (operation.operation_id.empty() || operation.part_id.empty() ||
+            !operation_ids.insert(operation.operation_id).second) {
+            return false;
+        }
+    }
+
+    auto prefabId = prefab.prefab_id;
+    smart_prefabs_.emplace(std::move(prefabId), std::move(prefab));
+    return true;
+}
+
+const GridPartSmartPrefab* GridPartCatalog::findSmartPrefab(const std::string& prefab_id) const {
+    const auto found = smart_prefabs_.find(prefab_id);
+    return found == smart_prefabs_.end() ? nullptr : &found->second;
+}
+
 std::vector<GridPartDefinition> GridPartCatalog::allDefinitions() const {
     std::vector<GridPartDefinition> definitions;
     definitions.reserve(definitions_.size());
@@ -98,6 +130,19 @@ std::vector<GridPartDefinition> GridPartCatalog::search(const std::string& query
     }
     sortByPartId(definitions);
     return definitions;
+}
+
+std::vector<GridPartSmartPrefab> GridPartCatalog::allSmartPrefabs() const {
+    std::vector<GridPartSmartPrefab> prefabs;
+    prefabs.reserve(smart_prefabs_.size());
+    for (const auto& [prefabId, prefab] : smart_prefabs_) {
+        (void)prefabId;
+        prefabs.push_back(prefab);
+    }
+    std::sort(prefabs.begin(), prefabs.end(), [](const GridPartSmartPrefab& left, const GridPartSmartPrefab& right) {
+        return left.prefab_id < right.prefab_id;
+    });
+    return prefabs;
 }
 
 size_t GridPartCatalog::size() const {

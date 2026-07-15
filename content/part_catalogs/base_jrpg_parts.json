@@ -198,5 +198,51 @@
       "tileId": 2,
       "tags": ["terrain", "wall", "collision"]
     }
+  ],
+  "smartPrefabs": [
+    {
+      "prefabId": "town.vendor_stall",
+      "version": "1.0.0",
+      "displayName": "Town Vendor Stall",
+      "description": "A counter, vendor NPC, and interaction zone placed as one native Map operation.",
+      "dependencies": ["shop.counter.basic", "npc.villager", "cutscene.zone.basic"],
+      "conflictTags": ["vendor_stall"],
+      "parameters": [
+        {
+          "key": "vendorId",
+          "defaultValue": "starter_vendor",
+          "required": true
+        }
+      ],
+      "operations": [
+        {
+          "operationId": "counter",
+          "partId": "shop.counter.basic",
+          "offsetX": 0,
+          "offsetY": 0,
+          "propertyOverrides": {
+            "shopTableId": "${vendorId}"
+          }
+        },
+        {
+          "operationId": "vendor",
+          "partId": "npc.villager",
+          "offsetX": 0,
+          "offsetY": 1,
+          "propertyOverrides": {
+            "vendorId": "${vendorId}"
+          }
+        },
+        {
+          "operationId": "interaction_zone",
+          "partId": "cutscene.zone.basic",
+          "offsetX": 2,
+          "offsetY": 0,
+          "propertyOverrides": {
+            "eventId": "vendor:${vendorId}"
+          }
+        }
+      ]
+    }
   ]
 }

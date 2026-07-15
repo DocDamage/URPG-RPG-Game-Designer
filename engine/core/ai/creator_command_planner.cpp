@@ -238,6 +238,8 @@ nlohmann::json buildCreatorProviderRequest(const CreatorCommandRequest& request)
             "make_locked_door",
             "make_puzzle",
             "make_farm_plot",
+            "place_prop",
+            "place_event_message",
         }},
         {"required_outputs", {
             "terrain_tiles",
@@ -268,6 +270,10 @@ nlohmann::json buildCreatorProviderRequest(const CreatorCommandRequest& request)
         {"project_id", request.project_id},
         {"map_id", request.map_id},
         {"selected_tile", {{"x", request.tile_x}, {"y", request.tile_y}, {"tile_id", request.selected_tile_id}}},
+        {"selected_prop_asset_id", request.selected_prop_asset_id},
+        {"selected_event_layer_id", request.selected_event_layer_id},
+        {"event_label", request.event_label},
+        {"event_message", request.event_message},
         {"map_size", {{"width", request.width}, {"height", request.height}}},
         {"prompt", request.prompt},
         {"contract", contract},
@@ -699,6 +705,12 @@ CreatorCommandApplyResult applyCreatorCommandPlan(const CreatorCommandRequest& r
 
 CreatorCommandPlan CreatorCommandPlanner::plan(const CreatorCommandRequest& request) const {
     const auto prompt = lowerCopy(request.prompt);
+    if (prompt.find("place message event") != std::string::npos) {
+        return planEventMessage(request);
+    }
+    if (prompt.find("place prop") != std::string::npos) {
+        return planPropPlacement(request);
+    }
     if (prompt.find("paint tile") != std::string::npos || prompt.find("stamp tile") != std::string::npos) {
         return planTileStamp(request);
     }
@@ -735,6 +747,55 @@ CreatorCommandPlan CreatorCommandPlanner::planTileStamp(const CreatorCommandRequ
         return plan;
     }
     plan.tile_edits.push_back({"terrain", request.tile_x, request.tile_y, request.selected_tile_id});
+    plan.can_apply = true;
+    return plan;
+}
+
+CreatorCommandPlan CreatorCommandPlanner::planPropPlacement(const CreatorCommandRequest& request) const {
+    CreatorCommandPlan plan;
+    const auto profile = creatorAiProviderProfile(request.provider);
+    plan.intent = "place_prop";
+    plan.provider_id = profile.id;
+    plan.provider_network_required = profile.network_required;
+    plan.deterministic_fallback_used = true;
+    if (request.tile_x < 0 || request.tile_y < 0 || request.tile_x >= request.width || request.tile_y >= request.height) {
+        plan.diagnostics.push_back({"creator_plan_out_of_bounds", "The selected prop target is outside the Map bounds.",
+                                    request.tile_x, request.tile_y, request.map_id});
+        return plan;
+    }
+    if (request.selected_prop_asset_id.empty()) {
+        plan.diagnostics.push_back({"creator_prop_asset_missing", "Select an attached native prop asset before reviewing placement.",
+                                    request.tile_x, request.tile_y, request.map_id});
+        return plan;
+    }
+    plan.prop_edits.push_back({"creator_prop", request.selected_prop_asset_id, request.tile_x, request.tile_y});
+    plan.can_apply = true;
+    return plan;
+}
+
+CreatorCommandPlan CreatorCommandPlanner::planEventMessage(const CreatorCommandRequest& request) const {
+    CreatorCommandPlan plan;
+    const auto profile = creatorAiProviderProfile(request.provider);
+    plan.intent = "place_event_message";
+    plan.provider_id = profile.id;
+    plan.provider_network_required = profile.network_required;
+    plan.deterministic_fallback_used = true;
+    if (request.tile_x < 0 || request.tile_y < 0 || request.tile_x >= request.width || request.tile_y >= request.height) {
+        plan.diagnostics.push_back({"creator_plan_out_of_bounds", "The selected event target is outside the Map bounds.",
+                                    request.tile_x, request.tile_y, request.map_id});
+        return plan;
+    }
+    if (request.selected_event_layer_id.empty() || request.event_label.empty() || request.event_message.empty() ||
+        request.event_message.size() > 1024) {
+        plan.diagnostics.push_back(
+            {"creator_event_message_incomplete", "Select an event layer and provide a label plus a message up to 1024 characters.",
+             request.tile_x, request.tile_y, request.map_id});
+        return plan;
+    }
+    plan.logic_edits.push_back({"creator_message_event", "message", "confirm_interact", request.tile_x, request.tile_y,
+                                {{"layer_id", request.selected_event_layer_id},
+                                 {"label", request.event_label},
+                                 {"text", request.event_message}}}});
     plan.can_apply = true;
     return plan;
 }
