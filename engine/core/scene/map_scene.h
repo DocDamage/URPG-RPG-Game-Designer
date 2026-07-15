@@ -34,6 +34,10 @@ namespace urpg::scene {
 struct TileData {
     uint16_t tileId = 0;
     bool isPassable = true;
+    bool hasVisual = false;
+    // Empty keeps the map-level tileset reference for legacy/compat maps.
+    // Native authored maps may select a packed atlas per painted tile.
+    std::string tilesetId;
 };
 
 struct MapAssetReference {
@@ -252,11 +256,27 @@ class MapScene : public GameScene {
 
     void setTile(int x, int y, uint16_t tileId, bool passable) {
         if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
-            m_tiles[y * m_width + x].tileId = tileId;
-            m_tiles[y * m_width + x].isPassable = passable;
+            auto& tile = m_tiles[y * m_width + x];
+            tile.tileId = tileId;
+            tile.isPassable = passable;
+            tile.hasVisual = true;
+            tile.tilesetId.clear();
             m_renderLayerDirty = true;
         }
     }
+
+    void setTileWithTileset(int x, int y, uint16_t tileId, bool passable, std::string tileset_id) {
+        if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
+            auto& tile = m_tiles[y * m_width + x];
+            tile.tileId = tileId;
+            tile.isPassable = passable;
+            tile.hasVisual = true;
+            tile.tilesetId = std::move(tileset_id);
+            m_renderLayerDirty = true;
+        }
+    }
+
+    void clearTiles(bool passable = true);
 
     // Coordinate Authority
     bool checkCollision(int x, int y) const;

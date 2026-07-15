@@ -1201,6 +1201,12 @@ TEST_CASE("ProjectAssetAttachmentService assigns validated derived tileset bundl
     REQUIRE(assignmentManifest["schema"] == "urpg.project_derived_tileset_assignment.v1");
     REQUIRE(assignmentManifest["grid"]["tile_count"] == 3);
     REQUIRE(assignmentManifest["tile_paths"].size() == 3);
+    REQUIRE(assignmentManifest["atlas"]["path"] ==
+            "content/tilesets/" + plan.tilesetId + "/atlas.png");
+    REQUIRE(assignmentManifest["atlas"]["width"] == 3);
+    REQUIRE(assignmentManifest["atlas"]["height"] == 1);
+    REQUIRE(assignmentManifest["atlas"]["sha256"].get<std::string>().size() == 64);
+    REQUIRE(std::filesystem::is_regular_file(assigned.payloadPath.parent_path() / "atlas.png"));
 
     const urpg::assets::AssetTransformRevisionRemovalRequest removal{
         derivedRoot, source.assetId, revision.derivedRevision};

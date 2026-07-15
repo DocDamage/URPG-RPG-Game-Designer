@@ -279,6 +279,9 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         int rows = 0;
         int tile_width = 48;
         int tile_height = 48;
+        // Project-relative packed atlas used only by the native runtime
+        // projection. Individual tile PNGs remain the authoring source.
+        std::string runtime_atlas_path;
     };
 
     struct Perspective2DTileDefinition {
@@ -762,6 +765,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     void captureRenderSnapshot();
     void syncEventSpritesToTargetScene();
     void syncEventCollidersToTargetScene();
+    void syncPerspectiveTilesToTargetScene();
     void syncAuthoredDialogueInteractionsToTargetScene();
     void syncAuthoredDialogueRuntimeStateFromTargetScene();
     void syncPanelVisibility();
@@ -855,6 +859,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
 
     urpg::scene::MapScene* m_target_scene = nullptr;
     urpg::presentation::SpatialMapOverlay* m_target_overlay = nullptr;
+    std::filesystem::path m_project_root_;
     urpg::map::GridPartDocument* grid_part_document_ = nullptr;
     const urpg::map::GridPartCatalog* grid_part_catalog_ = nullptr;
     ToolMode active_mode_ = ToolMode::Composite;
@@ -892,6 +897,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     int perspective_brush_size_ = 1;
     bool perspective_has_unsaved_changes_ = false;
     bool perspective_playtest_ready_ = false;
+    bool perspective_tiles_projected_to_target_scene_ = false;
     std::string perspective_history_checkpoint_;
     std::vector<std::string> perspective_undo_drafts_;
     std::vector<std::string> perspective_redo_drafts_;

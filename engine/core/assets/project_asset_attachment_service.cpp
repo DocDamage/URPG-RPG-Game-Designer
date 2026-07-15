@@ -8,8 +8,12 @@
 #include <fstream>
 #include <iomanip>
 #include <iterator>
+#include <limits>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include <sstream>
+#include <stb_image.h>
+#include <stb_image_write.h>
 #include <string_view>
 #include <vector>
 
@@ -355,7 +359,7 @@ std::string tilesetAssignmentFingerprint(const ProjectDerivedTilesetAssignmentRe
 }
 
 nlohmann::json projectTilesetManifest(const DerivedTilesetCandidate& candidate, const std::string& tilesetId,
-                                      const std::filesystem::path& projectRoot) {
+                                      const std::filesystem::path& projectRoot, const std::string& atlasSha256) {
     nlohmann::json tilePaths = nlohmann::json::array();
     for (size_t index = 0; index < candidate.tilePaths.size(); ++index) {
         tilePaths.push_back({{"index", index},
@@ -375,8 +379,58 @@ nlohmann::json projectTilesetManifest(const DerivedTilesetCandidate& candidate, 
         {"grid", {{"columns", candidate.columns}, {"rows", candidate.rows}, {"tile_width", candidate.tileWidth},
                   {"tile_height", candidate.tileHeight}, {"tile_count", candidate.tilePaths.size()}}},
         {"tile_paths", std::move(tilePaths)},
+        {"atlas", {{"path", (std::filesystem::path("content") / "tilesets" / sanitizeSegment(tilesetId) / "atlas.png")
+                                 .generic_string()},
+                   {"sha256", atlasSha256},
+                   {"width", candidate.columns * candidate.tileWidth},
+                   {"height", candidate.rows * candidate.tileHeight}}},
         {"project_root", projectRoot.generic_string()},
     };
+}
+
+bool packTilesetAtlas(const DerivedTilesetCandidate& candidate, const std::filesystem::path& atlasPath,
+                      std::string& failureMessage) {
+    const auto atlasWidth = candidate.columns * candidate.tileWidth;
+    const auto atlasHeight = candidate.rows * candidate.tileHeight;
+    if (atlasWidth <= 0 || atlasHeight <= 0 || atlasWidth > 16384 || atlasHeight > 16384) {
+        failureMessage = "The tileset atlas dimensions are invalid or exceed the native packing limit.";
+        return false;
+    }
+    const auto pixelCount = static_cast<size_t>(atlasWidth) * static_cast<size_t>(atlasHeight);
+    if (pixelCount > (std::numeric_limits<size_t>::max() / 4U) || pixelCount > (1U << 28U)) {
+        failureMessage = "The tileset atlas exceeds the native packing memory limit.";
+        return false;
+    }
+    std::vector<std::uint8_t> atlas(pixelCount * 4U, 0U);
+    // Assignment writes a canonical top-origin PNG. AssetLoader performs its
+    // own explicit OpenGL upload flip when this atlas is consumed later.
+    stbi_set_flip_vertically_on_load(0);
+    for (size_t index = 0; index < candidate.tilePaths.size(); ++index) {
+        int width = 0;
+        int height = 0;
+        int channels = 0;
+        const auto decoded = std::unique_ptr<stbi_uc, decltype(&stbi_image_free)>(
+            stbi_load(candidate.tilePaths[index].string().c_str(), &width, &height, &channels, STBI_rgb_alpha),
+            stbi_image_free);
+        if (decoded == nullptr || width != candidate.tileWidth || height != candidate.tileHeight) {
+            failureMessage = "A reviewed tileset PNG could not be decoded with its declared grid dimensions.";
+            return false;
+        }
+        const auto tileX = static_cast<int>(index % static_cast<size_t>(candidate.columns));
+        const auto tileY = static_cast<int>(index / static_cast<size_t>(candidate.columns));
+        for (int y = 0; y < candidate.tileHeight; ++y) {
+            const auto destination = (static_cast<size_t>(tileY * candidate.tileHeight + y) * atlasWidth +
+                                      static_cast<size_t>(tileX * candidate.tileWidth)) *
+                                     4U;
+            const auto source = static_cast<size_t>(y) * static_cast<size_t>(candidate.tileWidth) * 4U;
+            std::copy_n(decoded.get() + source, static_cast<size_t>(candidate.tileWidth) * 4U, atlas.begin() + destination);
+        }
+    }
+    if (stbi_write_png(atlasPath.string().c_str(), atlasWidth, atlasHeight, 4, atlas.data(), atlasWidth * 4) == 0) {
+        failureMessage = "The packed tileset atlas could not be written.";
+        return false;
+    }
+    return true;
 }
 
 std::filesystem::path derivedAttachmentReferencePath(const std::filesystem::path& derivedManifestPath,
@@ -751,6 +805,7 @@ ProjectAssetAttachmentResult ProjectAssetAttachmentService::assignDerivedTileset
     }
     const auto stagedDirectory = siblingWorkingPath(destinationDirectory(), "stage-tileset");
     const auto stagedTiles = stagedDirectory / "tiles";
+    const auto stagedAtlas = stagedDirectory / "atlas.png";
     const auto stagedManifest = siblingWorkingPath(manifestPath, "stage-tileset-manifest");
     std::filesystem::create_directories(stagedTiles, error);
     if (error) {
@@ -766,7 +821,14 @@ ProjectAssetAttachmentResult ProjectAssetAttachmentService::assignDerivedTileset
             return blocked("project_tileset_assignment_stage_copy_failed", error.message());
         }
     }
-    if (!writeJsonFile(stagedManifest, projectTilesetManifest(candidate, tilesetId, request.projectRoot))) {
+    std::string atlasFailure;
+    if (!packTilesetAtlas(candidate, stagedAtlas, atlasFailure)) {
+        removeIfPresent(stagedDirectory);
+        if (reference.created) removeIfPresent(reference.markerPath);
+        return blocked("project_tileset_assignment_atlas_pack_failed", atlasFailure);
+    }
+    if (!writeJsonFile(stagedManifest,
+                       projectTilesetManifest(candidate, tilesetId, request.projectRoot, hashFile(stagedAtlas)))) {
         removeIfPresent(stagedDirectory);
         removeIfPresent(stagedManifest);
         if (reference.created) removeIfPresent(reference.markerPath);

@@ -490,8 +490,13 @@ void MapScene::rebuildTileRenderCache() {
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
             const auto& tile = m_tiles[static_cast<size_t>(y * m_width + x)];
+            if (!tile.hasVisual) {
+                continue;
+            }
             urpg::TileCommand tileCmd;
-            tileCmd.tilesetId = m_assetReferences.tileset.id.empty() ? kMissingTilesetId : m_assetReferences.tileset.id;
+            tileCmd.tilesetId = tile.tilesetId.empty()
+                                     ? (m_assetReferences.tileset.id.empty() ? kMissingTilesetId : m_assetReferences.tileset.id)
+                                     : tile.tilesetId;
             tileCmd.tileIndex = tile.tileId;
             tileCmd.x = static_cast<float>(x) * kTileSize;
             tileCmd.y = static_cast<float>(y) * kTileSize;
@@ -501,6 +506,11 @@ void MapScene::rebuildTileRenderCache() {
     }
 
     m_renderLayerDirty = false;
+}
+
+void MapScene::clearTiles(const bool passable) {
+    std::fill(m_tiles.begin(), m_tiles.end(), TileData{0, passable, false, {}});
+    m_renderLayerDirty = true;
 }
 
 void MapScene::submitCachedTileCommands(urpg::RenderLayer& layer) const {

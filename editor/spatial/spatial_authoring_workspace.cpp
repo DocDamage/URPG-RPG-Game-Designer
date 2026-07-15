@@ -1,5 +1,7 @@
 #include "editor/spatial/spatial_authoring_workspace.h"
 
+#include "engine/core/assets/texture_registry.h"
+#include "engine/core/security/sha256.h"
 #include "engine/core/scene/map_scene.h"
 
 #include <algorithm>
@@ -13,9 +15,12 @@
 #include <functional>
 #include <iomanip>
 #include <iterator>
+#include <limits>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <sstream>
+#include <string_view>
+#include <vector>
 
 namespace urpg::editor {
 
@@ -37,6 +42,24 @@ bool containsCaseInsensitive(const std::string& haystack, const std::string& nee
 
 bool containsString(const std::vector<std::string>& values, const std::string& value) {
     return std::find(values.begin(), values.end(), value) != values.end();
+}
+
+std::string sha256File(const std::filesystem::path& path) {
+    std::ifstream input(path, std::ios::binary);
+    const std::vector<std::uint8_t> bytes(std::istreambuf_iterator<char>(input), {});
+    return urpg::security::Sha256::toHex(urpg::security::Sha256::compute(bytes));
+}
+
+std::optional<uint16_t> derivedTileIndex(const std::string& tile_id) {
+    constexpr std::string_view prefix = "tile-";
+    if (!tile_id.starts_with(prefix) || tile_id.size() == prefix.size()) return std::nullopt;
+    const auto digits = tile_id.substr(prefix.size());
+    if (!std::all_of(digits.begin(), digits.end(), [](const unsigned char character) { return std::isdigit(character); })) {
+        return std::nullopt;
+    }
+    const auto parsed = std::strtoul(digits.c_str(), nullptr, 10);
+    if (parsed > std::numeric_limits<uint16_t>::max()) return std::nullopt;
+    return static_cast<uint16_t>(parsed);
 }
 
 std::string trimCopy(const std::string& value) {
@@ -254,6 +277,7 @@ void SpatialAuthoringWorkspace::SetTargets(urpg::scene::MapScene* scene,
                                            urpg::presentation::SpatialMapOverlay* overlay) {
     m_target_scene = scene;
     m_target_overlay = overlay;
+    perspective_tiles_projected_to_target_scene_ = false;
     last_synced_authored_dialogue_state_revision_ =
         m_target_scene != nullptr ? m_target_scene->authoredDialogueStateSnapshot().revision : 0;
     elevation_panel_.SetTarget(overlay);
@@ -280,6 +304,7 @@ void SpatialAuthoringWorkspace::SetGridPartTargets(urpg::map::GridPartDocument* 
 }
 
 bool SpatialAuthoringWorkspace::SetProjectRoot(const std::string& root_path) {
+    m_project_root_ = root_path;
     const bool configured = binding_panel_.SetProjectRoot(root_path);
     captureRenderSnapshot();
     return configured;
@@ -1657,6 +1682,9 @@ bool SpatialAuthoringWorkspace::ImportAssignedTilesetBundle(const std::filesyste
             manifest["tile_paths"].size() != static_cast<size_t>(tileCount)) {
             return fail("The project tileset assignment grid is invalid.");
         }
+        if (tileWidth != 48 || tileHeight != 48) {
+            return fail("The current native Map renderer accepts assigned tilesets with 48 by 48 pixel cells only.");
+        }
         std::error_code error;
         const auto manifestPath = std::filesystem::weakly_canonical(assignment_manifest_path, error);
         if (error || !std::filesystem::is_regular_file(manifestPath)) {
@@ -1668,6 +1696,17 @@ bool SpatialAuthoringWorkspace::ImportAssignedTilesetBundle(const std::filesyste
         if (error || manifestPath != expectedManifest || !std::filesystem::is_directory(tileDirectory)) {
             return fail("The project tileset assignment paths are not canonical.");
         }
+        const auto& atlas = manifest.value("atlas", nlohmann::json::object());
+        const auto projectRoot = tilesetRoot.parent_path().parent_path();
+        const auto expectedAtlasPath = projectRoot / "content" / "tilesets" / tilesetId / "atlas.png";
+        const auto atlasPath = std::filesystem::weakly_canonical(expectedAtlasPath, error);
+        if (!atlas.is_object() || atlas.value("path", "") !=
+                                      (std::filesystem::path("content") / "tilesets" / tilesetId / "atlas.png").generic_string() ||
+            atlas.value("width", 0) != columns * tileWidth || atlas.value("height", 0) != rows * tileHeight ||
+            !atlas["sha256"].is_string() || error || !std::filesystem::is_regular_file(atlasPath) ||
+            atlasPath != expectedAtlasPath || sha256File(atlasPath) != atlas["sha256"].get<std::string>()) {
+            return fail("The project tileset runtime atlas is missing or does not match its assignment manifest.");
+        }
         std::vector<std::filesystem::path> tilePaths;
         tilePaths.reserve(static_cast<size_t>(tileCount));
         for (size_t index = 0; index < static_cast<size_t>(tileCount); ++index) {
@@ -1677,7 +1716,6 @@ bool SpatialAuthoringWorkspace::ImportAssignedTilesetBundle(const std::filesyste
             }
             std::ostringstream filename;
             filename << std::setw(6) << std::setfill('0') << index << ".png";
-            const auto projectRoot = tilesetRoot.parent_path().parent_path();
             const auto expectedPath = projectRoot / std::filesystem::path(tile["path"].get<std::string>());
             const auto tilePath = std::filesystem::weakly_canonical(expectedPath, error);
             if (error || !std::filesystem::is_regular_file(tilePath) || tilePath.parent_path() != tileDirectory ||
@@ -1701,7 +1739,8 @@ bool SpatialAuthoringWorkspace::ImportAssignedTilesetBundle(const std::filesyste
             perspective_tile_palette_options_.end());
         perspective_tileset_pages_.push_back(
             {tilesetId, tilesetId, tilesetId, (std::filesystem::path("content") / "tilesets" / (tilesetId + ".json")).generic_string(),
-             columns, rows, tileWidth, tileHeight});
+             columns, rows, tileWidth, tileHeight,
+             (std::filesystem::path("content") / "tilesets" / tilesetId / "atlas.png").generic_string()});
         for (size_t index = 0; index < tilePaths.size(); ++index) {
             std::ostringstream suffix;
             suffix << std::setw(6) << std::setfill('0') << index;
@@ -2658,7 +2697,8 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveMapDraft() const {
                                          {"columns", page.columns},
                                          {"rows", page.rows},
                                          {"tile_width", page.tile_width},
-                                         {"tile_height", page.tile_height}});
+                                         {"tile_height", page.tile_height},
+                                         {"runtime_atlas_path", page.runtime_atlas_path}});
     }
     for (const auto& definition : perspective_tile_definitions_) {
         json["tile_definitions"].push_back(serializeTileDefinition(definition));
@@ -2838,7 +2878,8 @@ std::string SpatialAuthoringWorkspace::serializePerspectiveRuntimeManifest(size_
                                          {"columns", page.columns},
                                          {"rows", page.rows},
                                          {"tile_width", page.tile_width},
-                                         {"tile_height", page.tile_height}});
+                                         {"tile_height", page.tile_height},
+                                         {"runtime_atlas_path", page.runtime_atlas_path}});
     }
     for (const auto& definition : perspective_tile_definitions_) {
         json["tile_definitions"].push_back(serializeTileDefinition(definition));
@@ -3221,6 +3262,7 @@ SpatialAuthoringWorkspace::LoadPerspectiveMapDraft(const std::string& serialized
         page.rows = page_json.value("rows", 0);
         page.tile_width = page_json.value("tile_width", 48);
         page.tile_height = page_json.value("tile_height", 48);
+        page.runtime_atlas_path = page_json.value("runtime_atlas_path", "");
         if (!page.page_id.empty()) {
             perspective_tileset_pages_.push_back(std::move(page));
         }
@@ -4362,6 +4404,82 @@ void SpatialAuthoringWorkspace::syncEventCollidersToTargetScene() {
     }
 }
 
+void SpatialAuthoringWorkspace::syncPerspectiveTilesToTargetScene() {
+    if (m_target_scene == nullptr) {
+        return;
+    }
+
+    const bool hasPackedRuntimePage = std::any_of(
+        perspective_tileset_pages_.begin(), perspective_tileset_pages_.end(),
+        [](const Perspective2DTilesetPage& page) { return !page.runtime_atlas_path.empty(); });
+    if (!hasPackedRuntimePage) {
+        if (perspective_tiles_projected_to_target_scene_) {
+            m_target_scene->clearTiles(true);
+            perspective_tiles_projected_to_target_scene_ = false;
+        }
+        return;
+    }
+
+    // The authoring document remains the durable owner. This is a complete
+    // bounded projection into MapScene so erasing, hiding, undo, and load do
+    // not leave stale collision or draw commands in the preview runtime.
+    m_target_scene->clearTiles(true);
+    perspective_tiles_projected_to_target_scene_ = true;
+    if (m_project_root_.empty()) {
+        return;
+    }
+
+    for (const auto& page : perspective_tileset_pages_) {
+        if (page.page_id.empty() || page.runtime_atlas_path.empty()) {
+            continue;
+        }
+        const auto atlasPath = (m_project_root_ / page.runtime_atlas_path).lexically_normal();
+        std::error_code error;
+        if (!std::filesystem::is_regular_file(atlasPath, error) || error) {
+            continue;
+        }
+        urpg::TextureMeta atlas;
+        atlas.filePath = atlasPath.generic_string();
+        atlas.tileWidth = static_cast<uint32_t>(std::max(page.tile_width, 1));
+        atlas.tileHeight = static_cast<uint32_t>(std::max(page.tile_height, 1));
+        urpg::TextureRegistry::getInstance().registerTexture(page.asset_id, atlas);
+    }
+
+    const auto layer_for = [&](const std::string& layer_id) -> const PerspectiveLayer* {
+        const auto found = std::find_if(perspective_layers_.begin(), perspective_layers_.end(),
+                                        [&](const PerspectiveLayer& layer) { return layer.id == layer_id; });
+        return found == perspective_layers_.end() ? nullptr : &(*found);
+    };
+    const auto definition_for = [&](const PerspectiveTilePaint& tile) -> const Perspective2DTileDefinition* {
+        const auto found = std::find_if(perspective_tile_definitions_.begin(), perspective_tile_definitions_.end(),
+                                        [&](const Perspective2DTileDefinition& definition) {
+                                            return definition.tileset_id == tile.tileset_id && definition.tile_id == tile.tile_id;
+                                        });
+        return found == perspective_tile_definitions_.end() ? nullptr : &(*found);
+    };
+    const auto page_for = [&](const PerspectiveTilePaint& tile) -> const Perspective2DTilesetPage* {
+        const auto found = std::find_if(perspective_tileset_pages_.begin(), perspective_tileset_pages_.end(),
+                                        [&](const Perspective2DTilesetPage& page) { return page.page_id == tile.tileset_id; });
+        return found == perspective_tileset_pages_.end() ? nullptr : &(*found);
+    };
+    for (const auto& tile : perspective_tiles_) {
+        const auto* layer = layer_for(tile.layer_id);
+        const auto* definition = definition_for(tile);
+        const auto* page = page_for(tile);
+        const auto index = derivedTileIndex(tile.tile_id);
+        const auto tileCount = page == nullptr || page->columns <= 0 || page->rows <= 0
+                                   ? 0U
+                                   : static_cast<uint32_t>(page->columns) * static_cast<uint32_t>(page->rows);
+        if (layer == nullptr || !layer->visible || layer->locked || definition == nullptr || page == nullptr ||
+            page->runtime_atlas_path.empty() || !index.has_value() || *index >= tileCount) {
+            continue;
+        }
+        const bool passable = !definition->collision && definition->passable_down && definition->passable_left &&
+                              definition->passable_right && definition->passable_up;
+        m_target_scene->setTileWithTileset(tile.tile_x, tile.tile_y, *index, passable, page->asset_id);
+    }
+}
+
 void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() {
     if (m_target_scene == nullptr) {
         return;
@@ -4562,6 +4680,7 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueRuntimeStateFromTargetScene(
 }
 
 void SpatialAuthoringWorkspace::captureRenderSnapshot() {
+    syncPerspectiveTilesToTargetScene();
     syncEventSpritesToTargetScene();
     syncEventCollidersToTargetScene();
     syncAuthoredDialogueInteractionsToTargetScene();
