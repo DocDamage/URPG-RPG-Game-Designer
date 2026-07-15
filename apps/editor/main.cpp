@@ -2497,8 +2497,14 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     static int transformOutputWidth = 0;
     static int transformOutputHeight = 0;
     static std::string paletteOperationId = "image-fixed-palette";
-    static float paletteColorA[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-    static float paletteColorB[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    static int paletteColorCount = 2;
+    static std::array<std::array<float, 4>, 256> paletteColors = [] {
+        std::array<std::array<float, 4>, 256> colors{};
+        colors[0] = {1.0f, 0.0f, 0.0f, 1.0f};
+        colors[1] = {0.0f, 0.0f, 0.0f, 1.0f};
+        return colors;
+    }();
+    static int paletteInitializedColorCount = 2;
     static std::string paletteExtractOperationId = "image-auto-palette";
     static int paletteExtractMaxColors = 16;
     static bool paletteExtractDither = false;
@@ -2734,10 +2740,19 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
         const bool paletteRevisionOpen =
             ImGui::CollapsingHeader("Deterministic Fixed Palette", ImGuiTreeNodeFlags_DefaultOpen);
         if (paletteRevisionOpen) {
-            ImGui::TextWrapped("Map every pixel to the nearest explicitly chosen RGBA entry. The initial editor control intentionally exposes two colors.");
+            ImGui::TextWrapped("Map every pixel to the nearest explicitly chosen RGBA entry. The ordered two-to-256 color palette is part of the immutable revision identity.");
             ImGui::InputText("Palette operation ID", &paletteOperationId);
-            ImGui::ColorEdit4("Palette color A", paletteColorA);
-            ImGui::ColorEdit4("Palette color B", paletteColorB);
+            ImGui::InputInt("Palette color count", &paletteColorCount);
+            paletteColorCount = std::clamp(paletteColorCount, 2, 256);
+            for (int index = paletteInitializedColorCount; index < paletteColorCount; ++index) {
+                const float value = static_cast<float>(index + 1) / 256.0f;
+                paletteColors[static_cast<size_t>(index)] = {value, value, value, 1.0f};
+            }
+            paletteInitializedColorCount = std::max(paletteInitializedColorCount, paletteColorCount);
+            for (int index = 0; index < paletteColorCount; ++index) {
+                const std::string label = "Palette color " + std::to_string(index + 1);
+                ImGui::ColorEdit4(label.c_str(), paletteColors[static_cast<size_t>(index)].data());
+            }
             if (configuredLibraryRoot.empty()) {
                 ImGui::TextDisabled("A configured external asset library is required to store derived revisions.");
             }
@@ -3022,16 +3037,21 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
             if (paletteRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
                 ImGui::SameLine();
                 if (ImGui::Button("Create Palette Revision")) {
-                    const auto toRgba = [](const float* color) {
+                    const auto toRgba = [](const std::array<float, 4>& color) {
                         const auto channel = [](const float value) {
                             return static_cast<uint32_t>(std::clamp(value, 0.0f, 1.0f) * 255.0f + 0.5f);
                         };
                         return (channel(color[0]) << 24U) | (channel(color[1]) << 16U) |
                                (channel(color[2]) << 8U) | channel(color[3]);
                     };
+                    std::vector<uint32_t> colors;
+                    colors.reserve(static_cast<size_t>(paletteColorCount));
+                    for (int index = 0; index < paletteColorCount; ++index) {
+                        colors.push_back(toRgba(paletteColors[static_cast<size_t>(index)]));
+                    }
                     const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
-                    const auto result = panel.createImagePaletteRevision(
-                        path, derivedRoot, paletteOperationId, {toRgba(paletteColorA), toRgba(paletteColorB)});
+                    const auto result = panel.createImagePaletteRevision(path, derivedRoot, paletteOperationId,
+                                                                          std::move(colors));
                     assetWorkflowStatus = result.value("message", "Palette revision did not return a status.");
                     if (result.value("success", false)) {
                         derivedRevisionManifestPath = result.value("manifest_path", "");
