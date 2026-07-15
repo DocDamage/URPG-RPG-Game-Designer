@@ -9,9 +9,12 @@
   "selected_tileset_id": "",
   "selected_tile_id": "",
   "layers": [
-    { "id": "events", "label": "Events", "kind": "event", "visible": true, "locked": false, "order": 0 }
+    { "id": "ground", "label": "Ground", "kind": "tile", "visible": true, "locked": false, "order": 0 },
+    { "id": "events", "label": "Events", "kind": "event", "visible": true, "locked": false, "order": 1 }
   ],
-  "tiles": [],
+  "tiles": [
+    { "layer_id": "ground", "tileset_id": "seed_ground", "tile_id": "grass", "x": 0, "y": 0 }
+  ],
   "events": [
     {
       "event_id": "elder_mira_intro",

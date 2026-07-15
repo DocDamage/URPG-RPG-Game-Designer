@@ -117,6 +117,8 @@ TEST_CASE("ProjectCreationService can create the draft creator vertical-slice se
     std::ifstream villageDraftInput(destination / "content" / "maps" / "willow_village.p2d.json", std::ios::binary);
     const auto villageDraft = nlohmann::json::parse(villageDraftInput);
     REQUIRE(villageDraft["document_kind"] == "urpg.perspective_2d.map");
+    REQUIRE(villageDraft["layers"].size() == 2);
+    REQUIRE(villageDraft["tiles"].size() == 1);
     REQUIRE(villageDraft["events"].size() == 3);
     REQUIRE(villageDraft["events"][0]["event_id"] == "elder_mira_intro");
     REQUIRE(villageDraft["events"][0]["pages"][0]["commands"][1]["code"] == "show_choice");
