@@ -11,6 +11,7 @@
 #include <limits>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <optional>
 #include <sstream>
 #include <stb_image.h>
 #include <stb_image_write.h>
@@ -528,6 +529,74 @@ bool finalizeDerivedAttachmentReference(const std::filesystem::path& markerPath,
     return writeJsonFile(markerPath, marker);
 }
 
+std::optional<std::filesystem::path> canonicalExistingPath(const std::filesystem::path& path) {
+    std::error_code error;
+    const auto canonical = std::filesystem::weakly_canonical(path, error);
+    if (error || !std::filesystem::is_regular_file(canonical)) {
+        return std::nullopt;
+    }
+    return canonical;
+}
+
+bool matchesDerivedManifestPath(const nlohmann::json& value, const std::filesystem::path& expected) {
+    if (!value.is_string()) {
+        return false;
+    }
+    const auto candidate = canonicalExistingPath(value.get<std::string>());
+    return candidate.has_value() && *candidate == expected;
+}
+
+std::vector<std::filesystem::path> findDurableDerivedReferenceManifests(
+    const std::filesystem::path& projectRoot, const std::filesystem::path& derivedManifestPath,
+    const std::string& derivedAssetId) {
+    std::vector<std::filesystem::path> matches;
+    const auto considerAssetManifest = [&](const std::filesystem::path& path) {
+        std::ifstream input(path, std::ios::binary);
+        const auto manifest = nlohmann::json::parse(input, nullptr, false);
+        if (manifest.is_discarded() || manifest.value("assetId", "") != derivedAssetId) {
+            return;
+        }
+        const auto metadata = manifest.value("authoredMetadata", nlohmann::json::object());
+        const auto revision = metadata.value("derived_revision", nlohmann::json::object());
+        if (revision.value("schema", "") == "urpg.project_asset_derived_revision.v1" &&
+            matchesDerivedManifestPath(revision.value("manifest_path", nlohmann::json{}), derivedManifestPath)) {
+            matches.push_back(path);
+        }
+    };
+    const auto considerTilesetManifest = [&](const std::filesystem::path& path) {
+        std::ifstream input(path, std::ios::binary);
+        const auto manifest = nlohmann::json::parse(input, nullptr, false);
+        if (manifest.is_discarded() || manifest.value("schema", "") != "urpg.project_derived_tileset_assignment.v1" ||
+            manifest.value("tileset_id", "") != derivedAssetId) {
+            return;
+        }
+        if (matchesDerivedManifestPath(manifest.value("derived_manifest_path", nlohmann::json{}), derivedManifestPath)) {
+            matches.push_back(path);
+        }
+    };
+    std::error_code error;
+    const auto assetManifests = projectRoot / "content" / "assets" / "manifests";
+    if (std::filesystem::is_directory(assetManifests, error) && !error) {
+        for (const auto& entry : std::filesystem::directory_iterator(assetManifests, error)) {
+            if (error) return {};
+            if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                considerAssetManifest(entry.path());
+            }
+        }
+    }
+    error.clear();
+    const auto tilesetManifests = projectRoot / "content" / "tilesets";
+    if (std::filesystem::is_directory(tilesetManifests, error) && !error) {
+        for (const auto& entry : std::filesystem::directory_iterator(tilesetManifests, error)) {
+            if (error) return {};
+            if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                considerTilesetManifest(entry.path());
+            }
+        }
+    }
+    return matches;
+}
+
 std::filesystem::path journalPathFor(const std::filesystem::path& projectRoot) {
     const auto sequence = attachmentStagingSequence.fetch_add(1, std::memory_order_relaxed);
     return attachmentJournalRoot(projectRoot) / ("attachment-" + std::to_string(sequence) + ".json");
@@ -685,6 +754,74 @@ ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachDerivedRevisio
         result.message = "The project asset was attached, but its derived revision remains protected until reference tracking is recovered.";
         result.diagnostics.push_back("asset_derived_attachment_reference_finalize_failed");
     }
+    return result;
+}
+
+ProjectAssetAttachmentResult ProjectAssetAttachmentService::recoverDerivedAttachmentReference(
+    const std::filesystem::path& derivedManifestPath, const std::filesystem::path& projectRoot) const {
+    const auto canonicalDerived = canonicalExistingPath(derivedManifestPath);
+    if (!canonicalDerived.has_value() || projectRoot.empty()) {
+        return blocked("asset_derived_attachment_recovery_request_invalid",
+                       "Derived reference recovery requires an existing manifest and project root.");
+    }
+    const auto markerPath = derivedAttachmentReferencePath(*canonicalDerived, projectRoot);
+    if (markerPath.empty() || !std::filesystem::is_regular_file(markerPath)) {
+        return blocked("asset_derived_attachment_reference_missing",
+                       "No derived attachment reference marker exists for this project.");
+    }
+    std::ifstream input(markerPath, std::ios::binary);
+    const auto marker = nlohmann::json::parse(input, nullptr, false);
+    if (marker.is_discarded() || marker.value("schema", "") != "urpg.asset_transform_attachment_reference.v1" ||
+        !matchesDerivedManifestPath(marker.value("derived_manifest_path", nlohmann::json{}), *canonicalDerived) ||
+        marker.value("derived_asset_id", "").empty()) {
+        return blocked("asset_derived_attachment_reference_invalid",
+                       "The derived attachment reference marker is invalid.");
+    }
+    std::error_code error;
+    const auto normalizedProject = std::filesystem::exists(projectRoot)
+                                       ? std::filesystem::weakly_canonical(projectRoot, error)
+                                       : std::filesystem::absolute(projectRoot, error).lexically_normal();
+    if (error || marker.value("project_root", "") != normalizedProject.generic_string()) {
+        return blocked("asset_derived_attachment_reference_invalid",
+                       "The derived attachment reference marker belongs to another project.");
+    }
+    const auto state = marker.value("state", "");
+    if (state == "attached") {
+        const auto projectManifest = canonicalExistingPath(marker.value("project_manifest_path", ""));
+        if (!projectManifest.has_value() || !pathInside(normalizedProject, *projectManifest)) {
+            return blocked("asset_derived_attachment_reference_invalid",
+                           "The attached derived reference does not name a project-owned manifest.");
+        }
+        ProjectAssetAttachmentResult result;
+        result.success = true;
+        result.code = "asset_derived_attachment_reference_already_attached";
+        result.message = "The derived revision is already protected by its project attachment reference.";
+        result.manifestPath = *projectManifest;
+        return result;
+    }
+    if (state != "prepared") {
+        return blocked("asset_derived_attachment_reference_invalid",
+                       "The derived attachment reference marker has an invalid state.");
+    }
+    const auto matches = findDurableDerivedReferenceManifests(normalizedProject, *canonicalDerived,
+                                                                marker.value("derived_asset_id", ""));
+    if (matches.empty()) {
+        return blocked("asset_derived_attachment_recovery_required",
+                       "No durable project attachment proves this prepared reference completed; it remains protected.");
+    }
+    if (matches.size() != 1U) {
+        return blocked("asset_derived_attachment_recovery_ambiguous",
+                       "Multiple project manifests match this prepared reference; it remains protected.");
+    }
+    if (!finalizeDerivedAttachmentReference(markerPath, matches.front())) {
+        return blocked("asset_derived_attachment_reference_finalize_failed",
+                       "The durable attachment was found, but the reference marker could not be finalized.");
+    }
+    ProjectAssetAttachmentResult result;
+    result.success = true;
+    result.code = "asset_derived_attachment_reference_recovered";
+    result.message = "The prepared derived reference was finalized from its project-owned attachment.";
+    result.manifestPath = matches.front();
     return result;
 }
 

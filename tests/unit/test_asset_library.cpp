@@ -1138,6 +1138,37 @@ TEST_CASE("ProjectAssetAttachmentService attaches validated single-output derive
     REQUIRE((*picker)["picker_kind"] == "portrait");
     REQUIRE((*picker)["picker_targets"][0] == "sprite_selector");
 
+    const auto referenceRoot = revision.manifestPath.parent_path() /
+                               (revision.derivedRevision + ".attachment-refs");
+    std::error_code referenceError;
+    const std::filesystem::directory_iterator referenceIterator(referenceRoot, referenceError);
+    REQUIRE_FALSE(referenceError);
+    REQUIRE(referenceIterator != std::filesystem::directory_iterator{});
+    const auto referenceEntry = *referenceIterator;
+    std::ifstream referenceInput(referenceEntry.path(), std::ios::binary);
+    auto reference = nlohmann::json::parse(referenceInput);
+    referenceInput.close();
+    reference["state"] = "prepared";
+    reference.erase("project_manifest_path");
+    {
+        std::ofstream referenceOutput(referenceEntry.path(), std::ios::binary | std::ios::trunc);
+        referenceOutput << reference.dump(2) << '\n';
+    }
+    const auto recovered = attachments.recoverDerivedAttachmentReference(revision.manifestPath, projectRoot);
+    REQUIRE(recovered.success);
+    REQUIRE(recovered.code == "asset_derived_attachment_reference_recovered");
+    REQUIRE(recovered.manifestPath == std::filesystem::weakly_canonical(attached.manifestPath));
+
+    reference["state"] = "prepared";
+    {
+        std::ofstream referenceOutput(referenceEntry.path(), std::ios::binary | std::ios::trunc);
+        referenceOutput << reference.dump(2) << '\n';
+    }
+    std::filesystem::remove(attached.manifestPath);
+    const auto unresolved = attachments.recoverDerivedAttachmentReference(revision.manifestPath, projectRoot);
+    REQUIRE_FALSE(unresolved.success);
+    REQUIRE(unresolved.code == "asset_derived_attachment_recovery_required");
+
     std::filesystem::remove_all(root);
 }
 

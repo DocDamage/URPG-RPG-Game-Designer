@@ -93,6 +93,12 @@ public:
         ProjectAssetAttachmentConflictPolicy conflictPolicy = ProjectAssetAttachmentConflictPolicy::Cancel) const;
     ProjectAssetAttachmentResult attachDerivedRevision(const ProjectDerivedAssetAttachmentRequest& request) const;
 
+    // Reconciles a prepared derived-reference marker only when exactly one
+    // project-owned durable attachment proves the operation completed. It
+    // never removes a marker or releases a derived revision.
+    ProjectAssetAttachmentResult recoverDerivedAttachmentReference(
+        const std::filesystem::path& derivedManifestPath, const std::filesystem::path& projectRoot) const;
+
     ProjectDerivedTilesetAssignmentPlan planDerivedTilesetAssignment(
         const AssetPromotionManifest& source, const std::filesystem::path& derivedManifestPath,
         const std::filesystem::path& projectRoot,

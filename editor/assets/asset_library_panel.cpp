@@ -506,6 +506,13 @@ nlohmann::json AssetLibraryPanel::confirmDerivedRevisionAttachmentToProject(
     return result.toJson();
 }
 
+nlohmann::json AssetLibraryPanel::recoverDerivedAttachmentReference(
+    const std::filesystem::path& derived_manifest_path, const std::filesystem::path& project_root) {
+    auto result = model_.recoverDerivedAttachmentReference(derived_manifest_path, project_root);
+    refreshRenderSnapshotsFromModel();
+    return result.toJson();
+}
+
 nlohmann::json AssetLibraryPanel::planDerivedTilesetAssignmentToProject(
     std::string source_path, const std::filesystem::path& derived_manifest_path,
     const std::filesystem::path& project_root, const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {

@@ -114,6 +114,8 @@ class AssetLibraryPanel {
         const std::filesystem::path& project_root, std::string expected_source_revision, std::string operation_id,
         urpg::assets::ProjectAssetAttachmentConflictPolicy policy =
             urpg::assets::ProjectAssetAttachmentConflictPolicy::Cancel);
+    nlohmann::json recoverDerivedAttachmentReference(
+        const std::filesystem::path& derived_manifest_path, const std::filesystem::path& project_root);
     nlohmann::json planDerivedTilesetAssignmentToProject(
         std::string source_path, const std::filesystem::path& derived_manifest_path,
         const std::filesystem::path& project_root,

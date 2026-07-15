@@ -3106,6 +3106,13 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
             }
             if (derivedRevisionSourcePath == path && !derivedRevisionManifestPath.empty() &&
                 (attach.value("enabled", false) || projectAttached)) {
+                if (ImGui::SmallButton("Recover Derived Reference Ledger")) {
+                    const auto result = panel.recoverDerivedAttachmentReference(derivedRevisionManifestPath,
+                                                                                  runtime.project_root);
+                    assetWorkflowStatus = result.value("message", "Derived reference recovery did not return a status.");
+                }
+                ImGui::SameLine();
+                ImGui::TextDisabled("Recovery finalizes only a proven project attachment; it never detaches or removes.");
                 ImGui::SameLine();
                 const bool isPendingDerivedPlan = pendingDerivedRevisionAttachmentPlan.value("success", false) &&
                                                   pendingDerivedRevisionAttachmentPlan.value("path", "") == path &&

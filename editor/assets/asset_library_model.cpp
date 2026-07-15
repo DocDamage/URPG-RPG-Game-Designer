@@ -2142,6 +2142,24 @@ urpg::assets::AssetLibraryActionResult AssetLibraryModel::confirmDerivedRevision
     return result;
 }
 
+urpg::assets::AssetLibraryActionResult AssetLibraryModel::recoverDerivedAttachmentReference(
+    const std::filesystem::path& derived_manifest_path, const std::filesystem::path& project_root) {
+    urpg::assets::ProjectAssetAttachmentService service;
+    const auto recovery = service.recoverDerivedAttachmentReference(derived_manifest_path, project_root);
+    urpg::assets::AssetLibraryActionResult result{
+        "recover_derived_attachment_reference", derived_manifest_path.generic_string(), recovery.success,
+        recovery.code, recovery.message};
+    if (recovery.success) {
+        std::string loadError;
+        (void)loadProjectAssetAttachments(project_root, &loadError);
+    }
+    action_history_.push_back(result.toJson());
+    rebuildCleanupPreview();
+    snapshot_.last_action = result.toJson();
+    snapshot_.action_history = action_history_;
+    return result;
+}
+
 nlohmann::json AssetLibraryModel::planDerivedTilesetAssignmentToProject(
     std::string source_path, const std::filesystem::path& derived_manifest_path,
     const std::filesystem::path& project_root, const urpg::assets::ProjectAssetAttachmentConflictPolicy policy) {
