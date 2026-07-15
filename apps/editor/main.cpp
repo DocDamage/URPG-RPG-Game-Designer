@@ -28,6 +28,7 @@
 #include <type_traits>
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/diagnostics/startup_diagnostics.h"
+#include "engine/core/database/rpg_database.h"
 #include "engine/core/editor/editor_panel_registry.h"
 #include "engine/core/editor/editor_shell.h"
 #include "engine/core/engine_context.h"
@@ -43,6 +44,7 @@
 #include "engine/core/presentation/presentation_schema.h"
 #include "engine/core/project/project_snapshot_store.h"
 #include "engine/core/quest/quest_objective_graph.h"
+#include "engine/core/shop/vendor_catalog.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/settings/app_settings_store.h"
@@ -119,6 +121,8 @@ struct EditorPanelRuntime {
     urpg::editor::CharacterCreatorModel character_creator_model;
     urpg::editor::CharacterCreatorPanel character_creator_panel;
     std::optional<urpg::quest::QuestObjectiveGraphDocument> quest_draft;
+    urpg::database::RpgDatabase database_draft;
+    urpg::shop::VendorCatalog vendor_draft;
     urpg::editor::PatternFieldModel pattern_field_model;
     urpg::editor::PatternFieldPanel pattern_field_panel;
     urpg::editor::ModManagerPanel mod_manager_panel;
@@ -145,6 +149,7 @@ struct EditorPanelRuntime {
     std::vector<std::string> available_map_ids;
     std::string character_draft_id = "protagonist";
     std::string quest_draft_id = "quest_draft";
+    std::string vendor_draft_id = "vendor_draft";
     bool creator_mode = false;
     bool focus_workspace_next_frame = true;
     std::string last_workspace_panel_id;
@@ -159,12 +164,16 @@ struct EditorPanelRuntime {
     bool ability_dirty_surface_registered = false;
     bool character_dirty_surface_registered = false;
     bool quest_dirty_surface_registered = false;
+    bool database_dirty_surface_registered = false;
+    bool vendor_dirty_surface_registered = false;
 };
 
 constexpr const char* kMapDirtyDocumentId = "map.grid_parts";
 constexpr const char* kPerspective2DDirtyDocumentId = "map.perspective_2d";
 constexpr const char* kCharacterDirtyDocumentId = "character.creator";
 constexpr const char* kQuestDirtyDocumentId = "quest.draft";
+constexpr const char* kDatabaseDirtyDocumentId = "database.project";
+constexpr const char* kVendorDirtyDocumentId = "vendor.catalog";
 
 std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asset) {
     std::string stem;
@@ -453,6 +462,41 @@ urpg::editor::EditorDirtySaveResult saveQuestDraft(EditorPanelRuntime& runtime) 
             "Saved quest draft to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
+std::set<std::string> databaseItemIds(const urpg::database::RpgDatabase& database) {
+    std::set<std::string> ids;
+    for (const auto& [id, _] : database.items()) ids.insert(id);
+    return ids;
+}
+
+urpg::editor::EditorDirtySaveResult saveDatabaseDraft(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty()) {
+        return {false, "database_save_project_unavailable", "Open a project before saving database items."};
+    }
+    std::string error;
+    const auto target = runtime.project_root / "content" / "database.json";
+    if (!atomicWriteTextFile(target, runtime.database_draft.toJson().dump(2) + "\n", &error)) {
+        return {false, "database_save_failed", "Failed to save database items: " + error};
+    }
+    return {true, "database_saved", "Saved project database items."};
+}
+
+std::filesystem::path vendorDraftPath(const EditorPanelRuntime& runtime) {
+    return runtime.project_root / "content" / "vendors" / (runtime.vendor_draft_id + ".json");
+}
+
+urpg::editor::EditorDirtySaveResult saveVendorDraft(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty() || runtime.vendor_draft.findVendor(runtime.vendor_draft_id) == nullptr) {
+        return {false, "vendor_save_unavailable", "Create or open vendor stock before saving it."};
+    }
+    std::string error;
+    const auto target = vendorDraftPath(runtime);
+    if (!atomicWriteTextFile(target, runtime.vendor_draft.toJson().dump(2) + "\n", &error)) {
+        return {false, "vendor_save_failed", "Failed to save vendor stock: " + error};
+    }
+    return {true, "vendor_saved",
+            "Saved vendor stock to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
+}
+
 void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     if (!runtime.project_session.isOpen() || runtime.project_root.empty()) return;
     const auto mapDirty = runtime.dirty_state_registry.isDirty(kMapDirtyDocumentId) ||
@@ -460,7 +504,9 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     const auto abilityDirty = runtime.dirty_state_registry.isDirty("ability.draft");
     const auto characterDirty = runtime.dirty_state_registry.isDirty(kCharacterDirtyDocumentId);
     const auto questDirty = runtime.dirty_state_registry.isDirty(kQuestDirtyDocumentId);
-    if (!mapDirty && !abilityDirty && !characterDirty && !questDirty) return;
+    const auto databaseDirty = runtime.dirty_state_registry.isDirty(kDatabaseDirtyDocumentId);
+    const auto vendorDirty = runtime.dirty_state_registry.isDirty(kVendorDirtyDocumentId);
+    if (!mapDirty && !abilityDirty && !characterDirty && !questDirty && !databaseDirty && !vendorDirty) return;
 
     std::vector<urpg::editor::RecoveryDocumentDraft> drafts;
     if (mapDirty) {
@@ -490,6 +536,15 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
         drafts.push_back({kQuestDirtyDocumentId, std::filesystem::path("content") / "quests" /
                                                    (runtime.quest_draft_id + ".json"),
                           runtime.quest_draft->toJson().dump(2) + "\n"});
+    }
+    if (databaseDirty) {
+        drafts.push_back({kDatabaseDirtyDocumentId, std::filesystem::path("content") / "database.json",
+                          runtime.database_draft.toJson().dump(2) + "\n"});
+    }
+    if (vendorDirty) {
+        drafts.push_back({kVendorDirtyDocumentId, std::filesystem::path("content") / "vendors" /
+                                                     (runtime.vendor_draft_id + ".json"),
+                          runtime.vendor_draft.toJson().dump(2) + "\n"});
     }
 
     const auto dirtyDocumentIds = runtime.dirty_state_registry.dirtyDocumentIds();
@@ -537,6 +592,7 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
                                     runtime.available_map_ids.end());
     runtime.character_draft_id = "protagonist";
     runtime.quest_draft_id = "quest_draft";
+    runtime.vendor_draft_id = "vendor_draft";
     {
         std::ifstream manifestInput(projectRoot / "project.json", std::ios::binary);
         const auto manifest = nlohmann::json::parse(manifestInput, nullptr, false);
@@ -544,6 +600,7 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
             manifest["creator"].value("vertical_slice_seed", "") == "lantern_of_the_willow_draft") {
             runtime.character_draft_id = "willow_hero";
             runtime.quest_draft_id = "restore_moonwell_lantern";
+            runtime.vendor_draft_id = "rowan_tonics";
         }
     }
     const auto characterPath = characterDraftPath(runtime);
@@ -571,6 +628,15 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
             runtime.quest_draft = urpg::quest::QuestObjectiveGraphDocument::fromJson(questJson);
         }
     }
+    runtime.database_draft = {};
+    if (std::ifstream databaseInput(projectRoot / "content" / "database.json", std::ios::binary); databaseInput.good()) {
+        runtime.database_draft = urpg::database::RpgDatabase::fromJson(nlohmann::json::parse(databaseInput, nullptr, false));
+    }
+    runtime.vendor_draft = {};
+    if (std::ifstream vendorInput(vendorDraftPath(runtime), std::ios::binary); vendorInput.good()) {
+        runtime.vendor_draft = urpg::shop::VendorCatalog::fromJson(nlohmann::json::parse(vendorInput, nullptr, false));
+    }
+    runtime.vendor_draft.setKnownItems(databaseItemIds(runtime.database_draft));
     const auto starterMapId = starterMapIdForProject(projectRoot);
     const auto requestedMapExists = std::find(runtime.available_map_ids.begin(), runtime.available_map_ids.end(), requestedMapId) !=
                                     runtime.available_map_ids.end();
@@ -813,6 +879,22 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
         "map_authoring",
         false,
         [&runtime] { return saveQuestDraft(runtime); },
+        [] {},
+        {},
+    });
+    runtime.database_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        kDatabaseDirtyDocumentId,
+        "map_authoring",
+        false,
+        [&runtime] { return saveDatabaseDraft(runtime); },
+        [] {},
+        {},
+    });
+    runtime.vendor_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        kVendorDirtyDocumentId,
+        "map_authoring",
+        false,
+        [&runtime] { return saveVendorDraft(runtime); },
         [] {},
         {},
     });
@@ -2383,6 +2465,66 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         ImGui::SameLine();
         if (ImGui::Button("Save Quest")) {
             const auto result = runtime.dirty_state_registry.save(kQuestDirtyDocumentId);
+            runtime.map_save_status = result.message;
+        }
+    }
+    if (ImGui::CollapsingHeader("Database and Vendor Authoring")) {
+        static std::string itemId = "moonwell_lantern";
+        static std::string itemName = "Moonwell Lantern";
+        static int itemPrice = 75;
+        ImGui::TextUnformatted("Project Item");
+        ImGui::InputText("Item ID", &itemId);
+        ImGui::InputText("Item Name", &itemName);
+        ImGui::InputInt("Item Price", &itemPrice, 1, 10);
+        if (ImGui::Button("Upsert Project Item")) {
+            if (itemId.empty() || itemName.empty() || itemPrice < 0) {
+                runtime.map_save_status = "Project items need a non-empty ID/name and a non-negative price.";
+            } else {
+                runtime.database_draft.upsertItem({itemId, itemName, itemPrice, {"vendor"}});
+                runtime.vendor_draft.setKnownItems(databaseItemIds(runtime.database_draft));
+                (void)runtime.dirty_state_registry.markDirty(kDatabaseDirtyDocumentId, true);
+                runtime.map_save_status = "Project item updated; vendor stock can now reference it.";
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save Database")) {
+            const auto result = runtime.dirty_state_registry.save(kDatabaseDirtyDocumentId);
+            runtime.map_save_status = result.message;
+        }
+
+        ImGui::Separator();
+        static std::string vendorId = "rowan_tonics";
+        static int stockQuantity = 1;
+        static int buyPrice = 75;
+        static int sellPrice = 35;
+        ImGui::TextUnformatted("Vendor Stock");
+        ImGui::InputText("Vendor ID", &vendorId);
+        ImGui::InputInt("Quantity", &stockQuantity, 1, 10);
+        ImGui::InputInt("Buy Price", &buyPrice, 1, 10);
+        ImGui::InputInt("Sell Price", &sellPrice, 1, 10);
+        if (ImGui::Button("Upsert Vendor Stock")) {
+            if (!runtime.database_draft.items().contains(itemId)) {
+                runtime.map_save_status = "Vendor stock requires an existing project item; add the item first.";
+            } else if (!runtime.vendor_draft.upsertStockItem(vendorId, {itemId, stockQuantity, buyPrice, sellPrice, {}})) {
+                runtime.map_save_status = "Vendor stock needs non-empty IDs and non-negative quantities/prices.";
+            } else {
+                runtime.vendor_draft_id = vendorId;
+                runtime.vendor_draft.setKnownItems(databaseItemIds(runtime.database_draft));
+                (void)runtime.dirty_state_registry.markDirty(kVendorDirtyDocumentId, true);
+                runtime.map_save_status = "Vendor stock updated against the project database item.";
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Preview Vendor")) {
+            const auto diagnostics = runtime.vendor_draft.validate();
+            const auto stock = runtime.vendor_draft.refreshStock(vendorId, {});
+            runtime.map_save_status = diagnostics.empty()
+                                          ? "Vendor preview completed: " + std::to_string(stock.size()) + " visible stock row(s)."
+                                          : "Vendor preview has database-reference diagnostics.";
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save Vendor")) {
+            const auto result = runtime.dirty_state_registry.save(kVendorDirtyDocumentId);
             runtime.map_save_status = result.message;
         }
     }

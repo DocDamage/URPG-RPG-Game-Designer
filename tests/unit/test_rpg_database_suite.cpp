@@ -38,3 +38,13 @@ TEST_CASE("RPG database autofill is deterministic and respects caps", "[database
     REQUIRE(first.actors().at("actor.generated").max_hp <= 100);
     REQUIRE(first.validate().empty());
 }
+
+TEST_CASE("RPG database round-trips its durable project JSON", "[database][json]") {
+    urpg::database::RpgDatabase database;
+    database.upsertActor({"willow_hero", "Willow Hero", "class_ranger", 90, 12});
+    database.upsertItem({"moonwell_lantern", "Moonwell Lantern", 75, {"quest"}});
+
+    const auto restored = urpg::database::RpgDatabase::fromJson(database.toJson());
+    REQUIRE(restored.actors().at("willow_hero").name == "Willow Hero");
+    REQUIRE(restored.items().at("moonwell_lantern").tags.contains("quest"));
+}

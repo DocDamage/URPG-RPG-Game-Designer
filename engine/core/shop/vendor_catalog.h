@@ -1,5 +1,7 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <cstdint>
 #include <map>
 #include <set>
@@ -31,8 +33,12 @@ class VendorCatalog {
 public:
     void setKnownItems(std::set<std::string> item_ids);
     void addVendor(VendorDefinition vendor);
+    bool upsertStockItem(const std::string& vendor_id, VendorStockItem item);
+    const VendorDefinition* findVendor(const std::string& vendor_id) const;
     std::vector<VendorStockItem> refreshStock(const std::string& vendor_id, const std::set<std::string>& active_flags) const;
     std::vector<VendorDiagnostic> validate() const;
+    nlohmann::json toJson() const;
+    static VendorCatalog fromJson(const nlohmann::json& json);
 
 private:
     std::set<std::string> known_items_;

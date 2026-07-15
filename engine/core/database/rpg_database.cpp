@@ -86,6 +86,7 @@ std::vector<DatabaseDiagnostic> RpgDatabase::validate() const {
 
 nlohmann::json RpgDatabase::toJson() const {
     nlohmann::json json;
+    json["schema"] = "urpg.database.v1";
     json["actors"] = nlohmann::json::array();
     for (const auto& [_, actor] : actors_) {
         json["actors"].push_back({
@@ -101,6 +102,50 @@ nlohmann::json RpgDatabase::toJson() const {
         json["items"].push_back({{"id", item.id}, {"name", item.name}, {"price", item.price}, {"tags", item.tags}});
     }
     return json;
+}
+
+RpgDatabase RpgDatabase::fromJson(const nlohmann::json& json) {
+    RpgDatabase database;
+    if (!json.is_object()) {
+        database.parse_diagnostics_.push_back({"database_json_invalid", "Database JSON must be an object.", {}});
+        return database;
+    }
+    for (const auto& actorJson : json.value("actors", nlohmann::json::array())) {
+        if (!actorJson.is_object()) {
+            database.parse_diagnostics_.push_back({"database_actor_invalid", "Actor record must be an object.", {}});
+            continue;
+        }
+        ActorRecord actor;
+        actor.id = actorJson.value("id", "");
+        actor.name = actorJson.value("name", "");
+        actor.class_id = actorJson.value("class_id", "");
+        actor.max_hp = actorJson.value("max_hp", 1);
+        actor.attack = actorJson.value("attack", 1);
+        if (actor.id.empty()) {
+            database.parse_diagnostics_.push_back({"database_actor_id_missing", "Actor record needs an id.", {}});
+            continue;
+        }
+        database.upsertActor(std::move(actor));
+    }
+    for (const auto& itemJson : json.value("items", nlohmann::json::array())) {
+        if (!itemJson.is_object()) {
+            database.parse_diagnostics_.push_back({"database_item_invalid", "Item record must be an object.", {}});
+            continue;
+        }
+        ItemRecord item;
+        item.id = itemJson.value("id", "");
+        item.name = itemJson.value("name", "");
+        item.price = itemJson.value("price", 0);
+        for (const auto& tag : itemJson.value("tags", nlohmann::json::array())) {
+            if (tag.is_string()) item.tags.insert(tag.get<std::string>());
+        }
+        if (item.id.empty()) {
+            database.parse_diagnostics_.push_back({"database_item_id_missing", "Item record needs an id.", {}});
+            continue;
+        }
+        database.upsertItem(std::move(item));
+    }
+    return database;
 }
 
 RpgDatabase RpgDatabase::fromItemsCsv(const std::string& csv) {
