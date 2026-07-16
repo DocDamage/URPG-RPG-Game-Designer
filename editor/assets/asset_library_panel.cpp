@@ -577,6 +577,13 @@ nlohmann::json AssetLibraryPanel::recoverStagedDerivedRevisions(
     return result;
 }
 
+nlohmann::json AssetLibraryPanel::removeDerivedRevision(
+    std::string source_path, const std::filesystem::path& derived_root, std::string derived_revision) {
+    auto result = model_.removeDerivedRevision(std::move(source_path), derived_root, std::move(derived_revision));
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
 nlohmann::json AssetLibraryPanel::createTilesetSliceRevision(
     std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
     const int32_t tile_width, const int32_t tile_height, const int32_t margin, const int32_t spacing) {

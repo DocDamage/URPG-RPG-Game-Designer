@@ -3279,6 +3279,35 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                     ImGui::SetTooltip("Removes only this asset's hash-named unpublished .png/.wav/.json/.tiles staging artifacts.");
                 }
             }
+            if (derivedRevisionSourcePath == path && !derivedRevisionManifestPath.empty() &&
+                !configuredLibraryRoot.empty()) {
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Remove Unattached Revision")) {
+                    ImGui::OpenPopup("Confirm Derived Revision Removal");
+                }
+                if (ImGui::BeginPopupModal("Confirm Derived Revision Removal", nullptr,
+                                           ImGuiWindowFlags_AlwaysAutoResize)) {
+                    ImGui::TextWrapped("Remove this derived revision only if no project attachment or tileset assignment protects it.");
+                    ImGui::TextDisabled("This cannot detach project content or remove a protected revision.");
+                    if (ImGui::Button("Remove Revision")) {
+                        const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
+                        const auto derivedRevision = std::filesystem::path(derivedRevisionManifestPath).stem().string();
+                        const auto result = panel.removeDerivedRevision(path, derivedRoot, derivedRevision);
+                        assetWorkflowStatus = result.value("message", "Derived revision removal did not return a status.");
+                        if (result.value("success", false)) {
+                            derivedRevisionManifestPath.clear();
+                            derivedRevisionSourcePath.clear();
+                            assignedTilesetManifestPath.clear();
+                            pendingDerivedRevisionAttachmentPlan = nlohmann::json::object();
+                            pendingDerivedTilesetAssignmentPlan = nlohmann::json::object();
+                        }
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Cancel")) ImGui::CloseCurrentPopup();
+                    ImGui::EndPopup();
+                }
+            }
             if (cropRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
                 if (ImGui::SmallButton("Edit Crop on Preview")) {
                     cropSelectionSourcePath = path;
