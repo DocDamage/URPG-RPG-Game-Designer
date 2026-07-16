@@ -485,7 +485,7 @@ TEST_CASE("Spatial Editor Tooling Integration - SpatialAuthoringWorkspace compos
     REQUIRE(snapshot.canvas.hover_affordance_count >= 2);
     REQUIRE(snapshot.toolbar.active_mode == "abilities");
     REQUIRE(snapshot.toolbar.has_conflicts == snapshot.canvas.has_conflicts);
-    REQUIRE(snapshot.toolbar.actions.size() == 8);
+    REQUIRE(snapshot.toolbar.actions.size() == 9);
     REQUIRE(snapshot.toolbar.actions[0].label == "Compose");
     const auto partsAction = std::find_if(snapshot.toolbar.actions.begin(), snapshot.toolbar.actions.end(),
                                           [](const auto& action) { return action.id == "parts"; });
@@ -1655,11 +1655,14 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D executes live eve
     REQUIRE(restored.switches[0].key == "door_open");
     REQUIRE(restored.inventory[0].value == "3");
     REQUIRE(restored.player_map_id == "castle");
-    REQUIRE_FALSE(workspace.RestorePerspectiveRuntimeState("{}").success);
+    const auto rejectedRestore = workspace.RestorePerspectiveRuntimeState("{}");
+    REQUIRE_FALSE(rejectedRestore.success);
+    REQUIRE(rejectedRestore.blocker_codes == std::vector<std::string>{"p2d_runtime_state_schema_invalid"});
 
     workspace.Render({0.016f, 36});
     const auto snapshot = workspace.lastRenderSnapshot();
-    REQUIRE(snapshot.last_perspective_2d_runtime.success);
+    REQUIRE_FALSE(snapshot.last_perspective_2d_runtime.success);
+    REQUIRE(snapshot.last_perspective_2d_runtime.command_id == "restore_perspective_2d_runtime_state");
     REQUIRE(snapshot.perspective_2d_ui.map_canvas_visible);
     REQUIRE(snapshot.perspective_2d_ui.layer_panel_visible);
     REQUIRE(snapshot.perspective_2d_ui.tile_palette_visible);
@@ -1879,10 +1882,11 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
     REQUIRE(map.getPlayerMovement().gridPos == urpg::Vector2i{0, 3});
     REQUIRE(map.activeDialogueConversationId() == "project.dialogue.moonwell_intro");
 
+    const auto interaction_count_before_rejected_replacement = map.authoredDialogueInteractions().size();
     auto duplicate = original_interaction;
     duplicate.event_id = "duplicate";
     REQUIRE_FALSE(map.setAuthoredDialogueInteractions({original_interaction, duplicate}));
-    REQUIRE(map.authoredDialogueInteractions().size() == 1);
+    REQUIRE(map.authoredDialogueInteractions().size() == interaction_count_before_rejected_replacement);
 
     urpg::scene::MapScene::AuthoredDialogueInteraction rejected_interaction;
     rejected_interaction.event_id = "invalid_graph";
@@ -1907,7 +1911,7 @@ TEST_CASE("Spatial Editor Tooling Integration - Perspective 2D map events start 
 
     const auto runtime = workspace.ExecutePerspectiveRuntimeEvent("moonwell");
     REQUIRE(runtime.success);
-    REQUIRE(map.activeDialogueConversationId() == "project.dialogue.moonwell_intro");
+    REQUIRE(map.activeDialogueConversationId() == "project.dialogue.moonwell_self_switch");
     REQUIRE(map.isDialogueActive());
     REQUIRE(std::get<int32_t>(global_state.getVariable("moonwell_visited")) == 1);
 

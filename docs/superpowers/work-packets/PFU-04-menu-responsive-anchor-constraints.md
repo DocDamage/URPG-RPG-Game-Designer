@@ -16,4 +16,4 @@ Menu pane layouts now carry native persisted responsive anchors and minimum dime
 
 ## Limits
 
-This is a typed layout-constraint and target-size preview foundation, not responsive qualification. Controller/accessibility review, component systems, and runtime evidence remain PFU-04 work. Verification is deferred by the user's instruction not to build or test during this implementation phase.
+This is a typed layout-constraint and target-size preview foundation, not responsive qualification. Controller/accessibility review, component systems, and runtime evidence remain PFU-04 work. Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

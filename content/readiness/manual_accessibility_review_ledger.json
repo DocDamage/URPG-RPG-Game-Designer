@@ -1,0 +1,37 @@
+{
+  "schema": "urpg.manual_accessibility_review.v1",
+  "requirementId": "PCQ-656",
+  "status": "pending_execution",
+  "executionAttempts": [
+    {
+      "date": "2026-07-16",
+      "method": "Windows application control launch of build/dev-ninja-debug/urpg_editor.exe",
+      "result": "not_started",
+      "diagnostic": "ShellExecuteW returned access denied before any editor window appeared; no lane was reviewed or passed."
+    },
+    {
+      "date": "2026-07-16",
+      "method": "Windows application control retry after PID 22316 exited and the hash-aware SDL post-build fix passed",
+      "result": "not_started",
+      "diagnostic": "No urpg_editor process or targetable window existed, but ShellExecuteW again returned access denied for the current build/dev-ninja-debug/urpg_editor.exe before launch; no lane was reviewed or passed."
+    }
+  ],
+  "requiredRoute": [
+    "create-or-open-project",
+    "author-map-event-quest-and-menu",
+    "playtest-and-debug",
+    "recover-from-invalid-action",
+    "package-and-reopen"
+  ],
+  "lanes": [
+    {"id": "keyboard_only", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
+    {"id": "controller_only", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
+    {"id": "screen_reader_windows", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
+    {"id": "scale_200_percent", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
+    {"id": "reduced_motion", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
+    {"id": "high_contrast", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
+    {"id": "sound_off", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
+    {"id": "representative_locales", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null}
+  ],
+  "completionRule": "Every lane must name reviewer, hardware, software, exact build, route results, findings and retest; unresolved P0/P1 findings block qualification."
+}

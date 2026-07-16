@@ -1,7 +1,12 @@
 #include "engine/core/action/controller_binding_runtime.h"
 
 #include <array>
+#include <fstream>
 #include <stdexcept>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace urpg::action {
 
@@ -42,11 +47,15 @@ std::map<ControllerButton, urpg::input::InputAction> ControllerBindingRuntime::g
     return bindings;
 }
 
-void ControllerBindingRuntime::resetToDefaults() {
+void ControllerBindingRuntime::resetToDefaults(bool mark_unsaved) {
     remap_store_.clear();
     for (const auto& [button, action] : buildDefaultBindings()) {
         remap_store_.setMapping(buttonToCode(button), action);
     }
+    unsaved_changes_ = mark_unsaved;
+}
+
+void ControllerBindingRuntime::markPersisted() {
     unsaved_changes_ = false;
 }
 
@@ -111,6 +120,55 @@ void ControllerBindingRuntime::loadFromJson(const nlohmann::json& value) {
     }
 
     unsaved_changes_ = false;
+}
+
+bool ControllerBindingRuntime::saveToFile(const std::filesystem::path& path, std::string* error) const {
+    try {
+        if (!path.parent_path().empty()) std::filesystem::create_directories(path.parent_path());
+        const auto temporary = std::filesystem::path(path.string() + ".tmp");
+        {
+            std::ofstream output(temporary, std::ios::binary | std::ios::trunc);
+            if (!output) throw std::runtime_error("Unable to open controller binding staging file.");
+            output << saveToJson().dump(2) << '\n';
+            output.flush();
+            if (!output) throw std::runtime_error("Unable to flush controller binding staging file.");
+        }
+#ifdef _WIN32
+        if (!MoveFileExW(temporary.wstring().c_str(), path.wstring().c_str(),
+                         MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+            std::filesystem::remove(temporary);
+            throw std::runtime_error("Unable to atomically replace controller binding file.");
+        }
+#else
+        std::error_code replace_error;
+        std::filesystem::rename(temporary, path, replace_error);
+        if (replace_error) {
+            std::filesystem::remove(temporary);
+            throw std::runtime_error("Unable to atomically replace controller binding file: " +
+                                     replace_error.message());
+        }
+#endif
+        return true;
+    } catch (const std::exception& ex) {
+        if (error) *error = ex.what();
+        return false;
+    }
+}
+
+bool ControllerBindingRuntime::loadFromFile(const std::filesystem::path& path, std::string* error) {
+    try {
+        std::ifstream input(path, std::ios::binary);
+        if (!input) throw std::runtime_error("Unable to open controller binding file.");
+        const auto value = nlohmann::json::parse(input, nullptr, false);
+        if (value.is_discarded()) throw std::runtime_error("Controller binding file contains malformed JSON.");
+        ControllerBindingRuntime candidate;
+        candidate.loadFromJson(value);
+        loadFromJson(candidate.saveToJson());
+        return true;
+    } catch (const std::exception& ex) {
+        if (error) *error = ex.what();
+        return false;
+    }
 }
 
 bool ControllerBindingRuntime::hasUnsavedChanges() const {

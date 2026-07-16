@@ -1,7 +1,10 @@
 #pragma once
 
+#include "engine/core/input/controller_input_provider.h"
 #include "engine/core/platform/platform_surface.h"
+#include <cstdint>
 #include <functional>
+#include <map>
 #include <string>
 
 // SDL2 is required for this implementation.
@@ -31,11 +34,20 @@ class SDLSurface : public IPlatformSurface {
     SDL_Window* getNativeWindow() const { return m_window; }
     void* getNativeGlContext() const { return m_glContext; }
     void setEventCallback(EventCallback callback) { m_eventCallback = std::move(callback); }
+    bool setControllerBindings(const action::ControllerBindingRuntime& bindings) {
+        return m_controllerInput.applyBindings(bindings);
+    }
+    size_t connectedControllerCount() const { return m_controllerInput.connectedDeviceCount(); }
 
   private:
+    void openController(int device_index);
+    void closeController(int32_t instance_id);
+
     SDL_Window* m_window = nullptr;
     void* m_glContext = nullptr;
     EventCallback m_eventCallback;
+    input::ControllerInputProvider m_controllerInput;
+    std::map<int32_t, void*> m_gameControllers;
     bool m_isInitialized = false;
 };
 

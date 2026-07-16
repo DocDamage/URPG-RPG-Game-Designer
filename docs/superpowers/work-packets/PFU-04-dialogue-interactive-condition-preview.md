@@ -15,4 +15,4 @@ The native Dialogue Graph now has a bounded, non-persistent interactive preview 
 
 ## Limits
 
-This is authoring preview evidence, not a claim that Dialogue Graph is the final dialogue runtime executor. Localization/audio presentation, runtime handoff, playtest integration, migration breadth, and manual graph-playthrough evidence remain PFU-04 work. Verification is deferred by the user's instruction not to build or test during this implementation phase.
+This is authoring preview evidence, not a claim that Dialogue Graph is the final dialogue runtime executor. Localization/audio presentation, runtime handoff, playtest integration, migration breadth, and manual graph-playthrough evidence remain PFU-04 work. Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

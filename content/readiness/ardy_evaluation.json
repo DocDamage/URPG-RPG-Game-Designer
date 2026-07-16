@@ -1,0 +1,29 @@
+{
+  "schema": "urpg.ardy_evaluation.v1",
+  "evaluatedAt": "2026-07-16",
+  "decision": "defer",
+  "decisionReason": "No approved non-ARDy skeletal 3D lane, runtime path, workstation owner, signed legal review, or measurable creator baseline exists.",
+  "admissionGates": [
+    {"id": "approved_product_use_case", "passed": false, "evidence": "docs/release/ardy_use_case_admission.md"},
+    {"id": "neutral_skeletal_clip_needed_without_ardy", "passed": false, "evidence": "Current runtime owns scalar and sprite/timeline animation, not skeletal clips."},
+    {"id": "mesh_skin_skeleton_retarget_runtime_path", "passed": false, "evidence": "No approved shipping path exists."},
+    {"id": "workstation_and_owner", "passed": false, "evidence": "tools/research/ardy/environment_manifest.json remains not provisioned."},
+    {"id": "signed_legal_review", "passed": false, "evidence": "docs/release/ardy_legal_boundary.md is explicitly preliminary and unsigned."},
+    {"id": "measurable_hypothesis", "passed": false, "evidence": "No representative rig or manual baseline exists."},
+    {"id": "optional_absence_safe", "passed": true, "evidence": "No ARDy code, model, service, package, editor startup, project load, or runtime dependency was added."}
+  ],
+  "packetDisposition": {
+    "ARDY-000": "explicit_deferral_recorded",
+    "ARDY-001": "preliminary_boundary_recorded; signed_review_pending",
+    "ARDY-002": "manifest_template_recorded; environment_not_provisioned",
+    "ARDY-003": "deferred_by_admission_gate",
+    "ARDY-004": "deferred_by_admission_gate",
+    "ARDY-005": "deferred_by_admission_gate",
+    "ARDY-006": "deferred_by_admission_gate",
+    "ARDY-007": "deferred_by_admission_gate",
+    "ARDY-008": "decision_is_defer",
+    "ARDY-009": "deferred; no accepted motion exists for optional 2D experiment"
+  },
+  "runtimeDependency": false,
+  "packagedDependency": false
+}

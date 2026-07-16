@@ -14,8 +14,18 @@ struct ReplayInput {
     int64_t tick = 0;
     std::string action;
     nlohmann::json payload = nlohmann::json::object();
+    std::string semantic_kind = "legacy";
 
     bool operator==(const ReplayInput& other) const = default;
+};
+
+struct ReplayCheckpoint {
+    int64_t tick = 0;
+    std::string label;
+    std::string state_hash;
+    nlohmann::json redacted_state = nlohmann::json::object();
+
+    bool operator==(const ReplayCheckpoint& other) const = default;
 };
 
 struct ReplayArtifact {
@@ -25,6 +35,10 @@ struct ReplayArtifact {
     std::set<std::string> labels;
     std::vector<ReplayInput> input_log;
     std::map<int64_t, std::string> state_hashes;
+    std::string project_revision;
+    std::string runtime_version;
+    std::vector<ReplayCheckpoint> checkpoints;
+    std::set<std::string> redacted_fields;
 
     nlohmann::json toJson() const;
     static ReplayArtifact fromJson(const nlohmann::json& json);

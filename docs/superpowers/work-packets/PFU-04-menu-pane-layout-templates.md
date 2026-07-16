@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native Menu Studio pane-layout templates
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -33,7 +33,7 @@ pane: Compact List, Centered Dialog, Bottom Overlay, and Full Canvas.
 - Saved menu graphs retain the resulting ordinary pane layout and round-trip
   through the existing native serializer.
 
-Verification command (deferred):
+Packet-local verification command (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[ui][editor][menu]" --reporter compact`
 

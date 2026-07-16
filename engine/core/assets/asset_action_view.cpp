@@ -248,6 +248,11 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
             {"tags", asset.tags},
             {"game_use_tags", asset.game_use_tags},
             {"used_by", asset.used_by},
+            {"usage_count", asset.used_by.size()},
+            {"provenance", toJson(asset.provenance)},
+            {"package_status", isProjectAttached(asset) ? "attached" :
+                (asset.include_in_runtime && (asset.release_eligible || asset.provenance.export_eligible)
+                    ? "package_ready" : (asset.include_in_runtime ? "package_blocked" : "excluded"))},
             {"sequence", sequenceMetadata(asset)},
             {"statuses", statusList(asset)},
             {"promotion_status", asset.promotion_status},

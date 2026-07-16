@@ -101,3 +101,120 @@ TEST_CASE("MenuPreviewPanel reflects runtime edits and clear behavior",
     REQUIRE_FALSE(panel.hasRenderedFrame());
     REQUIRE(panel.lastRenderSnapshot().has_data == false);
 }
+
+TEST_CASE("MenuPreviewPanel materializes authoring documents through the native runtime graph",
+          "[ui][editor][menu_preview][authoring][pcq480][pcq485]") {
+    const auto templates = urpg::ui::MenuStarterTemplateLibrary::originalUrpgTemplates();
+    const auto* title = templates.find("title");
+    REQUIRE(title != nullptr);
+    urpg::editor::MenuPreviewPanel panel;
+    std::vector<std::string> diagnostics;
+    REQUIRE(panel.bindAuthoringDocument(title->document, "authored_title", &diagnostics));
+    REQUIRE(diagnostics.empty());
+    REQUIRE(panel.lastRenderSnapshot().has_data);
+    REQUIRE(panel.lastRenderSnapshot().active_scene_id == "authored_title");
+    REQUIRE(panel.lastRenderSnapshot().visible_panes.size() == 1);
+    REQUIRE(panel.lastRenderSnapshot().visible_panes[0].pane_id == "title.root");
+    REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_ids ==
+            std::vector<std::string>{"title.primary"});
+    panel.clearRuntime();
+    REQUIRE_FALSE(panel.lastRenderSnapshot().has_data);
+}
+
+TEST_CASE("MenuPreviewPanel resolves typed bindings states transitions audio and reduced motion",
+          "[ui][editor][menu_preview][bindings][states][pcq482][pcq483][pcq484]") {
+    using namespace urpg::ui;
+    MenuAuthoringDocument document;
+    MenuCanvasNode root;
+    root.id = "root";
+    root.kind = MenuElementKind::Panel;
+    root.layout = {32, 32, 640, 360};
+    REQUIRE(document.addNode(root));
+    MenuCanvasNode button;
+    button.id = "start";
+    button.parent_id = "root";
+    button.kind = MenuElementKind::Button;
+    button.layout = {64, 64, 240, 64};
+    button.label = "Start";
+    button.accessible_label = "Start";
+    button.focusable = true;
+    button.focus_next_id = "start";
+    button.route = urpg::MenuRouteTarget::Custom;
+    button.custom_route_id = "game.start";
+    button.bindings = {
+        {"label", MenuBindingSource::Localization, "menu.start", MenuBindingValueType::String,
+         std::string("[missing start]"), {}, true},
+        {"enabled", MenuBindingSource::Runtime, "can_start", MenuBindingValueType::Boolean,
+         false, {}, false}};
+    button.state_styles = {
+        {MenuVisualState::Default, {{"fill", "normal"}}},
+        {MenuVisualState::Focus, {{"fill", "focus"}}},
+        {MenuVisualState::Disabled, {{"fill", "disabled"}}}};
+    button.transitions = {
+        {MenuVisualState::Default, MenuVisualState::Focus, 180,
+         MenuTransitionInterruption::Replace, "ui.focus", false, false}};
+    REQUIRE(document.addNode(button));
+
+    MenuBindingContext context;
+    context.localization["menu.start"] = "Begin Adventure";
+    context.runtime["can_start"] = true;
+    urpg::editor::MenuPreviewPanel panel;
+    std::vector<std::string> diagnostics;
+    REQUIRE(panel.bindAuthoringDocument(document, "bound_menu", context, &diagnostics));
+    REQUIRE(diagnostics.empty());
+    const auto& enabled = panel.lastRenderSnapshot().visible_panes[0];
+    REQUIRE(enabled.command_labels == std::vector<std::string>{"Begin Adventure"});
+    REQUIRE(enabled.command_enabled == std::vector<bool>{true});
+    REQUIRE(enabled.command_visual_states == std::vector<MenuVisualState>{MenuVisualState::Focus});
+    REQUIRE(enabled.command_state_properties[0].at("fill") == "focus");
+    REQUIRE(enabled.command_transition_duration_ms == std::vector<uint32_t>{180});
+    REQUIRE(enabled.command_audio_hooks == std::vector<std::string>{"ui.focus"});
+
+    panel.setPreviewAccessibilityPolicy(true, false);
+    REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_transition_duration_ms ==
+            std::vector<uint32_t>{0});
+    REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_audio_hooks ==
+            std::vector<std::string>{""});
+
+    diagnostics.clear();
+    REQUIRE(panel.bindAuthoringDocument(document, "fallback_menu", &diagnostics));
+    REQUIRE(diagnostics.size() == 3);
+    const auto& fallback = panel.lastRenderSnapshot().visible_panes[0];
+    REQUIRE(fallback.command_labels == std::vector<std::string>{"[missing start]"});
+    REQUIRE(fallback.command_enabled == std::vector<bool>{false});
+    REQUIRE(fallback.command_visual_states == std::vector<MenuVisualState>{MenuVisualState::Disabled});
+    REQUIRE(fallback.command_state_properties[0].at("fill") == "disabled");
+}
+
+TEST_CASE("MenuPreviewPanel feeds effective authored nodes to the object-linked inclusive auditor",
+          "[ui][editor][menu_preview][accessibility_audit][pcq655]") {
+    using namespace urpg::ui;
+    MenuAuthoringDocument document;
+    MenuCanvasNode root;
+    root.id = "root";
+    root.layout = {0, 0, 640, 360};
+    REQUIRE(document.addNode(root));
+    MenuCanvasNode bad;
+    bad.id = "bad_action";
+    bad.parent_id = "root";
+    bad.kind = MenuElementKind::Button;
+    bad.layout = {16, 16, 30, 30, 0, 0};
+    bad.label = "Localized label that overflows";
+    bad.focusable = true;
+    bad.route = urpg::MenuRouteTarget::Custom;
+    bad.custom_route_id = "bad.action";
+    bad.state_styles = {{MenuVisualState::Focus, {{"contrast_ratio", "2.5"}}}};
+    bad.transitions = {{MenuVisualState::Default, MenuVisualState::Focus, 300,
+                        MenuTransitionInterruption::Replace, {}, false, false}};
+    REQUIRE(document.addNode(bad));
+    urpg::editor::MenuPreviewPanel panel;
+    REQUIRE(panel.bindAuthoringDocument(document, "audit_menu"));
+    const auto issues = panel.auditInclusiveSnapshot(true, true);
+    const std::set<std::string> codes = {"missing_label", "contrast", "hit_target",
+                                          "localization_overflow", "unsafe_motion"};
+    REQUIRE(issues.size() == codes.size());
+    for (const auto& issue : issues) {
+        REQUIRE(codes.contains(issue.code));
+        REQUIRE(issue.object_id == "bad_action");
+    }
+}

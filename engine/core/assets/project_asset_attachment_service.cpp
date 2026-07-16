@@ -99,9 +99,12 @@ std::filesystem::path siblingWorkingPath(const std::filesystem::path& target, co
     const auto timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(
                                std::chrono::steady_clock::now().time_since_epoch())
                                .count();
-    return target.parent_path() /
-           (target.filename().string() + ".urpg-" + std::string(purpose) + "-" + std::to_string(timestamp) + "-" +
-            std::to_string(sequence));
+    // Keep transactional sibling names independent of the destination's name.
+    // Derived manifests and reference markers already contain long stable IDs;
+    // prefixing those names again can exceed the legacy Windows path limit and
+    // make an otherwise valid atomic stage fail before revision admission.
+    return target.parent_path() / (".urpg-" + std::string(purpose) + "-" + std::to_string(timestamp) + "-" +
+                                   std::to_string(sequence));
 }
 
 void removeIfPresent(const std::filesystem::path& path) {
@@ -451,8 +454,14 @@ std::filesystem::path derivedAttachmentReferencePath(const std::filesystem::path
                                        ? std::filesystem::weakly_canonical(projectRoot, error)
                                        : std::filesystem::absolute(projectRoot, error).lexically_normal();
     if (error) return {};
+    // The full derived revision and project hashes are retained inside the
+    // marker and validated on read. Use bounded path keys here so the marker
+    // itself remains creatable on Windows installations without long-path
+    // support.
+    auto projectKey = hashText(normalizedProject.generic_string());
+    if (projectKey.size() > 32U) projectKey.resize(32U);
     return derivedManifestPath.parent_path() / (derivedManifestPath.stem().string() + ".attachment-refs") /
-           (hashText(normalizedProject.generic_string()) + ".json");
+           (projectKey + ".json");
 }
 
 struct DerivedAttachmentReferencePreparation {

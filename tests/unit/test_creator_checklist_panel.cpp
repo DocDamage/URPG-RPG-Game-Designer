@@ -24,5 +24,11 @@ TEST_CASE("CreatorChecklistPanel persists dismissal and restoration per project"
     REQUIRE(panel.snapshot().dismissed);
     REQUIRE(panel.restore(&error));
     REQUIRE_FALSE(panel.snapshot().dismissed);
+    REQUIRE(panel.complete(&error));
+    REQUIRE(panel.snapshot().completed);
+    REQUIRE(panel.replay(&error));
+    REQUIRE_FALSE(panel.snapshot().completed);
+    REQUIRE(panel.snapshot().replay_count == 1);
+    REQUIRE(panel.isVisible());
     std::filesystem::remove_all(root);
 }

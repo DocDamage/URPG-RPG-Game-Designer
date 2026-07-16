@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native Menu Studio direct canvas manipulation
 
-**Status:** Implemented in worktree; verification deferred by user instruction
+**Status:** Implemented in worktree; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -28,7 +28,7 @@ runtime apply, and the project-owned menu document.
 - Undo/redo returns/reapplies one completed drag as one menu edit.
 - The project dirty/recovery/save path observes the committed graph change.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[ui][editor][menu]" --reporter compact`
 

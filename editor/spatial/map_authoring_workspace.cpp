@@ -5,6 +5,7 @@
 
 #include <array>
 #include <algorithm>
+#include <cmath>
 #include <filesystem>
 
 namespace urpg::editor {
@@ -74,6 +75,32 @@ bool MapAuthoringWorkspace::activateMode(MapAuthoringMode mode) {
     return true;
 }
 
+MapAuthoringEntryResult MapAuthoringWorkspace::enterCanonicalRoute(const MapAuthoringEntryRequest& request) {
+    if (request.map_id.empty()) return {false, "map_route_map_missing", "map", snapshot_.activeMode};
+    if (!level_builder_ && !perspective_2d_) return {false, "map_route_workspace_unbound", "map", snapshot_.activeMode};
+    context_.setActiveMapId(request.map_id);
+    auto selection = context_.snapshot().selection;
+    selection.objectId = request.object_id;
+    selection.eventId = request.event_id;
+    selection.partId = request.part_id;
+    selection.viewportFocus = request.focus;
+    auto mode = request.preferred_mode;
+    switch (request.source) {
+    case MapAuthoringEntrySource::Project: mode = MapAuthoringMode::Canvas; break;
+    case MapAuthoringEntrySource::Object:
+        mode = request.event_id.empty() ? (request.part_id.empty() ? MapAuthoringMode::Props : MapAuthoringMode::Parts)
+                                       : MapAuthoringMode::Events;
+        break;
+    case MapAuthoringEntrySource::Asset: break;
+    case MapAuthoringEntrySource::Diagnostic: mode = MapAuthoringMode::Validate; break;
+    case MapAuthoringEntrySource::Playtest: mode = MapAuthoringMode::Playtest; break;
+    }
+    selection.activeTool = modeId(mode);
+    context_.setSelection(std::move(selection));
+    if (!activateMode(mode)) return {false, "map_route_mode_unavailable", "map", snapshot_.activeMode};
+    return {true, "map_route_entered", "map", snapshot_.activeMode};
+}
+
 bool MapAuthoringWorkspace::focusGridDiagnostic(size_t diagnosticIndex) {
     if (level_builder_ == nullptr) {
         return false;
@@ -120,10 +147,27 @@ MapAuthoringHistoryResult MapAuthoringWorkspace::redo() {
 void MapAuthoringWorkspace::setLayout(MapAuthoringLayoutState layout) {
     // Keep enough central canvas space for the map at the minimum supported
     // editor size while still allowing creators to tune the surrounding panes.
+    if (!std::isfinite(layout.paletteWidthFraction) || !std::isfinite(layout.inspectorWidthFraction) ||
+        !std::isfinite(layout.diagnosticsHeightFraction)) {
+        layout_ = {};
+        layout_recovered_ = true;
+        layout_recovery_message_ = "The saved workspace layout was invalid and the default layout was restored; project data was not changed.";
+        rebuildSnapshot();
+        return;
+    }
     layout.paletteWidthFraction = std::clamp(layout.paletteWidthFraction, 0.12f, 0.35f);
     layout.inspectorWidthFraction = std::clamp(layout.inspectorWidthFraction, 0.12f, 0.35f);
     layout.diagnosticsHeightFraction = std::clamp(layout.diagnosticsHeightFraction, 0.12f, 0.40f);
     layout_ = layout;
+    layout_recovered_ = false;
+    layout_recovery_message_.clear();
+    rebuildSnapshot();
+}
+
+void MapAuthoringWorkspace::resetLayout() {
+    layout_ = {};
+    layout_recovered_ = true;
+    layout_recovery_message_ = "The workspace layout was reset to defaults; project data was not changed.";
     rebuildSnapshot();
 }
 
@@ -292,6 +336,17 @@ void MapAuthoringWorkspace::rebuildSnapshot() {
     snapshot_.hasPerspective2D = perspective_2d_ != nullptr;
     snapshot_.modes.clear();
     snapshot_.layout = layout_;
+    snapshot_.layoutRecovered = layout_recovered_;
+    snapshot_.layoutRecoveryMessage = layout_recovery_message_;
+    snapshot_.regions = {
+        {"project_navigator", "Project navigator", layout_.paletteVisible, true},
+        {"context_toolbar", "Context toolbar", true, false},
+        {"central_canvas", "Central canvas", true, true},
+        {"inspector", "Inspector", layout_.inspectorVisible, true},
+        {"status_jobs", "Status and jobs", true, true},
+        {"diagnostics", "Diagnostics", layout_.diagnosticsVisible, true},
+        {"playtest_controls", "Playtest controls", true, false},
+    };
     for (const auto& definition : kModes) {
         snapshot_.modes.push_back({definition.id, definition.label, definition.mode == active_mode_,
                                    level_builder_ != nullptr || perspective_2d_ != nullptr});

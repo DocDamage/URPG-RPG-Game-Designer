@@ -26,5 +26,4 @@ does not grant a planner generic project-document mutation authority.
 This is developer-only, deterministic, local planning with dry-run provider
 transport. It does not expose arbitrary props, enroll raw assets, create event
 logic, add image/sketch authority, support multi-turn tool use, or establish
-runtime/package/assistant qualification. Verification is deferred under the
-user instruction not to run builds or tests during this implementation phase.
+runtime/package/assistant qualification. Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

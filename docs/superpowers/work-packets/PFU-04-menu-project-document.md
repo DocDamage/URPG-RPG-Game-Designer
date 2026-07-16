@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: project-owned native Menu Studio document
 
-**Status:** Implemented in worktree; verification deferred by user instruction
+**Status:** Implemented in worktree; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -39,7 +39,7 @@ save, close, and private-recovery lifecycle.
 - Layout or command edits become dirty, save atomically, and enter recovery.
 - Missing and malformed project menu documents have explicit creator status.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[ui][menu]" --reporter compact`
 

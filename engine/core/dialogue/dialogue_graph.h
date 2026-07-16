@@ -86,6 +86,7 @@ public:
     bool updateNodeCanvasPosition(const std::string& node_id, int32_t canvas_x, int32_t canvas_y);
     bool addChoice(const std::string& node_id, DialogueChoice choice);
     bool removeChoice(const std::string& node_id, const std::string& choice_id);
+    bool reorderChoice(const std::string& node_id, const std::string& choice_id, std::size_t new_index);
     bool updateChoice(const std::string& node_id, const std::string& choice_id, std::string label,
                       std::string target_node_id, std::string localization_key);
     bool addChoiceCondition(const std::string& node_id, const std::string& choice_id, DialogueCondition condition);

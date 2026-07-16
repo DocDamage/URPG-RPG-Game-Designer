@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native Menu Studio pane alignment
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -27,7 +27,7 @@ design canvas.
 - Undo/redo restores the aligned coordinate as a single edit.
 - No-op commands do not create history or dirty state.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[ui][editor][menu]" --reporter compact`
 

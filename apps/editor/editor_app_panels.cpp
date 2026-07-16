@@ -19,6 +19,7 @@ std::vector<std::string> editorAppRegisteredNestedPanelFactoryIds() {
         "menu_inspector",
         "menu_preview",
         "audio_inspector",
+        "controller_binding",
         "migration_wizard",
         "project_audit",
         "project_health",

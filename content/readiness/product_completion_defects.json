@@ -1,0 +1,55 @@
+{
+  "schema": "urpg.product_completion_defects.v1",
+  "updatedAt": "2026-07-16",
+  "p0Categories": [
+    "data_loss",
+    "crash",
+    "unfinishable_golden_path",
+    "inaccessible_required_action",
+    "packaging_corruption",
+    "security_or_privacy_leak",
+    "false_readiness_claim"
+  ],
+  "defects": [
+    {
+      "id": "PCQ-P0-001",
+      "severity": "P0",
+      "category": "unfinishable_golden_path",
+      "status": "open",
+      "accepted": true,
+      "owner": "creator-product",
+      "summary": "The exact create, add-event, playtest, return, package, install, save, and relaunch journey lacks current end-to-end product-UI evidence.",
+      "disposition": "Close through PCQ-500 and R8 evidence; do not waive."
+    },
+    {
+      "id": "PCQ-P0-002",
+      "severity": "P0",
+      "category": "data_loss",
+      "status": "open",
+      "accepted": true,
+      "owner": "project-safety",
+      "summary": "Project-wide reference-aware atomic destructive operations and recovery are not yet proven for the release scope.",
+      "disposition": "Close through PCQ-101 through PCQ-107; do not waive."
+    },
+    {
+      "id": "PCQ-P0-003",
+      "severity": "P0",
+      "category": "inaccessible_required_action",
+      "status": "open",
+      "accepted": true,
+      "owner": "accessibility-input",
+      "summary": "Required controller, keyboard, scaling, semantic-alternative, and focus-route matrices are not yet qualified.",
+      "disposition": "Close through PCQ-207 and PCQ-650 through PCQ-656; do not waive."
+    },
+    {
+      "id": "PCQ-P0-004",
+      "severity": "P0",
+      "category": "false_readiness_claim",
+      "status": "open",
+      "accepted": true,
+      "owner": "release-evidence",
+      "summary": "PFU-I1 and product-completion evidence do not yet identify one clean, current, fully qualified candidate.",
+      "disposition": "Close through PCQ-001, PCQ-002, PCQ-005, and final R9 evidence; do not waive."
+    }
+  ]
+}

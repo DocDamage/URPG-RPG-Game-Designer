@@ -101,6 +101,88 @@ QuestObjectiveGraphDocument QuestObjectiveGraphDocument::fromJson(const nlohmann
     return document;
 }
 
+bool QuestObjectiveGraphDocument::addNode(QuestGraphNode node) {
+    if (node.id.empty() || std::any_of(nodes.begin(), nodes.end(), [&](const QuestGraphNode& candidate) {
+            return candidate.id == node.id;
+        })) {
+        return false;
+    }
+    nodes.push_back(std::move(node));
+    return true;
+}
+
+bool QuestObjectiveGraphDocument::removeNode(const std::string& node_id) {
+    const auto node = std::find_if(nodes.begin(), nodes.end(), [&](const QuestGraphNode& candidate) {
+        return candidate.id == node_id;
+    });
+    if (node == nodes.end() || node->type == "start") {
+        return false;
+    }
+    nodes.erase(node);
+    std::erase_if(links, [&](const QuestGraphLink& link) { return link.from == node_id || link.to == node_id; });
+    return true;
+}
+
+bool QuestObjectiveGraphDocument::reorderNode(const std::string& node_id, const std::size_t new_index) {
+    if (new_index >= nodes.size()) {
+        return false;
+    }
+    const auto node = std::find_if(nodes.begin(), nodes.end(), [&](const QuestGraphNode& candidate) {
+        return candidate.id == node_id;
+    });
+    if (node == nodes.end()) {
+        return false;
+    }
+    const auto old_index = static_cast<std::size_t>(std::distance(nodes.begin(), node));
+    if (old_index == new_index) {
+        return false;
+    }
+    auto moved = std::move(*node);
+    nodes.erase(node);
+    nodes.insert(nodes.begin() + static_cast<std::ptrdiff_t>(new_index), std::move(moved));
+    return true;
+}
+
+bool QuestObjectiveGraphDocument::connect(std::string from, std::string to) {
+    const auto exists = [&](const std::string& id) {
+        return std::any_of(nodes.begin(), nodes.end(), [&](const QuestGraphNode& node) { return node.id == id; });
+    };
+    if (from.empty() || to.empty() || from == to || !exists(from) || !exists(to) ||
+        std::any_of(links.begin(), links.end(), [&](const QuestGraphLink& link) {
+            return link.from == from && link.to == to;
+        })) {
+        return false;
+    }
+    links.push_back({std::move(from), std::move(to)});
+    return true;
+}
+
+bool QuestObjectiveGraphDocument::disconnect(const std::string& from, const std::string& to) {
+    const auto link = std::find_if(links.begin(), links.end(), [&](const QuestGraphLink& candidate) {
+        return candidate.from == from && candidate.to == to;
+    });
+    if (link == links.end()) {
+        return false;
+    }
+    links.erase(link);
+    return true;
+}
+
+bool QuestObjectiveGraphDocument::updateNodeCanvasPosition(const std::string& node_id, const int32_t canvas_x,
+                                                           const int32_t canvas_y) {
+    const auto node = std::find_if(nodes.begin(), nodes.end(), [&](const QuestGraphNode& candidate) {
+        return candidate.id == node_id;
+    });
+    if (node == nodes.end() ||
+        (node->has_canvas_position && node->canvas_x == canvas_x && node->canvas_y == canvas_y)) {
+        return false;
+    }
+    node->canvas_x = canvas_x;
+    node->canvas_y = canvas_y;
+    node->has_canvas_position = true;
+    return true;
+}
+
 nlohmann::json QuestObjectiveGraphDocument::toJson() const {
     nlohmann::json node_array = nlohmann::json::array();
     for (const auto& node : nodes) {

@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+namespace urpg::accessibility { struct InclusiveSettings; }
+
 namespace urpg::settings {
 
 struct AppSettingsPaths {
@@ -20,6 +22,7 @@ struct WindowSettings {
     std::uint32_t height = 720;
     bool fullscreen = false;
     bool resizable = true;
+    float safe_area_scale = 1.0f;
 };
 
 struct AudioSettings {
@@ -29,12 +32,30 @@ struct AudioSettings {
     float se_volume = 1.0f;
     float me_volume = 1.0f;
     float system_volume = 1.0f;
+    float voice_volume = 1.0f;
 };
 
 struct AccessibilitySettings {
     bool high_contrast = false;
     bool reduce_motion = false;
     float ui_scale = 1.0f;
+    float text_scale = 1.0f;
+    bool shortcuts_enabled = true;
+    std::string color_filter = "none";
+    bool non_color_cues = true;
+    float screen_shake = 1.0f;
+    float flash_intensity = 1.0f;
+    bool subtitles = true;
+    bool captions = true;
+    float caption_scale = 1.0f;
+    bool mono_audio = false;
+};
+
+struct RuntimeCalibrationSettings {
+    bool completed = false;
+    bool skipped = false;
+    std::uint32_t revision = 0;
+    std::string preferred_input_device = "auto";
 };
 
 struct MapWorkspaceLayoutSettings {
@@ -54,11 +75,29 @@ struct AssetLibraryCollectionSettings {
     std::vector<std::string> asset_keys;
 };
 
+struct AssetLibrarySavedSearchSettings {
+    std::string id;
+    std::string label;
+    std::string media_kind;
+    std::string category;
+    std::string required_tag;
+    std::string required_game_use_tag;
+    std::string source_bundle_id;
+    bool referenced_only = false;
+    bool runtime_ready_only = false;
+    bool previewable_only = false;
+    bool project_attached_only = false;
+    bool attachable_only = false;
+    bool release_eligible_only = false;
+};
+
 struct RuntimeSettings {
     WindowSettings window;
     AudioSettings audio;
     AccessibilitySettings accessibility;
     std::filesystem::path input_mapping_path;
+    std::filesystem::path controller_mapping_path;
+    RuntimeCalibrationSettings calibration;
 };
 
 struct EditorSettings {
@@ -78,6 +117,7 @@ struct EditorSettings {
     std::string asset_browser_layout = "left_collapsible_folder_tree";
     std::vector<std::string> asset_favorite_keys;
     std::vector<AssetLibraryCollectionSettings> asset_collections;
+    std::vector<AssetLibrarySavedSearchSettings> asset_saved_searches;
     MapWorkspaceLayoutSettings map_workspace_layout;
     std::filesystem::path external_asset_library_root;
 };
@@ -109,5 +149,8 @@ EditorSettingsLoadResult loadEditorSettings(const std::filesystem::path& path, c
 
 bool saveRuntimeSettings(const std::filesystem::path& path, const RuntimeSettings& settings, std::string* error = nullptr);
 bool saveEditorSettings(const std::filesystem::path& path, const EditorSettings& settings, std::string* error = nullptr);
+
+accessibility::InclusiveSettings inclusiveSettingsFromRuntime(const RuntimeSettings& settings);
+void applyInclusiveSettings(RuntimeSettings& settings, const accessibility::InclusiveSettings& inclusive);
 
 } // namespace urpg::settings

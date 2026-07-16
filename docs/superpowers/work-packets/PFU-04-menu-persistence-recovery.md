@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native Menu Studio persistence safety
 
-**Status:** Implemented in worktree; verification deferred by user instruction
+**Status:** Implemented in worktree; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -41,7 +41,7 @@ the live runtime graph is replaced.
 - A round trip preserves all scenes, layout metadata, and active scene.
 - Old native graph JSON remains loadable.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[ui][menu]" --reporter compact`
 

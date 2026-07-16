@@ -1,0 +1,34 @@
+{
+  "schema": "urpg.ardy_research_environment.v1",
+  "status": "not_provisioned_admission_deferred",
+  "boundary": "external_research_workstation_only",
+  "referenceEnvironment": {
+    "os": "Ubuntu Linux 22.04",
+    "python": "3.11",
+    "pytorch": "unresolved_exact_pin; upstream requires >=2.4 and CUDA-compatible build",
+    "cuda": "unresolved_exact_pin",
+    "compiler": "C++17-capable; exact pin unresolved",
+    "ardyCommit": "unresolved_exact_pin",
+    "checkpoint": "nvidia/ARDY-Core-RP-20FPS-Horizon40",
+    "checkpointRevision": "abe6c43beb28c867c950acb824b9c4ef3d63fb76",
+    "checkpointHashes": [],
+    "dependencyLockHash": null
+  },
+  "forbiddenInRepository": [
+    "tokens",
+    "credentials",
+    "model weights",
+    "vendor SDKs",
+    "generated TensorRT engines",
+    "datasets",
+    "absolute workstation paths"
+  ],
+  "activationRequirements": [
+    "all ARDy admission gates approved",
+    "named workstation and maintenance owner",
+    "signed legal review",
+    "exact dependency lock and hashes",
+    "secret scan",
+    "loopback-only explicit-launch helper protocol"
+  ]
+}

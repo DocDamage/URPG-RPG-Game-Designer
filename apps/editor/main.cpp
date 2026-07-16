@@ -1,6 +1,7 @@
 #include "apps/editor/editor_app_panels.h"
 #include "editor/ability/ability_inspector_panel.h"
 #include "editor/ability/pattern_field_panel.h"
+#include "editor/action/controller_binding_panel.h"
 #include "editor/analytics/analytics_panel.h"
 #include "editor/ai/creator_command_panel.h"
 #include "editor/accessibility/accessibility_audio_adapter.h"
@@ -40,6 +41,8 @@
 #include "engine/core/app_cli.h"
 #include "engine/core/assets/asset_promotion_manifest.h"
 #include "engine/core/assets/project_asset_reference_index.h"
+#include "engine/core/action/controller_binding_runtime.h"
+#include "engine/core/project/project_reference_index.h"
 #include "engine/core/security/sha256.h"
 
 #include <type_traits>
@@ -75,6 +78,7 @@
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/settings/app_settings_store.h"
 #include "engine/core/ui/menu_serializer.h"
+#include "engine/core/ui/urpg_design_tokens.h"
 #include "engine/core/version.h"
 #include <nlohmann/json.hpp>
 
@@ -199,6 +203,8 @@ struct EditorPanelRuntime {
     urpg::audio::AudioMixPresetBank audio_mix_draft;
     urpg::editor::AudioMixPanel audio_mix_panel;
     urpg::input::InputRemapStore input_remap_draft;
+    urpg::action::ControllerBindingRuntime controller_binding_draft;
+    urpg::editor::ControllerBindingPanel controller_binding_panel;
     urpg::accessibility::AccessibilityAuditor accessibility_auditor;
     urpg::editor::AccessibilityPanel accessibility_panel;
     urpg::editor::ExportDiagnosticsPanel export_diagnostics_panel;
@@ -243,6 +249,7 @@ struct EditorPanelRuntime {
     std::string menu_studio_persisted_json;
     std::string mz_plugin_lock_status;
     std::string map_asset_drop_status;
+    std::string controller_binding_status;
     std::string project_session_status;
     std::string recovery_status;
     std::filesystem::path restored_recovery_project_path;
@@ -257,6 +264,7 @@ struct EditorPanelRuntime {
     bool vendor_dirty_surface_registered = false;
     bool audio_mix_dirty_surface_registered = false;
     bool input_remap_dirty_surface_registered = false;
+    bool controller_binding_dirty_surface_registered = false;
     bool gameplay_recipe_dirty_surface_registered = false;
     bool menu_studio_dirty_surface_registered = false;
     bool mz_plugin_lock_dirty_surface_registered = false;
@@ -271,6 +279,7 @@ constexpr const char* kDatabaseDirtyDocumentId = "database.project";
 constexpr const char* kVendorDirtyDocumentId = "vendor.catalog";
 constexpr const char* kAudioMixDirtyDocumentId = "audio.mix";
 constexpr const char* kInputRemapDirtyDocumentId = "input.remap";
+constexpr const char* kControllerBindingDirtyDocumentId = "input.controller_bindings";
 constexpr const char* kGameplayRecipeDirtyDocumentId = "gameplay.recipes";
 constexpr const char* kMenuStudioDirtyDocumentId = "menu.studio";
 constexpr const char* kMzPluginLockDirtyDocumentId = "compat.mz_plugin_lock";
@@ -932,6 +941,10 @@ urpg::editor::EditorDirtySaveResult saveAudioMixDraft(EditorPanelRuntime& runtim
 }
 
 std::filesystem::path inputRemapDraftPath(const EditorPanelRuntime& runtime) {
+    return runtime.project_root / "config" / "input_mappings.json";
+}
+
+std::filesystem::path legacyInputRemapDraftPath(const EditorPanelRuntime& runtime) {
     return runtime.project_root / "config" / "input_remap.json";
 }
 
@@ -946,6 +959,58 @@ urpg::editor::EditorDirtySaveResult saveInputRemapDraft(EditorPanelRuntime& runt
     }
     return {true, "input_remap_saved",
             "Saved input remaps to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
+}
+
+std::filesystem::path controllerBindingDraftPath(const EditorPanelRuntime& runtime) {
+    return runtime.project_root / "config" / "controller_bindings.json";
+}
+
+bool applyControllerBindingsToEditorSurface(EditorPanelRuntime& runtime, std::string* status) {
+#ifndef URPG_HEADLESS
+    auto* surface = dynamic_cast<urpg::SDLSurface*>(urpg::EngineShell::getInstance().getPlatform());
+    if (surface == nullptr) {
+        if (status) *status = "Controller bindings are ready; live preview is unavailable in this editor session.";
+        return true;
+    }
+    if (!surface->setControllerBindings(runtime.controller_binding_draft)) {
+        if (status) {
+            *status = "Controller bindings were not applied live. Resolve missing required actions and release active controls.";
+        }
+        return false;
+    }
+    if (status) {
+        *status = "Controller bindings applied to the live editor input provider (" +
+                  std::to_string(surface->connectedControllerCount()) + " connected).";
+    }
+    return true;
+#else
+    if (status) *status = "Controller bindings are ready; live preview is unavailable in a headless editor.";
+    return true;
+#endif
+}
+
+urpg::editor::EditorDirtySaveResult saveControllerBindingDraft(EditorPanelRuntime& runtime) {
+    if (runtime.project_root.empty()) {
+        return {false, "controller_binding_save_project_unavailable",
+                "Open a project before saving controller bindings."};
+    }
+    const auto issues = runtime.controller_binding_draft.getIssues();
+    if (!issues.empty()) {
+        return {false, "controller_binding_save_invalid",
+                "Controller bindings are incomplete: " + issues.front().message};
+    }
+    std::string error;
+    const auto target = controllerBindingDraftPath(runtime);
+    if (!runtime.controller_binding_draft.saveToFile(target, &error)) {
+        return {false, "controller_binding_save_failed", "Failed to save controller bindings: " + error};
+    }
+    runtime.controller_binding_draft.markPersisted();
+    std::string liveStatus;
+    (void)applyControllerBindingsToEditorSurface(runtime, &liveStatus);
+    runtime.controller_binding_status = liveStatus;
+    return {true, "controller_binding_saved",
+            "Saved controller bindings to " +
+                std::filesystem::relative(target, runtime.project_root).generic_string() + ". " + liveStatus};
 }
 
 std::filesystem::path gameplayRecipeProjectPath(const EditorPanelRuntime& runtime) {
@@ -1113,11 +1178,13 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
     const auto vendorDirty = runtime.dirty_state_registry.isDirty(kVendorDirtyDocumentId);
     const auto audioMixDirty = runtime.dirty_state_registry.isDirty(kAudioMixDirtyDocumentId);
     const auto inputRemapDirty = runtime.dirty_state_registry.isDirty(kInputRemapDirtyDocumentId);
+    const auto controllerBindingDirty = runtime.dirty_state_registry.isDirty(kControllerBindingDirtyDocumentId);
     const auto gameplayRecipeDirty = runtime.dirty_state_registry.isDirty(kGameplayRecipeDirtyDocumentId);
     const auto menuStudioDirty = runtime.dirty_state_registry.isDirty(kMenuStudioDirtyDocumentId);
     const auto mzPluginLockDirty = runtime.dirty_state_registry.isDirty(kMzPluginLockDirtyDocumentId);
     if (!mapDirty && !abilityDirty && !characterDirty && !questDirty && !dialogueDirty && !databaseDirty && !vendorDirty &&
-        !audioMixDirty && !inputRemapDirty && !gameplayRecipeDirty && !menuStudioDirty && !mzPluginLockDirty) return;
+        !audioMixDirty && !inputRemapDirty && !controllerBindingDirty && !gameplayRecipeDirty && !menuStudioDirty &&
+        !mzPluginLockDirty) return;
 
     std::vector<urpg::editor::RecoveryDocumentDraft> drafts;
     if (mapDirty) {
@@ -1167,8 +1234,13 @@ void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
                           audioMixDraftJson(runtime).dump(2) + "\n"});
     }
     if (inputRemapDirty) {
-        drafts.push_back({kInputRemapDirtyDocumentId, std::filesystem::path("config") / "input_remap.json",
+        drafts.push_back({kInputRemapDirtyDocumentId, std::filesystem::path("config") / "input_mappings.json",
                           runtime.input_remap_draft.saveToJson().dump(2) + "\n"});
+    }
+    if (controllerBindingDirty) {
+        drafts.push_back({kControllerBindingDirtyDocumentId,
+                          std::filesystem::path("config") / "controller_bindings.json",
+                          runtime.controller_binding_draft.saveToJson().dump(2) + "\n"});
     }
     if (gameplayRecipeDirty) {
         drafts.push_back({kGameplayRecipeDirtyDocumentId, std::filesystem::path("content") / "gameplay" / "recipes.json",
@@ -1357,13 +1429,40 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
     }
     runtime.diagnostics_workspace.bindAudioRuntime(runtime.audio_preview_core);
     runtime.input_remap_draft.resetToDefaults();
-    if (std::ifstream inputRemapInput(inputRemapDraftPath(runtime), std::ios::binary); inputRemapInput.good()) {
+    const auto canonicalInputRemapPath = inputRemapDraftPath(runtime);
+    const auto legacyInputRemapPath = legacyInputRemapDraftPath(runtime);
+    const auto loadedInputRemapPath = std::filesystem::is_regular_file(canonicalInputRemapPath)
+                                          ? canonicalInputRemapPath
+                                          : legacyInputRemapPath;
+    if (std::ifstream inputRemapInput(loadedInputRemapPath, std::ios::binary); inputRemapInput.good()) {
         try {
             runtime.input_remap_draft.loadFromJson(nlohmann::json::parse(inputRemapInput));
+            if (loadedInputRemapPath == legacyInputRemapPath) {
+                runtime.map_save_status =
+                    "Loaded legacy input remaps; the next save will migrate them to config/input_mappings.json.";
+            }
         } catch (const std::exception&) {
             runtime.map_save_status = "Saved input remaps are invalid; default mappings were restored instead.";
             runtime.input_remap_draft.resetToDefaults();
         }
+    }
+    runtime.controller_binding_draft.resetToDefaults();
+    runtime.controller_binding_status.clear();
+    const auto controllerBindingsPath = controllerBindingDraftPath(runtime);
+    if (std::filesystem::is_regular_file(controllerBindingsPath)) {
+        std::string error;
+        if (!runtime.controller_binding_draft.loadFromFile(controllerBindingsPath, &error)) {
+            runtime.controller_binding_status =
+                "Saved controller bindings are invalid; safe defaults remain active: " + error;
+        }
+    }
+    runtime.controller_binding_panel.bindRuntime(&runtime.controller_binding_draft);
+    std::string liveControllerStatus;
+    (void)applyControllerBindingsToEditorSurface(runtime, &liveControllerStatus);
+    if (runtime.controller_binding_status.empty()) {
+        runtime.controller_binding_status = liveControllerStatus;
+    } else if (!liveControllerStatus.empty()) {
+        runtime.controller_binding_status += " " + liveControllerStatus;
     }
     const auto starterMapId = starterMapIdForProject(projectRoot);
     const auto requestedMapExists = std::find(runtime.available_map_ids.begin(), runtime.available_map_ids.end(), requestedMapId) !=
@@ -1515,8 +1614,12 @@ bool startCurrentMapPlaytest(EditorPanelRuntime& runtime, bool fromSelectedPart 
     const auto gridDraft = urpg::map::GridPartDocumentToJson(runtime.level_builder_document).dump(2) + "\n";
     const auto selectedSpawn = fromSelectedPart ? playtestSpawnForSelectedPart(runtime) : std::string{};
     const auto spawn = selectedSpawn.empty() ? playtestSpawnForDocument(runtime.level_builder_document) : selectedSpawn;
+    const auto selectedObjectId = fromSelectedPart
+                                      ? runtime.level_builder_workspace.lastRenderSnapshot().inspector.selected_instance_id
+                                      : std::string{};
     const bool started = runtime.playtest_session.start(runtime.project_root, runtime.level_builder_document.mapId(),
-                                                        spawn, gridDraft, perspectiveDraft.serialized_document_json + "\n");
+                                                        spawn, gridDraft, perspectiveDraft.serialized_document_json + "\n",
+                                                        selectedObjectId);
     runtime.map_save_status = runtime.playtest_session.message();
     if (!started && runtime.map_save_status.empty()) {
         runtime.map_save_status = "Map playtest could not start.";
@@ -1657,6 +1760,14 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
         [] {},
         {},
     });
+    runtime.controller_binding_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
+        kControllerBindingDirtyDocumentId,
+        "map_authoring",
+        false,
+        [&runtime] { return saveControllerBindingDraft(runtime); },
+        [] {},
+        {},
+    });
     runtime.gameplay_recipe_dirty_surface_registered = runtime.dirty_state_registry.registerSurface({
         kGameplayRecipeDirtyDocumentId,
         "ability",
@@ -1694,6 +1805,7 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
     runtime.audio_mix_panel.bindBank(&runtime.audio_mix_draft);
     runtime.audio_mix_panel.bindCore(&runtime.audio_preview_core);
     runtime.diagnostics_workspace.bindAudioRuntime(runtime.audio_preview_core);
+    runtime.controller_binding_panel.bindRuntime(&runtime.controller_binding_draft);
     runtime.accessibility_panel.bindAuditor(&runtime.accessibility_auditor);
     bindLevelBuilder(runtime);
 
@@ -2543,7 +2655,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     static int atlasFrameWidth = 32;
     static int atlasFrameHeight = 32;
     static std::string inspectedMapReferenceAssetId;
-    static std::vector<urpg::assets::ProjectAssetReference> inspectedMapReferences;
+    static std::vector<urpg::project::ProjectReferenceEdge> inspectedMapReferences;
     static std::vector<std::string> inspectedMapReferenceDiagnostics;
     static std::string inspectedRemovalImpactAssetId;
     static urpg::assets::ProjectAssetRemovalImpactPlan inspectedRemovalImpact;
@@ -3079,10 +3191,10 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
             if (projectAttached && !runtime.project_root.empty()) {
                 ImGui::SameLine();
                 if (ImGui::SmallButton("Project References")) {
-                    const auto index = urpg::assets::buildProjectAssetReferenceIndex(runtime.project_root);
+                    const auto build = urpg::project::buildProjectReferenceIndex(runtime.project_root);
                     inspectedMapReferenceAssetId = row.value("asset_id", "");
-                    inspectedMapReferences = index.inboundForAsset(inspectedMapReferenceAssetId);
-                    inspectedMapReferenceDiagnostics = index.diagnostics;
+                    inspectedMapReferences = build.index.findUses("asset", inspectedMapReferenceAssetId).matches;
+                    inspectedMapReferenceDiagnostics = build.diagnostics;
                 }
                 ImGui::SameLine();
                 if (ImGui::SmallButton("Removal Impact")) {
@@ -3093,8 +3205,10 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                 if (inspectedMapReferenceAssetId == row.value("asset_id", "")) {
                     ImGui::TextDisabled("Project references: %zu", inspectedMapReferences.size());
                     for (const auto& reference : inspectedMapReferences) {
-                        ImGui::BulletText("%s | %s | %s", reference.document_path.generic_string().c_str(),
-                                          reference.owner_kind.c_str(), reference.local_id.c_str());
+                        ImGui::BulletText("%s | %s:%s | %s | %s",
+                                          reference.document_path.generic_string().c_str(),
+                                          reference.source_type.c_str(), reference.source_id.c_str(),
+                                          reference.reference_type.c_str(), reference.local_id.c_str());
                     }
                     for (const auto& diagnostic : inspectedMapReferenceDiagnostics) {
                         ImGui::TextDisabled("Index diagnostic: %s", diagnostic.c_str());
@@ -3511,7 +3625,7 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                         if (audioWaveformSelectionDragging && !ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
                             audioWaveformSelectionDragging = false;
                         }
-                        const auto* drawList = ImGui::GetWindowDrawList();
+                        auto* drawList = ImGui::GetWindowDrawList();
                         drawList->AddRectFilled(waveformMin, waveformMax, IM_COL32(28, 34, 45, 255));
                         drawList->AddRect(waveformMin, waveformMax, IM_COL32(116, 136, 164, 255));
                         if (peaks.is_array() && !peaks.empty()) {
@@ -4997,6 +5111,128 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             runtime.map_save_status = result.message;
         }
     }
+    if (ImGui::CollapsingHeader("Controller Bindings")) {
+        static int controllerButtonIndex = 4;
+        static int controllerActionIndex = 5;
+        static constexpr urpg::action::ControllerButton controllerButtons[] = {
+            urpg::action::ControllerButton::DPadUp,
+            urpg::action::ControllerButton::DPadDown,
+            urpg::action::ControllerButton::DPadLeft,
+            urpg::action::ControllerButton::DPadRight,
+            urpg::action::ControllerButton::FaceBottom,
+            urpg::action::ControllerButton::FaceRight,
+            urpg::action::ControllerButton::FaceLeft,
+            urpg::action::ControllerButton::FaceTop,
+            urpg::action::ControllerButton::LeftShoulder,
+            urpg::action::ControllerButton::RightShoulder,
+            urpg::action::ControllerButton::Select,
+            urpg::action::ControllerButton::Start,
+            urpg::action::ControllerButton::LeftStickPress,
+            urpg::action::ControllerButton::RightStickPress,
+        };
+        static constexpr const char* controllerButtonLabels[] = {
+            "D-Pad Up", "D-Pad Down", "D-Pad Left", "D-Pad Right", "Face Bottom", "Face Right", "Face Left",
+            "Face Top", "Left Shoulder", "Right Shoulder", "Select / Back", "Start", "Left Stick Press",
+            "Right Stick Press",
+        };
+        static constexpr urpg::input::InputAction controllerActions[] = {
+            urpg::input::InputAction::None,
+            urpg::input::InputAction::MoveUp,
+            urpg::input::InputAction::MoveDown,
+            urpg::input::InputAction::MoveLeft,
+            urpg::input::InputAction::MoveRight,
+            urpg::input::InputAction::Confirm,
+            urpg::input::InputAction::Cancel,
+            urpg::input::InputAction::Menu,
+            urpg::input::InputAction::PageLeft,
+            urpg::input::InputAction::PageRight,
+            urpg::input::InputAction::BattleAttack,
+            urpg::input::InputAction::BattleSkill,
+            urpg::input::InputAction::BattleItem,
+            urpg::input::InputAction::BattleDefend,
+            urpg::input::InputAction::BattleEscape,
+            urpg::input::InputAction::Debug,
+        };
+        static constexpr const char* controllerActionLabels[] = {
+            "Unbound", "Move Up", "Move Down", "Move Left", "Move Right", "Confirm", "Cancel", "Menu",
+            "Page Left", "Page Right", "Battle Attack", "Battle Skill", "Battle Item", "Battle Defend",
+            "Battle Escape", "Debug",
+        };
+
+        ImGui::TextDisabled("Project mappings are saved to config/controller_bindings.json and previewed through SDL.");
+        ImGui::Combo("Controller Control", &controllerButtonIndex, controllerButtonLabels,
+                     IM_ARRAYSIZE(controllerButtonLabels));
+        ImGui::Combo("Semantic Action", &controllerActionIndex, controllerActionLabels,
+                     IM_ARRAYSIZE(controllerActionLabels));
+        if (ImGui::Button("Assign Controller Binding")) {
+            const auto button = controllerButtons[controllerButtonIndex];
+            const auto action = controllerActions[controllerActionIndex];
+            const auto replacedAction = runtime.controller_binding_draft.getBinding(button);
+            if (action == urpg::input::InputAction::None) {
+                runtime.controller_binding_draft.clearBinding(button);
+            } else {
+                std::optional<urpg::action::ControllerButton> previousButton;
+                for (const auto& [candidateButton, candidateAction] :
+                     runtime.controller_binding_draft.getAllBindings()) {
+                    if (candidateButton != button && candidateAction == action) {
+                        previousButton = candidateButton;
+                        break;
+                    }
+                }
+                if (previousButton.has_value()) {
+                    if (replacedAction.has_value() && *replacedAction != urpg::input::InputAction::None) {
+                        runtime.controller_binding_draft.bindButton(*previousButton, *replacedAction);
+                    } else {
+                        runtime.controller_binding_draft.clearBinding(*previousButton);
+                    }
+                }
+                runtime.controller_binding_draft.bindButton(button, action);
+            }
+            (void)runtime.dirty_state_registry.markDirty(kControllerBindingDirtyDocumentId, true);
+            if (runtime.controller_binding_draft.getIssues().empty()) {
+                (void)applyControllerBindingsToEditorSurface(runtime, &runtime.controller_binding_status);
+            } else {
+                runtime.controller_binding_status =
+                    "Binding changed, but live application and save are paused until all required actions are assigned.";
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Restore Controller Defaults")) {
+            runtime.controller_binding_draft.resetToDefaults(true);
+            (void)runtime.dirty_state_registry.markDirty(kControllerBindingDirtyDocumentId, true);
+            (void)applyControllerBindingsToEditorSurface(runtime, &runtime.controller_binding_status);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save Controller Bindings")) {
+            const auto result = runtime.dirty_state_registry.save(kControllerBindingDirtyDocumentId);
+            runtime.controller_binding_status = result.message;
+        }
+
+        runtime.controller_binding_panel.render();
+        const auto issues = runtime.controller_binding_draft.getIssues();
+        if (!issues.empty()) {
+            for (const auto& issue : issues) {
+                ImGui::TextColored(ImVec4(0.95F, 0.38F, 0.32F, 1.0F), "%s", issue.message.c_str());
+            }
+        }
+        if (!runtime.controller_binding_status.empty()) {
+            ImGui::TextWrapped("%s", runtime.controller_binding_status.c_str());
+        }
+        if (ImGui::BeginTable("ControllerBindingRows", 2,
+                              ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+            ImGui::TableSetupColumn("Control");
+            ImGui::TableSetupColumn("Action");
+            ImGui::TableHeadersRow();
+            for (const auto& [button, action] : runtime.controller_binding_draft.getAllBindings()) {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::TextUnformatted(urpg::action::ControllerBindingRuntime::buttonToString(button).c_str());
+                ImGui::TableSetColumnIndex(1);
+                ImGui::TextUnformatted(urpg::action::ControllerBindingRuntime::actionToString(action).c_str());
+            }
+            ImGui::EndTable();
+        }
+    }
     if (ImGui::CollapsingHeader("Accessibility Audit")) {
         ImGui::TextDisabled("Audits the active native audio mix, battle-preview, menu focus rows, and spatial Map controls.");
         if (ImGui::Button("Audit Current Creator Surfaces")) {
@@ -6304,6 +6540,9 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         }
     }
     if (ImGui::CollapsingHeader("Map Layout")) {
+        if (snapshot.layoutRecovered) {
+            ImGui::TextWrapped("%s", snapshot.layoutRecoveryMessage.c_str());
+        }
         auto layout = snapshot.layout;
         bool changed = false;
         changed |= ImGui::Checkbox("Show Palette / Library", &layout.paletteVisible);
@@ -6314,6 +6553,9 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         changed |= ImGui::SliderFloat("Diagnostics Height", &layout.diagnosticsHeightFraction, 0.12f, 0.40f, "%.0f%%");
         if (changed) {
             workspace.setLayout(layout);
+        }
+        if (ImGui::Button("Reset Workspace Layout")) {
+            workspace.resetLayout();
         }
         ImGui::TextDisabled("Map pane preferences are stored in local editor settings.");
     }
@@ -7391,11 +7633,33 @@ int main(int argc, char** argv) {
 
 #ifdef URPG_IMGUI_ENABLED
         ImGui::CreateContext();
-        ImGui::GetIO().DisplaySize = ImVec2(static_cast<float>(config.width), static_cast<float>(config.height));
+        auto& imguiIo = ImGui::GetIO();
+        imguiIo.DisplaySize = ImVec2(static_cast<float>(config.width), static_cast<float>(config.height));
+        const auto designTokens = urpg::ui::makeUrpgDesignTokens(
+            settingsLoad.settings.accessibility.high_contrast ? urpg::ui::UrpgThemeMode::HighContrast
+                                                              : urpg::ui::UrpgThemeMode::Dark,
+            settingsLoad.settings.accessibility.ui_scale, settingsLoad.settings.accessibility.reduce_motion);
+        auto& imguiStyle = ImGui::GetStyle();
+        imguiStyle.ScaleAllSizes(designTokens.scale);
+        imguiIo.FontGlobalScale = designTokens.scale;
+        const auto imguiColor = [](const urpg::ui::UrpgColorToken& color) {
+            return ImVec4(color.red, color.green, color.blue, color.alpha);
+        };
+        imguiStyle.Colors[ImGuiCol_WindowBg] = imguiColor(designTokens.colors.at("surface"));
+        imguiStyle.Colors[ImGuiCol_ChildBg] = imguiColor(designTokens.colors.at("surface"));
+        imguiStyle.Colors[ImGuiCol_PopupBg] = imguiColor(designTokens.colors.at("surface_raised"));
+        imguiStyle.Colors[ImGuiCol_Text] = imguiColor(designTokens.colors.at("text"));
+        imguiStyle.Colors[ImGuiCol_TextDisabled] = imguiColor(designTokens.colors.at("text_muted"));
+        imguiStyle.Colors[ImGuiCol_CheckMark] = imguiColor(designTokens.colors.at("accent"));
+        imguiStyle.Colors[ImGuiCol_NavHighlight] = imguiColor(designTokens.colors.at("focus"));
+        imguiStyle.FrameRounding = designTokens.corner_radius.at("control");
+        imguiStyle.WindowRounding = designTokens.corner_radius.at("card");
+        imguiStyle.PopupRounding = designTokens.corner_radius.at("popover");
+        imguiStyle.FrameBorderSize = designTokens.borders.at("hairline");
         std::filesystem::create_directories(settingsLoad.settings.imgui_ini_path.parent_path());
         const std::string imguiIniFilename = settingsLoad.settings.imgui_ini_path.string();
-        ImGui::GetIO().IniFilename = imguiIniFilename.c_str();
-        ImGui::GetIO().LogFilename = nullptr;
+        imguiIo.IniFilename = imguiIniFilename.c_str();
+        imguiIo.LogFilename = nullptr;
         if (options.headless) {
             unsigned char* fontPixels = nullptr;
             int fontWidth = 0;
@@ -7460,6 +7724,12 @@ int main(int argc, char** argv) {
             if (panelRuntime.mz_plugin_lock_dirty_surface_registered) {
                 (void)panelRuntime.dirty_state_registry.markDirty(kMzPluginLockDirtyDocumentId, false);
             }
+            if (panelRuntime.input_remap_dirty_surface_registered) {
+                (void)panelRuntime.dirty_state_registry.markDirty(kInputRemapDirtyDocumentId, false);
+            }
+            if (panelRuntime.controller_binding_dirty_surface_registered) {
+                (void)panelRuntime.dirty_state_registry.markDirty(kControllerBindingDirtyDocumentId, false);
+            }
             panelRuntime.next_recovery_snapshot_at = {};
             panelRuntime.creator_checklist_panel.setProjectRoot(identity.root);
             if (panelRuntime.recovery_service.writeSessionMarker(identity.root)) {
@@ -7490,6 +7760,15 @@ int main(int argc, char** argv) {
             panelRuntime.mz_plugin_lock_status.clear();
             if (panelRuntime.mz_plugin_lock_dirty_surface_registered) {
                 (void)panelRuntime.dirty_state_registry.markDirty(kMzPluginLockDirtyDocumentId, false);
+            }
+            panelRuntime.input_remap_draft.resetToDefaults();
+            panelRuntime.controller_binding_draft.resetToDefaults();
+            panelRuntime.controller_binding_status.clear();
+            if (panelRuntime.input_remap_dirty_surface_registered) {
+                (void)panelRuntime.dirty_state_registry.markDirty(kInputRemapDirtyDocumentId, false);
+            }
+            if (panelRuntime.controller_binding_dirty_surface_registered) {
+                (void)panelRuntime.dirty_state_registry.markDirty(kControllerBindingDirtyDocumentId, false);
             }
         });
         // A supplied/recent path is not editor state until the session accepts

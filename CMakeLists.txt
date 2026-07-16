@@ -451,6 +451,7 @@ set(URPG_CORE_SOURCES
     engine/core/compat/mz_project_compatibility_report.cpp
     engine/core/compat/mz_visual_diff_report.cpp
     engine/core/diagnostics/diagnostics_bundle_exporter.cpp
+    engine/core/diagnostics/redacted_support_bundle.cpp
     engine/core/debug/debug_session.cpp
     engine/core/debug/debug_ai_bridge.cpp
     engine/core/telemetry/telemetry_event.cpp
@@ -462,6 +463,7 @@ set(URPG_CORE_SOURCES
     engine/core/community/community_wysiwyg_feature.cpp
     engine/core/maker/maker_wysiwyg_feature.cpp
     engine/core/input/input_remap_store.cpp
+    engine/core/input/controller_input_provider.cpp
     engine/core/input/input_remap_profile.cpp
     engine/core/platform/device_profile.cpp
     engine/core/platform/process_runner.cpp
@@ -481,6 +483,21 @@ set(URPG_CORE_SOURCES
     engine/core/sprite_batcher.cpp
     engine/core/clock.cpp
     engine/core/perf/perf_profiler.cpp
+    engine/core/perf/performance_capture.cpp
+    engine/core/perf/product_benchmark_suite.cpp
+    engine/core/perf/primary_route_work.cpp
+    engine/core/reliability/stress_scenario_suite.cpp
+    engine/core/reliability/fault_injection_suite.cpp
+    engine/core/security/sanitizer_fuzz_coverage.cpp
+    engine/core/security/release_security_audit.cpp
+    engine/core/privacy/privacy_network_policy.cpp
+    engine/core/security/release_sbom.cpp
+    engine/core/platform/platform_services.cpp
+    engine/core/export/desktop_release_contract.cpp
+    engine/core/export/version_compatibility_policy.cpp
+    engine/core/export/governed_package_manifest.cpp
+    engine/core/release/release_provenance.cpp
+    engine/core/release/external_qualification.cpp
     engine/core/testing/visual_regression_harness.cpp
     engine/core/analytics/analytics_dispatcher.cpp
     engine/core/analytics/analytics_dispatcher_validator.cpp
@@ -494,6 +511,7 @@ set(URPG_CORE_SOURCES
     engine/core/events/event_edit_guard.cpp
     engine/core/events/event_debugger.cpp
     engine/core/events/event_dependency_graph.cpp
+    engine/core/events/event_template_library.cpp
     engine/core/events/event_document.cpp
     engine/core/events/event_command_graph.cpp
     engine/core/events/event_macro_recorder.cpp
@@ -505,6 +523,7 @@ set(URPG_CORE_SOURCES
     engine/core/quest/quest_objective_graph.cpp
     engine/core/quest/quest_validator.cpp
     engine/core/dialogue/dialogue_graph.cpp
+    engine/core/narrative/branching_quest_document.cpp
     engine/core/narrative/choice_consequence_tracker.cpp
     engine/core/narrative/ending_route_manager.cpp
     engine/core/narrative/narrative_continuity_checker.cpp
@@ -515,9 +534,11 @@ set(URPG_CORE_SOURCES
     engine/core/timeline/cutscene_timeline.cpp
     engine/core/replay/replay_recorder.cpp
     engine/core/replay/replay_player.cpp
+    engine/core/replay/scenario_replay.cpp
     engine/core/replay/replay_gallery.cpp
     engine/core/replay/golden_replay_lane.cpp
     engine/core/database/rpg_database.cpp
+    engine/core/database/database_vertical_slice_integration.cpp
     engine/core/world/world_map_graph.cpp
     engine/core/crafting/crafting_registry.cpp
     engine/core/crafting/crafting_economy_loop.cpp
@@ -529,6 +550,7 @@ set(URPG_CORE_SOURCES
     engine/core/puzzle/puzzle_registry.cpp
     engine/core/tutorial/runtime_hint_system.cpp
     engine/core/balance/economy_simulator.cpp
+    engine/core/balance/economy_revision_history.cpp
     engine/core/balance/encounter_table.cpp
     engine/core/shop/vendor_catalog.cpp
     engine/core/rest/rest_point.cpp
@@ -604,6 +626,11 @@ set(URPG_CORE_SOURCES
     engine/core/assets/global_asset_library_store.cpp
     engine/core/assets/global_asset_promotion_service.cpp
     engine/core/assets/asset_import_session.cpp
+    engine/core/assets/asset_background_job.cpp
+    engine/core/assets/project_asset_operation_service.cpp
+    engine/core/assets/asset_audio_quality.cpp
+    engine/core/assets/asset_notices_report.cpp
+    engine/core/assets/release_slice_asset_audit.cpp
     engine/core/assets/asset_library.cpp
     engine/core/assets/asset_promotion_manifest.cpp
     engine/core/assets/project_asset_reference_index.cpp
@@ -611,6 +638,18 @@ set(URPG_CORE_SOURCES
     engine/core/assets/local_asset_catalog.cpp
     engine/core/assets/archive_catalog.cpp
     engine/core/assets/project_asset_attachment_service.cpp
+    engine/core/project/project_reference_index.cpp
+    engine/core/project/project_reference_change_plan.cpp
+    engine/core/project/project_operation_coordinator.cpp
+    engine/core/project/project_operation_journal.cpp
+    engine/core/project/project_schema_migration_registry.cpp
+    engine/core/project/project_external_change_inspector.cpp
+    engine/core/map/grid_part_prefab_lifecycle.cpp
+    engine/core/map/project_world_graph.cpp
+    engine/core/map/spatial_performance_budget.cpp
+    engine/core/events/native_event_command_matrix.cpp
+    engine/core/events/event_reference_picker.cpp
+    engine/core/events/event_static_analyzer.cpp
     engine/core/assets/asset_action_view.cpp
     engine/core/assets/asset_cleanup_planner.cpp
     engine/core/audio/audio_mix_backend_smoke.cpp
@@ -621,6 +660,11 @@ set(URPG_CORE_SOURCES
     engine/core/ui/ui_window.cpp
     engine/core/ui/theme_registry.cpp
     engine/core/ui/theme_validator.cpp
+    engine/core/ui/urpg_design_tokens.cpp
+    engine/core/presentation/runtime_presentation_bible.cpp
+    engine/core/presentation/runtime_feedback_stack.cpp
+    engine/core/presentation/exploration_feedback.cpp
+    engine/core/presentation/battle_feedback.cpp
     engine/core/ui/chat_window.cpp
     engine/core/ui/ui_command_list.cpp
     engine/core/message/message_core.cpp
@@ -668,6 +712,7 @@ set(URPG_CORE_SOURCES
     editor/project/editor_project_session.cpp
     editor/project/editor_dirty_state_registry.cpp
     editor/project/editor_recovery_service.cpp
+    editor/project/project_recovery_coordinator.cpp
     editor/project/creator_checklist.cpp
     editor/project/creator_checklist_panel.cpp
     editor/quest/quest_panel.cpp
@@ -683,6 +728,9 @@ set(URPG_CORE_SOURCES
     editor/capture/capture_panel.cpp
     editor/presentation/photo_mode_panel.cpp
     editor/database/database_panel.cpp
+    editor/database/database_batch_edit.cpp
+    editor/database/database_table_model.cpp
+    editor/database/database_reference_workspace.cpp
     editor/balance/balance_panel.cpp
     editor/balance/encounter_designer_panel.cpp
     editor/items/loot_generator_panel.cpp
@@ -700,6 +748,9 @@ set(URPG_CORE_SOURCES
     editor/assets/asset_library_panel.cpp
     editor/assets/editor_asset_drag_payload.cpp
     editor/assets/editor_thumbnail_cache.cpp
+    editor/assets/asset_use_here.cpp
+    editor/spatial/map_batch_edit.cpp
+    editor/events/event_command_sequence_editor.cpp
     editor/export/export_diagnostics_panel.cpp
     editor/export/export_preview_panel.cpp
     editor/compat/compat_report_panel.cpp
@@ -726,6 +777,9 @@ set(URPG_CORE_SOURCES
     editor/message/visual_novel_pacing_panel.cpp
     editor/progression/stat_allocation_panel.cpp
     editor/ui/menu_inspector_model.cpp
+    editor/ui/editor_widget_state.cpp
+    editor/ui/editor_command_palette.cpp
+    editor/diagnostics/editor_error_card.cpp
     editor/ui/menu_inspector_panel.cpp
     editor/ui/menu_preview_panel.cpp
     editor/ability/ability_inspector_model.cpp
@@ -748,6 +802,8 @@ set(URPG_CORE_SOURCES
     editor/spatial/grid_part_inspector_panel.cpp
     editor/spatial/grid_part_playtest_panel.cpp
     editor/playtest/playtest_session_controller.cpp
+    editor/playtest/playtest_hot_reload.cpp
+    editor/playtest/playtest_runtime_state_inspector.cpp
     editor/spatial/level_builder_workspace.cpp
     editor/spatial/map_authoring_context.cpp
     editor/spatial/map_authoring_persistence.cpp
@@ -813,11 +869,16 @@ set(URPG_CORE_SOURCES
     engine/core/level/path_request_router.cpp
     engine/core/level/level_assembly.cpp
     engine/core/ui/menu_serializer.cpp
+    engine/core/ui/menu_authoring_document.cpp
+    engine/core/accessibility/inclusive_experience.cpp
     engine/core/scene/battle_scene.cpp
     engine/core/scene/map_scene.cpp
     engine/core/scene/menu_scene.cpp
     engine/core/scene/options_scene.cpp
     engine/core/scene/runtime_title_scene.cpp
+    engine/core/scene/runtime_shell_flow.cpp
+    engine/core/scene/first_run_calibration.cpp
+    engine/core/presentation/vertical_slice_pacing_review.cpp
     runtimes/compat_js/quickjs_runtime.cpp
     runtimes/compat_js/window_color_parser.cpp
     runtimes/compat_js/window_compat.cpp
@@ -990,7 +1051,7 @@ endif()
 option(URPG_SKIP_OPENGL "Skip OpenGL requirement (for headless CI builds)" OFF)
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE)
 set(SDL2_TESTS OFF CACHE BOOL "" FORCE)
-set(URPG_DISABLE_VENDORED_SDL_WINDOWS_JOYSTICK_STACK OFF)
+set(URPG_PATCH_VENDORED_SDL_XINPUT_CAPABILITIES_EX OFF)
 
 if(MINGW)
     check_cxx_source_compiles(
@@ -1006,14 +1067,17 @@ if(MINGW)
     )
 
     if(URPG_MINGW_XINPUT_HEADER_HAS_CAPABILITIES_EX)
-        set(SDL_XINPUT OFF CACHE BOOL
-            "Disable vendored SDL XInput backend on MinGW toolchains whose headers already define XINPUT_CAPABILITIES_EX"
+        set(SDL_XINPUT ON CACHE BOOL
+            "Use vendored SDL XInput with the URPG compatibility guard for modern MinGW headers"
             FORCE
         )
-        set(URPG_DISABLE_VENDORED_SDL_WINDOWS_JOYSTICK_STACK ON)
+        set(SDL_JOYSTICK ON CACHE BOOL "Build vendored SDL joystick support" FORCE)
+        set(SDL_HAPTIC ON CACHE BOOL "Build vendored SDL haptic support" FORCE)
+        set(SDL_HIDAPI_JOYSTICK ON CACHE BOOL "Build vendored SDL HIDAPI joystick support" FORCE)
+        set(URPG_PATCH_VENDORED_SDL_XINPUT_CAPABILITIES_EX ON)
         message(STATUS
-            "URPG: disabling vendored SDL XInput backend for MinGW because the active xinput.h "
-            "already defines XINPUT_CAPABILITIES_EX and SDL 2.30.0's fallback typedef would conflict.")
+            "URPG: enabling vendored SDL controller support with an XINPUT_CAPABILITIES_EX compatibility "
+            "guard for the active modern MinGW header.")
     endif()
 endif()
 
@@ -1044,20 +1108,6 @@ elseif(NOT SDL2_FOUND)
 endif()
 
 if(NOT SDL2_FOUND)
-    if(MINGW AND URPG_DISABLE_VENDORED_SDL_WINDOWS_JOYSTICK_STACK)
-        set(SDL_JOYSTICK OFF CACHE BOOL
-            "Disable vendored SDL joystick stack on MinGW when XInput compatibility shims are unavailable"
-            FORCE
-        )
-        set(SDL_HAPTIC OFF CACHE BOOL
-            "Disable vendored SDL haptic stack on MinGW when joystick backends are unavailable"
-            FORCE
-        )
-        message(STATUS
-            "URPG: disabling vendored SDL joystick/haptic support for the MinGW fallback build because "
-            "SDL 2.30.0's Windows joystick sources still assume XInput helpers that are not available "
-            "with this header set. Install SDL2 into the active MinGW root to restore controller support.")
-    endif()
     if(MINGW)
         set(SDL_SHARED ${URPG_MINGW_VENDORED_SDL_SHARED} CACHE BOOL
             "Build a shared version of the library"
@@ -1075,6 +1125,44 @@ if(NOT SDL2_FOUND)
         GIT_TAG release-2.30.0 # Stable baseline for URPG
     )
     FetchContent_MakeAvailable(SDL2)
+
+    if(MINGW AND URPG_PATCH_VENDORED_SDL_XINPUT_CAPABILITIES_EX)
+        set(_urpg_sdl_xinput_header "${sdl2_SOURCE_DIR}/src/core/windows/SDL_xinput.h")
+        file(READ "${_urpg_sdl_xinput_header}" _urpg_sdl_xinput_contents)
+        if(NOT _urpg_sdl_xinput_contents MATCHES "SDL_XINPUT_CAPABILITIES_EX_DEFINED_BY_SYSTEM")
+            string(REPLACE
+                "/* This struct is not defined in XInput headers. */\ntypedef struct _XINPUT_CAPABILITIES_EX"
+                "/* Modern MinGW headers define this extension; retain SDL's fallback elsewhere. */\n#if !defined(SDL_XINPUT_CAPABILITIES_EX_DEFINED_BY_SYSTEM)\ntypedef struct _XINPUT_CAPABILITIES_EX"
+                _urpg_sdl_xinput_contents
+                "${_urpg_sdl_xinput_contents}"
+            )
+            string(REPLACE
+                "} XINPUT_CAPABILITIES_EX, *PXINPUT_CAPABILITIES_EX;\n\n/* Forward decl's"
+                "} XINPUT_CAPABILITIES_EX, *PXINPUT_CAPABILITIES_EX;\n#endif /* SDL_XINPUT_CAPABILITIES_EX_DEFINED_BY_SYSTEM */\n\n/* Forward decl's"
+                _urpg_sdl_xinput_contents
+                "${_urpg_sdl_xinput_contents}"
+            )
+            file(WRITE "${_urpg_sdl_xinput_header}" "${_urpg_sdl_xinput_contents}")
+        endif()
+        set(_urpg_sdl_xinput_joystick "${sdl2_SOURCE_DIR}/src/joystick/windows/SDL_xinputjoystick.c")
+        file(READ "${_urpg_sdl_xinput_joystick}" _urpg_sdl_xinput_joystick_contents)
+        if(NOT _urpg_sdl_xinput_joystick_contents MATCHES
+           "SDL_XINPUT_CAPABILITIES_EX_DEFINED_BY_SYSTEM.*VersionNumber")
+            string(REPLACE
+                "*pVersion = capabilities.ProductVersion;"
+                "#if defined(SDL_XINPUT_CAPABILITIES_EX_DEFINED_BY_SYSTEM)\n        *pVersion = capabilities.VersionNumber;\n#else\n        *pVersion = capabilities.ProductVersion;\n#endif"
+                _urpg_sdl_xinput_joystick_contents
+                "${_urpg_sdl_xinput_joystick_contents}"
+            )
+            file(WRITE "${_urpg_sdl_xinput_joystick}" "${_urpg_sdl_xinput_joystick_contents}")
+        endif()
+        foreach(_urpg_sdl_vendor_target IN ITEMS SDL2 SDL2-static)
+            if(TARGET ${_urpg_sdl_vendor_target})
+                target_compile_definitions(${_urpg_sdl_vendor_target}
+                    PRIVATE SDL_XINPUT_CAPABILITIES_EX_DEFINED_BY_SYSTEM=1)
+            endif()
+        endforeach()
+    endif()
 
     if(MINGW AND CMAKE_BINARY_DIR MATCHES " ")
         foreach(_urpg_sdl_vendor_target IN ITEMS SDL2 SDL2-static)
@@ -1289,10 +1377,18 @@ if(WIN32 AND NOT MSVC)
         add_custom_command(
             TARGET ${target_name}
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_RUNTIME_DLLS:${target_name}>
+            COMMAND ${URPG_POWERSHELL_EXE}
+                -NoProfile
+                -ExecutionPolicy
+                Bypass
+                -File
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/copy-runtime-dlls-if-different.ps1"
+                -DestinationDirectory
                 $<TARGET_FILE_DIR:${target_name}>
+                -SourceFiles
+                $<TARGET_RUNTIME_DLLS:${target_name}>
             COMMAND_EXPAND_LISTS
+            VERBATIM
         )
     endfunction()
 
@@ -1490,14 +1586,7 @@ target_link_libraries(urpg_export_smoke_app PRIVATE urpg_core)
 target_include_directories(urpg_export_smoke_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(WIN32 AND NOT MSVC)
-    add_custom_command(
-        TARGET urpg_export_smoke_app
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:urpg_export_smoke_app>
-            $<TARGET_FILE_DIR:urpg_export_smoke_app>
-        COMMAND_EXPAND_LISTS
-    )
+    urpg_copy_runtime_dlls(urpg_export_smoke_app)
 endif()
 
 if(URPG_BUILD_TESTS)
@@ -1509,8 +1598,11 @@ add_executable(urpg_tests
     tests/unit/test_frame_budget.cpp
     tests/unit/test_process_runner.cpp
     tests/unit/test_playtest_session_controller.cpp
+    tests/unit/test_playtest_hot_reload.cpp
+    tests/unit/test_playtest_runtime_state_inspector.cpp
     tests/unit/test_runtime_diagnostics.cpp
     tests/unit/test_future_feature_16.cpp
+    tests/unit/test_redacted_support_bundle.cpp
     tests/unit/test_chatbot_component.cpp
     tests/unit/test_ai_knowledge_base.cpp
     tests/unit/test_creator_command_planner.cpp
@@ -1519,6 +1611,7 @@ add_executable(urpg_tests
     tests/unit/test_behavior_tree_runtime.cpp
     tests/unit/test_battle_ai_behavior_tree.cpp
     tests/unit/test_perf_profiler.cpp
+    tests/unit/test_performance_capture.cpp
     tests/unit/test_perf_diagnostics_panel.cpp
     tests/unit/test_ecs_world.cpp
     tests/unit/test_ai_system.cpp
@@ -1547,12 +1640,26 @@ add_executable(urpg_tests
     tests/unit/test_thread_roles.cpp
     tests/unit/test_choice_consequence_tracker.cpp
     tests/unit/test_dialogue_graph.cpp
+    tests/unit/test_branching_quest_document.cpp
     tests/unit/test_ending_route_manager.cpp
     tests/unit/test_narrative_continuity_checker.cpp
     tests/unit/test_quest_registry.cpp
     tests/unit/test_relationship_registry.cpp
     tests/unit/test_render_tier.cpp
     tests/unit/test_project_snapshot_store.cpp
+    tests/unit/test_project_reference_index.cpp
+    tests/unit/test_project_reference_change_plan.cpp
+    tests/unit/test_project_operation_coordinator.cpp
+    tests/unit/test_project_operation_journal.cpp
+    tests/unit/test_project_schema_migration_registry.cpp
+    tests/unit/test_project_external_change_inspector.cpp
+    tests/unit/test_grid_part_prefab_lifecycle.cpp
+    tests/unit/test_project_world_graph.cpp
+    tests/unit/test_native_event_command_matrix.cpp
+    tests/unit/test_event_command_sequence_editor.cpp
+    tests/unit/test_event_reference_picker.cpp
+    tests/unit/test_event_static_analyzer.cpp
+    tests/unit/test_event_template_library.cpp
     tests/unit/test_save_compatibility_preview.cpp
     tests/unit/test_save_corruption_lab.cpp
     tests/unit/test_save_debugger.cpp
@@ -1571,6 +1678,7 @@ add_executable(urpg_tests
     tests/unit/test_main_menu_panel.cpp
     tests/unit/test_editor_project_session.cpp
     tests/unit/test_editor_recovery_service.cpp
+    tests/unit/test_project_recovery_coordinator.cpp
     tests/unit/test_editor_dirty_state_registry.cpp
     tests/unit/test_creator_checklist.cpp
     tests/unit/test_creator_checklist_panel.cpp
@@ -1586,15 +1694,26 @@ add_executable(urpg_tests
     tests/unit/test_asset_library.cpp
     tests/unit/test_editor_asset_drag_payload.cpp
     tests/unit/test_editor_thumbnail_cache.cpp
+    tests/unit/test_asset_background_job.cpp
+    tests/unit/test_project_asset_operation_service.cpp
+    tests/unit/test_asset_audio_quality.cpp
+    tests/unit/test_asset_use_here.cpp
+    tests/unit/test_asset_notices_report.cpp
+    tests/unit/test_release_slice_asset_audit.cpp
+    tests/unit/test_map_batch_edit.cpp
+    tests/unit/test_map_tile_quality.cpp
     tests/unit/test_local_asset_catalog.cpp
     tests/unit/test_archive_catalog.cpp
     tests/perf/test_local_asset_catalog_perf.cpp
+    tests/perf/test_spatial_authoring_perf.cpp
     tests/unit/test_asset_cleanup_planner.cpp
     tests/unit/test_asset_library_panel.cpp
     tests/unit/test_asset_library_import_wizard.cpp
     tests/unit/test_asset_library_conversion.cpp
     tests/unit/test_asset_library_promotion_attachment.cpp
     tests/unit/test_controller_binding_runtime.cpp
+    tests/unit/test_controller_input_provider.cpp
+    tests/unit/test_sdl_controller_capability.cpp
     tests/unit/test_controller_binding_panel.cpp
     tests/unit/test_save_catalog.cpp
     tests/unit/test_save_inspector_model.cpp
@@ -1613,6 +1732,7 @@ add_executable(urpg_tests
     tests/unit/test_event_document.cpp
     tests/unit/test_event_dependency_graph.cpp
     tests/unit/test_event_debugger.cpp
+    tests/unit/test_event_debugger_pcq503.cpp
     tests/unit/test_event_authoring_panel.cpp
     tests/unit/test_event_authority_diagnostics.cpp
     tests/unit/test_event_authority_panel.cpp
@@ -1668,6 +1788,8 @@ add_executable(urpg_tests
     tests/unit/test_menu_inspector_panel.cpp
     tests/unit/test_menu_inspector_model.cpp
     tests/unit/test_menu_preview_panel.cpp
+    tests/unit/test_menu_authoring_document.cpp
+    tests/unit/test_inclusive_experience.cpp
     tests/unit/test_menu_legacy_import.cpp
     tests/unit/test_state_audio_sync.cpp
     tests/unit/test_scene_manager.cpp
@@ -1746,9 +1868,11 @@ add_executable(urpg_tests
     tests/unit/test_community_wysiwyg_features.cpp
     tests/unit/test_maker_wysiwyg_features.cpp
     tests/unit/test_replay_recorder.cpp
+    tests/unit/test_scenario_replay.cpp
     tests/unit/test_timeline_replay_panels.cpp
     tests/unit/test_rpg_database_suite.cpp
     tests/unit/test_economy_simulator.cpp
+    tests/unit/test_economy_revision_history.cpp
     tests/unit/test_encounter_table.cpp
     tests/unit/test_vendor_catalog.cpp
     tests/unit/test_rest_point.cpp
@@ -1756,6 +1880,10 @@ add_executable(urpg_tests
     tests/unit/test_class_progression.cpp
     tests/unit/test_skill_combo_rules.cpp
     tests/unit/test_database_balance_panels.cpp
+    tests/unit/test_database_batch_edit.cpp
+    tests/unit/test_database_reference_workspace.cpp
+    tests/unit/test_database_table_model.cpp
+    tests/unit/test_database_vertical_slice_integration.cpp
     tests/unit/test_world_simulation_suite.cpp
     tests/unit/test_crafting_registry.cpp
     tests/unit/test_monster_collection.cpp
@@ -1768,6 +1896,31 @@ add_executable(urpg_tests
     tests/unit/test_startup_diagnostics.cpp
     tests/unit/test_player_experience_platform_suite.cpp
     tests/unit/test_capture_theme_presentation_suite.cpp
+    tests/unit/test_urpg_design_tokens.cpp
+    tests/unit/test_runtime_presentation_bible.cpp
+    tests/unit/test_runtime_feedback_stack.cpp
+    tests/unit/test_runtime_shell_flow.cpp
+    tests/unit/test_first_run_calibration.cpp
+    tests/unit/test_vertical_slice_pacing_review.cpp
+    tests/unit/test_product_benchmark_suite.cpp
+    tests/unit/test_primary_route_work.cpp
+    tests/unit/test_stress_scenario_suite.cpp
+    tests/unit/test_fault_injection_suite.cpp
+    tests/unit/test_sanitizer_fuzz_coverage.cpp
+    tests/unit/test_release_security_audit.cpp
+    tests/unit/test_privacy_network_policy.cpp
+    tests/unit/test_release_sbom.cpp
+    tests/unit/test_platform_services.cpp
+    tests/unit/test_desktop_release_contract.cpp
+    tests/unit/test_version_compatibility_policy.cpp
+    tests/unit/test_governed_package_manifest.cpp
+    tests/unit/test_release_provenance.cpp
+    tests/unit/test_external_qualification.cpp
+    tests/unit/test_exploration_feedback.cpp
+    tests/unit/test_battle_feedback.cpp
+    tests/unit/test_editor_widget_state.cpp
+    tests/unit/test_editor_command_palette.cpp
+    tests/unit/test_editor_error_card.cpp
     tests/unit/test_s31_template_evidence_snapshots.cpp
     tests/unit/test_s32_wysiwyg_lanes.cpp
     tests/test_asset_license_audit.cpp

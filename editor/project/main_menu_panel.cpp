@@ -1,5 +1,7 @@
 #include "editor/project/main_menu_panel.h"
 
+#include "editor/assets/asset_library_panel.h"
+#include "editor/diagnostics/editor_error_card.h"
 #include "editor/project/new_project_wizard_model.h"
 
 #include <algorithm>
@@ -184,12 +186,20 @@ bool MainMenuModel::chooseOpenProject(std::string path) {
 }
 
 void MainMenuModel::reportProjectOpenFailure(std::string path, std::string message) {
+    const auto errorCard = editorErrorCardJson({
+        "project_open_failed", "The project could not be opened.", path,
+        "The editor remains on the startup screen and no project data was changed.",
+        "Locate the project folder, repair project.json, or choose another project.",
+        {"Locate Project", "startup.locate", true}, {"Retry Open", "startup.open", true},
+        {{"project_path", path}, {"reason", message}},
+    });
     markProjectMissing(path);
     route_ = "main_menu";
     pending_action_ = {{"action", "open_project"},
                        {"success", false},
                        {"projectPath", std::move(path)},
                        {"message", std::move(message)},
+                       {"error_card", errorCard},
                        {"route", route_}};
 }
 
@@ -275,6 +285,26 @@ void MainMenuModel::refreshProjectAvailability() {
 }
 
 nlohmann::json MainMenuModel::snapshot() const {
+    const auto startupDestinations = nlohmann::json::array({
+        {{"id", "recent_projects"}, {"label", "Recent projects"}, {"available", true},
+         {"route", "main_menu"}, {"item_count", recent_projects_.size()}},
+        {{"id", "create"}, {"label", "Create from a template"}, {"available", true},
+         {"route", onboarding_enabled_ ? "onboarding" : "template_picker"}},
+        {{"id", "open"}, {"label", "Open a project"}, {"available", true}, {"route", "open_project"}},
+        {{"id", "import"}, {"label", "Import another project"}, {"available", false},
+         {"route", nullptr},
+         {"reason", "Project import is not installed in this build; asset import remains available after opening a project."}},
+        {{"id", "recovery"}, {"label", "Recover a missing project"}, {"available", !missing_projects_.empty()},
+         {"route", missing_projects_.empty() ? nlohmann::json(nullptr) : nlohmann::json("main_menu")},
+         {"item_count", missing_projects_.size()},
+         {"reason", missing_projects_.empty() ? "No missing recent or pinned projects need recovery." : "Choose Locate beside a missing project."}},
+        {{"id", "health"}, {"label", "Project health"}, {"available", false}, {"route", nullptr},
+         {"reason", "Open a project to run its health and diagnostics workspace."}},
+        {{"id", "templates"}, {"label", "Certified templates"}, {"available", true},
+         {"route", onboarding_enabled_ ? "onboarding" : "template_picker"}},
+        {{"id", "examples"}, {"label", "Example projects"}, {"available", false}, {"route", nullptr},
+         {"reason", "No qualified example-project bundle is installed in this build."}},
+    });
     return {
         {"surface", "main_menu"},
         {"route", route_},
@@ -301,6 +331,7 @@ nlohmann::json MainMenuModel::snapshot() const {
         {"missing_projects", missingRows(missing_projects_)},
         {"hidden_missing_projects", hidden_missing_projects_},
         {"pending_missing_project", pending_missing_project_},
+        {"startup_destinations", startupDestinations},
         {"pending_action", pending_action_},
     };
 }
@@ -325,17 +356,28 @@ void MainMenuPanel::render() {
         };
         return;
     }
+    const auto pickerAvailability = AssetLibraryPanel::nativeImportSourcePickerAvailability();
     snapshot_ = {
         {"panel", "main_menu"},
         {"status", "ready"},
         {"model", model_->snapshot()},
         {"wizard", wizard_ ? wizard_->snapshot() : nlohmann::json(nullptr)},
+        {"folder_picker", {{"available", pickerAvailability.available},
+                            {"path_entry_available", pickerAvailability.path_entry_available},
+                            {"code", pickerAvailability.code}, {"message", pickerAvailability.message}}},
     };
 #ifdef URPG_IMGUI_ENABLED
     if (ImGui::GetCurrentContext() != nullptr) {
         ImGui::SetNextWindowSize(ImVec2(680.0f, 520.0f), ImGuiCond_FirstUseEver);
         if (ImGui::Begin("URPG Maker")) {
             const auto modelSnapshot = snapshot_["model"];
+            const auto folderPickerAvailability = pickerAvailability;
+            const auto pickFolder = [&](const std::string& sessionId) {
+                AssetLibraryPanel::ImportSourcePickerRequest request;
+                request.mode = AssetLibraryPanel::ImportSourcePickerMode::Folder;
+                request.session_id = sessionId;
+                return AssetLibraryPanel::pickNativeImportSource(request);
+            };
             if (model_->route() == "settings") {
                 ImGui::TextUnformatted("Settings");
                 ImGui::Separator();
@@ -374,10 +416,12 @@ void MainMenuPanel::render() {
                 ImGui::TextUnformatted("Open Project");
                 ImGui::TextDisabled("Enter a project folder containing project.json.");
                 ImGui::InputText("Project folder", &open_project_path_);
-                ImGui::BeginDisabled();
-                ImGui::Button("Browse (native picker unavailable in this build)", ImVec2(-1.0f, 0.0f));
-                ImGui::EndDisabled();
-                ImGui::TextWrapped("Use the path field while the native project picker is unavailable.");
+                if (!folderPickerAvailability.available) ImGui::BeginDisabled();
+                if (ImGui::Button("Browse for Project", ImVec2(-1.0f, 0.0f))) {
+                    if (const auto selected = pickFolder("open_project")) open_project_path_ = selected->generic_string();
+                }
+                if (!folderPickerAvailability.available) ImGui::EndDisabled();
+                if (!folderPickerAvailability.available) ImGui::TextWrapped("%s", folderPickerAvailability.message.c_str());
                 if (ImGui::Button("Open Entered Project", ImVec2(-1.0f, 0.0f))) {
                     if (open_project_path_.empty()) {
                         open_project_status_ = "Enter a project folder before opening it.";
@@ -396,9 +440,12 @@ void MainMenuPanel::render() {
                 ImGui::TextUnformatted("Locate Missing Project");
                 ImGui::TextWrapped("Previously opened project: %s", missingPath.c_str());
                 ImGui::InputText("Replacement project folder", &locate_replacement_path_);
-                ImGui::BeginDisabled();
-                ImGui::Button("Browse (native picker unavailable in this build)", ImVec2(-1.0f, 0.0f));
-                ImGui::EndDisabled();
+                if (!folderPickerAvailability.available) ImGui::BeginDisabled();
+                if (ImGui::Button("Browse for Replacement", ImVec2(-1.0f, 0.0f))) {
+                    if (const auto selected = pickFolder("locate_project"))
+                        locate_replacement_path_ = selected->generic_string();
+                }
+                if (!folderPickerAvailability.available) ImGui::EndDisabled();
                 if (ImGui::Button("Use Replacement", ImVec2(-1.0f, 0.0f))) {
                     if (locate_replacement_path_.empty()) {
                         locate_status_ = "Enter a replacement project folder before locating.";
@@ -439,6 +486,14 @@ void MainMenuPanel::render() {
                     if (ImGui::InputText("Project ID", &wizard_project_id_)) wizard_->setProjectId(wizard_project_id_);
                     if (ImGui::InputText("Project Name", &wizard_project_name_)) wizard_->setProjectName(wizard_project_name_);
                     if (ImGui::InputText("Destination", &wizard_destination_)) wizard_->setDestination(wizard_destination_);
+                    if (!folderPickerAvailability.available) ImGui::BeginDisabled();
+                    if (ImGui::Button("Choose Destination Folder", ImVec2(-1.0f, 0.0f))) {
+                        if (const auto selected = pickFolder("new_project_destination")) {
+                            wizard_destination_ = (*selected / wizard_project_id_).generic_string();
+                            wizard_->setDestination(wizard_destination_);
+                        }
+                    }
+                    if (!folderPickerAvailability.available) ImGui::EndDisabled();
                     const char* displayPresets[] = {"1280 x 720 (recommended)", "1920 x 1080"};
                     if (ImGui::Combo("Display", &wizard_display_preset_, displayPresets, IM_ARRAYSIZE(displayPresets))) {
                         wizard_->setDisplayPreset(wizard_display_preset_ == 1 ? "1920x1080" : "1280x720");
@@ -561,6 +616,17 @@ void MainMenuPanel::render() {
             }
             if (ImGui::Button("Settings", ImVec2(-1.0f, 0.0f))) {
                 model_->chooseSettings();
+            }
+            ImGui::SeparatorText("Startup capabilities");
+            for (const auto& destination : modelSnapshot.value("startup_destinations", nlohmann::json::array())) {
+                const bool available = destination.value("available", false);
+                ImGui::BulletText("%s: %s", destination.value("label", "Unknown").c_str(),
+                                  available ? "available" : "unavailable");
+                if (!available || destination.contains("reason")) {
+                    ImGui::Indent();
+                    ImGui::TextDisabled("%s", destination.value("reason", "Ready from this startup surface.").c_str());
+                    ImGui::Unindent();
+                }
             }
             ImGui::SeparatorText("Recent Projects");
             for (const auto& row : modelSnapshot.value("recent_projects", nlohmann::json::array())) {

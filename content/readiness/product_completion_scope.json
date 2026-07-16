@@ -1,0 +1,143 @@
+{
+  "schema": "urpg.product_completion_scope.v1",
+  "frozenAt": "2026-07-16",
+  "authority": "docs/superpowers/plans/2026-07-15-product-completion-nintendo-quality-and-ardy-plan.md",
+  "admissionRule": {
+    "allowedReasons": [
+      "fix_p0_or_p1",
+      "remove_recorded_debt",
+      "improve_required_evidence",
+      "separately_approved"
+    ],
+    "approvalRequiredFor": "separately_approved",
+    "newFeatureDefault": "deferred"
+  },
+  "entries": [
+    {
+      "id": "R0",
+      "title": "Candidate integrity, truth, and feature freeze",
+      "priority": "P0",
+      "owners": ["tools/ci", "docs/release", "content/readiness"],
+      "dependencies": [],
+      "acceptance": "Canonical Debug source builds; qualification evidence is current, commit-bound, and rejects stale binaries; scope and P0 policy gates pass.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R1",
+      "title": "Project transactions, references, history, and migrations",
+      "priority": "P0",
+      "owners": ["editor/project", "engine/core/project"],
+      "dependencies": ["R0"],
+      "acceptance": "Cross-document operations are atomic, reference-aware, undoable, recoverable, and migration fixtures round-trip without silent loss.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R2",
+      "title": "URPG design system and editor shell",
+      "priority": "P0",
+      "owners": ["apps/editor", "editor"],
+      "dependencies": ["R0"],
+      "acceptance": "Primary routes use shared tokens/widgets, scale responsively, expose accessible focus semantics, and support the golden creator loop.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R3A",
+      "title": "Governed asset lifecycle",
+      "priority": "P1",
+      "owners": ["engine/core/assets", "editor/assets", "tools/assets"],
+      "dependencies": ["R1", "R2"],
+      "acceptance": "Asset jobs are bounded and cancellable; safe relink/replace/delete, revisions, rights metadata, and package closure are proven.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R3B",
+      "title": "Map productivity and world flow",
+      "priority": "P0",
+      "owners": ["editor/spatial", "engine/core/map", "engine/core/world"],
+      "dependencies": ["R1", "R2"],
+      "acceptance": "The canonical Map workspace supports productive authoring and a two-map transfer loop entirely through the UI with undo/save/runtime proof.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R4A",
+      "title": "Event authoring depth",
+      "priority": "P0",
+      "owners": ["editor/events", "engine/core/events"],
+      "dependencies": ["R1", "R2"],
+      "acceptance": "Creators can author, validate, debug, and round-trip the vertical-slice event logic without raw project-file edits.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R4B",
+      "title": "Database, gameplay, and balance productivity",
+      "priority": "P1",
+      "owners": ["editor/database", "engine/core/database", "engine/core/balance"],
+      "dependencies": ["R1", "R2"],
+      "acceptance": "Golden-slice records support responsive bulk editing, stable references, validation preview, undo, and runtime integration.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R4C",
+      "title": "Menu and player-UI authoring",
+      "priority": "P1",
+      "owners": ["editor/ui", "engine/core/ui", "engine/core/scene"],
+      "dependencies": ["R1", "R2"],
+      "acceptance": "Editable original templates, responsive canvas layout, typed binding, state transitions, and focus-flow validation match runtime output.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R5",
+      "title": "Playtest, debugging, recovery, and support",
+      "priority": "P0",
+      "owners": ["editor/playtest", "engine/core/debug", "engine/core/replay", "engine/core/save"],
+      "dependencies": ["R3A", "R3B", "R4A", "R4B", "R4C"],
+      "acceptance": "The exact creator journey, bounded reload/debugging, recovery drills, replay, performance capture, and redacted support bundle pass.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R6",
+      "title": "Presentation, accessibility, localization, and input",
+      "priority": "P0",
+      "owners": ["engine/core/presentation", "engine/core/input", "engine/core/localization", "editor/accessibility"],
+      "dependencies": ["R5"],
+      "acceptance": "Runtime presentation is cohesive and original; controller, keyboard, scaling, reduced-motion, muted, contrast, and locale matrices pass.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R7",
+      "title": "Performance, reliability, packaging, and platform seam",
+      "priority": "P1",
+      "owners": ["engine/core/platform", "engine/core/tools", "tools/ci"],
+      "dependencies": ["R6"],
+      "acceptance": "Budgets, stress/fault/security checks, deterministic packages, clean-machine lifecycle, and capability-based platform services pass.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R8",
+      "title": "Creator-authored vertical slice",
+      "priority": "P0",
+      "owners": ["product", "editor", "runtime"],
+      "dependencies": ["R7"],
+      "acceptance": "A representative creator completes the exact vertical slice, package, install, save, relaunch, and evidence bundle from the product UI.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "R9",
+      "title": "External usability, beta, and release candidate",
+      "priority": "P1",
+      "owners": ["product", "release", "support"],
+      "dependencies": ["R8"],
+      "acceptance": "External users meet the accepted journey threshold, P0/P1 findings are dispositioned, and the final evidence index supports an explicit release decision.",
+      "deferralReason": "not_deferred"
+    },
+    {
+      "id": "ARDY",
+      "title": "NVIDIA ARDy conditional offline research pilot",
+      "priority": "RESEARCH",
+      "owners": ["research/tooling"],
+      "dependencies": ["R1", "approved_3d_lane", "legal_review"],
+      "acceptance": "Admission gates pass and an isolated, governed pilot demonstrates measured value without runtime or package dependencies.",
+      "deferralReason": "deferred_until_3d_lane_and_admission_gates_are_approved"
+    }
+  ]
+}

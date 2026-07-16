@@ -7,6 +7,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
+#include <optional>
+
 namespace urpg {
 
 static input::InputAction mapSdlKey(SDL_Keycode key) {
@@ -37,6 +39,41 @@ static input::InputAction mapSdlKey(SDL_Keycode key) {
         return input::InputAction::Debug;
     default:
         return input::InputAction::None;
+    }
+}
+
+static std::optional<action::ControllerButton> mapSdlControllerButton(Uint8 button) {
+    using action::ControllerButton;
+    switch (button) {
+    case SDL_CONTROLLER_BUTTON_DPAD_UP: return ControllerButton::DPadUp;
+    case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return ControllerButton::DPadDown;
+    case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return ControllerButton::DPadLeft;
+    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return ControllerButton::DPadRight;
+    case SDL_CONTROLLER_BUTTON_A: return ControllerButton::FaceBottom;
+    case SDL_CONTROLLER_BUTTON_B: return ControllerButton::FaceRight;
+    case SDL_CONTROLLER_BUTTON_X: return ControllerButton::FaceLeft;
+    case SDL_CONTROLLER_BUTTON_Y: return ControllerButton::FaceTop;
+    case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: return ControllerButton::LeftShoulder;
+    case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: return ControllerButton::RightShoulder;
+    case SDL_CONTROLLER_BUTTON_BACK: return ControllerButton::Select;
+    case SDL_CONTROLLER_BUTTON_START: return ControllerButton::Start;
+    case SDL_CONTROLLER_BUTTON_LEFTSTICK: return ControllerButton::LeftStickPress;
+    case SDL_CONTROLLER_BUTTON_RIGHTSTICK: return ControllerButton::RightStickPress;
+    default: return std::nullopt;
+    }
+}
+
+static std::string controllerDeviceId(SDL_JoystickID instance_id) {
+    return "sdl.controller." + std::to_string(instance_id);
+}
+
+static std::string controllerGlyphProfile(SDL_GameController* controller) {
+    switch (SDL_GameControllerGetType(controller)) {
+    case SDL_CONTROLLER_TYPE_PS3:
+    case SDL_CONTROLLER_TYPE_PS4:
+    case SDL_CONTROLLER_TYPE_PS5: return "playstation";
+    case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO: return "switch";
+    default: return "xbox";
     }
 }
 
@@ -101,6 +138,9 @@ bool SDLSurface::initialize(const WindowConfig& config) {
 
     m_isInitialized = true;
     SDL_StartTextInput();
+    for (int device_index = 0; device_index < SDL_NumJoysticks(); ++device_index) {
+        openController(device_index);
+    }
     diagnostics::RuntimeDiagnostics::info("platform.sdl", "sdl.surface_initialized",
                                           "Surface initialized: " + std::to_string(config.width) + "x" +
                                               std::to_string(config.height));
@@ -152,9 +192,64 @@ bool SDLSurface::pollEvents() {
         if (event.type == SDL_TEXTEDITING) {
             EngineShell::getInstance().getInput().setTextEditing(event.edit.text);
         }
+
+        if (event.type == SDL_CONTROLLERDEVICEADDED) {
+            openController(event.cdevice.which);
+        } else if (event.type == SDL_CONTROLLERDEVICEREMOVED) {
+            closeController(event.cdevice.which);
+        } else if (event.type == SDL_CONTROLLERBUTTONDOWN || event.type == SDL_CONTROLLERBUTTONUP) {
+            const auto button = mapSdlControllerButton(event.cbutton.button);
+            if (button) {
+                (void)m_controllerInput.buttonEvent(
+                    EngineShell::getInstance().getInput(), controllerDeviceId(event.cbutton.which), *button,
+                    event.type == SDL_CONTROLLERBUTTONDOWN ? input::ActionState::Pressed
+                                                           : input::ActionState::Released,
+                    accessibility::InclusiveInputContext::Global);
+            }
+        } else if (event.type == SDL_CONTROLLERAXISMOTION &&
+                   (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX ||
+                    event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY)) {
+            const float raw_value = event.caxis.value < 0
+                                        ? static_cast<float>(event.caxis.value) / 32768.0F
+                                        : static_cast<float>(event.caxis.value) / 32767.0F;
+            (void)m_controllerInput.axisEvent(
+                EngineShell::getInstance().getInput(), controllerDeviceId(event.caxis.which),
+                event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX ? input::ControllerAxis::LeftX
+                                                               : input::ControllerAxis::LeftY,
+                raw_value, accessibility::InclusiveInputContext::Global);
+        }
     }
 
     return true;
+}
+
+void SDLSurface::openController(int device_index) {
+    if (!SDL_IsGameController(device_index)) return;
+    SDL_GameController* controller = SDL_GameControllerOpen(device_index);
+    if (controller == nullptr) {
+        diagnostics::RuntimeDiagnostics::warning("platform.sdl", "sdl.gamecontroller_open_failed",
+                                                 std::string("Failed to open SDL game controller: ") + SDL_GetError());
+        return;
+    }
+    const auto instance_id = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller));
+    if (instance_id < 0 || m_gameControllers.contains(instance_id) ||
+        !m_controllerInput.connect(controllerDeviceId(instance_id), controllerGlyphProfile(controller))) {
+        SDL_GameControllerClose(controller);
+        return;
+    }
+    m_gameControllers[instance_id] = controller;
+    diagnostics::RuntimeDiagnostics::info("platform.sdl", "sdl.gamecontroller_connected",
+                                          "Controller connected: " + controllerDeviceId(instance_id));
+}
+
+void SDLSurface::closeController(int32_t instance_id) {
+    const auto found = m_gameControllers.find(instance_id);
+    if (found == m_gameControllers.end()) return;
+    (void)m_controllerInput.disconnect(EngineShell::getInstance().getInput(), controllerDeviceId(instance_id));
+    SDL_GameControllerClose(static_cast<SDL_GameController*>(found->second));
+    m_gameControllers.erase(found);
+    diagnostics::RuntimeDiagnostics::info("platform.sdl", "sdl.gamecontroller_disconnected",
+                                          "Controller disconnected: " + controllerDeviceId(instance_id));
 }
 
 void SDLSurface::present() {
@@ -164,6 +259,9 @@ void SDLSurface::present() {
 }
 
 void SDLSurface::shutdown() {
+    while (!m_gameControllers.empty()) {
+        closeController(m_gameControllers.begin()->first);
+    }
     if (m_glContext) {
         SDL_GL_DeleteContext(m_glContext);
         m_glContext = nullptr;

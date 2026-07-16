@@ -47,6 +47,44 @@ TEST_CASE("ControllerBindingRuntime save and load preserves bindings", "[input][
     REQUIRE_FALSE(reloaded.hasUnsavedChanges());
 }
 
+TEST_CASE("ControllerBindingRuntime distinguishes edited defaults from persisted state",
+          "[input][controller][persistence][pcq650]") {
+    ControllerBindingRuntime runtime;
+    runtime.bindButton(ControllerButton::FaceBottom, InputAction::Cancel);
+    runtime.resetToDefaults(true);
+
+    REQUIRE(runtime.hasUnsavedChanges());
+    REQUIRE(runtime.getBinding(ControllerButton::FaceBottom) == InputAction::Confirm);
+
+    runtime.markPersisted();
+    REQUIRE_FALSE(runtime.hasUnsavedChanges());
+}
+
+TEST_CASE("ControllerBindingRuntime atomically persists files and rejects malformed replacement",
+          "[input][controller][persistence][pcq650]") {
+    const auto path = std::filesystem::temp_directory_path() /
+        ("urpg_controller_bindings_" +
+         std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()) + ".json");
+    ControllerBindingRuntime saved;
+    saved.bindButton(ControllerButton::FaceBottom, InputAction::Cancel);
+    std::string error;
+    REQUIRE(saved.saveToFile(path, &error));
+
+    ControllerBindingRuntime loaded;
+    REQUIRE(loaded.loadFromFile(path, &error));
+    REQUIRE(loaded.getBinding(ControllerButton::FaceBottom) == InputAction::Cancel);
+    REQUIRE_FALSE(loaded.hasUnsavedChanges());
+
+    {
+        std::ofstream malformed(path, std::ios::binary | std::ios::trunc);
+        malformed << "{not json";
+    }
+    REQUIRE_FALSE(loaded.loadFromFile(path, &error));
+    REQUIRE(loaded.getBinding(ControllerButton::FaceBottom) == InputAction::Cancel);
+    REQUIRE_FALSE(error.empty());
+    std::filesystem::remove(path);
+}
+
 TEST_CASE("ControllerBindingRuntime reports missing required actions after bindings are cleared", "[input][controller]") {
     ControllerBindingRuntime runtime;
     runtime.clearBinding(ControllerButton::DPadUp);

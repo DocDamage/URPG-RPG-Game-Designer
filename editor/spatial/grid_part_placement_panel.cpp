@@ -512,7 +512,7 @@ GridPartPlacementPanel::SmartPrefabPlacementResult GridPartPlacementPanel::build
         }
         auto instance = makeInstance(*definition, grid_x + operation.offset_x, grid_y + operation.offset_y);
         instance.grid_z = operation.offset_z;
-        instance.instance_id = document_->mapId() + ":smart_prefab:" + prefab.prefab_id + ":" + prefab.version + ":" +
+        instance.instance_id = document_->mapId() + ":smart_prefab:" + prefab.prefab_id + ":" +
                                operation.operation_id + ":" + std::to_string(grid_x) + ":" + std::to_string(grid_y);
         if (document_->hasInstanceId(instance.instance_id) || !document_->footprintInBounds(instance)) {
             result.rejected_operation_ids.push_back(operation.operation_id);
@@ -535,6 +535,8 @@ GridPartPlacementPanel::SmartPrefabPlacementResult GridPartPlacementPanel::build
         instance.properties["smart_prefab.version"] = prefab.version;
         instance.properties["smart_prefab.operation_id"] = operation.operation_id;
         instance.properties["smart_prefab.anchor"] = std::to_string(grid_x) + "," + std::to_string(grid_y);
+        instance.properties["smart_prefab.group_id"] = document_->mapId() + ":smart_prefab:" + prefab.prefab_id + ":" +
+                                                       std::to_string(grid_x) + ":" + std::to_string(grid_y);
         if (!incoming_tags.empty()) {
             std::string serialized_tags;
             for (const auto& tag : incoming_tags) {

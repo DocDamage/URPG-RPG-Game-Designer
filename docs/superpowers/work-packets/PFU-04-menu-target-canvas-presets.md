@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native Menu Studio target-canvas presets
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -26,7 +26,7 @@ numeric canvas edit.
 - Undo/redo restores one preset selection.
 - Overflow is diagnosed rather than hidden or automatically corrected.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[ui][editor][menu]" --reporter compact`
 

@@ -42,6 +42,29 @@ bool CreatorChecklistPanel::restore(std::string* error) {
     return saved;
 }
 
+bool CreatorChecklistPanel::complete(std::string* error) {
+    if (project_root_.empty()) {
+        if (error) *error = "No project is open.";
+        return false;
+    }
+    const bool saved = checklist_.setCompleted(project_root_, true, error);
+    if (saved) refresh();
+    return saved;
+}
+
+bool CreatorChecklistPanel::replay(std::string* error) {
+    if (project_root_.empty()) {
+        if (error) *error = "No project is open.";
+        return false;
+    }
+    const bool saved = checklist_.replay(project_root_, error);
+    if (saved) {
+        visible_ = true;
+        refresh();
+    }
+    return saved;
+}
+
 void CreatorChecklistPanel::render() {
     if (!visible_) return;
     refresh();
@@ -53,6 +76,12 @@ void CreatorChecklistPanel::render() {
                 ImGui::Separator();
                 for (const auto& item : snapshot_.items) {
                     ImGui::BulletText("%s %s", item.complete ? "[done]" : "[ ]", item.label.c_str());
+                    if (!item.complete && item.id == snapshot_.next_item_id) {
+                        ImGui::Indent();
+                        ImGui::TextWrapped("%s", item.coaching.c_str());
+                        ImGui::TextDisabled("Next action: %s (%s)", item.action_label.c_str(), item.route.c_str());
+                        ImGui::Unindent();
+                    }
                 }
                 if (ImGui::Button("Dismiss Checklist")) {
                     std::string ignored;
@@ -61,6 +90,10 @@ void CreatorChecklistPanel::render() {
             } else if (!project_root_.empty() && ImGui::Button("Restore Checklist")) {
                 std::string ignored;
                 (void)restore(&ignored);
+            }
+            if (!project_root_.empty() && snapshot_.replay_available && ImGui::Button("Replay Coaching")) {
+                std::string ignored;
+                (void)replay(&ignored);
             }
         }
         ImGui::End();

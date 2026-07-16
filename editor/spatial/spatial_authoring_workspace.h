@@ -224,6 +224,7 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         std::string tile_id;
         int32_t tile_x = 0;
         int32_t tile_y = 0;
+        bool erase = false;
     };
 
     // A reviewed creator-prop command can only reference an existing native
@@ -342,6 +343,26 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         size_t star_passability_tile_count = 0;
         Perspective2DTilePreviewResult latest_preview;
     };
+
+    struct Perspective2DTileQualityDiagnostic {
+        std::string severity;
+        std::string code;
+        std::string message;
+        std::string layer_id;
+        std::string tileset_id;
+        std::string tile_id;
+        int32_t tile_x = 0;
+        int32_t tile_y = 0;
+    };
+
+    struct Perspective2DTileQualityReport {
+        size_t painted_tile_count = 0;
+        size_t walkable_tile_count = 0;
+        size_t reachable_tile_count = 0;
+        bool navigation_complete = false;
+        std::vector<Perspective2DTileQualityDiagnostic> diagnostics;
+    };
+    struct Perspective2DCell { int32_t x = 0; int32_t y = 0; };
 
     struct Perspective2DProjectReference {
         std::string kind;
@@ -622,6 +643,9 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     bool SetPerspectiveTileDefinition(Perspective2DTileDefinition definition);
     std::optional<Perspective2DTileDefinition> perspectiveTileDefinition(const std::string& tileset_id,
                                                                           const std::string& tile_id) const;
+    Perspective2DTileQualityReport inspectPerspectiveTileQuality(
+        int32_t navigation_start_x, int32_t navigation_start_y,
+        const std::vector<Perspective2DCell>& entrance_cells) const;
     // Imports one project-owned tileset bundle produced by the derived-tileset
     // assignment owner. It updates the Map palette, pages, and tile metadata
     // as one undoable Perspective 2D document change.

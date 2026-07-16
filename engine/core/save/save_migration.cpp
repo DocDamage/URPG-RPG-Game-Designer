@@ -67,6 +67,20 @@ void AppendRetainedPayloadNote(json& target, std::string field_path, json value)
     target["_compat_payload_retained"][std::move(field_path)] = std::move(value);
 }
 
+bool IsDatabaseStateShape(const json& state) {
+    if (!state.is_object() || !state.contains("actor_id") || !state["actor_id"].is_string() ||
+        state["actor_id"].get<std::string>().empty() || !state.contains("inventory") ||
+        !state["inventory"].is_object() || !state.contains("equipped_item_id") ||
+        !state["equipped_item_id"].is_string() || !state.contains("completed_battles") ||
+        !state["completed_battles"].is_array() || !state.contains("quest_state") ||
+        !state["quest_state"].is_object()) return false;
+    for (const auto& [_, count] : state["inventory"].items()) {
+        if (!count.is_number_integer() || count.get<int32_t>() < 0) return false;
+    }
+    return std::all_of(state["completed_battles"].begin(), state["completed_battles"].end(),
+                       [](const json& battle) { return battle.is_string() && !battle.get<std::string>().empty(); });
+}
+
 } // namespace
 
 SaveMigrationResult UpgradeCompatSaveMetadataDocument(const nlohmann::json& compat_document) {
@@ -118,7 +132,7 @@ SaveMigrationResult UpgradeCompatSaveMetadataDocument(const nlohmann::json& comp
     for (auto it = meta->begin(); it != meta->end(); ++it) {
         if (it.key() == "_urpg_format_version" || it.key() == "slotId" || it.key() == "mapName" ||
             it.key() == "playtimeSeconds" || it.key() == "saveVersion" || it.key() == "thumbnailHash" ||
-            it.key() == "uiTab") {
+            it.key() == "uiTab" || it.key() == "databaseState") {
             continue;
         }
         emit_diagnostic(SaveMigrationSeverity::Warning, "unmapped_meta_field", "/meta/" + it.key(),
@@ -301,9 +315,20 @@ CompatSaveImportResult ImportCompatSaveDocument(const nlohmann::json& compat_doc
         result.used_safe_fallback = true;
     }
 
+    if (compat_document.contains("databaseState")) {
+        if (IsDatabaseStateShape(compat_document["databaseState"])) {
+            result.native_payload["database_state"] = compat_document["databaseState"];
+        } else {
+            emit_diagnostic(SaveMigrationSeverity::Warning, "invalid_database_state", "/databaseState",
+                            "Database-bound runtime state is invalid; preserving it for manual follow-up.");
+            AppendRetainedPayloadNote(result.native_payload, "/databaseState", compat_document["databaseState"]);
+            result.used_safe_fallback = true;
+        }
+    }
+
     static const std::vector<std::string> recognized_keys = {
         "_urpg_format_version", "meta", "pluginHeader", "gold", "mapId", "playerX", "playerY",
-        "direction", "party", "switches", "variables", "pluginData"
+        "direction", "party", "switches", "variables", "pluginData", "databaseState"
     };
 
     for (auto it = compat_document.begin(); it != compat_document.end(); ++it) {

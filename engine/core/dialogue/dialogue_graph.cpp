@@ -135,6 +135,29 @@ bool DialogueGraph::removeChoice(const std::string& node_id, const std::string& 
     return true;
 }
 
+bool DialogueGraph::reorderChoice(const std::string& node_id, const std::string& choice_id,
+                                  const std::size_t new_index) {
+    const auto node = nodes_.find(node_id);
+    if (node == nodes_.end() || new_index >= node->second.choices.size()) {
+        return false;
+    }
+    auto& choices = node->second.choices;
+    const auto choice = std::find_if(choices.begin(), choices.end(), [&](const DialogueChoice& candidate) {
+        return candidate.id == choice_id;
+    });
+    if (choice == choices.end()) {
+        return false;
+    }
+    const auto old_index = static_cast<std::size_t>(std::distance(choices.begin(), choice));
+    if (old_index == new_index) {
+        return false;
+    }
+    auto moved = std::move(*choice);
+    choices.erase(choice);
+    choices.insert(choices.begin() + static_cast<std::ptrdiff_t>(new_index), std::move(moved));
+    return true;
+}
+
 bool DialogueGraph::updateChoice(const std::string& node_id, const std::string& choice_id, std::string label,
                                  std::string target_node_id, std::string localization_key) {
     const auto node = nodes_.find(node_id);

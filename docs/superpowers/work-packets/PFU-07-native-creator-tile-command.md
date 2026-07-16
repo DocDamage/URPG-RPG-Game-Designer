@@ -15,4 +15,4 @@ This bounded developer-only slice removes durable creator-plan mutation from det
 
 ## Deliberate limits
 
-This does not promote the assistant, provider transport, RAG, multi-turn tool loop, or non-tile intent plans to shipping capability. It does not establish runtime/playtest qualification or complete WYSIWYG evidence. Verification is deferred by the user's current instruction to resume implementation without builds or tests.
+This does not promote the assistant, provider transport, RAG, multi-turn tool loop, or non-tile intent plans to shipping capability. It does not establish runtime/playtest qualification or complete WYSIWYG evidence. Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

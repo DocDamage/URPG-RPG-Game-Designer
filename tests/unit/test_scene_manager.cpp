@@ -737,9 +737,9 @@ TEST_CASE("MapScene projects validated authored event sprites into runtime rende
         }
         const auto* sprite = renderCommandAs<urpg::SpriteRenderData>(command);
         sawVendor = sawVendor || (sprite != nullptr && sprite->textureId == "asset.vendor" &&
-                                  sprite->x == 96.0f && sprite->y == 48.0f && sprite->zOrder == 2);
+                                  command.x == 96.0f && command.y == 48.0f && command.zOrder == 2);
         sawSign = sawSign || (sprite != nullptr && sprite->textureId == "asset.sign" &&
-                               sprite->x == 0.0f && sprite->y == 48.0f && sprite->zOrder == 2);
+                               command.x == 0.0f && command.y == 48.0f && command.zOrder == 2);
     }
     REQUIRE(sawVendor);
     REQUIRE(sawSign);
@@ -765,7 +765,7 @@ TEST_CASE("MapScene advances authored event sprite-sheet frames deterministicall
         saw_second_frame = saw_second_frame ||
                            (sprite != nullptr && sprite->textureId == "asset.torch" && sprite->srcX == 16 &&
                             sprite->srcY == 0 && sprite->width == 16 && sprite->height == 24 &&
-                            sprite->x == 48.0f && sprite->y == 0.0f && sprite->zOrder == 2);
+                            command.x == 48.0f && command.y == 0.0f && command.zOrder == 2);
     }
     REQUIRE(saw_second_frame);
 
@@ -1024,7 +1024,7 @@ TEST_CASE("MapScene executes a saved native Dialogue Graph through the message r
     state.setVariable("score", std::numeric_limits<int32_t>::max() - 1);
     urpg::dialogue::DialogueGraph stateful;
     REQUIRE(stateful.addNode({"start", "guide", "Guide", "dialogue.start", "Stateful.", false,
-                              {{"continue", "Continue", "end", {{"flag", "==", 1}}, {{"score", 5}}}}));
+                              {{"continue", "Continue", "end", {{"flag", "==", 1}}, {{"score", 5}}}}}));
     REQUIRE(stateful.addNode({"end", "guide", "Guide", "dialogue.end", "End.", true, {}}));
     REQUIRE(map.startAuthoredDialogue(stateful, "test.stateful_dialogue"));
     input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Released);
@@ -1162,6 +1162,62 @@ TEST_CASE("MapScene presents authored dialogue captions and dispatches voice thr
                       without_audio.dialogueRuntimeDiagnostics().end(),
                       "authored_dialogue_voice_audio_core_missing:voice_caption") !=
             without_audio.dialogueRuntimeDiagnostics().end());
+}
+
+TEST_CASE("MapScene consumes governed caption takes and inclusive voice policy",
+          "[scene][map][dialogue][runtime][captions][accessibility][pcq651][pcq653]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    urpg::dialogue::DialogueGraph graph;
+    urpg::dialogue::DialogueNode node;
+    node.id = "arrival";
+    node.speaker_id = "guide";
+    node.text_preview = "We have arrived.";
+    node.ending = true;
+    node.voice_asset_id = "voice.default";
+    node.caption_localization_key = "dialogue.arrival";
+    REQUIRE(graph.addNode(node));
+    graph.setStartNode("arrival");
+
+    urpg::accessibility::CaptionCue cue{"arrival.fr-FR", "guide", "fr-FR", "take.fr.02",
+        "Nous sommes arrives.", {"door opens"}, 0, 1200, 1200, true};
+    MapScene map("GovernedCaptionMap", 2, 2);
+    auto audio = std::make_shared<urpg::audio::AudioCore>();
+    map.setAudioCore(audio);
+    urpg::localization::LocaleCatalog locale;
+    locale.loadFromJson(nlohmann::json{{"locale", "fr-FR"},
+                                       {"keys", {{"dialogue.arrival", "Fallback caption"}}}});
+    map.setDialogueLocaleCatalog(locale);
+    REQUIRE(map.setDialogueCaptionTrack({cue}, {{"take.fr.02", "voice.fr.02"}}));
+
+    auto settings = urpg::accessibility::InclusiveSettings::safeDefaults();
+    settings.captions = false;
+    settings.voice_volume = 0.0F;
+    settings.caption_scale = 2.0F;
+    REQUIRE(map.setDialogueInclusiveSettings(settings));
+    REQUIRE(map.startAuthoredDialogue(graph, "test.governed_caption"));
+    REQUIRE(map.activeAuthoredDialogueVoiceAssetId() == "voice.fr.02");
+    REQUIRE(map.activeAuthoredDialogueCaption() == "Nous sommes arrives. [door opens]");
+    REQUIRE(map.activeAuthoredDialogueCaptionCue().has_value());
+    REQUIRE(map.activeAuthoredDialogueCaptionCue()->take_id == "take.fr.02");
+    REQUIRE(map.authoredDialogueCaptionScale() == 2.0F);
+    REQUIRE(audio->activeSourceCount() == 0);
+    REQUIRE(std::find(map.dialogueRuntimeDiagnostics().begin(), map.dialogueRuntimeDiagnostics().end(),
+                      "authored_dialogue_caption_forced_for_muted_voice:arrival") !=
+            map.dialogueRuntimeDiagnostics().end());
+
+    map.onUpdate(0.0F);
+    const auto& commands = renderFrameCommands(layer);
+    REQUIRE(std::any_of(commands.begin(), commands.end(), [](const auto& command) {
+        const auto* text = renderCommandAs<urpg::TextRenderData>(command);
+        return text != nullptr && text->text == "Nous sommes arrives. [door opens]" && text->fontSize == 36;
+    }));
+
+    auto invalid = cue;
+    invalid.take_id.clear();
+    REQUIRE_FALSE(map.setDialogueCaptionTrack({invalid}, {}));
+    REQUIRE(map.activeAuthoredDialogueCaptionCue()->take_id == "take.fr.02");
 }
 
 TEST_CASE("InputCore stores text input, editing text, and backspace for one input frame",
@@ -1614,7 +1670,7 @@ TEST_CASE("RuntimeOptionsScene edits display audio input and accessibility setti
 
     REQUIRE(scene.getType() == SceneType::OPTIONS);
     REQUIRE(scene.getName() == "RuntimeOptions");
-    REQUIRE(scene.rows().size() == 10);
+    REQUIRE(scene.rows().size() == 11);
     REQUIRE(scene.selectedRow() != nullptr);
     REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::WindowWidth);
 
@@ -1689,6 +1745,32 @@ TEST_CASE("RuntimeOptionsScene supports cancel/back navigation", "[scene][runtim
     REQUIRE(scene.lastCommandResult().handled);
     REQUIRE(scene.lastCommandResult().success);
     REQUIRE(scene.lastCommandResult().code == "options_back");
+}
+
+TEST_CASE("RuntimeOptionsScene exposes calibration replay from settings", "[scene][runtime][options][calibration][pcq606]") {
+    const TempRuntimeSettingsRoot temp;
+    const auto paths = urpg::settings::appSettingsPaths(temp.root());
+    bool calibrationRequested = false;
+    RuntimeOptionsScene scene(urpg::settings::defaultRuntimeSettings(), paths.runtime_settings,
+                              {{}, {}, [&calibrationRequested] { calibrationRequested = true; }});
+
+    REQUIRE(scene.rows().back().id == RuntimeOptionsRowId::FirstRunCalibration);
+    REQUIRE(scene.rows().back().value == "Replay");
+
+    urpg::input::InputCore input;
+    for (size_t index = 0; index + 1 < scene.rows().size(); ++index) {
+        input.updateActionState(urpg::input::InputAction::MoveDown, urpg::input::ActionState::Pressed);
+        scene.handleInput(input);
+        input.endFrame();
+        input.updateActionState(urpg::input::InputAction::MoveDown, urpg::input::ActionState::Released);
+        scene.handleInput(input);
+        input.endFrame();
+    }
+    REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::FirstRunCalibration);
+    const auto result = scene.activateSelected();
+    REQUIRE(result.success);
+    REQUIRE(result.code == "calibration_replay_requested");
+    REQUIRE(calibrationRequested);
 }
 
 TEST_CASE("RuntimeTitleScene emits visible title and disabled command labels", "[scene][runtime][title][render]") {

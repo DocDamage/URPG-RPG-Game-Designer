@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native Menu Studio focus-flow preview
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -26,7 +26,7 @@ by the native scene graph.
 - A pane with no commands is excluded, matching baseline navigability.
 - The overlay does not change serialization, dirty state, or local history.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[ui][menu][focus]" --reporter compact`
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/ability/ability_system_component.h"
+#include "engine/core/accessibility/inclusive_experience.h"
 #include "engine/core/ability/authored_ability_asset.h"
 #include "engine/core/animation/animation_components.h"
 #include "engine/core/audio/audio_core.h"
@@ -11,6 +12,7 @@
 #include "engine/core/message/chatbot_component.h"
 #include "engine/core/message/dialogue_registry.h"
 #include "engine/core/message/message_core.h"
+#include "engine/core/presentation/exploration_feedback.h"
 #include "engine/core/render/render_layer.h"
 #include "engine/core/render/sprite_animator.h"
 #include "engine/core/render/tilemap_renderer.h"
@@ -22,8 +24,10 @@
 #include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <map>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace urpg::scene {
@@ -337,12 +341,26 @@ class MapScene : public GameScene {
     }
     AuthoredDialogueStateSnapshot authoredDialogueStateSnapshot() const;
     void setDialogueLocaleCatalog(std::optional<urpg::localization::LocaleCatalog> catalog);
+    bool setDialogueInclusiveSettings(const urpg::accessibility::InclusiveSettings& settings);
+    bool setDialogueCaptionTrack(
+        std::vector<urpg::accessibility::CaptionCue> cues,
+        std::map<std::string, std::string> voice_asset_by_take_id = {});
     std::string dialogueLocaleCode() const;
     const std::vector<std::string>& dialogueRuntimeDiagnostics() const { return m_dialogueRuntimeDiagnostics; }
     const std::string& activeDialogueConversationId() const { return m_activeDialogueConversationId; }
     const std::string& activeAuthoredDialogueNodeId() const { return m_activeAuthoredDialogueNodeId; }
     const std::string& activeAuthoredDialogueCaption() const { return m_activeAuthoredDialogueCaption; }
     const std::string& activeAuthoredDialogueVoiceAssetId() const { return m_activeAuthoredDialogueVoiceAssetId; }
+    const std::optional<urpg::accessibility::CaptionCue>& activeAuthoredDialogueCaptionCue() const {
+        return m_activeAuthoredDialogueCaptionCue;
+    }
+    float authoredDialogueCaptionScale() const { return m_dialogueInclusiveSettings.caption_scale; }
+    urpg::presentation::ExplorationFeedbackDirector& explorationFeedback() { return m_explorationFeedback; }
+    const urpg::presentation::ExplorationFeedbackDirector& explorationFeedback() const { return m_explorationFeedback; }
+    urpg::presentation::ExplorationFeedbackResult notifyExplorationFeedback(
+        urpg::presentation::ExplorationFeedbackRequest request) {
+        return m_explorationFeedback.submit(std::move(request));
+    }
 
     /**
      * @brief Starts a chatbot-driven conversation.
@@ -440,6 +458,7 @@ class MapScene : public GameScene {
     bool applyAuthoredDialogueTransfer(const AuthoredDialogueInteraction::Transfer& transfer);
     bool beginActiveAuthoredDialogueNode(const std::string& node_id);
     bool beginPendingAuthoredDialogue();
+    std::string nextExplorationFeedbackRequestId(const std::string& prefix);
 
     struct PendingAuthoredDialogue {
         urpg::dialogue::DialogueGraph graph;
@@ -478,6 +497,11 @@ class MapScene : public GameScene {
     std::optional<PendingAuthoredDialogue> m_pendingAuthoredDialogue;
     std::string m_activeAuthoredDialogueNodeId;
     std::optional<urpg::localization::LocaleCatalog> m_dialogueLocaleCatalog;
+    urpg::accessibility::InclusiveSettings m_dialogueInclusiveSettings =
+        urpg::accessibility::InclusiveSettings::safeDefaults();
+    std::vector<urpg::accessibility::CaptionCue> m_authoredDialogueCaptionTrack;
+    std::map<std::string, std::string> m_authoredDialogueVoiceAssetByTakeId;
+    std::optional<urpg::accessibility::CaptionCue> m_activeAuthoredDialogueCaptionCue;
     std::string m_activeAuthoredDialogueCaption;
     std::string m_activeAuthoredDialogueVoiceAssetId;
     std::vector<AuthoredDialogueInteraction> m_authoredDialogueInteractions;
@@ -485,6 +509,8 @@ class MapScene : public GameScene {
     std::shared_ptr<urpg::ai::ChatbotComponent> m_activeChatbot;
     std::unique_ptr<urpg::ui::ChatWindow> m_chatUI;
     std::shared_ptr<urpg::audio::AudioCore> m_audioCore;
+    urpg::presentation::ExplorationFeedbackDirector m_explorationFeedback;
+    uint64_t m_explorationFeedbackRequestSequence = 1;
     bool m_isChatInputOpen = false;
     std::string m_currentInputBuffer;
     urpg::ability::AbilitySystemComponent m_playerAbilitySystem;

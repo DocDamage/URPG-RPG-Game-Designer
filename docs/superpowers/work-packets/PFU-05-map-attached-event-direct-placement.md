@@ -1,6 +1,6 @@
 # PFU-05 Work Packet: direct placement of attached Map event metadata
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -38,7 +38,7 @@ project-path reference.
   path together.
 - Older documents without event asset metadata continue to load.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[spatial][map_authoring][assets][history]" --reporter compact`
 

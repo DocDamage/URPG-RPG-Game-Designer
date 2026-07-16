@@ -560,6 +560,8 @@ void BattleScene::onStart() {
     m_nativeActionQueue.clear();
     m_effectSequence = 0;
     m_effectCues.clear();
+    m_battleFeedback.clear();
+    m_battleFeedbackRequestSequence = 1;
     m_commandWindow->setVisible(false);
 
     // Phase 12: Load Background
@@ -589,6 +591,8 @@ void BattleScene::setPhase(BattlePhase phase) {
     m_currentPhase = phase;
     switch (phase) {
     case BattlePhase::START: {
+        (void)m_battleFeedback.submit({nextBattleFeedbackRequestId("phase:start"),
+            urpg::presentation::BattleFeedbackKind::TurnState, "Battle start", "battle", {}, 0, false});
         urpg::presentation::effects::EffectCue banner;
         banner.frameTick = static_cast<std::uint64_t>(std::max(m_turnCount, 0));
         banner.kind = urpg::presentation::effects::EffectCueKind::PhaseBanner;
@@ -600,9 +604,13 @@ void BattleScene::setPhase(BattlePhase phase) {
     }
     case BattlePhase::INPUT:
         m_flowController.enterInput();
+        (void)m_battleFeedback.submit({nextBattleFeedbackRequestId("phase:input"),
+            urpg::presentation::BattleFeedbackKind::TurnState, "Choose an action", "battle", {}, 0, false});
         break;
     case BattlePhase::ACTION:
         m_flowController.enterAction();
+        (void)m_battleFeedback.submit({nextBattleFeedbackRequestId("phase:action"),
+            urpg::presentation::BattleFeedbackKind::TurnState, "Actions resolve", "battle", {}, 0, false});
         break;
     case BattlePhase::TURN_END:
         m_flowController.endTurn();
@@ -615,9 +623,13 @@ void BattleScene::setPhase(BattlePhase phase) {
         break;
     case BattlePhase::VICTORY:
         m_flowController.markVictory();
+        (void)m_battleFeedback.submit({nextBattleFeedbackRequestId("phase:victory"),
+            urpg::presentation::BattleFeedbackKind::Victory, "Victory", "battle", {}, 0, false});
         break;
     case BattlePhase::DEFEAT:
         m_flowController.markDefeat();
+        (void)m_battleFeedback.submit({nextBattleFeedbackRequestId("phase:defeat"),
+            urpg::presentation::BattleFeedbackKind::Defeat, "Defeat", "battle", {}, 0, false});
         break;
     }
 }
@@ -667,6 +679,7 @@ std::optional<BattleDiagnosticsPreview> BattleScene::buildDiagnosticsPreview() c
 }
 
 void BattleScene::onUpdate(float dt) {
+    m_battleFeedback.advance(static_cast<uint32_t>(std::max(0.0F, dt) * 1000.0F));
     for (auto& p : m_participants) {
         syncParticipantAbilityRuntime(p);
         p.abilitySystem.update(dt);
@@ -922,6 +935,9 @@ void BattleScene::onCommandSelected(const std::string& cmd) {
     m_pendingAction = BattleAction();
     m_pendingAction.subject = subject;
     m_pendingAction.command = cmd;
+    (void)m_battleFeedback.submit({nextBattleFeedbackRequestId("selection"),
+        urpg::presentation::BattleFeedbackKind::Selection, subject->name + ": " + cmd,
+        subject->id, {}, 0, false});
 
     if (cmd == "attack") {
         openTargetWindow(true); // Target enemies
@@ -1025,6 +1041,10 @@ void BattleScene::openTargetWindow(bool targetEnemies) {
         }
     }
     m_targetWindow->setVisible(true);
+    (void)m_battleFeedback.submit({nextBattleFeedbackRequestId("targeting"),
+        urpg::presentation::BattleFeedbackKind::Targeting,
+        targetEnemies ? "Choose an enemy" : "Choose an ally",
+        m_pendingAction.subject != nullptr ? m_pendingAction.subject->id : "battle", {}, 0, false});
 }
 
 void BattleScene::onTargetSelected(BattleParticipant* target) {
@@ -1086,6 +1106,11 @@ void BattleScene::executeAction(const BattleAction& action) {
     // Check if subject is alive
     if (action.subject->hp <= 0)
         return;
+
+    (void)m_battleFeedback.submit({nextBattleFeedbackRequestId("anticipation"),
+        urpg::presentation::BattleFeedbackKind::Anticipation,
+        action.subject->name + " prepares " + action.command, action.subject->id,
+        currentTargets.front() != nullptr ? currentTargets.front()->id : std::string{}, 0, false});
 
     // Guard reset and processing...
     action.subject->isGuarding = false;
@@ -1192,7 +1217,8 @@ void BattleScene::executeAction(const BattleAction& action) {
         // 3. Apply Damage/HP change
         target->hp = std::max(0, target->hp - damage);
         if (damage > 0) {
-            m_shakeTimer = 0.3f;
+            const auto feedbackSettings = m_battleFeedback.snapshot().settings;
+            m_shakeTimer = feedbackSettings.screen_shake_enabled && !feedbackSettings.reduced_motion ? 0.3f : 0.0f;
             target->DamagePopupValue = (float)damage;
             target->DamagePopupTimer = 1.0f;
             target->DamagePopupColor = 0xFFFFFFFF;
@@ -1201,6 +1227,19 @@ void BattleScene::executeAction(const BattleAction& action) {
             target->DamagePopupTimer = 1.0f;
             target->DamagePopupColor = 0x00FF00FF;
         }
+
+        if (damage > 0) {
+            (void)m_battleFeedback.submit({nextBattleFeedbackRequestId("impact"),
+                urpg::presentation::BattleFeedbackKind::Impact, "Impact", action.subject->id,
+                target->id, damage, damage > 20});
+        }
+        const auto feedbackKind = damage < 0 ? urpg::presentation::BattleFeedbackKind::Heal
+                                             : urpg::presentation::BattleFeedbackKind::Damage;
+        const auto amount = damage < 0 ? -damage : damage;
+        const auto feedbackText = damage < 0 ? target->name + " recovers " + std::to_string(amount) + " HP"
+                                             : target->name + " takes " + std::to_string(amount) + " damage";
+        (void)m_battleFeedback.submit({nextBattleFeedbackRequestId("result"), feedbackKind, feedbackText,
+            action.subject->id, target->id, amount, damage > 20});
 
         if (action.command == "attack" || action.isSkill || action.isItem) {
             urpg::presentation::effects::EffectCue resultCue;
@@ -1374,6 +1413,12 @@ void BattleScene::processVictoryRewards() {
 
     if (m_logWindow)
         m_logWindow->setText(rewardMsg);
+    (void)m_battleFeedback.submit({nextBattleFeedbackRequestId("results"),
+        urpg::presentation::BattleFeedbackKind::Results, rewardMsg, "battle", {}, totalExp, false});
+}
+
+std::string BattleScene::nextBattleFeedbackRequestId(const std::string& prefix) {
+    return prefix + ":" + std::to_string(m_battleFeedbackRequestSequence++);
 }
 
 void BattleScene::setupTroop(int32_t troopId) {

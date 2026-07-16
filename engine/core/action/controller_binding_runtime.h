@@ -4,6 +4,7 @@
 #include "engine/core/input/input_remap_store.h"
 
 #include <cstdint>
+#include <filesystem>
 #include <map>
 #include <optional>
 #include <string>
@@ -56,10 +57,13 @@ public:
     [[nodiscard]] std::optional<urpg::input::InputAction> getBinding(ControllerButton button) const;
     [[nodiscard]] std::map<ControllerButton, urpg::input::InputAction> getAllBindings() const;
 
-    void resetToDefaults();
+    void resetToDefaults(bool mark_unsaved = false);
+    void markPersisted();
 
     [[nodiscard]] nlohmann::json saveToJson() const;
     void loadFromJson(const nlohmann::json& value);
+    [[nodiscard]] bool saveToFile(const std::filesystem::path& path, std::string* error = nullptr) const;
+    [[nodiscard]] bool loadFromFile(const std::filesystem::path& path, std::string* error = nullptr);
 
     [[nodiscard]] bool hasUnsavedChanges() const;
     [[nodiscard]] std::vector<ControllerBindingIssue> getIssues() const;

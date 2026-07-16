@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native Menu Studio layout foundation
 
-**Status:** Implemented in worktree; verification deferred by user instruction
+**Status:** Implemented in worktree; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -44,7 +44,7 @@ an editor-only visual overlay.
   existing insertion-order behavior.
 - Inspector and preview snapshots expose layout/focus data and layout issues.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[ui][menu]" --reporter compact`
 

@@ -57,6 +57,7 @@ struct AssetLibraryModelSnapshot {
     size_t cleanup_refused_count = 0;
     size_t favorite_asset_count = 0;
     size_t asset_collection_count = 0;
+    size_t saved_search_count = 0;
     bool export_eligible = false;
     bool reports_loaded = false;
     std::string promotion_status;
@@ -73,6 +74,7 @@ struct AssetLibraryModelSnapshot {
     nlohmann::json last_action = nlohmann::json::object();
     nlohmann::json action_history = nlohmann::json::array();
     nlohmann::json user_curation = nlohmann::json::object();
+    nlohmann::json asset_comparison_rows = nlohmann::json::array();
     std::map<std::string, size_t> category_counts;
     std::map<std::string, size_t> game_use_category_counts;
     std::map<std::string, size_t> game_use_tag_counts;
@@ -241,6 +243,10 @@ class AssetLibraryModel {
     bool setAssetFavorite(std::string_view path, bool favorite);
     bool createAssetCollection(std::string id, std::string label);
     bool setAssetCollectionMembership(std::string_view collection_id, std::string_view path, bool included);
+    bool saveCurrentSearch(std::string id, std::string label);
+    bool applySavedSearch(std::string_view id);
+    bool removeSavedSearch(std::string_view id);
+    bool setAssetComparison(std::vector<std::string> paths);
     void rebuildCleanupPreview();
     void clear();
 
@@ -275,6 +281,8 @@ class AssetLibraryModel {
     std::vector<std::string> import_tool_command_ = {"python", "tools/assets/global_asset_import.py"};
     std::vector<std::string> favorite_asset_keys_;
     std::vector<urpg::settings::AssetLibraryCollectionSettings> asset_collections_;
+    std::vector<urpg::settings::AssetLibrarySavedSearchSettings> asset_saved_searches_;
+    std::vector<std::string> comparison_paths_;
     std::uintmax_t duplicate_csv_detail_limit_bytes_ = 8ull * 1024ull * 1024ull;
     std::uintmax_t promotion_catalog_detail_limit_bytes_ = 4ull * 1024ull * 1024ull;
 };

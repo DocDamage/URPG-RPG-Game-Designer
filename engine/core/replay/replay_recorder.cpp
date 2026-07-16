@@ -21,7 +21,8 @@ std::string fnv1a64(const std::string& value) {
 }
 
 nlohmann::json inputToJson(const ReplayInput& input) {
-    return {{"tick", input.tick}, {"action", input.action}, {"payload", input.payload}};
+    return {{"tick", input.tick}, {"action", input.action}, {"payload", input.payload},
+            {"semantic_kind", input.semantic_kind}};
 }
 
 ReplayInput inputFromJson(const nlohmann::json& json) {
@@ -29,6 +30,7 @@ ReplayInput inputFromJson(const nlohmann::json& json) {
         json.value("tick", int64_t{0}),
         json.value("action", ""),
         json.value("payload", nlohmann::json::object()),
+        json.value("semantic_kind", "legacy"),
     };
 }
 
@@ -49,6 +51,15 @@ nlohmann::json ReplayArtifact::toJson() const {
     for (const auto& [tick, hash] : state_hashes) {
         json["state_hashes"][std::to_string(tick)] = hash;
     }
+    if (!project_revision.empty()) json["project_revision"] = project_revision;
+    if (!runtime_version.empty()) json["runtime_version"] = runtime_version;
+    json["checkpoints"] = nlohmann::json::array();
+    for (const auto& checkpoint : checkpoints) {
+        json["checkpoints"].push_back({{"tick", checkpoint.tick}, {"label", checkpoint.label},
+                                       {"state_hash", checkpoint.state_hash},
+                                       {"redacted_state", checkpoint.redacted_state}});
+    }
+    json["redacted_fields"] = redacted_fields;
     return json;
 }
 
@@ -57,6 +68,8 @@ ReplayArtifact ReplayArtifact::fromJson(const nlohmann::json& json) {
     artifact.id = json.value("id", "");
     artifact.seed = json.value("seed", uint64_t{0});
     artifact.project_version = json.value("project_version", "");
+    artifact.project_revision = json.value("project_revision", "");
+    artifact.runtime_version = json.value("runtime_version", "");
     for (const auto& label : json.value("labels", nlohmann::json::array())) {
         artifact.labels.insert(label.get<std::string>());
     }
@@ -66,6 +79,14 @@ ReplayArtifact ReplayArtifact::fromJson(const nlohmann::json& json) {
     const auto state_hashes_json = json.value("state_hashes", nlohmann::json::object());
     for (const auto& [tick, hash] : state_hashes_json.items()) {
         artifact.state_hashes[std::stoll(tick)] = hash.get<std::string>();
+    }
+    for (const auto& checkpoint : json.value("checkpoints", nlohmann::json::array())) {
+        artifact.checkpoints.push_back({checkpoint.value("tick", int64_t{0}), checkpoint.value("label", ""),
+                                        checkpoint.value("state_hash", ""),
+                                        checkpoint.value("redacted_state", nlohmann::json::object())});
+    }
+    for (const auto& field : json.value("redacted_fields", nlohmann::json::array())) {
+        artifact.redacted_fields.insert(field.get<std::string>());
     }
     return artifact;
 }
@@ -83,7 +104,7 @@ void ReplayRecorder::recordInput(int64_t tick,
                                  std::string action,
                                  nlohmann::json payload,
                                  const nlohmann::json& deterministic_state) {
-    input_log_.push_back(ReplayInput{tick, std::move(action), std::move(payload)});
+    input_log_.push_back(ReplayInput{tick, std::move(action), std::move(payload), "legacy"});
     state_hashes_[tick] = hashState(deterministic_state);
 }
 
@@ -92,7 +113,14 @@ ReplayArtifact ReplayRecorder::finish(std::string id) const {
     std::stable_sort(inputs.begin(), inputs.end(), [](const auto& lhs, const auto& rhs) {
         return std::tie(lhs.tick, lhs.action) < std::tie(rhs.tick, rhs.action);
     });
-    return ReplayArtifact{std::move(id), seed_, project_version_, labels_, inputs, state_hashes_};
+    ReplayArtifact artifact;
+    artifact.id = std::move(id);
+    artifact.seed = seed_;
+    artifact.project_version = project_version_;
+    artifact.labels = labels_;
+    artifact.input_log = std::move(inputs);
+    artifact.state_hashes = state_hashes_;
+    return artifact;
 }
 
 std::string ReplayRecorder::hashState(const nlohmann::json& deterministic_state) {

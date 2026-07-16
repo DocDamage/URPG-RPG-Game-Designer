@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: project-owned MZ static plugin lock
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -39,7 +39,7 @@ source already inspected by the native Mod workspace.
 - The lock does not add an execution, migration, enablement, trust, or native
   feature-support claim.
 
-Verification command (deferred):
+Packet-local verification command (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[plugin][compat][editor]" --reporter compact`
 

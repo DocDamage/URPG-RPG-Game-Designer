@@ -111,11 +111,27 @@ foreach ($configuration in @($spec.required_provenance.build_configurations)) {
   if ($build.Count -ne 1) {
     throw "Qualification provenance must contain exactly one '$configuration' build."
   }
-  foreach ($field in @("preset", "platform", "compiler", "binary_sha256")) {
+  foreach ($field in @("preset", "platform", "compiler", "binary_path", "binary_sha256", "dirty_state",
+                       "configure_utc", "binary_utc", "latest_tracked_input", "latest_tracked_input_utc",
+                       "gate_start_utc")) {
     [void](Get-RequiredProperty -Object $build[0] -Name $field -Context "Qualification $configuration build")
   }
   if ($build[0].source_commit -ne $ExpectedCommit) {
     throw "Qualification $configuration build provenance does not match expected commit '$ExpectedCommit'."
+  }
+  if ($build[0].dirty_state -ne "clean") {
+    throw "Qualification $configuration build provenance reports a dirty worktree."
+  }
+  if (-not (Test-Path -LiteralPath $build[0].binary_path -PathType Leaf)) {
+    throw "Qualification $configuration build binary is missing: $($build[0].binary_path)"
+  }
+  Assert-ArtifactHash -Path $build[0].binary_path -ExpectedHash $build[0].binary_sha256 -Context "Qualification $configuration build"
+  $configureTime = [DateTimeOffset]::Parse($build[0].configure_utc)
+  $binaryTime = [DateTimeOffset]::Parse($build[0].binary_utc)
+  $latestInputTime = [DateTimeOffset]::Parse($build[0].latest_tracked_input_utc)
+  [void][DateTimeOffset]::Parse($build[0].gate_start_utc)
+  if ($binaryTime -lt $configureTime -or $binaryTime -lt $latestInputTime) {
+    throw "Qualification $configuration build provenance identifies a stale binary. Rebuild the candidate."
   }
 }
 

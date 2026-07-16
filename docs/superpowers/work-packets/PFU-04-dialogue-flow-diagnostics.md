@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native dialogue graph flow diagnostics
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -31,7 +31,7 @@ Add read-only structural and topology diagnostics to the existing native
 - Valid but orphaned, dead-end, cyclic, or end-less graphs report their
   corresponding flow codes in the panel snapshot.
 
-Verification command (deferred):
+Packet-local verification command (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[dialogue][narrative]" --reporter compact`
 

@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native Menu Studio multi-select distribution
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -32,4 +32,4 @@ This is not responsive anchoring, arbitrary multi-pane move/resize, reusable
 components, or target-device qualification. It provides only deterministic
 same-axis gap distribution for selected visible panes.
 
-Verification is deferred by user instruction.
+Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

@@ -1,6 +1,6 @@
 # PFU-05 Work Packet: direct placement of attached Map props
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -37,7 +37,7 @@ rather than only enrolling the asset in a palette.
   and scale; malformed prop arrays/placements are rejected before the existing
   loader mutates its child document state.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[spatial][map_authoring][assets][history]" --reporter compact`
 

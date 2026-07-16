@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native quest graph mutation and local history
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -50,7 +50,7 @@ and undo/redo the last 64 graph mutations through the existing project draft.
 - Preview/application remains blocked by the existing structural validator;
   flow analysis is visible author guidance, not an unproven runtime claim.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[quest][graph][editor]" --reporter compact`
 

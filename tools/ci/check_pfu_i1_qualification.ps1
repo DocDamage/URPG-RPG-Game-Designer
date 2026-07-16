@@ -7,6 +7,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$gateStarted = [DateTimeOffset]::UtcNow
 
 function Resolve-RepoPath {
   param([Parameter(Mandatory = $true)][string]$Path)
@@ -40,32 +41,8 @@ function Invoke-QualificationCommand {
   }
 }
 
-function Get-BinaryProvenance {
-  param(
-    [Parameter(Mandatory = $true)][string]$Configuration,
-    [Parameter(Mandatory = $true)][string]$BuildDirectory
-  )
-
-  $cache = Join-Path $BuildDirectory "CMakeCache.txt"
-  if (-not (Test-Path -LiteralPath $cache -PathType Leaf)) {
-    throw "The $Configuration build directory is not configured: $BuildDirectory"
-  }
-  $runtime = Join-Path $BuildDirectory "urpg_runtime.exe"
-  if (-not (Test-Path -LiteralPath $runtime -PathType Leaf)) {
-    throw "The $Configuration runtime binary is missing: $runtime"
-  }
-  $compilerLine = Select-String -LiteralPath $cache -Pattern '^CMAKE_CXX_COMPILER:FILEPATH=' | Select-Object -First 1
-  return [ordered]@{
-    configuration = $Configuration
-    preset = if ($Configuration -eq "Debug") { "dev-ninja-debug" } else { "dev-ninja-release" }
-    platform = [System.Environment]::OSVersion.Platform.ToString()
-    compiler = if ($null -eq $compilerLine) { "unknown" } else { $compilerLine.Line.Split('=', 2)[1] }
-    binary_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $runtime).Hash.ToLowerInvariant()
-    source_commit = $ExpectedCommit
-  }
-}
-
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
+. (Join-Path $PSScriptRoot "build_provenance.ps1")
 $debugBuild = Resolve-RepoPath $DebugBuildDirectory
 $releaseBuild = Resolve-RepoPath $ReleaseBuildDirectory
 $packageRoot = Resolve-RepoPath $PackageRoot
@@ -128,8 +105,8 @@ Invoke-QualificationCommand "package_install" "Run package and install smoke" {
   & (Join-Path $repoRoot "tools\ci\check_install_smoke.ps1") -RepoRoot $repoRoot -BuildDirectory $releaseBuild
 }
 $buildProvenance = @(
-  (Get-BinaryProvenance -Configuration "Debug" -BuildDirectory $debugBuild),
-  (Get-BinaryProvenance -Configuration "Release" -BuildDirectory $releaseBuild)
+  (Get-UrpgQualificationBuildProvenance -Configuration "Debug" -BuildDirectory $debugBuild -RepoRoot $repoRoot -ExpectedCommit $ExpectedCommit -GateStarted $gateStarted),
+  (Get-UrpgQualificationBuildProvenance -Configuration "Release" -BuildDirectory $releaseBuild -RepoRoot $repoRoot -ExpectedCommit $ExpectedCommit -GateStarted $gateStarted)
 )
 $packageEvidence = [ordered]@{
   schema = "urpg.creator_journey_qualification_package_smoke.v1"
@@ -137,6 +114,7 @@ $packageEvidence = [ordered]@{
   source_commit = $ExpectedCommit
   package_root = $packageRoot
   generated_utc = [DateTimeOffset]::UtcNow.ToString("o")
+  gate_start_utc = $gateStarted.ToString("o")
 }
 [System.IO.File]::WriteAllText($packageEvidencePath, ($packageEvidence | ConvertTo-Json -Depth 6) + [Environment]::NewLine)
 $targetProvenance = [ordered]@{

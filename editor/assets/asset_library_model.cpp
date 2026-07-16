@@ -1111,17 +1111,25 @@ std::string pickerKindForAsset(const urpg::assets::AssetRecord& asset,
 
 nlohmann::json pickerTargetsForKind(const std::string& pickerKind) {
     nlohmann::json targets = nlohmann::json::array();
+    const auto add = [&](const char* target) {
+        if (std::find(targets.begin(), targets.end(), target) == targets.end()) targets.push_back(target);
+    };
     if (pickerKind == "audio") {
-        targets.push_back("audio_selector");
+        add("audio_selector");
     } else if (pickerKind == "ui") {
-        targets.push_back("ui_theme_selector");
+        add("ui_theme_selector");
     } else if (pickerKind == "tileset" || pickerKind == "background" || pickerKind == "sprite") {
-        targets.push_back("level_builder");
-        targets.push_back("spatial_authoring");
-        targets.push_back("sprite_selector");
+        add("level_builder"); add("spatial_authoring"); add("sprite_selector");
     } else if (pickerKind == "portrait" || pickerKind == "vfx") {
-        targets.push_back("sprite_selector");
+        add("sprite_selector");
     }
+    if (pickerKind == "tileset" || pickerKind == "sprite") add("map_tile_selector");
+    if (pickerKind == "background" || pickerKind == "sprite" || pickerKind == "portrait") add("map_prop_selector");
+    if (pickerKind == "sprite" || pickerKind == "portrait") add("event_sprite_selector");
+    if (pickerKind == "background" || pickerKind == "sprite" || pickerKind == "vfx") add("battle_asset_selector");
+    if (pickerKind == "ui" || pickerKind == "background") add("menu_image_selector");
+    if (pickerKind == "portrait") add("portrait_selector");
+    if (pickerKind == "sprite" || pickerKind == "vfx") add("animation_selector");
     return targets;
 }
 
@@ -2909,6 +2917,7 @@ bool AssetLibraryModel::applyQuickFilter(std::string_view filter_id) {
 void AssetLibraryModel::applyUserAssetCuration(const urpg::settings::EditorSettings& settings) {
     favorite_asset_keys_ = settings.asset_favorite_keys;
     asset_collections_ = settings.asset_collections;
+    asset_saved_searches_ = settings.asset_saved_searches;
     refreshSnapshot();
 }
 
@@ -2918,6 +2927,7 @@ void AssetLibraryModel::writeUserAssetCuration(urpg::settings::EditorSettings* s
     }
     settings->asset_favorite_keys = favorite_asset_keys_;
     settings->asset_collections = asset_collections_;
+    settings->asset_saved_searches = asset_saved_searches_;
 }
 
 std::string AssetLibraryModel::curationKeyForPath(std::string_view path) const {
@@ -2983,6 +2993,52 @@ bool AssetLibraryModel::setAssetCollectionMembership(std::string_view collection
     }
     refreshSnapshot();
     return true;
+}
+
+bool AssetLibraryModel::saveCurrentSearch(std::string id, std::string label) {
+    if (id.empty() || label.empty()) return false;
+    const auto duplicate = std::find_if(asset_saved_searches_.begin(), asset_saved_searches_.end(),
+                                        [&](const auto& search) { return search.id == id; });
+    if (duplicate != asset_saved_searches_.end()) return false;
+    urpg::settings::AssetLibrarySavedSearchSettings search;
+    search.id = std::move(id); search.label = std::move(label); search.media_kind = filter_.media_kind;
+    search.category = filter_.category; search.required_tag = filter_.required_tag;
+    search.required_game_use_tag = filter_.required_game_use_tag; search.source_bundle_id = filter_.source_bundle_id;
+    search.referenced_only = filter_.referenced_only; search.runtime_ready_only = filter_.runtime_ready_only;
+    search.previewable_only = filter_.previewable_only; search.project_attached_only = filter_.project_attached_only;
+    search.attachable_only = filter_.attachable_only; search.release_eligible_only = filter_.release_eligible_only;
+    asset_saved_searches_.push_back(std::move(search)); refreshSnapshot(); return true;
+}
+
+bool AssetLibraryModel::applySavedSearch(const std::string_view id) {
+    const auto search = std::find_if(asset_saved_searches_.begin(), asset_saved_searches_.end(),
+                                     [&](const auto& item) { return item.id == id; });
+    if (search == asset_saved_searches_.end()) return false;
+    urpg::assets::AssetLibraryFilter filter;
+    filter.media_kind = search->media_kind; filter.category = search->category; filter.required_tag = search->required_tag;
+    filter.required_game_use_tag = search->required_game_use_tag; filter.source_bundle_id = search->source_bundle_id;
+    filter.referenced_only = search->referenced_only; filter.runtime_ready_only = search->runtime_ready_only;
+    filter.previewable_only = search->previewable_only; filter.project_attached_only = search->project_attached_only;
+    filter.attachable_only = search->attachable_only; filter.release_eligible_only = search->release_eligible_only;
+    setFilter(std::move(filter)); return true;
+}
+
+bool AssetLibraryModel::removeSavedSearch(const std::string_view id) {
+    const auto before = asset_saved_searches_.size();
+    asset_saved_searches_.erase(std::remove_if(asset_saved_searches_.begin(), asset_saved_searches_.end(),
+                                               [&](const auto& search) { return search.id == id; }), asset_saved_searches_.end());
+    if (asset_saved_searches_.size() == before) return false;
+    refreshSnapshot(); return true;
+}
+
+bool AssetLibraryModel::setAssetComparison(std::vector<std::string> paths) {
+    if (paths.size() < 2 || paths.size() > 4) return false;
+    std::vector<std::string> unique;
+    for (auto& path : paths) {
+        if (!library_.findAsset(path).has_value() || std::find(unique.begin(), unique.end(), path) != unique.end()) return false;
+        unique.push_back(std::move(path));
+    }
+    comparison_paths_ = std::move(unique); refreshSnapshot(); return true;
 }
 
 void AssetLibraryModel::rebuildCleanupPreview() {
@@ -3051,13 +3107,36 @@ void AssetLibraryModel::refreshSnapshot() {
                                                snapshot_.project_attached_count, snapshot_.project_attachable_count);
     snapshot_.favorite_asset_count = favorite_asset_keys_.size();
     snapshot_.asset_collection_count = asset_collections_.size();
+    snapshot_.saved_search_count = asset_saved_searches_.size();
     snapshot_.user_curation = {{"favorite_count", snapshot_.favorite_asset_count},
                                {"favorites", favorite_asset_keys_},
-                               {"collections", nlohmann::json::array()}};
+                               {"collections", nlohmann::json::array()}, {"saved_searches", nlohmann::json::array()}};
     for (const auto& collection : asset_collections_) {
         snapshot_.user_curation["collections"].push_back(
             {{"id", collection.id}, {"label", collection.label}, {"asset_count", collection.asset_keys.size()},
              {"asset_keys", collection.asset_keys}});
+    }
+    for (const auto& search : asset_saved_searches_) {
+        snapshot_.user_curation["saved_searches"].push_back({{"id", search.id}, {"label", search.label},
+            {"media_kind", search.media_kind}, {"category", search.category}, {"required_tag", search.required_tag},
+            {"required_game_use_tag", search.required_game_use_tag}, {"source_bundle_id", search.source_bundle_id},
+            {"referenced_only", search.referenced_only}, {"runtime_ready_only", search.runtime_ready_only},
+            {"previewable_only", search.previewable_only}, {"project_attached_only", search.project_attached_only},
+            {"attachable_only", search.attachable_only}, {"release_eligible_only", search.release_eligible_only}});
+    }
+    snapshot_.asset_comparison_rows = nlohmann::json::array();
+    for (const auto& path : comparison_paths_) {
+        const auto asset = library_.findAsset(path); if (!asset) continue;
+        nlohmann::json collections = nlohmann::json::array();
+        for (const auto& collection : asset_collections_) if (isAssetInCollection(collection.id, path)) collections.push_back(collection.id);
+        const auto packageStatus = !projectAttachmentManifestPath(*asset).empty() ? "attached" :
+            (asset->include_in_runtime && (asset->release_eligible || asset->provenance.export_eligible) ? "package_ready" :
+             (asset->include_in_runtime ? "package_blocked" : "excluded"));
+        snapshot_.asset_comparison_rows.push_back({{"asset_id", asset->asset_id}, {"path", asset->path},
+            {"media_kind", asset->media_kind}, {"category", asset->category}, {"usage_count", asset->used_by.size()},
+            {"used_by", asset->used_by}, {"provenance", urpg::assets::toJson(asset->provenance)},
+            {"license_id", asset->license_id}, {"package_status", packageStatus},
+            {"favorite", isAssetFavorite(path)}, {"collections", collections}});
     }
     snapshot_.cleanup_allowed_count = cleanup_plan_.allowed_count;
     snapshot_.cleanup_refused_count = cleanup_plan_.refused_count;

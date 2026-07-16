@@ -1,6 +1,6 @@
 # PFU-06 Work Packet: spatial Map accessibility audit ingestion
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -45,4 +45,4 @@ keyboard-only Map operation or controller qualification. Canvas alternatives
 for tile/event placement, broader focus traversal, assistive-technology review,
 device hot-plug, and manual graphical evidence remain PFU-06 work.
 
-Verification is deferred by user instruction.
+Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

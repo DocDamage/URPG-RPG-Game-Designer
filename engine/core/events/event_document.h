@@ -32,6 +32,21 @@ enum class EventCommandKind : uint8_t {
     Wait,
     Fade,
     Sound,
+    Condition,
+    ElseBranch,
+    EndBranch,
+    Loop,
+    BreakLoop,
+    EndLoop,
+    Timer,
+    Parallel,
+    SelfSwitch,
+    MovementRoute,
+    Camera,
+    Animation,
+    Shop,
+    Script,
+    Extension,
     Plugin,
     Unsupported
 };
@@ -160,6 +175,8 @@ public:
     void addMap(MapDefinition map);
     void addEvent(EventDefinition event);
     void addCommonEvent(CommonEventDefinition common_event);
+    bool removeCommonEvent(const std::string& common_event_id);
+    std::size_t replaceCommonEventReferences(const std::string& old_id, const std::string& replacement_id);
     void setAvailablePlugins(std::set<std::string> plugin_ids);
     void setKnownSwitches(std::set<std::string> switch_ids);
     void setKnownVariables(std::set<std::string> variable_ids);

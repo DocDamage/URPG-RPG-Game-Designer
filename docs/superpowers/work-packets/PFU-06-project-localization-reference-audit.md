@@ -1,6 +1,6 @@
 # PFU-06 Work Packet: project localization-reference audit
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -47,4 +47,4 @@ Voice metadata remains audit-only: this packet does not reconcile attachments,
 generate captions, select locale fallbacks, qualify rights, or establish device
 playback/listening review. Those broader F24 workflows remain open.
 
-Verification is deferred by user instruction.
+Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native dialogue project mutation and local history
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -62,7 +62,7 @@ that creators can create, mutate, preview, save, undo/redo, and recover.
 - The saved document round-trips the graph's existing schema without a new
   compatibility or export format.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[dialogue][narrative][editor]" --reporter compact`
 

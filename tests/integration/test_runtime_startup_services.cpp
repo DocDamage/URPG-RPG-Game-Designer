@@ -91,6 +91,8 @@ TEST_CASE("RuntimeStartupServices loads a project locale catalog when present",
     REQUIRE(report.hasSubsystemCode("LocaleCatalog", "localization.ready"));
     REQUIRE(report.locale_code == "en-US");
     REQUIRE(report.locale_key_count == 2);
+    REQUIRE(report.locale_catalog.has_value());
+    REQUIRE(report.locale_catalog->getKey("title.new_game") == "New Game");
 }
 
 TEST_CASE("RuntimeStartupServices rejects tampered runtime bundles before project content use",

@@ -1,6 +1,6 @@
 # PFU-05 Work Packet: Native Map Event Sprite Projection
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 

@@ -267,6 +267,33 @@ void EventDocument::addCommonEvent(CommonEventDefinition common_event) {
     common_events_[common_event.id] = std::move(common_event);
 }
 
+bool EventDocument::removeCommonEvent(const std::string& common_event_id) {
+    return common_events_.erase(common_event_id) != 0;
+}
+
+std::size_t EventDocument::replaceCommonEventReferences(const std::string& old_id,
+                                                        const std::string& replacement_id) {
+    if (old_id.empty() || replacement_id.empty() || old_id == replacement_id || !common_events_.contains(replacement_id)) {
+        return 0;
+    }
+    std::size_t replaced = 0;
+    const auto replace = [&](EventCommand& command) {
+        if (command.kind == EventCommandKind::CommonEvent && command.target == old_id) {
+            command.target = replacement_id;
+            ++replaced;
+        }
+    };
+    for (auto& event : events_) {
+        for (auto& page : event.pages) {
+            for (auto& command : page.commands) replace(command);
+        }
+    }
+    for (auto& [_, common_event] : common_events_) {
+        for (auto& command : common_event.commands) replace(command);
+    }
+    return replaced;
+}
+
 void EventDocument::setAvailablePlugins(std::set<std::string> plugin_ids) {
     available_plugins_ = std::move(plugin_ids);
 }
@@ -576,6 +603,21 @@ std::string toString(EventCommandKind kind) {
         case EventCommandKind::Wait: return "wait";
         case EventCommandKind::Fade: return "fade";
         case EventCommandKind::Sound: return "sound";
+        case EventCommandKind::Condition: return "condition";
+        case EventCommandKind::ElseBranch: return "else";
+        case EventCommandKind::EndBranch: return "end_branch";
+        case EventCommandKind::Loop: return "loop";
+        case EventCommandKind::BreakLoop: return "break_loop";
+        case EventCommandKind::EndLoop: return "end_loop";
+        case EventCommandKind::Timer: return "timer";
+        case EventCommandKind::Parallel: return "parallel";
+        case EventCommandKind::SelfSwitch: return "self_switch";
+        case EventCommandKind::MovementRoute: return "movement_route";
+        case EventCommandKind::Camera: return "camera";
+        case EventCommandKind::Animation: return "animation";
+        case EventCommandKind::Shop: return "shop";
+        case EventCommandKind::Script: return "script";
+        case EventCommandKind::Extension: return "extension";
         case EventCommandKind::Plugin: return "plugin";
         case EventCommandKind::Unsupported: return "unsupported";
     }
@@ -604,6 +646,14 @@ EventCommandKind eventCommandKindFromString(const std::string& value) {
         {"wait", EventCommandKind::Wait},
         {"fade", EventCommandKind::Fade},
         {"sound", EventCommandKind::Sound},
+        {"condition", EventCommandKind::Condition}, {"else", EventCommandKind::ElseBranch},
+        {"end_branch", EventCommandKind::EndBranch}, {"loop", EventCommandKind::Loop},
+        {"break_loop", EventCommandKind::BreakLoop}, {"end_loop", EventCommandKind::EndLoop},
+        {"timer", EventCommandKind::Timer}, {"parallel", EventCommandKind::Parallel},
+        {"self_switch", EventCommandKind::SelfSwitch}, {"movement_route", EventCommandKind::MovementRoute},
+        {"camera", EventCommandKind::Camera}, {"animation", EventCommandKind::Animation},
+        {"shop", EventCommandKind::Shop}, {"script", EventCommandKind::Script},
+        {"extension", EventCommandKind::Extension},
         {"plugin", EventCommandKind::Plugin}
     };
     const auto it = kinds.find(value);

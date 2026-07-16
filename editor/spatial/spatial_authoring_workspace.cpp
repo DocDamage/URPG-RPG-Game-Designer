@@ -5,6 +5,7 @@
 #include "engine/core/scene/map_scene.h"
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <cmath>
 #include <cstddef>
@@ -18,8 +19,11 @@
 #include <limits>
 #include <nlohmann/json.hpp>
 #include <optional>
+#include <queue>
+#include <set>
 #include <sstream>
 #include <string_view>
+#include <tuple>
 #include <vector>
 
 namespace urpg::editor {
@@ -1437,9 +1441,9 @@ SpatialAuthoringWorkspace::applyNativeTileEdits(const std::string& expected_docu
             [&](const Perspective2DNativeTileEdit& prior) {
                 return prior.layer_id == edit.layer_id && prior.tile_x == edit.tile_x && prior.tile_y == edit.tile_y;
             });
-        if (edit.layer_id.empty() || edit.tileset_id.empty() || edit.tile_id.empty() ||
+        if (edit.layer_id.empty() || (!edit.erase && (edit.tileset_id.empty() || edit.tile_id.empty())) ||
             layer == perspective_layers_.end() || layer->kind != "tile" || !layer->visible || layer->locked ||
-            !palette_contains_tile || edit.tile_x < 0 || edit.tile_y < 0 ||
+            (!edit.erase && !palette_contains_tile) || edit.tile_x < 0 || edit.tile_y < 0 ||
             edit.tile_x >= static_cast<int32_t>(m_target_overlay->elevation.width) ||
             edit.tile_y >= static_cast<int32_t>(m_target_overlay->elevation.height) || duplicate_target) {
             result.code = "creator_native_tile_command_invalid";
@@ -1455,7 +1459,12 @@ SpatialAuthoringWorkspace::applyNativeTileEdits(const std::string& expected_docu
                                                return paint.layer_id == edit.layer_id &&
                                                       paint.tile_x == edit.tile_x && paint.tile_y == edit.tile_y;
                                            });
-        if (existing == perspective_tiles_.end()) {
+        if (edit.erase) {
+            if (existing != perspective_tiles_.end()) {
+                perspective_tiles_.erase(existing);
+                ++result.applied_tile_count;
+            }
+        } else if (existing == perspective_tiles_.end()) {
             perspective_tiles_.push_back({edit.layer_id, edit.tileset_id, edit.tile_id, edit.tile_x, edit.tile_y});
             ++result.applied_tile_count;
         } else if (existing->tileset_id != edit.tileset_id || existing->tile_id != edit.tile_id) {
@@ -1802,6 +1811,73 @@ SpatialAuthoringWorkspace::perspectiveTileDefinition(const std::string& tileset_
         return std::nullopt;
     }
     return *definition;
+}
+
+SpatialAuthoringWorkspace::Perspective2DTileQualityReport
+SpatialAuthoringWorkspace::inspectPerspectiveTileQuality(
+    const int32_t navigation_start_x, const int32_t navigation_start_y,
+    const std::vector<Perspective2DCell>& entrance_cells) const {
+    Perspective2DTileQualityReport report;
+    report.painted_tile_count = perspective_tiles_.size();
+    if (m_target_overlay == nullptr) return report;
+    const int32_t width = static_cast<int32_t>(m_target_overlay->elevation.width);
+    const int32_t height = static_cast<int32_t>(m_target_overlay->elevation.height);
+    const auto tileAt = [&](const int32_t x, const int32_t y) -> const PerspectiveTilePaint* {
+        const auto found = std::find_if(perspective_tiles_.rbegin(), perspective_tiles_.rend(), [&](const auto& tile) {
+            return tile.tile_x == x && tile.tile_y == y;
+        });
+        return found == perspective_tiles_.rend() ? nullptr : &*found;
+    };
+    const auto definitionOf = [&](const PerspectiveTilePaint* tile) -> const Perspective2DTileDefinition* {
+        if (tile == nullptr) return nullptr;
+        const auto found = std::find_if(perspective_tile_definitions_.begin(), perspective_tile_definitions_.end(),
+            [&](const auto& definition) { return definition.tileset_id == tile->tileset_id && definition.tile_id == tile->tile_id; });
+        return found == perspective_tile_definitions_.end() ? nullptr : &*found;
+    };
+    const auto add = [&](std::string severity, std::string code, std::string message, const PerspectiveTilePaint* tile,
+                         const int32_t x, const int32_t y) {
+        report.diagnostics.push_back({std::move(severity), std::move(code), std::move(message),
+            tile ? tile->layer_id : "", tile ? tile->tileset_id : "", tile ? tile->tile_id : "", x, y});
+    };
+    for (const auto& tile : perspective_tiles_) {
+        const auto* definition = definitionOf(&tile);
+        if (definition == nullptr) { add("error","tile_definition_missing","Painted tile has no governed definition.",&tile,tile.tile_x,tile.tile_y); continue; }
+        if (definition->preview_path.empty()) add("error","tile_material_missing","Painted tile has no material/preview payload.",&tile,tile.tile_x,tile.tile_y);
+        if (definition->autotile && definition->autotile_kind.empty()) add("error","autotile_kind_missing","Autotile is missing its seam family.",&tile,tile.tile_x,tile.tile_y);
+        if (definition->collision && (definition->passable_down || definition->passable_left || definition->passable_right || definition->passable_up))
+            add("error","collision_passability_conflict","Solid collision tile still declares a passable direction.",&tile,tile.tile_x,tile.tile_y);
+        for (const auto [dx,dy] : std::array<std::pair<int32_t,int32_t>,2>{{{1,0},{0,1}}}) {
+            const auto* adjacent = tileAt(tile.tile_x+dx,tile.tile_y+dy); const auto* adjacentDefinition = definitionOf(adjacent);
+            if (!definition->autotile || adjacentDefinition == nullptr || !adjacentDefinition->autotile ||
+                definition->autotile_kind.empty() || definition->autotile_kind != adjacentDefinition->autotile_kind) continue;
+            const bool seamMismatch = dx == 1 ? definition->passable_right != adjacentDefinition->passable_left
+                                              : definition->passable_down != adjacentDefinition->passable_up;
+            if (seamMismatch) add("error","autotile_seam_mismatch","Adjacent autotiles disagree on edge passability.",&tile,tile.tile_x,tile.tile_y);
+        }
+    }
+    const auto inBounds = [&](int32_t x,int32_t y){ return x>=0&&y>=0&&x<width&&y<height; };
+    const auto walkable = [&](int32_t x,int32_t y){ const auto* definition=definitionOf(tileAt(x,y)); return definition==nullptr || !definition->collision; };
+    for (int32_t y=0;y<height;++y) for(int32_t x=0;x<width;++x) if(walkable(x,y)) ++report.walkable_tile_count;
+    if (!inBounds(navigation_start_x,navigation_start_y) || !walkable(navigation_start_x,navigation_start_y)) {
+        add("error","navigation_start_blocked","Navigation preview start is outside the map or blocked.",tileAt(navigation_start_x,navigation_start_y),navigation_start_x,navigation_start_y);
+        return report;
+    }
+    std::queue<Perspective2DCell> pending; std::set<std::pair<int32_t,int32_t>> reached;
+    pending.push({navigation_start_x,navigation_start_y}); reached.emplace(navigation_start_x,navigation_start_y);
+    while(!pending.empty()) { const auto cell=pending.front(); pending.pop(); const auto* from=definitionOf(tileAt(cell.x,cell.y));
+        for(const auto [dx,dy] : std::array<std::pair<int32_t,int32_t>,4>{{{1,0},{-1,0},{0,1},{0,-1}}}) {
+            const int32_t nx=cell.x+dx, ny=cell.y+dy; if(!inBounds(nx,ny)||!walkable(nx,ny)||reached.contains({nx,ny})) continue;
+            const auto* to=definitionOf(tileAt(nx,ny));
+            const bool fromAllows = from==nullptr || (dx==1?from->passable_right:dx==-1?from->passable_left:dy==1?from->passable_down:from->passable_up);
+            const bool toAllows = to==nullptr || (dx==1?to->passable_left:dx==-1?to->passable_right:dy==1?to->passable_up:to->passable_down);
+            if(fromAllows&&toAllows){ reached.emplace(nx,ny); pending.push({nx,ny}); }
+        }
+    }
+    report.reachable_tile_count=reached.size(); report.navigation_complete=true;
+    for(const auto& entrance:entrance_cells) if(!reached.contains({entrance.x,entrance.y}))
+        add("error","entrance_unreachable","Entrance cannot be reached from the navigation preview start.",tileAt(entrance.x,entrance.y),entrance.x,entrance.y);
+    std::sort(report.diagnostics.begin(),report.diagnostics.end(),[](const auto& a,const auto& b){ return std::tie(a.tile_y,a.tile_x,a.code)<std::tie(b.tile_y,b.tile_x,b.code); });
+    return report;
 }
 
 SpatialAuthoringWorkspace::Perspective2DTilePreviewResult

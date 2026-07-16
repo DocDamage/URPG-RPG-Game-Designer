@@ -22,6 +22,7 @@ enum class RuntimeOptionsRowId {
     UiScale,
     Save,
     Back,
+    FirstRunCalibration,
 };
 
 struct RuntimeOptionsRow {
@@ -42,6 +43,7 @@ class RuntimeOptionsScene final : public GameScene {
     struct Callbacks {
         std::function<void()> request_back;
         std::function<void(const urpg::settings::RuntimeSettings&)> settings_saved;
+        std::function<void()> request_calibration;
     };
 
     RuntimeOptionsScene(urpg::settings::RuntimeSettings settings, std::filesystem::path settings_path,

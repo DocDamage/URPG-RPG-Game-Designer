@@ -56,7 +56,8 @@ TEST_CASE("PlaytestSessionController stages a private current-map overlay", "[pl
     const auto root = temporaryProjectRoot();
     {
         urpg::editor::PlaytestSessionController controller(currentExecutablePath());
-        REQUIRE(controller.start(root, "starter", "3,4", "{\"grid\":true}\n", "{\"p2d\":true}\n"));
+        REQUIRE(controller.start(root, "starter", "3,4", "{\"grid\":true}\n", "{\"p2d\":true}\n",
+                                 "starter:event.guide"));
         const auto session = controller.sessionDirectory();
         REQUIRE(session.parent_path() == root / ".urpg" / "playtest");
         REQUIRE(std::filesystem::is_regular_file(session / "content" / "maps" / "starter.grid.json"));
@@ -66,12 +67,54 @@ TEST_CASE("PlaytestSessionController stages a private current-map overlay", "[pl
         REQUIRE(manifest["schema"] == "urpg.playtest_session.v1");
         REQUIRE(manifest["map_id"] == "starter");
         REQUIRE(manifest["spawn"] == "3,4");
+        REQUIRE(manifest["selected_object_id"] == "starter:event.guide");
+        REQUIRE(manifest["checkpoint"]["id"] == "launch");
+        REQUIRE(manifest["checkpoint"]["disposable_overlay"] == true);
         REQUIRE(manifest["diagnostics_path"] == (session / "diagnostics.jsonl").generic_string());
         REQUIRE(controller.mapId() == "starter");
         REQUIRE(controller.spawn() == "3,4");
         REQUIRE(controller.elapsed() >= std::chrono::seconds::zero());
         controller.returnToEditor();
         REQUIRE(controller.state() == urpg::editor::PlaytestSessionState::Returned);
+        REQUIRE(controller.lastReturnContext().valid);
+        REQUIRE(controller.lastReturnContext().map_id == "starter");
+        REQUIRE(controller.lastReturnContext().spawn == "3,4");
+        REQUIRE(controller.lastReturnContext().selected_object_id == "starter:event.guide");
+        REQUIRE(controller.lastReturnContext().checkpoint_id == "launch");
+
+        const auto support = controller.writeRedactedSupportBundle();
+        REQUIRE(support.success);
+        REQUIRE(support.diagnostic_count == 0);
+        std::ifstream supportInput(support.path, std::ios::binary);
+        const auto supportJson = nlohmann::json::parse(supportInput);
+        REQUIRE(supportJson["schema"] == "urpg.playtest_support_summary.v1");
+        REQUIRE(supportJson["session_state"] == "returned");
+        REQUIRE(supportJson["map_id"] == "starter");
+        REQUIRE(supportJson["redaction"]["project_paths"] == "omitted");
+        REQUIRE(supportJson["redaction"]["session_paths"] == "omitted");
+        REQUIRE(supportJson["redaction"]["process_output"] == "omitted");
+        REQUIRE(supportJson.dump().find(root.generic_string()) == std::string::npos);
+        REQUIRE(supportJson.dump().find(session.generic_string()) == std::string::npos);
+    }
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("Playtest spatial bridge preserves selection through play teleport diagnostic and return",
+          "[playtest session][editor][spatial_bridge]") {
+    const auto root = temporaryProjectRoot();
+    {
+        urpg::editor::PlaytestSessionController controller(currentExecutablePath());
+        REQUIRE(controller.startFromHere(root,"starter",2,3,"{\"grid\":true}\n","{\"p2d\":true}\n","event.guide"));
+        REQUIRE(controller.spawn()=="2,3"); REQUIRE(controller.selectedObjectId()=="event.guide");
+        REQUIRE(controller.teleportHere("starter",6,7,"event.vendor"));
+        REQUIRE(controller.spawn()=="6,7"); REQUIRE(controller.selectedObjectId()=="event.vendor");
+        std::ifstream commands(controller.sessionDirectory()/"editor_commands.jsonl"); nlohmann::json command; commands>>command;
+        REQUIRE(command["command"]=="teleport_here"); REQUIRE(command["map_id"]=="starter"); REQUIRE(command["tile_x"]==6); REQUIRE(command["tile_y"]==7);
+        urpg::diagnostics::RuntimeDiagnostic diagnostic; diagnostic.code="collision_bad"; diagnostic.map_id="starter"; diagnostic.object_id="tile:4,5";
+        controller.returnToDiagnostic(diagnostic,4,5);
+        REQUIRE(controller.state()==urpg::editor::PlaytestSessionState::Returned);
+        REQUIRE(controller.lastReturnContext().map_id=="starter"); REQUIRE(controller.lastReturnContext().spawn=="4,5");
+        REQUIRE(controller.lastReturnContext().selected_object_id=="tile:4,5"); REQUIRE(controller.lastReturnContext().checkpoint_id=="diagnostic:collision_bad");
     }
     std::filesystem::remove_all(root);
 }

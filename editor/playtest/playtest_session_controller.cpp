@@ -82,12 +82,15 @@ bool PlaytestSessionController::start(const std::filesystem::path& project_root,
                                       const std::string& map_id,
                                       const std::string& spawn,
                                       const std::string& grid_draft,
-                                      const std::string& perspective_2d_draft) {
+                                      const std::string& perspective_2d_draft,
+                                      const std::string& selected_object_id) {
     returnToEditor();
     message_.clear();
     exit_code_ = 0;
     map_id_.clear();
     spawn_.clear();
+    selected_object_id_.clear();
+    checkpoint_id_.clear();
     started_at_ = {};
     diagnostics_.clear();
     diagnostics_offset_ = 0;
@@ -125,11 +128,14 @@ bool PlaytestSessionController::start(const std::filesystem::path& project_root,
         return false;
     }
     const auto manifestPath = session_directory_ / "session.json";
+    checkpoint_id_ = "launch";
     const nlohmann::json manifest = {{"schema", "urpg.playtest_session.v1"},
                                      {"project_root", project_root.generic_string()},
                                      {"overlay_dir", session_directory_.generic_string()},
                                      {"map_id", map_id},
                                      {"spawn", spawn},
+                                     {"selected_object_id", selected_object_id},
+                                     {"checkpoint", {{"id", checkpoint_id_}, {"disposable_overlay", true}}},
                                      {"diagnostics_path", (session_directory_ / "diagnostics.jsonl").generic_string()}};
     if (!SaveJournal::WriteAtomically(manifestPath, manifest.dump(2) + "\n", &writeError)) {
         state_ = PlaytestSessionState::Crashed;
@@ -155,10 +161,44 @@ bool PlaytestSessionController::start(const std::filesystem::path& project_root,
     }
     map_id_ = map_id;
     spawn_ = spawn;
+    selected_object_id_ = selected_object_id;
     started_at_ = std::chrono::steady_clock::now();
     state_ = PlaytestSessionState::Starting;
     message_ = "Playtest started with the current unsaved map overlay.";
     return true;
+}
+
+bool PlaytestSessionController::startFromHere(const std::filesystem::path& project_root, const std::string& map_id,
+                                              const int32_t tile_x, const int32_t tile_y,
+                                              const std::string& grid_draft,
+                                              const std::string& perspective_2d_draft,
+                                              const std::string& selected_object_id) {
+    if (tile_x < 0 || tile_y < 0) return false;
+    return start(project_root, map_id, std::to_string(tile_x) + "," + std::to_string(tile_y), grid_draft,
+                 perspective_2d_draft, selected_object_id);
+}
+
+bool PlaytestSessionController::teleportHere(const std::string& map_id, const int32_t tile_x, const int32_t tile_y,
+                                             const std::string& selected_object_id) {
+    if (!isActive() || !isSafeMapId(map_id) || tile_x < 0 || tile_y < 0 || session_directory_.empty()) return false;
+    std::ofstream output(session_directory_ / "editor_commands.jsonl", std::ios::app);
+    if (!output) return false;
+    output << nlohmann::json{{"version",1},{"command","teleport_here"},{"map_id",map_id},
+                             {"tile_x",tile_x},{"tile_y",tile_y},{"selected_object_id",selected_object_id}}.dump() << '\n';
+    if (!output) return false;
+    map_id_ = map_id; spawn_ = std::to_string(tile_x) + "," + std::to_string(tile_y);
+    selected_object_id_ = selected_object_id; checkpoint_id_ = "teleport";
+    message_ = "Playtest teleport was queued for the selected Map cell.";
+    return true;
+}
+
+void PlaytestSessionController::returnToDiagnostic(const diagnostics::RuntimeDiagnostic& diagnostic,
+                                                   const int32_t tile_x, const int32_t tile_y) {
+    if (!diagnostic.map_id.empty() && isSafeMapId(diagnostic.map_id)) map_id_ = diagnostic.map_id;
+    if (tile_x >= 0 && tile_y >= 0) spawn_ = std::to_string(tile_x) + "," + std::to_string(tile_y);
+    selected_object_id_ = diagnostic.object_id;
+    checkpoint_id_ = "diagnostic:" + diagnostic.code;
+    returnToEditor();
 }
 
 std::chrono::seconds PlaytestSessionController::elapsed() const {
@@ -181,7 +221,7 @@ PlaytestSupportBundleResult PlaytestSessionController::writeRedactedSupportBundl
     }
     const nlohmann::json bundle = {
         {"schema", "urpg.playtest_support_summary.v1"},
-        {"redaction", {"project_paths", "omitted"},
+        {"redaction", {{"project_paths", "omitted"},
                        {"session_paths", "omitted"},
                        {"process_output", "omitted"},
                        {"diagnostic_messages", "omitted"},
@@ -268,6 +308,9 @@ void PlaytestSessionController::returnToEditor() {
         exit_code_ = -1;
         message_ = "Playtest stopped and returned to the editor.";
         state_ = PlaytestSessionState::Returned;
+    }
+    if (!session_directory_.empty() && !map_id_.empty()) {
+        last_return_context_ = {true, map_id_, spawn_, selected_object_id_, checkpoint_id_};
     }
 }
 

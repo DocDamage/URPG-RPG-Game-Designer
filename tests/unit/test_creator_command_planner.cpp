@@ -55,6 +55,41 @@ TEST_CASE("creator command planner builds a complete house plan from selected ti
     REQUIRE_FALSE(preview.validateNavigation().empty());
 }
 
+TEST_CASE("creator command planner builds and serializes a selected event message",
+          "[creator_command][ai][wysiwyg][event_message]") {
+    urpg::ai::CreatorCommandPlanner planner;
+    urpg::ai::CreatorCommandRequest request;
+    request.prompt = "place event message";
+    request.map_id = "town";
+    request.tile_x = 7;
+    request.tile_y = 9;
+    request.width = 20;
+    request.height = 20;
+    request.selected_event_layer_id = "events";
+    request.event_label = "Welcome sign";
+    request.event_message = "Welcome to URPG!";
+
+    const auto plan = planner.plan(request);
+
+    REQUIRE(plan.intent == "place_event_message");
+    REQUIRE(plan.can_apply);
+    REQUIRE(plan.diagnostics.empty());
+    REQUIRE(plan.logic_edits.size() == 1);
+    const auto& edit = plan.logic_edits.front();
+    REQUIRE(edit.id == "creator_message_event");
+    REQUIRE(edit.kind == "message");
+    REQUIRE(edit.trigger == "confirm_interact");
+    REQUIRE(edit.tile_x == 7);
+    REQUIRE(edit.tile_y == 9);
+    REQUIRE(edit.payload == nlohmann::json{{"layer_id", "events"},
+                                          {"label", "Welcome sign"},
+                                          {"text", "Welcome to URPG!"}});
+
+    const auto serialized = plan.toJson();
+    REQUIRE(serialized["logic_edits"].size() == 1);
+    REQUIRE(serialized["logic_edits"][0]["payload"] == edit.payload);
+}
+
 TEST_CASE("creator command planner exposes ChatGPT Gemini and Kimi provider profiles",
           "[creator_command][ai][providers]") {
     const auto profiles = urpg::ai::defaultCreatorAiProviderProfiles();

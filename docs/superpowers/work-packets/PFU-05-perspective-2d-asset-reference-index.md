@@ -1,6 +1,6 @@
 # PFU-05 Work Packet: Perspective 2D asset-reference index
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -41,4 +41,4 @@ Quests, menus, database records, extensions, saves, safe rename/delete plans,
 and richer impact UI remain later reference-graph increments. The existing
 Assets surface exposes this bounded index through an explicit Project
 References query and a read-only Removal Impact query.
-Verification is deferred by user instruction.
+Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

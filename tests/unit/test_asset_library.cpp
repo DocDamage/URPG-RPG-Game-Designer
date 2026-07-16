@@ -916,6 +916,7 @@ TEST_CASE("AssetTransformRevisionService creates deterministic atlas metadata re
     REQUIRE(ditheredManualPalette.derivedRevision != palette.derivedRevision);
     std::ifstream ditheredManualManifestStream(ditheredManualPalette.manifestPath);
     const auto ditheredManualManifest = nlohmann::json::parse(ditheredManualManifestStream);
+    ditheredManualManifestStream.close();
     REQUIRE(ditheredManualManifest["dither"] == "floyd_steinberg_rgba_fixed16");
     REQUIRE(service.createImagePaletteRevision(palettePlan).code == "asset_transform_revision_reused");
     palettePlan.dither = false;
@@ -934,6 +935,7 @@ TEST_CASE("AssetTransformRevisionService creates deterministic atlas metadata re
     REQUIRE(std::filesystem::is_regular_file(extractedPalette.outputPath));
     std::ifstream extractedManifestStream(extractedPalette.manifestPath);
     const auto extractedManifest = nlohmann::json::parse(extractedManifestStream);
+    extractedManifestStream.close();
     REQUIRE(extractedManifest["operation"] == "image_palette_extract");
     REQUIRE(extractedManifest["palette_rgba"] == nlohmann::json::array({0x0000FFFFU, 0x00FF00FFU}));
     REQUIRE(service.createImagePaletteExtractRevision(paletteExtractPlan).code == "asset_transform_revision_reused");
@@ -943,6 +945,7 @@ TEST_CASE("AssetTransformRevisionService creates deterministic atlas metadata re
     REQUIRE(ditheredPalette.derivedRevision != extractedPalette.derivedRevision);
     std::ifstream ditheredManifestStream(ditheredPalette.manifestPath);
     const auto ditheredManifest = nlohmann::json::parse(ditheredManifestStream);
+    ditheredManifestStream.close();
     REQUIRE(ditheredManifest["dither"] == "floyd_steinberg_rgba_fixed16");
     REQUIRE(service.createImagePaletteExtractRevision(paletteExtractPlan).code == "asset_transform_revision_reused");
     paletteExtractPlan.dither = false;
@@ -1148,6 +1151,7 @@ TEST_CASE("GlobalAssetLibraryStore saves governed promoted audio voice take meta
                 .success);
     std::ifstream attachedInput(projectRoot / "content" / "assets" / "manifests" / "voice.primary.json");
     const auto attached = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json::parse(attachedInput));
+    attachedInput.close();
     REQUIRE(attached.authoredMetadata["voice_take"]["locale"] == "en-US");
     REQUIRE(attached.authoredMetadata["voice_take"]["muted_alternative_asset_id"] == "voice.muted");
 
@@ -1242,8 +1246,11 @@ TEST_CASE("ProjectAssetAttachmentService attaches validated single-output derive
     REQUIRE(std::filesystem::is_regular_file(attached.payloadPath));
     REQUIRE(readBinaryFile(attached.payloadPath) == readBinaryFile(revision.outputPath));
     REQUIRE(std::filesystem::is_regular_file(attached.manifestPath));
-    std::ifstream projectManifestStream(attached.manifestPath);
-    const auto projectManifest = nlohmann::json::parse(projectManifestStream);
+    nlohmann::json projectManifest;
+    {
+        std::ifstream projectManifestStream(attached.manifestPath);
+        projectManifest = nlohmann::json::parse(projectManifestStream);
+    }
     REQUIRE(projectManifest["authoredMetadata"]["derived_revision"]["schema"] ==
             "urpg.project_asset_derived_revision.v1");
     REQUIRE(projectManifest["authoredMetadata"]["derived_revision"]["derived_revision"] == revision.derivedRevision);
@@ -1272,8 +1279,9 @@ TEST_CASE("ProjectAssetAttachmentService attaches validated single-output derive
                                      });
     REQUIRE(picker != model.snapshot().project_asset_picker_rows.end());
     REQUIRE((*picker)["project_path"] == attached.payloadPath.generic_string());
-    REQUIRE((*picker)["picker_kind"] == "portrait");
-    REQUIRE((*picker)["picker_targets"][0] == "sprite_selector");
+    REQUIRE((*picker)["picker_kind"] == "sprite");
+    REQUIRE((*picker)["picker_targets"][0] == "level_builder");
+    REQUIRE((*picker)["picker_targets"][2] == "sprite_selector");
 
     const auto referenceRoot = revision.manifestPath.parent_path() /
                                (revision.derivedRevision + ".attachment-refs");
@@ -1364,8 +1372,11 @@ TEST_CASE("ProjectAssetAttachmentService assigns validated derived tileset bundl
     REQUIRE(std::filesystem::is_regular_file(assigned.manifestPath));
     REQUIRE(readBinaryFile(assigned.payloadPath / "000000.png") == readBinaryFile(revision.outputPath / "000000.png"));
     REQUIRE(readBinaryFile(assigned.payloadPath / "000002.png") == readBinaryFile(revision.outputPath / "000002.png"));
-    std::ifstream assignmentManifestStream(assigned.manifestPath);
-    const auto assignmentManifest = nlohmann::json::parse(assignmentManifestStream);
+    nlohmann::json assignmentManifest;
+    {
+        std::ifstream assignmentManifestStream(assigned.manifestPath);
+        assignmentManifest = nlohmann::json::parse(assignmentManifestStream);
+    }
     REQUIRE(assignmentManifest["schema"] == "urpg.project_derived_tileset_assignment.v1");
     REQUIRE(assignmentManifest["grid"]["tile_count"] == 3);
     REQUIRE(assignmentManifest["tile_paths"].size() == 3);

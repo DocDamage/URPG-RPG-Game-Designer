@@ -1,12 +1,15 @@
 #include "editor/assets/asset_library_model.h"
 #include "editor/assets/editor_asset_drag_payload.h"
 #include "editor/playtest/playtest_session_controller.h"
+#include "editor/spatial/spatial_authoring_workspace.h"
 #include "editor/project/editor_dirty_state_registry.h"
 #include "editor/project/editor_project_session.h"
 #include "engine/core/assets/project_asset_attachment_service.h"
 #include "engine/core/editor/editor_shell.h"
 #include "engine/core/map/grid_part_commands.h"
 #include "engine/core/map/grid_part_document.h"
+#include "engine/core/presentation/presentation_schema.h"
+#include "engine/core/scene/map_scene.h"
 #include "engine/core/project/project_creation_service.h"
 #include "engine/core/project/project_snapshot_store.h"
 #include "engine/core/project/project_template_generator.h"
@@ -184,7 +187,7 @@ TEST_CASE("creator journey baseline emits an honest deterministic smoke report",
     assetLibrary.setExternalCatalogQuery(assetQuery);
     REQUIRE(assetLibrary.snapshot().external_catalog["page"]["total_matches"] == 1);
 
-    const urpg::editor::EditorAssetDragPayload rawAsset{"local:creator-hero", "", "image", 48, 48,
+    const urpg::editor::EditorAssetDragPayload rawAsset{"local:creator-hero", "", "image", "", 48, 48,
                                                         urpg::editor::EditorAssetProvenanceState::RawExternal};
     const auto rawDrop = urpg::editor::assessEditorAssetDrop(rawAsset, true);
     REQUIRE_FALSE(rawDrop.accepted);
@@ -316,11 +319,28 @@ TEST_CASE("creator journey qualification emits native target evidence when wrapp
     REQUIRE(dirtyRegistry.registerSurface(std::move(dirtySurface)));
     REQUIRE(dirtyRegistry.markDirty("qualification_map"));
     REQUIRE(dirtyRegistry.save("qualification_map").success);
+    urpg::presentation::SpatialMapOverlay overlay;
+    overlay.mapId = "qualification_map";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.levels.resize(64, 0);
+    urpg::scene::MapScene perspectiveScene("qualification_map", 8, 8);
+    urpg::editor::SpatialAuthoringWorkspace spatialWorkspace;
+    spatialWorkspace.SetTargets(&perspectiveScene, &overlay);
+    REQUIRE(spatialWorkspace.AddPerspectiveLayer("events", "Events", "event"));
+    REQUIRE(spatialWorkspace.AddPerspectiveEventFromScreen(
+        "welcome_event", "Welcome Guide", "confirm_interact", 80.0F, 80.0F));
+    REQUIRE(spatialWorkspace.AddPerspectiveEventPage("welcome_event", "main", "Main", "confirm_interact"));
+    REQUIRE(spatialWorkspace.AddPerspectiveEventPageCommand(
+        "welcome_event", "main", "show_text", "Welcome to your first URPG map."));
+    const auto perspectiveDraft = spatialWorkspace.PreparePerspectiveMapDraftSave();
+    REQUIRE(perspectiveDraft.success);
     const auto mapArtifact = writeQualificationArtifact(
         evidenceRoot, "author_map",
         {{"owner", "GridPartDocument"}, {"parts", static_cast<int>(map.parts().size())},
          {"history", {{"undo", history.canUndo()}, {"redo", history.canRedo()}}},
-         {"dirty_state", "map_saved"}});
+        {"dirty_state", "map_saved"}, {"event_id", "welcome_event"},
+        {"event_count", perspectiveDraft.event_count}});
     const auto assetArtifact = writeQualificationArtifact(
         evidenceRoot, "attach_asset",
         {{"owner", "ProjectAssetAttachmentService"}, {"result", attached.code},
@@ -328,15 +348,19 @@ TEST_CASE("creator journey qualification emits native target evidence when wrapp
          {"history_owner", "GridPartCommandHistory"}});
 
     urpg::editor::PlaytestSessionController playtest(URPG_RUNTIME_PATH);
-    REQUIRE(playtest.start(created.project_root, "qualification_map", "4,6", "{\"grid\":true}\n", "{\"p2d\":true}\n"));
+    REQUIRE(playtest.start(created.project_root, "qualification_map", "4,6", "{\"grid\":true}\n",
+                           perspectiveDraft.serialized_document_json + "\n", "welcome_event"));
     const auto playtestSession = playtest.sessionDirectory();
     REQUIRE(std::filesystem::is_regular_file(playtestSession / "session.json"));
     playtest.returnToEditor();
     REQUIRE(playtest.state() == urpg::editor::PlaytestSessionState::Returned);
+    REQUIRE(playtest.lastReturnContext().selected_object_id == "welcome_event");
+    REQUIRE(playtest.lastReturnContext().checkpoint_id == "launch");
     const auto playtestArtifact = writeQualificationArtifact(
         evidenceRoot, "playtest_and_return",
         {{"owner", "PlaytestSessionController"}, {"session", playtestSession.generic_string()},
-         {"state", "returned"}});
+         {"state", "returned"}, {"selected_object_id", playtest.lastReturnContext().selected_object_id},
+         {"checkpoint_id", playtest.lastReturnContext().checkpoint_id}});
 
     const auto snapshot = urpg::project::ProjectSnapshotStore{}.createSnapshot(
         created.project_root, evidenceRoot / "snapshots", "qualification_save");

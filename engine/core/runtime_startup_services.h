@@ -2,9 +2,11 @@
 
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/input/input_core.h"
+#include "engine/core/localization/locale_catalog.h"
 #include "engine/core/settings/app_settings_store.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -29,6 +31,7 @@ struct RuntimeStartupReport {
     std::vector<RuntimeStartupSubsystemReport> subsystems;
     std::string locale_code;
     size_t locale_key_count = 0;
+    std::optional<localization::LocaleCatalog> locale_catalog;
     size_t input_mapping_count = 0;
 
     bool hasErrors() const;

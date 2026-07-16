@@ -546,7 +546,7 @@ TEST_CASE("AssetLibraryModel persists user-only favorites and collections by sta
           "[assets][asset_library][editor][curation]") {
     urpg::editor::AssetLibraryModel model;
     model.ingestReports(
-        nlohmann::json{{"file_count", 1}, {"duplicate_groups", 0}, {"oversize_count", 0}},
+        nlohmann::json{{"file_count", 2}, {"duplicate_groups", 0}, {"oversize_count", 0}},
         nlohmann::json{{"sources", nlohmann::json::array()}},
         nlohmann::json{{"source_id", "SRC-007"},
                        {"assets",
@@ -556,8 +556,18 @@ TEST_CASE("AssetLibraryModel persists user-only favorites and collections by sta
                                                 {"preview_kind", "image"},
                                                 {"media_kind", "image"},
                                                 {"category", "characters"},
-                                                {"license", "project_private"}}})}},
+                                                {"license", "project_private"}},
+                                               {{"source_path", "imports/raw/characters/rival.png"},
+                                                {"normalized_path", "asset://src-007/characters/rival.png"},
+                                                {"preview_path", "imports/raw/characters/rival.png"},
+                                                {"preview_kind", "image"},
+                                                {"media_kind", "image"},
+                                                {"category", "characters"},
+                                                {"license", "cc0"}}})}},
         "");
+
+    model.addUsageReference("imports/raw/characters/hero.png", "map.intro");
+    model.addUsageReference("imports/raw/characters/hero.png", "actor.hero");
 
     REQUIRE(model.setAssetFavorite("imports/raw/characters/hero.png", true));
     REQUIRE(model.createAssetCollection("characters", "Characters"));
@@ -568,6 +578,27 @@ TEST_CASE("AssetLibraryModel persists user-only favorites and collections by sta
     REQUIRE(model.snapshot().asset_collection_count == 1);
     REQUIRE(model.snapshot().user_curation["collections"][0]["asset_count"] == 1);
     REQUIRE(model.snapshot().user_curation["favorites"][0].get<std::string>().rfind("catalog:", 0) == 0);
+    urpg::assets::AssetLibraryFilter savedFilter;
+    savedFilter.media_kind = "image";
+    savedFilter.category = "characters";
+    savedFilter.referenced_only = true;
+    model.setFilter(savedFilter);
+    REQUIRE(model.saveCurrentSearch("used-characters", "Used Characters"));
+    REQUIRE_FALSE(model.saveCurrentSearch("used-characters", "Duplicate"));
+    model.setFilter({});
+    REQUIRE(model.applySavedSearch("used-characters"));
+    REQUIRE(model.snapshot().filtered_asset_count == 1);
+    REQUIRE(model.snapshot().saved_search_count == 1);
+    REQUIRE(model.snapshot().user_curation["saved_searches"][0]["referenced_only"] == true);
+
+    REQUIRE(model.setAssetComparison({"imports/raw/characters/hero.png", "imports/raw/characters/rival.png"}));
+    REQUIRE(model.snapshot().asset_comparison_rows.size() == 2);
+    REQUIRE(model.snapshot().asset_comparison_rows[0]["usage_count"] == 2);
+    REQUIRE(model.snapshot().asset_comparison_rows[0]["favorite"] == true);
+    REQUIRE(model.snapshot().asset_comparison_rows[0]["collections"][0] == "characters");
+    REQUIRE(model.snapshot().asset_comparison_rows[0]["provenance"].is_object());
+    REQUIRE_FALSE(model.snapshot().asset_comparison_rows[0]["package_status"].get<std::string>().empty());
+    REQUIRE_FALSE(model.setAssetComparison({"imports/raw/characters/hero.png"}));
 
     const auto paths = urpg::settings::appSettingsPaths(uniqueTempRoot("urpg_asset_library_curation"));
     auto settings = urpg::settings::defaultEditorSettings(paths);
@@ -578,7 +609,9 @@ TEST_CASE("AssetLibraryModel persists user-only favorites and collections by sta
     restored.applyUserAssetCuration(reloaded.settings);
     REQUIRE(restored.snapshot().favorite_asset_count == 1);
     REQUIRE(restored.snapshot().asset_collection_count == 1);
+    REQUIRE(restored.snapshot().saved_search_count == 1);
     REQUIRE(restored.snapshot().user_curation["collections"][0]["asset_keys"].size() == 1);
+    REQUIRE(restored.snapshot().user_curation["saved_searches"][0]["id"] == "used-characters");
 
     std::filesystem::remove_all(paths.root.parent_path());
 }

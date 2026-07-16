@@ -1,0 +1,23 @@
+{
+  "schema": "urpg.external_release_qualification.v1",
+  "candidateBuild": null,
+  "status": "pending_external_execution",
+  "researchPlan": {"participants": [], "nonLeadingTasksApproved": false, "privacyPlanApproved": false},
+  "journeySessions": [],
+  "usabilityFindings": [],
+  "beta": {"cohortId": null, "participants": 0, "diagnosticsOptIn": true, "crashes": [], "dataLossEvents": []},
+  "candidateFreeze": {"frozen": false, "commit": null, "changes": []},
+  "finalGates": [
+    {"id": "clean_clone", "status": "pending", "report": null},
+    {"id": "clean_machine", "status": "pending", "report": null},
+    {"id": "package", "status": "pending", "report": null},
+    {"id": "upgrade", "status": "pending", "report": null},
+    {"id": "save_migration", "status": "pending", "report": null},
+    {"id": "accessibility", "status": "pending", "report": null},
+    {"id": "performance", "status": "pending", "report": null},
+    {"id": "security", "status": "pending", "report": null},
+    {"id": "license", "status": "pending", "report": null},
+    {"id": "truth", "status": "pending", "report": null}
+  ],
+  "decision": {"kind": "undecided", "signed": false, "risks": [], "unsupportedTargets": [], "knownIssues": [], "owners": [], "publicClaimsAligned": false}
+}

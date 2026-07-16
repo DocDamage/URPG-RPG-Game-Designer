@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native Menu Studio canvas alignment guides
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -27,4 +27,4 @@ Studio canvas for one pane move or bottom-right resize operation.
 This provides single-pane alignment feedback, not multi-select distribution,
 persisted responsive anchors, components, or target-device qualification.
 
-Verification is deferred by user instruction.
+Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

@@ -1,6 +1,6 @@
 # PFU-06 Work Packet: redacted playtest support summary
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -27,4 +27,4 @@ Provide a bounded support artifact for one disposable native playtest session.
 This is not a complete support bundle, crash dump, screenshot/video capture,
 save export, project diff, secret scanner, or external submission workflow.
 
-Verification is deferred by user instruction.
+Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

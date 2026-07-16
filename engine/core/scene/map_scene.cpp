@@ -339,7 +339,8 @@ urpg::RuntimeSaveLoadRequest makeMapSceneSaveRequest(const std::filesystem::path
 
 MapScene::MapScene(const std::string& mapId, int width, int height)
     : m_mapId(mapId), m_width(std::max(0, width)), m_height(std::max(0, height)) {
-    m_tiles.resize(static_cast<size_t>(m_width * m_height), {0, true});
+    m_tiles.resize(static_cast<size_t>(m_width * m_height),
+                   TileData{0, true, true, true, true, true, true, {}});
     m_renderer = std::make_unique<TilemapRenderer>(m_width, m_height);
 
     // Initialize player movement component
@@ -355,10 +356,22 @@ MapScene::MapScene(const std::string& mapId, int width, int height)
 
 void MapScene::onUpdate(float deltaTime) {
     validateRenderAssetReferences();
+    m_explorationFeedback.advance(static_cast<uint32_t>(std::max(0.0F, deltaTime) * 1000.0F));
 
     // Keep RenderLayer in sync for scene/engine tests and headless render pipelines.
     auto& layer = urpg::RenderLayer::getInstance();
     layer.flush();
+
+    if (const auto& cue = m_explorationFeedback.activeCue(); cue.has_value()) {
+        urpg::TextCommand feedbackText;
+        feedbackText.text = cue->icon + "  " + cue->text;
+        feedbackText.x = 40.0F;
+        feedbackText.y = 28.0F;
+        feedbackText.fontSize = 18;
+        feedbackText.maxWidth = 560;
+        feedbackText.zOrder = 80;
+        layer.submit(urpg::toFrameRenderCommand(feedbackText));
+    }
 
     // 0. Update message runner and UI components
     if (m_messageRunner.isActive()) {
@@ -392,7 +405,8 @@ void MapScene::onUpdate(float deltaTime) {
                 captionCmd.text = m_activeAuthoredDialogueCaption;
                 captionCmd.x = 40.0f;
                 captionCmd.y = 252.0f;
-                captionCmd.fontSize = 18;
+                captionCmd.fontSize = static_cast<int>(
+                    std::lround(18.0F * m_dialogueInclusiveSettings.caption_scale));
                 captionCmd.maxWidth = 560;
                 captionCmd.zOrder = 49;
                 layer.submit(urpg::toFrameRenderCommand(captionCmd));
@@ -647,6 +661,9 @@ void MapScene::handleInput(const urpg::input::InputCore& input) {
         return;
 
     if (input.isActionJustPressed(urpg::input::InputAction::Confirm)) {
+        (void)m_explorationFeedback.submit({nextExplorationFeedbackRequestId("interaction"),
+            urpg::presentation::ExplorationFeedbackKind::InteractionAcknowledged,
+            "Interact", m_mapId, {}});
         if (activateInteractionAbilityAtTile("confirm_interact", m_playerMovement.gridPos.x,
                                              m_playerMovement.gridPos.y) ||
             activateInteractionAbility("confirm_interact") ||
@@ -946,9 +963,15 @@ void MapScene::startDialogue(const std::vector<urpg::message::DialoguePage>& pag
     m_dialogueRuntimeDiagnostics.clear();
     m_activeAuthoredDialogueGraph.reset();
     m_activeAuthoredDialogueNodeId.clear();
+    m_activeAuthoredDialogueCaptionCue.reset();
     m_activeAuthoredDialogueCaption.clear();
     m_activeAuthoredDialogueVoiceAssetId.clear();
     m_messageRunner.begin(pages);
+    if (!pages.empty() && !pages.front().body.empty()) {
+        (void)m_explorationFeedback.submit({nextExplorationFeedbackRequestId("dialogue:legacy"),
+            urpg::presentation::ExplorationFeedbackKind::DialogueLine, pages.front().body,
+            pages.front().id.empty() ? m_mapId : pages.front().id, {}});
+    }
 }
 
 bool MapScene::startAuthoredDialogue(const urpg::dialogue::DialogueGraph& graph, std::string conversation_id) {
@@ -1153,6 +1176,9 @@ bool MapScene::applyAuthoredDialogueTransfer(const AuthoredDialogueInteraction::
     m_playerMovement.gridPos = {transfer.tile_x, transfer.tile_y};
     m_playerMovement.isMoving = false;
     m_playerMovement.moveProgress = 0.0f;
+    (void)m_explorationFeedback.submit({nextExplorationFeedbackRequestId("transfer"),
+        urpg::presentation::ExplorationFeedbackKind::Transfer, "Entering " + transfer.map_id,
+        transfer.map_id, "urpg.sound.transfer"});
     return true;
 }
 
@@ -1292,6 +1318,7 @@ bool MapScene::triggerAuthoredDialogueInteractionAtTile(const std::string& trigg
         m_activeDialogueConversationId.clear();
         m_activeAuthoredDialogueGraph.reset();
         m_activeAuthoredDialogueNodeId.clear();
+        m_activeAuthoredDialogueCaptionCue.reset();
         m_activeAuthoredDialogueCaption.clear();
         m_activeAuthoredDialogueVoiceAssetId.clear();
         m_pendingAuthoredDialogue.reset();
@@ -1334,6 +1361,33 @@ void MapScene::setDialogueLocaleCatalog(std::optional<urpg::localization::Locale
     m_dialogueLocaleCatalog = std::move(catalog);
 }
 
+bool MapScene::setDialogueInclusiveSettings(const urpg::accessibility::InclusiveSettings& settings) {
+    if (!settings.isValid()) {
+        return false;
+    }
+    m_dialogueInclusiveSettings = settings;
+    return true;
+}
+
+bool MapScene::setDialogueCaptionTrack(
+    std::vector<urpg::accessibility::CaptionCue> cues,
+    std::map<std::string, std::string> voice_asset_by_take_id) {
+    std::set<std::string> locales;
+    for (const auto& cue : cues) {
+        locales.insert(cue.locale);
+    }
+    const auto audit = urpg::accessibility::auditCaptionTrack(cues, locales);
+    if (!audit.complete || std::any_of(voice_asset_by_take_id.begin(), voice_asset_by_take_id.end(),
+                                       [](const auto& entry) {
+                                           return entry.first.empty() || entry.second.empty();
+                                       })) {
+        return false;
+    }
+    m_authoredDialogueCaptionTrack = std::move(cues);
+    m_authoredDialogueVoiceAssetByTakeId = std::move(voice_asset_by_take_id);
+    return true;
+}
+
 std::string MapScene::dialogueLocaleCode() const {
     return m_dialogueLocaleCatalog.has_value() ? m_dialogueLocaleCatalog->getLocaleCode() : std::string{};
 }
@@ -1367,11 +1421,47 @@ bool MapScene::beginActiveAuthoredDialogueNode(const std::string& node_id) {
     page.body = resolve_text(node->localization_key, node->text_preview, node->id);
     page.variant.speaker = node->speaker_name.empty() ? node->speaker_id : node->speaker_name;
     page.variant.route_token = "native_dialogue_graph";
-    m_activeAuthoredDialogueCaption = node->caption_localization_key.empty()
-                                         ? std::string{}
-                                         : resolve_text(node->caption_localization_key, page.body, node->id + ":caption");
+    m_activeAuthoredDialogueCaptionCue.reset();
+    const auto locale = dialogueLocaleCode();
+    const auto cue = std::find_if(m_authoredDialogueCaptionTrack.begin(), m_authoredDialogueCaptionTrack.end(),
+                                  [&](const auto& candidate) {
+                                      return candidate.locale == locale &&
+                                             candidate.id == node->id + "." + locale;
+                                  });
+    if (cue != m_authoredDialogueCaptionTrack.end()) {
+        m_activeAuthoredDialogueCaptionCue = *cue;
+    }
+
+    std::string resolved_caption;
+    if (m_activeAuthoredDialogueCaptionCue.has_value()) {
+        resolved_caption = m_activeAuthoredDialogueCaptionCue->text;
+        for (const auto& non_speech : m_activeAuthoredDialogueCaptionCue->non_speech_cues) {
+            if (!non_speech.empty()) {
+                if (!resolved_caption.empty()) resolved_caption += " ";
+                resolved_caption += "[" + non_speech + "]";
+            }
+        }
+    } else if (!node->caption_localization_key.empty()) {
+        resolved_caption = resolve_text(node->caption_localization_key, page.body, node->id + ":caption");
+    }
+
     m_activeAuthoredDialogueVoiceAssetId = node->voice_asset_id;
-    if (!m_activeAuthoredDialogueVoiceAssetId.empty()) {
+    if (m_activeAuthoredDialogueCaptionCue.has_value()) {
+        const auto selected_take = m_authoredDialogueVoiceAssetByTakeId.find(
+            m_activeAuthoredDialogueCaptionCue->take_id);
+        if (selected_take != m_authoredDialogueVoiceAssetByTakeId.end()) {
+            m_activeAuthoredDialogueVoiceAssetId = selected_take->second;
+        }
+    }
+    const bool voice_enabled = m_dialogueInclusiveSettings.master_volume > 0.0F &&
+                               m_dialogueInclusiveSettings.voice_volume > 0.0F;
+    m_activeAuthoredDialogueCaption = m_dialogueInclusiveSettings.captions ? resolved_caption : std::string{};
+    if (!m_activeAuthoredDialogueVoiceAssetId.empty() && !voice_enabled) {
+        if (m_activeAuthoredDialogueCaption.empty()) {
+            m_activeAuthoredDialogueCaption = resolved_caption.empty() ? page.body : resolved_caption;
+            m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_caption_forced_for_muted_voice:" + node->id);
+        }
+    } else if (!m_activeAuthoredDialogueVoiceAssetId.empty()) {
         if (m_audioCore == nullptr) {
             m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_voice_audio_core_missing:" + node->id);
         } else if (m_audioCore->playSound(m_activeAuthoredDialogueVoiceAssetId, urpg::audio::AudioCategory::SE) == 0) {
@@ -1401,9 +1491,17 @@ bool MapScene::beginActiveAuthoredDialogueNode(const std::string& node_id) {
                                 std::move(disabled_reason)});
     }
 
+    const auto feedback_text = page.body;
     m_activeAuthoredDialogueNodeId = node->id;
     m_messageRunner.begin({std::move(page)});
+    (void)m_explorationFeedback.submit({nextExplorationFeedbackRequestId("dialogue:" + m_activeDialogueConversationId),
+        urpg::presentation::ExplorationFeedbackKind::DialogueLine,
+        feedback_text.empty() ? node->id : feedback_text, node->id, node->voice_asset_id});
     return true;
+}
+
+std::string MapScene::nextExplorationFeedbackRequestId(const std::string& prefix) {
+    return prefix + ":" + std::to_string(m_explorationFeedbackRequestSequence++);
 }
 
 void MapScene::startChatbot(const std::string& systemPrompt, std::shared_ptr<urpg::ai::IChatService> service) {

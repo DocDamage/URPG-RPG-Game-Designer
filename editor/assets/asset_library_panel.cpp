@@ -324,6 +324,11 @@ AssetLibraryPanel::ImportSourcePickerAvailability AssetLibraryPanel::nativeImpor
 #endif
 }
 
+std::optional<std::filesystem::path>
+AssetLibraryPanel::pickNativeImportSource(const ImportSourcePickerRequest& request) {
+    return chooseNativeImportSource(request);
+}
+
 AssetLibraryPanel::ImportSourcePickerAvailability
 AssetLibraryPanel::nativeImportSourcePickerAvailabilityForDiagnostics(NativeImportSourcePickerPlatform platform,
                                                                       bool desktop_portal_available,
@@ -550,6 +555,15 @@ nlohmann::json AssetLibraryPanel::createImagePaletteRevision(std::string source_
                                                               std::vector<uint32_t> colors_rgba, const bool dither) {
     auto result = model_.createImagePaletteRevision(std::move(source_path), derived_root, std::move(operation_id),
                                                     std::move(colors_rgba), dither);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
+nlohmann::json AssetLibraryPanel::createImagePaletteExtractRevision(
+    std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
+    const int32_t max_colors, const bool dither) {
+    auto result = model_.createImagePaletteExtractRevision(std::move(source_path), derived_root,
+                                                           std::move(operation_id), max_colors, dither);
     refreshRenderSnapshotsFromModel();
     return result;
 }

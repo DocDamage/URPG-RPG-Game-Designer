@@ -21,6 +21,14 @@ struct PlaytestSupportBundleResult {
     size_t diagnostic_count = 0;
 };
 
+struct PlaytestReturnContext {
+    bool valid = false;
+    std::string map_id;
+    std::string spawn;
+    std::string selected_object_id;
+    std::string checkpoint_id;
+};
+
 // Owns exactly one runtime child process started by the editor. Each launch
 // receives a private, disposable overlay containing the current unsaved map
 // drafts, so normal project content is never mutated merely to playtest it.
@@ -33,7 +41,14 @@ class PlaytestSessionController {
                const std::string& map_id,
                const std::string& spawn,
                const std::string& grid_draft,
-               const std::string& perspective_2d_draft);
+               const std::string& perspective_2d_draft,
+               const std::string& selected_object_id = {});
+    bool startFromHere(const std::filesystem::path& project_root, const std::string& map_id,
+                       int32_t tile_x, int32_t tile_y, const std::string& grid_draft,
+                       const std::string& perspective_2d_draft, const std::string& selected_object_id = {});
+    bool teleportHere(const std::string& map_id, int32_t tile_x, int32_t tile_y,
+                      const std::string& selected_object_id = {});
+    void returnToDiagnostic(const diagnostics::RuntimeDiagnostic& diagnostic, int32_t tile_x, int32_t tile_y);
     void update();
     void returnToEditor();
 
@@ -46,6 +61,9 @@ class PlaytestSessionController {
     const std::filesystem::path& sessionDirectory() const { return session_directory_; }
     const std::string& mapId() const { return map_id_; }
     const std::string& spawn() const { return spawn_; }
+    const std::string& selectedObjectId() const { return selected_object_id_; }
+    const std::string& checkpointId() const { return checkpoint_id_; }
+    const PlaytestReturnContext& lastReturnContext() const { return last_return_context_; }
     std::chrono::seconds elapsed() const;
     const std::string& message() const { return message_; }
     const std::vector<diagnostics::RuntimeDiagnostic>& diagnostics() const { return diagnostics_; }
@@ -68,6 +86,9 @@ class PlaytestSessionController {
     int exit_code_ = 0;
     std::string map_id_;
     std::string spawn_;
+    std::string selected_object_id_;
+    std::string checkpoint_id_;
+    PlaytestReturnContext last_return_context_;
     std::chrono::steady_clock::time_point started_at_{};
     std::string message_;
     std::vector<diagnostics::RuntimeDiagnostic> diagnostics_;

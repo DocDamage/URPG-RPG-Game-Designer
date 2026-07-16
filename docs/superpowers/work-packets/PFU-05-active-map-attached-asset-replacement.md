@@ -1,6 +1,6 @@
 # PFU-05 Work Packet: active Map attached-asset replacement
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -33,4 +33,4 @@ or any unindexed owner; it does not render event sprites or establish
 project-wide transaction/history semantics. The existing removal-impact query
 remains read-only for all other owners.
 
-Verification is deferred by user instruction.
+Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

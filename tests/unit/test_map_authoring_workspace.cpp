@@ -8,6 +8,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include <limits>
+
 TEST_CASE("MapAuthoringWorkspace routes release entry modes through existing child workspaces", "[spatial][map_authoring]") {
     urpg::editor::LevelBuilderWorkspace levelBuilder;
     urpg::editor::SpatialAuthoringWorkspace perspective2D;
@@ -40,9 +42,82 @@ TEST_CASE("MapAuthoringWorkspace routes release entry modes through existing chi
     REQUIRE(workspace.snapshot().layout.inspectorWidthFraction == 0.12f);
     REQUIRE(workspace.snapshot().layout.diagnosticsHeightFraction == 0.40f);
     REQUIRE_FALSE(workspace.snapshot().layout.paletteVisible);
+    REQUIRE(workspace.snapshot().regions.size() == 7);
+    REQUIRE(workspace.snapshot().regions[0].id == "project_navigator");
+    REQUIRE_FALSE(workspace.snapshot().regions[0].visible);
+    REQUIRE(workspace.snapshot().regions[1].id == "context_toolbar");
+    REQUIRE(workspace.snapshot().regions[2].id == "central_canvas");
+    REQUIRE(workspace.snapshot().regions[3].id == "inspector");
+    REQUIRE(workspace.snapshot().regions[4].id == "status_jobs");
+    REQUIRE(workspace.snapshot().regions[5].id == "diagnostics");
+    REQUIRE(workspace.snapshot().regions[6].id == "playtest_controls");
 
     REQUIRE(workspace.activateMode(urpg::editor::MapAuthoringMode::Package));
     REQUIRE(workspace.snapshot().nextAction == "Select a map part and set the player spawn before packaging.");
+}
+
+TEST_CASE("MapAuthoringWorkspace is the context-preserving canonical route from every editor surface",
+          "[spatial][map_authoring][route_equivalence]") {
+    using namespace urpg::editor;
+    LevelBuilderWorkspace levelBuilder;
+    SpatialAuthoringWorkspace perspective2D;
+    MapAuthoringWorkspace workspace;
+    workspace.bind(&levelBuilder, &perspective2D);
+    workspace.setProjectRoot("C:/projects/route-equivalence");
+    const std::vector requests = {
+        MapAuthoringEntryRequest{MapAuthoringEntrySource::Project, "map.route", "", "", "", "", MapAuthoringMode::Canvas},
+        MapAuthoringEntryRequest{MapAuthoringEntrySource::Object, "map.route", "prop.crate", "", "", "cell:4,5"},
+        MapAuthoringEntryRequest{MapAuthoringEntrySource::Object, "map.route", "event.vendor", "event.vendor", "", "cell:6,5"},
+        MapAuthoringEntryRequest{MapAuthoringEntrySource::Object, "map.route", "part.house", "", "part.house", "part:house"},
+        MapAuthoringEntryRequest{MapAuthoringEntrySource::Asset, "map.route", "asset.tree", "", "", "asset:tree", MapAuthoringMode::Props},
+        MapAuthoringEntryRequest{MapAuthoringEntrySource::Diagnostic, "map.route", "collision.4", "", "", "diagnostic:4"},
+        MapAuthoringEntryRequest{MapAuthoringEntrySource::Playtest, "map.route", "spawn.player", "", "", "playtest:spawn"},
+    };
+    const std::vector<std::string> expectedModes = {"canvas", "props", "events", "parts", "props", "validate", "playtest"};
+    for (size_t index = 0; index < requests.size(); ++index) {
+        const auto routed = workspace.enterCanonicalRoute(requests[index]);
+        REQUIRE(routed.success);
+        REQUIRE(routed.code == "map_route_entered");
+        REQUIRE(routed.canonical_route == "map");
+        REQUIRE(routed.active_mode == expectedModes[index]);
+        REQUIRE(workspace.snapshot().context.projectRoot == std::filesystem::path("C:/projects/route-equivalence"));
+        REQUIRE(workspace.snapshot().context.activeMapId == "map.route");
+        REQUIRE(workspace.snapshot().context.selection.viewportFocus == requests[index].focus);
+    }
+    const auto before = workspace.snapshot().context;
+    const auto refused = workspace.enterCanonicalRoute(
+        {MapAuthoringEntrySource::Project, "", "", "", "", "", MapAuthoringMode::Canvas});
+    REQUIRE_FALSE(refused.success);
+    REQUIRE(refused.code == "map_route_map_missing");
+    REQUIRE(workspace.snapshot().context.activeMapId == before.activeMapId);
+    REQUIRE(workspace.snapshot().context.selection.viewportFocus == before.selection.viewportFocus);
+}
+
+TEST_CASE("MapAuthoringWorkspace recovers a corrupted layout without changing project context",
+          "[spatial][map_authoring][layout]") {
+    urpg::editor::MapAuthoringWorkspace workspace;
+    workspace.setProjectRoot("C:/projects/layout-recovery");
+    workspace.setActiveMapId("map_safe");
+
+    auto corrupt = urpg::editor::MapAuthoringLayoutState{};
+    corrupt.paletteWidthFraction = std::numeric_limits<float>::quiet_NaN();
+    workspace.setLayout(corrupt);
+
+    const auto& recovered = workspace.snapshot();
+    REQUIRE(recovered.layoutRecovered);
+    REQUIRE(recovered.layout.paletteWidthFraction == 0.22f);
+    REQUIRE(recovered.layout.inspectorWidthFraction == 0.24f);
+    REQUIRE(recovered.layout.diagnosticsHeightFraction == 0.24f);
+    REQUIRE(recovered.context.projectRoot == std::filesystem::path("C:/projects/layout-recovery"));
+    REQUIRE(recovered.context.activeMapId == "map_safe");
+    REQUIRE(recovered.layoutRecoveryMessage.find("project data was not changed") != std::string::npos);
+
+    workspace.setLayout({0.18f, 0.20f, 0.22f, true, false, true});
+    REQUIRE_FALSE(workspace.snapshot().layoutRecovered);
+    workspace.resetLayout();
+    REQUIRE(workspace.snapshot().layoutRecovered);
+    REQUIRE(workspace.snapshot().layout.inspectorVisible);
+    REQUIRE(workspace.snapshot().context.activeMapId == "map_safe");
 }
 
 TEST_CASE("MapAuthoringWorkspace accepts attached asset drops into durable Map palettes", "[spatial][map_authoring][assets]") {

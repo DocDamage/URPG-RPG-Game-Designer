@@ -153,6 +153,7 @@ void initializeLocalization(RuntimeStartupReport& report, const std::filesystem:
 
         report.locale_code = catalog.getLocaleCode();
         report.locale_key_count = catalog.keyCount();
+        report.locale_catalog = catalog;
         addSubsystem(report, "LocaleCatalog", RuntimeStartupSubsystemStatus::Initialized, "localization.ready",
                      "Loaded locale catalog " + report.locale_code + " with " +
                          std::to_string(report.locale_key_count) + " key(s).");

@@ -22,5 +22,4 @@ imported HTML component system or a new UI ownership layer.
 
 This does not add a persisted component library, template import/export,
 parameter expressions, collaborative history, or target-size/manual
-qualification. Verification is deferred under the user instruction not to run
-builds or tests during this phase.
+qualification. Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

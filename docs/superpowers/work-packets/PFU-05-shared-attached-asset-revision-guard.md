@@ -1,6 +1,6 @@
 # PFU-05 Work Packet: shared attached-asset revision guard
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -32,7 +32,7 @@ owners.
 - A current attached drag remains subject to each owner's existing media-type,
   durable-project, dirty-state, and undo rules.
 
-Verification is deferred by user instruction. The next focused coverage should
+Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet. The next focused coverage should
 exercise current, missing, malformed, and stale manifest payloads for every
 covered owner.
 

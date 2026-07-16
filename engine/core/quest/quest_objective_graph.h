@@ -59,6 +59,13 @@ public:
     static QuestObjectiveGraphDocument fromJson(const nlohmann::json& json);
     nlohmann::json toJson() const;
 
+    bool addNode(QuestGraphNode node);
+    bool removeNode(const std::string& node_id);
+    bool reorderNode(const std::string& node_id, std::size_t new_index);
+    bool connect(std::string from, std::string to);
+    bool disconnect(const std::string& from, const std::string& to);
+    bool updateNodeCanvasPosition(const std::string& node_id, int32_t canvas_x, int32_t canvas_y);
+
     std::vector<QuestGraphDiagnostic> validate() const;
     std::vector<QuestGraphDiagnostic> validateLocalizationKeys(const std::set<std::string>& localization_keys) const;
     // Authoring-only topology diagnostics. This preserves the compatibility

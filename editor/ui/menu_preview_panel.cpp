@@ -18,7 +18,56 @@ namespace urpg::editor {
 MenuPreviewPanel::MenuPreviewPanel() : EditorPanel("Menu Preview") {}
 
 void MenuPreviewPanel::bindRuntime(urpg::ui::MenuSceneGraph& scene_graph) {
+    authored_preview_graph_.reset();
+    authored_nodes_.clear();
+    authored_disabled_command_ids_.clear();
     scene_graph_ = &scene_graph;
+}
+
+bool MenuPreviewPanel::bindAuthoringDocument(const urpg::ui::MenuAuthoringDocument& document,
+                                             std::string scene_id,
+                                             std::vector<std::string>* diagnostics) {
+    return bindAuthoringDocumentInternal(document, std::move(scene_id), nullptr, diagnostics);
+}
+
+bool MenuPreviewPanel::bindAuthoringDocument(const urpg::ui::MenuAuthoringDocument& document,
+                                             std::string scene_id,
+                                             const urpg::ui::MenuBindingContext& binding_context,
+                                             std::vector<std::string>* diagnostics) {
+    return bindAuthoringDocumentInternal(document, std::move(scene_id), &binding_context, diagnostics);
+}
+
+bool MenuPreviewPanel::bindAuthoringDocumentInternal(
+    const urpg::ui::MenuAuthoringDocument& document, std::string scene_id,
+    const urpg::ui::MenuBindingContext* binding_context,
+    std::vector<std::string>* diagnostics) {
+    auto materialized = urpg::ui::materializeMenuAuthoringDocument(
+        document, std::move(scene_id), binding_context);
+    if (diagnostics) *diagnostics = materialized.diagnostics;
+    if (!materialized.scene) return false;
+    auto graph = std::make_unique<urpg::ui::MenuSceneGraph>();
+    const auto active_id = materialized.scene->getId();
+    graph->registerScene(std::move(materialized.scene));
+    graph->pushScene(active_id);
+    authored_nodes_.clear();
+    for (const auto& node : document.nodes()) authored_nodes_.emplace(node.id, node);
+    authored_disabled_command_ids_.clear();
+    authored_disabled_command_ids_.insert(materialized.disabled_command_ids.begin(),
+                                          materialized.disabled_command_ids.end());
+    const auto disabled = authored_disabled_command_ids_;
+    graph->setCommandEnabledEvaluator([disabled](const urpg::MenuCommandMeta& command) {
+        return !disabled.contains(command.id);
+    });
+    authored_preview_graph_ = std::move(graph);
+    scene_graph_ = authored_preview_graph_.get();
+    captureRenderSnapshot();
+    return true;
+}
+
+void MenuPreviewPanel::setPreviewAccessibilityPolicy(bool reduced_motion, bool audio_enabled) {
+    reduced_motion_preview_ = reduced_motion;
+    audio_enabled_preview_ = audio_enabled;
+    captureRenderSnapshot();
 }
 
 void MenuPreviewPanel::setLayoutChangeHandler(LayoutChangeHandler handler) {
@@ -47,6 +96,9 @@ void MenuPreviewPanel::clearPreviewTargetCanvas() {
 
 void MenuPreviewPanel::clearRuntime() {
     scene_graph_ = nullptr;
+    authored_preview_graph_.reset();
+    authored_nodes_.clear();
+    authored_disabled_command_ids_.clear();
     layout_change_handler_ = {};
     layout_batch_change_handler_ = {};
     preview_target_canvas_.reset();
@@ -486,6 +538,37 @@ void MenuPreviewPanel::update() {
     refresh();
 }
 
+std::vector<urpg::accessibility::InclusiveAuditIssue> MenuPreviewPanel::auditInclusiveSnapshot(
+    bool touch_declared, bool reduced_motion) const {
+    std::vector<urpg::accessibility::InclusiveUiSnapshot> elements;
+    for (const auto& pane : last_render_snapshot_.visible_panes) {
+        for (size_t index = 0; index < pane.command_ids.size(); ++index) {
+            const auto authored = authored_nodes_.find(pane.command_ids[index]);
+            if (authored == authored_nodes_.end()) continue;
+            float contrast = 7.0f;
+            if (index < pane.command_state_properties.size()) {
+                const auto value = pane.command_state_properties[index].find("contrast_ratio");
+                if (value != pane.command_state_properties[index].end()) {
+                    try { contrast = std::stof(value->second); } catch (...) { contrast = 0.0f; }
+                }
+            }
+            const auto& node = authored->second;
+            const bool clipped = node.layout.x < 0 || node.layout.y < 0 ||
+                node.layout.x + node.layout.width > last_render_snapshot_.design_canvas.width ||
+                node.layout.y + node.layout.height > last_render_snapshot_.design_canvas.height;
+            const std::string rendered_label = index < pane.command_labels.size() ? pane.command_labels[index] : node.label;
+            const bool overflow = static_cast<float>(rendered_label.size()) * 8.0f > node.layout.width;
+            const uint32_t motion = index < pane.command_transition_duration_ms.size()
+                ? pane.command_transition_duration_ms[index] : 0;
+            const auto essential = node.instance_overrides.find("motion_essential");
+            elements.push_back({node.id, node.accessible_label, node.focusable, node.layout.focus_order,
+                contrast, node.layout.width, node.layout.height, clipped, overflow, motion,
+                essential != node.instance_overrides.end() && essential->second == "true"});
+        }
+    }
+    return urpg::accessibility::auditInclusiveUi(elements, touch_declared, reduced_motion);
+}
+
 void MenuPreviewPanel::captureRenderSnapshot() {
     last_render_snapshot_ = {};
     if (!scene_graph_) {
@@ -534,10 +617,40 @@ void MenuPreviewPanel::captureRenderSnapshot() {
                 "Pane '" + pane_label + "' overflows the responsive target canvas.");
         }
 
-        for (const auto& cmd : pane.commands) {
+        for (size_t command_index = 0; command_index < pane.commands.size(); ++command_index) {
+            const auto& cmd = pane.commands[command_index];
             snapshot.command_ids.push_back(cmd.id);
             snapshot.command_labels.push_back(cmd.label.empty() ? cmd.id : cmd.label);
-            snapshot.command_enabled.push_back(true);
+            const bool enabled = !authored_disabled_command_ids_.contains(cmd.id);
+            snapshot.command_enabled.push_back(enabled);
+            const bool focused = pane.isActive && pane.selectedCommandIndex >= 0 &&
+                                 static_cast<size_t>(pane.selectedCommandIndex) == command_index;
+            const auto state = !enabled ? urpg::ui::MenuVisualState::Disabled
+                                       : focused ? urpg::ui::MenuVisualState::Focus
+                                                 : urpg::ui::MenuVisualState::Default;
+            snapshot.command_visual_states.push_back(state);
+            std::map<std::string, std::string> properties;
+            uint32_t transition_duration = 0;
+            std::string audio_hook;
+            if (const auto authored = authored_nodes_.find(cmd.id); authored != authored_nodes_.end()) {
+                const auto style = std::find_if(authored->second.state_styles.begin(),
+                    authored->second.state_styles.end(), [&](const auto& item) { return item.state == state; });
+                if (style != authored->second.state_styles.end()) properties = style->properties;
+                else if (const auto fallback = std::find_if(authored->second.state_styles.begin(),
+                    authored->second.state_styles.end(), [](const auto& item) {
+                        return item.state == urpg::ui::MenuVisualState::Default;
+                    }); fallback != authored->second.state_styles.end()) properties = fallback->properties;
+                if (state != urpg::ui::MenuVisualState::Default) {
+                    const auto transition = urpg::ui::resolveMenuTransition(
+                        authored->second, urpg::ui::MenuVisualState::Default, state,
+                        reduced_motion_preview_, audio_enabled_preview_);
+                    transition_duration = transition.duration_ms;
+                    audio_hook = transition.audio_hook;
+                }
+            }
+            snapshot.command_state_properties.push_back(std::move(properties));
+            snapshot.command_transition_duration_ms.push_back(transition_duration);
+            snapshot.command_audio_hooks.push_back(std::move(audio_hook));
         }
 
         if (pane.selectedCommandIndex >= 0 && static_cast<size_t>(pane.selectedCommandIndex) < pane.commands.size()) {

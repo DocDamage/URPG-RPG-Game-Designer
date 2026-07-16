@@ -221,6 +221,18 @@ $script:RcRepoRoot = $repoRoot
 
 Push-Location $repoRoot
 try {
+  Invoke-GateStep "Check product-completion scope and P0 defect bar" {
+    & "$PSScriptRoot\check_product_completion_scope.ps1"
+  }
+
+  Invoke-GateStep "Check durable document ownership matrix" {
+    & "$PSScriptRoot\check_document_ownership_matrix.ps1"
+  }
+
+  Invoke-GateStep "Check product-completion release evidence index" {
+    & "$PSScriptRoot\check_release_evidence_index.ps1"
+  }
+
   Invoke-GateStep "Check required release documents" {
     Test-RequiredDocs -RepoRoot $repoRoot
   }

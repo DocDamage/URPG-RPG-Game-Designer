@@ -706,7 +706,8 @@ CreatorCommandApplyResult applyCreatorCommandPlan(const CreatorCommandRequest& r
 
 CreatorCommandPlan CreatorCommandPlanner::plan(const CreatorCommandRequest& request) const {
     const auto prompt = lowerCopy(request.prompt);
-    if (prompt.find("place message event") != std::string::npos) {
+    if (prompt.find("place message event") != std::string::npos ||
+        prompt.find("place event message") != std::string::npos) {
         return planEventMessage(request);
     }
     if (prompt.find("place prop") != std::string::npos) {
@@ -814,10 +815,18 @@ CreatorCommandPlan CreatorCommandPlanner::planEventMessage(const CreatorCommandR
              request.tile_x, request.tile_y, request.map_id});
         return plan;
     }
-    plan.logic_edits.push_back({"creator_message_event", "message", "confirm_interact", request.tile_x, request.tile_y,
-                                {{"layer_id", request.selected_event_layer_id},
-                                 {"label", request.event_label},
-                                 {"text", request.event_message}}}});
+    CreatorLogicEdit edit;
+    edit.id = "creator_message_event";
+    edit.kind = "message";
+    edit.trigger = "confirm_interact";
+    edit.tile_x = request.tile_x;
+    edit.tile_y = request.tile_y;
+    edit.payload = {
+        {"layer_id", request.selected_event_layer_id},
+        {"label", request.event_label},
+        {"text", request.event_message},
+    };
+    plan.logic_edits.push_back(std::move(edit));
     plan.can_apply = true;
     return plan;
 }

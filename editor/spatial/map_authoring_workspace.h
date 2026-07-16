@@ -13,6 +13,24 @@ class LevelBuilderWorkspace;
 class SpatialAuthoringWorkspace;
 
 enum class MapAuthoringMode { Canvas, Tiles, Parts, Props, Events, Abilities, World, Validate, Playtest, Package };
+enum class MapAuthoringEntrySource { Project, Object, Asset, Diagnostic, Playtest };
+
+struct MapAuthoringEntryRequest {
+    MapAuthoringEntrySource source = MapAuthoringEntrySource::Project;
+    std::string map_id;
+    std::string object_id;
+    std::string event_id;
+    std::string part_id;
+    std::string focus;
+    MapAuthoringMode preferred_mode = MapAuthoringMode::Canvas;
+};
+
+struct MapAuthoringEntryResult {
+    bool success = false;
+    std::string code;
+    std::string canonical_route = "map";
+    std::string active_mode;
+};
 
 struct MapAuthoringModeState {
     std::string id;
@@ -30,10 +48,20 @@ struct MapAuthoringLayoutState {
     bool diagnosticsVisible = true;
 };
 
+struct MapAuthoringRegionState {
+    std::string id;
+    std::string label;
+    bool visible = true;
+    bool resizable = true;
+};
+
 struct MapAuthoringWorkspaceSnapshot {
     std::string activeMode = "canvas";
     std::vector<MapAuthoringModeState> modes;
     MapAuthoringLayoutState layout;
+    std::vector<MapAuthoringRegionState> regions;
+    bool layoutRecovered = false;
+    std::string layoutRecoveryMessage;
     MapAuthoringContextSnapshot context;
     bool hasLevelBuilder = false;
     bool hasPerspective2D = false;
@@ -52,12 +80,14 @@ class MapAuthoringWorkspace {
   public:
     void bind(LevelBuilderWorkspace* levelBuilder, SpatialAuthoringWorkspace* perspective2D);
     bool activateMode(MapAuthoringMode mode);
+    MapAuthoringEntryResult enterCanonicalRoute(const MapAuthoringEntryRequest& request);
     // Focuses an existing Grid Parts diagnostic through the unified Map
     // surface. The child document remains the diagnostic source of truth.
     bool focusGridDiagnostic(size_t diagnosticIndex);
     MapAuthoringHistoryResult undo();
     MapAuthoringHistoryResult redo();
     void setLayout(MapAuthoringLayoutState layout);
+    void resetLayout();
     EditorAssetDropDecision acceptAssetDrop(const EditorAssetDragPayload& payload, std::string_view target_mode);
     EditorAssetDropDecision placeAssetDrop(const EditorAssetDragPayload& payload,
                                            std::string_view target_mode,
@@ -87,6 +117,8 @@ class MapAuthoringWorkspace {
     MapAuthoringContext context_;
     MapAuthoringMode active_mode_ = MapAuthoringMode::Canvas;
     MapAuthoringLayoutState layout_;
+    bool layout_recovered_ = false;
+    std::string layout_recovery_message_;
     std::string next_action_hint_;
     MapAuthoringWorkspaceSnapshot snapshot_;
 };

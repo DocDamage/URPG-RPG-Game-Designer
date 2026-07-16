@@ -28,6 +28,18 @@ bool containsJsonFile(const std::filesystem::path& root) {
     return false;
 }
 
+nlohmann::json readChecklistState(const std::filesystem::path& path) {
+    std::ifstream input(path, std::ios::binary);
+    auto state = nlohmann::json::parse(input, nullptr, false);
+    return state.is_object() ? state : nlohmann::json::object();
+}
+
+bool isSampleProject(const std::filesystem::path& project_root) {
+    std::ifstream input(project_root / "project.json", std::ios::binary);
+    const auto project = nlohmann::json::parse(input, nullptr, false);
+    return project.is_object() && project.value("creator_sample", false);
+}
+
 bool starterMapHasSpawn(const std::filesystem::path& project_root) {
     const auto maps = project_root / "content" / "maps";
     std::error_code error;
@@ -119,24 +131,59 @@ CreatorChecklistSnapshot CreatorChecklist::inspect(const std::filesystem::path& 
     std::ifstream state(statePath(project_root), std::ios::binary);
     const auto state_json = nlohmann::json::parse(state, nullptr, false);
     snapshot.dismissed = state_json.is_object() && state_json.value("dismissed", false);
+    snapshot.completed = state_json.is_object() && state_json.value("completed", false);
+    snapshot.replay_count = state_json.is_object() ? state_json.value("replay_count", 0) : 0;
+    snapshot.sample_project = isSampleProject(project_root);
     snapshot.items = {
-        {"hero_art", "Choose hero art", containsJsonFile(project_root / "content" / "assets" / "manifests")},
-        {"map", "Paint or edit the map", containsJsonFile(project_root / "content" / "maps")},
-        {"player_start", "Place player start", starterMapHasSpawn(project_root)},
+        {"hero_art", "Choose hero art", containsJsonFile(project_root / "content" / "assets" / "manifests"),
+         "asset_library", "Choose Art", "Pick attached hero art; the project keeps the governed asset reference."},
+        {"map", "Paint or edit the map", containsJsonFile(project_root / "content" / "maps"),
+         "map", "Open Map", "Paint one visible change on the starter map."},
+        {"player_start", "Place player start", starterMapHasSpawn(project_root),
+         "map", "Place Start", "Place the player start on a reachable map cell."},
         {"npc_event", "Create an NPC event",
-         containsJsonFile(project_root / "content" / "events") || mapHasAuthoredEvent(project_root)},
-        {"dialogue", "Preview dialogue", containsJsonFile(project_root / "content" / "dialogue")},
-        {"playtest", "Playtest", std::filesystem::is_regular_file(project_root / ".urpg" / "playtest" / "last_completed.json")},
-        {"save", "Save", std::filesystem::is_regular_file(project_root / ".urpg" / "creator" / "last_manual_save.json")},
-        {"validate", "Validate", std::filesystem::is_regular_file(project_root / ".urpg" / "reports" / "validation.json")},
+         containsJsonFile(project_root / "content" / "events") || mapHasAuthoredEvent(project_root),
+         "map", "Create Event", "Add an NPC event to the active map and give it one interaction page."},
+        {"dialogue", "Preview dialogue", containsJsonFile(project_root / "content" / "dialogue"),
+         "dialogue", "Preview Dialogue", "Add a line of dialogue and preview it in context."},
+        {"playtest", "Playtest", std::filesystem::is_regular_file(project_root / ".urpg" / "playtest" / "last_completed.json"),
+         "map", "Playtest Map", "Launch the current map and reach the NPC event."},
+        {"save", "Save", std::filesystem::is_regular_file(project_root / ".urpg" / "creator" / "last_manual_save.json"),
+         "project", "Save Project", "Save the authored map and event through their document owners."},
+        {"validate", "Validate", std::filesystem::is_regular_file(project_root / ".urpg" / "reports" / "validation.json"),
+         "project_health", "Validate Project", "Run project health and resolve any blocking issue."},
     };
+    const auto next = std::find_if(snapshot.items.begin(), snapshot.items.end(), [](const auto& item) { return !item.complete; });
+    if (next != snapshot.items.end()) snapshot.next_item_id = next->id;
+    if (snapshot.next_item_id.empty()) snapshot.completed = true;
     return snapshot;
 }
 
 bool CreatorChecklist::setDismissed(const std::filesystem::path& project_root, bool dismissed, std::string* error) const {
     const auto path = statePath(project_root);
-    return writeChecklistStateAtomically(
-        path, nlohmann::json{{"schema", "urpg.creator_checklist.v1"}, {"dismissed", dismissed}}, error);
+    auto state = readChecklistState(path);
+    state["schema"] = "urpg.creator_checklist.v2";
+    state["dismissed"] = dismissed;
+    return writeChecklistStateAtomically(path, state, error);
+}
+
+bool CreatorChecklist::setCompleted(const std::filesystem::path& project_root, const bool completed,
+                                    std::string* error) const {
+    const auto path = statePath(project_root);
+    auto state = readChecklistState(path);
+    state["schema"] = "urpg.creator_checklist.v2";
+    state["completed"] = completed;
+    return writeChecklistStateAtomically(path, state, error);
+}
+
+bool CreatorChecklist::replay(const std::filesystem::path& project_root, std::string* error) const {
+    const auto path = statePath(project_root);
+    auto state = readChecklistState(path);
+    state["schema"] = "urpg.creator_checklist.v2";
+    state["dismissed"] = false;
+    state["completed"] = false;
+    state["replay_count"] = state.value("replay_count", 0) + 1;
+    return writeChecklistStateAtomically(path, state, error);
 }
 
 } // namespace urpg::editor

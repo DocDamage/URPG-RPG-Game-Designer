@@ -1,4 +1,5 @@
 #include "engine/core/settings/app_settings_store.h"
+#include "engine/core/accessibility/inclusive_experience.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -120,11 +121,46 @@ std::vector<AssetLibraryCollectionSettings> readAssetCollections(const nlohmann:
     return collections;
 }
 
+std::vector<AssetLibrarySavedSearchSettings> readAssetSavedSearches(const nlohmann::json& creator) {
+    std::vector<AssetLibrarySavedSearchSettings> searches;
+    if (!creator.contains("asset_saved_searches") || !creator.at("asset_saved_searches").is_array()) return searches;
+    for (const auto& value : creator.at("asset_saved_searches")) {
+        if (!value.is_object()) continue;
+        AssetLibrarySavedSearchSettings search;
+        search.id = readString(value, "id", "");
+        search.label = readString(value, "label", "");
+        search.media_kind = readString(value, "media_kind", "");
+        search.category = readString(value, "category", "");
+        search.required_tag = readString(value, "required_tag", "");
+        search.required_game_use_tag = readString(value, "required_game_use_tag", "");
+        search.source_bundle_id = readString(value, "source_bundle_id", "");
+        search.referenced_only = readBool(value, "referenced_only", false);
+        search.runtime_ready_only = readBool(value, "runtime_ready_only", false);
+        search.previewable_only = readBool(value, "previewable_only", false);
+        search.project_attached_only = readBool(value, "project_attached_only", false);
+        search.attachable_only = readBool(value, "attachable_only", false);
+        search.release_eligible_only = readBool(value, "release_eligible_only", false);
+        if (search.id.empty() || search.label.empty() ||
+            std::any_of(searches.begin(), searches.end(), [&](const auto& existing) { return existing.id == search.id; })) continue;
+        searches.push_back(std::move(search));
+        if (searches.size() == 100) break;
+    }
+    return searches;
+}
+
 std::string normalizeConsentState(std::string state) {
     if (state == "granted" || state == "denied" || state == "unknown") {
         return state;
     }
     return "unknown";
+}
+
+std::string normalizeColorFilter(std::string value) {
+    if (value == "none" || value == "protanopia" || value == "deuteranopia" ||
+        value == "tritanopia" || value == "monochrome") {
+        return value;
+    }
+    return "none";
 }
 
 WindowSettings readWindowSettings(const nlohmann::json& root, WindowSettings defaults) {
@@ -136,6 +172,9 @@ WindowSettings readWindowSettings(const nlohmann::json& root, WindowSettings def
     defaults.height = readDimension(window, "height", defaults.height);
     defaults.fullscreen = readBool(window, "fullscreen", defaults.fullscreen);
     defaults.resizable = readBool(window, "resizable", defaults.resizable);
+    if (window.contains("safe_area_scale") && window.at("safe_area_scale").is_number()) {
+        defaults.safe_area_scale = std::clamp(window.at("safe_area_scale").get<float>(), 0.80f, 1.0f);
+    }
     return defaults;
 }
 
@@ -150,6 +189,7 @@ AudioSettings readAudioSettings(const nlohmann::json& root, AudioSettings defaul
     defaults.se_volume = readUnitFloat(audio, "se_volume", defaults.se_volume);
     defaults.me_volume = readUnitFloat(audio, "me_volume", defaults.me_volume);
     defaults.system_volume = readUnitFloat(audio, "system_volume", defaults.system_volume);
+    defaults.voice_volume = readUnitFloat(audio, "voice_volume", defaults.voice_volume);
     return defaults;
 }
 
@@ -163,6 +203,36 @@ AccessibilitySettings readAccessibilitySettings(const nlohmann::json& root, Acce
     if (accessibility.contains("ui_scale") && accessibility.at("ui_scale").is_number()) {
         defaults.ui_scale = std::clamp(accessibility.at("ui_scale").get<float>(), 0.5f, 3.0f);
     }
+    if (accessibility.contains("text_scale") && accessibility.at("text_scale").is_number()) {
+        defaults.text_scale = std::clamp(accessibility.at("text_scale").get<float>(), 0.75f, 2.0f);
+    }
+    defaults.shortcuts_enabled = readBool(accessibility, "shortcuts_enabled", defaults.shortcuts_enabled);
+    defaults.color_filter = normalizeColorFilter(readString(accessibility, "color_filter", defaults.color_filter));
+    // Non-color identity is a product invariant, not an optional visual preference.
+    defaults.non_color_cues = true;
+    defaults.screen_shake = readUnitFloat(accessibility, "screen_shake", defaults.screen_shake);
+    defaults.flash_intensity = readUnitFloat(accessibility, "flash_intensity", defaults.flash_intensity);
+    defaults.subtitles = readBool(accessibility, "subtitles", defaults.subtitles);
+    defaults.captions = readBool(accessibility, "captions", defaults.captions);
+    if (accessibility.contains("caption_scale") && accessibility.at("caption_scale").is_number()) {
+        defaults.caption_scale = std::clamp(accessibility.at("caption_scale").get<float>(), 0.75f, 2.5f);
+    }
+    defaults.mono_audio = readBool(accessibility, "mono_audio", defaults.mono_audio);
+    if (defaults.reduce_motion) defaults.screen_shake = 0.0f;
+    return defaults;
+}
+
+RuntimeCalibrationSettings readRuntimeCalibrationSettings(const nlohmann::json& root,
+                                                          RuntimeCalibrationSettings defaults) {
+    if (!root.contains("calibration") || !root.at("calibration").is_object()) return defaults;
+    const auto& calibration = root.at("calibration");
+    defaults.completed = readBool(calibration, "completed", defaults.completed);
+    defaults.skipped = readBool(calibration, "skipped", defaults.skipped);
+    if (calibration.contains("revision") && calibration.at("revision").is_number_unsigned()) {
+        defaults.revision = calibration.at("revision").get<std::uint32_t>();
+    }
+    const auto device = readString(calibration, "preferred_input_device", defaults.preferred_input_device);
+    defaults.preferred_input_device = device == "keyboard_mouse" || device == "controller" ? device : "auto";
     return defaults;
 }
 
@@ -194,6 +264,7 @@ nlohmann::json windowToJson(const WindowSettings& settings) {
         {"height", settings.height},
         {"fullscreen", settings.fullscreen},
         {"resizable", settings.resizable},
+        {"safe_area_scale", settings.safe_area_scale},
     };
 }
 
@@ -205,6 +276,7 @@ nlohmann::json audioToJson(const AudioSettings& settings) {
         {"se_volume", settings.se_volume},
         {"me_volume", settings.me_volume},
         {"system_volume", settings.system_volume},
+        {"voice_volume", settings.voice_volume},
     };
 }
 
@@ -213,6 +285,16 @@ nlohmann::json accessibilityToJson(const AccessibilitySettings& settings) {
         {"high_contrast", settings.high_contrast},
         {"reduce_motion", settings.reduce_motion},
         {"ui_scale", settings.ui_scale},
+        {"text_scale", settings.text_scale},
+        {"shortcuts_enabled", settings.shortcuts_enabled},
+        {"color_filter", normalizeColorFilter(settings.color_filter)},
+        {"non_color_cues", true},
+        {"screen_shake", settings.reduce_motion ? 0.0f : std::clamp(settings.screen_shake, 0.0f, 1.0f)},
+        {"flash_intensity", std::clamp(settings.flash_intensity, 0.0f, 1.0f)},
+        {"subtitles", settings.subtitles},
+        {"captions", settings.captions},
+        {"caption_scale", std::clamp(settings.caption_scale, 0.75f, 2.5f)},
+        {"mono_audio", settings.mono_audio},
     };
 }
 
@@ -295,6 +377,7 @@ RuntimeSettings defaultRuntimeSettings() {
     settings.window.width = 1280;
     settings.window.height = 720;
     settings.input_mapping_path = "config/input_mappings.json";
+    settings.controller_mapping_path = "config/controller_bindings.json";
     return settings;
 }
 
@@ -327,6 +410,9 @@ RuntimeSettingsLoadResult loadRuntimeSettings(const std::filesystem::path& path)
         result.settings.audio = readAudioSettings(payload, result.settings.audio);
         result.settings.accessibility = readAccessibilitySettings(payload, result.settings.accessibility);
         result.settings.input_mapping_path = readPath(payload, "input_mapping_path", result.settings.input_mapping_path);
+        result.settings.controller_mapping_path =
+            readPath(payload, "controller_mapping_path", result.settings.controller_mapping_path);
+        result.settings.calibration = readRuntimeCalibrationSettings(payload, result.settings.calibration);
     } catch (const std::exception& ex) {
         result.settings = defaultRuntimeSettings();
         result.report.recovered_from_malformed = true;
@@ -368,6 +454,7 @@ EditorSettingsLoadResult loadEditorSettings(const std::filesystem::path& path, c
             result.settings.asset_browser_layout = readString(creator, "asset_browser_layout", result.settings.asset_browser_layout);
             result.settings.asset_favorite_keys = readAssetKeyList(creator, "asset_favorite_keys");
             result.settings.asset_collections = readAssetCollections(creator);
+            result.settings.asset_saved_searches = readAssetSavedSearches(creator);
             result.settings.map_workspace_layout = readMapWorkspaceLayout(creator, result.settings.map_workspace_layout);
             result.settings.external_asset_library_root = readPath(creator, "external_asset_library_root", result.settings.external_asset_library_root);
         }
@@ -394,6 +481,11 @@ bool saveRuntimeSettings(const std::filesystem::path& path, const RuntimeSetting
         {"audio", audioToJson(settings.audio)},
         {"accessibility", accessibilityToJson(settings.accessibility)},
         {"input_mapping_path", settings.input_mapping_path.generic_string()},
+        {"controller_mapping_path", settings.controller_mapping_path.generic_string()},
+        {"calibration",
+         {{"completed", settings.calibration.completed}, {"skipped", settings.calibration.skipped},
+          {"revision", settings.calibration.revision},
+          {"preferred_input_device", settings.calibration.preferred_input_device}}},
     };
     return writeJsonFile(path, payload, error);
 }
@@ -422,6 +514,7 @@ bool saveEditorSettings(const std::filesystem::path& path, const EditorSettings&
              {"asset_browser_layout", settings.asset_browser_layout},
              {"asset_favorite_keys", settings.asset_favorite_keys},
              {"asset_collections", nlohmann::json::array()},
+             {"asset_saved_searches", nlohmann::json::array()},
              {"map_workspace_layout",
               {{"palette_width_fraction", settings.map_workspace_layout.palette_width_fraction},
                {"inspector_width_fraction", settings.map_workspace_layout.inspector_width_fraction},
@@ -436,7 +529,71 @@ bool saveEditorSettings(const std::filesystem::path& path, const EditorSettings&
         payload["creator"]["asset_collections"].push_back(
             {{"id", collection.id}, {"label", collection.label}, {"asset_keys", collection.asset_keys}});
     }
+    for (const auto& search : settings.asset_saved_searches) {
+        payload["creator"]["asset_saved_searches"].push_back({
+            {"id", search.id}, {"label", search.label}, {"media_kind", search.media_kind},
+            {"category", search.category}, {"required_tag", search.required_tag},
+            {"required_game_use_tag", search.required_game_use_tag}, {"source_bundle_id", search.source_bundle_id},
+            {"referenced_only", search.referenced_only}, {"runtime_ready_only", search.runtime_ready_only},
+            {"previewable_only", search.previewable_only}, {"project_attached_only", search.project_attached_only},
+            {"attachable_only", search.attachable_only}, {"release_eligible_only", search.release_eligible_only},
+        });
+    }
     return writeJsonFile(path, payload, error);
+}
+
+accessibility::InclusiveSettings inclusiveSettingsFromRuntime(const RuntimeSettings& settings) {
+    accessibility::InclusiveSettings result;
+    const float text_scale = settings.accessibility.text_scale;
+    result.text_scale = text_scale >= 1.75f ? accessibility::TextScaleProfile::ExtraLarge
+                      : text_scale >= 1.35f ? accessibility::TextScaleProfile::Large
+                      : text_scale < 0.9f ? accessibility::TextScaleProfile::Compact
+                                          : accessibility::TextScaleProfile::Standard;
+    result.high_contrast = settings.accessibility.high_contrast;
+    result.color_filter = settings.accessibility.color_filter == "protanopia" ? accessibility::ColorFilter::Protanopia
+                        : settings.accessibility.color_filter == "deuteranopia" ? accessibility::ColorFilter::Deuteranopia
+                        : settings.accessibility.color_filter == "tritanopia" ? accessibility::ColorFilter::Tritanopia
+                        : settings.accessibility.color_filter == "monochrome" ? accessibility::ColorFilter::Monochrome
+                                                                              : accessibility::ColorFilter::None;
+    result.non_color_cues = true;
+    result.reduced_motion = settings.accessibility.reduce_motion;
+    result.screen_shake = result.reduced_motion ? 0.0f : settings.accessibility.screen_shake;
+    result.flash_intensity = settings.accessibility.flash_intensity;
+    result.subtitles = settings.accessibility.subtitles;
+    result.captions = settings.accessibility.captions;
+    result.caption_scale = settings.accessibility.caption_scale;
+    result.master_volume = settings.audio.master_volume;
+    result.music_volume = settings.audio.bgm_volume;
+    result.effects_volume = settings.audio.se_volume;
+    result.voice_volume = settings.audio.voice_volume;
+    result.mono_audio = settings.accessibility.mono_audio;
+    return result;
+}
+
+void applyInclusiveSettings(RuntimeSettings& settings, const accessibility::InclusiveSettings& inclusive) {
+    if (!inclusive.isValid()) return;
+    const float scale = inclusive.text_scale == accessibility::TextScaleProfile::Compact ? 0.85f
+                      : inclusive.text_scale == accessibility::TextScaleProfile::Large ? 1.5f
+                      : inclusive.text_scale == accessibility::TextScaleProfile::ExtraLarge ? 2.0f : 1.0f;
+    settings.accessibility.text_scale = scale;
+    settings.accessibility.ui_scale = scale;
+    settings.accessibility.high_contrast = inclusive.high_contrast;
+    settings.accessibility.color_filter = inclusive.color_filter == accessibility::ColorFilter::Protanopia ? "protanopia"
+        : inclusive.color_filter == accessibility::ColorFilter::Deuteranopia ? "deuteranopia"
+        : inclusive.color_filter == accessibility::ColorFilter::Tritanopia ? "tritanopia"
+        : inclusive.color_filter == accessibility::ColorFilter::Monochrome ? "monochrome" : "none";
+    settings.accessibility.non_color_cues = true;
+    settings.accessibility.reduce_motion = inclusive.reduced_motion;
+    settings.accessibility.screen_shake = inclusive.reduced_motion ? 0.0f : inclusive.screen_shake;
+    settings.accessibility.flash_intensity = inclusive.flash_intensity;
+    settings.accessibility.subtitles = inclusive.subtitles;
+    settings.accessibility.captions = inclusive.captions;
+    settings.accessibility.caption_scale = inclusive.caption_scale;
+    settings.accessibility.mono_audio = inclusive.mono_audio;
+    settings.audio.master_volume = inclusive.master_volume;
+    settings.audio.bgm_volume = inclusive.music_volume;
+    settings.audio.se_volume = inclusive.effects_volume;
+    settings.audio.voice_volume = inclusive.voice_volume;
 }
 
 } // namespace urpg::settings

@@ -1,4 +1,5 @@
 #include "engine/core/app_cli.h"
+#include "engine/core/action/controller_binding_runtime.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/diagnostics/startup_diagnostics.h"
 #include "engine/core/engine_shell.h"
@@ -100,6 +101,9 @@ bool isSafePlaytestMapId(const std::string& mapId) {
 
 std::shared_ptr<urpg::scene::MapScene> makeRuntimeMapScene(const std::filesystem::path& projectRoot,
                                                            const std::string& mapName,
+                                                           const urpg::settings::RuntimeSettings& settings,
+                                                           const std::shared_ptr<urpg::audio::AudioCore>& audio,
+                                                           const std::optional<urpg::localization::LocaleCatalog>& locale,
                                                            const std::filesystem::path& overlayRoot = {}) {
     const auto publishedPath = projectRoot / "content" / "maps" / (mapName + ".grid.json");
     const auto overlayPath = overlayRoot / "content" / "maps" / (mapName + ".grid.json");
@@ -113,6 +117,13 @@ std::shared_ptr<urpg::scene::MapScene> makeRuntimeMapScene(const std::filesystem
     const int width = gridDocument ? gridDocument->width() : 16;
     const int height = gridDocument ? gridDocument->height() : 12;
     auto map = std::make_shared<urpg::scene::MapScene>(mapName, width, height);
+    map->setAudioCore(audio);
+    map->setDialogueLocaleCatalog(locale);
+    if (!map->setDialogueInclusiveSettings(urpg::settings::inclusiveSettingsFromRuntime(settings))) {
+        urpg::diagnostics::RuntimeDiagnostics::error(
+            "runtime.settings", "runtime.dialogue_accessibility_settings_invalid",
+            "Runtime dialogue accessibility settings could not be applied; safe defaults remain active.");
+    }
     map->setAssetReferences(urpg::scene::loadRuntimeMapAssetReferences(projectRoot, mapName));
     // A starter map may intentionally be blank.  It still has a valid map
     // canvas and can be launched with the editor-selected fallback spawn; it
@@ -232,7 +243,25 @@ int main(int argc, char** argv) {
             std::cerr << "URPG runtime was built headless; use --headless.\n";
             return 2;
 #else
-            surface = std::make_unique<urpg::SDLSurface>();
+            auto sdlSurface = std::make_unique<urpg::SDLSurface>();
+            urpg::action::ControllerBindingRuntime controllerBindings;
+            const auto controllerBindingsPath =
+                options.project_root / settingsLoad.settings.controller_mapping_path;
+            if (std::filesystem::is_regular_file(controllerBindingsPath)) {
+                std::string controllerBindingsError;
+                if (!controllerBindings.loadFromFile(controllerBindingsPath, &controllerBindingsError)) {
+                    urpg::diagnostics::RuntimeDiagnostics::warning(
+                        "runtime.input", "runtime.controller_bindings_invalid",
+                        "Controller bindings could not be loaded; safe defaults remain active: " +
+                            controllerBindingsError);
+                }
+            }
+            if (!sdlSurface->setControllerBindings(controllerBindings)) {
+                urpg::diagnostics::RuntimeDiagnostics::warning(
+                    "runtime.input", "runtime.controller_bindings_rejected",
+                    "Controller bindings were incomplete; safe defaults remain active.");
+            }
+            surface = std::move(sdlSurface);
             renderer = std::make_unique<urpg::OpenGLRenderer>();
 #endif
         }
@@ -250,10 +279,13 @@ int main(int argc, char** argv) {
         }
         urpg::RuntimeStartupServices::applyAudioSettings(shell.getAudio(), settingsLoad.settings.audio);
         printStartupDiagnostics(shell.getRuntimeStartupReport());
+        auto runtimeAudio = std::shared_ptr<urpg::audio::AudioCore>(&shell.getAudio(), [](auto*) {});
+        const auto runtimeLocale = shell.getRuntimeStartupReport().locale_catalog;
 
         clearSceneStack();
         if (!targetMap.empty()) {
-            auto playtestScene = makeRuntimeMapScene(options.project_root, targetMap, playtestOverlay);
+            auto playtestScene = makeRuntimeMapScene(options.project_root, targetMap, settingsLoad.settings,
+                                                     runtimeAudio, runtimeLocale, playtestOverlay);
             const auto comma = targetSpawn.find(',');
             if (comma != std::string::npos) {
                 try {
@@ -271,12 +303,13 @@ int main(int argc, char** argv) {
         } else {
             const auto startupSaveState = urpg::discoverRuntimeSaves(options.project_root);
             auto titleScene = urpg::scene::makeDefaultRuntimeTitleScene({
-            [&options] {
+            [&options, &settingsLoad, &runtimeAudio, &runtimeLocale] {
                 urpg::scene::SceneManager::getInstance().gotoScene(
-                    makeRuntimeMapScene(options.project_root, "RuntimeBoot"));
+                    makeRuntimeMapScene(options.project_root, "RuntimeBoot", settingsLoad.settings,
+                                        runtimeAudio, runtimeLocale));
             },
             [&shell] { shell.shutdown(); },
-            [startupSaveState, &options] {
+            [startupSaveState, &options, &settingsLoad, &runtimeAudio, &runtimeLocale] {
                 const auto result = urpg::continueNewestRuntimeSave(startupSaveState);
                 if (!result.ok) {
                     std::cerr << "URPG runtime continue failed: " << result.error << "\n";
@@ -294,7 +327,8 @@ int main(int argc, char** argv) {
                 }
 
                 urpg::scene::SceneManager::getInstance().gotoScene(
-                    makeRuntimeMapScene(options.project_root, mapName));
+                    makeRuntimeMapScene(options.project_root, mapName, settingsLoad.settings,
+                                        runtimeAudio, runtimeLocale));
                 return urpg::scene::RuntimeTitleCommandResult{
                     true, true, "continue_loaded", "Continue loaded the newest save slot."};
             },

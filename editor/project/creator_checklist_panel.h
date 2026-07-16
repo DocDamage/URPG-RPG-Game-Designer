@@ -13,6 +13,8 @@ class CreatorChecklistPanel {
     void setVisible(bool visible) { visible_ = visible; }
     bool dismiss(std::string* error = nullptr);
     bool restore(std::string* error = nullptr);
+    bool complete(std::string* error = nullptr);
+    bool replay(std::string* error = nullptr);
     void render();
 
     const CreatorChecklistSnapshot& snapshot() const { return snapshot_; }

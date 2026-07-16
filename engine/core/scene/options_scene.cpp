@@ -175,6 +175,11 @@ RuntimeOptionsCommandResult RuntimeOptionsScene::activateSelected() {
         return save();
     case RuntimeOptionsRowId::Back:
         return back();
+    case RuntimeOptionsRowId::FirstRunCalibration:
+        if (callbacks_.request_calibration) {
+            callbacks_.request_calibration();
+        }
+        return {true, true, "calibration_replay_requested", "Opening first-run calibration."};
     case RuntimeOptionsRowId::WindowWidth:
     case RuntimeOptionsRowId::WindowHeight:
     case RuntimeOptionsRowId::MasterVolume:
@@ -244,6 +249,7 @@ void RuntimeOptionsScene::adjustSelected(int direction) {
     case RuntimeOptionsRowId::ReduceMotion:
     case RuntimeOptionsRowId::Save:
     case RuntimeOptionsRowId::Back:
+    case RuntimeOptionsRowId::FirstRunCalibration:
         break;
     }
 
@@ -277,6 +283,7 @@ void RuntimeOptionsScene::rebuildRows() {
         {RuntimeOptionsRowId::UiScale, "UI Scale", rowValue(RuntimeOptionsRowId::UiScale)},
         {RuntimeOptionsRowId::Save, "Save Settings", ""},
         {RuntimeOptionsRowId::Back, "Back", ""},
+        {RuntimeOptionsRowId::FirstRunCalibration, "Replay Calibration", rowValue(RuntimeOptionsRowId::FirstRunCalibration)},
     };
     if (!rows_.empty()) {
         selected_row_index_ = std::min(selected_row_index_, rows_.size() - 1);
@@ -304,6 +311,8 @@ std::string RuntimeOptionsScene::rowValue(RuntimeOptionsRowId id) const {
     case RuntimeOptionsRowId::Save:
     case RuntimeOptionsRowId::Back:
         return {};
+    case RuntimeOptionsRowId::FirstRunCalibration:
+        return "Replay";
     }
     return {};
 }

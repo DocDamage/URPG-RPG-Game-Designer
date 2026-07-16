@@ -42,6 +42,19 @@ ArchiveCatalogResult failure(std::string code, std::string message) {
     return {false, std::move(code), std::move(message), {}, {}};
 }
 
+ArchiveCatalogResult validateEntrySize(const uint64_t compressed, const uint64_t expanded,
+                                       const ArchiveCatalogLimits& limits) {
+    if (expanded > limits.maxEntryExpandedBytes) {
+        return failure("archive_entry_expansion_limit_exceeded",
+                       "An archive entry exceeds the configured expanded-size safety limit.");
+    }
+    if (expanded > 0 && (compressed == 0 || expanded / compressed > limits.maxCompressionRatio)) {
+        return failure("archive_compression_ratio_limit_exceeded",
+                       "An archive entry exceeds the configured compression-ratio safety limit.");
+    }
+    return {true, {}, {}, {}, {}};
+}
+
 uint64_t parseBytes(const std::string& value) {
     try {
         return static_cast<uint64_t>(std::stoull(value));
@@ -109,6 +122,11 @@ ArchiveCatalogResult listWithExternalExtractor(const std::filesystem::path& arch
         }
         if (attributes.find('L') != std::string::npos || attributes.find("symlink") != std::string::npos) {
             result = failure("archive_link_unsupported", "Archive contains a symbolic link entry.");
+            return false;
+        }
+        const auto sizeValidation = validateEntrySize(compressed, expanded, limits);
+        if (!sizeValidation.success) {
+            result = sizeValidation;
             return false;
         }
         totalExpanded += expanded;
@@ -210,12 +228,64 @@ ArchiveCatalogResult ArchiveCatalog::list(const std::filesystem::path& archivePa
         if (unsafePath(name)) return failure("unsafe_archive_path", "Archive contains an absolute, traversal, or device-name entry.");
         const bool isSymlink = ((externalAttributes >> 16U) & 0170000U) == 0120000U;
         if (isSymlink) return failure("archive_link_unsupported", "Archive contains a symbolic link entry.");
+        const auto sizeValidation = validateEntrySize(compressed, expanded, limits);
+        if (!sizeValidation.success) return sizeValidation;
         totalExpanded += expanded;
         if (totalExpanded > limits.maxExpandedBytes) return failure("archive_expansion_limit_exceeded", "Archive expanded size exceeds the configured safety limit.");
         result.entries.push_back({name, compressed, expanded, !name.empty() && (name.back() == '/' || name.back() == '\\')});
         offset += 46 + nameLength + extraLength + commentLength;
     }
     return result;
+}
+
+PortableAssetSourceAudit auditPortableAssetSources(const std::filesystem::path& projectRoot,
+                                                    const std::vector<AssetSourceCustodyEntry>& sources,
+                                                    const ExternalAssetSourcePolicy policy) {
+    PortableAssetSourceAudit audit;
+    std::error_code error;
+    const auto normalizedRoot = std::filesystem::absolute(projectRoot, error).lexically_normal();
+    for (const auto& source : sources) {
+        ++audit.inspected_count;
+        error.clear();
+        const auto resolved = (source.source_path.is_absolute() ? source.source_path : normalizedRoot / source.source_path)
+                                  .lexically_normal();
+        const auto relative = resolved.lexically_relative(normalizedRoot);
+        const bool external = relative.empty() || relative.is_absolute() ||
+                              (!relative.empty() && *relative.begin() == "..");
+        const bool exists = !source.source_path.empty() && std::filesystem::is_regular_file(resolved, error);
+        const auto add = [&](std::string severity, std::string code, std::string message) {
+            audit.diagnostics.push_back({std::move(severity), std::move(code), source.asset_id,
+                                         resolved.generic_string(), std::move(message)});
+        };
+        if (!exists) {
+            ++audit.missing_count;
+            audit.portable = false;
+            if (source.required_for_package) audit.package_allowed = false;
+            add("error", external ? "external_asset_source_missing" : "project_asset_source_missing",
+                "The governed asset source is missing and must be relinked before custody can be verified.");
+            continue;
+        }
+        if (!external) continue;
+        ++audit.external_count;
+        audit.portable = false;
+        if (policy == ExternalAssetSourcePolicy::AllowNonPortable) {
+            add("warning", "external_asset_source_nonportable",
+                "The source exists outside the project; the project is not portable under the current policy.");
+        } else if (policy == ExternalAssetSourcePolicy::RequireProjectCopy) {
+            if (source.required_for_package) audit.package_allowed = false;
+            add("error", "external_asset_source_copy_required",
+                "Copy and govern this source inside the project before packaging.");
+        } else {
+            audit.package_allowed = false;
+            add("error", "external_asset_source_rejected",
+                "External asset sources are forbidden by the configured custody policy.");
+        }
+    }
+    std::sort(audit.diagnostics.begin(), audit.diagnostics.end(), [](const auto& left, const auto& right) {
+        if (left.asset_id != right.asset_id) return left.asset_id < right.asset_id;
+        return left.code < right.code;
+    });
+    return audit;
 }
 
 } // namespace urpg::assets

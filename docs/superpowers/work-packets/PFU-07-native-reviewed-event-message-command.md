@@ -23,5 +23,4 @@ native Perspective 2D command, not generic event-logic authority.
 
 The command does not authorize provider-generated logic, choices, conditions,
 transfers, shops, quests, battle, arbitrary event commands, or runtime/package
-qualification. Provider transport stays dry-run only. Verification is deferred
-under the user instruction not to run builds or tests during this phase.
+qualification. Provider transport stays dry-run only. Automated verification was audited on 2026-07-16; see the active PFU evidence. Manual/package qualification remains outside this bounded packet.

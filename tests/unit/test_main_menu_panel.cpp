@@ -25,6 +25,20 @@ TEST_CASE("MainMenuModel exposes startup routes and project actions", "[project]
     REQUIRE(snapshot["pinned_projects"].size() == 1);
     REQUIRE(snapshot["missing_projects"].size() == 1);
     REQUIRE(snapshot["missing_projects"][0]["action"] == "prompt_locate_or_hide");
+    REQUIRE(snapshot["startup_destinations"].size() == 8);
+    REQUIRE(snapshot["startup_destinations"][0]["id"] == "recent_projects");
+    REQUIRE(snapshot["startup_destinations"][0]["item_count"] == 2);
+    REQUIRE(snapshot["startup_destinations"][3]["id"] == "import");
+    REQUIRE(snapshot["startup_destinations"][3]["available"] == false);
+    REQUIRE(snapshot["startup_destinations"][3]["route"].is_null());
+    REQUIRE_FALSE(snapshot["startup_destinations"][3]["reason"].get<std::string>().empty());
+    REQUIRE(snapshot["startup_destinations"][4]["id"] == "recovery");
+    REQUIRE(snapshot["startup_destinations"][4]["available"] == true);
+    REQUIRE(snapshot["startup_destinations"][4]["item_count"] == 1);
+    REQUIRE(snapshot["startup_destinations"][5]["id"] == "health");
+    REQUIRE(snapshot["startup_destinations"][5]["available"] == false);
+    REQUIRE(snapshot["startup_destinations"][7]["id"] == "examples");
+    REQUIRE(snapshot["startup_destinations"][7]["available"] == false);
 
     REQUIRE(model.chooseNewProject());
     snapshot = model.snapshot();
@@ -47,6 +61,10 @@ TEST_CASE("MainMenuModel exposes startup routes and project actions", "[project]
     REQUIRE(snapshot["route"] == "main_menu");
     REQUIRE(snapshot["pending_action"]["success"] == false);
     REQUIRE(snapshot["pending_action"]["message"] == "project.json is missing");
+    REQUIRE(snapshot["pending_action"]["error_card"]["valid"] == true);
+    REQUIRE(snapshot["pending_action"]["error_card"]["affected_object"] == "C:/projects/broken.urpg");
+    REQUIRE(snapshot["pending_action"]["error_card"]["go_to"]["route"] == "startup.locate");
+    REQUIRE(snapshot["pending_action"]["error_card"]["retry"]["enabled"] == true);
 
     model.enterEditor("C:/projects/from_template.urpg");
     snapshot = model.snapshot();
@@ -86,6 +104,15 @@ TEST_CASE("MainMenuModel requires an explicit replacement path when locating a m
     REQUIRE(snapshot["route"] == "locate_project");
     REQUIRE(snapshot["pending_action"]["projectPath"] == "C:/projects/missing.urpg");
     REQUIRE_FALSE(model.beginLocateMissingProject("C:/projects/not-listed.urpg"));
+}
+
+TEST_CASE("MainMenuModel reports recovery as unavailable when no missing project exists", "[project][main_menu][startup]") {
+    urpg::editor::MainMenuModel model;
+    const auto destinations = model.snapshot()["startup_destinations"];
+    REQUIRE(destinations[4]["id"] == "recovery");
+    REQUIRE(destinations[4]["available"] == false);
+    REQUIRE(destinations[4]["route"].is_null());
+    REQUIRE_FALSE(destinations[4]["reason"].get<std::string>().empty());
 }
 
 TEST_CASE("MainMenuModel limits recents and hides missing projects", "[project][main_menu]") {
@@ -172,6 +199,11 @@ TEST_CASE("MainMenuPanel renders model-backed main menu snapshot", "[project][ma
     REQUIRE(snapshot["status"] == "ready");
     REQUIRE(snapshot["model"]["onboarding_enabled"] == false);
     REQUIRE(snapshot["model"]["commands"]["new_project"]["route"] == "template_picker");
+    REQUIRE(snapshot["folder_picker"]["path_entry_available"] == true);
+#if defined(_WIN32) || defined(__APPLE__)
+    REQUIRE(snapshot["folder_picker"]["available"] == true);
+    REQUIRE(snapshot["folder_picker"]["code"] == "native_import_source_picker_available");
+#endif
 }
 
 TEST_CASE("MainMenuPanel nests a bound guided wizard in the creator flow", "[project][main_menu][editor][panel]") {

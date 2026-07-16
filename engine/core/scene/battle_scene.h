@@ -3,6 +3,7 @@
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/math/vector2.h"
+#include "engine/core/presentation/battle_feedback.h"
 #include "engine/core/presentation/effects/effect_cue.h"
 #include "engine/core/render/sprite_animator.h"
 #include "engine/core/ui/ui_command_list.h"
@@ -133,10 +134,13 @@ class BattleScene : public GameScene {
     void enqueueEffectCue(const urpg::presentation::effects::EffectCue& cue);
     const std::vector<urpg::presentation::effects::EffectCue>& effectCues() const { return m_effectCues; }
     void clearEffectCues() { m_effectCues.clear(); }
+    urpg::presentation::BattleFeedbackDirector& battleFeedback() { return m_battleFeedback; }
+    const urpg::presentation::BattleFeedbackDirector& battleFeedback() const { return m_battleFeedback; }
     std::optional<BattleDiagnosticsPreview> buildDiagnosticsPreview() const;
 
   private:
     urpg::battle::BattleQueuedAction makeQueuedAction(const BattleAction& action) const;
+    std::string nextBattleFeedbackRequestId(const std::string& prefix);
     std::vector<std::string> m_enemyIds;
     BattlePhase m_currentPhase;
     int m_turnCount = 0;
@@ -153,6 +157,8 @@ class BattleScene : public GameScene {
     urpg::battle::BattleActionQueue m_nativeActionQueue;
     uint32_t m_effectSequence = 0;
     std::vector<urpg::presentation::effects::EffectCue> m_effectCues;
+    urpg::presentation::BattleFeedbackDirector m_battleFeedback;
+    uint64_t m_battleFeedbackRequestSequence = 1;
 
     // Background
     std::shared_ptr<urpg::Texture> m_backgroundTexture;

@@ -1,6 +1,6 @@
 # PFU-04 Work Packet: native Menu Studio canvas resize handles
 
-**Status:** Implemented; verification deferred by user instruction
+**Status:** Implemented; automated verification audited on 2026-07-16; see the active PFU evidence
 
 **Date:** 2026-07-15
 
@@ -25,7 +25,7 @@ release through the same history/runtime/project-document path as dragging.
 - Undo/redo restores/reapplies one completed resize.
 - The preview does not permit out-of-canvas or non-positive dimensions.
 
-Verification commands (deferred):
+Packet-local verification commands (current pass not implied):
 
 `./build/dev-ninja-debug/urpg_tests.exe "[ui][editor][menu]" --reporter compact`
 
