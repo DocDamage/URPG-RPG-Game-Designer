@@ -60,6 +60,7 @@ SdlAudioRuntimeBackend::SdlAudioRuntimeBackend() {
     m_categoryVolumes[AudioCategory::SE] = 1.0f;
     m_categoryVolumes[AudioCategory::ME] = 1.0f;
     m_categoryVolumes[AudioCategory::System] = 1.0f;
+    m_categoryVolumes[AudioCategory::Voice] = 1.0f;
 }
 
 SdlAudioRuntimeBackend::~SdlAudioRuntimeBackend() {

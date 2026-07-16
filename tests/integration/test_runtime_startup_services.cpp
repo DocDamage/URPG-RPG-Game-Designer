@@ -224,6 +224,7 @@ TEST_CASE("RuntimeStartupServices applies persisted audio settings to AudioCore"
     runtimeSettings.audio.se_volume = 0.4f;
     runtimeSettings.audio.me_volume = 0.2f;
     runtimeSettings.audio.system_volume = 1.0f;
+    runtimeSettings.audio.voice_volume = 0.6f;
     REQUIRE(urpg::settings::saveRuntimeSettings(settingsPaths.runtime_settings, runtimeSettings));
 
     const auto loaded = urpg::settings::loadRuntimeSettings(settingsPaths.runtime_settings);
@@ -237,6 +238,7 @@ TEST_CASE("RuntimeStartupServices applies persisted audio settings to AudioCore"
     REQUIRE(audio.getCategoryVolume(urpg::audio::AudioCategory::SE) == 0.2f);
     REQUIRE(audio.getCategoryVolume(urpg::audio::AudioCategory::ME) == 0.1f);
     REQUIRE(audio.getCategoryVolume(urpg::audio::AudioCategory::System) == 0.5f);
+    REQUIRE(audio.getCategoryVolume(urpg::audio::AudioCategory::Voice) == 0.3f);
 }
 
 TEST_CASE("EngineShell startup invokes RuntimeStartupServices",

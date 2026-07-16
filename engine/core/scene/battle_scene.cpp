@@ -1,6 +1,7 @@
 #include "battle_scene.h"
 #include "combat_formula.h"
 #include "engine/core/ability/gameplay_ability.h"
+#include "engine/core/accessibility/inclusive_runtime_policy.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/render/asset_loader.h"
 #include "engine/core/sprite_batcher.h"
@@ -507,6 +508,16 @@ int sumAgility(const std::vector<BattleParticipant>& participants, bool is_enemy
 }
 
 } // namespace
+
+bool BattleScene::setInclusiveSettings(const urpg::accessibility::InclusiveSettings& settings) {
+    const auto policy = urpg::accessibility::inclusiveRuntimePolicy(settings);
+    if (!policy || !urpg::accessibility::applyInclusiveRuntimePolicy(settings, nullptr, nullptr, &m_battleFeedback)) {
+        return false;
+    }
+    m_inclusiveFlashIntensity = policy->flash_intensity;
+    m_inclusiveNonColorCues = policy->non_color_cues;
+    return true;
+}
 
 BattleScene::BattleScene(const std::vector<std::string>& enemyIds)
     : m_enemyIds(enemyIds), m_currentPhase(BattlePhase::START) {

@@ -87,6 +87,9 @@ void AudioMixPanel::render() {
                     case urpg::audio::AudioCategory::System:
                         key = "System";
                         break;
+                    case urpg::audio::AudioCategory::Voice:
+                        key = "Voice";
+                        break;
                     }
                     volumes[key] = volume;
                 }

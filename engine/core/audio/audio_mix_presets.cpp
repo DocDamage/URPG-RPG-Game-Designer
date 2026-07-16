@@ -13,6 +13,7 @@ std::string categoryToString(AudioCategory category) {
         case AudioCategory::SE:     return "SE";
         case AudioCategory::ME:     return "ME";
         case AudioCategory::System: return "System";
+        case AudioCategory::Voice:  return "Voice";
     }
     return "System";
 }
@@ -23,11 +24,12 @@ AudioCategory stringToCategory(const std::string& s) {
     if (s == "SE")     return AudioCategory::SE;
     if (s == "ME")     return AudioCategory::ME;
     if (s == "System") return AudioCategory::System;
+    if (s == "Voice")  return AudioCategory::Voice;
     return AudioCategory::System;
 }
 
 bool isKnownCategory(const std::string& s) {
-    return s == "BGM" || s == "BGS" || s == "SE" || s == "ME" || s == "System";
+    return s == "BGM" || s == "BGS" || s == "SE" || s == "ME" || s == "System" || s == "Voice";
 }
 
 nlohmann::json presetToJson(const MixPreset& preset) {
@@ -79,6 +81,7 @@ void AudioMixPresetBank::loadDefaults() {
     defaultPreset.categoryVolumes[AudioCategory::SE] = 1.0f;
     defaultPreset.categoryVolumes[AudioCategory::ME] = 1.0f;
     defaultPreset.categoryVolumes[AudioCategory::System] = 1.0f;
+    defaultPreset.categoryVolumes[AudioCategory::Voice] = 1.0f;
     defaultPreset.duckBGMOnSE = false;
     defaultPreset.duckAmount = 0.0f;
     m_presets[defaultPreset.name] = defaultPreset;
@@ -87,6 +90,7 @@ void AudioMixPresetBank::loadDefaults() {
     battlePreset.name = "Battle";
     battlePreset.categoryVolumes[AudioCategory::BGM] = 0.8f;
     battlePreset.categoryVolumes[AudioCategory::SE] = 1.2f;
+    battlePreset.categoryVolumes[AudioCategory::Voice] = 1.0f;
     battlePreset.duckBGMOnSE = true;
     battlePreset.duckAmount = 0.5f;
     m_presets[battlePreset.name] = battlePreset;
@@ -97,6 +101,7 @@ void AudioMixPresetBank::loadDefaults() {
     cinematicPreset.categoryVolumes[AudioCategory::BGS] = 0.0f;
     cinematicPreset.categoryVolumes[AudioCategory::ME] = 1.0f;
     cinematicPreset.categoryVolumes[AudioCategory::SE] = 0.6f;
+    cinematicPreset.categoryVolumes[AudioCategory::Voice] = 1.0f;
     cinematicPreset.duckBGMOnSE = false;
     cinematicPreset.duckAmount = 0.0f;
     m_presets[cinematicPreset.name] = cinematicPreset;

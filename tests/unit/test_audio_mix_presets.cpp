@@ -29,6 +29,7 @@ TEST_CASE("AudioMixPresetBank default presets exist", "[audio][mix]") {
 
     auto defaultPreset = bank.loadPreset("Default");
     REQUIRE(defaultPreset->categoryVolumes.at(AudioCategory::BGM) == 1.0f);
+    REQUIRE(defaultPreset->categoryVolumes.at(AudioCategory::Voice) == 1.0f);
     REQUIRE(defaultPreset->duckBGMOnSE == false);
     REQUIRE(defaultPreset->duckAmount == 0.0f);
 
@@ -77,6 +78,7 @@ TEST_CASE("AudioMixPresetBank applyPreset changes AudioCore category volumes", "
     REQUIRE(core.getCategoryVolume(AudioCategory::SE) == 1.0f);
     REQUIRE(core.getCategoryVolume(AudioCategory::ME) == 1.0f);
     REQUIRE(core.getCategoryVolume(AudioCategory::System) == 1.0f);
+    REQUIRE(core.getCategoryVolume(AudioCategory::Voice) == 1.0f);
 
     REQUIRE_FALSE(bank.applyPreset(core, "Missing"));
 }

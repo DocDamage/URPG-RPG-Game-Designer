@@ -316,6 +316,7 @@ void RuntimeStartupServices::applyAudioSettings(audio::AudioCore& audio, const s
     audio.setCategoryVolume(audio::AudioCategory::SE, settings.se_volume * settings.master_volume);
     audio.setCategoryVolume(audio::AudioCategory::ME, settings.me_volume * settings.master_volume);
     audio.setCategoryVolume(audio::AudioCategory::System, settings.system_volume * settings.master_volume);
+    audio.setCategoryVolume(audio::AudioCategory::Voice, settings.voice_volume * settings.master_volume);
 }
 
 const char* toString(RuntimeStartupSubsystemStatus status) {

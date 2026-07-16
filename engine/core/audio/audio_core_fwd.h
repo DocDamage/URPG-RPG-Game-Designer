@@ -6,6 +6,6 @@ namespace urpg::audio {
 
 using AudioHandle = std::uint64_t;
 
-enum class AudioCategory : std::uint8_t { BGM, BGS, SE, ME, System };
+enum class AudioCategory : std::uint8_t { BGM, BGS, SE, ME, System, Voice };
 
 } // namespace urpg::audio

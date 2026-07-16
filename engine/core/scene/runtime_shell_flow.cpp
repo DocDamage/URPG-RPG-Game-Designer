@@ -1,4 +1,5 @@
 #include "engine/core/scene/runtime_shell_flow.h"
+#include "engine/core/accessibility/inclusive_runtime_policy.h"
 
 #include <algorithm>
 #include <set>
@@ -25,6 +26,10 @@ const char* runtimeShellStateName(const RuntimeShellState state) {
 
 RuntimeShellFlow::RuntimeShellFlow(Callbacks callbacks) : callbacks_(std::move(callbacks)) {
     rebuildCommands();
+}
+
+bool RuntimeShellFlow::setInclusiveSettings(const urpg::accessibility::InclusiveSettings& settings) {
+    return urpg::accessibility::applyInclusiveRuntimePolicy(settings, &feedback_stack_, nullptr, nullptr);
 }
 
 void RuntimeShellFlow::setProfiles(std::vector<RuntimeProfileSummary> profiles) {

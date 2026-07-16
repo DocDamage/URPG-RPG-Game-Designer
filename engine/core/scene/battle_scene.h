@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+namespace urpg::accessibility { struct InclusiveSettings; }
+
 namespace urpg::scene {
 
 /**
@@ -136,6 +138,9 @@ class BattleScene : public GameScene {
     void clearEffectCues() { m_effectCues.clear(); }
     urpg::presentation::BattleFeedbackDirector& battleFeedback() { return m_battleFeedback; }
     const urpg::presentation::BattleFeedbackDirector& battleFeedback() const { return m_battleFeedback; }
+    bool setInclusiveSettings(const urpg::accessibility::InclusiveSettings& settings);
+    float inclusiveFlashIntensity() const { return m_inclusiveFlashIntensity; }
+    bool inclusiveNonColorCues() const { return m_inclusiveNonColorCues; }
     std::optional<BattleDiagnosticsPreview> buildDiagnosticsPreview() const;
 
   private:
@@ -158,6 +163,8 @@ class BattleScene : public GameScene {
     uint32_t m_effectSequence = 0;
     std::vector<urpg::presentation::effects::EffectCue> m_effectCues;
     urpg::presentation::BattleFeedbackDirector m_battleFeedback;
+    float m_inclusiveFlashIntensity = 1.0F;
+    bool m_inclusiveNonColorCues = true;
     uint64_t m_battleFeedbackRequestSequence = 1;
 
     // Background

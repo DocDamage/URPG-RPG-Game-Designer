@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+namespace urpg::accessibility { struct InclusiveSettings; }
+
 namespace urpg::scene {
 
 enum class RuntimeShellState : uint8_t {
@@ -103,6 +105,7 @@ public:
     RuntimeShellActionResult handleInput(const urpg::input::InputCore& input);
     RuntimeShellActionResult openPause();
     RuntimeShellActionResult returnFromSettings();
+    bool setInclusiveSettings(const urpg::accessibility::InclusiveSettings& settings);
     void advanceFeedback(uint32_t delta_ms) { feedback_stack_.advance(delta_ms); }
     RuntimeShellSnapshot snapshot() const;
 

@@ -361,6 +361,8 @@ const char* AudioCategoryName(urpg::audio::AudioCategory category) {
         return "ME";
     case urpg::audio::AudioCategory::System:
         return "System";
+    case urpg::audio::AudioCategory::Voice:
+        return "Voice";
     }
     return "System";
 }

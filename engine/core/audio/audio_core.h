@@ -322,6 +322,9 @@ class AudioCore {
         setCategoryVolume(
             AudioCategory::System,
             parseConfigVolume("audio.system_volume", hub.getConfig("audio.system_volume", "1.0"), 1.0f));
+        setCategoryVolume(
+            AudioCategory::Voice,
+            parseConfigVolume("audio.voice_volume", hub.getConfig("audio.voice_volume", "1.0"), 1.0f));
     }
 
     void onConfigChanged(const std::string& key, const GlobalStateHub::Value& value) {
@@ -345,6 +348,9 @@ class AudioCore {
         else if (key == "audio.system_volume")
             setCategoryVolume(AudioCategory::System,
                               parseConfigVolume(key, valStr, getCategoryVolume(AudioCategory::System)));
+        else if (key == "audio.voice_volume")
+            setCategoryVolume(AudioCategory::Voice,
+                              parseConfigVolume(key, valStr, getCategoryVolume(AudioCategory::Voice)));
     }
 
     void applyRuntimeDucking() {

@@ -2,6 +2,7 @@
 #include "engine/core/animation/animation_ai_bridge.h"
 #include "engine/core/audio/audio_ai_bridge.h"
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/accessibility/inclusive_runtime_policy.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/dialogue/dialogue_graph.h"
 #include "engine/core/global_state_hub.h"
@@ -1362,7 +1363,7 @@ void MapScene::setDialogueLocaleCatalog(std::optional<urpg::localization::Locale
 }
 
 bool MapScene::setDialogueInclusiveSettings(const urpg::accessibility::InclusiveSettings& settings) {
-    if (!settings.isValid()) {
+    if (!urpg::accessibility::applyInclusiveRuntimePolicy(settings, nullptr, &m_explorationFeedback, nullptr)) {
         return false;
     }
     m_dialogueInclusiveSettings = settings;
@@ -1464,7 +1465,7 @@ bool MapScene::beginActiveAuthoredDialogueNode(const std::string& node_id) {
     } else if (!m_activeAuthoredDialogueVoiceAssetId.empty()) {
         if (m_audioCore == nullptr) {
             m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_voice_audio_core_missing:" + node->id);
-        } else if (m_audioCore->playSound(m_activeAuthoredDialogueVoiceAssetId, urpg::audio::AudioCategory::SE) == 0) {
+        } else if (m_audioCore->playSound(m_activeAuthoredDialogueVoiceAssetId, urpg::audio::AudioCategory::Voice) == 0) {
             m_dialogueRuntimeDiagnostics.push_back("authored_dialogue_voice_playback_failed:" + node->id + ":" +
                                                    m_activeAuthoredDialogueVoiceAssetId);
         }

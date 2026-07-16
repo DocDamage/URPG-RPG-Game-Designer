@@ -872,6 +872,7 @@ set(URPG_CORE_SOURCES
     engine/core/ui/menu_serializer.cpp
     engine/core/ui/menu_authoring_document.cpp
     engine/core/accessibility/inclusive_experience.cpp
+    engine/core/accessibility/inclusive_runtime_policy.cpp
     engine/core/scene/battle_scene.cpp
     engine/core/scene/map_scene.cpp
     engine/core/scene/menu_scene.cpp
@@ -1791,6 +1792,7 @@ add_executable(urpg_tests
     tests/unit/test_menu_preview_panel.cpp
     tests/unit/test_menu_authoring_document.cpp
     tests/unit/test_inclusive_experience.cpp
+    tests/unit/test_inclusive_runtime_policy.cpp
     tests/unit/test_semantic_editor_command_surface.cpp
     tests/unit/test_menu_legacy_import.cpp
     tests/unit/test_state_audio_sync.cpp

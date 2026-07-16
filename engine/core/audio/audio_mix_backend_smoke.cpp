@@ -16,6 +16,8 @@ std::string categoryToString(AudioCategory category) {
         return "ME";
     case AudioCategory::System:
         return "System";
+    case AudioCategory::Voice:
+        return "Voice";
     }
     return "System";
 }
