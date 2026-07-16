@@ -16,6 +16,7 @@
 #include "engine/core/settings/app_settings_store.h"
 #include <algorithm>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -1670,7 +1671,7 @@ TEST_CASE("RuntimeOptionsScene edits display audio input and accessibility setti
 
     REQUIRE(scene.getType() == SceneType::OPTIONS);
     REQUIRE(scene.getName() == "RuntimeOptions");
-    REQUIRE(scene.rows().size() == 11);
+    REQUIRE(scene.rows().size() == 23);
     REQUIRE(scene.selectedRow() != nullptr);
     REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::WindowWidth);
 
@@ -1686,31 +1687,33 @@ TEST_CASE("RuntimeOptionsScene edits display audio input and accessibility setti
         scene.handleInput(input);
         input.endFrame();
     };
+    auto moveTo = [&](RuntimeOptionsRowId id) {
+        for (size_t attempt = 0; attempt < scene.rows().size() && scene.selectedRow()->id != id; ++attempt) {
+            press(urpg::input::InputAction::MoveDown);
+        }
+        REQUIRE(scene.selectedRow()->id == id);
+    };
 
-    press(urpg::input::InputAction::MoveDown);
-    press(urpg::input::InputAction::MoveDown);
+    moveTo(RuntimeOptionsRowId::MasterVolume);
     REQUIRE(scene.selectedRow() != nullptr);
     REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::MasterVolume);
     press(urpg::input::InputAction::MoveLeft);
     REQUIRE(scene.settings().audio.master_volume == 0.9f);
 
-    press(urpg::input::InputAction::MoveDown);
-    press(urpg::input::InputAction::MoveDown);
+    moveTo(RuntimeOptionsRowId::InputMapping);
     REQUIRE(scene.selectedRow() != nullptr);
     REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::InputMapping);
     const auto inputResult = scene.activateSelected();
     REQUIRE(inputResult.success);
     REQUIRE(scene.settings().input_mapping_path == urpg::settings::defaultRuntimeSettings().input_mapping_path);
 
-    press(urpg::input::InputAction::MoveDown);
+    moveTo(RuntimeOptionsRowId::HighContrast);
     REQUIRE(scene.selectedRow() != nullptr);
     REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::HighContrast);
     press(urpg::input::InputAction::Confirm);
     REQUIRE(scene.settings().accessibility.high_contrast);
 
-    press(urpg::input::InputAction::MoveDown);
-    press(urpg::input::InputAction::MoveDown);
-    press(urpg::input::InputAction::MoveDown);
+    moveTo(RuntimeOptionsRowId::Save);
     REQUIRE(scene.selectedRow() != nullptr);
     REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::Save);
     press(urpg::input::InputAction::Confirm);
@@ -1745,6 +1748,91 @@ TEST_CASE("RuntimeOptionsScene supports cancel/back navigation", "[scene][runtim
     REQUIRE(scene.lastCommandResult().handled);
     REQUIRE(scene.lastCommandResult().success);
     REQUIRE(scene.lastCommandResult().code == "options_back");
+}
+
+TEST_CASE("RuntimeOptionsScene previews resets and rolls back complete inclusive settings",
+          "[scene][runtime][options][accessibility][pcq651]") {
+    const TempRuntimeSettingsRoot temp;
+    const auto paths = urpg::settings::appSettingsPaths(temp.root());
+    auto settings = urpg::settings::defaultRuntimeSettings();
+    settings.accessibility.high_contrast = false;
+    settings.accessibility.captions = true;
+    settings.audio.se_volume = 0.8F;
+
+    int previewCount = 0;
+    int cancelCount = 0;
+    urpg::settings::RuntimeSettings latestPreview;
+    urpg::settings::RuntimeSettings cancelledTo;
+    RuntimeOptionsScene scene(
+        settings, paths.runtime_settings,
+        {{}, {}, {},
+         [&](const urpg::settings::RuntimeSettings& preview) {
+             ++previewCount;
+             latestPreview = preview;
+         },
+         [&](const urpg::settings::RuntimeSettings& baseline) {
+             ++cancelCount;
+             cancelledTo = baseline;
+         }});
+
+    urpg::input::InputCore input;
+    auto press = [&](urpg::input::InputAction action) {
+        input.updateActionState(action, urpg::input::ActionState::Pressed);
+        scene.handleInput(input);
+        input.endFrame();
+        input.updateActionState(action, urpg::input::ActionState::Released);
+        scene.handleInput(input);
+        input.endFrame();
+    };
+    auto moveTo = [&](RuntimeOptionsRowId id) {
+        for (size_t attempt = 0; attempt < scene.rows().size() && scene.selectedRow()->id != id; ++attempt) {
+            press(urpg::input::InputAction::MoveDown);
+        }
+        REQUIRE(scene.selectedRow()->id == id);
+    };
+
+    moveTo(RuntimeOptionsRowId::EffectsVolume);
+    press(urpg::input::InputAction::MoveLeft);
+    REQUIRE(latestPreview.audio.se_volume == Catch::Approx(0.7F));
+
+    moveTo(RuntimeOptionsRowId::ColorFilter);
+    press(urpg::input::InputAction::MoveRight);
+    REQUIRE(latestPreview.accessibility.color_filter == "protanopia");
+
+    moveTo(RuntimeOptionsRowId::ReduceMotion);
+    press(urpg::input::InputAction::Confirm);
+    REQUIRE(latestPreview.accessibility.reduce_motion);
+    REQUIRE(latestPreview.accessibility.screen_shake == 0.0F);
+
+    moveTo(RuntimeOptionsRowId::Captions);
+    press(urpg::input::InputAction::Confirm);
+    REQUIRE_FALSE(latestPreview.accessibility.captions);
+
+    moveTo(RuntimeOptionsRowId::CaptionScale);
+    press(urpg::input::InputAction::MoveRight);
+    REQUIRE(latestPreview.accessibility.caption_scale == Catch::Approx(1.1F));
+
+    moveTo(RuntimeOptionsRowId::MonoAudio);
+    press(urpg::input::InputAction::Confirm);
+    REQUIRE(latestPreview.accessibility.mono_audio);
+
+    moveTo(RuntimeOptionsRowId::ResetAccessibility);
+    press(urpg::input::InputAction::Confirm);
+    REQUIRE(scene.lastCommandResult().code == "accessibility_reset");
+    REQUIRE_FALSE(latestPreview.accessibility.high_contrast);
+    REQUIRE_FALSE(latestPreview.accessibility.reduce_motion);
+    REQUIRE(latestPreview.accessibility.captions);
+    REQUIRE(latestPreview.accessibility.non_color_cues);
+    REQUIRE_FALSE(latestPreview.accessibility.mono_audio);
+    REQUIRE(latestPreview.audio.master_volume == 1.0F);
+    REQUIRE(latestPreview.audio.se_volume == 1.0F);
+    REQUIRE(previewCount >= 7);
+
+    press(urpg::input::InputAction::Cancel);
+    REQUIRE(cancelCount == 1);
+    REQUIRE(cancelledTo.audio.se_volume == Catch::Approx(0.8F));
+    REQUIRE(scene.settings().audio.se_volume == Catch::Approx(0.8F));
+    REQUIRE(scene.settings().accessibility.captions);
 }
 
 TEST_CASE("RuntimeOptionsScene exposes calibration replay from settings", "[scene][runtime][options][calibration][pcq606]") {

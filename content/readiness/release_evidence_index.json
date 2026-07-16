@@ -1211,7 +1211,7 @@
     {
       "requirementId": "PCQ-651",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq651][pcq653],[scene][map][dialogue][runtime]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[scene][runtime][options],[pcq651]\" --reporter console",
       "reports": [],
       "screenshots": [],
       "recordings": [],
@@ -1219,7 +1219,7 @@
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "InclusiveSettings provides versioned validation for text scale, high contrast, color filters, mandatory non-color cues, reduced motion, shake and flash limits, subtitles/captions, caption scale, four audio channels, and mono alternatives. It bridges bidirectionally to RuntimeSettings, and the production runtime now applies persisted inclusive settings to every created MapScene. Dialogue captions render at the selected scale; zero master/voice volume suppresses voice playback and forces a textual alternative even when captions were disabled. The focused runtime regression passes 52 assertions in 4 cases. Binding the remaining renderer/feedback consumers, interactive preview/reset UX, manual visual/audio proof, clean-commit evidence, and release signoff remain pending."
+      "notes": "InclusiveSettings provides versioned validation for text scale, high contrast, color filters, mandatory non-color cues, reduced motion, shake and flash limits, subtitles/captions, caption scale, master/music/effects/voice control, and mono alternatives, and bridges bidirectionally to RuntimeSettings. Runtime Options now exposes all declared settings in a controller/keyboard-navigable bounded viewport: effects and voice volume, UI and text scale, color filter, mandatory non-color cues, shake, flash intensity, subtitles, captions, caption scale, mono audio, and safe reset in addition to the existing controls. Every mutation invokes a live preview callback, Save commits through the existing settings authority, and Back rolls preview consumers and the draft back to the baseline. The production runtime applies audio previews and cancellation immediately; every newly created MapScene receives the persisted inclusive settings, caption scale, caption/mute alternatives, and voice policy. The focused Options/PCQ-651 regression passes 102 assertions in 7 cases; runtime persistence and Map dialogue regressions pass 81 assertions in 5 cases. Remaining renderer color-filter/flash adapters, exploration/battle feedback binding, manual visual/audio proof, clean-commit evidence, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-652",

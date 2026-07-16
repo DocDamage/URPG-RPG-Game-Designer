@@ -1,10 +1,12 @@
 #include "engine/core/scene/options_scene.h"
 
+#include "engine/core/accessibility/inclusive_experience.h"
 #include "engine/core/render/render_layer.h"
 
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
+#include <iterator>
 #include <sstream>
 #include <utility>
 
@@ -41,7 +43,8 @@ std::string pathText(const std::filesystem::path& path) {
 
 RuntimeOptionsScene::RuntimeOptionsScene(urpg::settings::RuntimeSettings settings, std::filesystem::path settings_path,
                                          Callbacks callbacks)
-    : settings_(std::move(settings)), settings_path_(std::move(settings_path)), callbacks_(std::move(callbacks)) {
+    : settings_(std::move(settings)), baseline_settings_(settings_), settings_path_(std::move(settings_path)),
+      callbacks_(std::move(callbacks)) {
     rebuildRows();
 }
 
@@ -71,8 +74,14 @@ void RuntimeOptionsScene::onUpdate(float deltaTime) {
     title.zOrder = 1;
     layer.submit(urpg::toFrameRenderCommand(title));
 
+    constexpr size_t visibleRowCount = 9;
+    const size_t firstVisible = selected_row_index_ < visibleRowCount
+                                    ? 0
+                                    : std::min(selected_row_index_ - visibleRowCount / 2,
+                                               rows_.size() > visibleRowCount ? rows_.size() - visibleRowCount : 0);
+    const size_t lastVisible = std::min(rows_.size(), firstVisible + visibleRowCount);
     float y = 82.0f;
-    for (size_t index = 0; index < rows_.size(); ++index) {
+    for (size_t index = firstVisible; index < lastVisible; ++index) {
         const auto& row = rows_[index];
         const bool selected = index == selected_row_index_;
         if (selected) {
@@ -162,15 +171,38 @@ RuntimeOptionsCommandResult RuntimeOptionsScene::activateSelected() {
     case RuntimeOptionsRowId::HighContrast:
         settings_.accessibility.high_contrast = !settings_.accessibility.high_contrast;
         rebuildRows();
+        notifyPreviewChanged();
         return {true, true, "high_contrast_toggled", "High contrast updated."};
     case RuntimeOptionsRowId::ReduceMotion:
         settings_.accessibility.reduce_motion = !settings_.accessibility.reduce_motion;
+        settings_.accessibility.screen_shake = settings_.accessibility.reduce_motion ? 0.0F : 1.0F;
         rebuildRows();
+        notifyPreviewChanged();
         return {true, true, "reduce_motion_toggled", "Reduce motion updated."};
+    case RuntimeOptionsRowId::Subtitles:
+        settings_.accessibility.subtitles = !settings_.accessibility.subtitles;
+        rebuildRows();
+        notifyPreviewChanged();
+        return {true, true, "subtitles_toggled", "Subtitles updated."};
+    case RuntimeOptionsRowId::Captions:
+        settings_.accessibility.captions = !settings_.accessibility.captions;
+        rebuildRows();
+        notifyPreviewChanged();
+        return {true, true, "captions_toggled", "Captions updated."};
+    case RuntimeOptionsRowId::MonoAudio:
+        settings_.accessibility.mono_audio = !settings_.accessibility.mono_audio;
+        rebuildRows();
+        notifyPreviewChanged();
+        return {true, true, "mono_audio_toggled", "Mono audio alternative updated."};
+    case RuntimeOptionsRowId::NonColorCues:
+        return {true, true, "non_color_cues_required", "Non-color information cues remain required."};
     case RuntimeOptionsRowId::InputMapping:
         settings_.input_mapping_path = urpg::settings::defaultRuntimeSettings().input_mapping_path;
         rebuildRows();
+        notifyPreviewChanged();
         return {true, true, "input_mapping_reset", "Input mapping path reset to the runtime default."};
+    case RuntimeOptionsRowId::ResetAccessibility:
+        return resetAccessibility();
     case RuntimeOptionsRowId::Save:
         return save();
     case RuntimeOptionsRowId::Back:
@@ -184,7 +216,14 @@ RuntimeOptionsCommandResult RuntimeOptionsScene::activateSelected() {
     case RuntimeOptionsRowId::WindowHeight:
     case RuntimeOptionsRowId::MasterVolume:
     case RuntimeOptionsRowId::BgmVolume:
+    case RuntimeOptionsRowId::EffectsVolume:
+    case RuntimeOptionsRowId::VoiceVolume:
     case RuntimeOptionsRowId::UiScale:
+    case RuntimeOptionsRowId::TextScale:
+    case RuntimeOptionsRowId::ColorFilter:
+    case RuntimeOptionsRowId::ScreenShake:
+    case RuntimeOptionsRowId::FlashIntensity:
+    case RuntimeOptionsRowId::CaptionScale:
         adjustSelected(1);
         return {true, true, "option_adjusted", "Option value updated."};
     }
@@ -205,10 +244,18 @@ RuntimeOptionsCommandResult RuntimeOptionsScene::save() {
     if (callbacks_.settings_saved) {
         callbacks_.settings_saved(settings_);
     }
+    baseline_settings_ = settings_;
+    preview_dirty_ = false;
     return {true, true, "settings_saved", "Runtime options saved."};
 }
 
 RuntimeOptionsCommandResult RuntimeOptionsScene::back() {
+    if (preview_dirty_) {
+        if (callbacks_.settings_cancelled) callbacks_.settings_cancelled(baseline_settings_);
+        settings_ = baseline_settings_;
+        preview_dirty_ = false;
+        rebuildRows();
+    }
     if (callbacks_.request_back) {
         callbacks_.request_back();
     }
@@ -240,13 +287,52 @@ void RuntimeOptionsScene::adjustSelected(int direction) {
     case RuntimeOptionsRowId::BgmVolume:
         settings_.audio.bgm_volume = clampValue(settings_.audio.bgm_volume + direction * 0.1f, 0.0f, 1.0f);
         break;
+    case RuntimeOptionsRowId::EffectsVolume:
+        settings_.audio.se_volume = clampValue(settings_.audio.se_volume + direction * 0.1f, 0.0f, 1.0f);
+        break;
+    case RuntimeOptionsRowId::VoiceVolume:
+        settings_.audio.voice_volume = clampValue(settings_.audio.voice_volume + direction * 0.1f, 0.0f, 1.0f);
+        break;
     case RuntimeOptionsRowId::UiScale:
         settings_.accessibility.ui_scale =
             clampValue(settings_.accessibility.ui_scale + direction * 0.1f, 0.5f, 3.0f);
         break;
+    case RuntimeOptionsRowId::TextScale:
+        settings_.accessibility.text_scale =
+            clampValue(settings_.accessibility.text_scale + direction * 0.1f, 0.75f, 2.0f);
+        break;
+    case RuntimeOptionsRowId::ColorFilter: {
+        static constexpr const char* filters[] = {"none", "protanopia", "deuteranopia", "tritanopia", "monochrome"};
+        const auto found = std::find_if(std::begin(filters), std::end(filters), [&](const char* filter) {
+            return settings_.accessibility.color_filter == filter;
+        });
+        const int current = found == std::end(filters) ? 0 : static_cast<int>(std::distance(std::begin(filters), found));
+        const int count = static_cast<int>(std::size(filters));
+        settings_.accessibility.color_filter = filters[(current + direction + count) % count];
+        break;
+    }
+    case RuntimeOptionsRowId::ScreenShake:
+        if (!settings_.accessibility.reduce_motion) {
+            settings_.accessibility.screen_shake =
+                clampValue(settings_.accessibility.screen_shake + direction * 0.1f, 0.0f, 1.0f);
+        }
+        break;
+    case RuntimeOptionsRowId::FlashIntensity:
+        settings_.accessibility.flash_intensity =
+            clampValue(settings_.accessibility.flash_intensity + direction * 0.1f, 0.0f, 1.0f);
+        break;
+    case RuntimeOptionsRowId::CaptionScale:
+        settings_.accessibility.caption_scale =
+            clampValue(settings_.accessibility.caption_scale + direction * 0.1f, 0.75f, 2.5f);
+        break;
     case RuntimeOptionsRowId::InputMapping:
     case RuntimeOptionsRowId::HighContrast:
     case RuntimeOptionsRowId::ReduceMotion:
+    case RuntimeOptionsRowId::NonColorCues:
+    case RuntimeOptionsRowId::Subtitles:
+    case RuntimeOptionsRowId::Captions:
+    case RuntimeOptionsRowId::MonoAudio:
+    case RuntimeOptionsRowId::ResetAccessibility:
     case RuntimeOptionsRowId::Save:
     case RuntimeOptionsRowId::Back:
     case RuntimeOptionsRowId::FirstRunCalibration:
@@ -254,6 +340,19 @@ void RuntimeOptionsScene::adjustSelected(int direction) {
     }
 
     rebuildRows();
+    notifyPreviewChanged();
+}
+
+RuntimeOptionsCommandResult RuntimeOptionsScene::resetAccessibility() {
+    urpg::settings::applyInclusiveSettings(settings_, urpg::accessibility::InclusiveSettings::safeDefaults());
+    rebuildRows();
+    notifyPreviewChanged();
+    return {true, true, "accessibility_reset", "Accessibility, caption, and accessible audio settings reset safely."};
+}
+
+void RuntimeOptionsScene::notifyPreviewChanged() {
+    preview_dirty_ = true;
+    if (callbacks_.settings_previewed) callbacks_.settings_previewed(settings_);
 }
 
 void RuntimeOptionsScene::moveSelection(int direction) {
@@ -277,10 +376,22 @@ void RuntimeOptionsScene::rebuildRows() {
         {RuntimeOptionsRowId::WindowHeight, "Display Height", rowValue(RuntimeOptionsRowId::WindowHeight)},
         {RuntimeOptionsRowId::MasterVolume, "Master Volume", rowValue(RuntimeOptionsRowId::MasterVolume)},
         {RuntimeOptionsRowId::BgmVolume, "BGM Volume", rowValue(RuntimeOptionsRowId::BgmVolume)},
+        {RuntimeOptionsRowId::EffectsVolume, "Effects Volume", rowValue(RuntimeOptionsRowId::EffectsVolume)},
+        {RuntimeOptionsRowId::VoiceVolume, "Voice Volume", rowValue(RuntimeOptionsRowId::VoiceVolume)},
         {RuntimeOptionsRowId::InputMapping, "Input Mapping", rowValue(RuntimeOptionsRowId::InputMapping)},
         {RuntimeOptionsRowId::HighContrast, "High Contrast", rowValue(RuntimeOptionsRowId::HighContrast)},
         {RuntimeOptionsRowId::ReduceMotion, "Reduce Motion", rowValue(RuntimeOptionsRowId::ReduceMotion)},
         {RuntimeOptionsRowId::UiScale, "UI Scale", rowValue(RuntimeOptionsRowId::UiScale)},
+        {RuntimeOptionsRowId::TextScale, "Text Scale", rowValue(RuntimeOptionsRowId::TextScale)},
+        {RuntimeOptionsRowId::ColorFilter, "Color Filter", rowValue(RuntimeOptionsRowId::ColorFilter)},
+        {RuntimeOptionsRowId::NonColorCues, "Non-Color Cues", rowValue(RuntimeOptionsRowId::NonColorCues)},
+        {RuntimeOptionsRowId::ScreenShake, "Screen Shake", rowValue(RuntimeOptionsRowId::ScreenShake)},
+        {RuntimeOptionsRowId::FlashIntensity, "Flash Intensity", rowValue(RuntimeOptionsRowId::FlashIntensity)},
+        {RuntimeOptionsRowId::Subtitles, "Subtitles", rowValue(RuntimeOptionsRowId::Subtitles)},
+        {RuntimeOptionsRowId::Captions, "Captions", rowValue(RuntimeOptionsRowId::Captions)},
+        {RuntimeOptionsRowId::CaptionScale, "Caption Scale", rowValue(RuntimeOptionsRowId::CaptionScale)},
+        {RuntimeOptionsRowId::MonoAudio, "Mono Audio", rowValue(RuntimeOptionsRowId::MonoAudio)},
+        {RuntimeOptionsRowId::ResetAccessibility, "Reset Accessibility", "Safe Defaults"},
         {RuntimeOptionsRowId::Save, "Save Settings", ""},
         {RuntimeOptionsRowId::Back, "Back", ""},
         {RuntimeOptionsRowId::FirstRunCalibration, "Replay Calibration", rowValue(RuntimeOptionsRowId::FirstRunCalibration)},
@@ -300,6 +411,10 @@ std::string RuntimeOptionsScene::rowValue(RuntimeOptionsRowId id) const {
         return percentText(settings_.audio.master_volume);
     case RuntimeOptionsRowId::BgmVolume:
         return percentText(settings_.audio.bgm_volume);
+    case RuntimeOptionsRowId::EffectsVolume:
+        return percentText(settings_.audio.se_volume);
+    case RuntimeOptionsRowId::VoiceVolume:
+        return percentText(settings_.audio.voice_volume);
     case RuntimeOptionsRowId::InputMapping:
         return pathText(settings_.input_mapping_path);
     case RuntimeOptionsRowId::HighContrast:
@@ -308,6 +423,27 @@ std::string RuntimeOptionsScene::rowValue(RuntimeOptionsRowId id) const {
         return boolText(settings_.accessibility.reduce_motion);
     case RuntimeOptionsRowId::UiScale:
         return scaleText(settings_.accessibility.ui_scale);
+    case RuntimeOptionsRowId::TextScale:
+        return scaleText(settings_.accessibility.text_scale);
+    case RuntimeOptionsRowId::ColorFilter:
+        return settings_.accessibility.color_filter;
+    case RuntimeOptionsRowId::NonColorCues:
+        return settings_.accessibility.non_color_cues ? "Required" : "Invalid";
+    case RuntimeOptionsRowId::ScreenShake:
+        return settings_.accessibility.reduce_motion ? "Off (Reduced Motion)"
+                                                     : percentText(settings_.accessibility.screen_shake);
+    case RuntimeOptionsRowId::FlashIntensity:
+        return percentText(settings_.accessibility.flash_intensity);
+    case RuntimeOptionsRowId::Subtitles:
+        return boolText(settings_.accessibility.subtitles);
+    case RuntimeOptionsRowId::Captions:
+        return boolText(settings_.accessibility.captions);
+    case RuntimeOptionsRowId::CaptionScale:
+        return scaleText(settings_.accessibility.caption_scale);
+    case RuntimeOptionsRowId::MonoAudio:
+        return boolText(settings_.accessibility.mono_audio);
+    case RuntimeOptionsRowId::ResetAccessibility:
+        return "Safe Defaults";
     case RuntimeOptionsRowId::Save:
     case RuntimeOptionsRowId::Back:
         return {};

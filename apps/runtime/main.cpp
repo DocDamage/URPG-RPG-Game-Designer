@@ -342,6 +342,13 @@ int main(int argc, char** argv) {
                             urpg::RuntimeStartupServices::applyAudioSettings(shell.getAudio(),
                                                                              settingsLoad.settings.audio);
                         },
+                        {},
+                        [&shell](const urpg::settings::RuntimeSettings& previewSettings) {
+                            urpg::RuntimeStartupServices::applyAudioSettings(shell.getAudio(), previewSettings.audio);
+                        },
+                        [&shell](const urpg::settings::RuntimeSettings& baselineSettings) {
+                            urpg::RuntimeStartupServices::applyAudioSettings(shell.getAudio(), baselineSettings.audio);
+                        },
                     }));
             },
             });

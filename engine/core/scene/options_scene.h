@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <functional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace urpg::scene {
@@ -16,10 +17,22 @@ enum class RuntimeOptionsRowId {
     WindowHeight,
     MasterVolume,
     BgmVolume,
+    EffectsVolume,
+    VoiceVolume,
     InputMapping,
     HighContrast,
     ReduceMotion,
     UiScale,
+    TextScale,
+    ColorFilter,
+    NonColorCues,
+    ScreenShake,
+    FlashIntensity,
+    Subtitles,
+    Captions,
+    CaptionScale,
+    MonoAudio,
+    ResetAccessibility,
     Save,
     Back,
     FirstRunCalibration,
@@ -41,9 +54,20 @@ struct RuntimeOptionsCommandResult {
 class RuntimeOptionsScene final : public GameScene {
   public:
     struct Callbacks {
+        Callbacks(std::function<void()> back = {},
+                  std::function<void(const urpg::settings::RuntimeSettings&)> saved = {},
+                  std::function<void()> calibration = {},
+                  std::function<void(const urpg::settings::RuntimeSettings&)> previewed = {},
+                  std::function<void(const urpg::settings::RuntimeSettings&)> cancelled = {})
+            : request_back(std::move(back)), settings_saved(std::move(saved)),
+              request_calibration(std::move(calibration)), settings_previewed(std::move(previewed)),
+              settings_cancelled(std::move(cancelled)) {}
+
         std::function<void()> request_back;
         std::function<void(const urpg::settings::RuntimeSettings&)> settings_saved;
         std::function<void()> request_calibration;
+        std::function<void(const urpg::settings::RuntimeSettings&)> settings_previewed;
+        std::function<void(const urpg::settings::RuntimeSettings&)> settings_cancelled;
     };
 
     RuntimeOptionsScene(urpg::settings::RuntimeSettings settings, std::filesystem::path settings_path,
@@ -65,18 +89,22 @@ class RuntimeOptionsScene final : public GameScene {
     RuntimeOptionsCommandResult save();
     RuntimeOptionsCommandResult back();
     void adjustSelected(int direction);
+    RuntimeOptionsCommandResult resetAccessibility();
 
   private:
     void moveSelection(int direction);
     void rebuildRows();
+    void notifyPreviewChanged();
     std::string rowValue(RuntimeOptionsRowId id) const;
 
     urpg::settings::RuntimeSettings settings_;
+    urpg::settings::RuntimeSettings baseline_settings_;
     std::filesystem::path settings_path_;
     Callbacks callbacks_;
     std::vector<RuntimeOptionsRow> rows_;
     size_t selected_row_index_ = 0;
     RuntimeOptionsCommandResult last_command_result_;
+    bool preview_dirty_ = false;
 };
 
 std::shared_ptr<RuntimeOptionsScene> makeRuntimeOptionsScene(urpg::settings::RuntimeSettings settings,
