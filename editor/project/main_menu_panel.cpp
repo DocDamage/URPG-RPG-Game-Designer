@@ -345,6 +345,51 @@ void MainMenuPanel::bindWizard(NewProjectWizardModel* wizard) {
     wizard_inputs_initialized_ = false;
 }
 
+void MainMenuPanel::setAccessibleOpenProjectPath(std::string path) {
+    open_project_path_ = std::move(path);
+}
+
+bool MainMenuPanel::openAccessibleProject() {
+    if (!model_ || open_project_path_.empty()) {
+        open_project_status_ = "Enter a project folder before opening it.";
+        return false;
+    }
+    const bool accepted = model_->chooseOpenProject(open_project_path_);
+    if (!accepted) open_project_status_ = "The entered project could not be opened.";
+    return accepted;
+}
+
+bool MainMenuPanel::setAccessibleWizardValue(const std::string_view field, std::string value) {
+    if (!wizard_) return false;
+    if (field == "project_id") {
+        wizard_project_id_ = value;
+        wizard_->setProjectId(std::move(value));
+    } else if (field == "project_name") {
+        wizard_project_name_ = value;
+        wizard_->setProjectName(std::move(value));
+    } else if (field == "destination") {
+        wizard_destination_ = value;
+        wizard_->setDestination(std::move(value));
+    } else if (field == "external_asset_library_root") {
+        wizard_external_root_ = value;
+        wizard_->setExternalAssetLibraryRoot(value);
+        if (model_) model_->setExternalAssetLibraryRoot(std::move(value));
+    } else {
+        return false;
+    }
+    wizard_inputs_initialized_ = true;
+    return true;
+}
+
+bool MainMenuPanel::createAccessibleWizardProject(const bool playtest_starter) {
+    if (!wizard_ || !model_) return false;
+    const auto result = wizard_->createProject();
+    wizard_status_ = result.message;
+    if (!result.success) return false;
+    model_->enterEditor(result.project_root.generic_string(), playtest_starter);
+    return true;
+}
+
 void MainMenuPanel::render() {
     if (!model_) {
         snapshot_ = {

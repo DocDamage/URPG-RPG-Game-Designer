@@ -219,3 +219,28 @@ TEST_CASE("MainMenuPanel nests a bound guided wizard in the creator flow", "[pro
     REQUIRE(snapshot["wizard"]["step"] == "project");
     REQUIRE(snapshot["wizard"]["template_id"] == "jrpg");
 }
+
+TEST_CASE("MainMenuPanel routes accessible startup values through its owning models",
+          "[project][main_menu][accessibility][pcq656]") {
+    urpg::editor::MainMenuModel model;
+    urpg::editor::NewProjectWizardModel wizard;
+    urpg::editor::MainMenuPanel panel;
+    panel.bindModel(&model);
+    panel.bindWizard(&wizard);
+
+    model.chooseOpenProjectRequest();
+    panel.setAccessibleOpenProjectPath("projects/missing");
+    CHECK(panel.accessibleOpenProjectPath() == "projects/missing");
+    CHECK(panel.openAccessibleProject());
+    CHECK(model.route() == "editor");
+
+    REQUIRE(model.chooseNewProject());
+    REQUIRE(panel.setAccessibleWizardValue("project_id", "accessible_project"));
+    REQUIRE(panel.setAccessibleWizardValue("project_name", "Accessible Project"));
+    REQUIRE(panel.setAccessibleWizardValue("destination", "projects/accessible_project"));
+    const auto snapshot = wizard.snapshot();
+    CHECK(snapshot["project_id"] == "accessible_project");
+    CHECK(snapshot["project_name"] == "Accessible Project");
+    CHECK(snapshot["destination"] == "projects/accessible_project");
+    CHECK_FALSE(panel.setAccessibleWizardValue("unknown", "value"));
+}

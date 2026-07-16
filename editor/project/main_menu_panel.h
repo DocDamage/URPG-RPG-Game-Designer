@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace urpg::editor {
@@ -62,6 +63,11 @@ class MainMenuPanel {
 public:
     void bindModel(MainMenuModel* model);
     void bindWizard(NewProjectWizardModel* wizard);
+    void setAccessibleOpenProjectPath(std::string path);
+    [[nodiscard]] const std::string& accessibleOpenProjectPath() const { return open_project_path_; }
+    bool openAccessibleProject();
+    bool setAccessibleWizardValue(std::string_view field, std::string value);
+    bool createAccessibleWizardProject(bool playtest_starter);
     void render();
     nlohmann::json lastRenderSnapshot() const;
 

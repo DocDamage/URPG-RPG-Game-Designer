@@ -1,0 +1,79 @@
+{
+  "schema": "urpg.manual_accessibility_inspection.v1",
+  "requirementId": "PCQ-656",
+  "inspectionId": "PCQ-656-WINDOWS-UIA-2026-07-16-03",
+  "date": "2026-07-16",
+  "reviewer": "OpenAI Codex (automation-assisted Windows UI Automation inspection)",
+  "build": {
+    "baseCommit": "7d21eec0fd31e2f3c510597fd23cc86ba720cfde",
+    "dirtyStateAtLaunch": "dirty",
+    "executable": "build/dev-ninja-debug/urpg_editor.exe",
+    "change": "Creator startup and project-wizard projection with tree synchronization and editable-value routing"
+  },
+  "software": {
+    "operatingSystem": "Windows 11 Pro 10.0.26200 build 26200, 64-bit",
+    "inspectionInterface": "Windows UI Automation through Codex Windows application control",
+    "provider": "Native IAccessible server attached to the SDL Win32 window through WM_GETOBJECT"
+  },
+  "procedure": [
+    "Launch the rebuilt editor and inspect the creator startup accessibility tree.",
+    "Enter the visual New Project route.",
+    "Wait for the native provider's fingerprint synchronization event.",
+    "Re-inspect the dynamic wizard accessibility tree.",
+    "Attempt to set Project ID through the application-control UIA value operation."
+  ],
+  "observations": {
+    "mainMenu": {
+      "result": "passed_projection",
+      "controls": [
+        "Continue last project (disabled because no last project was configured)",
+        "New project",
+        "Open project",
+        "Settings"
+      ]
+    },
+    "wizardProjectStep": {
+      "result": "passed_projection",
+      "controls": [
+        "Project ID edit",
+        "Project name edit",
+        "Destination edit",
+        "Previous step (disabled on first step)",
+        "Next step",
+        "Cancel project creation"
+      ]
+    },
+    "dynamicTreeSynchronization": "passed; the stale main-menu tree was replaced after the visual owner changed to the project wizard",
+    "valueOperation": {
+      "result": "not_verified",
+      "diagnostic": "The application-control client failed its UIA value read-only cache request with 0x80070057 before a provider value change was observed. The owner-backed value callback is covered by the focused unit test, but live assistive editing is not claimed."
+    },
+    "focusedElement": "top-level URPG Editor window",
+    "result": "partial_remediation"
+  },
+  "automatedVerification": [
+    {
+      "command": "cmake --build build/dev-ninja-debug --target urpg_tests urpg_runtime urpg_editor -j 8",
+      "result": "passed"
+    },
+    {
+      "command": "build/dev-ninja-debug/urpg_tests.exe [pcq656] --reporter compact",
+      "result": "39 assertions in 3 test cases passed"
+    }
+  ],
+  "finding": {
+    "id": "PCQ-656-P1-UIA-001",
+    "severity": "P1",
+    "status": "open_mitigation_in_progress",
+    "improvement": "The provider now exposes startup commands, disabled state, recent-project routes, Open Project path entry, all project-wizard steps, owner-backed Project ID/Name/Destination values, template and style choices, create actions, and dynamic structure-change events.",
+    "remaining": "Live assistive value editing and OS focus reporting are unverified; in-workspace semantic nodes/properties, object-linked diagnostics, playtest, package, and reopen controls are not yet projected. Signed keyboard and screen-reader route reviews remain outstanding.",
+    "retest": "pending provider expansion and signed supported-screen-reader review"
+  },
+  "routeResults": [
+    {"route": "create-or-open-project", "status": "partial", "findingId": "PCQ-656-P1-UIA-001", "note": "Commands, edit roles, states, and wizard navigation are exposed; live value mutation and end-to-end create/open are not yet signed or verified."},
+    {"route": "author-map-event-quest-and-menu", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001"},
+    {"route": "playtest-and-debug", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001"},
+    {"route": "recover-from-invalid-action", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001"},
+    {"route": "package-and-reopen", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001"}
+  ]
+}

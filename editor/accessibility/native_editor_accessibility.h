@@ -10,6 +10,7 @@ class EditorShell;
 
 enum class NativeAccessibilityRole {
     Text,
+    TextField,
     Button,
     ListItem,
     Group,
@@ -26,6 +27,7 @@ struct NativeAccessibilityNode {
     bool enabled = true;
     bool focusable = false;
     bool selected = false;
+    bool editable = false;
 };
 
 struct NativeAccessibilitySnapshot {

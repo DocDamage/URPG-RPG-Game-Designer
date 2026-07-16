@@ -35,6 +35,16 @@ std::wstring utf8ToWide(const std::string& value) {
     return result;
 }
 
+std::string treeFingerprint(const editor::NativeAccessibilitySnapshot& tree) {
+    std::string result = tree.name + "\n" + tree.description;
+    for (const auto& node : tree.nodes) {
+        result += "\n" + node.id + "\t" + node.name + "\t" + node.value + "\t" + node.default_action +
+                  "\t" + std::to_string(static_cast<int>(node.role)) + (node.enabled ? "1" : "0") +
+                  (node.focusable ? "1" : "0") + (node.selected ? "1" : "0") + (node.editable ? "1" : "0");
+    }
+    return result;
+}
+
 HRESULT copyBstr(const std::string& value, BSTR* output) {
     if (output == nullptr) return E_INVALIDARG;
     *output = nullptr;
@@ -47,6 +57,7 @@ HRESULT copyBstr(const std::string& value, BSTR* output) {
 LONG roleFor(const editor::NativeAccessibilityRole role) {
     switch (role) {
     case editor::NativeAccessibilityRole::Button: return ROLE_SYSTEM_PUSHBUTTON;
+    case editor::NativeAccessibilityRole::TextField: return ROLE_SYSTEM_TEXT;
     case editor::NativeAccessibilityRole::ListItem: return ROLE_SYSTEM_LISTITEM;
     case editor::NativeAccessibilityRole::Group: return ROLE_SYSTEM_GROUPING;
     case editor::NativeAccessibilityRole::Diagnostic: return ROLE_SYSTEM_ALERT;
@@ -168,6 +179,8 @@ public:
                 const auto& node = tree.nodes[index];
                 if (!node.enabled) flags |= STATE_SYSTEM_UNAVAILABLE;
                 if (node.focusable) flags |= STATE_SYSTEM_FOCUSABLE | STATE_SYSTEM_SELECTABLE;
+                if (node.role == editor::NativeAccessibilityRole::TextField && !node.editable)
+                    flags |= STATE_SYSTEM_READONLY;
                 if (node.selected) flags |= STATE_SYSTEM_SELECTED;
                 if (owner_ != nullptr && owner_->focused_child_ == static_cast<long>(index + 1)) {
                     flags |= STATE_SYSTEM_FOCUSED;
@@ -314,7 +327,27 @@ public:
         }
 
         HRESULT STDMETHODCALLTYPE put_accName(VARIANT, BSTR) override { return E_NOTIMPL; }
-        HRESULT STDMETHODCALLTYPE put_accValue(VARIANT, BSTR) override { return E_NOTIMPL; }
+        HRESULT STDMETHODCALLTYPE put_accValue(VARIANT child, BSTR value) override {
+            const auto tree = snapshot();
+            std::size_t index = 0;
+            if (!resolveChild(child, &index, false, tree) || owner_ == nullptr || value == nullptr) {
+                return E_INVALIDARG;
+            }
+            const auto& node = tree.nodes[index];
+            if (!node.enabled || !node.editable || !owner_->value_handler_) return E_NOTIMPL;
+            const int length = WideCharToMultiByte(CP_UTF8, 0, value, static_cast<int>(SysStringLen(value)),
+                                                   nullptr, 0, nullptr, nullptr);
+            if (length < 0) return E_INVALIDARG;
+            std::string utf8(static_cast<std::size_t>(length), '\0');
+            if (length > 0) {
+                (void)WideCharToMultiByte(CP_UTF8, 0, value, static_cast<int>(SysStringLen(value)),
+                                          utf8.data(), length, nullptr, nullptr);
+            }
+            if (!owner_->value_handler_(node.id, utf8)) return E_FAIL;
+            NotifyWinEvent(EVENT_OBJECT_VALUECHANGE, owner_->window_, OBJID_CLIENT,
+                           static_cast<LONG>(index + 1));
+            return S_OK;
+        }
 
     private:
         static constexpr std::size_t kSelf = std::numeric_limits<std::size_t>::max();
@@ -346,7 +379,8 @@ public:
         Impl* owner_ = nullptr;
     };
 
-    bool install(void* sdl_window, SnapshotProvider snapshot_provider, ActionHandler action_handler) {
+    bool install(void* sdl_window, SnapshotProvider snapshot_provider, ActionHandler action_handler,
+                 ValueHandler value_handler) {
         if (window_ != nullptr || sdl_window == nullptr || !snapshot_provider || !action_handler) return false;
         SDL_SysWMinfo info{};
         SDL_VERSION(&info.version);
@@ -357,6 +391,7 @@ public:
         window_ = info.info.win.window;
         snapshot_provider_ = std::move(snapshot_provider);
         action_handler_ = std::move(action_handler);
+        value_handler_ = std::move(value_handler);
         const HRESULT ole_result = OleInitialize(nullptr);
         ole_initialized_ = SUCCEEDED(ole_result);
         provider_ = new AccessibleRoot(this);
@@ -371,6 +406,7 @@ public:
             window_ = nullptr;
             snapshot_provider_ = {};
             action_handler_ = {};
+            value_handler_ = {};
             return false;
         }
         if (!SetPropW(window_, kBridgeProperty, this)) {
@@ -383,9 +419,11 @@ public:
             original_window_proc_ = nullptr;
             snapshot_provider_ = {};
             action_handler_ = {};
+            value_handler_ = {};
             return false;
         }
         const auto tree = snapshot_provider_();
+        last_tree_fingerprint_ = treeFingerprint(tree);
         const auto selected = std::find_if(tree.nodes.begin(), tree.nodes.end(),
                                            [](const auto& node) { return node.selected; });
         focused_child_ = selected == tree.nodes.end()
@@ -412,6 +450,8 @@ public:
         focused_child_ = 0;
         snapshot_provider_ = {};
         action_handler_ = {};
+        value_handler_ = {};
+        last_tree_fingerprint_.clear();
         if (ole_initialized_) OleUninitialize();
         ole_initialized_ = false;
     }
@@ -473,6 +513,8 @@ public:
     AccessibleRoot* provider_ = nullptr;
     SnapshotProvider snapshot_provider_;
     ActionHandler action_handler_;
+    ValueHandler value_handler_;
+    std::string last_tree_fingerprint_;
     long focused_child_ = 0;
     bool ole_initialized_ = false;
 };
@@ -481,14 +523,23 @@ WindowsAccessibilityBridge::WindowsAccessibilityBridge() : impl_(std::make_uniqu
 WindowsAccessibilityBridge::~WindowsAccessibilityBridge() { uninstall(); }
 
 bool WindowsAccessibilityBridge::install(void* sdl_window, SnapshotProvider snapshot_provider,
-                                         ActionHandler action_handler) {
-    return impl_->install(sdl_window, std::move(snapshot_provider), std::move(action_handler));
+                                         ActionHandler action_handler, ValueHandler value_handler) {
+    return impl_->install(sdl_window, std::move(snapshot_provider), std::move(action_handler),
+                          std::move(value_handler));
 }
 
 void WindowsAccessibilityBridge::uninstall() { impl_->uninstall(); }
 
 void WindowsAccessibilityBridge::notifyTreeChanged() {
     if (impl_->window_ != nullptr) NotifyWinEvent(EVENT_OBJECT_REORDER, impl_->window_, OBJID_CLIENT, CHILDID_SELF);
+}
+
+void WindowsAccessibilityBridge::synchronizeTree() {
+    if (impl_->window_ == nullptr || !impl_->snapshot_provider_) return;
+    const auto fingerprint = treeFingerprint(impl_->snapshot_provider_());
+    if (fingerprint == impl_->last_tree_fingerprint_) return;
+    impl_->last_tree_fingerprint_ = fingerprint;
+    NotifyWinEvent(EVENT_OBJECT_REORDER, impl_->window_, OBJID_CLIENT, CHILDID_SELF);
 }
 
 bool WindowsAccessibilityBridge::installed() const { return impl_->window_ != nullptr; }

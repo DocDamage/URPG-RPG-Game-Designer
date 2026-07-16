@@ -285,6 +285,180 @@ constexpr const char* kGameplayRecipeDirtyDocumentId = "gameplay.recipes";
 constexpr const char* kMenuStudioDirtyDocumentId = "menu.studio";
 constexpr const char* kMzPluginLockDirtyDocumentId = "compat.mz_plugin_lock";
 
+void appendCreatorStartupAccessibility(urpg::editor::NativeAccessibilitySnapshot& tree,
+                                       const EditorPanelRuntime& runtime) {
+    if (!runtime.creator_mode) return;
+    const auto menu = runtime.main_menu_model.snapshot();
+    const auto route = runtime.main_menu_model.route();
+    const auto add = [&tree](std::string id, std::string name, std::string description,
+                             std::string value, std::string action,
+                             const urpg::editor::NativeAccessibilityRole role,
+                             const bool enabled = true, const bool editable = false) {
+        const bool focusable = enabled && role != urpg::editor::NativeAccessibilityRole::Text;
+        tree.nodes.push_back({std::move(id), std::move(name), std::move(description), std::move(value),
+                              std::move(action), role, enabled, focusable, false, editable});
+    };
+
+    add("creator.route", "Creator startup route", "Current startup workflow route.", route, {},
+        urpg::editor::NativeAccessibilityRole::Text, true, false);
+    if (route == "main_menu") {
+        const auto commands = menu.value("commands", nlohmann::json::object());
+        const auto continue_command = commands.value("continue_last_project", nlohmann::json::object());
+        add("creator.continue_last_project", "Continue last project", "Open the most recent valid project.",
+            continue_command.value("projectPath", ""), "Open", urpg::editor::NativeAccessibilityRole::Button,
+            continue_command.value("enabled", false));
+        add("creator.new_project", "New project", "Start the guided project creation workflow.", {}, "Open",
+            urpg::editor::NativeAccessibilityRole::Button);
+        add("creator.open_project", "Open project", "Enter an existing project folder.", {}, "Open",
+            urpg::editor::NativeAccessibilityRole::Button);
+        add("creator.settings", "Settings", "Configure local creator settings.", {}, "Open",
+            urpg::editor::NativeAccessibilityRole::Button);
+        std::size_t recent_index = 0;
+        for (const auto& project : menu.value("recent_projects", nlohmann::json::array())) {
+            const auto path = project.value("path", "");
+            add("creator.recent." + std::to_string(recent_index++), "Recent project " + path,
+                "Open this recent project.", path, "Open", urpg::editor::NativeAccessibilityRole::Button,
+                !path.empty() && project.value("exists", false));
+        }
+        return;
+    }
+    if (route == "open_project") {
+        add("creator.open_project.path", "Project folder", "Folder containing project.json.",
+            runtime.main_menu_panel.accessibleOpenProjectPath(), "Edit",
+            urpg::editor::NativeAccessibilityRole::TextField, true, true);
+        add("creator.open_project.submit", "Open entered project", "Validate and open the entered project folder.",
+            {}, "Open", urpg::editor::NativeAccessibilityRole::Button);
+        add("creator.back", "Back", "Return to the creator startup menu.", {}, "Back",
+            urpg::editor::NativeAccessibilityRole::Button);
+        return;
+    }
+    if (route == "settings") {
+        add("creator.settings.external_asset_library_root", "External asset library root",
+            "Local external asset library folder.", menu.value("external_asset_library_root", ""), "Edit",
+            urpg::editor::NativeAccessibilityRole::TextField, true, true);
+        add("creator.back", "Back", "Return to the creator startup menu.", {}, "Back",
+            urpg::editor::NativeAccessibilityRole::Button);
+        return;
+    }
+    if (route != "onboarding" && route != "template_picker") return;
+
+    const auto wizard = runtime.new_project_wizard.snapshot();
+    const auto step = wizard.value("step", "project");
+    add("creator.wizard.step", "Project wizard step", "Current guided project-creation step.", step, {},
+        urpg::editor::NativeAccessibilityRole::Text);
+    if (step == "project") {
+        add("creator.wizard.project_id", "Project ID", "Stable project identifier.",
+            wizard.value("project_id", ""), "Edit", urpg::editor::NativeAccessibilityRole::TextField, true, true);
+        add("creator.wizard.project_name", "Project name", "Creator-facing project name.",
+            wizard.value("project_name", ""), "Edit", urpg::editor::NativeAccessibilityRole::TextField, true, true);
+        add("creator.wizard.destination", "Destination", "Project destination folder.",
+            wizard.value("destination", ""), "Edit", urpg::editor::NativeAccessibilityRole::TextField, true, true);
+    } else if (step == "template") {
+        for (const auto& [id, label] : std::array<std::pair<const char*, const char*>, 4>{
+                 {{"jrpg", "Classic JRPG"}, {"arpg", "Action RPG"}, {"tactics_rpg", "Tactics"},
+                  {"visual_novel", "Visual Novel"}}}) {
+            add("creator.wizard.template." + std::string(id), label, "Choose this certified project template.",
+                wizard.value("template_id", "") == id ? "Selected" : "Available", "Select",
+                urpg::editor::NativeAccessibilityRole::Button);
+        }
+    } else if (step == "visual_style") {
+        add("creator.wizard.visual_style.classic", "Classic visual style", "Choose classic presentation defaults.",
+            wizard.value("visual_style", "") == "classic" ? "Selected" : "Available", "Select",
+            urpg::editor::NativeAccessibilityRole::Button);
+        add("creator.wizard.visual_style.pixel", "Pixel visual style", "Choose pixel presentation defaults.",
+            wizard.value("visual_style", "") == "pixel" ? "Selected" : "Available", "Select",
+            urpg::editor::NativeAccessibilityRole::Button);
+    } else if (step == "asset_library") {
+        add("creator.wizard.external_asset_library_root", "External asset library root",
+            "Optional local asset library folder.", wizard.value("external_asset_library_root", ""), "Edit",
+            urpg::editor::NativeAccessibilityRole::TextField, true, true);
+        add("creator.wizard.skip_asset_library", "Skip asset library", "Configure the library after project creation.",
+            {}, "Select", urpg::editor::NativeAccessibilityRole::Button);
+    } else if (step == "starter_map") {
+        add("creator.wizard.starter_map", "Starter map Intro", "Choose the certified Intro starter map.",
+            wizard.value("starter_map", ""), "Select", urpg::editor::NativeAccessibilityRole::Button);
+    } else if (step == "review") {
+        add("creator.wizard.review", "Project review", "Review the selected project configuration.", wizard.dump(), {},
+            urpg::editor::NativeAccessibilityRole::Text);
+    } else if (step == "create") {
+        const bool can_create = !wizard.value("destination", "").empty() && !wizard.value("project_id", "").empty();
+        add("creator.wizard.create", "Create project", "Create the runtime-valid starter project.", {}, "Create",
+            urpg::editor::NativeAccessibilityRole::Button, can_create);
+        add("creator.wizard.create_and_playtest", "Create project and playtest",
+            "Create the project and launch its starter-map playtest.", {}, "Create",
+            urpg::editor::NativeAccessibilityRole::Button, can_create);
+    }
+    add("creator.wizard.back", "Previous step", "Move to the previous wizard step.", {}, "Back",
+        urpg::editor::NativeAccessibilityRole::Button, step != "project");
+    add("creator.wizard.next", "Next step", "Move to the next wizard step.", {}, "Next",
+        urpg::editor::NativeAccessibilityRole::Button, step != "create");
+    add("creator.wizard.cancel", "Cancel project creation", "Return to the creator startup menu.", {}, "Cancel",
+        urpg::editor::NativeAccessibilityRole::Button);
+}
+
+urpg::editor::NativeAccessibilitySnapshot nativeAccessibilitySnapshotForEditorApp(
+    const urpg::editor::EditorShell& editor_shell, const EditorPanelRuntime& runtime) {
+    auto tree = urpg::editor::nativeAccessibilitySnapshotForEditorShell(editor_shell);
+    appendCreatorStartupAccessibility(tree, runtime);
+    return tree;
+}
+
+bool activateNativeEditorAppAccessibilityNode(urpg::editor::EditorShell& editor_shell,
+                                              EditorPanelRuntime& runtime,
+                                              const std::string_view node_id) {
+    if (urpg::editor::activateNativeEditorAccessibilityNode(editor_shell, node_id)) return true;
+    auto& menu = runtime.main_menu_model;
+    if (node_id == "creator.continue_last_project") {
+        const auto command = menu.snapshot()["commands"]["continue_last_project"];
+        return command.value("enabled", false) && menu.chooseOpenProject(command.value("projectPath", ""));
+    }
+    if (node_id == "creator.new_project") return menu.chooseNewProject();
+    if (node_id == "creator.open_project") { menu.chooseOpenProjectRequest(); return true; }
+    if (node_id == "creator.settings") { menu.chooseSettings(); return true; }
+    if (node_id == "creator.back") { menu.returnToMainMenu(); return true; }
+    if (node_id == "creator.open_project.submit") return runtime.main_menu_panel.openAccessibleProject();
+    if (node_id.starts_with("creator.recent.")) {
+        std::size_t index = 0;
+        for (const auto& project : menu.snapshot().value("recent_projects", nlohmann::json::array())) {
+            if (node_id == "creator.recent." + std::to_string(index++))
+                return project.value("exists", false) && menu.chooseOpenProject(project.value("path", ""));
+        }
+        return false;
+    }
+    auto& wizard = runtime.new_project_wizard;
+    if (node_id == "creator.wizard.back") return wizard.previousStep();
+    if (node_id == "creator.wizard.next") return wizard.nextStep();
+    if (node_id == "creator.wizard.cancel") { wizard.cancel(); menu.returnToMainMenu(); return true; }
+    if (node_id == "creator.wizard.skip_asset_library") {
+        return runtime.main_menu_panel.setAccessibleWizardValue("external_asset_library_root", {});
+    }
+    if (node_id == "creator.wizard.starter_map") { wizard.setStarterMap("map_intro"); return true; }
+    if (node_id == "creator.wizard.create") return runtime.main_menu_panel.createAccessibleWizardProject(false);
+    if (node_id == "creator.wizard.create_and_playtest")
+        return runtime.main_menu_panel.createAccessibleWizardProject(true);
+    constexpr std::string_view template_prefix = "creator.wizard.template.";
+    if (node_id.starts_with(template_prefix)) { wizard.setTemplateId(std::string(node_id.substr(template_prefix.size()))); return true; }
+    constexpr std::string_view style_prefix = "creator.wizard.visual_style.";
+    if (node_id.starts_with(style_prefix)) { wizard.setVisualStyle(std::string(node_id.substr(style_prefix.size()))); return true; }
+    return false;
+}
+
+bool setNativeEditorAppAccessibilityValue(EditorPanelRuntime& runtime, const std::string_view node_id,
+                                          const std::string_view value) {
+    if (node_id == "creator.open_project.path") {
+        runtime.main_menu_panel.setAccessibleOpenProjectPath(std::string(value));
+        return true;
+    }
+    if (node_id == "creator.settings.external_asset_library_root") {
+        runtime.main_menu_model.setExternalAssetLibraryRoot(std::filesystem::path(value));
+        return true;
+    }
+    constexpr std::string_view wizard_prefix = "creator.wizard.";
+    if (!node_id.starts_with(wizard_prefix)) return false;
+    const auto field = node_id.substr(wizard_prefix.size());
+    return runtime.main_menu_panel.setAccessibleWizardValue(field, std::string(value));
+}
+
 std::vector<std::string> collectProjectLocalizationKeys(const std::filesystem::path& project_root) {
     std::set<std::string> keys;
     std::error_code directory_error;
@@ -7930,9 +8104,14 @@ int main(int argc, char** argv) {
                 windowsAccessibilityBridge = std::make_unique<urpg::editor_app::WindowsAccessibilityBridge>();
                 if (!windowsAccessibilityBridge->install(
                         sdlSurface->getNativeWindow(),
-                        [&editorShell] { return urpg::editor::nativeAccessibilitySnapshotForEditorShell(editorShell); },
-                        [&editorShell](const std::string_view nodeId) {
-                            return urpg::editor::activateNativeEditorAccessibilityNode(editorShell, nodeId);
+                        [&editorShell, &panelRuntime] {
+                            return nativeAccessibilitySnapshotForEditorApp(editorShell, panelRuntime);
+                        },
+                        [&editorShell, &panelRuntime](const std::string_view nodeId) {
+                            return activateNativeEditorAppAccessibilityNode(editorShell, panelRuntime, nodeId);
+                        },
+                        [&panelRuntime](const std::string_view nodeId, const std::string_view value) {
+                            return setNativeEditorAppAccessibilityValue(panelRuntime, nodeId, value);
                         })) {
                     windowsAccessibilityBridge.reset();
                     urpg::diagnostics::RuntimeDiagnostics::warning(
@@ -7962,6 +8141,9 @@ int main(int argc, char** argv) {
         int frame = 0;
         while (engineShell.isRunning() && editorShell.isRunning() && (options.frames < 0 || frame < options.frames)) {
             (void)runEditorFrame(engineShell, editorShell, options.render_all_panels, &panelRuntime);
+#ifdef _WIN32
+            if (windowsAccessibilityBridge) windowsAccessibilityBridge->synchronizeTree();
+#endif
             ++frame;
             if (options.headless) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
