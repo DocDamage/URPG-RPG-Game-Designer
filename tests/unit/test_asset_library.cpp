@@ -986,6 +986,15 @@ TEST_CASE("AssetTransformRevisionService creates deterministic atlas metadata re
     audioSource.promotedPath = audioPayload.generic_string();
     audioSource.preview.kind = "audio";
     audioSource.preview.thumbnailPath = audioPayload.generic_string();
+    const auto audioInspection = service.inspectAudioTrimFadeGainSource(audioSource);
+    REQUIRE(audioInspection.success);
+    REQUIRE(audioInspection.code == "asset_audio_source_inspection_ready");
+    REQUIRE(audioInspection.channels == 1);
+    REQUIRE(audioInspection.sampleRate == 1000);
+    REQUIRE(audioInspection.frameCount == originalAudio.size());
+    REQUIRE(audioInspection.durationMs == originalAudio.size());
+    REQUIRE(audioInspection.waveformPeaks.size() == 128);
+    REQUIRE(audioInspection.waveformPeaks.front() > 0.0F);
     urpg::assets::AssetAudioTrimFadeGainPlan audioPlan;
     audioPlan.operationId = "trim-tone";
     audioPlan.source = audioSource;

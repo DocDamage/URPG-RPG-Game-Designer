@@ -2517,14 +2517,18 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     static int paletteExtractMaxColors = 16;
     static bool paletteExtractDither = false;
     static std::string audioOperationId = "audio-trim-fade-gain";
-    static int audioStartFrame = 0;
-    static int audioEndFrame = 0;
-    static int audioFadeInFrames = 0;
-    static int audioFadeOutFrames = 0;
+    static uint64_t audioStartFrame = 0;
+    static uint64_t audioEndFrame = 0;
+    static uint64_t audioFadeInFrames = 0;
+    static uint64_t audioFadeOutFrames = 0;
     static int audioGainMilliDb = 0;
     static bool audioUseLoop = false;
-    static int audioLoopStartFrame = 0;
-    static int audioLoopEndFrame = 0;
+    static uint64_t audioLoopStartFrame = 0;
+    static uint64_t audioLoopEndFrame = 0;
+    static std::string audioWaveformSourcePath;
+    static nlohmann::json audioWaveformInspection = nlohmann::json::object();
+    static bool audioWaveformSelectionDragging = false;
+    static uint64_t audioWaveformSelectionStartFrame = 0;
     static std::string tilesetOperationId = "tileset-slice";
     static int tilesetTileWidth = 32;
     static int tilesetTileHeight = 32;
@@ -2872,20 +2876,20 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
         const bool audioRevisionOpen =
             ImGui::CollapsingHeader("PCM16 Audio Trim, Fade, and Gain", ImGuiTreeNodeFlags_DefaultOpen);
         if (audioRevisionOpen) {
-            ImGui::TextWrapped("Create a non-destructive PCM16 WAV revision. Frame positions are exact source/output frame indices; unsupported codecs remain governed conversion work.");
+            ImGui::TextWrapped("Create a non-destructive PCM16 WAV revision. Select an exact source-frame trim on a PCM16 waveform or enter values directly; unsupported codecs remain governed conversion work.");
             ImGui::InputText("Audio operation ID", &audioOperationId);
-            ImGui::InputInt("Audio start frame", &audioStartFrame);
+            ImGui::InputScalar("Audio start frame", ImGuiDataType_U64, &audioStartFrame);
             ImGui::SameLine();
-            ImGui::InputInt("Audio end frame", &audioEndFrame);
-            ImGui::InputInt("Fade in frames", &audioFadeInFrames);
+            ImGui::InputScalar("Audio end frame", ImGuiDataType_U64, &audioEndFrame);
+            ImGui::InputScalar("Fade in frames", ImGuiDataType_U64, &audioFadeInFrames);
             ImGui::SameLine();
-            ImGui::InputInt("Fade out frames", &audioFadeOutFrames);
+            ImGui::InputScalar("Fade out frames", ImGuiDataType_U64, &audioFadeOutFrames);
             ImGui::InputInt("Gain (milli-dB)", &audioGainMilliDb);
             ImGui::Checkbox("Enable output loop", &audioUseLoop);
             if (audioUseLoop) {
-                ImGui::InputInt("Loop start frame", &audioLoopStartFrame);
+                ImGui::InputScalar("Loop start frame", ImGuiDataType_U64, &audioLoopStartFrame);
                 ImGui::SameLine();
-                ImGui::InputInt("Loop end frame", &audioLoopEndFrame);
+                ImGui::InputScalar("Loop end frame", ImGuiDataType_U64, &audioLoopEndFrame);
             }
             if (configuredLibraryRoot.empty()) {
                 ImGui::TextDisabled("A configured external asset library is required to store derived revisions.");
@@ -3350,20 +3354,102 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                 }
             }
             if (audioRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "audio") {
-                ImGui::SameLine();
+                if (ImGui::SmallButton("Edit Trim on Waveform")) {
+                    audioWaveformSourcePath = path;
+                    audioWaveformSelectionDragging = false;
+                    audioWaveformInspection = panel.inspectAudioTrimFadeGainSource(path);
+                    assetWorkflowStatus = audioWaveformInspection.value(
+                        "message", "PCM16 WAV source inspection did not return a status.");
+                    if (audioWaveformInspection.value("success", false)) {
+                        const auto frameCount = audioWaveformInspection.value("frame_count", uint64_t{0});
+                        audioStartFrame = 0;
+                        audioEndFrame = frameCount;
+                        audioFadeInFrames = 0;
+                        audioFadeOutFrames = 0;
+                    }
+                }
+                if (audioWaveformSourcePath == path) {
+                    if (!audioWaveformInspection.value("success", false)) {
+                        ImGui::TextDisabled("Waveform selection unavailable: %s",
+                                            audioWaveformInspection.value("message", "PCM16 source inspection failed.").c_str());
+                    } else {
+                        const auto frameCount = audioWaveformInspection.value("frame_count", uint64_t{0});
+                        const auto peaks = audioWaveformInspection.value("waveform_peaks", nlohmann::json::array());
+                        ImGui::TextDisabled("PCM16 source: %u Hz, %u channel(s), %llu frames (%llu ms). Drag to set an exclusive trim end.",
+                                            audioWaveformInspection.value("sample_rate", 0U),
+                                            audioWaveformInspection.value("channels", 0U),
+                                            static_cast<unsigned long long>(frameCount),
+                                            static_cast<unsigned long long>(audioWaveformInspection.value("duration_ms", uint64_t{0})));
+                        const ImVec2 waveformSize(std::clamp(ImGui::GetContentRegionAvail().x, 240.0F, 640.0F), 112.0F);
+                        const auto waveformMin = ImGui::GetCursorScreenPos();
+                        ImGui::InvisibleButton("Audio Trim Waveform", waveformSize);
+                        const auto waveformMax = ImGui::GetItemRectMax();
+                        const auto frameAtMouse = [&](const ImVec2 mouse) {
+                            const auto normalized = std::clamp((mouse.x - waveformMin.x) / waveformSize.x, 0.0F, 1.0F);
+                            return std::min(frameCount - 1U, static_cast<uint64_t>(
+                                normalized * static_cast<double>(frameCount)));
+                        };
+                        if (frameCount != 0 && ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                            audioWaveformSelectionStartFrame = frameAtMouse(ImGui::GetMousePos());
+                            audioStartFrame = audioWaveformSelectionStartFrame;
+                            audioEndFrame = audioWaveformSelectionStartFrame + 1U;
+                            audioWaveformSelectionDragging = true;
+                        }
+                        if (frameCount != 0 && audioWaveformSelectionDragging && ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+                            const auto endFrame = frameAtMouse(ImGui::GetMousePos());
+                            audioStartFrame = std::min(audioWaveformSelectionStartFrame, endFrame);
+                            audioEndFrame = std::max(audioWaveformSelectionStartFrame, endFrame) + 1U;
+                        }
+                        if (audioWaveformSelectionDragging && !ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+                            audioWaveformSelectionDragging = false;
+                        }
+                        const auto* drawList = ImGui::GetWindowDrawList();
+                        drawList->AddRectFilled(waveformMin, waveformMax, IM_COL32(28, 34, 45, 255));
+                        drawList->AddRect(waveformMin, waveformMax, IM_COL32(116, 136, 164, 255));
+                        if (peaks.is_array() && !peaks.empty()) {
+                            const float centerY = (waveformMin.y + waveformMax.y) * 0.5F;
+                            for (size_t index = 0; index < peaks.size(); ++index) {
+                                const float peak = std::clamp(peaks[index].get<float>(), 0.0F, 1.0F);
+                                const float x = waveformMin.x +
+                                                (static_cast<float>(index) + 0.5F) * waveformSize.x /
+                                                    static_cast<float>(peaks.size());
+                                const float halfHeight = peak * (waveformSize.y * 0.42F);
+                                drawList->AddLine(ImVec2(x, centerY - halfHeight), ImVec2(x, centerY + halfHeight),
+                                                  IM_COL32(152, 202, 255, 255), 1.5F);
+                            }
+                        }
+                        if (frameCount != 0) {
+                            const auto selectionStart = std::clamp(audioStartFrame, uint64_t{0}, frameCount - 1U);
+                            const auto selectionEnd = std::clamp(audioEndFrame, selectionStart + 1U, frameCount);
+                            const float x0 = waveformMin.x +
+                                             (static_cast<float>(selectionStart) / static_cast<float>(frameCount)) * waveformSize.x;
+                            const float x1 = waveformMin.x +
+                                             (static_cast<float>(selectionEnd) / static_cast<float>(frameCount)) * waveformSize.x;
+                            drawList->AddRectFilled(ImVec2(x0, waveformMin.y), ImVec2(x1, waveformMax.y),
+                                                    IM_COL32(80, 170, 255, 48));
+                            drawList->AddRect(ImVec2(x0, waveformMin.y), ImVec2(x1, waveformMax.y),
+                                              IM_COL32(80, 170, 255, 255), 0.0F, 0, 2.0F);
+                        }
+                    }
+                }
+                if (audioWaveformSourcePath != path) {
+                    ImGui::SameLine();
+                }
                 if (ImGui::Button("Create Audio Revision")) {
-                    const auto nonnegativeFrames = [](const int value) {
-                        return static_cast<uint64_t>(std::max(value, 0));
-                    };
-                    const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
-                    const auto result = panel.createAudioTrimFadeGainRevision(
-                        path, derivedRoot, audioOperationId, nonnegativeFrames(audioStartFrame),
-                        nonnegativeFrames(audioEndFrame), nonnegativeFrames(audioFadeInFrames),
-                        nonnegativeFrames(audioFadeOutFrames), audioGainMilliDb,
-                        audioUseLoop ? static_cast<int64_t>(std::max(audioLoopStartFrame, 0)) : -1,
-                        audioUseLoop ? static_cast<int64_t>(std::max(audioLoopEndFrame, 0)) : -1);
-                    assetWorkflowStatus = result.value("message", "Audio revision did not return a status.");
-                    rememberDerivedRevision(result, path);
+                    if (audioUseLoop &&
+                        (audioLoopStartFrame > static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) ||
+                         audioLoopEndFrame > static_cast<uint64_t>(std::numeric_limits<int64_t>::max()))) {
+                        assetWorkflowStatus = "Loop frame values exceed the supported signed 64-bit revision range.";
+                    } else {
+                        const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
+                        const auto result = panel.createAudioTrimFadeGainRevision(
+                            path, derivedRoot, audioOperationId, audioStartFrame, audioEndFrame, audioFadeInFrames,
+                            audioFadeOutFrames, audioGainMilliDb,
+                            audioUseLoop ? static_cast<int64_t>(audioLoopStartFrame) : -1,
+                            audioUseLoop ? static_cast<int64_t>(audioLoopEndFrame) : -1);
+                        assetWorkflowStatus = result.value("message", "Audio revision did not return a status.");
+                        rememberDerivedRevision(result, path);
+                    }
                 }
             }
             if (tilesetRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {

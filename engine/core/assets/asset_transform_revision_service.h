@@ -102,6 +102,22 @@ struct AssetAudioTrimFadeGainPlan {
     int64_t loopEndFrame = -1;
 };
 
+// Read-only source information used to author exact frame-based audio
+// transforms. This deliberately shares the PCM16 admission rule with the
+// transform operation, rather than estimating frame positions from catalog
+// duration metadata.
+struct AssetAudioSourceInspectionResult {
+    bool success = false;
+    std::string code;
+    std::string message;
+    std::string sourceRevision;
+    uint16_t channels = 0;
+    uint32_t sampleRate = 0;
+    uint64_t frameCount = 0;
+    uint64_t durationMs = 0;
+    std::vector<float> waveformPeaks;
+};
+
 class AssetTransformRevisionService {
   public:
     AssetTransformRevisionResult createAtlasMetadataRevision(const AssetAtlasMetadataPlan& plan) const;
@@ -109,6 +125,7 @@ class AssetTransformRevisionService {
     AssetTransformRevisionResult createImagePaletteRevision(const AssetImagePalettePlan& plan) const;
     AssetTransformRevisionResult createImagePaletteExtractRevision(const AssetImagePaletteExtractPlan& plan) const;
     AssetTransformRevisionResult createTilesetSliceRevision(const AssetTilesetSlicePlan& plan) const;
+    AssetAudioSourceInspectionResult inspectAudioTrimFadeGainSource(const AssetPromotionManifest& source) const;
     AssetTransformRevisionResult createAudioTrimFadeGainRevision(const AssetAudioTrimFadeGainPlan& plan) const;
     AssetTransformRevisionResult removeDerivedRevision(const AssetTransformRevisionRemovalRequest& request) const;
 };

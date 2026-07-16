@@ -2451,6 +2451,39 @@ nlohmann::json AssetLibraryModel::createAudioTrimFadeGainRevision(
     return action;
 }
 
+nlohmann::json AssetLibraryModel::inspectAudioTrimFadeGainSource(std::string source_path) const {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "inspect_audio_trim_fade_gain_source"},
+        {"path", source_path},
+        {"success", false},
+        {"code", "asset_not_found"},
+        {"message", "Asset was not found in the library."},
+        {"source_revision", ""},
+        {"channels", 0},
+        {"sample_rate", 0},
+        {"frame_count", 0},
+        {"duration_ms", 0},
+        {"waveform_peaks", nlohmann::json::array()},
+    };
+    const auto found = library_.findAsset(source_path);
+    if (found.has_value()) {
+        urpg::assets::AssetTransformRevisionService service;
+        const auto result = service.inspectAudioTrimFadeGainSource(manifestFromAssetRecord(*found));
+        action["asset_id"] = found->asset_id;
+        action["success"] = result.success;
+        action["code"] = result.code;
+        action["message"] = result.message;
+        action["source_revision"] = result.sourceRevision;
+        action["channels"] = result.channels;
+        action["sample_rate"] = result.sampleRate;
+        action["frame_count"] = result.frameCount;
+        action["duration_ms"] = result.durationMs;
+        action["waveform_peaks"] = result.waveformPeaks;
+    }
+    return action;
+}
+
 nlohmann::json AssetLibraryModel::createTilesetSliceRevision(
     std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
     const int32_t tile_width, const int32_t tile_height, const int32_t margin, const int32_t spacing) {

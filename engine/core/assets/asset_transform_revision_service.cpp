@@ -658,6 +658,37 @@ AssetTransformRevisionResult AssetTransformRevisionService::createTilesetSliceRe
             sourceRevision, derivedRevision, manifestPath, {}, tileDirectory};
 }
 
+AssetAudioSourceInspectionResult AssetTransformRevisionService::inspectAudioTrimFadeGainSource(
+    const AssetPromotionManifest& source) const {
+    AssetTransformRevisionResult eligibility;
+    if (!isEligibleSource(source, &eligibility)) {
+        return {false, eligibility.code, eligibility.message};
+    }
+    const auto sourcePath = std::filesystem::path(source.promotedPath);
+    if (!std::filesystem::is_regular_file(sourcePath)) {
+        return {false, "asset_transform_source_payload_missing", "The promoted source payload is missing."};
+    }
+    Pcm16Wav wav;
+    std::string wavError;
+    if (!readPcm16Wav(sourcePath, &wav, &wavError)) {
+        return {false, "asset_transform_audio_decode_unsupported", wavError};
+    }
+    const auto frameCount = static_cast<uint64_t>(wav.samples.size() / wav.channels);
+    constexpr size_t waveformBucketCount = 128;
+    std::vector<float> waveform(waveformBucketCount, 0.0F);
+    for (uint64_t frame = 0; frame < frameCount; ++frame) {
+        const auto bucket = std::min<size_t>(
+            waveform.size() - 1U, static_cast<size_t>((frame * waveform.size()) / frameCount));
+        for (uint16_t channel = 0; channel < wav.channels; ++channel) {
+            const auto sample = wav.samples[static_cast<size_t>(frame * wav.channels + channel)];
+            const auto amplitude = std::abs(static_cast<int32_t>(sample));
+            waveform[bucket] = std::max(waveform[bucket], static_cast<float>(amplitude) / 32768.0F);
+        }
+    }
+    return {true, "asset_audio_source_inspection_ready", "PCM16 WAV source inspection is ready.", sha256File(sourcePath),
+            wav.channels, wav.sampleRate, frameCount, (frameCount * 1000U) / wav.sampleRate, std::move(waveform)};
+}
+
 AssetTransformRevisionResult AssetTransformRevisionService::createAudioTrimFadeGainRevision(
     const AssetAudioTrimFadeGainPlan& plan) const {
     AssetTransformRevisionResult eligibility;
