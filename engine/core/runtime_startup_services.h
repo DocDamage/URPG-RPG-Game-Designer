@@ -2,10 +2,12 @@
 
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/input/input_core.h"
+#include "engine/core/localization/font_profile_registry.h"
 #include "engine/core/localization/locale_catalog.h"
 #include "engine/core/settings/app_settings_store.h"
 
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -32,6 +34,7 @@ struct RuntimeStartupReport {
     std::string locale_code;
     size_t locale_key_count = 0;
     std::optional<localization::LocaleCatalog> locale_catalog;
+    std::shared_ptr<localization::FontProfileRegistry> font_profiles;
     size_t input_mapping_count = 0;
 
     bool hasErrors() const;

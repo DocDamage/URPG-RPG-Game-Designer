@@ -677,6 +677,7 @@ set(URPG_CORE_SOURCES
     engine/core/message/dialogue_project_loader.cpp
     engine/core/message/message_migration.cpp
     engine/core/localization/locale_catalog.cpp
+    engine/core/localization/font_profile_registry.cpp
     engine/core/localization/localization_document_tools.cpp
     engine/core/localization/completeness_checker.cpp
     engine/core/localization/project_localization_audit.cpp
@@ -1781,6 +1782,7 @@ add_executable(urpg_tests
     tests/unit/test_dialogue_command_handlers.cpp
     tests/unit/test_message_schema_contracts.cpp
     tests/unit/test_locale_catalog.cpp
+    tests/unit/test_font_profile_registry.cpp
     tests/unit/test_completeness_checker.cpp
     tests/unit/test_save_schema_contracts.cpp
     tests/unit/test_save_policy_governance.cpp

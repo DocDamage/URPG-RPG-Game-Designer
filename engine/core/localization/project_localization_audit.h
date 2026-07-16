@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/core/localization/font_profile_registry.h"
+
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -48,6 +50,8 @@ struct ProjectLocalizationAudit {
     std::vector<std::string> available_keys;
     std::vector<std::string> missing_referenced_keys;
     std::vector<std::string> missing_font_profile_locales;
+    std::vector<std::string> unresolved_font_profile_locales;
+    std::vector<FontProfileDiagnostic> font_profile_diagnostics;
     std::vector<ProjectLocalizationLocaleKeyGap> missing_referenced_locale_keys;
     std::vector<std::string> unused_key_candidates;
     std::vector<ProjectDialogueMediaReference> dialogue_media_references;

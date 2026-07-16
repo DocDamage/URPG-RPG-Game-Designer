@@ -5318,6 +5318,14 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             for (const auto& locale : localizationReferenceAudit.missing_font_profile_locales) {
                 ImGui::BulletText("Locale without font profile: %s", locale.c_str());
             }
+            for (const auto& locale : localizationReferenceAudit.unresolved_font_profile_locales) {
+                ImGui::BulletText("Locale with unresolved font profile: %s", locale.c_str());
+            }
+            for (const auto& diagnostic : localizationReferenceAudit.font_profile_diagnostics) {
+                ImGui::BulletText("Font profile issue: %s | %s | %s", diagnostic.code.c_str(),
+                                  diagnostic.profileId.empty() ? "(manifest)" : diagnostic.profileId.c_str(),
+                                  diagnostic.sampleId.empty() ? "(no sample)" : diagnostic.sampleId.c_str());
+            }
             ImGui::Text("Locale coverage gaps: %zu", localizationReferenceAudit.missing_referenced_locale_keys.size());
             if (ImGui::TreeNode("Missing Referenced Locale Keys")) {
                 constexpr size_t kMaxDisplayedLocaleCoverageGaps = 64;
@@ -7614,6 +7622,11 @@ int main(int argc, char** argv) {
         if (!options.headless) {
             engineShell.getRenderer()->setAutoPresent(false);
         }
+#ifndef URPG_HEADLESS
+        if (auto* openGl = dynamic_cast<urpg::OpenGLRenderer*>(engineShell.getRenderer())) {
+            openGl->setFontProfileRegistry(engineShell.getRuntimeStartupReport().font_profiles);
+        }
+#endif
 
         clearSceneStack();
         if (options.headless) {

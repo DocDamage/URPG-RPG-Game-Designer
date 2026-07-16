@@ -1,0 +1,14 @@
+{
+  "schema_version": "urpg.font_profiles.v1",
+  "profiles": [
+    {
+      "id": "font.profile.ui.test",
+      "faces": ["content/fonts/ui_latin_arabic.ttf", "content/fonts/ui_cjk.ttf"],
+      "required_samples": [
+        {"id": "latin_ui", "text": "URPG Save Load 0123456789"},
+        {"id": "arabic_ui", "text": "مرحبا حفظ تحميل"},
+        {"id": "cjk_ui", "text": "日本語 保存 読込"}
+      ]
+    }
+  ]
+}

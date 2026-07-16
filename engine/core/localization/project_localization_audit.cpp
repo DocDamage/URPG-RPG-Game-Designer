@@ -116,6 +116,7 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
 
     std::set<std::string> available;
     std::map<std::string, std::set<std::string>> keys_by_locale;
+    std::map<std::string, std::string> profile_by_locale;
     std::map<std::string, assets::AssetPromotionManifest> attached_audio_assets;
     scanDirectory(project_root / "content" / "localization", "project_localization_audit_bundles_unreadable",
                   [&](const auto& entry) {
@@ -136,11 +137,21 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
                       }
                       if (!catalog.hasFontProfile()) {
                           audit.missing_font_profile_locales.push_back(locale);
+                      } else {
+                          profile_by_locale.insert_or_assign(locale, catalog.getFontProfileId());
                       }
                       const auto keys = catalog.getAllKeys();
                       available.insert(keys.begin(), keys.end());
                       keys_by_locale[locale].insert(keys.begin(), keys.end());
                   }, audit.diagnostics);
+
+    const auto fontProfiles = FontProfileRegistry::loadProjectManifest(project_root);
+    audit.font_profile_diagnostics = fontProfiles.diagnostics;
+    for (const auto& [locale, profile] : profile_by_locale) {
+        if (!fontProfiles.registry || !fontProfiles.registry->hasProfile(profile)) {
+            audit.unresolved_font_profile_locales.push_back(locale);
+        }
+    }
 
     std::error_code contentError;
     const auto contentRoot = std::filesystem::weakly_canonical(project_root / "content", contentError);
@@ -301,6 +312,7 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
     });
     sortUnique(audit.missing_referenced_keys);
     sortUnique(audit.missing_font_profile_locales);
+    sortUnique(audit.unresolved_font_profile_locales);
     std::sort(audit.missing_referenced_locale_keys.begin(), audit.missing_referenced_locale_keys.end(),
               [](const auto& left, const auto& right) {
                   return std::tie(left.locale, left.key) < std::tie(right.locale, right.key);

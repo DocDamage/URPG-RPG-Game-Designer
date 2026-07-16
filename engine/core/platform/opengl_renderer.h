@@ -7,10 +7,13 @@
 #include "engine/core/runtime_asset_mode.h"
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
 namespace urpg {
+
+namespace localization { class FontProfileRegistry; }
 
 /**
  * @brief Represents a GPU-side texture handle.
@@ -51,6 +54,7 @@ class OpenGLRenderer : public RendererBackend {
     bool registerTextureHandle(const std::string& id, const std::shared_ptr<Texture>& texture);
     void setRuntimeAssetMode(RuntimeAssetMode mode) { m_runtimeAssetMode = mode; }
     RuntimeAssetMode runtimeAssetMode() const { return m_runtimeAssetMode; }
+    void setFontProfileRegistry(std::shared_ptr<localization::FontProfileRegistry> registry);
 
   private:
     void setupDefaultShaders();
@@ -82,7 +86,16 @@ class OpenGLRenderer : public RendererBackend {
     bool m_autoPresent = true;
     RuntimeAssetMode m_runtimeAssetMode = RuntimeAssetMode::Development;
 
+    struct FontTextureCacheEntry {
+        std::shared_ptr<Texture> texture;
+        int32_t width = 0;
+        int32_t height = 0;
+    };
+
     std::map<std::string, std::shared_ptr<GLTexture>> m_textures;
+    std::map<std::string, FontTextureCacheEntry> m_fontTextureCache;
+    std::set<std::string> m_emittedFontDiagnostics;
+    std::shared_ptr<localization::FontProfileRegistry> m_fontProfiles;
 };
 
 } // namespace urpg

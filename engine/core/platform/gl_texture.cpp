@@ -36,6 +36,15 @@ bool Texture::loadFromMemory(const std::vector<uint8_t>& pixelData, int width, i
     return true;
 }
 
+void Texture::setLinearFiltering(bool enabled) {
+    if (m_textureId == 0) return;
+    glBindTexture(GL_TEXTURE_2D, m_textureId);
+    const auto filter = enabled ? GL_LINEAR : GL_NEAREST;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture::bind(uint32_t unit) {
     (void)unit;
     // glActiveTexture(GL_TEXTURE0 + unit);

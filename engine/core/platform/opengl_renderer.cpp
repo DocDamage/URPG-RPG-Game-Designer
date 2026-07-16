@@ -31,6 +31,7 @@
 
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/localization/locale_catalog.h"
+#include "engine/core/localization/font_profile_registry.h"
 #include "engine/core/render/asset_loader.h"
 
 namespace urpg {
@@ -477,6 +478,27 @@ std::vector<float> buildTextBatch(const TextCommand& command, int viewportWidth,
     return flattenVertices(vertices);
 }
 
+SpriteDrawData buildRasterizedTextBatch(const TextCommand& command, uint32_t textureId, int32_t width,
+                                        int32_t height) {
+    const float x = command.x;
+    const float y = command.y;
+    const float w = static_cast<float>(width);
+    const float h = static_cast<float>(height);
+    const float z = static_cast<float>(command.zOrder);
+    const float r = static_cast<float>(command.r) / 255.0F;
+    const float g = static_cast<float>(command.g) / 255.0F;
+    const float b = static_cast<float>(command.b) / 255.0F;
+    const float a = static_cast<float>(command.a) / 255.0F;
+    const auto vertex = [&](float px, float py, float u, float v) {
+        return SpriteVertex{{px, py, z}, {u, v}, {r, g, b, a}};
+    };
+    const auto topLeft = vertex(x, y, 0.0F, 0.0F);
+    const auto topRight = vertex(x + w, y, 1.0F, 0.0F);
+    const auto bottomLeft = vertex(x, y + h, 0.0F, 1.0F);
+    const auto bottomRight = vertex(x + w, y + h, 1.0F, 1.0F);
+    return {textureId, {topLeft, bottomLeft, topRight, topRight, bottomLeft, bottomRight}};
+}
+
 uint32_t compileShader(GLenum type, const char* source) {
     const uint32_t shader = g_gl.createShader(type);
     g_gl.shaderSource(shader, 1, &source, nullptr);
@@ -612,6 +634,8 @@ void OpenGLRenderer::endFrame() {
 }
 
 void OpenGLRenderer::shutdown() {
+    m_fontTextureCache.clear();
+    m_textures.clear();
     if (m_texturedVbo != 0) {
         g_gl.deleteBuffers(1, &m_texturedVbo);
         m_texturedVbo = 0;
@@ -1013,7 +1037,68 @@ void OpenGLRenderer::drawTileCommand(const TileCommand& command) {
 }
 
 void OpenGLRenderer::drawTextCommand(const TextCommand& command) {
+    if (command.text.empty()) return;
+    if (!m_fontProfiles && !command.fontFace.empty()) {
+        const std::string diagnosticKey = "registry-unavailable:" + command.fontFace;
+        if (m_emittedFontDiagnostics.insert(diagnosticKey).second) {
+            diagnostics::RuntimeDiagnostics::emit(
+                m_runtimeAssetMode == RuntimeAssetMode::Release ? diagnostics::DiagnosticSeverity::Error
+                                                                : diagnostics::DiagnosticSeverity::Warning,
+                "platform.opengl", "opengl.font_profile_registry_unavailable",
+                "Font profile '" + command.fontFace + "' has no loaded project font registry.", command.locale);
+        }
+        if (m_runtimeAssetMode == RuntimeAssetMode::Release) return;
+    }
+    if (m_fontProfiles && !command.fontFace.empty()) {
+        const std::string visualText = wrapTextForRenderer(command);
+        if (visualText.empty()) return;
+        const std::string cacheKey = command.fontFace + "\n" + std::to_string(command.fontSize) + "\n" + visualText;
+        auto cached = m_fontTextureCache.find(cacheKey);
+        if (cached == m_fontTextureCache.end()) {
+            const auto rasterized = m_fontProfiles->rasterize(command.fontFace, visualText, command.fontSize);
+            if (rasterized.valid && !rasterized.rgba.empty()) {
+                if (m_fontTextureCache.size() >= 128) m_fontTextureCache.erase(m_fontTextureCache.begin());
+                auto texture = std::make_shared<Texture>();
+                if (texture->loadFromMemory(rasterized.rgba, rasterized.width, rasterized.height)) {
+                    texture->setLinearFiltering(true);
+                    cached = m_fontTextureCache.emplace(cacheKey, FontTextureCacheEntry{
+                        std::move(texture), rasterized.width, rasterized.height}).first;
+                }
+            }
+            if (!rasterized.missingCodepoints.empty()) {
+                const std::string diagnosticKey = command.fontFace + ":" + visualText;
+                if (m_emittedFontDiagnostics.insert(diagnosticKey).second) {
+                    diagnostics::RuntimeDiagnostics::warning(
+                        "platform.opengl", "opengl.font_profile_missing_glyph",
+                        "Font profile '" + command.fontFace + "' replaced " +
+                            std::to_string(rasterized.missingCodepoints.size()) + " missing glyph(s).",
+                        command.locale);
+                }
+            }
+        }
+        if (cached != m_fontTextureCache.end() && cached->second.texture) {
+            submitTexturedBatch(buildRasterizedTextBatch(command, cached->second.texture->getId(),
+                                                         cached->second.width, cached->second.height));
+            return;
+        }
+        const std::string diagnosticKey = "unresolved:" + command.fontFace;
+        if (m_emittedFontDiagnostics.insert(diagnosticKey).second) {
+            diagnostics::RuntimeDiagnostics::emit(
+                m_runtimeAssetMode == RuntimeAssetMode::Release ? diagnostics::DiagnosticSeverity::Error
+                                                                : diagnostics::DiagnosticSeverity::Warning,
+                "platform.opengl", "opengl.font_profile_unresolved",
+                "Font profile '" + command.fontFace + "' could not rasterize runtime text.", command.locale);
+        }
+        if (m_runtimeAssetMode == RuntimeAssetMode::Release) return;
+    }
     submitImmediateBatch(buildTextBatch(command, m_viewportWidth, m_viewportHeight));
+}
+
+void OpenGLRenderer::setFontProfileRegistry(std::shared_ptr<localization::FontProfileRegistry> registry) {
+    if (registry == m_fontProfiles) return;
+    m_fontTextureCache.clear();
+    m_emittedFontDiagnostics.clear();
+    m_fontProfiles = std::move(registry);
 }
 
 void OpenGLRenderer::drawRectCommand(const RectCommand& command) {

@@ -291,6 +291,11 @@ int main(int argc, char** argv) {
                 "runtime.settings", "runtime.accessibility_renderer_settings_invalid",
                 "Runtime accessibility renderer settings were invalid; safe renderer defaults remain active.");
         }
+#ifndef URPG_HEADLESS
+        if (auto* openGl = dynamic_cast<urpg::OpenGLRenderer*>(shell.getRenderer())) {
+            openGl->setFontProfileRegistry(shell.getRuntimeStartupReport().font_profiles);
+        }
+#endif
         printStartupDiagnostics(shell.getRuntimeStartupReport());
         auto runtimeAudio = std::shared_ptr<urpg::audio::AudioCore>(&shell.getAudio(), [](auto*) {});
         const auto runtimeLocale = shell.getRuntimeStartupReport().locale_catalog;

@@ -12,6 +12,7 @@ public:
     ~Texture();
 
     bool loadFromMemory(const std::vector<uint8_t>& pixelData, int width, int height);
+    void setLinearFiltering(bool enabled);
     void bind(uint32_t unit = 0);
     void unbind();
 

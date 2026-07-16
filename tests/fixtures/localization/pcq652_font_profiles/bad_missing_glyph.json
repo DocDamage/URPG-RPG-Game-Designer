@@ -1,0 +1,12 @@
+{
+  "schema_version": "urpg.font_profiles.v1",
+  "profiles": [
+    {
+      "id": "font.profile.ui.test",
+      "faces": ["content/fonts/ui_latin_arabic.ttf", "content/fonts/ui_cjk.ttf"],
+      "required_samples": [
+        {"id": "impossible_scalar", "text": "\udbff\udfff"}
+      ]
+    }
+  ]
+}

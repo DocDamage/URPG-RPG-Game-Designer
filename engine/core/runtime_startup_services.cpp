@@ -4,6 +4,7 @@
 #include "engine/core/export/runtime_bundle_loader.h"
 #include "engine/core/input/input_remap_store.h"
 #include "engine/core/localization/locale_catalog.h"
+#include "engine/core/localization/font_profile_registry.h"
 #include "engine/core/perf/perf_profiler.h"
 #include "engine/core/render/asset_loader.h"
 #include "engine/core/settings/app_settings_store.h"
@@ -164,6 +165,34 @@ void initializeLocalization(RuntimeStartupReport& report, const std::filesystem:
                  "No locale catalog was found under project content; runtime text will use authored fallback strings.");
 }
 
+void initializeFontProfiles(RuntimeStartupReport& report, const std::filesystem::path& projectRoot) {
+    const auto manifestPath = projectRoot / "content" / "localization" / "font_profiles.json";
+    if (!std::filesystem::is_regular_file(manifestPath)) {
+        addSubsystem(report, "FontProfiles", RuntimeStartupSubsystemStatus::Warning,
+                     "localization.font_profiles_missing",
+                     "No governed font profile manifest was found; Unicode renderer coverage is unavailable.");
+        return;
+    }
+    auto loaded = localization::FontProfileRegistry::loadProjectManifest(projectRoot);
+    if (!loaded.registry) {
+        addSubsystem(report, "FontProfiles", RuntimeStartupSubsystemStatus::Error,
+                     "localization.font_profiles_invalid",
+                     "The governed font profile manifest has no usable profile.");
+        return;
+    }
+    report.font_profiles = std::move(loaded.registry);
+    if (!loaded.diagnostics.empty()) {
+        addSubsystem(report, "FontProfiles", RuntimeStartupSubsystemStatus::Warning,
+                     "localization.font_profiles_incomplete",
+                     "Font profiles loaded with " + std::to_string(loaded.diagnostics.size()) +
+                         " missing-face or missing-glyph diagnostic(s).");
+        return;
+    }
+    addSubsystem(report, "FontProfiles", RuntimeStartupSubsystemStatus::Initialized,
+                 "localization.font_profiles_ready",
+                 "Loaded " + std::to_string(report.font_profiles->profileCount()) + " governed font profile(s).");
+}
+
 void initializeProfiler(RuntimeStartupReport& report) {
     perf::PerfProfiler profiler;
     profiler.beginFrame();
@@ -304,6 +333,7 @@ RuntimeStartupReport RuntimeStartupServices::initialize(const std::filesystem::p
     initializeAudio(report, report.project_root, audio, audio_compat_bound);
     initializeAssets(report, report.project_root);
     initializeLocalization(report, report.project_root);
+    initializeFontProfiles(report, report.project_root);
     initializeProfiler(report);
     initializeInput(report, report.project_root, input);
 
