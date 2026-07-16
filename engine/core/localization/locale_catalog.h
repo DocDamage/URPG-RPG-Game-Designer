@@ -6,6 +6,7 @@
 #include <optional>
 #include <map>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -16,6 +17,25 @@ struct LocaleMessageVariant {
     std::string grammar = "neutral";
     std::string text;
 };
+
+enum class LocaleTextDirection { Auto, LeftToRight, RightToLeft };
+
+struct LocaleTextLine {
+    std::string logicalText;
+    std::string visualText;
+    size_t columns = 0;
+};
+
+struct LocaleTextLayoutResult {
+    bool valid = false;
+    LocaleTextDirection direction = LocaleTextDirection::LeftToRight;
+    std::vector<LocaleTextLine> lines;
+    std::vector<std::string> diagnostics;
+};
+
+LocaleTextLayoutResult layoutLocaleText(std::string_view text,
+                                        LocaleTextDirection direction = LocaleTextDirection::Auto,
+                                        size_t maxColumns = 0);
 
 class LocaleCatalog {
 public:
@@ -35,6 +55,7 @@ public:
     std::string getTextDirection() const;
     bool supportsIme() const;
     uint32_t sourceRevision() const;
+    LocaleTextLayoutResult layoutText(std::string_view text, size_t maxColumns = 0) const;
     bool hasFontProfile() const;
     size_t keyCount() const;
     void clear();

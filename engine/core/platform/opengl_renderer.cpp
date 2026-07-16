@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "engine/core/diagnostics/runtime_diagnostics.h"
+#include "engine/core/localization/locale_catalog.h"
 #include "engine/core/render/asset_loader.h"
 
 namespace urpg {
@@ -374,6 +375,24 @@ int32_t rendererGlyphAdvance(char32_t cp, int32_t fontSize) {
 }
 
 std::string wrapTextForRenderer(const TextCommand& command) {
+    if (!command.locale.empty() || command.direction != RenderTextDirection::Auto) {
+        const auto direction = command.direction == RenderTextDirection::RightToLeft
+                                   ? localization::LocaleTextDirection::RightToLeft
+                                   : command.direction == RenderTextDirection::LeftToRight
+                                         ? localization::LocaleTextDirection::LeftToRight
+                                         : localization::LocaleTextDirection::Auto;
+        const size_t columns = command.maxWidth > 0
+                                   ? static_cast<size_t>(std::max(1, command.maxWidth) /
+                                                         std::max(1.0F, command.fontSize * 0.56F))
+                                   : 0;
+        const auto layout = localization::layoutLocaleText(command.text, direction, columns);
+        std::string visual;
+        for (size_t index = 0; index < layout.lines.size(); ++index) {
+            if (index > 0) visual.push_back('\n');
+            visual += layout.lines[index].visualText;
+        }
+        return visual;
+    }
     if (command.maxWidth <= 0 || command.text.empty()) {
         return command.text;
     }
@@ -815,6 +834,8 @@ void OpenGLRenderer::processFrameCommand(const FrameRenderCommand& command) {
         legacy.fontFace = textData->fontFace;
         legacy.fontSize = textData->fontSize;
         legacy.maxWidth = textData->maxWidth;
+        legacy.locale = textData->locale;
+        legacy.direction = textData->direction;
         legacy.r = textData->r;
         legacy.g = textData->g;
         legacy.b = textData->b;

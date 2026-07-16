@@ -22,6 +22,8 @@ enum class RenderCmdType : uint8_t {
     Clear = 4
 };
 
+enum class RenderTextDirection : uint8_t { Auto, LeftToRight, RightToLeft };
+
 /**
  * @brief Base structure for a generic render command.
  */
@@ -64,6 +66,8 @@ struct TextCommand : public RenderCommand {
     std::string fontFace;
     int32_t fontSize = 22;
     int32_t maxWidth = 0;
+    std::string locale;
+    RenderTextDirection direction = RenderTextDirection::Auto;
     uint8_t r = 255;
     uint8_t g = 255;
     uint8_t b = 255;
@@ -111,6 +115,8 @@ struct TextRenderData {
     std::string fontFace;
     int32_t fontSize = 22;
     int32_t maxWidth = 0;
+    std::string locale;
+    RenderTextDirection direction = RenderTextDirection::Auto;
     uint8_t r = 255;
     uint8_t g = 255;
     uint8_t b = 255;
@@ -181,6 +187,8 @@ inline FrameRenderCommand toFrameRenderCommand(const RenderCommand& cmd) {
                     textCmd->fontFace,
                     textCmd->fontSize,
                     textCmd->maxWidth,
+                    textCmd->locale,
+                    textCmd->direction,
                     textCmd->r,
                     textCmd->g,
                     textCmd->b,
@@ -249,6 +257,8 @@ inline std::shared_ptr<RenderCommand> toLegacyRenderCommand(const FrameRenderCom
                 legacyCmd->fontFace = textData->fontFace;
                 legacyCmd->fontSize = textData->fontSize;
                 legacyCmd->maxWidth = textData->maxWidth;
+                legacyCmd->locale = textData->locale;
+                legacyCmd->direction = textData->direction;
                 legacyCmd->r = textData->r;
                 legacyCmd->g = textData->g;
                 legacyCmd->b = textData->b;

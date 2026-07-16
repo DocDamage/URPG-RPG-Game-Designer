@@ -76,6 +76,39 @@ TEST_CASE("LocaleCatalog owns structured plural grammar and runtime locale metad
         {{"locale", "en"}, {"keys", {{"bad", {{"singular", "Bad"}}}}}}));
 }
 
+TEST_CASE("Locale text layout wraps Unicode clusters CJK and bidirectional Arabic deterministically",
+          "[localization][catalog][layout][bidi][rtl][pcq652]") {
+    using namespace urpg::localization;
+
+    const auto cjk = layoutLocaleText("日本語テスト", LocaleTextDirection::LeftToRight, 4);
+    REQUIRE(cjk.valid);
+    REQUIRE(cjk.lines.size() == 3);
+    std::string reconstructed;
+    for (const auto& line : cjk.lines) {
+        CHECK(line.columns <= 4);
+        reconstructed += line.logicalText;
+    }
+    CHECK(reconstructed == "日本語テスト");
+
+    const auto combining = layoutLocaleText("e\xCC\x81" "e\xCC\x81", LocaleTextDirection::LeftToRight, 1);
+    REQUIRE(combining.valid);
+    REQUIRE(combining.lines.size() == 2);
+    CHECK(combining.lines[0].logicalText == "e\xCC\x81");
+    CHECK(combining.lines[1].logicalText == "e\xCC\x81");
+
+    const auto rtl = layoutLocaleText("مرحبا 123", LocaleTextDirection::Auto, 0);
+    REQUIRE(rtl.valid);
+    REQUIRE(rtl.direction == LocaleTextDirection::RightToLeft);
+    REQUIRE(rtl.lines.size() == 1);
+    CHECK(rtl.lines[0].visualText.starts_with("123 "));
+    CHECK(rtl.lines[0].visualText != rtl.lines[0].logicalText);
+
+    const std::string invalid{"bad\xFFtext", 8};
+    const auto repaired = layoutLocaleText(invalid);
+    CHECK_FALSE(repaired.valid);
+    REQUIRE(repaired.diagnostics == std::vector<std::string>{"localization_text_invalid_utf8_replaced"});
+}
+
 TEST_CASE("hasKey returns false for missing keys", "[localization][catalog]") {
     const auto json = nlohmann::json::parse(R"({
         "locale": "ja",

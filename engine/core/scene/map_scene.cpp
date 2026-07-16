@@ -362,6 +362,14 @@ void MapScene::onUpdate(float deltaTime) {
     // Keep RenderLayer in sync for scene/engine tests and headless render pipelines.
     auto& layer = urpg::RenderLayer::getInstance();
     layer.flush();
+    const auto applyLocaleTextPolicy = [&](urpg::TextCommand& command) {
+        if (!m_dialogueLocaleCatalog) return;
+        command.locale = m_dialogueLocaleCatalog->getLocaleCode();
+        command.fontFace = m_dialogueLocaleCatalog->getFontProfileId();
+        command.direction = m_dialogueLocaleCatalog->getTextDirection() == "rtl"
+                                ? urpg::RenderTextDirection::RightToLeft
+                                : urpg::RenderTextDirection::LeftToRight;
+    };
 
     if (const auto& cue = m_explorationFeedback.activeCue(); cue.has_value()) {
         urpg::TextCommand feedbackText;
@@ -371,6 +379,7 @@ void MapScene::onUpdate(float deltaTime) {
         feedbackText.fontSize = 18;
         feedbackText.maxWidth = 560;
         feedbackText.zOrder = 80;
+        applyLocaleTextPolicy(feedbackText);
         layer.submit(urpg::toFrameRenderCommand(feedbackText));
     }
 
@@ -399,6 +408,7 @@ void MapScene::onUpdate(float deltaTime) {
             textCmd.fontSize = 22;
             textCmd.maxWidth = 560;
             textCmd.zOrder = 51;
+            applyLocaleTextPolicy(textCmd);
             layer.submit(urpg::toFrameRenderCommand(textCmd));
 
             if (!m_activeAuthoredDialogueCaption.empty()) {
@@ -410,6 +420,7 @@ void MapScene::onUpdate(float deltaTime) {
                     std::lround(18.0F * m_dialogueInclusiveSettings.caption_scale));
                 captionCmd.maxWidth = 560;
                 captionCmd.zOrder = 49;
+                applyLocaleTextPolicy(captionCmd);
                 layer.submit(urpg::toFrameRenderCommand(captionCmd));
             }
 
@@ -426,6 +437,7 @@ void MapScene::onUpdate(float deltaTime) {
                     choiceCmd.fontSize = 18;
                     choiceCmd.maxWidth = 560;
                     choiceCmd.zOrder = 52;
+                    applyLocaleTextPolicy(choiceCmd);
                     layer.submit(urpg::toFrameRenderCommand(choiceCmd));
                 }
             }
