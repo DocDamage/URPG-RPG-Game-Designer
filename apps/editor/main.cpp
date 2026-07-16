@@ -4969,7 +4969,7 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         static urpg::localization::ProjectLocalizationAudit localizationReferenceAudit;
         static bool localizationReferenceAuditRan = false;
         static std::string pseudoLocalizationPreview = "Review localization layout before shipping.";
-        ImGui::TextDisabled("Read-only audit of saved Dialogue and Quest localization references.");
+        ImGui::TextDisabled("Read-only audit of saved Dialogue/Quest localization plus Dialogue voice/caption references.");
         ImGui::InputText("Pseudo-localization Preview", &pseudoLocalizationPreview);
         ImGui::TextWrapped("%s", urpg::localization::pseudoLocalize(pseudoLocalizationPreview).c_str());
         ImGui::TextDisabled("Preview only: no locale bundle is changed.");
@@ -4982,6 +4982,9 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         if (localizationReferenceAuditRan) {
             ImGui::Text("Referenced keys: %zu | Available keys: %zu", localizationReferenceAudit.references.size(),
                         localizationReferenceAudit.available_keys.size());
+            ImGui::Text("Dialogue media rows: %zu | Media issues: %zu",
+                        localizationReferenceAudit.dialogue_media_references.size(),
+                        localizationReferenceAudit.dialogue_media_issues.size());
             for (const auto& key : localizationReferenceAudit.missing_referenced_keys) {
                 ImGui::BulletText("Missing referenced key: %s", key.c_str());
             }
@@ -5006,6 +5009,28 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             }
             for (const auto& diagnostic : localizationReferenceAudit.diagnostics) {
                 ImGui::TextDisabled("Localization audit diagnostic: %s", diagnostic.c_str());
+            }
+            if (ImGui::TreeNode("Dialogue Voice and Caption Audit")) {
+                constexpr size_t kMaxDisplayedDialogueMediaRows = 64;
+                size_t displayed = 0;
+                for (const auto& reference : localizationReferenceAudit.dialogue_media_references) {
+                    if (displayed++ == kMaxDisplayedDialogueMediaRows) {
+                        ImGui::TextDisabled("Additional dialogue-media rows are retained by the audit result.");
+                        break;
+                    }
+                    ImGui::BulletText("%s | node %s | voice %s (%s) | caption %s (%s)",
+                                      reference.document_path.generic_string().c_str(), reference.node_id.c_str(),
+                                      reference.voice_asset_id.empty() ? "(none)" : reference.voice_asset_id.c_str(),
+                                      reference.voice_asset_attached ? "attached" : "missing",
+                                      reference.caption_key.empty() ? "(none)" : reference.caption_key.c_str(),
+                                      reference.caption_key_available ? "available" : "missing");
+                }
+                for (const auto& issue : localizationReferenceAudit.dialogue_media_issues) {
+                    ImGui::BulletText("%s | %s | node %s", issue.code.c_str(),
+                                      issue.document_path.generic_string().c_str(), issue.node_id.c_str());
+                }
+                ImGui::TextDisabled("This audit does not alter dialogue, locale bundles, or attached audio.");
+                ImGui::TreePop();
             }
             if (ImGui::TreeNode("Indexed Localization References")) {
                 constexpr size_t kMaxDisplayedLocalizationReferences = 64;

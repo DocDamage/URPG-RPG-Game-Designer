@@ -18,6 +18,23 @@ struct ProjectLocalizationLocaleKeyGap {
     std::string key;
 };
 
+struct ProjectDialogueMediaReference {
+    std::filesystem::path document_path;
+    std::string node_id;
+    std::string voice_asset_id;
+    std::string caption_key;
+    bool voice_asset_attached = false;
+    bool caption_key_available = false;
+};
+
+struct ProjectDialogueMediaIssue {
+    std::string code;
+    std::filesystem::path document_path;
+    std::string node_id;
+    std::string voice_asset_id;
+    std::string caption_key;
+};
+
 // Read-only project localization evidence. Unused keys remain candidates only:
 // unindexed owners can still reference a key.
 struct ProjectLocalizationAudit {
@@ -27,6 +44,8 @@ struct ProjectLocalizationAudit {
     std::vector<std::string> missing_font_profile_locales;
     std::vector<ProjectLocalizationLocaleKeyGap> missing_referenced_locale_keys;
     std::vector<std::string> unused_key_candidates;
+    std::vector<ProjectDialogueMediaReference> dialogue_media_references;
+    std::vector<ProjectDialogueMediaIssue> dialogue_media_issues;
     std::vector<std::string> diagnostics;
 };
 

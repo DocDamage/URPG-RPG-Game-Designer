@@ -1,5 +1,6 @@
 #include "engine/core/localization/project_localization_audit.h"
 
+#include "engine/core/assets/asset_promotion_manifest.h"
 #include "engine/core/localization/locale_catalog.h"
 
 #include <algorithm>
@@ -17,6 +18,11 @@ namespace {
 void sortUnique(std::vector<std::string>& values) {
     std::sort(values.begin(), values.end());
     values.erase(std::unique(values.begin(), values.end()), values.end());
+}
+
+bool pathInside(const std::filesystem::path& root, const std::filesystem::path& candidate) {
+    const auto relative = candidate.lexically_relative(root);
+    return !relative.empty() && !relative.is_absolute() && relative.begin()->string() != "..";
 }
 
 void scanDirectory(const std::filesystem::path& directory, const char* unreadableDiagnostic,
@@ -48,6 +54,7 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
 
     std::set<std::string> available;
     std::map<std::string, std::set<std::string>> keys_by_locale;
+    std::set<std::string> attached_audio_assets;
     scanDirectory(project_root / "content" / "localization", "project_localization_audit_bundles_unreadable",
                   [&](const auto& entry) {
                       std::ifstream input(entry.path(), std::ios::binary);
@@ -71,6 +78,37 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
                       const auto keys = catalog.getAllKeys();
                       available.insert(keys.begin(), keys.end());
                       keys_by_locale[locale].insert(keys.begin(), keys.end());
+                  }, audit.diagnostics);
+
+    std::error_code contentError;
+    const auto contentRoot = std::filesystem::weakly_canonical(project_root / "content", contentError);
+    scanDirectory(project_root / "content" / "assets" / "manifests",
+                  "project_localization_audit_asset_manifests_unreadable", [&](const auto& entry) {
+                      std::ifstream input(entry.path(), std::ios::binary);
+                      const auto json = nlohmann::json::parse(input, nullptr, false);
+                      if (json.is_discarded()) {
+                          audit.diagnostics.push_back("project_localization_audit_asset_manifest_invalid:" +
+                                                      entry.path().filename().string());
+                          return;
+                      }
+                      try {
+                          const auto manifest = assets::deserializeAssetPromotionManifest(json);
+                          if (manifest.preview.kind != "audio") return;
+                          std::error_code payloadError;
+                          const auto payload = std::filesystem::weakly_canonical(manifest.promotedPath, payloadError);
+                          if (contentError || payloadError || manifest.assetId.empty() ||
+                              manifest.status != assets::AssetPromotionStatus::RuntimeReady ||
+                              !manifest.package.includeInRuntime || !std::filesystem::is_regular_file(payload) ||
+                              !pathInside(contentRoot, payload)) {
+                              audit.diagnostics.push_back("project_localization_audit_audio_asset_invalid:" +
+                                                          entry.path().filename().string());
+                              return;
+                          }
+                          attached_audio_assets.insert(manifest.assetId);
+                      } catch (const nlohmann::json::exception&) {
+                          audit.diagnostics.push_back("project_localization_audit_asset_manifest_invalid:" +
+                                                      entry.path().filename().string());
+                      }
                   }, audit.diagnostics);
 
     const auto addReference = [&](const std::string& key, const std::filesystem::path& path,
@@ -97,6 +135,12 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
                           const auto id = stringField(node, "id");
                           addReference(stringField(node, "localization_key"), entry.path(), "dialogue.node", id);
                           addReference(stringField(node, "caption_localization_key"), entry.path(), "dialogue.caption", id);
+                          const auto voiceAssetId = stringField(node, "voice_asset_id");
+                          const auto captionKey = stringField(node, "caption_localization_key");
+                          if (!voiceAssetId.empty() || !captionKey.empty()) {
+                              audit.dialogue_media_references.push_back(
+                                  {entry.path(), id, voiceAssetId, captionKey, false, false});
+                          }
                           if (node.contains("choices") && node["choices"].is_array()) {
                               for (const auto& choice : node["choices"]) {
                                   if (!choice.is_object()) continue;
@@ -138,6 +182,30 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
             if (!keys.contains(key)) audit.missing_referenced_locale_keys.push_back({locale, key});
         }
     }
+    for (auto& reference : audit.dialogue_media_references) {
+        reference.voice_asset_attached =
+            !reference.voice_asset_id.empty() && attached_audio_assets.contains(reference.voice_asset_id);
+        reference.caption_key_available = !reference.caption_key.empty() && available.contains(reference.caption_key);
+        if (!reference.voice_asset_id.empty() && !reference.voice_asset_attached) {
+            audit.dialogue_media_issues.push_back(
+                {"dialogue_voice_asset_missing", reference.document_path, reference.node_id, reference.voice_asset_id,
+                 reference.caption_key});
+        }
+        if (!reference.voice_asset_id.empty() && reference.caption_key.empty()) {
+            audit.dialogue_media_issues.push_back(
+                {"dialogue_voice_caption_missing", reference.document_path, reference.node_id, reference.voice_asset_id,
+                 {}});
+        }
+        if (reference.voice_asset_id.empty() && !reference.caption_key.empty()) {
+            audit.dialogue_media_issues.push_back(
+                {"dialogue_caption_without_voice", reference.document_path, reference.node_id, {}, reference.caption_key});
+        }
+        if (!reference.caption_key.empty() && !reference.caption_key_available) {
+            audit.dialogue_media_issues.push_back(
+                {"dialogue_voice_caption_key_missing", reference.document_path, reference.node_id, reference.voice_asset_id,
+                 reference.caption_key});
+        }
+    }
     std::set_difference(available.begin(), available.end(), referenced.begin(), referenced.end(),
                         std::back_inserter(audit.unused_key_candidates));
     std::sort(audit.references.begin(), audit.references.end(), [](const auto& left, const auto& right) {
@@ -157,6 +225,16 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
                     }),
         audit.missing_referenced_locale_keys.end());
     sortUnique(audit.unused_key_candidates);
+    std::sort(audit.dialogue_media_references.begin(), audit.dialogue_media_references.end(),
+              [](const auto& left, const auto& right) {
+                  return std::tie(left.document_path, left.node_id, left.voice_asset_id, left.caption_key) <
+                         std::tie(right.document_path, right.node_id, right.voice_asset_id, right.caption_key);
+              });
+    std::sort(audit.dialogue_media_issues.begin(), audit.dialogue_media_issues.end(),
+              [](const auto& left, const auto& right) {
+                  return std::tie(left.code, left.document_path, left.node_id, left.voice_asset_id, left.caption_key) <
+                         std::tie(right.code, right.document_path, right.node_id, right.voice_asset_id, right.caption_key);
+              });
     sortUnique(audit.diagnostics);
     return audit;
 }
