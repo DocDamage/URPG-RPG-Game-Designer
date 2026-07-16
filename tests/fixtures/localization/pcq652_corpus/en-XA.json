@@ -1,0 +1,15 @@
+{
+  "locale": "en-XA",
+  "font_profile_id": "font.profile.ui.latin",
+  "fallback_locale": "en",
+  "text_direction": "ltr",
+  "ime_supported": false,
+  "source_revision": 3,
+  "keys": {
+    "menu.start": "[Šţååřţ ···]",
+    "quest.items": {
+      "one": "[Öñë îţëɱ ···]",
+      "other": "[{count} îţëɱš ·····]"
+    }
+  }
+}

@@ -7,6 +7,7 @@
 #include "engine/core/ui/menu_authoring_document.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <iomanip>
 #include <sstream>
@@ -28,6 +29,38 @@ std::vector<std::string> normalizedControls(std::vector<std::string> controls) {
 }
 
 bool inUnit(float value) { return std::isfinite(value) && value >= 0.0F && value <= 1.0F; }
+
+std::string localeLanguage(std::string_view locale) {
+    const auto separator = locale.find_first_of("-_");
+    std::string language(locale.substr(0, separator));
+    std::ranges::transform(language, language.begin(), [](unsigned char ch) {
+        return static_cast<char>(std::tolower(ch));
+    });
+    return language;
+}
+
+uint64_t absoluteCount(int64_t value) {
+    return value < 0 ? static_cast<uint64_t>(-(value + 1)) + 1u : static_cast<uint64_t>(value);
+}
+
+std::string localizedInteger(std::string_view locale, int64_t value) {
+    const std::string raw = std::to_string(value);
+    if (localeLanguage(locale) != "ar") return raw;
+    static constexpr const char* digits[] = {"٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"};
+    std::string localized;
+    for (const char ch : raw) {
+        if (ch >= '0' && ch <= '9') localized += digits[ch - '0'];
+        else localized.push_back(ch);
+    }
+    return localized;
+}
+
+GrammarVariant grammarVariant(std::string_view grammar) {
+    if (grammar == "masculine") return GrammarVariant::Masculine;
+    if (grammar == "feminine") return GrammarVariant::Feminine;
+    if (grammar == "other") return GrammarVariant::Other;
+    return GrammarVariant::Neutral;
+}
 
 } // namespace
 
@@ -249,31 +282,76 @@ LocalizationResolution InclusiveLocalizationModel::resolve(std::string_view key,
     LocalizationResolution result;
     std::set<std::string> visited;
     std::string current(locale);
-    const std::string plural = count == 1 ? "one" : "other";
     while (!current.empty() && visited.insert(current).second) {
         const auto profile = locales_.find(current);
         if (profile == locales_.end()) break;
+        const std::string plural = pluralCategory(current, count);
         result.direction = profile->second.direction;
-        const auto exact = std::find_if(variants_.begin(), variants_.end(), [&](const LocalizedVariant& item) {
-            return item.key == key && item.locale == current && item.plural == plural && item.grammar == grammar;
-        });
-        const auto neutral = exact != variants_.end() ? exact : std::find_if(variants_.begin(), variants_.end(),
-            [&](const LocalizedVariant& item) {
-                return item.key == key && item.locale == current && item.plural == plural &&
-                       item.grammar == GrammarVariant::Neutral;
+        auto selected = variants_.end();
+        for (const auto& candidate : {std::pair{plural, grammar}, std::pair{plural, GrammarVariant::Neutral},
+                                      std::pair{std::string("other"), grammar},
+                                      std::pair{std::string("other"), GrammarVariant::Neutral}}) {
+            selected = std::find_if(variants_.begin(), variants_.end(), [&](const LocalizedVariant& item) {
+                return item.key == key && item.locale == current && item.plural == candidate.first &&
+                       item.grammar == candidate.second;
             });
-        if (neutral != variants_.end()) {
+            if (selected != variants_.end()) break;
+        }
+        if (selected != variants_.end()) {
             result.valid = true;
             result.used_fallback = current != locale;
-            result.text = neutral->text;
-            const auto marker = result.text.find("{count}");
-            if (marker != std::string::npos) result.text.replace(marker, 7, std::to_string(count));
+            result.text = selected->text;
+            size_t marker = 0;
+            const auto renderedCount = localizedInteger(current, count);
+            while ((marker = result.text.find("{count}", marker)) != std::string::npos) {
+                result.text.replace(marker, 7, renderedCount);
+                marker += renderedCount.size();
+            }
             return result;
         }
         current = profile->second.fallback_id;
     }
     result.diagnostics.push_back("Localization key or grammatical variant is missing: " + std::string(key));
     return result;
+}
+
+std::string InclusiveLocalizationModel::pluralCategory(std::string_view locale, int64_t count) const {
+    const std::string language = localeLanguage(locale);
+    const uint64_t n = absoluteCount(count);
+    const uint64_t mod10 = n % 10u;
+    const uint64_t mod100 = n % 100u;
+    if (language == "ar") {
+        if (n == 0) return "zero";
+        if (n == 1) return "one";
+        if (n == 2) return "two";
+        if (mod100 >= 3 && mod100 <= 10) return "few";
+        if (mod100 >= 11 && mod100 <= 99) return "many";
+        return "other";
+    }
+    if (language == "ru" || language == "uk" || language == "be") {
+        if (mod10 == 1 && mod100 != 11) return "one";
+        if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "few";
+        if (mod10 == 0 || mod10 >= 5 || (mod100 >= 11 && mod100 <= 14)) return "many";
+        return "other";
+    }
+    if (language == "pl") {
+        if (n == 1) return "one";
+        if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "few";
+        return "many";
+    }
+    if (language == "cs" || language == "sk") {
+        if (n == 1) return "one";
+        if (n >= 2 && n <= 4) return "few";
+        return "other";
+    }
+    if (language == "sl") {
+        if (mod100 == 1) return "one";
+        if (mod100 == 2) return "two";
+        if (mod100 == 3 || mod100 == 4) return "few";
+        return "other";
+    }
+    if (language == "fr" && (n == 0 || n == 1)) return "one";
+    return n == 1 ? "one" : "other";
 }
 
 std::vector<std::string> InclusiveLocalizationModel::staleKeys(uint32_t source_revision) const {
@@ -292,19 +370,53 @@ std::vector<std::string> InclusiveLocalizationModel::missingGlyphs(std::string_v
 }
 
 std::string InclusiveLocalizationModel::formatNumber(std::string_view locale, double value) const {
+    if (!std::isfinite(value)) return {};
     std::ostringstream stream;
-    stream << std::fixed << std::setprecision(2) << value;
-    auto rendered = stream.str();
-    if (locale.starts_with("fr") || locale.starts_with("de")) std::replace(rendered.begin(), rendered.end(), '.', ',');
+    stream.imbue(std::locale::classic());
+    stream << std::fixed << std::setprecision(2) << std::abs(value);
+    const auto raw = stream.str();
+    const auto decimalAt = raw.find('.');
+    std::string integer = raw.substr(0, decimalAt);
+    std::string grouped;
+    for (size_t index = 0; index < integer.size(); ++index) {
+        if (index > 0 && (integer.size() - index) % 3 == 0) grouped.push_back(',');
+        grouped.push_back(integer[index]);
+    }
+    std::string ascii = (std::signbit(value) ? "-" : "") + grouped + raw.substr(decimalAt);
+    const auto language = localeLanguage(locale);
+    const std::string decimal = language == "ar" ? "٫" :
+        (language == "fr" || language == "de" || language == "es" || language == "it" || language == "pt" ||
+         language == "ru" || language == "pl") ? "," : ".";
+    const std::string group = language == "ar" ? "٬" : language == "de" ? "." :
+        (language == "fr" || language == "ru") ? " " : ",";
+    std::string rendered;
+    static constexpr const char* arabicDigits[] = {"٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"};
+    for (const char ch : ascii) {
+        if (ch >= '0' && ch <= '9' && language == "ar") rendered += arabicDigits[ch - '0'];
+        else if (ch == '.') rendered += decimal;
+        else if (ch == ',') rendered += group;
+        else rendered.push_back(ch);
+    }
     return rendered;
 }
 
 std::string InclusiveLocalizationModel::formatDate(std::string_view locale, int year, int month, int day) const {
+    if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31) return {};
     std::ostringstream stream;
     stream << std::setfill('0');
+    const auto language = localeLanguage(locale);
     if (locale.starts_with("en-US")) stream << std::setw(2) << month << '/' << std::setw(2) << day << '/' << year;
-    else stream << year << '-' << std::setw(2) << month << '-' << std::setw(2) << day;
-    return stream.str();
+    else if (language == "ja" || language == "zh" || language == "ko")
+        stream << year << '/' << std::setw(2) << month << '/' << std::setw(2) << day;
+    else stream << std::setw(2) << day << '/' << std::setw(2) << month << '/' << year;
+    if (language != "ar") return stream.str();
+    std::string rendered;
+    static constexpr const char* arabicDigits[] = {"٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"};
+    for (const char ch : stream.str()) {
+        if (ch >= '0' && ch <= '9') rendered += arabicDigits[ch - '0'];
+        else rendered.push_back(ch);
+    }
+    return rendered;
 }
 
 bool InclusiveLocalizationModel::supportsIme(std::string_view locale) const {
@@ -323,13 +435,24 @@ bool InclusiveLocalizationModel::importCatalog(const localization::LocaleCatalog
     if (!defineLocale({locale_id, std::move(fallback_id), direction,
                        catalog.getFontProfileId(), std::move(glyphs), ime_supported})) return false;
     for (const auto& key : catalog.getAllKeys()) {
-        const auto text = catalog.getKey(key);
-        if (!text || !addVariant({key, locale_id, *text, "other", GrammarVariant::Neutral, revision}))
-            return false;
-        // Singular resolution remains useful for legacy catalogs without explicit plural variants.
-        if (!addVariant({key, locale_id, *text, "one", GrammarVariant::Neutral, revision})) return false;
+        const auto variants = catalog.getVariants(key);
+        if (variants.empty()) return false;
+        for (const auto& variant : variants) {
+            if (!addVariant({key, locale_id, variant.text, variant.plural, grammarVariant(variant.grammar), revision}))
+                return false;
+        }
+        if (variants.size() == 1 && variants.front().plural == "other" &&
+            !addVariant({key, locale_id, variants.front().text, "one", GrammarVariant::Neutral, revision})) return false;
     }
     return true;
+}
+
+bool InclusiveLocalizationModel::importCatalog(const localization::LocaleCatalog& catalog,
+                                                std::set<char32_t> glyphs) {
+    return importCatalog(catalog, catalog.getFallbackLocale(),
+                         catalog.getTextDirection() == "rtl" ? TextDirection::RightToLeft
+                                                              : TextDirection::LeftToRight,
+                         std::move(glyphs), catalog.supportsIme(), catalog.sourceRevision());
 }
 
 CaptionAuditResult auditCaptionTrack(const std::vector<CaptionCue>& cues,

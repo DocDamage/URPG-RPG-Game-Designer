@@ -86,9 +86,26 @@ function Test-BundleShape {
         return $false
     }
 
-    foreach ($value in $JsonValue["keys"].Values) {
-        if (-not ($value -is [string])) {
-            return $false
+    $pluralNames = [System.Collections.Generic.HashSet[string]]::new(
+        [string[]]@("zero", "one", "two", "few", "many", "other"), [System.StringComparer]::Ordinal)
+    $grammarNames = [System.Collections.Generic.HashSet[string]]::new(
+        [string[]]@("neutral", "masculine", "feminine", "other"), [System.StringComparer]::Ordinal)
+    foreach ($entry in $JsonValue["keys"].GetEnumerator()) {
+        if ([string]::IsNullOrWhiteSpace([string]$entry.Key)) { return $false }
+        $value = $entry.Value
+        if ($value -is [string]) { continue }
+        if (-not ($value -is [System.Collections.IDictionary]) -or $value.Count -eq 0) { return $false }
+        foreach ($plural in $value.GetEnumerator()) {
+            if (-not $pluralNames.Contains([string]$plural.Key)) { return $false }
+            if ($plural.Value -is [string]) { continue }
+            if (-not ($plural.Value -is [System.Collections.IDictionary]) -or $plural.Value.Count -eq 0) {
+                return $false
+            }
+            foreach ($grammar in $plural.Value.GetEnumerator()) {
+                if (-not $grammarNames.Contains([string]$grammar.Key) -or -not ($grammar.Value -is [string])) {
+                    return $false
+                }
+            }
         }
     }
 

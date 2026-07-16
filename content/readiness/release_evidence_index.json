@@ -1224,15 +1224,15 @@
     {
       "requirementId": "PCQ-652",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq652],[localization]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_integration_tests.exe \"[integration][runtime][startup]\" --reporter console",
-      "reports": [],
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq652]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[localization]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_integration_tests.exe \"[integration][runtime][startup]\" --reporter console; .\\tools\\ci\\check_localization_consistency.ps1 -BundleRoot tests/fixtures/localization/pcq652_corpus -ReportPath build/reports/product_completion/pcq652_locale_corpus.json",
+      "reports": ["build/reports/product_completion/pcq652_locale_corpus.json"],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "InclusiveLocalizationModel adds stable locale profiles, plural and grammar variants, fallback chains, RTL direction, font/glyph coverage, IME declarations, locale-aware number/date output, and stale-revision detection around the existing catalog and pseudo-localization tools. Its LocaleCatalog adapter imports locale identity, fallback, font, glyph, IME, and one/other variants without creating a second authority. RuntimeStartupReport now retains the validated production catalog and the runtime passes it into every created MapScene instead of discarding it after startup; the startup regression passes 58 assertions in 9 cases. Full CLDR formatting/plural rules, shaping and line-breaking adapters, representative font corpora, RTL/IME UI capture, clean-commit evidence, and release signoff remain pending."
+      "notes": "The canonical localization bundle schema and LocaleCatalog now own legacy strings plus structured zero/one/two/few/many/other plural forms and neutral/masculine/feminine/other grammar variants. The same authority carries fallback locale, text direction, governed font profile, IME support, and source revision through runtime import, document writeback, editor preview, and the consistency gate. InclusiveLocalizationModel resolves English/French, Arabic, East Slavic, Polish, Czech/Slovak, and Slovenian plural families with grammatical fallback, replaces every count marker using locale digits, and formats grouped decimals and regional dates including Arabic-Indic output. RuntimeStartupReport retains the validated production catalog and passes it into each MapScene. A permanent English, RTL Arabic, and expanded en-XA corpus passes the consistency gate with no missing keys. The PCQ-652 slice passes 54 assertions in 4 cases, the full localization slice passes 177 assertions in 28 cases, and runtime startup passes 59 assertions in 9 cases. Remaining implementation work is renderer-grade Unicode shaping and locale-aware line breaking plus governed representative font/glyph corpora; RTL/IME UI capture, clean-candidate evidence, and release signoff also remain pending."
     },
     {
       "requirementId": "PCQ-653",

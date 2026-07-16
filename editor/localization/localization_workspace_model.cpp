@@ -1,4 +1,5 @@
 #include "editor/localization/localization_workspace_model.h"
+#include "engine/core/localization/locale_catalog.h"
 
 #include <algorithm>
 
@@ -8,6 +9,14 @@ namespace {
 
 std::map<std::string, std::string> readKeys(const nlohmann::json& bundle) {
     std::map<std::string, std::string> keys;
+    if (urpg::localization::LocaleCatalog::validateBundleJson(bundle)) {
+        urpg::localization::LocaleCatalog catalog;
+        catalog.loadFromJson(bundle);
+        for (const auto& key : catalog.getAllKeys()) {
+            if (const auto value = catalog.getKey(key)) keys[key] = *value;
+        }
+        return keys;
+    }
     const auto key_json = bundle.value("keys", nlohmann::json::object());
     for (const auto& [key, value] : key_json.items()) {
         if (value.is_string()) {

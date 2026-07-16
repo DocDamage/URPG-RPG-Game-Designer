@@ -12,10 +12,50 @@
     },
     "keys": {
       "type": "object",
-      "description": "Map of translation keys to their localized string values.",
+      "description": "Map of stable translation keys to legacy strings or structured plural and grammar variants.",
       "additionalProperties": {
-        "type": "string"
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "minProperties": 1,
+            "propertyNames": { "enum": ["zero", "one", "two", "few", "many", "other"] },
+            "additionalProperties": {
+              "oneOf": [
+                { "type": "string" },
+                {
+                  "type": "object",
+                  "minProperties": 1,
+                  "propertyNames": { "enum": ["neutral", "masculine", "feminine", "other"] },
+                  "additionalProperties": { "type": "string" }
+                }
+              ]
+            }
+          }
+        ]
       }
+    },
+    "font_profile_id": {
+      "type": "string",
+      "description": "Governed font profile used for glyph coverage and shaping."
+    },
+    "fallback_locale": {
+      "type": "string",
+      "description": "Optional next locale in the bounded fallback chain."
+    },
+    "text_direction": {
+      "type": "string",
+      "enum": ["ltr", "rtl"],
+      "default": "ltr"
+    },
+    "ime_supported": {
+      "type": "boolean",
+      "default": false
+    },
+    "source_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
     },
     "version": {
       "type": "string",

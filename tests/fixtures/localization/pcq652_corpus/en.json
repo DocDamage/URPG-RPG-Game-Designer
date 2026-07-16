@@ -1,0 +1,14 @@
+{
+  "locale": "en",
+  "font_profile_id": "font.profile.ui.latin",
+  "text_direction": "ltr",
+  "ime_supported": true,
+  "source_revision": 3,
+  "keys": {
+    "menu.start": "Start",
+    "quest.items": {
+      "one": "One item",
+      "other": "{count} items"
+    }
+  }
+}

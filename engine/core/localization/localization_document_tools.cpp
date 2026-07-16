@@ -1,4 +1,5 @@
 #include "engine/core/localization/localization_document_tools.h"
+#include "engine/core/localization/locale_catalog.h"
 
 #include <stdexcept>
 #include <string>
@@ -60,11 +61,12 @@ nlohmann::json writebackDialoguePreviewLocalizationBundle(const nlohmann::json& 
         return updated;
     }
 
-    const auto& keys = bundle["keys"];
+    LocaleCatalog catalog;
+    catalog.loadFromJson(bundle);
     for (auto& page : updated["pages"]) {
         const std::string pageKey = page.value("localization_key", "");
-        if (!pageKey.empty() && keys.contains(pageKey) && keys[pageKey].is_string()) {
-            page["body"] = keys[pageKey];
+        if (const auto text = catalog.getKey(pageKey); !pageKey.empty() && text) {
+            page["body"] = *text;
         }
 
         if (!page.contains("choices") || !page["choices"].is_array()) {
@@ -72,8 +74,8 @@ nlohmann::json writebackDialoguePreviewLocalizationBundle(const nlohmann::json& 
         }
         for (auto& choice : page["choices"]) {
             const std::string choiceKey = choice.value("localization_key", "");
-            if (!choiceKey.empty() && keys.contains(choiceKey) && keys[choiceKey].is_string()) {
-                choice["label"] = keys[choiceKey];
+            if (const auto text = catalog.getKey(choiceKey); !choiceKey.empty() && text) {
+                choice["label"] = *text;
             }
         }
     }

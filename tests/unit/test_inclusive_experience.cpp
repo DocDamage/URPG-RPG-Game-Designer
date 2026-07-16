@@ -131,6 +131,53 @@ TEST_CASE("Inclusive localization imports the production locale catalog with fon
     REQUIRE(model.staleKeys(4).size() == 2);
 }
 
+TEST_CASE("Inclusive localization uses locale plural families structured grammar and regional formats",
+          "[localization][inclusive][plural][grammar][format][pcq652]") {
+    urpg::localization::LocaleCatalog catalog;
+    catalog.loadFromJson(nlohmann::json::parse(R"({
+        "locale": "ar",
+        "font_profile_id": "font.ui.arabic",
+        "fallback_locale": "en-US",
+        "text_direction": "rtl",
+        "ime_supported": true,
+        "source_revision": 5,
+        "keys": {
+            "quest.items": {
+                "zero": "لا عناصر",
+                "one": {"neutral": "عنصر واحد", "feminine": "عنصر واحدة"},
+                "two": "عنصران",
+                "few": "{count} عناصر",
+                "many": "{count} عنصرًا",
+                "other": "{count} عنصر"
+            }
+        }
+    })"));
+    urpg::accessibility::InclusiveLocalizationModel model;
+    REQUIRE(model.importCatalog(catalog, std::set<char32_t>{U' '}));
+    using urpg::accessibility::GrammarVariant;
+    CHECK(model.pluralCategory("ar", 0) == "zero");
+    CHECK(model.pluralCategory("ar", 1) == "one");
+    CHECK(model.pluralCategory("ar", 2) == "two");
+    CHECK(model.pluralCategory("ar", 3) == "few");
+    CHECK(model.pluralCategory("ar", 11) == "many");
+    CHECK(model.pluralCategory("ar", 100) == "other");
+    CHECK(model.pluralCategory("ru-RU", 1) == "one");
+    CHECK(model.pluralCategory("ru-RU", 3) == "few");
+    CHECK(model.pluralCategory("ru-RU", 12) == "many");
+    CHECK(model.resolve("quest.items", "ar", 1, GrammarVariant::Feminine).text == "عنصر واحدة");
+    CHECK(model.resolve("quest.items", "ar", 3, GrammarVariant::Neutral).text == "٣ عناصر");
+    CHECK(model.resolve("quest.items", "ar", 11, GrammarVariant::Neutral).direction ==
+          urpg::accessibility::TextDirection::RightToLeft);
+    CHECK(model.supportsIme("ar"));
+    CHECK(model.formatNumber("en-US", 12345.5) == "12,345.50");
+    CHECK(model.formatNumber("fr-FR", 12345.5) == "12 345,50");
+    CHECK(model.formatNumber("de-DE", 12345.5) == "12.345,50");
+    CHECK(model.formatNumber("ar", 12345.5) == "١٢٬٣٤٥٫٥٠");
+    CHECK(model.formatDate("ja-JP", 2026, 7, 16) == "2026/07/16");
+    CHECK(model.formatDate("ar", 2026, 7, 16) == "١٦/٠٧/٢٠٢٦");
+    CHECK(model.formatDate("en-US", 2026, 13, 16).empty());
+}
+
 TEST_CASE("Caption audit enforces alignment speaker identity non-speech cues locales takes and alternatives",
           "[accessibility][captions][pcq653]") {
     using namespace urpg::accessibility;

@@ -39,6 +39,43 @@ TEST_CASE("LocaleCatalog stores optional font profile id", "[localization][catal
     REQUIRE(catalog.getFontProfileId() == "font.profile.ui.latin");
 }
 
+TEST_CASE("LocaleCatalog owns structured plural grammar and runtime locale metadata",
+          "[localization][catalog][plural][grammar][pcq652]") {
+    const auto json = nlohmann::json::parse(R"({
+        "locale": "ar",
+        "font_profile_id": "font.profile.ui.arabic",
+        "fallback_locale": "en-US",
+        "text_direction": "rtl",
+        "ime_supported": true,
+        "source_revision": 7,
+        "keys": {
+            "quest.items": {
+                "one": {"neutral": "عنصر واحد", "feminine": "عنصر واحدة"},
+                "few": "{count} عناصر",
+                "many": "{count} عنصرًا",
+                "other": "{count} عنصر"
+            }
+        }
+    })");
+
+    urpg::localization::LocaleCatalog catalog;
+    catalog.loadFromJson(json);
+    REQUIRE(catalog.getFallbackLocale() == "en-US");
+    REQUIRE(catalog.getTextDirection() == "rtl");
+    REQUIRE(catalog.supportsIme());
+    REQUIRE(catalog.sourceRevision() == 7);
+    REQUIRE(catalog.getVariants("quest.items").size() == 5);
+    REQUIRE(catalog.getVariant("quest.items", "one", "feminine") == "عنصر واحدة");
+    REQUIRE(catalog.getVariant("quest.items", "two") == "{count} عنصر");
+    REQUIRE(catalog.getKey("quest.items") == "{count} عنصر");
+
+    catalog.mergeFromJson({{"keys", {{"quest.items", {{"one", {{"feminine", "واحدة"}}}}}}}});
+    REQUIRE(catalog.getVariant("quest.items", "one", "feminine") == "واحدة");
+    REQUIRE(catalog.getVariant("quest.items", "one", "neutral") == "عنصر واحد");
+    REQUIRE_FALSE(urpg::localization::LocaleCatalog::validateBundleJson(
+        {{"locale", "en"}, {"keys", {{"bad", {{"singular", "Bad"}}}}}}));
+}
+
 TEST_CASE("hasKey returns false for missing keys", "[localization][catalog]") {
     const auto json = nlohmann::json::parse(R"({
         "locale": "ja",

@@ -1,0 +1,22 @@
+{
+  "locale": "ar",
+  "font_profile_id": "font.profile.ui.arabic",
+  "fallback_locale": "en",
+  "text_direction": "rtl",
+  "ime_supported": true,
+  "source_revision": 3,
+  "keys": {
+    "menu.start": "ابدأ",
+    "quest.items": {
+      "zero": "لا عناصر",
+      "one": {
+        "neutral": "عنصر واحد",
+        "feminine": "عنصر واحدة"
+      },
+      "two": "عنصران",
+      "few": "{count} عناصر",
+      "many": "{count} عنصرًا",
+      "other": "{count} عنصر"
+    }
+  }
+}

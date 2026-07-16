@@ -148,6 +148,7 @@ public:
     bool addVariant(LocalizedVariant variant);
     LocalizationResolution resolve(std::string_view key, std::string_view locale, int64_t count,
                                    GrammarVariant grammar) const;
+    std::string pluralCategory(std::string_view locale, int64_t count) const;
     std::vector<std::string> staleKeys(uint32_t source_revision) const;
     std::vector<std::string> missingGlyphs(std::string_view locale, std::u32string_view text) const;
     std::string formatNumber(std::string_view locale, double value) const;
@@ -156,6 +157,7 @@ public:
     bool importCatalog(const localization::LocaleCatalog& catalog, std::string fallback_id,
                        TextDirection direction, std::set<char32_t> glyphs,
                        bool ime_supported, uint32_t revision);
+    bool importCatalog(const localization::LocaleCatalog& catalog, std::set<char32_t> glyphs);
 
 private:
     std::map<std::string, LocaleProfile> locales_;
