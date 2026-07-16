@@ -4,11 +4,41 @@
 #include "engine/core/render/render_tier.h"
 #include "engine/core/sprite_batcher.h"
 #include "engine/core/render/render_layer.h"
+#include <algorithm>
+#include <array>
+#include <cmath>
 #include <vector>
 #include <string>
 #include <memory>
 
 namespace urpg {
+
+struct RendererAccessibilitySettings {
+    std::array<float, 9> colorMatrix = {1.0F, 0.0F, 0.0F,
+                                        0.0F, 1.0F, 0.0F,
+                                        0.0F, 0.0F, 1.0F};
+    float flashIntensity = 1.0F;
+
+    bool isValid() const {
+        return std::all_of(colorMatrix.begin(), colorMatrix.end(), [](float value) { return std::isfinite(value); }) &&
+               std::isfinite(flashIntensity) && flashIntensity >= 0.0F && flashIntensity <= 1.0F;
+    }
+};
+
+inline std::array<float, 3> applyRendererColorMatrix(const RendererAccessibilitySettings& settings,
+                                                      const std::array<float, 3>& color) {
+    return {
+        std::clamp(settings.colorMatrix[0] * color[0] + settings.colorMatrix[1] * color[1] +
+                       settings.colorMatrix[2] * color[2],
+                   0.0F, 1.0F),
+        std::clamp(settings.colorMatrix[3] * color[0] + settings.colorMatrix[4] * color[1] +
+                       settings.colorMatrix[5] * color[2],
+                   0.0F, 1.0F),
+        std::clamp(settings.colorMatrix[6] * color[0] + settings.colorMatrix[7] * color[1] +
+                       settings.colorMatrix[8] * color[2],
+                   0.0F, 1.0F),
+    };
+}
 
 /**
  * @brief Abstract base class for the low-level rendering backend.
@@ -50,6 +80,14 @@ public:
      */
     virtual void setAutoPresent(bool /*enabled*/) {}
 
+    bool setAccessibilitySettings(const RendererAccessibilitySettings& settings) {
+        if (!settings.isValid()) return false;
+        m_accessibilitySettings = settings;
+        return true;
+    }
+
+    const RendererAccessibilitySettings& accessibilitySettings() const { return m_accessibilitySettings; }
+
     /**
      * @brief Processes frame-owned render commands while preserving legacy backend overrides.
      */
@@ -71,6 +109,9 @@ public:
      * @brief Optional: Resize the viewport if the surface changes.
      */
     virtual void onResize(int width, int height) = 0;
+
+protected:
+    RendererAccessibilitySettings m_accessibilitySettings;
 };
 
 } // namespace urpg

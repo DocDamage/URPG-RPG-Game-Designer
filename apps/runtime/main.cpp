@@ -1,5 +1,6 @@
 #include "engine/core/app_cli.h"
 #include "engine/core/action/controller_binding_runtime.h"
+#include "engine/core/accessibility/inclusive_runtime_policy.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/diagnostics/startup_diagnostics.h"
 #include "engine/core/engine_shell.h"
@@ -45,6 +46,14 @@ bool defaultHeadless() {
 
 void printVersion() {
     std::cout << "URPG Runtime " << urpg::versionString() << "\n";
+}
+
+bool applyRuntimeInclusiveSettings(urpg::EngineShell& shell,
+                                   const urpg::settings::RuntimeSettings& settings) {
+    urpg::RuntimeStartupServices::applyAudioSettings(shell.getAudio(), settings.audio);
+    const auto inclusive = urpg::settings::inclusiveSettingsFromRuntime(settings);
+    return urpg::accessibility::applyInclusiveRuntimePolicy(
+        inclusive, nullptr, nullptr, nullptr, shell.getRenderer());
 }
 
 void clearSceneStack() {
@@ -277,7 +286,11 @@ int main(int argc, char** argv) {
             std::cerr << "URPG runtime startup failed.\n";
             return 1;
         }
-        urpg::RuntimeStartupServices::applyAudioSettings(shell.getAudio(), settingsLoad.settings.audio);
+        if (!applyRuntimeInclusiveSettings(shell, settingsLoad.settings)) {
+            urpg::diagnostics::RuntimeDiagnostics::error(
+                "runtime.settings", "runtime.accessibility_renderer_settings_invalid",
+                "Runtime accessibility renderer settings were invalid; safe renderer defaults remain active.");
+        }
         printStartupDiagnostics(shell.getRuntimeStartupReport());
         auto runtimeAudio = std::shared_ptr<urpg::audio::AudioCore>(&shell.getAudio(), [](auto*) {});
         const auto runtimeLocale = shell.getRuntimeStartupReport().locale_catalog;
@@ -339,15 +352,14 @@ int main(int argc, char** argv) {
                         [] { urpg::scene::SceneManager::getInstance().popScene(); },
                         [&settingsLoad, &shell](const urpg::settings::RuntimeSettings& savedSettings) {
                             settingsLoad.settings = savedSettings;
-                            urpg::RuntimeStartupServices::applyAudioSettings(shell.getAudio(),
-                                                                             settingsLoad.settings.audio);
+                            (void)applyRuntimeInclusiveSettings(shell, settingsLoad.settings);
                         },
                         {},
                         [&shell](const urpg::settings::RuntimeSettings& previewSettings) {
-                            urpg::RuntimeStartupServices::applyAudioSettings(shell.getAudio(), previewSettings.audio);
+                            (void)applyRuntimeInclusiveSettings(shell, previewSettings);
                         },
                         [&shell](const urpg::settings::RuntimeSettings& baselineSettings) {
-                            urpg::RuntimeStartupServices::applyAudioSettings(shell.getAudio(), baselineSettings.audio);
+                            (void)applyRuntimeInclusiveSettings(shell, baselineSettings);
                         },
                     }));
             },

@@ -59,6 +59,7 @@ class OpenGLRenderer : public RendererBackend {
     void processCommand(const RenderCommand& command);
     void submitImmediateBatch(const std::vector<float>& vertices) const;
     void submitTexturedBatch(const SpriteDrawData& batch) const;
+    void applyAccessibilityUniforms(uint32_t shaderProgram) const;
     void drawSpriteCommand(const SpriteCommand& command);
     void drawTileCommand(const TileCommand& command);
     void drawTextCommand(const TextCommand& command);

@@ -4,6 +4,7 @@
 #include "engine/core/presentation/battle_feedback.h"
 #include "engine/core/presentation/exploration_feedback.h"
 #include "engine/core/presentation/runtime_feedback_stack.h"
+#include "engine/core/platform/renderer_backend.h"
 #include "engine/core/ui/urpg_design_tokens.h"
 
 #include <optional>
@@ -15,6 +16,7 @@ struct InclusiveRuntimePolicy {
     presentation::RuntimeFeedbackSettings shared_feedback;
     presentation::ExplorationFeedbackSettings exploration_feedback;
     presentation::BattleFeedbackSettings battle_feedback;
+    RendererAccessibilitySettings renderer;
     ColorFilter color_filter = ColorFilter::None;
     float flash_intensity = 1.0F;
     bool non_color_cues = true;
@@ -27,6 +29,7 @@ std::optional<InclusiveRuntimePolicy> inclusiveRuntimePolicy(const InclusiveSett
 bool applyInclusiveRuntimePolicy(const InclusiveSettings& settings,
                                  presentation::RuntimeFeedbackStack* shared,
                                  presentation::ExplorationFeedbackDirector* exploration,
-                                 presentation::BattleFeedbackDirector* battle);
+                                 presentation::BattleFeedbackDirector* battle,
+                                 RendererBackend* renderer = nullptr);
 
 } // namespace urpg::accessibility

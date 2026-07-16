@@ -2,6 +2,7 @@
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/runtime_shell_flow.h"
+#include "engine/core/platform/headless_renderer.h"
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
@@ -27,6 +28,11 @@ TEST_CASE("Inclusive runtime policy derives consistent visual audio and motion b
     CHECK_FALSE(policy->shared_feedback.screen_shake_enabled);
     CHECK_FALSE(policy->shared_feedback.hit_stop_enabled);
     CHECK(policy->battle_feedback.color_filter == urpg::presentation::BattleColorFilter::Deuteranopia);
+    const auto filteredRed = urpg::applyRendererColorMatrix(policy->renderer, {1.0F, 0.0F, 0.0F});
+    CHECK(filteredRed[0] == Catch::Approx(0.625F));
+    CHECK(filteredRed[1] == Catch::Approx(0.700F));
+    CHECK(filteredRed[2] == Catch::Approx(0.000F));
+    CHECK(policy->renderer.flashIntensity == Catch::Approx(0.25F));
     CHECK_FALSE(policy->exploration_feedback.captions_enabled);
     CHECK(policy->flash_intensity == Catch::Approx(0.25F));
     CHECK(policy->non_color_cues);
@@ -43,11 +49,19 @@ TEST_CASE("Inclusive runtime policy applies atomically to shell exploration and 
     settings.flash_intensity = 0.4F;
 
     urpg::scene::RuntimeShellFlow shell;
-    REQUIRE(shell.setInclusiveSettings(settings));
+    urpg::HeadlessRenderer renderer;
+    REQUIRE(urpg::accessibility::applyInclusiveRuntimePolicy(
+        settings, &shell.feedbackStack(), nullptr, nullptr, &renderer));
     const auto shell_settings = shell.feedbackStack().snapshot().settings;
     CHECK_FALSE(shell_settings.audio_enabled);
     CHECK(shell_settings.reduced_motion);
     CHECK_FALSE(shell_settings.screen_shake_enabled);
+    CHECK(renderer.accessibilitySettings().flashIntensity == Catch::Approx(0.4F));
+    const auto filteredBlue = urpg::applyRendererColorMatrix(
+        renderer.accessibilitySettings(), {0.0F, 0.0F, 1.0F});
+    CHECK(filteredBlue[0] == Catch::Approx(0.0F));
+    CHECK(filteredBlue[1] == Catch::Approx(0.567F));
+    CHECK(filteredBlue[2] == Catch::Approx(0.525F));
 
     urpg::scene::MapScene map("InclusivePolicyMap", 2, 2);
     REQUIRE(map.setDialogueInclusiveSettings(settings));
@@ -65,6 +79,41 @@ TEST_CASE("Inclusive runtime policy applies atomically to shell exploration and 
     CHECK_FALSE(battle_settings.screen_shake_enabled);
     CHECK(battle.inclusiveFlashIntensity() == Catch::Approx(0.4F));
     CHECK(battle.inclusiveNonColorCues());
+}
+
+TEST_CASE("Battle overlay emphasis renders a fading flash bounded by inclusive intensity",
+          "[accessibility][runtime_policy][scene][battle][render][pcq651]") {
+    auto settings = urpg::accessibility::InclusiveSettings::safeDefaults();
+    settings.flash_intensity = 0.4F;
+
+    urpg::scene::BattleScene battle({});
+    REQUIRE(battle.setInclusiveSettings(settings));
+    urpg::presentation::effects::EffectCue cue;
+    cue.overlayEmphasis.value = 0.9F;
+    battle.enqueueEffectCue(cue);
+    CHECK(battle.activeFlashOpacity() == Catch::Approx(0.36F));
+
+    urpg::SpriteBatcher batcher;
+    batcher.begin();
+    battle.draw(batcher);
+    batcher.end();
+    bool foundBoundedFlash = false;
+    for (const auto& batch : batcher.getBatches()) {
+        for (const auto& vertex : batch.vertices) {
+            if (vertex.position[2] == Catch::Approx(0.99F) && vertex.color[3] == Catch::Approx(0.36F)) {
+                foundBoundedFlash = true;
+            }
+        }
+    }
+    CHECK(foundBoundedFlash);
+
+    battle.onUpdate(0.2F);
+    CHECK(battle.activeFlashOpacity() == Catch::Approx(0.0F));
+
+    settings.flash_intensity = 0.0F;
+    REQUIRE(battle.setInclusiveSettings(settings));
+    battle.enqueueEffectCue(cue);
+    CHECK(battle.activeFlashOpacity() == Catch::Approx(0.0F));
 }
 
 TEST_CASE("Invalid inclusive settings leave runtime feedback consumers unchanged",

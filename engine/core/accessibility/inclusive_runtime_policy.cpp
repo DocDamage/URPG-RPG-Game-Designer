@@ -26,6 +26,36 @@ presentation::BattleColorFilter battleFilter(const ColorFilter filter) {
     return presentation::BattleColorFilter::None;
 }
 
+RendererAccessibilitySettings rendererSettings(const ColorFilter filter, const float flashIntensity) {
+    RendererAccessibilitySettings settings;
+    settings.flashIntensity = flashIntensity;
+    switch (filter) {
+    case ColorFilter::None:
+        break;
+    case ColorFilter::Protanopia:
+        settings.colorMatrix = {0.567F, 0.433F, 0.000F,
+                                0.558F, 0.442F, 0.000F,
+                                0.000F, 0.242F, 0.758F};
+        break;
+    case ColorFilter::Deuteranopia:
+        settings.colorMatrix = {0.625F, 0.375F, 0.000F,
+                                0.700F, 0.300F, 0.000F,
+                                0.000F, 0.300F, 0.700F};
+        break;
+    case ColorFilter::Tritanopia:
+        settings.colorMatrix = {0.950F, 0.050F, 0.000F,
+                                0.000F, 0.433F, 0.567F,
+                                0.000F, 0.475F, 0.525F};
+        break;
+    case ColorFilter::Monochrome:
+        settings.colorMatrix = {0.2126F, 0.7152F, 0.0722F,
+                                0.2126F, 0.7152F, 0.0722F,
+                                0.2126F, 0.7152F, 0.0722F};
+        break;
+    }
+    return settings;
+}
+
 } // namespace
 
 std::optional<InclusiveRuntimePolicy> inclusiveRuntimePolicy(const InclusiveSettings& settings) {
@@ -46,6 +76,7 @@ std::optional<InclusiveRuntimePolicy> inclusiveRuntimePolicy(const InclusiveSett
     policy.battle_feedback = {effects_audio, settings.reduced_motion, battleFilter(settings.color_filter),
                               presentation::BattlePlaybackMode::Normal, true, motion_enabled,
                               shake_enabled, motion_enabled};
+    policy.renderer = rendererSettings(settings.color_filter, settings.flash_intensity);
     policy.color_filter = settings.color_filter;
     policy.flash_intensity = settings.flash_intensity;
     policy.non_color_cues = settings.non_color_cues;
@@ -58,12 +89,14 @@ std::optional<InclusiveRuntimePolicy> inclusiveRuntimePolicy(const InclusiveSett
 bool applyInclusiveRuntimePolicy(const InclusiveSettings& settings,
                                  presentation::RuntimeFeedbackStack* shared,
                                  presentation::ExplorationFeedbackDirector* exploration,
-                                 presentation::BattleFeedbackDirector* battle) {
+                                 presentation::BattleFeedbackDirector* battle,
+                                 RendererBackend* renderer) {
     const auto policy = inclusiveRuntimePolicy(settings);
     if (!policy) return false;
     if (shared) shared->setSettings(policy->shared_feedback);
     if (exploration) exploration->setSettings(policy->exploration_feedback);
     if (battle) battle->setSettings(policy->battle_feedback);
+    if (renderer && !renderer->setAccessibilitySettings(policy->renderer)) return false;
     return true;
 }
 

@@ -82,6 +82,7 @@ struct GlImmediateApi {
     PFNGLGETUNIFORMLOCATIONPROC getUniformLocation = nullptr;
     PFNGLUNIFORM1IPROC uniform1i = nullptr;
     PFNGLUNIFORM2FPROC uniform2f = nullptr;
+    PFNGLUNIFORM3FPROC uniform3f = nullptr;
     PFNGLACTIVETEXTUREPROC activeTexture = nullptr;
 };
 
@@ -111,7 +112,8 @@ bool loadImmediateApi(GlImmediateApi& api) {
            loadGlProc(api.enableVertexAttribArray, "glEnableVertexAttribArray") &&
            loadGlProc(api.vertexAttribPointer, "glVertexAttribPointer") &&
            loadGlProc(api.getUniformLocation, "glGetUniformLocation") && loadGlProc(api.uniform1i, "glUniform1i") &&
-           loadGlProc(api.uniform2f, "glUniform2f") && loadGlProc(api.activeTexture, "glActiveTexture");
+           loadGlProc(api.uniform2f, "glUniform2f") && loadGlProc(api.uniform3f, "glUniform3f") &&
+           loadGlProc(api.activeTexture, "glActiveTexture");
 }
 
 GlImmediateApi g_gl;
@@ -495,8 +497,15 @@ const char* IMMEDIATE_FRAGMENT_SHADER = R"(
 in vec4 VertexColor;
 out vec4 FragColor;
 
+uniform vec3 uColorRow0;
+uniform vec3 uColorRow1;
+uniform vec3 uColorRow2;
+
 void main() {
-    FragColor = VertexColor;
+    vec3 filtered = vec3(dot(uColorRow0, VertexColor.rgb),
+                         dot(uColorRow1, VertexColor.rgb),
+                         dot(uColorRow2, VertexColor.rgb));
+    FragColor = vec4(clamp(filtered, 0.0, 1.0), VertexColor.a);
 }
 )";
 
@@ -528,9 +537,16 @@ in vec4 VertexColor;
 out vec4 FragColor;
 
 uniform sampler2D uTexture;
+uniform vec3 uColorRow0;
+uniform vec3 uColorRow1;
+uniform vec3 uColorRow2;
 
 void main() {
-    FragColor = texture(uTexture, VertexUv) * VertexColor;
+    vec4 source = texture(uTexture, VertexUv) * VertexColor;
+    vec3 filtered = vec3(dot(uColorRow0, source.rgb),
+                         dot(uColorRow1, source.rgb),
+                         dot(uColorRow2, source.rgb));
+    FragColor = vec4(clamp(filtered, 0.0, 1.0), source.a);
 }
 )";
 
@@ -859,6 +875,7 @@ void OpenGLRenderer::submitImmediateBatch(const std::vector<float>& vertices) co
     }
 
     g_gl.useProgram(m_shaderProgram);
+    applyAccessibilityUniforms(m_shaderProgram);
     g_gl.bindVertexArray(m_vao);
     g_gl.bindBuffer(GL_ARRAY_BUFFER, m_vbo);
     g_gl.bufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertices.size() * sizeof(float)), vertices.data(),
@@ -893,6 +910,7 @@ void OpenGLRenderer::submitTexturedBatch(const SpriteDrawData& batch) const {
     }
 
     g_gl.useProgram(m_texturedShaderProgram);
+    applyAccessibilityUniforms(m_texturedShaderProgram);
     g_gl.bindVertexArray(m_texturedVao);
     g_gl.bindBuffer(GL_ARRAY_BUFFER, m_texturedVbo);
     g_gl.bufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(batch.vertices.size() * sizeof(SpriteVertex)),
@@ -916,6 +934,16 @@ void OpenGLRenderer::submitTexturedBatch(const SpriteDrawData& batch) const {
 
     g_gl.bindBuffer(GL_ARRAY_BUFFER, 0);
     g_gl.bindVertexArray(0);
+}
+
+void OpenGLRenderer::applyAccessibilityUniforms(const uint32_t shaderProgram) const {
+    const auto& matrix = m_accessibilitySettings.colorMatrix;
+    const GLint row0 = g_gl.getUniformLocation(shaderProgram, "uColorRow0");
+    const GLint row1 = g_gl.getUniformLocation(shaderProgram, "uColorRow1");
+    const GLint row2 = g_gl.getUniformLocation(shaderProgram, "uColorRow2");
+    if (row0 >= 0) g_gl.uniform3f(row0, matrix[0], matrix[1], matrix[2]);
+    if (row1 >= 0) g_gl.uniform3f(row1, matrix[3], matrix[4], matrix[5]);
+    if (row2 >= 0) g_gl.uniform3f(row2, matrix[6], matrix[7], matrix[8]);
 }
 
 void OpenGLRenderer::drawSpriteCommand(const SpriteCommand& command) {

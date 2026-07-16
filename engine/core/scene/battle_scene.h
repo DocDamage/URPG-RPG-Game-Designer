@@ -140,6 +140,7 @@ class BattleScene : public GameScene {
     const urpg::presentation::BattleFeedbackDirector& battleFeedback() const { return m_battleFeedback; }
     bool setInclusiveSettings(const urpg::accessibility::InclusiveSettings& settings);
     float inclusiveFlashIntensity() const { return m_inclusiveFlashIntensity; }
+    float activeFlashOpacity() const { return m_flashTimer > 0.0F ? m_activeFlashOpacity : 0.0F; }
     bool inclusiveNonColorCues() const { return m_inclusiveNonColorCues; }
     std::optional<BattleDiagnosticsPreview> buildDiagnosticsPreview() const;
 
@@ -165,6 +166,8 @@ class BattleScene : public GameScene {
     urpg::presentation::BattleFeedbackDirector m_battleFeedback;
     float m_inclusiveFlashIntensity = 1.0F;
     bool m_inclusiveNonColorCues = true;
+    float m_flashTimer = 0.0F;
+    float m_activeFlashOpacity = 0.0F;
     uint64_t m_battleFeedbackRequestSequence = 1;
 
     // Background

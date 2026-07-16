@@ -185,9 +185,11 @@ void applyTurnEndEffects(BattleParticipant& participant) {
     }
 }
 
-void submitSolidQuad(urpg::SpriteBatcher& batcher, float x, float y, float w, float h, float z, uint32_t color) {
+void submitSolidQuad(urpg::SpriteBatcher& batcher, float x, float y, float w, float h, float z, uint32_t color,
+                     float opacityScale = 1.0F) {
     batcher.submit(kSolidQuadTextureId, x, y, w, h, 0.0f, 0.0f, 1.0f, 1.0f, z, colorChannel(color, 24),
-                   colorChannel(color, 16), colorChannel(color, 8), colorChannel(color, 0));
+                   colorChannel(color, 16), colorChannel(color, 8),
+                   colorChannel(color, 0) * std::clamp(opacityScale, 0.0F, 1.0F));
 }
 
 uint32_t resolveStateColor(int32_t stateId) {
@@ -516,6 +518,7 @@ bool BattleScene::setInclusiveSettings(const urpg::accessibility::InclusiveSetti
     }
     m_inclusiveFlashIntensity = policy->flash_intensity;
     m_inclusiveNonColorCues = policy->non_color_cues;
+    m_activeFlashOpacity = std::min(m_activeFlashOpacity, m_inclusiveFlashIntensity);
     return true;
 }
 
@@ -571,6 +574,8 @@ void BattleScene::onStart() {
     m_nativeActionQueue.clear();
     m_effectSequence = 0;
     m_effectCues.clear();
+    m_flashTimer = 0.0F;
+    m_activeFlashOpacity = 0.0F;
     m_battleFeedback.clear();
     m_battleFeedbackRequestSequence = 1;
     m_commandWindow->setVisible(false);
@@ -664,6 +669,12 @@ void BattleScene::enqueueEffectCue(const urpg::presentation::effects::EffectCue&
     auto ordered = cue;
     ordered.sequenceIndex = m_effectSequence++;
     m_effectCues.push_back(ordered);
+    if (ordered.overlayEmphasis.value > 0.0F && m_inclusiveFlashIntensity > 0.0F) {
+        m_activeFlashOpacity = std::max(
+            m_activeFlashOpacity,
+            std::clamp(ordered.overlayEmphasis.value, 0.0F, 1.0F) * m_inclusiveFlashIntensity);
+        m_flashTimer = std::max(m_flashTimer, 0.12F);
+    }
 }
 
 std::optional<BattleDiagnosticsPreview> BattleScene::buildDiagnosticsPreview() const {
@@ -730,6 +741,10 @@ void BattleScene::onUpdate(float dt) {
         if (m_shakeTimer < 1.0e-4f) {
             m_shakeTimer = 0.0f;
         }
+    }
+    if (m_flashTimer > 0.0F) {
+        m_flashTimer = std::max(0.0F, m_flashTimer - dt);
+        if (m_flashTimer == 0.0F) m_activeFlashOpacity = 0.0F;
     }
 
     // Phase State Machine
@@ -915,6 +930,12 @@ void BattleScene::draw(urpg::SpriteBatcher& batcher) {
         m_itemWindow->draw(batcher);
     if (m_targetWindow && m_targetWindow->isVisible())
         m_targetWindow->draw(batcher);
+
+    if (m_flashTimer > 0.0F && m_activeFlashOpacity > 0.0F) {
+        const float fade = std::clamp(m_flashTimer / 0.12F, 0.0F, 1.0F);
+        submitSolidQuad(batcher, 0.0F, 0.0F, 800.0F, 600.0F, 0.99F, 0xFFFFFFFFu,
+                        m_activeFlashOpacity * fade);
+    }
 }
 
 void BattleScene::processTurn() {
