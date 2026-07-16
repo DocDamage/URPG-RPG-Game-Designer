@@ -85,7 +85,8 @@ TEST_CASE("dialogue choices preserve optional localization references", "[dialog
     REQUIRE(legacy_start->choices[0].localization_key.empty());
 }
 
-TEST_CASE("project localization audit reports dialogue voice and caption custody", "[dialogue][localization][assets]") {
+TEST_CASE("project localization audit reports dialogue voice, caption, and governed take custody",
+          "[dialogue][localization][assets]") {
     const auto root = std::filesystem::temp_directory_path() /
                       ("urpg_dialogue_media_audit_" +
                        std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
@@ -102,10 +103,46 @@ TEST_CASE("project localization audit reports dialogue voice and caption custody
     voice.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
     voice.preview.kind = "audio";
     voice.package.includeInRuntime = true;
+    voice.licenseId = "reviewed-voice-license";
+    voice.authoredMetadata = {
+        {"voice_take",
+         {{"schema", "urpg.promoted_audio_voice_take.v1"},
+          {"locale", "en-US"},
+          {"take_id", "guide-take-001"},
+          {"muted_alternative_asset_id", "voice.muted"}}},
+    };
     const auto manifestPath = root / "content" / "assets" / "manifests" / "voice.present.json";
     std::filesystem::create_directories(manifestPath.parent_path());
     std::ofstream(manifestPath, std::ios::binary | std::ios::trunc)
         << urpg::assets::serializeAssetPromotionManifest(voice).dump(2) << '\n';
+    const auto mutedPayload = root / "content" / "assets" / "imported" / "voice.muted" / "line.wav";
+    std::filesystem::create_directories(mutedPayload.parent_path());
+    std::ofstream(mutedPayload, std::ios::binary | std::ios::trunc) << "muted audio";
+    auto muted = voice;
+    muted.assetId = "voice.muted";
+    muted.promotedPath = mutedPayload.generic_string();
+    muted.authoredMetadata = nlohmann::json::object();
+    std::ofstream(root / "content" / "assets" / "manifests" / "voice.muted.json", std::ios::binary | std::ios::trunc)
+        << urpg::assets::serializeAssetPromotionManifest(muted).dump(2) << '\n';
+
+    auto malformed = voice;
+    malformed.assetId = "voice.malformed";
+    malformed.authoredMetadata = {
+        {"voice_take",
+         {{"schema", "urpg.promoted_audio_voice_take.v0"},
+          {"locale", "en_US"},
+          {"take_id", "bad/take"},
+          {"muted_alternative_asset_id", ""}}},
+    };
+    std::ofstream(root / "content" / "assets" / "manifests" / "voice.malformed.json", std::ios::binary | std::ios::trunc)
+        << urpg::assets::serializeAssetPromotionManifest(malformed).dump(2) << '\n';
+
+    auto missingAlternative = voice;
+    missingAlternative.assetId = "voice.missing-alternative";
+    missingAlternative.authoredMetadata["voice_take"]["muted_alternative_asset_id"] = "voice.not-attached";
+    std::ofstream(root / "content" / "assets" / "manifests" / "voice.missing-alternative.json",
+                  std::ios::binary | std::ios::trunc)
+        << urpg::assets::serializeAssetPromotionManifest(missingAlternative).dump(2) << '\n';
     std::ofstream(root / "content" / "localization" / "en.json", std::ios::binary | std::ios::trunc)
         << nlohmann::json{{"locale", "en"}, {"font_profile_id", "latin"},
                           {"keys", {{"dialogue.caption", "Caption"}}}}
@@ -116,21 +153,44 @@ TEST_CASE("project localization audit reports dialogue voice and caption custody
     REQUIRE(graph.addNode({"complete", "guide", "Guide", "", "Spoken", true, {}, "voice.present", "dialogue.caption"}));
     REQUIRE(graph.addNode({"voice_only", "guide", "Guide", "", "Uncaptioned", true, {}, "voice.missing", ""}));
     REQUIRE(graph.addNode({"caption_only", "guide", "Guide", "", "Caption only", true, {}, "", "dialogue.caption"}));
+    REQUIRE(graph.addNode({"metadata_missing", "guide", "Guide", "", "Missing take", true, {}, "voice.muted", "dialogue.caption"}));
+    REQUIRE(graph.addNode({"malformed", "guide", "Guide", "", "Malformed take", true, {}, "voice.malformed", "dialogue.caption"}));
+    REQUIRE(graph.addNode(
+        {"missing_alternative", "guide", "Guide", "", "No muted attachment", true, {}, "voice.missing-alternative", "dialogue.caption"}));
     std::ofstream(root / "content" / "dialogues" / "media.json", std::ios::binary | std::ios::trunc)
         << graph.serialize().dump(2) << '\n';
 
     const auto audit = urpg::localization::buildProjectLocalizationAudit(root);
-    REQUIRE(audit.dialogue_media_references.size() == 3);
+    REQUIRE(audit.dialogue_media_references.size() == 6);
     const auto complete = std::find_if(audit.dialogue_media_references.begin(), audit.dialogue_media_references.end(),
                                        [](const auto& reference) { return reference.node_id == "complete"; });
     REQUIRE(complete != audit.dialogue_media_references.end());
     REQUIRE(complete->voice_asset_attached);
     REQUIRE(complete->caption_key_available);
+    REQUIRE(complete->voice_take_metadata_present);
+    REQUIRE(complete->voice_take_metadata_valid);
+    REQUIRE(complete->voice_take_locale == "en-US");
+    REQUIRE(complete->voice_take_id == "guide-take-001");
+    REQUIRE(complete->muted_alternative_asset_id == "voice.muted");
+    REQUIRE(complete->muted_alternative_asset_attached);
     REQUIRE(std::any_of(audit.dialogue_media_issues.begin(), audit.dialogue_media_issues.end(),
                         [](const auto& issue) { return issue.code == "dialogue_voice_asset_missing" && issue.node_id == "voice_only"; }));
     REQUIRE(std::any_of(audit.dialogue_media_issues.begin(), audit.dialogue_media_issues.end(),
                         [](const auto& issue) { return issue.code == "dialogue_voice_caption_missing" && issue.node_id == "voice_only"; }));
     REQUIRE(std::any_of(audit.dialogue_media_issues.begin(), audit.dialogue_media_issues.end(),
                         [](const auto& issue) { return issue.code == "dialogue_caption_without_voice" && issue.node_id == "caption_only"; }));
+    REQUIRE(std::any_of(audit.dialogue_media_issues.begin(), audit.dialogue_media_issues.end(),
+                        [](const auto& issue) {
+                            return issue.code == "dialogue_voice_take_metadata_missing" && issue.node_id == "metadata_missing";
+                        }));
+    REQUIRE(std::any_of(audit.dialogue_media_issues.begin(), audit.dialogue_media_issues.end(),
+                        [](const auto& issue) {
+                            return issue.code == "dialogue_voice_take_metadata_invalid" && issue.node_id == "malformed";
+                        }));
+    REQUIRE(std::any_of(audit.dialogue_media_issues.begin(), audit.dialogue_media_issues.end(),
+                        [](const auto& issue) {
+                            return issue.code == "dialogue_voice_take_muted_alternative_attachment_invalid" &&
+                                   issue.node_id == "missing_alternative";
+                        }));
     std::filesystem::remove_all(root);
 }

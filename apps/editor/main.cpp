@@ -5060,7 +5060,7 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         static urpg::localization::ProjectLocalizationAudit localizationReferenceAudit;
         static bool localizationReferenceAuditRan = false;
         static std::string pseudoLocalizationPreview = "Review localization layout before shipping.";
-        ImGui::TextDisabled("Read-only audit of saved Dialogue/Quest localization plus Dialogue voice/caption references.");
+        ImGui::TextDisabled("Read-only audit of saved Dialogue/Quest localization plus Dialogue voice/caption/take references.");
         ImGui::InputText("Pseudo-localization Preview", &pseudoLocalizationPreview);
         ImGui::TextWrapped("%s", urpg::localization::pseudoLocalize(pseudoLocalizationPreview).c_str());
         ImGui::TextDisabled("Preview only: no locale bundle is changed.");
@@ -5109,18 +5109,26 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                         ImGui::TextDisabled("Additional dialogue-media rows are retained by the audit result.");
                         break;
                     }
-                    ImGui::BulletText("%s | node %s | voice %s (%s) | caption %s (%s)",
+                    ImGui::BulletText("%s | node %s | voice %s (%s) | caption %s (%s) | take %s / %s (%s) | muted alternative %s (%s)",
                                       reference.document_path.generic_string().c_str(), reference.node_id.c_str(),
                                       reference.voice_asset_id.empty() ? "(none)" : reference.voice_asset_id.c_str(),
                                       reference.voice_asset_attached ? "attached" : "missing",
                                       reference.caption_key.empty() ? "(none)" : reference.caption_key.c_str(),
-                                      reference.caption_key_available ? "available" : "missing");
+                                      reference.caption_key_available ? "available" : "missing",
+                                      reference.voice_take_locale.empty() ? "(none)" : reference.voice_take_locale.c_str(),
+                                      reference.voice_take_id.empty() ? "(none)" : reference.voice_take_id.c_str(),
+                                      reference.voice_take_metadata_valid ? "valid" :
+                                          (reference.voice_take_metadata_present ? "invalid" : "missing"),
+                                      reference.muted_alternative_asset_id.empty() ? "(none)" :
+                                          reference.muted_alternative_asset_id.c_str(),
+                                      reference.muted_alternative_asset_id.empty() ? "not requested" :
+                                          (reference.muted_alternative_asset_attached ? "attached" : "invalid"));
                 }
                 for (const auto& issue : localizationReferenceAudit.dialogue_media_issues) {
                     ImGui::BulletText("%s | %s | node %s", issue.code.c_str(),
                                       issue.document_path.generic_string().c_str(), issue.node_id.c_str());
                 }
-                ImGui::TextDisabled("This audit does not alter dialogue, locale bundles, or attached audio.");
+                ImGui::TextDisabled("This audit does not alter dialogue, locale bundles, attached audio, or playback.");
                 ImGui::TreePop();
             }
             if (ImGui::TreeNode("Indexed Localization References")) {

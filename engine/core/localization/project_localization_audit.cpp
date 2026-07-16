@@ -4,6 +4,7 @@
 #include "engine/core/localization/locale_catalog.h"
 
 #include <algorithm>
+#include <cctype>
 #include <functional>
 #include <fstream>
 #include <iterator>
@@ -43,6 +44,67 @@ void scanDirectory(const std::filesystem::path& directory, const char* unreadabl
     }
 }
 
+bool isSafeOpaqueId(const std::string& value) {
+    const auto path = std::filesystem::path(value);
+    return !value.empty() && value != "." && value != ".." && !path.has_parent_path() && !path.has_root_path() &&
+           std::all_of(value.begin(), value.end(), [](const unsigned char character) {
+               return std::isalnum(character) != 0 || character == '-' || character == '_' || character == '.';
+           });
+}
+
+bool isLocaleTag(const std::string& value) {
+    if (value.empty() || value.size() > 64) return false;
+    size_t segmentStart = 0;
+    size_t segmentIndex = 0;
+    while (segmentStart < value.size()) {
+        const auto segmentEnd = value.find('-', segmentStart);
+        const auto length = (segmentEnd == std::string::npos ? value.size() : segmentEnd) - segmentStart;
+        if (length == 0 || length > 8 || (segmentIndex == 0 && length < 2)) return false;
+        for (size_t index = segmentStart; index < segmentStart + length; ++index) {
+            const auto character = static_cast<unsigned char>(value[index]);
+            if ((segmentIndex == 0 && std::isalpha(character) == 0) ||
+                (segmentIndex != 0 && std::isalnum(character) == 0)) {
+                return false;
+            }
+        }
+        if (segmentEnd == std::string::npos) return true;
+        segmentStart = segmentEnd + 1;
+        ++segmentIndex;
+    }
+    return false;
+}
+
+struct VoiceTakeMetadata {
+    std::string locale;
+    std::string takeId;
+    std::string mutedAlternativeAssetId;
+    bool present = false;
+    bool valid = false;
+};
+
+VoiceTakeMetadata inspectVoiceTakeMetadata(const assets::AssetPromotionManifest& manifest) {
+    VoiceTakeMetadata metadata;
+    const auto voiceTake = manifest.authoredMetadata.find("voice_take");
+    if (voiceTake == manifest.authoredMetadata.end()) return metadata;
+    metadata.present = true;
+    if (!voiceTake->is_object()) return metadata;
+
+    const auto readString = [&](const char* field) {
+        const auto value = voiceTake->find(field);
+        return value != voiceTake->end() && value->is_string() ? value->get<std::string>() : std::string{};
+    };
+    const auto schema = readString("schema");
+    metadata.locale = readString("locale");
+    metadata.takeId = readString("take_id");
+    metadata.mutedAlternativeAssetId = readString("muted_alternative_asset_id");
+    metadata.valid = schema == "urpg.promoted_audio_voice_take.v1" && isLocaleTag(metadata.locale) &&
+                     isSafeOpaqueId(metadata.takeId) &&
+                     (metadata.mutedAlternativeAssetId.empty() ||
+                      (isSafeOpaqueId(metadata.mutedAlternativeAssetId) &&
+                       metadata.mutedAlternativeAssetId != manifest.assetId));
+    return metadata;
+}
+
 } // namespace
 
 ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::path& project_root) {
@@ -54,7 +116,7 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
 
     std::set<std::string> available;
     std::map<std::string, std::set<std::string>> keys_by_locale;
-    std::set<std::string> attached_audio_assets;
+    std::map<std::string, assets::AssetPromotionManifest> attached_audio_assets;
     scanDirectory(project_root / "content" / "localization", "project_localization_audit_bundles_unreadable",
                   [&](const auto& entry) {
                       std::ifstream input(entry.path(), std::ios::binary);
@@ -104,7 +166,7 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
                                                           entry.path().filename().string());
                               return;
                           }
-                          attached_audio_assets.insert(manifest.assetId);
+                          attached_audio_assets.insert_or_assign(manifest.assetId, manifest);
                       } catch (const nlohmann::json::exception&) {
                           audit.diagnostics.push_back("project_localization_audit_asset_manifest_invalid:" +
                                                       entry.path().filename().string());
@@ -139,7 +201,7 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
                           const auto captionKey = stringField(node, "caption_localization_key");
                           if (!voiceAssetId.empty() || !captionKey.empty()) {
                               audit.dialogue_media_references.push_back(
-                                  {entry.path(), id, voiceAssetId, captionKey, false, false});
+                                  {entry.path(), id, voiceAssetId, captionKey});
                           }
                           if (node.contains("choices") && node["choices"].is_array()) {
                               for (const auto& choice : node["choices"]) {
@@ -183,8 +245,8 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
         }
     }
     for (auto& reference : audit.dialogue_media_references) {
-        reference.voice_asset_attached =
-            !reference.voice_asset_id.empty() && attached_audio_assets.contains(reference.voice_asset_id);
+        const auto attachedVoice = attached_audio_assets.find(reference.voice_asset_id);
+        reference.voice_asset_attached = !reference.voice_asset_id.empty() && attachedVoice != attached_audio_assets.end();
         reference.caption_key_available = !reference.caption_key.empty() && available.contains(reference.caption_key);
         if (!reference.voice_asset_id.empty() && !reference.voice_asset_attached) {
             audit.dialogue_media_issues.push_back(
@@ -204,6 +266,31 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
             audit.dialogue_media_issues.push_back(
                 {"dialogue_voice_caption_key_missing", reference.document_path, reference.node_id, reference.voice_asset_id,
                  reference.caption_key});
+        }
+        if (attachedVoice != attached_audio_assets.end()) {
+            const auto metadata = inspectVoiceTakeMetadata(attachedVoice->second);
+            reference.voice_take_metadata_present = metadata.present;
+            reference.voice_take_metadata_valid = metadata.valid;
+            reference.voice_take_locale = metadata.locale;
+            reference.voice_take_id = metadata.takeId;
+            reference.muted_alternative_asset_id = metadata.mutedAlternativeAssetId;
+            if (!metadata.present) {
+                audit.dialogue_media_issues.push_back(
+                    {"dialogue_voice_take_metadata_missing", reference.document_path, reference.node_id,
+                     reference.voice_asset_id, reference.caption_key});
+            } else if (!metadata.valid) {
+                audit.dialogue_media_issues.push_back(
+                    {"dialogue_voice_take_metadata_invalid", reference.document_path, reference.node_id,
+                     reference.voice_asset_id, reference.caption_key});
+            } else if (!metadata.mutedAlternativeAssetId.empty()) {
+                reference.muted_alternative_asset_attached =
+                    attached_audio_assets.contains(metadata.mutedAlternativeAssetId);
+                if (!reference.muted_alternative_asset_attached) {
+                    audit.dialogue_media_issues.push_back(
+                        {"dialogue_voice_take_muted_alternative_attachment_invalid", reference.document_path,
+                         reference.node_id, reference.voice_asset_id, reference.caption_key});
+                }
+            }
         }
     }
     std::set_difference(available.begin(), available.end(), referenced.begin(), referenced.end(),

@@ -30,7 +30,11 @@ valid project locale bundles.
 6. For each Dialogue media row, the audit checks a matching project-contained,
    runtime-ready attached audio manifest and caption-key availability. It
    reports missing voice assets, voice-without-caption, caption-without-voice,
-   and missing caption-key issues without modifying either owner.
+   and missing caption-key issues without modifying either owner. When that
+   manifest is present, the row also exposes governed `voice_take` locale/take
+   metadata and diagnoses absent metadata, malformed schema/locale/take ID, or
+   a requested muted alternative that is not a different valid attached audio
+   asset.
 
 ## Limits
 
@@ -39,7 +43,8 @@ remain later audit increments. Translation import/export, full persisted
 pseudo-localization workflows, RTL/IME/plural/layout validation, font/glyph
 checks, and manual assistive review remain PFU-06 work. The bounded preview is
 not an RTL/IME, plural, glyph-coverage, or end-to-end layout qualification.
-Voice takes/locales/rights, muted alternatives, automatic caption generation,
-device playback, and listening review remain F24 work.
+Voice metadata remains audit-only: this packet does not reconcile attachments,
+generate captions, select locale fallbacks, qualify rights, or establish device
+playback/listening review. Those broader F24 workflows remain open.
 
 Verification is deferred by user instruction.

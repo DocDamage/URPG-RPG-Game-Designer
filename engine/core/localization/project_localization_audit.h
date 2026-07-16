@@ -23,8 +23,14 @@ struct ProjectDialogueMediaReference {
     std::string node_id;
     std::string voice_asset_id;
     std::string caption_key;
+    std::string voice_take_locale;
+    std::string voice_take_id;
+    std::string muted_alternative_asset_id;
     bool voice_asset_attached = false;
     bool caption_key_available = false;
+    bool voice_take_metadata_present = false;
+    bool voice_take_metadata_valid = false;
+    bool muted_alternative_asset_attached = false;
 };
 
 struct ProjectDialogueMediaIssue {
