@@ -5543,6 +5543,13 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
     static bool dialogueNodeEnding = true;
     static std::string dialogueNodeVoiceAssetId;
     static std::string dialogueNodeCaptionLocalizationKey;
+    static std::string dialogueVoiceTakeLocale = "en-US";
+    static std::string dialogueVoiceTakeId = "take-001";
+    static int dialogueVoiceTakeDurationMs = 1000;
+    static std::string dialogueMutedAlternativeAssetId;
+    static int dialogueCaptionStartMs = 0;
+    static int dialogueCaptionEndMs = 1000;
+    static std::string dialogueNonSpeechCue;
     static std::string dialogueCanvasDragNodeId;
     static int32_t dialogueCanvasDragStartX = 0;
     static int32_t dialogueCanvasDragStartY = 0;
@@ -6083,6 +6090,17 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                         dialogueNodeEnding = node.ending;
                         dialogueNodeVoiceAssetId = node.voice_asset_id;
                         dialogueNodeCaptionLocalizationKey = node.caption_localization_key;
+                        dialogueCaptionStartMs = static_cast<int>(node.caption_start_ms);
+                        dialogueCaptionEndMs = static_cast<int>(node.caption_end_ms);
+                        dialogueNonSpeechCue = node.non_speech_cues.empty() ? "" : node.non_speech_cues.front();
+                        if (!node.voice_takes.empty()) {
+                            const auto& take = node.voice_takes.front();
+                            dialogueVoiceTakeLocale = take.locale;
+                            dialogueVoiceTakeId = take.take_id;
+                            dialogueNodeVoiceAssetId = take.voice_asset_id;
+                            dialogueVoiceTakeDurationMs = static_cast<int>(take.duration_ms);
+                            dialogueMutedAlternativeAssetId = take.muted_alternative_asset_id;
+                        }
                     }
                     if (ImGui::IsItemActivated()) {
                         dialogueCanvasDragNodeId = node_id;
@@ -6175,13 +6193,70 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             }
             ImGui::EndChild();
             pick_localization_key("Node Caption Localization Key", dialogueNodeCaptionLocalizationKey);
+            ImGui::InputText("Voice Take Locale", &dialogueVoiceTakeLocale);
+            ImGui::InputText("Voice Take ID", &dialogueVoiceTakeId);
+            ImGui::InputInt("Voice Duration (ms)", &dialogueVoiceTakeDurationMs);
+            ImGui::InputText("Muted Alternative Asset ID", &dialogueMutedAlternativeAssetId);
+            ImGui::InputInt("Caption Start (ms)", &dialogueCaptionStartMs);
+            ImGui::InputInt("Caption End (ms)", &dialogueCaptionEndMs);
+            ImGui::InputText("Non-Speech Cue", &dialogueNonSpeechCue);
             if (ImGui::Button("Load Dialogue Node Media")) {
                 if (const auto* node = runtime.dialogue_draft->findNode(dialogueNodeId)) {
                     dialogueNodeVoiceAssetId = node->voice_asset_id;
                     dialogueNodeCaptionLocalizationKey = node->caption_localization_key;
+                    dialogueCaptionStartMs = static_cast<int>(node->caption_start_ms);
+                    dialogueCaptionEndMs = static_cast<int>(node->caption_end_ms);
+                    dialogueNonSpeechCue = node->non_speech_cues.empty() ? "" : node->non_speech_cues.front();
+                    if (!node->voice_takes.empty()) {
+                        const auto& take = node->voice_takes.front();
+                        dialogueVoiceTakeLocale = take.locale;
+                        dialogueVoiceTakeId = take.take_id;
+                        dialogueNodeVoiceAssetId = take.voice_asset_id;
+                        dialogueVoiceTakeDurationMs = static_cast<int>(take.duration_ms);
+                        dialogueMutedAlternativeAssetId = take.muted_alternative_asset_id;
+                    }
                     runtime.map_save_status = "Dialogue node voice/caption references loaded into the authoring controls.";
                 } else {
                     runtime.map_save_status = "Enter an existing dialogue node ID to load its media references.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Upsert Locale Voice Take")) {
+                auto next = *runtime.dialogue_draft;
+                const auto duration = static_cast<uint32_t>(std::max(0, dialogueVoiceTakeDurationMs));
+                if (next.upsertNodeVoiceTake(dialogueNodeId,
+                                             {dialogueVoiceTakeLocale, dialogueVoiceTakeId,
+                                              dialogueNodeVoiceAssetId, duration,
+                                              dialogueMutedAlternativeAssetId}) &&
+                    applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Locale voice take saved as one undoable dialogue edit.";
+                } else {
+                    runtime.map_save_status = "Voice takes require locale, take ID, attached voice asset, positive duration, and muted alternative.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove Locale Voice Take")) {
+                auto next = *runtime.dialogue_draft;
+                if (next.removeNodeVoiceTake(dialogueNodeId, dialogueVoiceTakeLocale, dialogueVoiceTakeId) &&
+                    applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Locale voice take removed as one undoable dialogue edit.";
+                } else {
+                    runtime.map_save_status = "Enter an existing node, locale, and take ID to remove a voice take.";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Update Timed Caption Cue")) {
+                auto next = *runtime.dialogue_draft;
+                std::vector<std::string> cues;
+                if (!dialogueNonSpeechCue.empty()) cues.push_back(dialogueNonSpeechCue);
+                if (dialogueCaptionStartMs >= 0 && dialogueCaptionEndMs >= 0 &&
+                    next.updateNodeCaptionCue(dialogueNodeId, dialogueNodeCaptionLocalizationKey,
+                                              static_cast<uint32_t>(dialogueCaptionStartMs),
+                                              static_cast<uint32_t>(dialogueCaptionEndMs), std::move(cues)) &&
+                    applyDialogueGraphMutation(runtime, std::move(next))) {
+                    runtime.map_save_status = "Timed caption and non-speech cue saved as one undoable dialogue edit.";
+                } else {
+                    runtime.map_save_status = "Timed captions require an existing node, localization key, and increasing non-negative times.";
                 }
             }
             ImGui::SameLine();

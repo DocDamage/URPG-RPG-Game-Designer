@@ -1,6 +1,8 @@
 #include "engine/core/dialogue/dialogue_graph.h"
 
 #include <algorithm>
+#include <cctype>
+#include <cmath>
 #include <set>
 #include <utility>
 
@@ -26,7 +28,32 @@ const DialogueChoice* findChoice(const DialogueNode& node, const std::string& ch
     return choice == node.choices.end() ? nullptr : &(*choice);
 }
 
+bool validMediaToken(std::string_view value) {
+    return !value.empty() && value.size() <= 128 && std::ranges::all_of(value, [](const unsigned char ch) {
+        return std::isalnum(ch) != 0 || ch == '.' || ch == '_' || ch == '-';
+    });
+}
+
+std::string_view localeLanguage(std::string_view locale) {
+    const auto separator = locale.find_first_of("-_");
+    return separator == std::string_view::npos ? locale : locale.substr(0, separator);
+}
+
 } // namespace
+
+const DialogueVoiceTake* selectDialogueVoiceTake(const DialogueNode& node, std::string_view locale,
+                                                  std::string_view fallback_locale) {
+    const auto exact = std::ranges::find_if(node.voice_takes, [&](const auto& take) { return take.locale == locale; });
+    if (exact != node.voice_takes.end()) return &*exact;
+    const auto language = localeLanguage(locale);
+    const auto languageMatch = std::ranges::find_if(node.voice_takes, [&](const auto& take) {
+        return localeLanguage(take.locale) == language;
+    });
+    if (languageMatch != node.voice_takes.end()) return &*languageMatch;
+    const auto fallback = std::ranges::find_if(node.voice_takes,
+                                               [&](const auto& take) { return take.locale == fallback_locale; });
+    return fallback == node.voice_takes.end() ? nullptr : &*fallback;
+}
 
 bool DialogueGraph::addNode(DialogueNode node) {
     if (node.id.empty() || nodes_.contains(node.id)) {
@@ -87,6 +114,85 @@ bool DialogueGraph::updateNodeMediaReferences(const std::string& node_id, std::s
     }
     current.voice_asset_id = std::move(voice_asset_id);
     current.caption_localization_key = std::move(caption_localization_key);
+    return true;
+}
+
+bool DialogueGraph::updateNodeMediaTrack(const std::string& node_id, std::string caption_localization_key,
+                                         std::vector<DialogueVoiceTake> voice_takes,
+                                         const uint32_t caption_start_ms, const uint32_t caption_end_ms,
+                                         std::vector<std::string> non_speech_cues) {
+    const auto node = nodes_.find(node_id);
+    if (node == nodes_.end() || voice_takes.empty() || caption_localization_key.empty() ||
+        caption_end_ms <= caption_start_ms || std::ranges::any_of(voice_takes, [](const auto& take) {
+            return !validMediaToken(take.locale) || !validMediaToken(take.take_id) || take.voice_asset_id.empty() ||
+                   take.duration_ms == 0 || take.muted_alternative_asset_id.empty();
+        }) || std::ranges::any_of(non_speech_cues, [](const auto& cue) { return cue.empty(); })) return false;
+    std::set<std::pair<std::string, std::string>> identities;
+    if (std::ranges::any_of(voice_takes, [&](const auto& take) {
+            return !identities.insert({take.locale, take.take_id}).second;
+        })) return false;
+    auto& current = node->second;
+    if (current.caption_localization_key == caption_localization_key && current.voice_takes == voice_takes &&
+        current.caption_start_ms == caption_start_ms && current.caption_end_ms == caption_end_ms &&
+        current.non_speech_cues == non_speech_cues) return false;
+    current.caption_localization_key = std::move(caption_localization_key);
+    current.voice_asset_id = voice_takes.front().voice_asset_id;
+    current.voice_takes = std::move(voice_takes);
+    current.caption_start_ms = caption_start_ms;
+    current.caption_end_ms = caption_end_ms;
+    current.non_speech_cues = std::move(non_speech_cues);
+    return true;
+}
+
+bool DialogueGraph::upsertNodeVoiceTake(const std::string& node_id, DialogueVoiceTake take) {
+    const auto node = nodes_.find(node_id);
+    if (node == nodes_.end() || !validMediaToken(take.locale) || !validMediaToken(take.take_id) ||
+        take.voice_asset_id.empty() || take.duration_ms == 0 || take.muted_alternative_asset_id.empty()) return false;
+    auto& takes = node->second.voice_takes;
+    const auto found = std::ranges::find_if(takes, [&](const auto& current) {
+        return current.locale == take.locale && current.take_id == take.take_id;
+    });
+    if (found != takes.end()) {
+        if (*found == take) return false;
+        *found = std::move(take);
+    } else {
+        takes.push_back(std::move(take));
+        std::ranges::sort(takes, {}, [](const auto& current) {
+            return std::pair{current.locale, current.take_id};
+        });
+    }
+    node->second.voice_asset_id = takes.front().voice_asset_id;
+    return true;
+}
+
+bool DialogueGraph::removeNodeVoiceTake(const std::string& node_id, const std::string& locale,
+                                        const std::string& take_id) {
+    const auto node = nodes_.find(node_id);
+    if (node == nodes_.end()) return false;
+    auto& takes = node->second.voice_takes;
+    const auto found = std::ranges::find_if(takes, [&](const auto& take) {
+        return take.locale == locale && take.take_id == take_id;
+    });
+    if (found == takes.end()) return false;
+    takes.erase(found);
+    node->second.voice_asset_id = takes.empty() ? std::string{} : takes.front().voice_asset_id;
+    return true;
+}
+
+bool DialogueGraph::updateNodeCaptionCue(const std::string& node_id, std::string caption_localization_key,
+                                         const uint32_t caption_start_ms, const uint32_t caption_end_ms,
+                                         std::vector<std::string> non_speech_cues) {
+    const auto node = nodes_.find(node_id);
+    if (node == nodes_.end() || caption_localization_key.empty() || caption_end_ms <= caption_start_ms ||
+        std::ranges::any_of(non_speech_cues, [](const auto& cue) { return cue.empty(); })) return false;
+    auto& current = node->second;
+    if (current.caption_localization_key == caption_localization_key &&
+        current.caption_start_ms == caption_start_ms && current.caption_end_ms == caption_end_ms &&
+        current.non_speech_cues == non_speech_cues) return false;
+    current.caption_localization_key = std::move(caption_localization_key);
+    current.caption_start_ms = caption_start_ms;
+    current.caption_end_ms = caption_end_ms;
+    current.non_speech_cues = std::move(non_speech_cues);
     return true;
 }
 
@@ -395,6 +501,34 @@ std::vector<DialogueGraphDiagnostic> DialogueGraph::validate() const {
                                        choice.id});
             }
         }
+        std::set<std::pair<std::string, std::string>> takeIdentities;
+        for (const auto& take : node.voice_takes) {
+            if (!validMediaToken(take.locale) || !validMediaToken(take.take_id) || take.voice_asset_id.empty()) {
+                diagnostics.push_back({"invalid_voice_take_identity", "Dialogue voice take identity is incomplete.",
+                                       node_id, take.take_id});
+            } else if (!takeIdentities.insert({take.locale, take.take_id}).second) {
+                diagnostics.push_back({"duplicate_voice_take", "Dialogue locale/take identity is duplicated.",
+                                       node_id, take.take_id});
+            }
+            if (take.duration_ms == 0) diagnostics.push_back(
+                {"voice_take_duration_missing", "Dialogue voice take duration evidence is missing.", node_id, take.take_id});
+            if (take.muted_alternative_asset_id.empty()) diagnostics.push_back(
+                {"voice_take_muted_alternative_missing", "Dialogue voice take requires a muted alternative.", node_id,
+                 take.take_id});
+            if (node.caption_end_ms > node.caption_start_ms && take.duration_ms > 0 &&
+                std::abs(static_cast<int64_t>(node.caption_end_ms - node.caption_start_ms) - take.duration_ms) > 250)
+                diagnostics.push_back({"voice_caption_alignment_exceeded",
+                                       "Dialogue caption and voice timing differ by more than 250 ms.", node_id,
+                                       take.take_id});
+        }
+        if (!node.voice_takes.empty() && (node.caption_localization_key.empty() ||
+                                          node.caption_end_ms <= node.caption_start_ms)) {
+            diagnostics.push_back({"voice_caption_track_incomplete",
+                                   "Dialogue voice takes require a localized, timed caption cue.", node_id, ""});
+        }
+        if (std::ranges::any_of(node.non_speech_cues, [](const auto& cue) { return cue.empty(); })) {
+            diagnostics.push_back({"non_speech_cue_invalid", "Dialogue non-speech cues cannot be empty.", node_id, ""});
+        }
     }
     return diagnostics;
 }
@@ -495,6 +629,19 @@ std::vector<DialogueGraphDiagnostic> DialogueGraph::validateVoiceAssetIds(
                                    "Dialogue node voice asset is not an attached audio asset in the active project.",
                                    node_id, ""});
         }
+        for (const auto& take : node.voice_takes) {
+            if (!take.voice_asset_id.empty() && !voice_asset_ids.contains(take.voice_asset_id)) {
+                diagnostics.push_back({"missing_voice_take_asset",
+                                       "Dialogue locale voice take is not an attached audio asset.", node_id,
+                                       take.take_id});
+            }
+            if (!take.muted_alternative_asset_id.empty() &&
+                !voice_asset_ids.contains(take.muted_alternative_asset_id)) {
+                diagnostics.push_back({"missing_muted_alternative_asset",
+                                       "Dialogue muted alternative is not an attached asset.", node_id,
+                                       take.take_id});
+            }
+        }
     }
     return diagnostics;
 }
@@ -526,6 +673,10 @@ std::optional<DialogueGraph> DialogueGraph::fromJson(const nlohmann::json& json)
                 (node_json.contains("has_canvas_position") && !node_json["has_canvas_position"].is_boolean())) {
                 return std::nullopt;
             }
+            if ((node_json.contains("voice_takes") && !node_json["voice_takes"].is_array()) ||
+                (node_json.contains("caption_start_ms") && !node_json["caption_start_ms"].is_number_unsigned()) ||
+                (node_json.contains("caption_end_ms") && !node_json["caption_end_ms"].is_number_unsigned()) ||
+                (node_json.contains("non_speech_cues") && !node_json["non_speech_cues"].is_array())) return std::nullopt;
             DialogueNode node{node_json["id"].get<std::string>(), node_json["speaker_id"].get<std::string>(),
                               node_json["speaker_name"].get<std::string>(),
                               node_json["localization_key"].get<std::string>(),
@@ -533,6 +684,26 @@ std::optional<DialogueGraph> DialogueGraph::fromJson(const nlohmann::json& json)
                               node_json.value("voice_asset_id", ""),
                               node_json.value("caption_localization_key", ""), node_json.value("canvas_x", 0),
                               node_json.value("canvas_y", 0), node_json.value("has_canvas_position", false)};
+            if (node_json.contains("voice_takes")) for (const auto& take : node_json["voice_takes"]) {
+                if (!take.is_object() || !take.contains("locale") || !take["locale"].is_string() ||
+                    !take.contains("take_id") || !take["take_id"].is_string() ||
+                    !take.contains("voice_asset_id") || !take["voice_asset_id"].is_string() ||
+                    !take.contains("duration_ms") || !take["duration_ms"].is_number_unsigned() ||
+                    !take.contains("muted_alternative_asset_id") ||
+                    !take["muted_alternative_asset_id"].is_string()) return std::nullopt;
+                node.voice_takes.push_back({take["locale"].get<std::string>(), take["take_id"].get<std::string>(),
+                                            take["voice_asset_id"].get<std::string>(),
+                                            take["duration_ms"].get<uint32_t>(),
+                                            take["muted_alternative_asset_id"].get<std::string>()});
+            }
+            node.caption_start_ms = node_json.value("caption_start_ms", 0U);
+            node.caption_end_ms = node_json.value("caption_end_ms", 0U);
+            if (node_json.contains("non_speech_cues")) {
+                for (const auto& cue : node_json["non_speech_cues"]) {
+                    if (!cue.is_string()) return std::nullopt;
+                    node.non_speech_cues.push_back(cue.get<std::string>());
+                }
+            }
             for (const auto& choice_json : node_json["choices"]) {
                 if (!choice_json.is_object() || !choice_json.contains("id") || !choice_json["id"].is_string() ||
                     !choice_json.contains("label") || !choice_json["label"].is_string() ||
@@ -623,6 +794,15 @@ nlohmann::json DialogueGraph::serialize() const {
         }
         if (!node.caption_localization_key.empty()) {
             node_json["caption_localization_key"] = node.caption_localization_key;
+        }
+        if (!node.voice_takes.empty()) {
+            node_json["voice_takes"] = nlohmann::json::array();
+            for (const auto& take : node.voice_takes) node_json["voice_takes"].push_back({
+                {"locale", take.locale}, {"take_id", take.take_id}, {"voice_asset_id", take.voice_asset_id},
+                {"duration_ms", take.duration_ms}, {"muted_alternative_asset_id", take.muted_alternative_asset_id}});
+            node_json["caption_start_ms"] = node.caption_start_ms;
+            node_json["caption_end_ms"] = node.caption_end_ms;
+            node_json["non_speech_cues"] = node.non_speech_cues;
         }
         if (node.has_canvas_position) {
             node_json["canvas_x"] = node.canvas_x;

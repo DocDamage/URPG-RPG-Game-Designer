@@ -463,6 +463,7 @@ CaptionAuditResult auditCaptionTrack(const std::vector<CaptionCue>& cues,
     for (const auto& cue : cues) {
         if (!validId(cue.id) || !ids.insert(cue.id).second) result.diagnostics.push_back("Caption IDs must be stable and unique.");
         if (cue.speaker_id.empty()) result.diagnostics.push_back(cue.id + ": speaker identity is missing.");
+        if (!validId(cue.locale)) result.diagnostics.push_back(cue.id + ": caption locale is invalid.");
         if (cue.text.empty()) result.diagnostics.push_back(cue.id + ": caption text is missing.");
         if (cue.take_id.empty()) result.diagnostics.push_back(cue.id + ": locale take is missing.");
         if (!cue.muted_alternative) result.diagnostics.push_back(cue.id + ": muted alternative is missing.");
@@ -470,6 +471,8 @@ CaptionAuditResult auditCaptionTrack(const std::vector<CaptionCue>& cues,
         const uint32_t caption_duration = cue.end_ms > cue.start_ms ? cue.end_ms - cue.start_ms : 0;
         if (cue.voice_duration_ms > 0 && std::abs(static_cast<int64_t>(caption_duration) - cue.voice_duration_ms) > 250)
             result.diagnostics.push_back(cue.id + ": caption and voice timing differ by more than 250 ms.");
+        if (std::ranges::any_of(cue.non_speech_cues, [](const auto& item) { return item.empty(); }))
+            result.diagnostics.push_back(cue.id + ": non-speech cue is empty.");
         locales.insert(cue.locale);
     }
     for (const auto& locale : required_locales) if (!locales.contains(locale))
@@ -492,7 +495,9 @@ DialogueCaptionTrackBuild buildDialogueCaptionTrack(const dialogue::DialogueGrap
         cue.id = id + "." + input.locale;
         cue.speaker_id = node.speaker_id;
         cue.locale = input.locale;
-        cue.take_id = input.default_take_id;
+        const auto* persistedTake = dialogue::selectDialogueVoiceTake(
+            node, input.locale, input.catalog ? input.catalog->getFallbackLocale() : std::string{});
+        cue.take_id = persistedTake ? persistedTake->take_id : input.default_take_id;
         cue.text = node.text_preview;
         if (!node.caption_localization_key.empty()) {
             if (input.catalog) {
@@ -504,16 +509,24 @@ DialogueCaptionTrackBuild buildDialogueCaptionTrack(const dialogue::DialogueGrap
             }
         }
         const auto start = input.start_ms_by_node.find(id);
-        cue.start_ms = start == input.start_ms_by_node.end() ? sequential_start : start->second;
-        const auto duration = input.voice_duration_ms_by_asset.find(node.voice_asset_id);
-        cue.voice_duration_ms = duration == input.voice_duration_ms_by_asset.end() ? 0 : duration->second;
+        cue.start_ms = start == input.start_ms_by_node.end()
+                           ? (node.caption_end_ms > node.caption_start_ms ? node.caption_start_ms : sequential_start)
+                           : start->second;
+        const auto voiceAsset = persistedTake ? persistedTake->voice_asset_id : node.voice_asset_id;
+        const auto duration = input.voice_duration_ms_by_asset.find(voiceAsset);
+        cue.voice_duration_ms = duration == input.voice_duration_ms_by_asset.end()
+                                    ? (persistedTake ? persistedTake->duration_ms : 0)
+                                    : duration->second;
         if (cue.voice_duration_ms == 0)
             result.diagnostics.push_back(id + ": voice duration evidence is missing.");
-        cue.end_ms = cue.start_ms + cue.voice_duration_ms;
+        cue.end_ms = node.caption_end_ms > node.caption_start_ms && start == input.start_ms_by_node.end()
+                         ? node.caption_end_ms : cue.start_ms + cue.voice_duration_ms;
         sequential_start = cue.end_ms;
         const auto non_speech = input.non_speech_cues_by_node.find(id);
+        cue.non_speech_cues = node.non_speech_cues;
         if (non_speech != input.non_speech_cues_by_node.end()) cue.non_speech_cues = non_speech->second;
-        cue.muted_alternative = input.muted_alternative_voice_assets.contains(node.voice_asset_id);
+        cue.muted_alternative = (persistedTake && !persistedTake->muted_alternative_asset_id.empty()) ||
+                                input.muted_alternative_voice_assets.contains(voiceAsset);
         result.cues.push_back(std::move(cue));
     }
     if (result.cues.empty()) result.diagnostics.push_back("Dialogue graph has no voice or caption references to build.");
@@ -596,7 +609,9 @@ SemanticEditorAlternative semanticAlternativeForDialogue(const dialogue::Dialogu
     for (const auto& [id, node] : graph.nodes()) {
         (void)result.addNode({id, node.speaker_name.empty() ? id : node.speaker_name + ": " + node.text_preview,
                              node.ending ? "ending" : "dialogue", order++,
-                             {{"speaker_id", node.speaker_id}, {"localization_key", node.localization_key}}, {}});
+                             {{"speaker_id", node.speaker_id}, {"localization_key", node.localization_key},
+                              {"caption_localization_key", node.caption_localization_key},
+                              {"voice_take_count", std::to_string(node.voice_takes.size())}}, {}});
     }
     for (const auto& [id, node] : graph.nodes())
         for (const auto& choice : node.choices) (void)result.connect(id, choice.target_node_id);

@@ -1219,6 +1219,25 @@ TEST_CASE("MapScene consumes governed caption takes and inclusive voice policy",
     invalid.take_id.clear();
     REQUIRE_FALSE(map.setDialogueCaptionTrack({invalid}, {}));
     REQUIRE(map.activeAuthoredDialogueCaptionCue()->take_id == "take.fr.02");
+
+    REQUIRE(graph.upsertNodeVoiceTake("arrival",
+                                      {"en-US", "take.en.persisted", "voice.en.persisted", 1100,
+                                       "voice.en.muted"}));
+    REQUIRE(graph.upsertNodeVoiceTake("arrival",
+                                      {"fr-FR", "take.fr.persisted", "voice.fr.persisted", 1200,
+                                       "voice.fr.muted"}));
+    REQUIRE(graph.updateNodeCaptionCue("arrival", "dialogue.arrival", 100, 1300, {"gate closes"}));
+    MapScene persistedMap("PersistedCaptionMap", 2, 2);
+    persistedMap.setAudioCore(audio);
+    persistedMap.setDialogueLocaleCatalog(locale);
+    REQUIRE(persistedMap.setDialogueInclusiveSettings(settings));
+    REQUIRE(persistedMap.startAuthoredDialogue(graph, "test.persisted_caption"));
+    CHECK(persistedMap.activeAuthoredDialogueVoiceAssetId() == "voice.fr.persisted");
+    CHECK(persistedMap.activeAuthoredDialogueCaption() == "Fallback caption [gate closes]");
+    REQUIRE(persistedMap.activeAuthoredDialogueCaptionCue().has_value());
+    CHECK(persistedMap.activeAuthoredDialogueCaptionCue()->take_id == "take.fr.persisted");
+    CHECK(persistedMap.activeAuthoredDialogueCaptionCue()->start_ms == 100);
+    CHECK(persistedMap.activeAuthoredDialogueCaptionCue()->end_ms == 1300);
 }
 
 TEST_CASE("InputCore stores text input, editing text, and backspace for one input frame",

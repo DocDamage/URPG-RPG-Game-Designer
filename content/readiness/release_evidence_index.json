@@ -1237,15 +1237,15 @@
     {
       "requirementId": "PCQ-653",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq651][pcq653],[scene][map][dialogue][runtime]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq653]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[dialogue][captions][voice][pcq653]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[scene][map][dialogue][runtime][captions]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[dialogue][localization][assets]\" --reporter console",
       "reports": [],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "a6fdd7807f731bbf57fe6e559ea5ce58e45382d4",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "Caption track audit requires stable cues, speaker identity, text, locale/take selection, muted alternatives, valid timing, voice alignment within 250 ms, required locale coverage, and structured non-speech cue fields. DialogueGraph builds that governed track through LocaleCatalog. MapScene now consumes validated cues, selects the locale-specific take asset, exposes the active cue, renders non-speech cues, dispatches voice through the production AudioCore, and forces the caption alternative under muted policy. The focused runtime regression passes 52 assertions in 4 cases. Authoring UI, representative localized recordings, manual muted playthrough review, clean-commit evidence, and release signoff remain pending."
+      "notes": "Caption-track validation requires stable cues, speaker identity, localized text, locale/take identity, attached muted alternatives, increasing timing, voice alignment within 250 ms, required locale coverage, and non-empty structured non-speech cues. DialogueGraph now persists ordered locale voice takes, take IDs, asset IDs, measured durations, muted-alternative asset IDs, caption timing, caption localization keys, and non-speech cues while preserving legacy single-voice documents. Native authoring controls load, upsert, remove, and save locale takes and timed cues through the normal undoable dialogue mutation path. Exact locale, language-family, then declared fallback selection is deterministic. The caption-track builder, project localization/asset audit, semantic editor alternative, and MapScene all consume the persisted authority; injected tracks remain an explicit override for tests/tools. MapScene automatically selects the locale take, exposes timing/cue state, renders non-speech cues, dispatches enabled voice through AudioCore, and forces the localized caption when voice is muted. This checkpoint passes 67 PCQ-653 assertions in 4 cases, 21 persisted media-track assertions, 25 focused runtime-caption assertions, and 22 localization/asset-custody assertions. Representative licensed localized recordings, manual sound-off playthrough capture, clean-candidate evidence, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-654",

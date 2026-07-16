@@ -85,6 +85,43 @@ TEST_CASE("dialogue choices preserve optional localization references", "[dialog
     REQUIRE(legacy_start->choices[0].localization_key.empty());
 }
 
+TEST_CASE("dialogue media tracks persist locale takes timing cues and deterministic selection",
+          "[dialogue][captions][voice][pcq653]") {
+    urpg::dialogue::DialogueGraph graph;
+    REQUIRE(graph.addNode({"line", "guide", "Guide", "dialogue.line", "Hello", true, {}}));
+    REQUIRE(graph.upsertNodeVoiceTake("line", {"en-US", "take.en.1", "voice.en", 1200, "muted.en"}));
+    REQUIRE(graph.upsertNodeVoiceTake("line", {"fr-FR", "take.fr.1", "voice.fr", 1250, "muted.fr"}));
+    REQUIRE(graph.updateNodeCaptionCue("line", "caption.line", 250, 1500, {"door opens"}));
+
+    const auto* exact = urpg::dialogue::selectDialogueVoiceTake(*graph.findNode("line"), "fr-FR", "en-US");
+    REQUIRE(exact != nullptr);
+    CHECK(exact->voice_asset_id == "voice.fr");
+    const auto* language = urpg::dialogue::selectDialogueVoiceTake(*graph.findNode("line"), "fr-CA", "en-US");
+    REQUIRE(language != nullptr);
+    CHECK(language->take_id == "take.fr.1");
+    const auto* fallback = urpg::dialogue::selectDialogueVoiceTake(*graph.findNode("line"), "ja-JP", "en-US");
+    REQUIRE(fallback != nullptr);
+    CHECK(fallback->voice_asset_id == "voice.en");
+    CHECK(graph.validate().empty());
+
+    const auto restored = urpg::dialogue::DialogueGraph::fromJson(graph.serialize());
+    REQUIRE(restored.has_value());
+    const auto* line = restored->findNode("line");
+    REQUIRE(line != nullptr);
+    CHECK(line->voice_takes.size() == 2);
+    CHECK(line->caption_start_ms == 250);
+    CHECK(line->caption_end_ms == 1500);
+    CHECK(line->non_speech_cues == std::vector<std::string>{"door opens"});
+
+    REQUIRE(graph.upsertNodeVoiceTake("line", {"fr-FR", "take.fr.1", "voice.fr", 2000, "muted.fr"}));
+    const auto diagnostics = graph.validate();
+    REQUIRE(std::ranges::any_of(diagnostics, [](const auto& diagnostic) {
+        return diagnostic.code == "voice_caption_alignment_exceeded";
+    }));
+    REQUIRE(graph.removeNodeVoiceTake("line", "fr-FR", "take.fr.1"));
+    CHECK(graph.findNode("line")->voice_takes.size() == 1);
+}
+
 TEST_CASE("project localization audit reports dialogue voice, caption, and governed take custody",
           "[dialogue][localization][assets]") {
     const auto root = std::filesystem::temp_directory_path() /

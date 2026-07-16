@@ -228,6 +228,23 @@ TEST_CASE("Dialogue voice and localization references build an auditable timed c
     REQUIRE(built.cues[0].end_ms == 1450);
     REQUIRE(built.cues[0].non_speech_cues == std::vector<std::string>{"door opens"});
     REQUIRE(urpg::accessibility::auditCaptionTrack(built.cues, {"en-US"}).complete);
+
+    REQUIRE(graph.upsertNodeVoiceTake("welcome",
+                                      {"en-US", "take.persisted", "voice.guide.persisted", 1200,
+                                       "voice.guide.muted"}));
+    REQUIRE(graph.updateNodeCaptionCue("welcome", "dialogue.guide", 400, 1600, {"bell rings"}));
+    urpg::accessibility::DialogueCaptionTrackInput persistedInput;
+    persistedInput.locale = "en-US";
+    persistedInput.default_take_id = "legacy-fallback";
+    persistedInput.catalog = &catalog;
+    const auto persisted = urpg::accessibility::buildDialogueCaptionTrack(graph, persistedInput);
+    REQUIRE(persisted.diagnostics.empty());
+    REQUIRE(persisted.cues.size() == 1);
+    CHECK(persisted.cues[0].take_id == "take.persisted");
+    CHECK(persisted.cues[0].start_ms == 400);
+    CHECK(persisted.cues[0].end_ms == 1600);
+    CHECK(persisted.cues[0].non_speech_cues == std::vector<std::string>{"bell rings"});
+    CHECK(persisted.cues[0].muted_alternative);
 }
 
 TEST_CASE("Semantic editor alternative supports ordered tree properties and connection creation",

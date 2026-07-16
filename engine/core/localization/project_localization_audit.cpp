@@ -210,7 +210,23 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
                           addReference(stringField(node, "caption_localization_key"), entry.path(), "dialogue.caption", id);
                           const auto voiceAssetId = stringField(node, "voice_asset_id");
                           const auto captionKey = stringField(node, "caption_localization_key");
-                          if (!voiceAssetId.empty() || !captionKey.empty()) {
+                          const bool hasGovernedTakes = node.contains("voice_takes") && node["voice_takes"].is_array() &&
+                                                        !node["voice_takes"].empty();
+                          if (hasGovernedTakes) {
+                              for (const auto& take : node["voice_takes"]) {
+                                  if (!take.is_object()) continue;
+                                  ProjectDialogueMediaReference reference{
+                                      entry.path(), id, stringField(take, "voice_asset_id"), captionKey};
+                                  reference.voice_take_locale = stringField(take, "locale");
+                                  reference.voice_take_id = stringField(take, "take_id");
+                                  reference.muted_alternative_asset_id = stringField(take, "muted_alternative_asset_id");
+                                  reference.voice_take_metadata_present = true;
+                                  reference.voice_take_metadata_valid = !reference.voice_take_locale.empty() &&
+                                      !reference.voice_take_id.empty() && !reference.voice_asset_id.empty() &&
+                                      !reference.muted_alternative_asset_id.empty();
+                                  audit.dialogue_media_references.push_back(std::move(reference));
+                              }
+                          } else if (!voiceAssetId.empty() || !captionKey.empty()) {
                               audit.dialogue_media_references.push_back(
                                   {entry.path(), id, voiceAssetId, captionKey});
                           }
@@ -280,16 +296,24 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
         }
         if (attachedVoice != attached_audio_assets.end()) {
             const auto metadata = inspectVoiceTakeMetadata(attachedVoice->second);
-            reference.voice_take_metadata_present = metadata.present;
-            reference.voice_take_metadata_valid = metadata.valid;
-            reference.voice_take_locale = metadata.locale;
-            reference.voice_take_id = metadata.takeId;
-            reference.muted_alternative_asset_id = metadata.mutedAlternativeAssetId;
+            const bool persistedMetadata = reference.voice_take_metadata_present;
+            const bool metadataMatchesPersisted = !persistedMetadata ||
+                (metadata.locale == reference.voice_take_locale && metadata.takeId == reference.voice_take_id &&
+                 metadata.mutedAlternativeAssetId == reference.muted_alternative_asset_id);
+            reference.voice_take_metadata_present = persistedMetadata || metadata.present;
+            reference.voice_take_metadata_valid = reference.voice_take_metadata_valid && metadata.valid &&
+                                                  metadataMatchesPersisted;
+            if (!persistedMetadata) {
+                reference.voice_take_metadata_valid = metadata.valid;
+                reference.voice_take_locale = metadata.locale;
+                reference.voice_take_id = metadata.takeId;
+                reference.muted_alternative_asset_id = metadata.mutedAlternativeAssetId;
+            }
             if (!metadata.present) {
                 audit.dialogue_media_issues.push_back(
                     {"dialogue_voice_take_metadata_missing", reference.document_path, reference.node_id,
                      reference.voice_asset_id, reference.caption_key});
-            } else if (!metadata.valid) {
+            } else if (!metadata.valid || !metadataMatchesPersisted) {
                 audit.dialogue_media_issues.push_back(
                     {"dialogue_voice_take_metadata_invalid", reference.document_path, reference.node_id,
                      reference.voice_asset_id, reference.caption_key});

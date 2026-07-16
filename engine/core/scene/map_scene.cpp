@@ -1436,6 +1436,10 @@ bool MapScene::beginActiveAuthoredDialogueNode(const std::string& node_id) {
     page.variant.route_token = "native_dialogue_graph";
     m_activeAuthoredDialogueCaptionCue.reset();
     const auto locale = dialogueLocaleCode();
+    const auto fallbackLocale = m_dialogueLocaleCatalog.has_value()
+                                    ? m_dialogueLocaleCatalog->getFallbackLocale()
+                                    : std::string{};
+    const auto* persistedTake = urpg::dialogue::selectDialogueVoiceTake(*node, locale, fallbackLocale);
     const auto cue = std::find_if(m_authoredDialogueCaptionTrack.begin(), m_authoredDialogueCaptionTrack.end(),
                                   [&](const auto& candidate) {
                                       return candidate.locale == locale &&
@@ -1448,14 +1452,23 @@ bool MapScene::beginActiveAuthoredDialogueNode(const std::string& node_id) {
     std::string resolved_caption;
     if (m_activeAuthoredDialogueCaptionCue.has_value()) {
         resolved_caption = m_activeAuthoredDialogueCaptionCue->text;
+    } else if (!node->caption_localization_key.empty()) {
+        resolved_caption = resolve_text(node->caption_localization_key, page.body, node->id + ":caption");
+    }
+
+    if (!m_activeAuthoredDialogueCaptionCue.has_value() && persistedTake != nullptr) {
+        m_activeAuthoredDialogueCaptionCue = urpg::accessibility::CaptionCue{
+            node->id + "." + locale, node->speaker_id, locale, persistedTake->take_id, resolved_caption,
+            node->non_speech_cues, node->caption_start_ms, node->caption_end_ms, persistedTake->duration_ms,
+            !persistedTake->muted_alternative_asset_id.empty()};
+    }
+    if (m_activeAuthoredDialogueCaptionCue.has_value()) {
         for (const auto& non_speech : m_activeAuthoredDialogueCaptionCue->non_speech_cues) {
             if (!non_speech.empty()) {
                 if (!resolved_caption.empty()) resolved_caption += " ";
                 resolved_caption += "[" + non_speech + "]";
             }
         }
-    } else if (!node->caption_localization_key.empty()) {
-        resolved_caption = resolve_text(node->caption_localization_key, page.body, node->id + ":caption");
     }
 
     m_activeAuthoredDialogueVoiceAssetId = node->voice_asset_id;
@@ -1464,6 +1477,8 @@ bool MapScene::beginActiveAuthoredDialogueNode(const std::string& node_id) {
             m_activeAuthoredDialogueCaptionCue->take_id);
         if (selected_take != m_authoredDialogueVoiceAssetByTakeId.end()) {
             m_activeAuthoredDialogueVoiceAssetId = selected_take->second;
+        } else if (persistedTake != nullptr && persistedTake->take_id == m_activeAuthoredDialogueCaptionCue->take_id) {
+            m_activeAuthoredDialogueVoiceAssetId = persistedTake->voice_asset_id;
         }
     }
     const bool voice_enabled = m_dialogueInclusiveSettings.master_volume > 0.0F &&

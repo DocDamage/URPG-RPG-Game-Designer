@@ -7,6 +7,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace urpg::dialogue {
@@ -33,6 +34,16 @@ struct DialogueChoice {
     std::string localization_key;
 };
 
+struct DialogueVoiceTake {
+    std::string locale;
+    std::string take_id;
+    std::string voice_asset_id;
+    uint32_t duration_ms = 0;
+    std::string muted_alternative_asset_id;
+
+    bool operator==(const DialogueVoiceTake&) const = default;
+};
+
 struct DialogueNode {
     std::string id;
     std::string speaker_id;
@@ -48,7 +59,17 @@ struct DialogueNode {
     int32_t canvas_x = 0;
     int32_t canvas_y = 0;
     bool has_canvas_position = false;
+    // Governed locale/take records supersede the legacy single voice_asset_id
+    // when present. Legacy projects remain readable and migrate on the next
+    // authored media-track edit.
+    std::vector<DialogueVoiceTake> voice_takes;
+    uint32_t caption_start_ms = 0;
+    uint32_t caption_end_ms = 0;
+    std::vector<std::string> non_speech_cues;
 };
+
+const DialogueVoiceTake* selectDialogueVoiceTake(const DialogueNode& node, std::string_view locale,
+                                                  std::string_view fallback_locale = {});
 
 struct DialogueGraphDiagnostic {
     std::string code;
@@ -83,6 +104,14 @@ public:
                     std::string localization_key, std::string text_preview, bool ending);
     bool updateNodeMediaReferences(const std::string& node_id, std::string voice_asset_id,
                                    std::string caption_localization_key);
+    bool updateNodeMediaTrack(const std::string& node_id, std::string caption_localization_key,
+                              std::vector<DialogueVoiceTake> voice_takes, uint32_t caption_start_ms,
+                              uint32_t caption_end_ms, std::vector<std::string> non_speech_cues);
+    bool upsertNodeVoiceTake(const std::string& node_id, DialogueVoiceTake take);
+    bool removeNodeVoiceTake(const std::string& node_id, const std::string& locale, const std::string& take_id);
+    bool updateNodeCaptionCue(const std::string& node_id, std::string caption_localization_key,
+                              uint32_t caption_start_ms, uint32_t caption_end_ms,
+                              std::vector<std::string> non_speech_cues);
     bool updateNodeCanvasPosition(const std::string& node_id, int32_t canvas_x, int32_t canvas_y);
     bool addChoice(const std::string& node_id, DialogueChoice choice);
     bool removeChoice(const std::string& node_id, const std::string& choice_id);
