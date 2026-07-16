@@ -125,6 +125,12 @@ struct AssetAudioSourceInspectionResult {
     uint64_t frameCount = 0;
     uint64_t durationMs = 0;
     std::vector<float> waveformPeaks;
+    // Fixed-size, read-only DFT-magnitude preview in time-major order. This
+    // supports visual inspection only; it is not a codec, loudness, or
+    // listening-quality measurement.
+    uint32_t spectrogramTimeBins = 0;
+    uint32_t spectrogramFrequencyBins = 0;
+    std::vector<float> spectrogramMagnitudes;
 };
 
 class AssetTransformRevisionService {

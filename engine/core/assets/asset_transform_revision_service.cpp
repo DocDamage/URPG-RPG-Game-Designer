@@ -173,6 +173,41 @@ bool writePcm16Wav(const std::filesystem::path& path, const Pcm16Wav& wav) {
     return output.good();
 }
 
+std::vector<float> inspectPcm16Spectrogram(const Pcm16Wav& wav, const uint64_t frameCount,
+                                            const uint32_t timeBins, const uint32_t frequencyBins) {
+    constexpr uint64_t maxAnalysisFrames = 256;
+    constexpr double pi = 3.141592653589793238462643383279502884;
+    const auto analysisFrames = std::min(frameCount, maxAnalysisFrames);
+    std::vector<float> magnitudes(static_cast<size_t>(timeBins) * frequencyBins, 0.0F);
+    if (analysisFrames == 0 || timeBins == 0 || frequencyBins == 0) return magnitudes;
+
+    for (uint32_t timeBin = 0; timeBin < timeBins; ++timeBin) {
+        const auto centerFrame = std::min<uint64_t>(
+            frameCount - 1U, static_cast<uint64_t>((static_cast<double>(timeBin) + 0.5) * frameCount / timeBins));
+        const auto startFrame = centerFrame > analysisFrames / 2U
+                                    ? std::min(centerFrame - analysisFrames / 2U, frameCount - analysisFrames)
+                                    : 0U;
+        for (uint32_t frequencyBin = 0; frequencyBin < frequencyBins; ++frequencyBin) {
+            double real = 0.0;
+            double imaginary = 0.0;
+            for (uint64_t sampleIndex = 0; sampleIndex < analysisFrames; ++sampleIndex) {
+                int64_t mixedSample = 0;
+                for (uint16_t channel = 0; channel < wav.channels; ++channel) {
+                    mixedSample += wav.samples[static_cast<size_t>((startFrame + sampleIndex) * wav.channels + channel)];
+                }
+                const auto normalized = static_cast<double>(mixedSample) / (32768.0 * wav.channels);
+                const auto angle = (2.0 * pi * frequencyBin * sampleIndex) / analysisFrames;
+                real += normalized * std::cos(angle);
+                imaginary -= normalized * std::sin(angle);
+            }
+            const auto magnitude = std::sqrt(real * real + imaginary * imaginary) / analysisFrames;
+            magnitudes[static_cast<size_t>(timeBin) * frequencyBins + frequencyBin] =
+                static_cast<float>(std::clamp(magnitude, 0.0, 1.0));
+        }
+    }
+    return magnitudes;
+}
+
 } // namespace
 
 AssetTransformRevisionResult AssetTransformRevisionService::createAtlasMetadataRevision(
@@ -689,6 +724,8 @@ AssetAudioSourceInspectionResult AssetTransformRevisionService::inspectAudioTrim
     }
     const auto frameCount = static_cast<uint64_t>(wav.samples.size() / wav.channels);
     constexpr size_t waveformBucketCount = 128;
+    constexpr uint32_t spectrogramTimeBins = 32;
+    constexpr uint32_t spectrogramFrequencyBins = 24;
     std::vector<float> waveform(waveformBucketCount, 0.0F);
     for (uint64_t frame = 0; frame < frameCount; ++frame) {
         const auto bucket = std::min<size_t>(
@@ -699,8 +736,10 @@ AssetAudioSourceInspectionResult AssetTransformRevisionService::inspectAudioTrim
             waveform[bucket] = std::max(waveform[bucket], static_cast<float>(amplitude) / 32768.0F);
         }
     }
+    const auto spectrogram = inspectPcm16Spectrogram(wav, frameCount, spectrogramTimeBins, spectrogramFrequencyBins);
     return {true, "asset_audio_source_inspection_ready", "PCM16 WAV source inspection is ready.", sha256File(sourcePath),
-            wav.channels, wav.sampleRate, frameCount, (frameCount * 1000U) / wav.sampleRate, std::move(waveform)};
+            wav.channels, wav.sampleRate, frameCount, (frameCount * 1000U) / wav.sampleRate, std::move(waveform),
+            spectrogramTimeBins, spectrogramFrequencyBins, std::move(spectrogram)};
 }
 
 AssetTransformRevisionResult AssetTransformRevisionService::createAudioTrimFadeGainRevision(

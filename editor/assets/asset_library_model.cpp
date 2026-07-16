@@ -2465,6 +2465,9 @@ nlohmann::json AssetLibraryModel::inspectAudioTrimFadeGainSource(std::string sou
         {"frame_count", 0},
         {"duration_ms", 0},
         {"waveform_peaks", nlohmann::json::array()},
+        {"spectrogram_time_bins", 0},
+        {"spectrogram_frequency_bins", 0},
+        {"spectrogram_magnitudes", nlohmann::json::array()},
     };
     const auto found = library_.findAsset(source_path);
     if (found.has_value()) {
@@ -2480,6 +2483,9 @@ nlohmann::json AssetLibraryModel::inspectAudioTrimFadeGainSource(std::string sou
         action["frame_count"] = result.frameCount;
         action["duration_ms"] = result.durationMs;
         action["waveform_peaks"] = result.waveformPeaks;
+        action["spectrogram_time_bins"] = result.spectrogramTimeBins;
+        action["spectrogram_frequency_bins"] = result.spectrogramFrequencyBins;
+        action["spectrogram_magnitudes"] = result.spectrogramMagnitudes;
     }
     return action;
 }

@@ -3524,6 +3524,35 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                             drawList->AddRect(ImVec2(x0, waveformMin.y), ImVec2(x1, waveformMax.y),
                                               IM_COL32(80, 170, 255, 255), 0.0F, 0, 2.0F);
                         }
+                        const auto timeBins = audioWaveformInspection.value("spectrogram_time_bins", 0U);
+                        const auto frequencyBins = audioWaveformInspection.value("spectrogram_frequency_bins", 0U);
+                        const auto magnitudes = audioWaveformInspection.value("spectrogram_magnitudes", nlohmann::json::array());
+                        if (timeBins != 0 && frequencyBins != 0 && magnitudes.is_array() &&
+                            magnitudes.size() == static_cast<size_t>(timeBins) * frequencyBins) {
+                            ImGui::TextDisabled("Read-only DFT magnitude preview (%u time x %u frequency bins).", timeBins,
+                                                frequencyBins);
+                            const ImVec2 spectrogramSize(waveformSize.x, 120.0F);
+                            const auto spectrogramMin = ImGui::GetCursorScreenPos();
+                            ImGui::InvisibleButton("Audio Spectrogram", spectrogramSize);
+                            const auto spectrogramMax = ImGui::GetItemRectMax();
+                            drawList->AddRectFilled(spectrogramMin, spectrogramMax, IM_COL32(18, 23, 31, 255));
+                            for (uint32_t timeBin = 0; timeBin < timeBins; ++timeBin) {
+                                for (uint32_t frequencyBin = 0; frequencyBin < frequencyBins; ++frequencyBin) {
+                                    const auto magnitude = std::clamp(
+                                        magnitudes[static_cast<size_t>(timeBin) * frequencyBins + frequencyBin].get<float>(),
+                                        0.0F, 1.0F);
+                                    const auto red = static_cast<int>(magnitude * 255.0F);
+                                    const auto green = static_cast<int>(std::sqrt(magnitude) * 210.0F);
+                                    const auto blue = static_cast<int>((1.0F - magnitude) * 120.0F + magnitude * 36.0F);
+                                    const float x0 = spectrogramMin.x + static_cast<float>(timeBin) * spectrogramSize.x / timeBins;
+                                    const float x1 = spectrogramMin.x + static_cast<float>(timeBin + 1U) * spectrogramSize.x / timeBins;
+                                    const float y0 = spectrogramMax.y - static_cast<float>(frequencyBin + 1U) * spectrogramSize.y / frequencyBins;
+                                    const float y1 = spectrogramMax.y - static_cast<float>(frequencyBin) * spectrogramSize.y / frequencyBins;
+                                    drawList->AddRectFilled(ImVec2(x0, y0), ImVec2(x1, y1), IM_COL32(red, green, blue, 255));
+                                }
+                            }
+                            drawList->AddRect(spectrogramMin, spectrogramMax, IM_COL32(116, 136, 164, 255));
+                        }
                     }
                 }
                 if (audioWaveformSourcePath != path) {

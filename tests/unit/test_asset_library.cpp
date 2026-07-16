@@ -995,6 +995,12 @@ TEST_CASE("AssetTransformRevisionService creates deterministic atlas metadata re
     REQUIRE(audioInspection.durationMs == originalAudio.size());
     REQUIRE(audioInspection.waveformPeaks.size() == 128);
     REQUIRE(audioInspection.waveformPeaks.front() > 0.0F);
+    REQUIRE(audioInspection.spectrogramTimeBins == 32);
+    REQUIRE(audioInspection.spectrogramFrequencyBins == 24);
+    REQUIRE(audioInspection.spectrogramMagnitudes.size() ==
+            static_cast<size_t>(audioInspection.spectrogramTimeBins) * audioInspection.spectrogramFrequencyBins);
+    REQUIRE(audioInspection.spectrogramMagnitudes.front() > 0.0F);
+    REQUIRE(audioInspection.spectrogramMagnitudes.front() > audioInspection.spectrogramMagnitudes[1]);
     urpg::assets::AssetAudioTrimFadeGainPlan audioPlan;
     audioPlan.operationId = "trim-tone";
     audioPlan.source = audioSource;
