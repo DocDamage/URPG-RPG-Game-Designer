@@ -1,7 +1,7 @@
 {
   "schema": "urpg.manual_accessibility_review.v1",
   "requirementId": "PCQ-656",
-  "status": "pending_execution",
+  "status": "blocked_by_p1",
   "executionAttempts": [
     {
       "date": "2026-07-16",
@@ -14,6 +14,12 @@
       "method": "Windows application control retry after PID 22316 exited and the hash-aware SDL post-build fix passed",
       "result": "not_started",
       "diagnostic": "No urpg_editor process or targetable window existed, but ShellExecuteW again returned access denied for the current build/dev-ninja-debug/urpg_editor.exe before launch; no lane was reviewed or passed."
+    },
+    {
+      "date": "2026-07-16",
+      "method": "Windows application control launch and Windows UI Automation prerequisite inspection of build/dev-ninja-debug/urpg_editor.exe at 5e4cf3ec1af52164fc1791913606e96866e134fe",
+      "result": "executed_blocked",
+      "diagnostic": "The editor launched successfully. Windows UI Automation exposed only the top-level window and native title-bar controls before and after two Tab inputs; it exposed zero editor controls and focus remained on the top-level window. PCQ-656-P1-UIA-001 blocks every required route. See manual_accessibility_review_pcq656_uia_inspection.json."
     }
   ],
   "requiredRoute": [
@@ -24,14 +30,23 @@
     "package-and-reopen"
   ],
   "lanes": [
-    {"id": "keyboard_only", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
+    {"id": "keyboard_only", "status": "incomplete", "reviewer": "OpenAI Codex (automation-assisted prerequisite inspection)", "hardware": "Intel Core i5-14600K; NVIDIA GeForce RTX 3060 and Intel UHD Graphics 770 displays", "software": "Windows 11 Pro 10.0.26200 build 26200; Codex Windows application control", "build": "5e4cf3ec1af52164fc1791913606e96866e134fe", "routeResults": [], "findings": [{"id": "PCQ-656-P1-UIA-001", "severity": "P1", "result": "Tab input did not move Windows UI Automation focus away from the top-level window; the full keyboard route was not executed."}], "retest": "pending native Windows accessibility-provider implementation and full signed keyboard-only route review"},
     {"id": "controller_only", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
-    {"id": "screen_reader_windows", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
+    {"id": "screen_reader_windows", "status": "failed", "reviewer": "OpenAI Codex (automation-assisted Windows UI Automation prerequisite inspection)", "hardware": "Intel Core i5-14600K; NVIDIA GeForce RTX 3060 and Intel UHD Graphics 770 displays", "software": "Windows 11 Pro 10.0.26200 build 26200; Windows UI Automation through Codex Windows application control; Narrator/NVDA not active", "build": "5e4cf3ec1af52164fc1791913606e96866e134fe", "routeResults": [{"route": "create-or-open-project", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001"}, {"route": "author-map-event-quest-and-menu", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001"}, {"route": "playtest-and-debug", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001"}, {"route": "recover-from-invalid-action", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001"}, {"route": "package-and-reopen", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001"}], "findings": [{"id": "PCQ-656-P1-UIA-001", "severity": "P1", "result": "Only window chrome is exposed through Windows UI Automation; zero editor controls, roles, values, or focus states are available."}], "retest": "pending native Windows accessibility-provider implementation and signed supported-screen-reader review"},
     {"id": "scale_200_percent", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
     {"id": "reduced_motion", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
     {"id": "high_contrast", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
     {"id": "sound_off", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null},
     {"id": "representative_locales", "status": "pending", "reviewer": null, "hardware": null, "software": null, "build": null, "findings": [], "retest": null}
   ],
-  "completionRule": "Every lane must name reviewer, hardware, software, exact build, route results, findings and retest; unresolved P0/P1 findings block qualification."
+  "completionRule": "Every lane must name reviewer, hardware, software, exact build, route results, findings and retest; unresolved P0/P1 findings block qualification.",
+  "blockingFindings": [
+    {
+      "id": "PCQ-656-P1-UIA-001",
+      "severity": "P1",
+      "status": "open",
+      "summary": "The Windows editor exposes no authoring controls through UI Automation.",
+      "evidence": "content/readiness/manual_accessibility_review_pcq656_uia_inspection.json"
+    }
+  ]
 }

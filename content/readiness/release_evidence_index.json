@@ -1277,14 +1277,14 @@
       "requirementId": "PCQ-656",
       "status": "in_progress",
       "command": "Manual execution governed by content/readiness/manual_accessibility_review_ledger.json",
-      "reports": ["content/readiness/manual_accessibility_review_ledger.json"],
+      "reports": ["content/readiness/manual_accessibility_review_ledger.json", "content/readiness/manual_accessibility_review_pcq656_uia_inspection.json"],
       "screenshots": [],
       "recordings": [],
-      "hardware": "Pending named review hardware",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
-      "dirtyState": "dirty",
+      "hardware": "Intel Core i5-14600K; NVIDIA GeForce RTX 3060 and Intel UHD Graphics 770 displays; HID-compliant game controller HID\\VID_054C&PID_0CE6&MI_03\\7&14421623&0&0000 present but controller lane not executed",
+      "sourceCommit": "5e4cf3ec1af52164fc1791913606e96866e134fe",
+      "dirtyState": "clean",
       "evidenceDate": "2026-07-16",
-      "notes": "A machine-readable review ledger defines the common creator route and eight mandatory lanes: keyboard-only, controller-only, Windows screen reader, 200% scale, reduced motion, high contrast, sound off, and representative locales. Every lane requires a named reviewer, hardware/software, exact build, findings, and retest, and unresolved P0/P1 findings block qualification. Two 2026-07-16 Windows application-control attempts could not launch the editor because ShellExecuteW returned access denied before any window appeared; the retry occurred after the old lock-owning PID exited and the SDL post-build fix passed. Both attempts are recorded and all lanes truthfully remain pending."
+      "notes": "A machine-readable review ledger defines the common creator route and eight mandatory lanes: keyboard-only, controller-only, Windows screen reader, 200% scale, reduced motion, high contrast, sound off, and representative locales. The exact clean PCQ-655 build launched successfully through Windows application control on the named Windows 11 hardware, resolving the prior launch blocker. A Windows UI Automation prerequisite inspection then found an unresolved P1: only the top-level window and native title-bar controls are exposed before and after Tab traversal; zero editor controls, roles, values, or focus states are available and focus remains on the top-level window. PCQ-656-P1-UIA-001 blocks all five required creator routes and qualification. Source inspection confirms the SDL/OpenGL/ImGui editor registers no Windows accessibility provider. This was not a screen-reader speech-output test, and the controller, 200% scale, reduced-motion, high-contrast, sound-off, locale, and full keyboard lanes remain pending; no lane is falsely marked passed."
     },
     {
       "requirementId": "ARDY-000",
