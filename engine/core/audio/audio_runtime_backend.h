@@ -37,6 +37,10 @@ class SdlAudioRuntimeBackend {
 
     void setAssetRoot(std::filesystem::path root);
     const std::filesystem::path& assetRoot() const;
+    // Resolves a direct/conventional path or a validated project attachment
+    // manifest beneath the configured content root. This is read-only and is
+    // exposed for deterministic asset-custody diagnostics and tests.
+    std::filesystem::path resolveAssetPath(const std::string& assetId) const;
 
     bool play(const AudioBackendPlayRequest& request);
     void stop(AudioHandle handle, float fadeSeconds = 0.0f);

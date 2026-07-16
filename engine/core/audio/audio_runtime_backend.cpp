@@ -1,10 +1,14 @@
 #include "audio_runtime_backend.h"
 
+#include "engine/core/assets/asset_promotion_manifest.h"
+
 #include <SDL2/SDL.h>
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cmath>
+#include <fstream>
 #include <functional>
 
 namespace urpg::audio {
@@ -21,6 +25,17 @@ float clampVolume(float value) {
 
 bool isExplicitMissingAssetProbe(const std::string& assetId) {
     return assetId.find("missing") != std::string::npos || assetId.find("unbound") != std::string::npos;
+}
+
+bool isSafeProjectAssetId(const std::string& assetId) {
+    return !assetId.empty() && std::all_of(assetId.begin(), assetId.end(), [](const unsigned char character) {
+        return std::isalnum(character) != 0 || character == '.' || character == '_' || character == '-';
+    });
+}
+
+bool pathInside(const std::filesystem::path& root, const std::filesystem::path& candidate) {
+    const auto relative = candidate.lexically_relative(root);
+    return !relative.empty() && !relative.is_absolute() && relative.begin()->string() != "..";
 }
 
 std::vector<float> makeSyntheticStereoTone(const std::string& assetId) {
@@ -66,6 +81,11 @@ void SdlAudioRuntimeBackend::setAssetRoot(std::filesystem::path root) {
 
 const std::filesystem::path& SdlAudioRuntimeBackend::assetRoot() const {
     return m_assetRoot;
+}
+
+std::filesystem::path SdlAudioRuntimeBackend::resolveAssetPath(const std::string& assetId) const {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return resolveAssetPathLocked(assetId);
 }
 
 bool SdlAudioRuntimeBackend::play(const AudioBackendPlayRequest& request) {
@@ -348,6 +368,30 @@ std::filesystem::path SdlAudioRuntimeBackend::resolveAssetPathLocked(const std::
     const std::filesystem::path direct(assetId);
     if (std::filesystem::exists(direct) && std::filesystem::is_regular_file(direct)) {
         return direct;
+    }
+
+    if (!m_assetRoot.empty() && isSafeProjectAssetId(assetId)) {
+        std::error_code error;
+        const auto contentRoot = std::filesystem::weakly_canonical(m_assetRoot, error);
+        const auto manifestPath = contentRoot / "assets" / "manifests" / (assetId + ".json");
+        if (!error && std::filesystem::is_regular_file(manifestPath, error) && !error) {
+            try {
+                std::ifstream input(manifestPath, std::ios::binary);
+                const auto manifestJson = nlohmann::json::parse(input, nullptr, false);
+                if (!manifestJson.is_discarded()) {
+                    const auto manifest = assets::deserializeAssetPromotionManifest(manifestJson);
+                    const auto payload = std::filesystem::weakly_canonical(manifest.promotedPath, error);
+                    if (!error && manifest.assetId == assetId &&
+                        manifest.status == assets::AssetPromotionStatus::RuntimeReady &&
+                        manifest.package.includeInRuntime && manifest.preview.kind == "audio" &&
+                        std::filesystem::is_regular_file(payload, error) && !error && pathInside(contentRoot, payload)) {
+                        return payload;
+                    }
+                }
+            } catch (const nlohmann::json::exception&) {
+                // A malformed project manifest cannot become an audio source.
+            }
+        }
     }
 
     std::array<std::filesystem::path, 8> candidates = {

@@ -1,12 +1,32 @@
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/audio/audio_runtime_backend.h"
+#include "engine/core/assets/asset_promotion_manifest.h"
 #include "engine/core/global_state_hub.h"
 #include "engine/core/ui/menu_scene_graph.h"
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
 
 using namespace urpg::audio;
 using namespace urpg::ui;
+
+namespace {
+
+std::filesystem::path uniqueAudioTempRoot(const std::string& prefix) {
+    const auto tick = std::chrono::steady_clock::now().time_since_epoch().count();
+    return std::filesystem::temp_directory_path() / (prefix + "_" + std::to_string(tick));
+}
+
+void writeJsonFile(const std::filesystem::path& path, const nlohmann::json& json) {
+    std::filesystem::create_directories(path.parent_path());
+    std::ofstream output(path, std::ios::binary | std::ios::trunc);
+    output << json.dump(2) << '\n';
+}
+
+} // namespace
 
 TEST_CASE("AudioCore: Category Volume and Playback", "[audio][core]") {
     urpg::GlobalStateHub::getInstance().resetAll();
@@ -50,6 +70,37 @@ TEST_CASE("AudioCore: runtime backend reports asset failures without dropping li
 
     audio.stopHandle(handle);
     REQUIRE(audio.activeSourceCount() == 0);
+}
+
+TEST_CASE("SdlAudioRuntimeBackend resolves attached audio by stable project asset ID", "[audio][runtime][assets]") {
+    const auto root = uniqueAudioTempRoot("urpg_audio_asset_resolution");
+    const auto contentRoot = root / "content";
+    const auto payload = contentRoot / "assets" / "imported" / "voice.line" / "line.wav";
+    std::filesystem::create_directories(payload.parent_path());
+    std::ofstream(payload, std::ios::binary | std::ios::trunc) << "not-decoded-by-this-resolution-test";
+
+    urpg::assets::AssetPromotionManifest manifest;
+    manifest.assetId = "voice.line";
+    manifest.promotedPath = payload.generic_string();
+    manifest.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+    manifest.preview.kind = "audio";
+    manifest.package.includeInRuntime = true;
+    writeJsonFile(contentRoot / "assets" / "manifests" / "voice.line.json",
+                  urpg::assets::serializeAssetPromotionManifest(manifest));
+
+    SdlAudioRuntimeBackend backend;
+    backend.setAssetRoot(contentRoot);
+    REQUIRE(backend.resolveAssetPath("voice.line") == std::filesystem::weakly_canonical(payload));
+
+    const auto externalPayload = root / "outside.wav";
+    std::ofstream(externalPayload, std::ios::binary | std::ios::trunc) << "outside";
+    manifest.assetId = "voice.outside";
+    manifest.promotedPath = externalPayload.generic_string();
+    writeJsonFile(contentRoot / "assets" / "manifests" / "voice.outside.json",
+                  urpg::assets::serializeAssetPromotionManifest(manifest));
+    REQUIRE(backend.resolveAssetPath("voice.outside").empty());
+
+    std::filesystem::remove_all(root);
 }
 
 TEST_CASE("AudioCore: malformed config values fall back without throwing", "[audio][core][config]") {
