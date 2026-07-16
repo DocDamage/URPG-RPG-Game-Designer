@@ -1,0 +1,69 @@
+{
+  "schema": "urpg.manual_accessibility_inspection.v1",
+  "requirementId": "PCQ-656",
+  "inspectionId": "PCQ-656-WINDOWS-UIA-2026-07-16-04",
+  "date": "2026-07-16",
+  "reviewer": "OpenAI Codex (automation-assisted Windows UI Automation inspection)",
+  "build": {
+    "baseCommit": "efab1fcbda6956873c00b6a6d0bc1f7d1e3dfa2a",
+    "dirtyStateAtLaunch": "dirty",
+    "executable": "build/dev-ninja-debug/urpg_editor.exe",
+    "change": "Native semantic-editor projection with live quest/dialogue owner, undo-history, and dirty-state routing"
+  },
+  "software": {
+    "operatingSystem": "Windows 11 Pro 10.0.26200 build 26200, 64-bit",
+    "inspectionInterface": "Windows UI Automation through Codex Windows application control",
+    "provider": "Native IAccessible server attached to the SDL Win32 window through WM_GETOBJECT"
+  },
+  "procedure": [
+    "Build urpg_tests, urpg_runtime, and urpg_editor together.",
+    "Run the focused PCQ-656 regression.",
+    "Launch the rebuilt editor and inspect its Windows UI Automation tree.",
+    "Enter Open Project and attempt the UIA Value route for Project folder.",
+    "Attempt a keyboard fallback to load content/examples/creator_vertical_slice and inspect live semantic rows."
+  ],
+  "observations": {
+    "semanticOwnerCoverage": {
+      "result": "passed_automated_projection",
+      "owners": ["menu", "dialogue", "quest", "tile_map", "world_map"],
+      "controls": ["ordered first/previous/next/last navigation", "ordered list items", "selected-row editable properties", "owner-capability connection actions", "object-linked diagnostics"],
+      "liveBindings": "Loaded quest and dialogue drafts are projected by the editor application and mutations commit through the existing undo/redo and dirty-state coordinators. Menu, tile-map, and world-map projection remains reusable/tested but is not yet connected to live editor document owners."
+    },
+    "nativeTreeAtLaunch": "Current project, nine workspaces, creator startup commands, states, and Open Project edit/action roles were exposed.",
+    "valueOperation": {
+      "result": "not_verified",
+      "diagnostic": "The application-control client again rejected its UIA value read-only cache request with 0x80070057 before invoking a live value change."
+    },
+    "projectOpenFallback": {
+      "result": "not_verified",
+      "diagnostic": "Individual keyboard events reached the native ImGui field, but the automation sequence retained malformed prior text and did not load the fixture; no live quest tree is claimed from this inspection."
+    },
+    "focusedElement": "top-level URPG Editor window",
+    "result": "partial_remediation"
+  },
+  "automatedVerification": [
+    {
+      "command": "cmake --build build/dev-ninja-debug --target urpg_tests urpg_runtime urpg_editor -j 8",
+      "result": "passed; a follow-up no-work build confirmed all three targets current"
+    },
+    {
+      "command": "build/dev-ninja-debug/urpg_tests.exe [pcq656] --reporter compact",
+      "result": "64 assertions in 5 test cases passed"
+    }
+  ],
+  "finding": {
+    "id": "PCQ-656-P1-UIA-001",
+    "severity": "P1",
+    "status": "open_mitigation_in_progress",
+    "improvement": "Every PCQ-654 semantic owner now has one native ordered tree/list adapter for navigation, property editing, connection creation where supported, and object-linked diagnostics. Loaded quest and dialogue drafts are connected to the app bridge without bypassing undo or dirty state.",
+    "remaining": "Live assistive value editing, OS focus reporting, and an end-to-end loaded-project retest remain unverified. Menu, tile-map, and world-map owners still need live app binding; playtest, packaging, reopen, and signed keyboard/controller/screen-reader routes remain outstanding.",
+    "retest": "pending remaining live owner integration, value/focus remediation, and signed supported-screen-reader review"
+  },
+  "routeResults": [
+    {"route": "create-or-open-project", "status": "partial", "findingId": "PCQ-656-P1-UIA-001", "note": "Commands and edit/action roles are exposed; the UIA Value operation and end-to-end open remain unverified."},
+    {"route": "author-map-event-quest-and-menu", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001", "note": "All five semantic owner adapters pass focused tests and quest/dialogue are live-bound, but the loaded-project UIA route was not observed and three owners remain unbound."},
+    {"route": "playtest-and-debug", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001"},
+    {"route": "recover-from-invalid-action", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001", "note": "Object-linked diagnostics are projected by the adapter but not yet observed in a loaded native tree."},
+    {"route": "package-and-reopen", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001"}
+  ]
+}

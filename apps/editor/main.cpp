@@ -9,6 +9,7 @@
 #include "editor/accessibility/accessibility_menu_adapter.h"
 #include "editor/accessibility/accessibility_panel.h"
 #include "editor/accessibility/accessibility_spatial_adapter.h"
+#include "editor/accessibility/native_semantic_editor_accessibility.h"
 #include "editor/assets/asset_library_panel.h"
 #include "editor/assets/editor_asset_drag_payload.h"
 #include "editor/assets/editor_thumbnail_cache.h"
@@ -174,9 +175,11 @@ struct EditorPanelRuntime {
     urpg::quest::QuestWorldState quest_preview_world;
     std::vector<urpg::quest::QuestObjectiveGraphDocument> quest_undo_history;
     std::vector<urpg::quest::QuestObjectiveGraphDocument> quest_redo_history;
+    std::string native_quest_semantic_selection;
     std::optional<urpg::dialogue::DialogueGraph> dialogue_draft;
     std::vector<urpg::dialogue::DialogueGraph> dialogue_undo_history;
     std::vector<urpg::dialogue::DialogueGraph> dialogue_redo_history;
+    std::string native_dialogue_semantic_selection;
     std::map<std::string, int> dialogue_preview_values;
     std::string dialogue_preview_node_id;
     std::vector<std::string> dialogue_preview_trace;
@@ -284,6 +287,9 @@ constexpr const char* kControllerBindingDirtyDocumentId = "input.controller_bind
 constexpr const char* kGameplayRecipeDirtyDocumentId = "gameplay.recipes";
 constexpr const char* kMenuStudioDirtyDocumentId = "menu.studio";
 constexpr const char* kMzPluginLockDirtyDocumentId = "compat.mz_plugin_lock";
+
+bool applyQuestGraphMutation(EditorPanelRuntime& runtime, urpg::quest::QuestObjectiveGraphDocument next);
+bool applyDialogueGraphMutation(EditorPanelRuntime& runtime, urpg::dialogue::DialogueGraph next);
 
 void appendCreatorStartupAccessibility(urpg::editor::NativeAccessibilitySnapshot& tree,
                                        const EditorPanelRuntime& runtime) {
@@ -397,16 +403,70 @@ void appendCreatorStartupAccessibility(urpg::editor::NativeAccessibilitySnapshot
 }
 
 urpg::editor::NativeAccessibilitySnapshot nativeAccessibilitySnapshotForEditorApp(
-    const urpg::editor::EditorShell& editor_shell, const EditorPanelRuntime& runtime) {
+    const urpg::editor::EditorShell& editor_shell, EditorPanelRuntime& runtime) {
     auto tree = urpg::editor::nativeAccessibilitySnapshotForEditorShell(editor_shell);
     appendCreatorStartupAccessibility(tree, runtime);
+    if (runtime.quest_draft.has_value()) {
+        auto surface = urpg::editor::semanticCommandSurfaceForQuest(*runtime.quest_draft);
+        urpg::editor::appendNativeSemanticEditorAccessibility(
+            tree, "quest", "Quest", surface, runtime.native_quest_semantic_selection);
+    }
+    if (runtime.dialogue_draft.has_value()) {
+        auto surface = urpg::editor::semanticCommandSurfaceForDialogue(*runtime.dialogue_draft);
+        urpg::editor::appendNativeSemanticEditorAccessibility(
+            tree, "dialogue", "Dialogue", surface, runtime.native_dialogue_semantic_selection);
+    }
     return tree;
+}
+
+bool activateLiveSemanticEditorAccessibilityNode(EditorPanelRuntime& runtime,
+                                                 const std::string_view node_id) {
+    if (node_id.starts_with("semantic.quest.") && runtime.quest_draft.has_value()) {
+        auto next = *runtime.quest_draft;
+        auto surface = urpg::editor::semanticCommandSurfaceForQuest(next);
+        const auto result = urpg::editor::activateNativeSemanticEditorAccessibilityNode(
+            "quest", node_id, surface, &runtime.native_quest_semantic_selection);
+        if (result.document_changed) (void)applyQuestGraphMutation(runtime, std::move(next));
+        return result.applied;
+    }
+    if (node_id.starts_with("semantic.dialogue.") && runtime.dialogue_draft.has_value()) {
+        auto next = *runtime.dialogue_draft;
+        auto surface = urpg::editor::semanticCommandSurfaceForDialogue(next);
+        const auto result = urpg::editor::activateNativeSemanticEditorAccessibilityNode(
+            "dialogue", node_id, surface, &runtime.native_dialogue_semantic_selection);
+        if (result.document_changed) (void)applyDialogueGraphMutation(runtime, std::move(next));
+        return result.applied;
+    }
+    return false;
+}
+
+bool setLiveSemanticEditorAccessibilityValue(EditorPanelRuntime& runtime,
+                                             const std::string_view node_id,
+                                             const std::string_view value) {
+    if (node_id.starts_with("semantic.quest.") && runtime.quest_draft.has_value()) {
+        auto next = *runtime.quest_draft;
+        auto surface = urpg::editor::semanticCommandSurfaceForQuest(next);
+        const auto result = urpg::editor::setNativeSemanticEditorAccessibilityValue(
+            "quest", node_id, value, surface, &runtime.native_quest_semantic_selection);
+        if (result.document_changed) (void)applyQuestGraphMutation(runtime, std::move(next));
+        return result.applied;
+    }
+    if (node_id.starts_with("semantic.dialogue.") && runtime.dialogue_draft.has_value()) {
+        auto next = *runtime.dialogue_draft;
+        auto surface = urpg::editor::semanticCommandSurfaceForDialogue(next);
+        const auto result = urpg::editor::setNativeSemanticEditorAccessibilityValue(
+            "dialogue", node_id, value, surface, &runtime.native_dialogue_semantic_selection);
+        if (result.document_changed) (void)applyDialogueGraphMutation(runtime, std::move(next));
+        return result.applied;
+    }
+    return false;
 }
 
 bool activateNativeEditorAppAccessibilityNode(urpg::editor::EditorShell& editor_shell,
                                               EditorPanelRuntime& runtime,
                                               const std::string_view node_id) {
     if (urpg::editor::activateNativeEditorAccessibilityNode(editor_shell, node_id)) return true;
+    if (activateLiveSemanticEditorAccessibilityNode(runtime, node_id)) return true;
     auto& menu = runtime.main_menu_model;
     if (node_id == "creator.continue_last_project") {
         const auto command = menu.snapshot()["commands"]["continue_last_project"];
@@ -445,6 +505,7 @@ bool activateNativeEditorAppAccessibilityNode(urpg::editor::EditorShell& editor_
 
 bool setNativeEditorAppAccessibilityValue(EditorPanelRuntime& runtime, const std::string_view node_id,
                                           const std::string_view value) {
+    if (setLiveSemanticEditorAccessibilityValue(runtime, node_id, value)) return true;
     if (node_id == "creator.open_project.path") {
         runtime.main_menu_panel.setAccessibleOpenProjectPath(std::string(value));
         return true;

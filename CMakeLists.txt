@@ -822,6 +822,7 @@ set(URPG_CORE_SOURCES
     editor/accessibility/accessibility_battle_adapter.cpp
     editor/accessibility/semantic_editor_command_surface.cpp
     editor/accessibility/native_editor_accessibility.cpp
+    editor/accessibility/native_semantic_editor_accessibility.cpp
     editor/accessibility/release_ui_contrast_coverage.cpp
     editor/audio/audio_mix_panel.cpp
     engine/core/audio/audio_runtime_backend.cpp
@@ -1800,6 +1801,7 @@ add_executable(urpg_tests
     tests/unit/test_inclusive_runtime_policy.cpp
     tests/unit/test_semantic_editor_command_surface.cpp
     tests/unit/test_native_editor_accessibility.cpp
+    tests/unit/test_native_semantic_editor_accessibility.cpp
     tests/unit/test_menu_legacy_import.cpp
     tests/unit/test_state_audio_sync.cpp
     tests/unit/test_scene_manager.cpp
