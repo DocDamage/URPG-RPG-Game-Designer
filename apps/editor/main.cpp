@@ -2600,6 +2600,48 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
             return std::nullopt;
         }
     };
+    const auto inspectDerivedAudioQuality = [](const std::string& manifest_path) -> std::optional<nlohmann::json> {
+        if (manifest_path.empty()) return std::nullopt;
+        try {
+            std::ifstream input(manifest_path, std::ios::binary);
+            const auto manifest = nlohmann::json::parse(input, nullptr, false);
+            if (manifest.is_discarded() || manifest.value("schema", "") != "urpg.asset_transform_revision.v1" ||
+                manifest.value("operation", "") != "audio_trim_fade_gain_pcm16") {
+                return std::nullopt;
+            }
+            const auto derivedRevision = manifest.value("derived_revision", "");
+            if (derivedRevision.size() != 64 ||
+                !std::all_of(derivedRevision.begin(), derivedRevision.end(), [](const unsigned char character) {
+                    return std::isxdigit(character);
+                })) {
+                return std::nullopt;
+            }
+            std::error_code error;
+            const auto manifestDirectory =
+                std::filesystem::weakly_canonical(std::filesystem::path(manifest_path).parent_path(), error);
+            if (error) return std::nullopt;
+            const auto output = std::filesystem::weakly_canonical(manifest.value("output_path", ""), error);
+            if (error || !std::filesystem::is_regular_file(output) || output.parent_path() != manifestDirectory ||
+                output.filename() != derivedRevision + ".wav") {
+                return std::nullopt;
+            }
+            const auto quality = manifest.value("quality", nlohmann::json::object());
+            if (!quality.is_object() || !quality.contains("peak_dbfs") || !quality["peak_dbfs"].is_number() ||
+                !quality.contains("rms_dbfs") || !quality["rms_dbfs"].is_number()) {
+                return std::nullopt;
+            }
+            const auto loopSeam = quality.value("loop_seam", nlohmann::json::object());
+            if (!loopSeam.is_object() || !loopSeam.contains("enabled") || !loopSeam["enabled"].is_boolean() ||
+                (loopSeam["enabled"].get<bool>() &&
+                 (!loopSeam.contains("max_normalized_delta") || !loopSeam["max_normalized_delta"].is_number() ||
+                  !loopSeam.contains("rms_normalized_delta") || !loopSeam["rms_normalized_delta"].is_number()))) {
+                return std::nullopt;
+            }
+            return quality;
+        } catch (const nlohmann::json::exception&) {
+            return std::nullopt;
+        }
+    };
     const auto renderReadOnlyImageThumbnail = [&runtime](const std::filesystem::path& image_path,
                                                          const char* loading_label,
                                                          const char* unavailable_label) {
@@ -2969,9 +3011,11 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
             ImGui::Text("%s: %s", projectAttached ? "Attached" : "Ready", row.value("asset_id", "asset").c_str());
             if (derivedRevisionSourcePath == path && !derivedRevisionManifestPath.empty()) {
                 const auto preview = inspectDerivedImagePreview(derivedRevisionManifestPath);
-                if (!preview.has_value()) {
+                const auto quality = inspectDerivedAudioQuality(derivedRevisionManifestPath);
+                if (!preview.has_value() && !quality.has_value()) {
                     ImGui::TextDisabled("Latest derived revision has no valid image preview.");
-                } else {
+                }
+                if (preview.has_value()) {
                     ImGui::TextDisabled("Read-only source / derived comparison; it does not modify either asset.");
                     ImGui::BeginGroup();
                     ImGui::TextDisabled("Source: %s", row.value("preview_path", "").c_str());
@@ -2988,6 +3032,16 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                                         preview->first.filename().string().c_str());
                     renderReadOnlyImageThumbnail(preview->first, "Loading derived preview", "Derived preview unavailable");
                     ImGui::EndGroup();
+                }
+                if (quality.has_value()) {
+                    ImGui::TextDisabled("PCM16 QA: peak %.2f dBFS, RMS %.2f dBFS (not LUFS).",
+                                        (*quality)["peak_dbfs"].get<double>(), (*quality)["rms_dbfs"].get<double>());
+                    const auto& loopSeam = (*quality)["loop_seam"];
+                    if (loopSeam["enabled"].get<bool>()) {
+                        ImGui::TextDisabled("Loop seam sample delta: max %.4f, RMS %.4f (review/listening still required).",
+                                            loopSeam["max_normalized_delta"].get<double>(),
+                                            loopSeam["rms_normalized_delta"].get<double>());
+                    }
                 }
             }
             ImGui::SameLine();

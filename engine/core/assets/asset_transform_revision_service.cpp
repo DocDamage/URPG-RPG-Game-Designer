@@ -721,7 +721,8 @@ AssetTransformRevisionResult AssetTransformRevisionService::createAudioTrimFadeG
                                      {"start_frame", plan.startFrame}, {"end_frame", plan.endFrame},
                                      {"fade_in_frames", plan.fadeInFrames}, {"fade_out_frames", plan.fadeOutFrames},
                                      {"gain_milli_db", plan.gainMilliDb}, {"loop_start_frame", plan.loopStartFrame},
-                                     {"loop_end_frame", plan.loopEndFrame}};
+                                     {"loop_end_frame", plan.loopEndFrame},
+                                     {"audio_quality_contract", "loop_seam_sample_delta_v1"}};
     const auto derivedRevision = sha256Text(identity.dump());
     const auto outputDirectory = plan.derivedRoot / plan.source.assetId / "revisions";
     const auto outputPath = outputDirectory / (derivedRevision + ".wav");
@@ -753,8 +754,30 @@ AssetTransformRevisionResult AssetTransformRevisionService::createAudioTrimFadeG
     const auto rms = std::sqrt(sumSquares / static_cast<double>(output.samples.size()));
     const auto peakDbfs = peak == 0 ? -std::numeric_limits<double>::infinity() : 20.0 * std::log10(static_cast<double>(peak) / 32768.0);
     const auto rmsDbfs = rms == 0.0 ? -std::numeric_limits<double>::infinity() : 20.0 * std::log10(rms / 32768.0);
+    nlohmann::json loopSeam = {{"enabled", false},
+                               {"metrics", "pcm16_adjacent_boundary_delta_not_listening_test"}};
+    if (plan.loopStartFrame >= 0) {
+        int32_t maxDelta = 0;
+        double sumDeltaSquares = 0.0;
+        for (uint16_t channel = 0; channel < output.channels; ++channel) {
+            const auto loopEndSample = static_cast<int32_t>(
+                output.samples[static_cast<size_t>((plan.loopEndFrame - 1) * output.channels + channel)]);
+            const auto loopStartSample = static_cast<int32_t>(
+                output.samples[static_cast<size_t>(plan.loopStartFrame * output.channels + channel)]);
+            const auto delta = std::abs(loopEndSample - loopStartSample);
+            maxDelta = std::max(maxDelta, delta);
+            sumDeltaSquares += static_cast<double>(delta) * delta;
+        }
+        loopSeam = {{"enabled", true},
+                    {"start_frame", plan.loopStartFrame},
+                    {"end_frame", plan.loopEndFrame},
+                    {"max_normalized_delta", static_cast<double>(maxDelta) / 65535.0},
+                    {"rms_normalized_delta", std::sqrt(sumDeltaSquares / output.channels) / 65535.0},
+                    {"metrics", "pcm16_adjacent_boundary_delta_not_listening_test"}};
+    }
     const nlohmann::json manifest = {{"schema", "urpg.asset_transform_revision.v1"},
                                      {"operation", "audio_trim_fade_gain_pcm16"}, {"operation_id", plan.operationId},
+                                     {"audio_quality_contract", "loop_seam_sample_delta_v1"},
                                      {"source_asset_id", plan.source.assetId}, {"source_promoted_path", plan.source.promotedPath},
                                      {"source_revision", sourceRevision}, {"derived_revision", derivedRevision},
                                      {"output_path", outputPath.generic_string()}, {"codec", "pcm_s16le_wav"},
@@ -763,7 +786,8 @@ AssetTransformRevisionResult AssetTransformRevisionService::createAudioTrimFadeG
                                      {"trim", {{"start_frame", plan.startFrame}, {"end_frame", plan.endFrame}}},
                                      {"fade", {{"in_frames", plan.fadeInFrames}, {"out_frames", plan.fadeOutFrames}}},
                                      {"gain_milli_db", plan.gainMilliDb}, {"loop", {{"start_frame", plan.loopStartFrame}, {"end_frame", plan.loopEndFrame}}},
-                                     {"quality", {{"peak_dbfs", peakDbfs}, {"rms_dbfs", rmsDbfs}, {"metrics", "sample_peak_and_rms_not_lufs"}}},
+                                     {"quality", {{"peak_dbfs", peakDbfs}, {"rms_dbfs", rmsDbfs},
+                                                  {"metrics", "sample_peak_and_rms_not_lufs"}, {"loop_seam", loopSeam}}},
                                      {"waveform_peaks", waveform}};
     std::error_code error;
     std::filesystem::create_directories(outputDirectory, error);

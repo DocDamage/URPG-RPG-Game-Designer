@@ -1014,9 +1014,12 @@ TEST_CASE("AssetTransformRevisionService creates deterministic atlas metadata re
     std::ifstream audioManifestStream(audio.manifestPath);
     const auto audioManifest = nlohmann::json::parse(audioManifestStream);
     REQUIRE(audioManifest["codec"] == "pcm_s16le_wav");
+    REQUIRE(audioManifest["audio_quality_contract"] == "loop_seam_sample_delta_v1");
     REQUIRE(audioManifest["frame_count"] == 4);
     REQUIRE(audioManifest["waveform_peaks"].size() == 64);
     REQUIRE(audioManifest["loop"]["start_frame"] == 1);
+    REQUIRE(audioManifest["quality"]["loop_seam"]["enabled"] == true);
+    REQUIRE(audioManifest["quality"]["loop_seam"]["max_normalized_delta"] == 0.0);
     audioManifestStream.close();
     REQUIRE(service.createAudioTrimFadeGainRevision(audioPlan).code == "asset_transform_revision_reused");
     const urpg::assets::AssetTransformRevisionRemovalRequest audioRemoval{
