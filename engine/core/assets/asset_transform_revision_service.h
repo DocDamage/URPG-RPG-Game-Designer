@@ -39,6 +39,15 @@ struct AssetTransformRevisionRemovalRequest {
     std::string derivedRevision;
 };
 
+// Recovery is deliberately narrower than a resumable transform job: it only
+// removes known, unpublished same-directory staging names for one asset.
+// Final revisions, attachment ledgers, and arbitrary temporary files remain
+// outside this owner.
+struct AssetTransformStagingRecoveryRequest {
+    std::filesystem::path derivedRoot;
+    std::string assetId;
+};
+
 struct AssetImageCropScalePlan {
     std::string operationId;
     AssetPromotionManifest source;
@@ -127,6 +136,7 @@ class AssetTransformRevisionService {
     AssetTransformRevisionResult createTilesetSliceRevision(const AssetTilesetSlicePlan& plan) const;
     AssetAudioSourceInspectionResult inspectAudioTrimFadeGainSource(const AssetPromotionManifest& source) const;
     AssetTransformRevisionResult createAudioTrimFadeGainRevision(const AssetAudioTrimFadeGainPlan& plan) const;
+    AssetTransformRevisionResult recoverStagedRevisions(const AssetTransformStagingRecoveryRequest& request) const;
     AssetTransformRevisionResult removeDerivedRevision(const AssetTransformRevisionRemovalRequest& request) const;
 };
 

@@ -1035,6 +1035,58 @@ TEST_CASE("AssetTransformRevisionService creates deterministic atlas metadata re
     std::filesystem::remove_all(root);
 }
 
+TEST_CASE("AssetTransformRevisionService recovers only deterministic unpublished staging artifacts",
+          "[assets][asset_library][asset_transform]") {
+    const auto root = uniqueAssetTempRoot("urpg_asset_transform_staging_recovery");
+    std::filesystem::remove_all(root);
+    const auto derivedRoot = root / ".urpg" / "asset-library" / "derived";
+    const std::string assetId = "asset.staging";
+    const auto revisionsRoot = derivedRoot / assetId / "revisions";
+    const std::string pngRevision(64, 'a');
+    const std::string wavRevision(64, 'b');
+    const std::string manifestRevision(64, 'c');
+    const std::string tilesetRevision(64, 'd');
+
+    const auto stagedPng = revisionsRoot / (pngRevision + ".png.tmp");
+    const auto stagedWav = revisionsRoot / (wavRevision + ".wav.tmp");
+    const auto stagedManifest = revisionsRoot / (manifestRevision + ".json.tmp");
+    const auto stagedTileset = revisionsRoot / (tilesetRevision + ".tiles.tmp");
+    const auto finalPng = revisionsRoot / (pngRevision + ".png");
+    const auto unrelatedTemporary = revisionsRoot / "creator-notes.tmp";
+    writeBinaryFile(stagedPng, "unpublished-png");
+    writeBinaryFile(stagedWav, "unpublished-wav");
+    writeBinaryFile(stagedManifest, "unpublished-manifest");
+    writeBinaryFile(stagedTileset / "0000.png", "unpublished-tile");
+    writeBinaryFile(finalPng, "published-png");
+    writeBinaryFile(unrelatedTemporary, "not-owned-by-transform-recovery");
+
+    urpg::assets::AssetTransformRevisionService service;
+    const urpg::assets::AssetTransformStagingRecoveryRequest request{derivedRoot, assetId};
+    const auto recovered = service.recoverStagedRevisions(request);
+    REQUIRE(recovered.success);
+    REQUIRE(recovered.code == "asset_transform_staging_recovery_complete");
+    REQUIRE(recovered.diagnostics.size() == 4);
+    REQUIRE_FALSE(std::filesystem::exists(stagedPng));
+    REQUIRE_FALSE(std::filesystem::exists(stagedWav));
+    REQUIRE_FALSE(std::filesystem::exists(stagedManifest));
+    REQUIRE_FALSE(std::filesystem::exists(stagedTileset));
+    REQUIRE(readBinaryFile(finalPng) == "published-png");
+    REQUIRE(readBinaryFile(unrelatedTemporary) == "not-owned-by-transform-recovery");
+    REQUIRE(service.recoverStagedRevisions(request).code == "asset_transform_staging_recovery_clean");
+
+    const auto unexpectedType = revisionsRoot / (pngRevision + ".png.tmp");
+    std::filesystem::create_directories(unexpectedType);
+    const auto invalidArtifact = service.recoverStagedRevisions(request);
+    REQUIRE_FALSE(invalidArtifact.success);
+    REQUIRE(invalidArtifact.code == "asset_transform_staging_recovery_artifact_invalid");
+    REQUIRE(std::filesystem::is_directory(unexpectedType));
+
+    const urpg::assets::AssetTransformStagingRecoveryRequest invalidRequest{derivedRoot, "../asset.staging"};
+    REQUIRE(service.recoverStagedRevisions(invalidRequest).code ==
+            "asset_transform_staging_recovery_request_invalid");
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("ProjectAssetAttachmentService attaches validated single-output derived revisions",
           "[assets][asset_library][asset_attachment][asset_transform]") {
     const auto root = uniqueAssetTempRoot("urpg_derived_revision_attachment");

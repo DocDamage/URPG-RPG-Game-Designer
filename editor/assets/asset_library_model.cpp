@@ -2484,6 +2484,37 @@ nlohmann::json AssetLibraryModel::inspectAudioTrimFadeGainSource(std::string sou
     return action;
 }
 
+nlohmann::json AssetLibraryModel::recoverStagedDerivedRevisions(
+    std::string source_path, const std::filesystem::path& derived_root) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "recover_staged_derived_revisions"},
+        {"path", source_path},
+        {"derived_root", derived_root.generic_string()},
+        {"success", false},
+        {"code", "asset_not_found"},
+        {"message", "Asset was not found in the library."},
+        {"diagnostics", nlohmann::json::array()},
+    };
+    const auto found = library_.findAsset(source_path);
+    if (found.has_value()) {
+        urpg::assets::AssetTransformStagingRecoveryRequest request;
+        request.derivedRoot = derived_root;
+        request.assetId = found->asset_id;
+        urpg::assets::AssetTransformRevisionService service;
+        const auto result = service.recoverStagedRevisions(request);
+        action["asset_id"] = found->asset_id;
+        action["success"] = result.success;
+        action["code"] = result.code;
+        action["message"] = result.message;
+        action["diagnostics"] = result.diagnostics;
+    }
+    action_history_.push_back(action);
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
+    return action;
+}
+
 nlohmann::json AssetLibraryModel::createTilesetSliceRevision(
     std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
     const int32_t tile_width, const int32_t tile_height, const int32_t margin, const int32_t spacing) {

@@ -48,6 +48,20 @@ bool isSha256Hex(const std::string& value) {
     });
 }
 
+bool hasStagedRevisionSuffix(const std::string_view filename, const std::string_view suffix) {
+    if (!filename.ends_with(suffix)) return false;
+    return isSha256Hex(std::string(filename.substr(0, filename.size() - suffix.size())));
+}
+
+bool isStagedRevisionFileName(const std::string_view filename) {
+    return hasStagedRevisionSuffix(filename, ".png.tmp") || hasStagedRevisionSuffix(filename, ".wav.tmp") ||
+           hasStagedRevisionSuffix(filename, ".json.tmp");
+}
+
+bool isStagedTilesetDirectoryName(const std::string_view filename) {
+    return hasStagedRevisionSuffix(filename, ".tiles.tmp");
+}
+
 bool isEligibleSource(const AssetPromotionManifest& source, AssetTransformRevisionResult* result) {
     const auto diagnostics = validateAssetPromotionManifest(source);
     if (!diagnostics.empty()) {
@@ -813,6 +827,76 @@ AssetTransformRevisionResult AssetTransformRevisionService::createAudioTrimFadeG
     if (error) { std::filesystem::remove(stagedManifest, error); std::filesystem::remove(outputPath, error); return blocked("asset_transform_manifest_publish_failed", error.message()); }
     return {true, "asset_transform_revision_created", "A deterministic PCM16 WAV trim, fade, and gain revision was created.",
             sourceRevision, derivedRevision, manifestPath, {}, outputPath};
+}
+
+AssetTransformRevisionResult AssetTransformRevisionService::recoverStagedRevisions(
+    const AssetTransformStagingRecoveryRequest& request) const {
+    if (request.derivedRoot.empty() || !isSafePathSegment(request.assetId)) {
+        return blocked("asset_transform_staging_recovery_request_invalid",
+                       "Staged revision recovery requires a safe asset ID and derived root.");
+    }
+
+    const auto revisionsRoot = request.derivedRoot / request.assetId / "revisions";
+    std::error_code error;
+    if (!std::filesystem::exists(revisionsRoot, error)) {
+        if (error) {
+            return blocked("asset_transform_staging_recovery_inspection_failed", error.message());
+        }
+        return {true, "asset_transform_staging_recovery_clean", "No derived revision staging artifacts were found.",
+                {}, {}, {}, {}, {}};
+    }
+    const auto rootStatus = std::filesystem::symlink_status(revisionsRoot, error);
+    if (error || std::filesystem::is_symlink(rootStatus) || !std::filesystem::is_directory(rootStatus)) {
+        return blocked("asset_transform_staging_recovery_root_invalid",
+                       error ? error.message() : "The asset derived revision root is not a non-symlink directory.");
+    }
+
+    std::vector<std::filesystem::path> stagedFiles;
+    std::vector<std::filesystem::path> stagedDirectories;
+    for (std::filesystem::directory_iterator iterator(revisionsRoot, error), end; !error && iterator != end;
+         iterator.increment(error)) {
+        const auto filename = iterator->path().filename().string();
+        const bool stagedFile = isStagedRevisionFileName(filename);
+        const bool stagedDirectory = isStagedTilesetDirectoryName(filename);
+        if (!stagedFile && !stagedDirectory) continue;
+
+        const auto status = iterator->symlink_status(error);
+        if (error || std::filesystem::is_symlink(status) ||
+            (stagedFile && !std::filesystem::is_regular_file(status)) ||
+            (stagedDirectory && !std::filesystem::is_directory(status))) {
+            return blocked("asset_transform_staging_recovery_artifact_invalid",
+                           error ? error.message() : "A staged revision artifact has an unexpected filesystem type.");
+        }
+        if (stagedFile) {
+            stagedFiles.push_back(iterator->path());
+        } else {
+            stagedDirectories.push_back(iterator->path());
+        }
+    }
+    if (error) return blocked("asset_transform_staging_recovery_inspection_failed", error.message());
+
+    std::vector<std::string> diagnostics;
+    for (const auto& stagedFile : stagedFiles) {
+        if (!std::filesystem::remove(stagedFile, error) || error) {
+            return blocked("asset_transform_staging_recovery_remove_failed",
+                           error ? error.message() : "A staged revision file could not be removed.", std::move(diagnostics));
+        }
+        diagnostics.push_back("removed_staged_revision_file:" + stagedFile.filename().string());
+    }
+    for (const auto& stagedDirectory : stagedDirectories) {
+        const auto removed = std::filesystem::remove_all(stagedDirectory, error);
+        if (error || removed == 0) {
+            return blocked("asset_transform_staging_recovery_remove_failed",
+                           error ? error.message() : "A staged tileset directory could not be removed.", std::move(diagnostics));
+        }
+        diagnostics.push_back("removed_staged_tileset_directory:" + stagedDirectory.filename().string());
+    }
+    if (diagnostics.empty()) {
+        return {true, "asset_transform_staging_recovery_clean", "No derived revision staging artifacts were found.",
+                {}, {}, {}, {}, {}};
+    }
+    return {true, "asset_transform_staging_recovery_complete",
+            "Removed deterministic unpublished derived revision staging artifacts.", {}, {}, {}, std::move(diagnostics), {}};
 }
 
 AssetTransformRevisionResult AssetTransformRevisionService::removeDerivedRevision(

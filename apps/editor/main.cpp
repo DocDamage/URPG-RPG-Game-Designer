@@ -3268,6 +3268,17 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                     }
                 }
             }
+            if (!configuredLibraryRoot.empty()) {
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Recover Staged Revisions")) {
+                    const auto derivedRoot = configuredLibraryRoot.parent_path() / "derived";
+                    const auto result = panel.recoverStagedDerivedRevisions(path, derivedRoot);
+                    assetWorkflowStatus = result.value("message", "Derived revision staging recovery did not return a status.");
+                }
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("Removes only this asset's hash-named unpublished .png/.wav/.json/.tiles staging artifacts.");
+                }
+            }
             if (cropRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {
                 if (ImGui::SmallButton("Edit Crop on Preview")) {
                     cropSelectionSourcePath = path;

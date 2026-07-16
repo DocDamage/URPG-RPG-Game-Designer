@@ -570,6 +570,13 @@ nlohmann::json AssetLibraryPanel::inspectAudioTrimFadeGainSource(std::string sou
     return model_.inspectAudioTrimFadeGainSource(std::move(source_path));
 }
 
+nlohmann::json AssetLibraryPanel::recoverStagedDerivedRevisions(
+    std::string source_path, const std::filesystem::path& derived_root) {
+    auto result = model_.recoverStagedDerivedRevisions(std::move(source_path), derived_root);
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
 nlohmann::json AssetLibraryPanel::createTilesetSliceRevision(
     std::string source_path, const std::filesystem::path& derived_root, std::string operation_id,
     const int32_t tile_width, const int32_t tile_height, const int32_t margin, const int32_t spacing) {

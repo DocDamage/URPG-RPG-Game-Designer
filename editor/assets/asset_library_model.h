@@ -209,6 +209,7 @@ class AssetLibraryModel {
         uint64_t start_frame, uint64_t end_frame, uint64_t fade_in_frames, uint64_t fade_out_frames,
         int32_t gain_milli_db, int64_t loop_start_frame = -1, int64_t loop_end_frame = -1);
     nlohmann::json inspectAudioTrimFadeGainSource(std::string source_path) const;
+    nlohmann::json recoverStagedDerivedRevisions(std::string source_path, const std::filesystem::path& derived_root);
     nlohmann::json createTilesetSliceRevision(std::string source_path, const std::filesystem::path& derived_root,
                                               std::string operation_id, int32_t tile_width, int32_t tile_height,
                                               int32_t margin, int32_t spacing);
