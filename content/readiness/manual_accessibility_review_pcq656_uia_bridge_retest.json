@@ -1,0 +1,80 @@
+{
+  "schema": "urpg.manual_accessibility_inspection.v1",
+  "requirementId": "PCQ-656",
+  "inspectionId": "PCQ-656-WINDOWS-UIA-2026-07-16-02",
+  "date": "2026-07-16",
+  "reviewer": "OpenAI Codex (automation-assisted Windows UI Automation inspection)",
+  "build": {
+    "baseCommit": "c4aa81b1b9641ed17b90696c875ba9b39751a957",
+    "dirtyStateAtLaunch": "dirty",
+    "executable": "build/dev-ninja-debug/urpg_editor.exe",
+    "change": "Native Windows MSAA provider projected through Windows UI Automation"
+  },
+  "hardware": {
+    "cpu": "Intel Core i5-14600K",
+    "displayAdapters": [
+      "NVIDIA GeForce RTX 3060, driver 32.0.15.9649, 1360x768 active display",
+      "Intel UHD Graphics 770, driver 32.0.101.6129, 1920x1080 active display"
+    ]
+  },
+  "software": {
+    "operatingSystem": "Windows 11 Pro 10.0.26200 build 26200, 64-bit",
+    "inspectionInterface": "Windows UI Automation through Codex Windows application control",
+    "provider": "Native IAccessible server attached to the SDL Win32 window through WM_GETOBJECT"
+  },
+  "procedure": [
+    "Build urpg_tests, urpg_runtime, and urpg_editor from the dirty accessibility-provider worktree.",
+    "Launch the rebuilt editor through Windows application control.",
+    "Inspect the Windows UI Automation tree.",
+    "Activate the exposed Level Builder accessible element.",
+    "Re-inspect the rendered editor and accessibility state."
+  ],
+  "observations": {
+    "launch": "passed",
+    "editorElementsExposed": 10,
+    "exposedElements": [
+      "Current project",
+      "Diagnostics",
+      "Assets",
+      "Ability Inspector",
+      "Pattern Field Editor",
+      "Mod Manager",
+      "Analytics",
+      "Character Creator",
+      "Level Builder",
+      "Perspective 2D Map Editor"
+    ],
+    "roles": {
+      "Current project": "text",
+      "workspaces": "button"
+    },
+    "actionResult": "Activating the exposed Level Builder element changed the authoritative editor Active Panel from diagnostics to level_builder and selected the visible Level Builder row.",
+    "focusedElementAfterAction": "top-level URPG Editor window",
+    "result": "partial_remediation"
+  },
+  "automatedVerification": [
+    {
+      "command": "cmake --build build/dev-ninja-debug --target urpg_tests urpg_runtime urpg_editor -j 8",
+      "result": "passed; no work remained after the rebuilt targets were linked"
+    },
+    {
+      "command": "build/dev-ninja-debug/urpg_tests.exe [pcq656] --reporter compact",
+      "result": "28 assertions in 2 test cases passed"
+    }
+  ],
+  "finding": {
+    "id": "PCQ-656-P1-UIA-001",
+    "severity": "P1",
+    "status": "open_mitigation_in_progress",
+    "improvement": "The editor no longer exposes zero authoring controls. Its current project and nine authoritative release workspaces are discoverable, named, role-bearing, bounded, and the workspace action route is live.",
+    "remaining": "Startup form controls, in-workspace semantic nodes and properties, diagnostics, ordered keyboard/controller focus, and OS focus reporting are not yet projected. The five required creator routes and signed screen-reader review therefore remain blocked.",
+    "retest": "pending provider expansion and signed supported-screen-reader review"
+  },
+  "routeResults": [
+    {"route": "create-or-open-project", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001", "note": "Startup controls are not yet projected."},
+    {"route": "author-map-event-quest-and-menu", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001", "note": "Top-level workspaces are exposed, but their semantic authoring controls are not yet projected."},
+    {"route": "playtest-and-debug", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001", "note": "Diagnostics workspace navigation is exposed; playtest and diagnostic controls are not yet projected."},
+    {"route": "recover-from-invalid-action", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001", "note": "Object-linked diagnostic actions are not yet projected."},
+    {"route": "package-and-reopen", "status": "blocked", "findingId": "PCQ-656-P1-UIA-001", "note": "Package and reopen controls are not yet projected."}
+  ]
+}

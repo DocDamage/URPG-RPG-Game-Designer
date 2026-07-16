@@ -821,6 +821,7 @@ set(URPG_CORE_SOURCES
     editor/accessibility/accessibility_audio_adapter.cpp
     editor/accessibility/accessibility_battle_adapter.cpp
     editor/accessibility/semantic_editor_command_surface.cpp
+    editor/accessibility/native_editor_accessibility.cpp
     editor/accessibility/release_ui_contrast_coverage.cpp
     editor/audio/audio_mix_panel.cpp
     engine/core/audio/audio_runtime_backend.cpp
@@ -1361,6 +1362,8 @@ target_link_libraries(urpg_audio_smoke PRIVATE
 target_include_directories(urpg_audio_smoke PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(WIN32)
+    target_sources(urpg_editor PRIVATE apps/editor/windows_accessibility_bridge.cpp)
+    target_link_libraries(urpg_editor PRIVATE oleacc ole32)
     set(_urpg_runtime_rc "${CMAKE_CURRENT_BINARY_DIR}/generated/resources/windows/urpg_runtime.rc")
     set(_urpg_editor_rc "${CMAKE_CURRENT_BINARY_DIR}/generated/resources/windows/urpg_editor.rc")
     configure_file(resources/windows/urpg_runtime.rc.in "${_urpg_runtime_rc}" @ONLY)
@@ -1796,6 +1799,7 @@ add_executable(urpg_tests
     tests/unit/test_inclusive_experience.cpp
     tests/unit/test_inclusive_runtime_policy.cpp
     tests/unit/test_semantic_editor_command_surface.cpp
+    tests/unit/test_native_editor_accessibility.cpp
     tests/unit/test_menu_legacy_import.cpp
     tests/unit/test_state_audio_sync.cpp
     tests/unit/test_scene_manager.cpp

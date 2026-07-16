@@ -117,6 +117,7 @@
 #include <vector>
 
 #ifdef _WIN32
+#include "apps/editor/windows_accessibility_bridge.h"
 #include <windows.h>
 #endif
 
@@ -7921,6 +7922,28 @@ int main(int argc, char** argv) {
             return 2;
         }
 
+#ifdef _WIN32
+        std::unique_ptr<urpg::editor_app::WindowsAccessibilityBridge> windowsAccessibilityBridge;
+#ifndef URPG_HEADLESS
+        if (!options.headless) {
+            if (auto* sdlSurface = dynamic_cast<urpg::SDLSurface*>(engineShell.getPlatform())) {
+                windowsAccessibilityBridge = std::make_unique<urpg::editor_app::WindowsAccessibilityBridge>();
+                if (!windowsAccessibilityBridge->install(
+                        sdlSurface->getNativeWindow(),
+                        [&editorShell] { return urpg::editor::nativeAccessibilitySnapshotForEditorShell(editorShell); },
+                        [&editorShell](const std::string_view nodeId) {
+                            return urpg::editor::activateNativeEditorAccessibilityNode(editorShell, nodeId);
+                        })) {
+                    windowsAccessibilityBridge.reset();
+                    urpg::diagnostics::RuntimeDiagnostics::warning(
+                        "editor.accessibility", "windows_accessibility_bridge_install_failed",
+                        "The Windows accessibility provider could not attach to the editor window.");
+                }
+            }
+        }
+#endif
+#endif
+
         if (options.list_panels) {
             printPanelList(editorShell);
         }
@@ -7944,6 +7967,10 @@ int main(int argc, char** argv) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
         }
+
+#ifdef _WIN32
+        if (windowsAccessibilityBridge) windowsAccessibilityBridge->uninstall();
+#endif
 
         editorShell.shutdown();
 #ifdef URPG_IMGUI_ENABLED
