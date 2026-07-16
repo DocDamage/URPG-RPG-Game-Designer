@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/dialogue/dialogue_graph.h"
+#include "editor/accessibility/semantic_editor_command_surface.h"
 
 #include <nlohmann/json.hpp>
 #include <map>
@@ -15,6 +16,9 @@ public:
     void setPreviewValues(std::map<std::string, int> values);
     bool beginInteractivePreview();
     bool choosePreviewChoice(const std::string& choice_id);
+    SemanticEditorCommandResult navigateSemantic(SemanticEditorNavigation navigation);
+    SemanticEditorCommandResult setSemanticProperty(std::string_view key, std::string_view value);
+    SemanticEditorCommandResult connectSemanticSelectionTo(std::string_view target_node_id);
     void render();
     nlohmann::json lastRenderSnapshot() const;
 
@@ -24,6 +28,7 @@ private:
     std::string preview_node_id_;
     std::vector<std::string> preview_trace_;
     std::vector<urpg::dialogue::DialogueGraphDiagnostic> preview_diagnostics_;
+    SemanticEditorCommandSurface semantic_surface_;
     nlohmann::json snapshot_;
 };
 

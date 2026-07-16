@@ -32,6 +32,7 @@ public:
     TileLayerDocument(int32_t width, int32_t height);
 
     void addLayer(TileLayer layer);
+    bool updateLayer(TileLayer layer);
     bool setTile(const std::string& layer_id, int32_t x, int32_t y, int32_t tile_id);
     std::optional<int32_t> tileAt(const std::string& layer_id, int32_t x, int32_t y) const;
     std::vector<MapDiagnostic> validateNavigation() const;

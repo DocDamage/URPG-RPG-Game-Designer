@@ -33,6 +33,7 @@ struct WorldGraphPreview { std::vector<WorldGraphPreviewNode> nodes; std::vector
 class ProjectWorldGraph {
   public:
     bool addMap(WorldMapNode map);
+    bool updateMap(WorldMapNode map);
     bool addRoute(WorldRoute route);
     std::vector<WorldGraphDiagnostic> validate() const;
     WorldTransferResult transfer(const std::string& current_map_id, const std::string& exit_id,

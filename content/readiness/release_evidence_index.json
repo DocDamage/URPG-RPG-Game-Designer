@@ -1250,7 +1250,7 @@
     {
       "requirementId": "PCQ-654",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq652],[pcq653],[pcq655],[localization],[captions],[menu_preview],[accessibility]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq654]\" --reporter console",
       "reports": [],
       "screenshots": [],
       "recordings": [],
@@ -1258,7 +1258,7 @@
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "SemanticEditorAlternative provides ordered tree/list navigation, labeled node creation, property editing, explicit connection creation, reorder operations, and connection diagnostics without requiring precise pointer input. Production adapters now translate MenuAuthoringDocument, DialogueGraph, QuestObjectiveGraphDocument, TileLayerDocument, and ProjectWorldGraph owners into that common semantic model with properties and connections preserved. The integration regression passes 628 assertions in 67 menu/accessibility cases. Editor-panel keyboard command surfaces, screen-reader automation semantics, manual task completion proof, clean-commit evidence, and release signoff remain pending."
+      "notes": "SemanticEditorAlternative provides a common tree/list projection for MenuAuthoringDocument, DialogueGraph, QuestObjectiveGraphDocument, TileLayerDocument, and ProjectWorldGraph. SemanticEditorCommandSurface now turns those projections into an operable non-pointer editor: Home/End/Up/Down ordered navigation wraps predictably, selection is stable across refresh, properties write through each authoritative owner, and connection creation becomes menu hierarchy changes, dialogue choices, quest links, or validated world routes. Tile layers explicitly report that connections are not applicable instead of presenting a dead control. Owner validation and semantic diagnostics remain visible after every command. DialogueGraphPanel and QuestPanel expose the shared command surface and include its labeled rows, selected item, properties, connections, diagnostics, capabilities, and keyboard help in their inspectable snapshots. The focused regression passes 78 assertions in 6 cases across all five document types and both integrated panels. Rendered ImGui/list controls in every concrete workspace, platform screen-reader automation semantics, manual task-completion proof, clean-commit evidence, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-655",

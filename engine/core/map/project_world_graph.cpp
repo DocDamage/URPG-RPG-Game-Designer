@@ -20,6 +20,15 @@ bool ProjectWorldGraph::addMap(WorldMapNode map) {
        std::any_of(maps_.begin(),maps_.end(),[&](const auto& existing){return existing.id==map.id;})) return false;
     maps_.push_back(std::move(map)); std::sort(maps_.begin(),maps_.end(),[](const auto& a,const auto& b){return a.id<b.id;}); return true;
 }
+
+bool ProjectWorldGraph::updateMap(WorldMapNode map) {
+    if (map.id.empty() || map.label.empty() || !validMarkers(map.entrances) || !validMarkers(map.exits) ||
+        !validMarkers(map.checkpoints) || !validMarkers(map.spawn_points)) return false;
+    const auto found = std::find_if(maps_.begin(), maps_.end(), [&](const auto& item) { return item.id == map.id; });
+    if (found == maps_.end()) return false;
+    *found = std::move(map);
+    return true;
+}
 bool ProjectWorldGraph::addRoute(WorldRoute route) {
     if(route.id.empty()||route.label.empty()||route.source_map_id.empty()||route.source_exit_id.empty()||route.target_map_id.empty()||route.target_entrance_id.empty()||
        std::any_of(routes_.begin(),routes_.end(),[&](const auto& existing){return existing.id==route.id;})) return false;

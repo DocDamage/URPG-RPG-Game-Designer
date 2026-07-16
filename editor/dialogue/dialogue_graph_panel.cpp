@@ -9,6 +9,7 @@ void DialogueGraphPanel::setGraph(urpg::dialogue::DialogueGraph graph) {
     preview_node_id_.clear();
     preview_trace_.clear();
     preview_diagnostics_.clear();
+    semantic_surface_ = semanticCommandSurfaceForDialogue(graph_);
 }
 
 void DialogueGraphPanel::setPreviewValues(std::map<std::string, int> values) {
@@ -47,7 +48,20 @@ bool DialogueGraphPanel::choosePreviewChoice(const std::string& choice_id) {
     return true;
 }
 
+SemanticEditorCommandResult DialogueGraphPanel::navigateSemantic(SemanticEditorNavigation navigation) {
+    return semantic_surface_.navigate(navigation);
+}
+
+SemanticEditorCommandResult DialogueGraphPanel::setSemanticProperty(std::string_view key, std::string_view value) {
+    return semantic_surface_.setSelectedProperty(key, value);
+}
+
+SemanticEditorCommandResult DialogueGraphPanel::connectSemanticSelectionTo(std::string_view target_node_id) {
+    return semantic_surface_.connectSelectedTo(target_node_id);
+}
+
 void DialogueGraphPanel::render() {
+    semantic_surface_.refresh();
     const auto route = graph_.previewRoute();
     auto diagnostics = graph_.validate();
     const auto flow_diagnostics = graph_.analyzeFlow();
@@ -117,6 +131,7 @@ void DialogueGraphPanel::render() {
                                   {"choices", std::move(interactive_choices)},
                                   {"diagnostics", std::move(interactive_diagnostics)},
                                   {"non_persistent", true}}},
+        {"semantic_alternative", semantic_surface_.renderSnapshot()},
     };
 }
 

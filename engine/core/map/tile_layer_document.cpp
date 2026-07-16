@@ -19,6 +19,18 @@ void TileLayerDocument::addLayer(TileLayer layer) {
     });
 }
 
+bool TileLayerDocument::updateLayer(TileLayer layer) {
+    if (layer.id.empty() || layer.tiles.size() != static_cast<size_t>(width_ * height_)) {
+        return false;
+    }
+    auto* existing = findLayer(layer.id);
+    if (existing == nullptr) {
+        return false;
+    }
+    *existing = std::move(layer);
+    return true;
+}
+
 bool TileLayerDocument::setTile(const std::string& layer_id, int32_t x, int32_t y, int32_t tile_id) {
     auto* layer = findLayer(layer_id);
     if (layer == nullptr || layer->locked || !inBounds(x, y)) {

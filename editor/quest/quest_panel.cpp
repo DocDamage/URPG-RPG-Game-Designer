@@ -12,11 +12,13 @@ void QuestPanel::setRegistry(urpg::quest::QuestRegistry registry) {
 void QuestPanel::bindObjectiveGraph(urpg::quest::QuestObjectiveGraphDocument graph) {
     graph_ = std::move(graph);
     selected_node_id_.clear();
+    semantic_surface_ = semanticCommandSurfaceForQuest(*graph_);
 }
 
 void QuestPanel::clearObjectiveGraph() {
     graph_.reset();
     selected_node_id_.clear();
+    semantic_surface_.clear();
 }
 
 void QuestPanel::setPreviewWorldState(urpg::quest::QuestWorldState world) {
@@ -44,7 +46,20 @@ bool QuestPanel::applyReadyGraphObjectives(const std::string& timestamp) {
     return result.diagnostics.empty() && !result.completed_objective_ids.empty();
 }
 
+SemanticEditorCommandResult QuestPanel::navigateSemantic(SemanticEditorNavigation navigation) {
+    return semantic_surface_.navigate(navigation);
+}
+
+SemanticEditorCommandResult QuestPanel::setSemanticProperty(std::string_view key, std::string_view value) {
+    return semantic_surface_.setSelectedProperty(key, value);
+}
+
+SemanticEditorCommandResult QuestPanel::connectSemanticSelectionTo(std::string_view target_node_id) {
+    return semantic_surface_.connectSelectedTo(target_node_id);
+}
+
 void QuestPanel::render() {
+    semantic_surface_.refresh();
     snapshot_ = {{"panel", "quest"}, {"registry", registry_.serialize()}};
     if (!graph_.has_value()) {
         snapshot_["graph_bound"] = false;
@@ -85,7 +100,8 @@ void QuestPanel::render() {
                           {"selected_node_id", selected_node_id_.empty() ? nlohmann::json(nullptr)
                                                                           : nlohmann::json(selected_node_id_)},
                           {"selected_node", selected},
-                          {"preview", urpg::quest::questGraphPreviewToJson(graph_->preview(preview_world_))}};
+                          {"preview", urpg::quest::questGraphPreviewToJson(graph_->preview(preview_world_))},
+                          {"semantic_alternative", semantic_surface_.renderSnapshot()}};
 }
 
 nlohmann::json QuestPanel::lastRenderSnapshot() const {
