@@ -1093,6 +1093,73 @@ TEST_CASE("AssetTransformRevisionService recovers only deterministic unpublished
     std::filesystem::remove_all(root);
 }
 
+TEST_CASE("GlobalAssetLibraryStore saves governed promoted audio voice take metadata",
+          "[assets][asset_library][voice_metadata]") {
+    const auto root = uniqueAssetTempRoot("urpg_promoted_audio_voice_metadata");
+    std::filesystem::remove_all(root);
+    const auto libraryRoot = root / "asset-library";
+    const auto primaryPayload = libraryRoot / "promoted" / "voice.primary" / "payloads" / "primary.wav";
+    const auto alternativePayload = libraryRoot / "promoted" / "voice.muted" / "payloads" / "muted.wav";
+    writeBinaryFile(primaryPayload, "primary-pcm16-payload");
+    writeBinaryFile(alternativePayload, "muted-pcm16-payload");
+
+    const auto audioManifest = [](const std::string& assetId, const std::filesystem::path& payload) {
+        urpg::assets::AssetPromotionManifest manifest;
+        manifest.assetId = assetId;
+        manifest.sourcePath = "imports/raw/" + assetId + ".wav";
+        manifest.promotedPath = payload.generic_string();
+        manifest.licenseId = "voice-license-reviewed";
+        manifest.status = urpg::assets::AssetPromotionStatus::RuntimeReady;
+        manifest.preview.kind = "audio";
+        manifest.preview.thumbnailPath = payload.generic_string();
+        manifest.package.includeInRuntime = true;
+        return manifest;
+    };
+    urpg::assets::GlobalAssetLibraryStore store(libraryRoot);
+    REQUIRE(store.writePromotedAssetManifest(audioManifest("voice.primary", primaryPayload)).success);
+    REQUIRE(store.writePromotedAssetManifest(audioManifest("voice.muted", alternativePayload)).success);
+
+    urpg::assets::GlobalPromotedAudioVoiceMetadataRequest request;
+    request.assetId = "voice.primary";
+    request.locale = "en-US";
+    request.takeId = "take_001";
+    request.mutedAlternativeAssetId = "voice.muted";
+    const auto saved = store.updatePromotedAudioVoiceMetadata(request);
+    REQUIRE(saved.success);
+    REQUIRE(saved.code == "promoted_audio_voice_metadata_updated");
+    REQUIRE(saved.manifest.authoredMetadata["voice_take"]["schema"] == "urpg.promoted_audio_voice_take.v1");
+    REQUIRE(saved.manifest.authoredMetadata["voice_take"]["locale"] == "en-US");
+    REQUIRE(saved.manifest.authoredMetadata["voice_take"]["take_id"] == "take_001");
+    REQUIRE(saved.manifest.authoredMetadata["voice_take"]["muted_alternative_asset_id"] == "voice.muted");
+    REQUIRE(saved.manifest.licenseId == "voice-license-reviewed");
+    urpg::assets::AssetLibrary library;
+    library.ingestPromotionManifest(saved.manifest);
+    const auto retained = library.findAsset(saved.manifest.sourcePath);
+    REQUIRE(retained.has_value());
+    REQUIRE(retained->authored_metadata["voice_take"]["locale"] == "en-US");
+    urpg::editor::AssetLibraryModel model;
+    model.ingestPromotionManifest(saved.manifest);
+    const auto projectRoot = root / "project";
+    const auto attachmentPlan = model.planPromotedAssetAttachmentToProject(saved.manifest.sourcePath, projectRoot);
+    REQUIRE(attachmentPlan["success"] == true);
+    REQUIRE(model.confirmPromotedAssetAttachmentToProject(
+                      saved.manifest.sourcePath, projectRoot, attachmentPlan.value("expected_source_revision", ""),
+                      attachmentPlan.value("operation_id", ""))
+                .success);
+    std::ifstream attachedInput(projectRoot / "content" / "assets" / "manifests" / "voice.primary.json");
+    const auto attached = urpg::assets::deserializeAssetPromotionManifest(nlohmann::json::parse(attachedInput));
+    REQUIRE(attached.authoredMetadata["voice_take"]["locale"] == "en-US");
+    REQUIRE(attached.authoredMetadata["voice_take"]["muted_alternative_asset_id"] == "voice.muted");
+
+    request.locale = "en_US";
+    REQUIRE(store.updatePromotedAudioVoiceMetadata(request).code == "promoted_audio_voice_metadata_invalid");
+    request.locale = "en-US";
+    request.mutedAlternativeAssetId = "voice.primary";
+    REQUIRE(store.updatePromotedAudioVoiceMetadata(request).code ==
+            "promoted_audio_voice_metadata_alternative_invalid");
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("ProjectAssetAttachmentService attaches validated single-output derived revisions",
           "[assets][asset_library][asset_attachment][asset_transform]") {
     const auto root = uniqueAssetTempRoot("urpg_derived_revision_attachment");

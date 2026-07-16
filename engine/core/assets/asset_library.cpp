@@ -675,6 +675,7 @@ void AssetLibrary::ingestPromotionManifest(const AssetPromotionManifest& manifes
     record.provenance.license = manifest.licenseId;
     record.provenance.export_eligible = manifest.package.includeInRuntime && diagnostics.empty();
     record.promotion_diagnostics = diagnostics;
+    record.authored_metadata = manifest.authoredMetadata;
     applyVirtualCatalogTags(record);
 
     if (manifest.status == AssetPromotionStatus::RuntimeReady && diagnostics.empty()) {

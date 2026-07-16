@@ -1028,6 +1028,7 @@ urpg::assets::AssetPromotionManifest manifestFromAssetRecord(const urpg::assets:
     manifest.preview.height = record.preview_height;
     manifest.package.includeInRuntime = record.include_in_runtime;
     manifest.package.requiredForRelease = record.required_for_release;
+    manifest.authoredMetadata = record.authored_metadata;
     manifest.diagnostics = record.promotion_diagnostics;
     return manifest;
 }
@@ -2487,6 +2488,41 @@ nlohmann::json AssetLibraryModel::inspectAudioTrimFadeGainSource(std::string sou
         action["spectrogram_frequency_bins"] = result.spectrogramFrequencyBins;
         action["spectrogram_magnitudes"] = result.spectrogramMagnitudes;
     }
+    return action;
+}
+
+nlohmann::json AssetLibraryModel::setPromotedAudioVoiceMetadata(
+    std::string source_path, const std::filesystem::path& library_root, std::string locale, std::string take_id,
+    std::string muted_alternative_asset_id) {
+    std::replace(source_path.begin(), source_path.end(), '\\', '/');
+    nlohmann::json action = {
+        {"action", "set_promoted_audio_voice_metadata"},
+        {"path", source_path},
+        {"library_root", library_root.generic_string()},
+        {"locale", locale},
+        {"take_id", take_id},
+        {"muted_alternative_asset_id", muted_alternative_asset_id},
+        {"success", false},
+        {"code", "asset_not_found"},
+        {"message", "Asset was not found in the library."},
+    };
+    const auto found = library_.findAsset(source_path);
+    if (found.has_value()) {
+        urpg::assets::GlobalAssetLibraryStore store(library_root);
+        const urpg::assets::GlobalPromotedAudioVoiceMetadataRequest request{
+            found->asset_id, std::move(locale), std::move(take_id), std::move(muted_alternative_asset_id)};
+        const auto result = store.updatePromotedAudioVoiceMetadata(request);
+        action["asset_id"] = found->asset_id;
+        action["success"] = result.success;
+        action["code"] = result.code;
+        action["message"] = result.message;
+        action["manifest_path"] = result.manifestPath.generic_string();
+        if (result.success) library_.ingestPromotionManifest(result.manifest);
+    }
+    action_history_.push_back(action);
+    refreshSnapshot();
+    snapshot_.last_action = action;
+    snapshot_.action_history = action_history_;
     return action;
 }
 

@@ -570,6 +570,15 @@ nlohmann::json AssetLibraryPanel::inspectAudioTrimFadeGainSource(std::string sou
     return model_.inspectAudioTrimFadeGainSource(std::move(source_path));
 }
 
+nlohmann::json AssetLibraryPanel::setPromotedAudioVoiceMetadata(
+    std::string source_path, const std::filesystem::path& library_root, std::string locale, std::string take_id,
+    std::string muted_alternative_asset_id) {
+    auto result = model_.setPromotedAudioVoiceMetadata(std::move(source_path), library_root, std::move(locale),
+                                                       std::move(take_id), std::move(muted_alternative_asset_id));
+    refreshRenderSnapshotsFromModel();
+    return result;
+}
+
 nlohmann::json AssetLibraryPanel::recoverStagedDerivedRevisions(
     std::string source_path, const std::filesystem::path& derived_root) {
     auto result = model_.recoverStagedDerivedRevisions(std::move(source_path), derived_root);

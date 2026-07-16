@@ -2529,6 +2529,9 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
     static nlohmann::json audioWaveformInspection = nlohmann::json::object();
     static bool audioWaveformSelectionDragging = false;
     static uint64_t audioWaveformSelectionStartFrame = 0;
+    static std::string voiceTakeLocale = "en-US";
+    static std::string voiceTakeId = "take_001";
+    static std::string voiceMutedAlternativeAssetId;
     static std::string tilesetOperationId = "tileset-slice";
     static int tilesetTileWidth = 32;
     static int tilesetTileHeight = 32;
@@ -2935,6 +2938,17 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
             }
             if (configuredLibraryRoot.empty()) {
                 ImGui::TextDisabled("A configured external asset library is required to store derived revisions.");
+            }
+        }
+        const bool voiceTakeMetadataOpen =
+            ImGui::CollapsingHeader("Governed Voice Take Metadata", ImGuiTreeNodeFlags_DefaultOpen);
+        if (voiceTakeMetadataOpen) {
+            ImGui::TextWrapped("Store locale and stable take metadata on a runtime-ready promoted audio manifest. Rights remain the manifest license ID; attach or re-attach afterward to propagate metadata into a project.");
+            ImGui::InputText("Voice locale", &voiceTakeLocale);
+            ImGui::InputText("Voice take ID", &voiceTakeId);
+            ImGui::InputText("Muted alternative audio asset ID (optional)", &voiceMutedAlternativeAssetId);
+            if (configuredLibraryRoot.empty()) {
+                ImGui::TextDisabled("A configured external asset library is required to save governed voice metadata.");
             }
         }
         const bool tilesetRevisionOpen =
@@ -3573,6 +3587,14 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
                         assetWorkflowStatus = result.value("message", "Audio revision did not return a status.");
                         rememberDerivedRevision(result, path);
                     }
+                }
+            }
+            if (voiceTakeMetadataOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "audio") {
+                ImGui::SameLine();
+                if (ImGui::Button("Save Voice Take Metadata")) {
+                    const auto result = panel.setPromotedAudioVoiceMetadata(
+                        path, configuredLibraryRoot, voiceTakeLocale, voiceTakeId, voiceMutedAlternativeAssetId);
+                    assetWorkflowStatus = result.value("message", "Voice take metadata did not return a status.");
                 }
             }
             if (tilesetRevisionOpen && !configuredLibraryRoot.empty() && row.value("media_kind", "") == "image") {

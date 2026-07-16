@@ -1,8 +1,10 @@
 #include "engine/core/assets/global_asset_library_store.h"
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <map>
+#include <utility>
 
 namespace urpg::assets {
 
@@ -26,6 +28,41 @@ GlobalAssetLibraryStoreResult failed(std::string code, std::string message, std:
     result.message = std::move(message);
     result.path = std::move(path);
     return result;
+}
+
+GlobalPromotedAudioVoiceMetadataResult voiceMetadataFailed(std::string code, std::string message,
+                                                            std::filesystem::path manifestPath = {}) {
+    return {false, std::move(code), std::move(message), {}, std::move(manifestPath)};
+}
+
+bool isSafeOpaqueId(const std::string& value) {
+    const auto path = std::filesystem::path(value);
+    return !value.empty() && value != "." && value != ".." && !path.has_parent_path() && !path.has_root_path() &&
+           std::all_of(value.begin(), value.end(), [](const unsigned char character) {
+               return std::isalnum(character) != 0 || character == '-' || character == '_' || character == '.';
+           });
+}
+
+bool isLocaleTag(const std::string& value) {
+    if (value.empty() || value.size() > 64) return false;
+    size_t segmentStart = 0;
+    size_t segmentIndex = 0;
+    while (segmentStart < value.size()) {
+        const auto segmentEnd = value.find('-', segmentStart);
+        const auto length = (segmentEnd == std::string::npos ? value.size() : segmentEnd) - segmentStart;
+        if (length == 0 || length > 8 || (segmentIndex == 0 && length < 2)) return false;
+        for (size_t index = segmentStart; index < segmentStart + length; ++index) {
+            const auto character = static_cast<unsigned char>(value[index]);
+            if ((segmentIndex == 0 && std::isalpha(character) == 0) ||
+                (segmentIndex != 0 && std::isalnum(character) == 0)) {
+                return false;
+            }
+        }
+        if (segmentEnd == std::string::npos) return true;
+        segmentStart = segmentEnd + 1;
+        ++segmentIndex;
+    }
+    return false;
 }
 
 GlobalAssetLibraryStoreResult writeJsonFile(const std::filesystem::path& path, const nlohmann::json& value,
@@ -140,6 +177,68 @@ GlobalAssetLibraryStoreResult GlobalAssetLibraryStore::writePromotedAssetManifes
     }
     return writeJsonFile(promotedAssetManifestPath(manifest.assetId), serializeAssetPromotionManifest(manifest),
                          "promoted_asset_manifest_written");
+}
+
+GlobalPromotedAudioVoiceMetadataResult
+GlobalAssetLibraryStore::updatePromotedAudioVoiceMetadata(const GlobalPromotedAudioVoiceMetadataRequest& request) const {
+    if (!isSafeOpaqueId(request.assetId) || !isSafeOpaqueId(request.takeId) || !isLocaleTag(request.locale) ||
+        (!request.mutedAlternativeAssetId.empty() && !isSafeOpaqueId(request.mutedAlternativeAssetId))) {
+        return voiceMetadataFailed("promoted_audio_voice_metadata_invalid",
+                                   "Voice metadata requires a safe asset/take ID and a valid locale tag.");
+    }
+    if (request.mutedAlternativeAssetId == request.assetId) {
+        return voiceMetadataFailed("promoted_audio_voice_metadata_alternative_invalid",
+                                   "A muted alternative must name a different promoted audio asset.");
+    }
+
+    const auto manifestPath = promotedAssetManifestPath(request.assetId);
+    if (!std::filesystem::is_regular_file(manifestPath)) {
+        return voiceMetadataFailed("promoted_audio_voice_metadata_manifest_missing",
+                                   "The promoted audio manifest is missing.", manifestPath);
+    }
+    std::ifstream input(manifestPath, std::ios::binary);
+    const auto parsed = nlohmann::json::parse(input, nullptr, false);
+    auto manifest = deserializeAssetPromotionManifest(parsed);
+    if (parsed.is_discarded() || manifest.assetId != request.assetId || manifest.preview.kind != "audio" ||
+        manifest.status != AssetPromotionStatus::RuntimeReady || !manifest.package.includeInRuntime ||
+        manifest.licenseId.empty() || !std::filesystem::is_regular_file(manifest.promotedPath)) {
+        return voiceMetadataFailed("promoted_audio_voice_metadata_source_invalid",
+                                   "Voice metadata requires a runtime-ready, license-backed promoted audio asset.",
+                                   manifestPath);
+    }
+
+    if (!request.mutedAlternativeAssetId.empty()) {
+        const auto alternativePath = promotedAssetManifestPath(request.mutedAlternativeAssetId);
+        if (!std::filesystem::is_regular_file(alternativePath)) {
+            return voiceMetadataFailed("promoted_audio_voice_metadata_alternative_missing",
+                                       "The muted alternative promoted audio manifest is missing.", alternativePath);
+        }
+        std::ifstream alternativeInput(alternativePath, std::ios::binary);
+        const auto alternativeJson = nlohmann::json::parse(alternativeInput, nullptr, false);
+        const auto alternative = deserializeAssetPromotionManifest(alternativeJson);
+        if (alternativeJson.is_discarded() || alternative.assetId != request.mutedAlternativeAssetId ||
+            alternative.preview.kind != "audio" || alternative.status != AssetPromotionStatus::RuntimeReady ||
+            !alternative.package.includeInRuntime || alternative.licenseId.empty() ||
+            !std::filesystem::is_regular_file(alternative.promotedPath)) {
+            return voiceMetadataFailed("promoted_audio_voice_metadata_alternative_invalid",
+                                       "The muted alternative must be a runtime-ready, license-backed promoted audio asset.",
+                                       alternativePath);
+        }
+    }
+
+    manifest.authoredMetadata["voice_take"] = {
+        {"schema", "urpg.promoted_audio_voice_take.v1"},
+        {"locale", request.locale},
+        {"take_id", request.takeId},
+        {"muted_alternative_asset_id", request.mutedAlternativeAssetId},
+    };
+    const auto writeResult = writePromotedAssetManifest(manifest);
+    if (!writeResult.success) {
+        return voiceMetadataFailed(writeResult.code, writeResult.message, writeResult.path);
+    }
+    return {true, "promoted_audio_voice_metadata_updated",
+            "Governed voice take metadata was saved; attach or re-attach to propagate it to a project.",
+            std::move(manifest), writeResult.path};
 }
 
 std::vector<AssetImportSession> GlobalAssetLibraryStore::loadImportSessions() const {

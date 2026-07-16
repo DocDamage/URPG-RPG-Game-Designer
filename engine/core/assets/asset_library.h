@@ -63,6 +63,7 @@ struct AssetRecord {
     bool required_for_release = false;
     bool release_eligible = false;
     std::vector<std::string> promotion_diagnostics;
+    nlohmann::json authored_metadata = nlohmann::json::object();
 };
 
 struct AssetLibraryFilter {

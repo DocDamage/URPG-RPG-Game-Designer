@@ -16,6 +16,21 @@ struct GlobalAssetLibraryStoreResult {
     std::filesystem::path path;
 };
 
+struct GlobalPromotedAudioVoiceMetadataRequest {
+    std::string assetId;
+    std::string locale;
+    std::string takeId;
+    std::string mutedAlternativeAssetId;
+};
+
+struct GlobalPromotedAudioVoiceMetadataResult {
+    bool success = false;
+    std::string code;
+    std::string message;
+    AssetPromotionManifest manifest;
+    std::filesystem::path manifestPath;
+};
+
 class GlobalAssetLibraryStore {
 public:
     explicit GlobalAssetLibraryStore(std::filesystem::path libraryRoot);
@@ -28,6 +43,8 @@ public:
 
     GlobalAssetLibraryStoreResult writeImportSession(const AssetImportSession& session) const;
     GlobalAssetLibraryStoreResult writePromotedAssetManifest(const AssetPromotionManifest& manifest) const;
+    GlobalPromotedAudioVoiceMetadataResult
+    updatePromotedAudioVoiceMetadata(const GlobalPromotedAudioVoiceMetadataRequest& request) const;
     std::vector<AssetImportSession> loadImportSessions() const;
     std::vector<AssetPromotionManifest> loadPromotedAssetManifests() const;
 
