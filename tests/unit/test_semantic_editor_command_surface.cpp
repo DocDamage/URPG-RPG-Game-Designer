@@ -1,5 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
+
 #include "editor/accessibility/semantic_editor_command_surface.h"
 #include "editor/dialogue/dialogue_graph_panel.h"
 #include "editor/quest/quest_panel.h"
@@ -31,6 +33,11 @@ TEST_CASE("Semantic command surface provides wrapped ordered keyboard navigation
     REQUIRE(surface.select("button").applied);
     REQUIRE(surface.setSelectedProperty("accessible_label", "Continue the game").applied);
     REQUIRE(document.findNode("button")->accessible_label == "Continue the game");
+    REQUIRE(surface.setSelectedProperty("x", "144").applied);
+    REQUIRE(surface.setSelectedProperty("focus_order", "2").applied);
+    REQUIRE(document.findNode("button")->layout.x == 144);
+    REQUIRE(document.findNode("button")->layout.focus_order == 2);
+    REQUIRE_FALSE(surface.setSelectedProperty("width", "not-a-number").applied);
     REQUIRE(surface.select("panel").applied);
     REQUIRE(surface.connectSelectedTo("button").applied);
     REQUIRE(document.findNode("button")->parent_id == "panel");
@@ -41,6 +48,9 @@ TEST_CASE("Semantic command surface provides wrapped ordered keyboard navigation
     REQUIRE(snapshot["property_editing"] == true);
     REQUIRE(snapshot["connection_creation"] == true);
     REQUIRE(snapshot["keyboard_commands"].size() == 6);
+    REQUIRE(snapshot["controller_commands"].size() == 6);
+    REQUIRE(snapshot["operation_routes"]["tree_list_navigation"] == true);
+    REQUIRE(snapshot["operation_routes"]["controller_navigation"] == true);
 }
 
 TEST_CASE("Semantic command surfaces write dialogue and quest properties and connections through owners",
@@ -112,6 +122,62 @@ TEST_CASE("Semantic tile and world surfaces preserve owner validation and capabi
     REQUIRE(world_surface.diagnostics().empty());
 }
 
+TEST_CASE("Semantic command diagnostics retain object links and focus the affected row",
+          "[accessibility][semantic_editor][diagnostics][pcq654]") {
+    urpg::ui::MenuAuthoringDocument menu;
+    urpg::ui::MenuCanvasNode action;
+    action.id = "required-action";
+    action.label = "Required";
+    action.focusable = true;
+    action.required_action = true;
+    action.layout = {0, 0, 80, 20, 0};
+    REQUIRE(menu.addNode(action));
+
+    auto surface = urpg::editor::semanticCommandSurfaceForMenu(menu);
+    const auto linked = surface.linkedDiagnostics();
+    REQUIRE_FALSE(linked.empty());
+    const auto missing_label = std::find_if(linked.begin(), linked.end(), [](const auto& item) {
+        return item.code == "missing_label";
+    });
+    REQUIRE(missing_label != linked.end());
+    REQUIRE(missing_label->object_id == "required-action");
+    const auto index = static_cast<std::size_t>(std::distance(linked.begin(), missing_label));
+    REQUIRE(surface.focusDiagnostic(index).applied);
+    REQUIRE(surface.selectedId() == "required-action");
+    const auto snapshot = surface.renderSnapshot();
+    REQUIRE(snapshot["linked_diagnostics"][index]["focusable"] == true);
+    REQUIRE(snapshot["linked_diagnostics"][index]["object_id"] == "required-action");
+    REQUIRE_FALSE(surface.focusDiagnostic(linked.size()).applied);
+
+    urpg::map::TileLayerDocument tile_map(1, 1);
+    tile_map.addLayer({"collision", true, false, true, false, 0, {0}});
+    tile_map.addLayer({"navigation", true, false, false, true, 1, {0}});
+    REQUIRE(tile_map.setTile("collision", 0, 0, 1));
+    REQUIRE(tile_map.setTile("navigation", 0, 0, 1));
+    auto tile_surface = urpg::editor::semanticCommandSurfaceForTileMap(tile_map);
+    REQUIRE(tile_surface.linkedDiagnostics().size() == 1);
+    REQUIRE(tile_surface.linkedDiagnostics()[0].object_id == "collision");
+    REQUIRE(tile_surface.linkedDiagnostics()[0].related_object_id == "tile:0,0");
+    REQUIRE(tile_surface.focusDiagnostic(0).applied);
+
+    urpg::map::ProjectWorldGraph world;
+    REQUIRE(world.addMap({"map-a", "Map A", {}, {{{"exit-a", "Exit", 0, 0}}}, {}, {}}));
+    REQUIRE(world.addMap({"map-b", "Map B", {{{"entry-b", "Entry", 0, 0}}}, {}, {}, {}}));
+    REQUIRE(world.addRoute({"bad-route", "Bad route", "map-a", "missing-exit",
+                            "map-b", "entry-b", {}}));
+    auto world_surface = urpg::editor::semanticCommandSurfaceForWorldMap(world);
+    const auto world_diagnostics = world_surface.linkedDiagnostics();
+    const auto broken_exit = std::find_if(world_diagnostics.begin(), world_diagnostics.end(), [](const auto& item) {
+        return item.code == "route_source_exit_missing";
+    });
+    REQUIRE(broken_exit != world_diagnostics.end());
+    REQUIRE(broken_exit->object_id == "map-a");
+    REQUIRE(broken_exit->related_object_id == "bad-route");
+    REQUIRE(world_surface.focusDiagnostic(
+        static_cast<std::size_t>(std::distance(world_diagnostics.begin(), broken_exit))).applied);
+    REQUIRE(world_surface.selectedId() == "map-a");
+}
+
 TEST_CASE("Dialogue and quest panels expose semantic command snapshots backed by their owned graphs",
           "[accessibility][semantic_editor][panel][pcq654]") {
     urpg::dialogue::DialogueGraph dialogue;
@@ -138,6 +204,8 @@ TEST_CASE("Dialogue and quest panels expose semantic command snapshots backed by
     urpg::editor::QuestPanel quest_panel;
     quest_panel.bindObjectiveGraph(std::move(quest));
     REQUIRE(quest_panel.setSemanticProperty("title", "New").applied);
+    REQUIRE(quest_panel.selectGraphNode("finish"));
+    REQUIRE(quest_panel.navigateSemantic(urpg::editor::SemanticEditorNavigation::First).applied);
     quest_panel.render();
     REQUIRE(quest_panel.lastRenderSnapshot()["graph"]["nodes"][0]["title"] == "New");
     REQUIRE(quest_panel.lastRenderSnapshot()["graph"]["semantic_alternative"]["rows"].size() == 1);

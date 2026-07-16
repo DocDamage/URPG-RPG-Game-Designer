@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <charconv>
 
 namespace urpg::editor {
 namespace {
@@ -21,21 +22,30 @@ std::optional<bool> parseBool(std::string_view value) {
     return std::nullopt;
 }
 
-std::vector<std::string> dialogueDiagnostics(const dialogue::DialogueGraph& graph) {
-    std::vector<std::string> result;
-    auto diagnostics = graph.validate();
-    const auto flow = graph.analyzeFlow();
-    diagnostics.insert(diagnostics.end(), flow.begin(), flow.end());
-    for (const auto& item : diagnostics) result.push_back(item.code + ": " + item.message);
+std::optional<int> parseInt(std::string_view value) {
+    int result = 0;
+    const auto parsed = std::from_chars(value.data(), value.data() + value.size(), result);
+    if (parsed.ec != std::errc{} || parsed.ptr != value.data() + value.size()) return std::nullopt;
     return result;
 }
 
-std::vector<std::string> questDiagnostics(const quest::QuestObjectiveGraphDocument& document) {
-    std::vector<std::string> result;
+std::vector<SemanticEditorDiagnostic> dialogueDiagnostics(const dialogue::DialogueGraph& graph) {
+    std::vector<SemanticEditorDiagnostic> result;
+    auto diagnostics = graph.validate();
+    const auto flow = graph.analyzeFlow();
+    diagnostics.insert(diagnostics.end(), flow.begin(), flow.end());
+    for (const auto& item : diagnostics)
+        result.push_back({item.code, item.message, item.node_id, item.choice_id, true});
+    return result;
+}
+
+std::vector<SemanticEditorDiagnostic> questDiagnostics(const quest::QuestObjectiveGraphDocument& document) {
+    std::vector<SemanticEditorDiagnostic> result;
     auto diagnostics = document.validate();
     const auto flow = document.analyzeFlow();
     diagnostics.insert(diagnostics.end(), flow.begin(), flow.end());
-    for (const auto& item : diagnostics) result.push_back(item.code + ": " + item.message);
+    for (const auto& item : diagnostics)
+        result.push_back({item.code, item.message, item.node_id, {}, true});
     return result;
 }
 
@@ -88,7 +98,21 @@ std::vector<accessibility::SemanticEditorNode> SemanticEditorCommandSurface::ord
 }
 
 std::vector<std::string> SemanticEditorCommandSurface::diagnostics() const {
-    auto result = alternative_.diagnostics();
+    std::vector<std::string> result;
+    for (const auto& item : linkedDiagnostics()) result.push_back(item.code + ": " + item.message);
+    return result;
+}
+
+std::vector<SemanticEditorDiagnostic> SemanticEditorCommandSurface::linkedDiagnostics() const {
+    std::vector<SemanticEditorDiagnostic> result;
+    const auto rows = orderedNodes();
+    for (const auto& row : rows) {
+        for (const auto& connection : row.connections) {
+            if (std::none_of(rows.begin(), rows.end(), [&](const auto& target) { return target.id == connection; }))
+                result.push_back({"semantic_connection_target_missing", "Connection target is missing.",
+                                  row.id, connection, true});
+        }
+    }
     if (diagnostic_provider_) {
         auto owner = diagnostic_provider_();
         result.insert(result.end(), owner.begin(), owner.end());
@@ -148,6 +172,18 @@ SemanticEditorCommandResult SemanticEditorCommandSurface::connectSelectedTo(std:
     return success("semantic_connection_applied", "Semantic connection created through its document owner.");
 }
 
+SemanticEditorCommandResult SemanticEditorCommandSurface::focusDiagnostic(const std::size_t diagnostic_index) {
+    const auto linked = linkedDiagnostics();
+    if (diagnostic_index >= linked.size())
+        return failure("semantic_diagnostic_missing", "The requested semantic diagnostic does not exist.");
+    if (linked[diagnostic_index].object_id.empty())
+        return failure("semantic_diagnostic_not_linked", "This diagnostic does not identify an editor object.");
+    const auto selected = select(linked[diagnostic_index].object_id);
+    if (!selected.applied)
+        return failure("semantic_diagnostic_object_missing", "The diagnostic's editor object no longer exists.");
+    return success("semantic_diagnostic_focused", "Focused the object linked to the semantic diagnostic.");
+}
+
 nlohmann::json SemanticEditorCommandSurface::renderSnapshot() const {
     nlohmann::json rows = nlohmann::json::array();
     for (const auto& row : orderedNodes()) {
@@ -155,12 +191,33 @@ nlohmann::json SemanticEditorCommandSurface::renderSnapshot() const {
                         {"properties", row.properties}, {"connections", row.connections},
                         {"selected", row.id == selected_id_}});
     }
+    nlohmann::json linked_diagnostics = nlohmann::json::array();
+    const auto ordered = orderedNodes();
+    for (const auto& item : linkedDiagnostics()) {
+        const bool focusable = !item.object_id.empty() &&
+            std::any_of(ordered.begin(), ordered.end(), [&](const auto& row) { return row.id == item.object_id; });
+        linked_diagnostics.push_back({{"code", item.code}, {"message", item.message},
+                                      {"object_id", item.object_id},
+                                      {"related_object_id", item.related_object_id},
+                                      {"blocking", item.blocking}, {"focusable", focusable}});
+    }
     return {{"bound", isBound()}, {"selected_id", selected_id_}, {"rows", std::move(rows)},
-            {"diagnostics", diagnostics()}, {"property_editing", canEditProperties()},
+            {"diagnostics", diagnostics()}, {"linked_diagnostics", std::move(linked_diagnostics)},
+            {"property_editing", canEditProperties()},
             {"connection_creation", canCreateConnections()},
             {"keyboard_commands", {"Home: first row", "End: last row", "Up: previous row",
                                     "Down: next row", "Enter: edit selected properties",
-                                    "Ctrl+Enter: connect selected row"}}};
+                                    "Ctrl+Enter: connect selected row"}},
+            {"controller_commands", {"Left Shoulder: first row", "Right Shoulder: last row",
+                                      "D-pad Up: previous row", "D-pad Down: next row",
+                                      "South button: edit selected properties",
+                                      "Right Trigger + South button: connect selected row"}},
+            {"operation_routes", {{"tree_list_navigation", true},
+                                   {"property_editing", canEditProperties()},
+                                   {"connection_creation", canCreateConnections()},
+                                   {"object_linked_diagnostics", true},
+                                   {"keyboard_navigation", true},
+                                   {"controller_navigation", true}}}};
 }
 
 SemanticEditorCommandSurface semanticCommandSurfaceForMenu(ui::MenuAuthoringDocument& document) {
@@ -175,6 +232,12 @@ SemanticEditorCommandSurface semanticCommandSurfaceForMenu(ui::MenuAuthoringDocu
             else if (key == "accessible_label") node.accessible_label = value;
             else if (key == "visible") { const auto parsed = parseBool(value); if (!parsed) return false; node.visible = *parsed; }
             else if (key == "enabled") { const auto parsed = parseBool(value); if (!parsed) return false; node.enabled = *parsed; }
+            else if (key == "x") { const auto parsed = parseInt(value); if (!parsed) return false; node.layout.x = *parsed; }
+            else if (key == "y") { const auto parsed = parseInt(value); if (!parsed) return false; node.layout.y = *parsed; }
+            else if (key == "width") { const auto parsed = parseInt(value); if (!parsed) return false; node.layout.width = *parsed; }
+            else if (key == "height") { const auto parsed = parseInt(value); if (!parsed) return false; node.layout.height = *parsed; }
+            else if (key == "focus_order") { const auto parsed = parseInt(value); if (!parsed) return false; node.layout.focus_order = *parsed; }
+            else if (key == "focus_next_id") node.focus_next_id = value;
             else return false;
             return document.updateNode(std::move(node));
         },
@@ -184,6 +247,12 @@ SemanticEditorCommandSurface semanticCommandSurfaceForMenu(ui::MenuAuthoringDocu
             auto node = *source;
             node.parent_id = parent;
             return document.updateNode(std::move(node));
+        },
+        [&document] {
+            std::vector<SemanticEditorDiagnostic> result;
+            for (const auto& item : ui::auditMenuAuthoringDocument(document, {}).issues)
+                result.push_back({item.code, item.message, item.node_id, {}, item.blocking});
+            return result;
         });
     return surface;
 }
@@ -204,6 +273,10 @@ SemanticEditorCommandSurface semanticCommandSurfaceForDialogue(dialogue::Dialogu
             else if (key == "speaker_name") speaker_name = value;
             else if (key == "localization_key") localization_key = value;
             else if (key == "text_preview") text_preview = value;
+            else if (key == "caption_localization_key")
+                return graph.updateNodeMediaTrack(std::string(id), std::string(value), node->voice_takes,
+                                                  node->caption_start_ms, node->caption_end_ms,
+                                                  node->non_speech_cues);
             else if (key == "ending") { const auto parsed = parseBool(value); if (!parsed) return false; ending = *parsed; }
             else return false;
             return graph.updateNode(std::string(id), std::move(speaker_id), std::move(speaker_name),
@@ -258,7 +331,23 @@ SemanticEditorCommandSurface semanticCommandSurfaceForTileMap(map::TileLayerDocu
             else if (key == "navigation") { const auto parsed = parseBool(value); if (!parsed) return false; layer.navigation = *parsed; }
             else return false;
             return document.updateLayer(std::move(layer));
-        }, {});
+        }, {},
+        [&document] {
+            std::vector<SemanticEditorDiagnostic> result;
+            for (const auto& item : document.validateNavigation()) {
+                std::string layer_id;
+                for (const auto& layer : document.layers()) {
+                    const auto tile = document.tileAt(layer.id, item.x, item.y);
+                    if (tile.has_value() && *tile != 0 && (layer.collision || layer.navigation)) {
+                        layer_id = layer.id;
+                        break;
+                    }
+                }
+                result.push_back({item.code, item.message, std::move(layer_id),
+                                  "tile:" + std::to_string(item.x) + "," + std::to_string(item.y), true});
+            }
+            return result;
+        });
     return surface;
 }
 
@@ -286,8 +375,10 @@ SemanticEditorCommandSurface semanticCommandSurfaceForWorldMap(map::ProjectWorld
                                    source->exits.front().id, std::string(to), target->entrances.front().id, {}});
         },
         [&graph] {
-            std::vector<std::string> result;
-            for (const auto& item : graph.validate()) result.push_back(item.code + ": " + item.message);
+            std::vector<SemanticEditorDiagnostic> result;
+            for (const auto& item : graph.validate())
+                result.push_back({item.code, item.message, item.map_id,
+                                  item.route_id.empty() ? item.object_id : item.route_id, true});
             return result;
         });
     return surface;

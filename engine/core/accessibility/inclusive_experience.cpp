@@ -594,9 +594,12 @@ SemanticEditorAlternative semanticAlternativeForMenu(const ui::MenuAuthoringDocu
         semantic.order = static_cast<int>(index);
         semantic.properties = {{"visible", node.visible ? "true" : "false"},
                                {"enabled", node.enabled ? "true" : "false"},
+                               {"label", node.label}, {"accessible_label", node.accessible_label},
                                {"x", std::to_string(node.layout.x)}, {"y", std::to_string(node.layout.y)},
                                {"width", std::to_string(node.layout.width)},
-                               {"height", std::to_string(node.layout.height)}};
+                               {"height", std::to_string(node.layout.height)},
+                               {"focus_order", std::to_string(node.layout.focus_order)},
+                               {"focus_next_id", node.focus_next_id}};
         (void)result.addNode(std::move(semantic));
     }
     for (const auto& node : document.nodes()) if (!node.parent_id.empty()) (void)result.connect(node.parent_id, node.id);
@@ -609,7 +612,9 @@ SemanticEditorAlternative semanticAlternativeForDialogue(const dialogue::Dialogu
     for (const auto& [id, node] : graph.nodes()) {
         (void)result.addNode({id, node.speaker_name.empty() ? id : node.speaker_name + ": " + node.text_preview,
                              node.ending ? "ending" : "dialogue", order++,
-                             {{"speaker_id", node.speaker_id}, {"localization_key", node.localization_key},
+                             {{"speaker_id", node.speaker_id}, {"speaker_name", node.speaker_name},
+                              {"localization_key", node.localization_key}, {"text_preview", node.text_preview},
+                              {"ending", node.ending ? "true" : "false"},
                               {"caption_localization_key", node.caption_localization_key},
                               {"voice_take_count", std::to_string(node.voice_takes.size())}}, {}});
     }
@@ -647,7 +652,7 @@ SemanticEditorAlternative semanticAlternativeForWorldMap(const map::ProjectWorld
     for (size_t index = 0; index < graph.maps().size(); ++index) {
         const auto& item = graph.maps()[index];
         (void)result.addNode({item.id, item.label.empty() ? item.id : item.label, "world_map",
-                             static_cast<int>(index), {}, {}});
+                             static_cast<int>(index), {{"label", item.label}}, {}});
     }
     for (const auto& route : graph.routes()) (void)result.connect(route.source_map_id, route.target_map_id);
     return result;

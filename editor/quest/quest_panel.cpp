@@ -35,7 +35,7 @@ bool QuestPanel::selectGraphNode(const std::string& node_id) {
         return false;
     }
     selected_node_id_ = node_id;
-    return true;
+    return semantic_surface_.select(node_id).applied;
 }
 
 bool QuestPanel::applyReadyGraphObjectives(const std::string& timestamp) {
@@ -47,7 +47,9 @@ bool QuestPanel::applyReadyGraphObjectives(const std::string& timestamp) {
 }
 
 SemanticEditorCommandResult QuestPanel::navigateSemantic(SemanticEditorNavigation navigation) {
-    return semantic_surface_.navigate(navigation);
+    auto result = semantic_surface_.navigate(navigation);
+    if (result.applied) selected_node_id_ = semantic_surface_.selectedId();
+    return result;
 }
 
 SemanticEditorCommandResult QuestPanel::setSemanticProperty(std::string_view key, std::string_view value) {
