@@ -1,4 +1,5 @@
 #include "engine/core/accessibility/inclusive_experience.h"
+#include "engine/core/accessibility/accessibility_auditor.h"
 #include "engine/core/dialogue/dialogue_graph.h"
 #include "engine/core/map/project_world_graph.h"
 #include "engine/core/map/tile_layer_document.h"
@@ -660,23 +661,29 @@ SemanticEditorAlternative semanticAlternativeForWorldMap(const map::ProjectWorld
 
 std::vector<InclusiveAuditIssue> auditInclusiveUi(const std::vector<InclusiveUiSnapshot>& elements,
                                                  bool touch_declared, bool reduced_motion) {
-    std::vector<InclusiveAuditIssue> issues;
-    std::set<int> focus_orders;
+    AccessibilityAuditor auditor;
+    auditor.setAuditOptions({touch_declared, reduced_motion, 4.5F, 44, 0});
+    std::vector<UiElementSnapshot> snapshots;
+    snapshots.reserve(elements.size());
     for (const auto& item : elements) {
-        auto add = [&](std::string code, std::string message) {
-            issues.push_back({std::move(code), item.id, std::move(message)});
-        };
-        if (item.focusable && item.label.empty()) add("missing_label", "Focusable element has no semantic label.");
-        if (item.focusable && (item.focus_order < 0 || !focus_orders.insert(item.focus_order).second))
-            add("focus_order", "Focusable element has an invalid or duplicate order.");
-        if (item.contrast_ratio < 4.5F) add("contrast", "Text contrast is below 4.5:1.");
-        if (touch_declared && item.focusable && (item.width < 44 || item.height < 44))
-            add("hit_target", "Interactive target is smaller than 44 by 44.");
-        if (item.clipped) add("clipping", "Element content is clipped.");
-        if (item.localization_overflow) add("localization_overflow", "Localized content overflows its bounds.");
-        if (reduced_motion && item.motion_duration_ms > 0 && !item.motion_essential)
-            add("unsafe_motion", "Non-essential motion remains enabled in reduced-motion mode.");
+        UiElementSnapshot snapshot;
+        snapshot.id = item.id;
+        snapshot.label = item.label;
+        snapshot.hasFocus = item.focusable;
+        snapshot.focusOrder = item.focus_order;
+        snapshot.contrastRatio = item.contrast_ratio;
+        snapshot.width = item.width;
+        snapshot.height = item.height;
+        snapshot.clipped = item.clipped;
+        snapshot.localizationOverflow = item.localization_overflow;
+        snapshot.motionDurationMs = item.motion_duration_ms;
+        snapshot.motionEssential = item.motion_essential;
+        snapshots.push_back(std::move(snapshot));
     }
+    auditor.ingestElements(snapshots);
+    std::vector<InclusiveAuditIssue> issues;
+    for (const auto& issue : auditor.audit())
+        issues.push_back({std::string(issueCategoryCode(issue.category)), issue.elementId, issue.message});
     return issues;
 }
 

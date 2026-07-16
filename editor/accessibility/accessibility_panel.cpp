@@ -37,26 +37,12 @@ void AccessibilityPanel::render() {
     nlohmann::json issueRows = nlohmann::json::array();
     for (const auto& issue : issues) {
         std::string severityStr = (issue.severity == urpg::accessibility::IssueSeverity::Error) ? "Error" : "Warning";
-        std::string categoryStr;
-        switch (issue.category) {
-            case urpg::accessibility::IssueCategory::MissingLabel:
-                categoryStr = "MissingLabel";
-                break;
-            case urpg::accessibility::IssueCategory::FocusOrder:
-                categoryStr = "FocusOrder";
-                break;
-            case urpg::accessibility::IssueCategory::Contrast:
-                categoryStr = "Contrast";
-                break;
-            case urpg::accessibility::IssueCategory::Navigation:
-                categoryStr = "Navigation";
-                break;
-        }
-
         nlohmann::json issueEntry = nlohmann::json{
             {"severity", severityStr},
-            {"category", categoryStr},
+            {"category", std::string(urpg::accessibility::issueCategoryName(issue.category))},
+            {"code", std::string(urpg::accessibility::issueCategoryCode(issue.category))},
             {"elementId", issue.elementId},
+            {"objectLinked", !issue.elementId.empty()},
             {"message", issue.message}
         };
         if (!issue.sourceFile.empty()) {

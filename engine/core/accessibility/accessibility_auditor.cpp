@@ -1,11 +1,47 @@
 #include "engine/core/accessibility/accessibility_auditor.h"
 
+#include <algorithm>
 #include <unordered_map>
 
 namespace urpg::accessibility {
 
+std::string_view issueCategoryCode(const IssueCategory category) {
+    switch (category) {
+    case IssueCategory::MissingLabel: return "missing_label";
+    case IssueCategory::FocusOrder: return "focus_order";
+    case IssueCategory::Contrast: return "contrast";
+    case IssueCategory::Navigation: return "navigation";
+    case IssueCategory::HitTarget: return "hit_target";
+    case IssueCategory::Clipping: return "clipping";
+    case IssueCategory::LocalizationOverflow: return "localization_overflow";
+    case IssueCategory::UnsafeMotion: return "unsafe_motion";
+    }
+    return "unknown";
+}
+
+std::string_view issueCategoryName(const IssueCategory category) {
+    switch (category) {
+    case IssueCategory::MissingLabel: return "MissingLabel";
+    case IssueCategory::FocusOrder: return "FocusOrder";
+    case IssueCategory::Contrast: return "Contrast";
+    case IssueCategory::Navigation: return "Navigation";
+    case IssueCategory::HitTarget: return "HitTarget";
+    case IssueCategory::Clipping: return "Clipping";
+    case IssueCategory::LocalizationOverflow: return "LocalizationOverflow";
+    case IssueCategory::UnsafeMotion: return "UnsafeMotion";
+    }
+    return "Unknown";
+}
+
 void AccessibilityAuditor::ingestElements(const std::vector<UiElementSnapshot>& elements) {
     m_elements = elements;
+}
+
+void AccessibilityAuditor::setAuditOptions(AccessibilityAuditOptions options) {
+    options.minimumContrastRatio = std::max(1.0f, options.minimumContrastRatio);
+    options.minimumHitTarget = std::max(1, options.minimumHitTarget);
+    options.minimumFocusOrder = std::max(0, options.minimumFocusOrder);
+    m_options = options;
 }
 
 std::vector<AccessibilityIssue> AccessibilityAuditor::audit() {
@@ -43,22 +79,41 @@ std::vector<AccessibilityIssue> AccessibilityAuditor::audit() {
                 stampSource(issue, element.id);
                 m_issues.push_back(std::move(issue));
             }
+            if (element.focusOrder < m_options.minimumFocusOrder) {
+                AccessibilityIssue issue{IssueSeverity::Warning, IssueCategory::FocusOrder, element.id,
+                                         "Focusable element has an invalid focus order"};
+                stampSource(issue, element.id);
+                m_issues.push_back(std::move(issue));
+            }
         }
 
-        if (element.focusOrder > 0) {
+        if (element.hasFocus && element.focusOrder >= m_options.minimumFocusOrder) {
             focusOrderMap[element.focusOrder].push_back(element.id);
         }
 
-        if (element.contrastRatio > 0.0f && element.contrastRatio < 3.0f) {
+        if (element.contrastRatio > 0.0f && element.contrastRatio < m_options.minimumContrastRatio) {
             AccessibilityIssue issue{
                 IssueSeverity::Error,
                 IssueCategory::Contrast,
                 element.id,
-                "Contrast ratio below minimum threshold of 3.0"
+                "Contrast ratio is below the configured minimum threshold"
             };
             stampSource(issue, element.id);
             m_issues.push_back(std::move(issue));
         }
+        const auto addError = [&](const IssueCategory category, std::string message) {
+            AccessibilityIssue issue{IssueSeverity::Error, category, element.id, std::move(message)};
+            stampSource(issue, element.id);
+            m_issues.push_back(std::move(issue));
+        };
+        if (m_options.touchDeclared && element.hasFocus &&
+            (element.width < m_options.minimumHitTarget || element.height < m_options.minimumHitTarget))
+            addError(IssueCategory::HitTarget, "Interactive target is smaller than the configured minimum hit target");
+        if (element.clipped) addError(IssueCategory::Clipping, "Element content is clipped");
+        if (element.localizationOverflow)
+            addError(IssueCategory::LocalizationOverflow, "Localized content overflows its bounds");
+        if (m_options.reducedMotion && element.motionDurationMs > 0 && !element.motionEssential)
+            addError(IssueCategory::UnsafeMotion, "Non-essential motion remains enabled in reduced-motion mode");
     }
 
     for (const auto& [order, ids] : focusOrderMap) {

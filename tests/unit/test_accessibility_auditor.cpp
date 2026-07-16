@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <set>
 #include <string>
 
 using namespace urpg::accessibility;
@@ -61,6 +62,38 @@ TEST_CASE("AccessibilityAuditor: Low contrast ratio produces Contrast error", "[
     REQUIRE(issues[0].severity == IssueSeverity::Error);
     REQUIRE(issues[0].category == IssueCategory::Contrast);
     REQUIRE(issues[0].elementId == "text_1");
+}
+
+TEST_CASE("AccessibilityAuditor rejects every governed known-bad snapshot condition with object links",
+          "[accessibility][audit][snapshot][pcq655]") {
+    AccessibilityAuditor auditor;
+    auditor.setAuditOptions({true, true, 4.5f, 44, 0});
+    UiElementSnapshot bad;
+    bad.id = "fixture.bad_action";
+    bad.hasFocus = true;
+    bad.focusOrder = -1;
+    bad.contrastRatio = 3.0f;
+    bad.sourceContext = "content/ui/known_bad_menu.json";
+    bad.width = 30;
+    bad.height = 30;
+    bad.clipped = true;
+    bad.localizationOverflow = true;
+    bad.motionDurationMs = 300;
+    bad.motionEssential = false;
+    auditor.ingestElements({bad});
+
+    const auto issues = auditor.audit();
+    REQUIRE(issues.size() == 7);
+    const std::set<std::string> expected = {"missing_label", "focus_order", "contrast", "hit_target",
+                                            "clipping", "localization_overflow", "unsafe_motion"};
+    std::set<std::string> actual;
+    for (const auto& issue : issues) {
+        actual.insert(std::string(issueCategoryCode(issue.category)));
+        REQUIRE(issue.elementId == "fixture.bad_action");
+        REQUIRE(issue.sourceFile == "content/ui/known_bad_menu.json");
+        REQUIRE_FALSE(issue.message.empty());
+    }
+    REQUIRE(actual == expected);
 }
 
 TEST_CASE("AccessibilityAuditor: No focusable elements produces Navigation warning", "[accessibility]") {

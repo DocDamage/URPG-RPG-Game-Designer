@@ -334,8 +334,8 @@ TEST_CASE("Inclusive UI audit links focus contrast hit target clipping overflow 
           "[accessibility][audit][pcq655]") {
     using namespace urpg::accessibility;
     const auto issues = auditInclusiveUi({
-        {"bad.primary", {}, true, 0, 3.0F, 30, 30, true, true, 300, false},
-        {"bad.secondary", "Secondary", true, 0, 7.0F, 44, 44, false, false, 0, false}}, true, true);
+        {"bad.primary", {}, true, -1, 3.0F, 30, 30, true, true, 300, false},
+        {"bad.secondary", "Secondary", true, 1, 7.0F, 44, 44, false, false, 0, false}}, true, true);
     REQUIRE(issues.size() == 7);
     const std::set<std::string> codes = {"missing_label", "focus_order", "contrast", "hit_target",
                                           "clipping", "localization_overflow", "unsafe_motion"};

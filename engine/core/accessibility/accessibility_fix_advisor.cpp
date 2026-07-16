@@ -18,6 +18,18 @@ std::vector<AccessibilityFix> AccessibilityFixAdvisor::suggestFixes(const std::v
         case IssueCategory::Navigation:
             fixes.push_back({issue.elementId, "add_input_alternative", issue.message});
             break;
+        case IssueCategory::HitTarget:
+            fixes.push_back({issue.elementId, "enlarge_hit_target", issue.message});
+            break;
+        case IssueCategory::Clipping:
+            fixes.push_back({issue.elementId, "repair_clipping", issue.message});
+            break;
+        case IssueCategory::LocalizationOverflow:
+            fixes.push_back({issue.elementId, "repair_localization_overflow", issue.message});
+            break;
+        case IssueCategory::UnsafeMotion:
+            fixes.push_back({issue.elementId, "disable_nonessential_motion", issue.message});
+            break;
         }
     }
     return fixes;

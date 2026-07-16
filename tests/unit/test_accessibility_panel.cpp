@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <algorithm>
+#include <set>
 #include "editor/accessibility/accessibility_panel.h"
 #include "editor/accessibility/accessibility_menu_adapter.h"
 #include "editor/accessibility/accessibility_spatial_adapter.h"
@@ -64,6 +65,40 @@ TEST_CASE("AccessibilityPanel: Counts are accurate", "[accessibility][editor][pa
     REQUIRE(snapshot["issueCount"] == 5);
     REQUIRE(snapshot["errorCount"] == 3);
     REQUIRE(snapshot["warningCount"] == 2);
+}
+
+TEST_CASE("AccessibilityPanel snapshot exposes every PCQ-655 diagnostic code and owning object",
+          "[accessibility][editor][panel][snapshot][pcq655]") {
+    AccessibilityAuditor auditor;
+    auditor.setAuditOptions({true, true, 4.5f, 44, 0});
+    UiElementSnapshot bad;
+    bad.id = "fixture.panel_action";
+    bad.hasFocus = true;
+    bad.focusOrder = -1;
+    bad.contrastRatio = 2.0f;
+    bad.width = 24;
+    bad.height = 24;
+    bad.clipped = true;
+    bad.localizationOverflow = true;
+    bad.motionDurationMs = 250;
+    auditor.ingestElements({bad});
+
+    AccessibilityPanel panel;
+    panel.bindAuditor(&auditor);
+    panel.render();
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["issueCount"] == 7);
+    REQUIRE(snapshot["errorCount"] == 6);
+    REQUIRE(snapshot["warningCount"] == 1);
+    const std::set<std::string> expected = {"missing_label", "focus_order", "contrast", "hit_target",
+                                            "clipping", "localization_overflow", "unsafe_motion"};
+    std::set<std::string> actual;
+    for (const auto& issue : snapshot["issues"]) {
+        actual.insert(issue["code"].get<std::string>());
+        REQUIRE(issue["elementId"] == "fixture.panel_action");
+        REQUIRE(issue["objectLinked"] == true);
+    }
+    REQUIRE(actual == expected);
 }
 
 TEST_CASE("AccessibilityMenuAdapter ingests live MenuInspectorModel and produces audit issues", "[accessibility][editor][panel]") {

@@ -1263,15 +1263,15 @@
     {
       "requirementId": "PCQ-655",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq650],[pcq651],[pcq652],[pcq653],[pcq654],[pcq655],[accessibility],[localization],[input]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq655],[accessibility]\" --reporter console",
       "reports": [],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "502fe017003c6ff01f9aac3c5b5c8eba5a57348c",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "Inclusive UI audit emits object-linked diagnostics for missing labels, invalid or duplicate focus order, contrast below 4.5:1, touch targets below 44 by 44, clipping, localization overflow, and non-essential motion under reduced-motion settings. MenuPreviewPanel now converts its effective authored/runtime snapshot, including resolved state contrast and transition duration, into that object-linked auditor; a known-bad authored menu fixture proves the five applicable failures. The focused production-adapter regression passes 460 assertions in 71 cases. Whole-project snapshot ingestion, editor navigation to every object type, approved contrast renderer capture, CI report integration, clean-commit evidence, and release signoff remain pending."
+      "notes": "AccessibilityAuditor is now the single governed snapshot rule authority for missing labels, invalid or duplicate focus order, configurable contrast thresholds, touch/hit targets, clipping, localization overflow, unsafe non-essential motion under reduced-motion settings, and no-focus navigation. UiElementSnapshot carries geometry, clipping, localized-layout, motion, and source-context evidence without breaking existing menu, spatial, audio, battle, renderer, or editor-panel adapters. The legacy Inclusive UI/Menu Preview route delegates to the canonical auditor with its 4.5:1 contrast, 44-by-44 target, and zero-based focus-order policy instead of maintaining a divergent rule engine. AccessibilityPanel snapshots expose stable diagnostic codes, category names, severity, source context, owning element IDs, and explicit object-linked state. Known-bad canonical and panel fixtures each prove all seven PCQ-655 failures against one owning object; the authored Menu Preview fixture continues to prove its five applicable failures. Fix advice now covers target size, clipping, localization overflow, and reduced-motion repairs. The grouped urpg_tests/urpg_runtime/urpg_editor build succeeded, the focused PCQ-655 regression passes 77 assertions in 4 cases, and the shared accessibility regression passes 490 assertions in 53 cases. CI artifact/report ingestion beyond the editor snapshot, manual navigation/retest evidence, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-656",
