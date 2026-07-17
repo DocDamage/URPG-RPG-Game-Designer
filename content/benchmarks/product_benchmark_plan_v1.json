@@ -1,0 +1,92 @@
+{
+  "schema": "urpg.product_benchmark_plan.v1",
+  "baseline_version": "pcq700.v1",
+  "threshold_status": "provisional_pending_target_hardware_capture_and_owner_approval",
+  "fixtures": [
+    {
+      "id": "tiny_journey",
+      "scale": "tiny",
+      "maps": 3,
+      "events": 24,
+      "assets": 80,
+      "database_records": 120,
+      "content_bytes": 33554432
+    },
+    {
+      "id": "medium_journey",
+      "scale": "medium",
+      "maps": 30,
+      "events": 600,
+      "assets": 2400,
+      "database_records": 1800,
+      "content_bytes": 1073741824
+    },
+    {
+      "id": "large_journey",
+      "scale": "large",
+      "maps": 120,
+      "events": 6000,
+      "assets": 18000,
+      "database_records": 12000,
+      "content_bytes": 8589934592
+    }
+  ],
+  "hardware": [
+    {
+      "id": "minimum_win_x64",
+      "class": "minimum_desktop",
+      "logical_cores": 4,
+      "memory_bytes": 8589934592,
+      "graphics_class": "integrated"
+    },
+    {
+      "id": "recommended_win_x64",
+      "class": "recommended_desktop",
+      "logical_cores": 8,
+      "memory_bytes": 17179869184,
+      "graphics_class": "entry_discrete"
+    },
+    {
+      "id": "high_end_win_x64",
+      "class": "high_end_desktop",
+      "logical_cores": 16,
+      "memory_bytes": 34359738368,
+      "graphics_class": "modern_discrete"
+    }
+  ],
+  "thresholds": {
+    "minimum_win_x64": {
+      "startup": {"tiny": 4000000, "medium": 6000000, "large": 10000000},
+      "project_open": {"tiny": 500000, "medium": 1500000, "large": 4000000},
+      "save": {"tiny": 250000, "medium": 800000, "large": 2000000},
+      "search": {"tiny": 50000, "medium": 100000, "large": 200000},
+      "map_edit": {"tiny": 50000, "medium": 50000, "large": 50000},
+      "playtest_launch": {"tiny": 4000000, "medium": 6000000, "large": 10000000},
+      "frame_pacing": {"tiny": 33333, "medium": 33333, "large": 33333},
+      "package": {"tiny": 10000000, "medium": 30000000, "large": 90000000},
+      "memory": {"tiny": 1073741824, "medium": 2147483648, "large": 4294967296}
+    },
+    "recommended_win_x64": {
+      "startup": {"tiny": 2500000, "medium": 4000000, "large": 7000000},
+      "project_open": {"tiny": 300000, "medium": 1000000, "large": 2500000},
+      "save": {"tiny": 150000, "medium": 500000, "large": 1200000},
+      "search": {"tiny": 30000, "medium": 70000, "large": 120000},
+      "map_edit": {"tiny": 33333, "medium": 33333, "large": 33333},
+      "playtest_launch": {"tiny": 2500000, "medium": 4000000, "large": 7000000},
+      "frame_pacing": {"tiny": 16667, "medium": 16667, "large": 16667},
+      "package": {"tiny": 6000000, "medium": 18000000, "large": 50000000},
+      "memory": {"tiny": 805306368, "medium": 1610612736, "large": 3221225472}
+    },
+    "high_end_win_x64": {
+      "startup": {"tiny": 2000000, "medium": 3000000, "large": 5000000},
+      "project_open": {"tiny": 200000, "medium": 600000, "large": 1500000},
+      "save": {"tiny": 100000, "medium": 300000, "large": 800000},
+      "search": {"tiny": 20000, "medium": 40000, "large": 80000},
+      "map_edit": {"tiny": 16667, "medium": 16667, "large": 16667},
+      "playtest_launch": {"tiny": 2000000, "medium": 3000000, "large": 5000000},
+      "frame_pacing": {"tiny": 16667, "medium": 16667, "large": 16667},
+      "package": {"tiny": 4000000, "medium": 12000000, "large": 35000000},
+      "memory": {"tiny": 805306368, "medium": 1610612736, "large": 3221225472}
+    }
+  }
+}

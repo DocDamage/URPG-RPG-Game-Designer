@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <optional>
 #include <set>
 #include <tuple>
 #include <utility>
@@ -17,6 +18,20 @@ constexpr std::array<BenchmarkMetric, 9> kRequiredMetrics = {
 bool validVersion(const std::string& version) {
     return version.starts_with("pcq700.v") && version.size() > 8 &&
            std::all_of(version.begin() + 8, version.end(), [](const unsigned char value) { return value >= '0' && value <= '9'; });
+}
+
+std::optional<BenchmarkProjectScale> projectScale(const std::string_view value) {
+    if (value == "tiny") return BenchmarkProjectScale::Tiny;
+    if (value == "medium") return BenchmarkProjectScale::Medium;
+    if (value == "large") return BenchmarkProjectScale::Large;
+    return std::nullopt;
+}
+
+std::optional<BenchmarkHardwareClass> hardwareClass(const std::string_view value) {
+    if (value == "minimum_desktop") return BenchmarkHardwareClass::MinimumDesktop;
+    if (value == "recommended_desktop") return BenchmarkHardwareClass::RecommendedDesktop;
+    if (value == "high_end_desktop") return BenchmarkHardwareClass::HighEndDesktop;
+    return std::nullopt;
 }
 
 } // namespace
@@ -68,6 +83,122 @@ std::vector<BenchmarkHardwareProfile> ProductBenchmarkSuite::targetHardwareClass
     return {{"minimum_win_x64", BenchmarkHardwareClass::MinimumDesktop, 4, 8ULL * 1024 * 1024 * 1024, "integrated"},
             {"recommended_win_x64", BenchmarkHardwareClass::RecommendedDesktop, 8, 16ULL * 1024 * 1024 * 1024, "entry_discrete"},
             {"high_end_win_x64", BenchmarkHardwareClass::HighEndDesktop, 16, 32ULL * 1024 * 1024 * 1024, "modern_discrete"}};
+}
+
+ProductBenchmarkPlan ProductBenchmarkSuite::parsePlan(const nlohmann::json& value) {
+    ProductBenchmarkPlan plan;
+    if (!value.is_object() || value.value("schema", "") != "urpg.product_benchmark_plan.v1") {
+        plan.diagnostics.push_back("benchmark_plan_schema_invalid");
+        return plan;
+    }
+    plan.baseline_version = value.value("baseline_version", "");
+    plan.threshold_status = value.value("threshold_status", "");
+    if (!validVersion(plan.baseline_version)) plan.diagnostics.push_back("benchmark_version_invalid");
+    if (plan.threshold_status.empty()) plan.diagnostics.push_back("benchmark_threshold_status_missing");
+
+    const auto fixtureRows = value.value("fixtures", nlohmann::json::array());
+    if (!fixtureRows.is_array()) {
+        plan.diagnostics.push_back("benchmark_fixtures_invalid");
+    } else {
+        for (const auto& row : fixtureRows) {
+            if (!row.is_object()) {
+                plan.diagnostics.push_back("benchmark_fixture_plan_row_invalid");
+                continue;
+            }
+            const auto scale = projectScale(row.value("scale", ""));
+            if (!scale) {
+                plan.diagnostics.push_back("benchmark_fixture_plan_row_invalid");
+                continue;
+            }
+            plan.fixtures.push_back({row.value("id", ""), *scale, row.value("maps", 0U),
+                                     row.value("events", 0U), row.value("assets", 0U),
+                                     row.value("database_records", 0U), row.value("content_bytes", 0ULL)});
+        }
+    }
+    const auto hardwareRows = value.value("hardware", nlohmann::json::array());
+    if (!hardwareRows.is_array()) {
+        plan.diagnostics.push_back("benchmark_hardware_plan_invalid");
+    } else {
+        for (const auto& row : hardwareRows) {
+            if (!row.is_object()) {
+                plan.diagnostics.push_back("benchmark_hardware_plan_row_invalid");
+                continue;
+            }
+            const auto hardware_class = hardwareClass(row.value("class", ""));
+            if (!hardware_class) {
+                plan.diagnostics.push_back("benchmark_hardware_plan_row_invalid");
+                continue;
+            }
+            plan.hardware.push_back({row.value("id", ""), *hardware_class, row.value("logical_cores", 0U),
+                                     row.value("memory_bytes", 0ULL), row.value("graphics_class", "")});
+        }
+    }
+
+    const auto thresholdRows = value.value("thresholds", nlohmann::json::object());
+    if (!thresholdRows.is_object()) {
+        plan.diagnostics.push_back("benchmark_thresholds_invalid");
+    } else {
+        for (const auto& profile : plan.hardware) {
+            if (!thresholdRows.contains(profile.id) || !thresholdRows[profile.id].is_object()) {
+                plan.diagnostics.push_back("benchmark_hardware_threshold_missing:" + profile.id);
+                continue;
+            }
+            const auto& profileThresholds = thresholdRows[profile.id];
+            for (const auto metric : kRequiredMetrics) {
+                const auto metricName = benchmarkMetricName(metric);
+                if (!profileThresholds.contains(metricName) || !profileThresholds[metricName].is_object()) {
+                    plan.diagnostics.push_back("benchmark_metric_threshold_missing:" + profile.id + ":" + metricName);
+                    continue;
+                }
+                for (const auto& fixture : plan.fixtures) {
+                    const auto scaleName = benchmarkProjectScaleName(fixture.scale);
+                    const auto& metricThresholds = profileThresholds[metricName];
+                    const auto threshold = metricThresholds.value(scaleName, 0ULL);
+                    if (threshold == 0) {
+                        plan.diagnostics.push_back("benchmark_scale_threshold_missing:" + profile.id + ":" +
+                                                   metricName + ":" + scaleName);
+                        continue;
+                    }
+                    plan.thresholds.push_back({fixture.id, profile.id, metric, threshold});
+                }
+            }
+        }
+    }
+
+    const auto structural = ProductBenchmarkSuite{}.evaluate(plan.baseline_version, plan.fixtures, plan.hardware, {});
+    for (const auto& diagnostic : structural.diagnostics) {
+        if (!diagnostic.starts_with("benchmark_measurement_missing:")) plan.diagnostics.push_back(diagnostic);
+    }
+    std::sort(plan.diagnostics.begin(), plan.diagnostics.end());
+    plan.diagnostics.erase(std::unique(plan.diagnostics.begin(), plan.diagnostics.end()), plan.diagnostics.end());
+    plan.valid = plan.diagnostics.empty() && plan.thresholds.size() ==
+                     plan.fixtures.size() * plan.hardware.size() * kRequiredMetrics.size();
+    if (!plan.valid && plan.diagnostics.empty()) plan.diagnostics.push_back("benchmark_threshold_matrix_incomplete");
+    return plan;
+}
+
+ProductBenchmarkResult ProductBenchmarkSuite::evaluate(const ProductBenchmarkPlan& plan,
+                                                        std::vector<BenchmarkMeasurement> measurements) const {
+    if (!plan.valid) {
+        ProductBenchmarkResult result;
+        result.baseline_version = plan.baseline_version;
+        result.diagnostics = plan.diagnostics;
+        result.report = {{"schema", "urpg.product_benchmark.v1"}, {"baseline_version", plan.baseline_version},
+                         {"complete", false}, {"within_thresholds", false},
+                         {"threshold_status", plan.threshold_status}, {"measurements", nlohmann::json::array()},
+                         {"diagnostics", result.diagnostics}};
+        return result;
+    }
+    for (auto& measurement : measurements) {
+        const auto threshold = std::find_if(plan.thresholds.begin(), plan.thresholds.end(), [&](const auto& row) {
+            return row.fixture_id == measurement.fixture_id && row.hardware_id == measurement.hardware_id &&
+                   row.metric == measurement.metric;
+        });
+        measurement.regression_threshold = threshold == plan.thresholds.end() ? 0 : threshold->regression_threshold;
+    }
+    auto result = evaluate(plan.baseline_version, plan.fixtures, plan.hardware, std::move(measurements));
+    result.report["threshold_status"] = plan.threshold_status;
+    return result;
 }
 
 ProductBenchmarkResult ProductBenchmarkSuite::evaluate(std::string baseline_version,

@@ -926,14 +926,14 @@
       "requirementId": "PCQ-700",
       "status": "in_progress",
       "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[perf][benchmark][pcq700]\" --reporter console",
-      "reports": [],
+      "reports": ["content/readiness/product_benchmark_fixture_generation_pcq700.json"],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "3ad0b926580a4cc2252d760037b847a4078e7bf8",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "ProductBenchmarkSuite defines versioned tiny, medium, and large representative project fixtures plus minimum, recommended, and high-end desktop classes. A complete baseline requires all 81 fixture/hardware measurements across startup, project open, save, search, map edit, playtest launch, frame pacing, package, and memory, with explicit units, sample counts, and regression thresholds. Missing rows and threshold regressions fail visibly in deterministic JSON. The combined PCQ-700–707 and adjacent regression run passes 526 assertions in 45 cases. Actual generated fixture projects, benchmark executors, target-hardware captures, approved thresholds, versioned report files, clean-commit evidence, and release signoff remain pending."
+      "notes": "PCQ-700 now has one file-backed governed pcq700.v1 plan for exact tiny, medium, and large shapes, the three target desktop classes, and all 81 provisional regression thresholds. A deterministic standard-library generator validates that plan, rejects unsafe/duplicate IDs and incomplete matrices, and materializes ignored build-tree projects with exact project manifests, maps, events, asset catalogs, database records, and logical payload sizes. The canonical generated set contains 3/30/120 maps, 24/600/6000 events, 80/2400/18000 assets, 120/1800/12000 database records, and 32 MiB/1 GiB/8 GiB logical payloads. All three generated projects opened for one headless editor frame with exit code 0. ProductBenchmarkSuite parses the governed plan and applies its thresholds to captures without duplicating them in measurement rows. Focused PCQ-700 coverage passes 24 assertions in 3 cases and the generator passes 2 deterministic/safety tests. Single smoke timings are explicitly not baselines. The nine-route capture executor, repeated target-hardware samples, threshold approval, versioned measured report, clean-candidate evidence, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-701",

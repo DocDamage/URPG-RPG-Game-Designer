@@ -2,6 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <filesystem>
+#include <fstream>
+
 namespace {
 
 std::vector<urpg::perf::BenchmarkMeasurement> completeMeasurements(
@@ -54,4 +57,30 @@ TEST_CASE("Product benchmark suite makes regressions and missing coverage visibl
         sawRegression = sawRegression || !row.at("passes").get<bool>();
     }
     REQUIRE(sawRegression);
+}
+
+TEST_CASE("Product benchmark plan is file-backed and expands every governed threshold",
+          "[perf][benchmark][pcq700]") {
+    std::ifstream input(std::filesystem::path(URPG_SOURCE_DIR) / "content" / "benchmarks" /
+                        "product_benchmark_plan_v1.json");
+    REQUIRE(input.good());
+    const auto plan = urpg::perf::ProductBenchmarkSuite::parsePlan(nlohmann::json::parse(input));
+    REQUIRE(plan.valid);
+    REQUIRE(plan.diagnostics.empty());
+    REQUIRE(plan.baseline_version == "pcq700.v1");
+    REQUIRE(plan.threshold_status == "provisional_pending_target_hardware_capture_and_owner_approval");
+    REQUIRE(plan.fixtures.size() == 3);
+    REQUIRE(plan.hardware.size() == 3);
+    REQUIRE(plan.thresholds.size() == 81);
+
+    auto rows = completeMeasurements(plan.fixtures, plan.hardware);
+    for (auto& row : rows) {
+        row.measured_value = 1;
+        row.regression_threshold = 0;
+    }
+    const auto result = urpg::perf::ProductBenchmarkSuite{}.evaluate(plan, std::move(rows));
+    REQUIRE(result.complete);
+    REQUIRE(result.within_thresholds);
+    REQUIRE(result.report.at("threshold_status") == plan.threshold_status);
+    REQUIRE(result.report.at("measurements").size() == 81);
 }

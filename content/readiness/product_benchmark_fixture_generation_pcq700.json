@@ -1,0 +1,47 @@
+{
+  "schema": "urpg.product_benchmark_fixture_generation_evidence.v1",
+  "requirementId": "PCQ-700",
+  "status": "in_progress",
+  "date": "2026-07-16",
+  "baseCommit": "3ad0b926580a4cc2252d760037b847a4078e7bf8",
+  "dirtyState": "dirty",
+  "plan": {
+    "path": "content/benchmarks/product_benchmark_plan_v1.json",
+    "schema": "urpg.product_benchmark_plan.v1",
+    "baselineVersion": "pcq700.v1",
+    "thresholdStatus": "provisional_pending_target_hardware_capture_and_owner_approval",
+    "thresholdCount": 81
+  },
+  "generator": {
+    "path": "tools/perf/generate_product_benchmark_projects.py",
+    "outputRoot": "build/benchmarks/pcq700",
+    "generatedOutputTracked": false,
+    "properties": [
+      "rejects unsafe or duplicate fixture IDs",
+      "requires exact tiny, medium, and large scale coverage",
+      "requires exact minimum, recommended, and high-end hardware coverage",
+      "requires all 81 metric/fixture/hardware thresholds",
+      "materializes deterministic valid project manifests, maps, events, asset catalogs, database records, and logical payload sizes",
+      "marks Windows payloads sparse before extending them so logical scale does not consume equivalent physical disk",
+      "replaces generated fixtures only with an explicit force option scoped beneath the selected output root"
+    ]
+  },
+  "generatedFixtures": [
+    {"id": "tiny_journey", "maps": 3, "events": 24, "assets": 80, "databaseRecords": 120, "contentBytes": 33554432, "editorOpenExitCode": 0, "singleSmokeElapsedMs": 4771},
+    {"id": "medium_journey", "maps": 30, "events": 600, "assets": 2400, "databaseRecords": 1800, "contentBytes": 1073741824, "editorOpenExitCode": 0, "singleSmokeElapsedMs": 317},
+    {"id": "large_journey", "maps": 120, "events": 6000, "assets": 18000, "databaseRecords": 12000, "contentBytes": 8589934592, "editorOpenExitCode": 0, "singleSmokeElapsedMs": 479}
+  ],
+  "verification": [
+    {"command": "python tools/perf/tests/test_generate_product_benchmark_projects.py", "result": "passed; 2 tests"},
+    {"command": "python tools/perf/generate_product_benchmark_projects.py --force", "result": "passed; all three canonical fixtures generated with exact inventories and Windows sparse payloads"},
+    {"command": "cmake --build build/dev-ninja-debug --target urpg_tests urpg_runtime urpg_editor -j 8", "result": "passed; follow-up build reported no work"},
+    {"command": "build/dev-ninja-debug/urpg_tests.exe [perf][benchmark][pcq700] --reporter compact", "result": "passed; 24 assertions in 3 cases"},
+    {"command": "ctest --test-dir build/dev-ninja-debug -R urpg_product_benchmark_fixture_generator_test --output-on-failure", "result": "passed; 1 registered test"},
+    {"command": "build/dev-ninja-debug/urpg_editor.exe --headless --frames 1 --project-root <generated-fixture>", "result": "passed for tiny, medium, and large; every exit code was 0"}
+  ],
+  "interpretation": {
+    "completed": "A file-backed governed benchmark plan, complete provisional threshold matrix, deterministic fixture generator, exact inventory evidence, and real editor-open smoke now exist.",
+    "notClaimed": "The single editor-open elapsed observations are not benchmark baselines because they are not repeated, isolated, or captured on each target hardware class.",
+    "remaining": "Implement the nine-route capture executor, collect repeated startup/open/save/search/map-edit/playtest/frame-pacing/package/memory samples on all three hardware classes, approve thresholds, emit the versioned measured report, and obtain release signoff."
+  }
+}

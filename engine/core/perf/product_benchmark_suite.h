@@ -49,6 +49,23 @@ struct BenchmarkMeasurement {
     uint32_t sample_count = 0;
 };
 
+struct BenchmarkThreshold {
+    std::string fixture_id;
+    std::string hardware_id;
+    BenchmarkMetric metric = BenchmarkMetric::Startup;
+    uint64_t regression_threshold = 0;
+};
+
+struct ProductBenchmarkPlan {
+    bool valid = false;
+    std::string baseline_version;
+    std::string threshold_status;
+    std::vector<BenchmarkProjectFixture> fixtures;
+    std::vector<BenchmarkHardwareProfile> hardware;
+    std::vector<BenchmarkThreshold> thresholds;
+    std::vector<std::string> diagnostics;
+};
+
 struct ProductBenchmarkResult {
     bool complete = false;
     bool within_thresholds = false;
@@ -63,9 +80,12 @@ public:
                                     std::vector<BenchmarkProjectFixture> fixtures,
                                     std::vector<BenchmarkHardwareProfile> hardware,
                                     std::vector<BenchmarkMeasurement> measurements) const;
+    ProductBenchmarkResult evaluate(const ProductBenchmarkPlan& plan,
+                                    std::vector<BenchmarkMeasurement> measurements) const;
 
     static std::vector<BenchmarkProjectFixture> representativeFixtures();
     static std::vector<BenchmarkHardwareProfile> targetHardwareClasses();
+    static ProductBenchmarkPlan parsePlan(const nlohmann::json& value);
 };
 
 const char* benchmarkProjectScaleName(BenchmarkProjectScale scale);

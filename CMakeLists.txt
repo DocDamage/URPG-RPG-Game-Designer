@@ -2248,6 +2248,10 @@ if(Python3_FOUND)
         tools/assets/tests/test_asset_db.py
     )
     urpg_add_python_tool_test(
+        urpg_product_benchmark_fixture_generator_test
+        tools/perf/tests/test_generate_product_benchmark_projects.py
+    )
+    urpg_add_python_tool_test(
         urpg_local_mcp_tool_test
         tools/urpg_mcp/tests/test_server.py
     )
