@@ -39,6 +39,26 @@ TEST_CASE("Editor user settings paths are outside a project manifest", "[setting
     REQUIRE(paths.root.string().find("demo_project") == std::string::npos);
 }
 
+TEST_CASE("Malformed settings are durably quarantined before safe defaults replace them",
+          "[settings][persistence][recovery][pcq506]") {
+    const auto root = uniqueSettingsRoot("urpg_settings_quarantine");
+    std::filesystem::remove_all(root);
+    const auto paths = urpg::settings::appSettingsPaths(root);
+    writeText(paths.runtime_settings, "{malformed-runtime-settings");
+    const auto loaded = urpg::settings::loadRuntimeSettings(paths.runtime_settings);
+    REQUIRE(loaded.report.recovered_from_malformed);
+    const auto quarantine = urpg::settings::quarantineMalformedSettings(paths.runtime_settings);
+    REQUIRE(quarantine.success);
+    REQUIRE(std::filesystem::is_regular_file(quarantine.quarantined_path));
+    REQUIRE_FALSE(std::filesystem::exists(paths.runtime_settings));
+    REQUIRE(urpg::settings::saveRuntimeSettings(paths.runtime_settings, loaded.settings));
+    const auto recovered = urpg::settings::loadRuntimeSettings(paths.runtime_settings);
+    REQUIRE(recovered.report.loaded);
+    REQUIRE_FALSE(recovered.report.recovered_from_malformed);
+    REQUIRE(std::filesystem::is_regular_file(quarantine.quarantined_path));
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("Runtime settings save and reload window audio input and accessibility", "[settings][persistence][runtime]") {
     const auto root = uniqueSettingsRoot("urpg_runtime_settings");
     std::filesystem::remove_all(root);

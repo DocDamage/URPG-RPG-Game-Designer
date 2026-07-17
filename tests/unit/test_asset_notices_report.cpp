@@ -2,6 +2,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+
 TEST_CASE("Asset notices report is deterministic and provenance governed", "[assets][notices][bom]") {
     using namespace urpg::assets;
     AssetRecord hero;
@@ -23,6 +27,24 @@ TEST_CASE("Asset notices report is deterministic and provenance governed", "[ass
     REQUIRE(first.toNoticeText() == second.toNoticeText());
     REQUIRE(first.toNoticeText().find("Example Artist") != std::string::npos);
     REQUIRE(first.toJson()["schema"] == "urpg/third_party_asset_notices/v1");
+
+    const auto root = std::filesystem::temp_directory_path() /
+        ("urpg_asset_notices_" +
+         std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    const auto published = writeAssetNoticesReport(root, first);
+    REQUIRE(published.success);
+    REQUIRE(std::filesystem::is_regular_file(published.json_path));
+    REQUIRE(std::filesystem::is_regular_file(published.notice_path));
+    std::ifstream jsonInput(published.json_path, std::ios::binary);
+    const auto persisted = nlohmann::json::parse(jsonInput);
+    jsonInput.close();
+    REQUIRE(persisted == first.toJson());
+    std::ifstream noticeInput(published.notice_path, std::ios::binary);
+    const std::string persistedNotice((std::istreambuf_iterator<char>(noticeInput)),
+                                      std::istreambuf_iterator<char>());
+    noticeInput.close();
+    REQUIRE(persistedNotice == first.toNoticeText());
+    std::filesystem::remove_all(root);
 }
 
 TEST_CASE("Asset notices report blocks unresolved rights under configured policy", "[assets][notices][bom]") {
@@ -41,4 +63,12 @@ TEST_CASE("Asset notices report blocks unresolved rights under configured policy
     relaxed.require_license_id = false; relaxed.require_source = false; relaxed.require_review = false;
     relaxed.require_export_eligible = false;
     REQUIRE(buildAssetNoticesReport({unresolved}, relaxed).package_allowed);
+
+    const auto blockedRoot = std::filesystem::temp_directory_path() / "urpg_asset_notices_blocked";
+    std::error_code error;
+    std::filesystem::remove_all(blockedRoot, error);
+    const auto blocked = writeAssetNoticesReport(blockedRoot, strict);
+    REQUIRE_FALSE(blocked.success);
+    REQUIRE(blocked.code == "asset_notices_rights_blocked");
+    REQUIRE_FALSE(std::filesystem::exists(blockedRoot));
 }

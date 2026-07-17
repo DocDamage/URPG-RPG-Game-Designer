@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 
 #include <cstdint>
+#include <filesystem>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -48,6 +49,8 @@ public:
                                       std::string_view after_revision_id) const;
     nlohmann::json exportReviewReport(std::string_view before_revision_id,
                                      std::string_view after_revision_id) const;
+    bool writeReviewReport(const std::filesystem::path& path, std::string_view before_revision_id,
+                           std::string_view after_revision_id, std::string* diagnostic = nullptr) const;
 
     std::optional<project::ProjectOperationParticipant> makeRestoreParticipant(
         std::string_view revision_id, EconomyScenario& authoritative_scenario,

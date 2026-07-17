@@ -426,11 +426,11 @@ TEST_CASE("MenuSceneGraph handles basic navigation and stack", "[ui][graph]") {
     MenuSceneGraph graph;
 
     auto mainMenu = std::make_shared<MenuScene>("MainMenu");
-    mainMenu->addPane({"main_pane", "Main Menu", true, true, {}});
+    mainMenu->addPane({"main_pane", "Main Menu", true, true, {}, 0, "se_cursor", "se_ok", "se_buzzer", {}});
     graph.registerScene(mainMenu);
 
     auto settingsMenu = std::make_shared<MenuScene>("Settings");
-    settingsMenu->addPane({"audio_pane", "Audio", true, false, {}});
+    settingsMenu->addPane({"audio_pane", "Audio", true, false, {}, 0, "se_cursor", "se_ok", "se_buzzer", {}});
     graph.registerScene(settingsMenu);
 
     SECTION("Empty stack initially") {

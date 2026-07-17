@@ -42,6 +42,8 @@ public:
     std::vector<std::string> orphanIds(DatabaseTableKind kind) const;
     DatabaseRecordImpactPreview previewDelete(DatabaseTableKind kind, std::string_view id,
                                               std::string operation_id) const;
+    DatabaseRecordImpactPreview previewRename(DatabaseTableKind kind, std::string_view id,
+                                              std::string_view renamed_id, std::string operation_id) const;
     DatabaseRecordImpactPreview previewReplace(DatabaseTableKind kind, std::string_view id,
                                                std::string_view replacement_id, std::string operation_id) const;
 

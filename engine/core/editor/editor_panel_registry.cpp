@@ -487,6 +487,8 @@ std::vector<EditorPanelRegistryEntry> buildRegistry() {
      "editor/diagnostics", "Rendered inside DiagnosticsWorkspace as the Save tab."},
     {"event_authority", "Event Authority", "Diagnostics", EditorPanelExposure::Nested,
      "editor/diagnostics", "Rendered inside DiagnosticsWorkspace as the Event Authority tab."},
+    {"event_trace", "Live Event Trace", "Diagnostics", EditorPanelExposure::Nested,
+     "editor/diagnostics", "Rendered inside DiagnosticsWorkspace with live process transport, filters, controls, lanes, and source opening."},
     {"message_inspector", "Message Inspector", "Diagnostics", EditorPanelExposure::Nested,
      "editor/diagnostics", "Rendered inside DiagnosticsWorkspace as the Message Text tab."},
     {"battle_inspector", "Battle Inspector", "Diagnostics", EditorPanelExposure::Nested,
@@ -982,13 +984,7 @@ std::vector<EditorPanelRegistryEntry> topLevelEditorPanels() {
 }
 
 std::vector<std::string> requiredTopLevelPanelIds() {
-    std::vector<std::string> ids;
-    for (const auto& entry : kRegistry) {
-        if (entry.exposure == EditorPanelExposure::ReleaseTopLevel) {
-            ids.push_back(entry.id);
-        }
-    }
-    return ids;
+    return {kReleaseTopLevelPanelIds.begin(), kReleaseTopLevelPanelIds.end()};
 }
 
 std::vector<std::string> smokeRequiredEditorPanelIds() {

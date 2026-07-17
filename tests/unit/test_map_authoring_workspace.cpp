@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 
 #include <limits>
+#include <chrono>
 
 TEST_CASE("MapAuthoringWorkspace routes release entry modes through existing child workspaces", "[spatial][map_authoring]") {
     urpg::editor::LevelBuilderWorkspace levelBuilder;
@@ -298,4 +299,44 @@ TEST_CASE("MapAuthoringWorkspace routes Perspective 2D history through the activ
     REQUIRE(redone.success);
     REQUIRE(redone.owner == "perspective_2d");
     REQUIRE(perspective2D.lastRenderSnapshot().perspective_2d_layers.size() == 1);
+}
+
+TEST_CASE("MapAuthoringWorkspace persists world graph edits with reviewed impacts and history",
+          "[spatial][map_authoring][world][roundtrip]") {
+    using namespace urpg::editor;
+    const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
+    const auto root = std::filesystem::temp_directory_path() / ("urpg_map_world_" + std::to_string(nonce));
+    std::filesystem::create_directories(root);
+    LevelBuilderWorkspace levelBuilder;
+    SpatialAuthoringWorkspace perspective2D;
+    MapAuthoringWorkspace workspace;
+    workspace.bind(&levelBuilder, &perspective2D);
+    workspace.setProjectRoot(root);
+    REQUIRE(workspace.activateMode(MapAuthoringMode::World));
+    REQUIRE(workspace.addWorldMap({"town", "Town", {{"from_forest", "Forest Gate", 1, 5}},
+                                   {{"to_forest", "Forest Road", 8, 5}}, {}, {}}).success);
+    REQUIRE(workspace.addWorldMap({"forest", "Forest", {{"from_town", "Town Trail", 1, 2}},
+                                   {{"to_town", "Town Trail", 7, 2}}, {}, {}}).success);
+    REQUIRE(workspace.addWorldRoute({"town_forest", "To Forest", "town", "to_forest",
+                                     "forest", "from_town", ""}).success);
+    REQUIRE(workspace.snapshot().worldGraphPersisted);
+    REQUIRE(workspace.snapshot().worldPreview.nodes.size() == 2);
+    const auto rename = workspace.previewWorldMarkerChange("forest", "entrance", "from_town", "west_gate");
+    REQUIRE(rename.affected_routes.size() == 1);
+    REQUIRE(workspace.renameWorldMarker(rename).success);
+    REQUIRE(workspace.worldGraph().routes()[0].target_entrance_id == "west_gate");
+    REQUIRE(workspace.undo().success);
+    REQUIRE(workspace.worldGraph().routes()[0].target_entrance_id == "from_town");
+    REQUIRE(workspace.redo().success);
+    REQUIRE(workspace.worldGraph().routes()[0].target_entrance_id == "west_gate");
+
+    MapAuthoringWorkspace reopened;
+    reopened.bind(&levelBuilder, &perspective2D);
+    reopened.setProjectRoot(root);
+    REQUIRE(reopened.snapshot().worldGraphAvailable);
+    REQUIRE(reopened.worldGraph().toJson() == workspace.worldGraph().toJson());
+    const auto deletion = reopened.previewWorldMarkerChange("forest", "entrance", "west_gate");
+    REQUIRE(reopened.deleteWorldMarker(deletion).success);
+    REQUIRE(reopened.worldGraph().routes().empty());
+    std::filesystem::remove_all(root);
 }

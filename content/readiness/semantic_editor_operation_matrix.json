@@ -1,0 +1,11 @@
+{
+  "schema":"urpg.semantic_editor_operation_matrix.v1",
+  "inputRoutes":["keyboard","controller"],
+  "editors":[
+    {"id":"menu","operations":["ordered_navigation","select","edit_properties","create_connection","focus_diagnostic","move","resize","reparent","set_focus_edge"]},
+    {"id":"dialogue","operations":["ordered_navigation","select","edit_properties","create_connection","focus_diagnostic","reorder"]},
+    {"id":"quest","operations":["ordered_navigation","select","edit_properties","create_connection","focus_diagnostic","reorder"]},
+    {"id":"tile_map","operations":["ordered_navigation","select","edit_properties","focus_diagnostic","toggle_visibility","toggle_lock","reorder"]},
+    {"id":"world_map","operations":["ordered_navigation","select","edit_properties","create_connection","focus_diagnostic","rename","delete"]}
+  ]
+}

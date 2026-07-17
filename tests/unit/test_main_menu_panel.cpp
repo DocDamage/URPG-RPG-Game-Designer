@@ -13,6 +13,8 @@ TEST_CASE("MainMenuModel exposes startup routes and project actions", "[project]
     model.addRecentProject("C:/projects/second.urpg");
     model.pinProject("C:/projects/first.urpg");
     model.markProjectMissing("C:/projects/missing.urpg");
+    model.setRecoveryProjects({{"C:/projects/second.urpg", 2, true}});
+    model.setExampleProjectAvailable(true);
 
     auto snapshot = model.snapshot();
     REQUIRE(snapshot["surface"] == "main_menu");
@@ -29,16 +31,19 @@ TEST_CASE("MainMenuModel exposes startup routes and project actions", "[project]
     REQUIRE(snapshot["startup_destinations"][0]["id"] == "recent_projects");
     REQUIRE(snapshot["startup_destinations"][0]["item_count"] == 2);
     REQUIRE(snapshot["startup_destinations"][3]["id"] == "import");
-    REQUIRE(snapshot["startup_destinations"][3]["available"] == false);
-    REQUIRE(snapshot["startup_destinations"][3]["route"].is_null());
+    REQUIRE(snapshot["startup_destinations"][3]["available"] == true);
+    REQUIRE(snapshot["startup_destinations"][3]["route"] == "import_project");
     REQUIRE_FALSE(snapshot["startup_destinations"][3]["reason"].get<std::string>().empty());
     REQUIRE(snapshot["startup_destinations"][4]["id"] == "recovery");
     REQUIRE(snapshot["startup_destinations"][4]["available"] == true);
-    REQUIRE(snapshot["startup_destinations"][4]["item_count"] == 1);
+    REQUIRE(snapshot["startup_destinations"][4]["item_count"] == 2);
+    REQUIRE(snapshot["recovery_projects"].size() == 1);
+    REQUIRE(snapshot["recovery_projects"][0]["unclean_session"] == true);
     REQUIRE(snapshot["startup_destinations"][5]["id"] == "health");
-    REQUIRE(snapshot["startup_destinations"][5]["available"] == false);
+    REQUIRE(snapshot["startup_destinations"][5]["available"] == true);
     REQUIRE(snapshot["startup_destinations"][7]["id"] == "examples");
-    REQUIRE(snapshot["startup_destinations"][7]["available"] == false);
+    REQUIRE(snapshot["startup_destinations"][7]["available"] == true);
+    REQUIRE(snapshot["startup_destinations"][7]["route"] == "examples");
 
     REQUIRE(model.chooseNewProject());
     snapshot = model.snapshot();
@@ -55,6 +60,17 @@ TEST_CASE("MainMenuModel exposes startup routes and project actions", "[project]
     snapshot = model.snapshot();
     REQUIRE(snapshot["route"] == "open_project");
     REQUIRE(snapshot["pending_action"]["action"] == "open_project_request");
+
+    REQUIRE(model.chooseImportProject());
+    REQUIRE(model.snapshot()["route"] == "import_project");
+    REQUIRE(model.chooseExamples());
+    REQUIRE(model.snapshot()["route"] == "examples");
+
+    REQUIRE(model.chooseProjectHealth("C:/projects/second.urpg"));
+    REQUIRE(model.snapshot()["route"] == "project_health");
+    REQUIRE(model.chooseRecoveryProject("C:/projects/second.urpg"));
+    REQUIRE(model.snapshot()["route"] == "recovery");
+    REQUIRE_FALSE(model.chooseRecoveryProject("C:/projects/no-snapshot.urpg"));
 
     model.reportProjectOpenFailure("C:/projects/broken.urpg", "project.json is missing");
     snapshot = model.snapshot();
@@ -136,6 +152,9 @@ TEST_CASE("MainMenuModel exposes editable settings route", "[project][main_menu]
     urpg::editor::MainMenuModel model;
     model.setOnboardingEnabled(false);
     model.setHelpTipsEnabled(false);
+    model.setUiScale(2.0F);
+    model.setHighContrast(true);
+    model.setReducedMotion(true);
     model.setAssetBrowserLayout("compact_list");
     model.chooseSettings();
 
@@ -145,6 +164,9 @@ TEST_CASE("MainMenuModel exposes editable settings route", "[project][main_menu]
     REQUIRE(snapshot["settings"]["onboarding_enabled"] == false);
     REQUIRE(snapshot["settings"]["help_tips_enabled"] == false);
     REQUIRE(snapshot["settings"]["asset_browser_layout"] == "compact_list");
+    REQUIRE(snapshot["ui_scale"] == 2.0F);
+    REQUIRE(snapshot["high_contrast"] == true);
+    REQUIRE(snapshot["reduced_motion"] == true);
     REQUIRE(snapshot["commands"]["new_project"]["route"] == "template_picker");
 
     model.returnToMainMenu();
@@ -163,6 +185,9 @@ TEST_CASE("MainMenuModel persists normalized project identity without losing dis
     settings.help_tips_enabled = false;
     settings.asset_browser_layout = "compact_list";
     settings.external_asset_library_root = "G:/Creator Assets";
+    settings.accessibility.ui_scale = 1.5F;
+    settings.accessibility.high_contrast = true;
+    settings.accessibility.reduce_motion = true;
 
     urpg::editor::MainMenuModel model;
     model.applySettings(settings);
@@ -173,6 +198,7 @@ TEST_CASE("MainMenuModel persists normalized project identity without losing dis
     REQUIRE(snapshot["hidden_missing_projects"].size() == 1);
     REQUIRE(snapshot["external_asset_library_root"] == "G:/Creator Assets");
     REQUIRE(snapshot["missing_projects"].size() == 2);
+    REQUIRE(snapshot["ui_scale"] == 1.5F);
 
     model.chooseOpenProject("c:/CREATOR/demo");
     urpg::settings::EditorSettings saved;
@@ -184,6 +210,17 @@ TEST_CASE("MainMenuModel persists normalized project identity without losing dis
     REQUIRE(saved.help_tips_enabled == false);
     REQUIRE(saved.asset_browser_layout == "compact_list");
     REQUIRE(saved.external_asset_library_root == "G:/Creator Assets");
+    REQUIRE(saved.accessibility.ui_scale == 1.5F);
+    REQUIRE(saved.accessibility.high_contrast == true);
+    REQUIRE(saved.accessibility.reduce_motion == true);
+}
+
+TEST_CASE("MainMenuModel clamps live editor scale to the supported range", "[project][main_menu][settings][scale]") {
+    urpg::editor::MainMenuModel model;
+    model.setUiScale(8.0F);
+    REQUIRE(model.uiScale() == 3.0F);
+    model.setUiScale(0.1F);
+    REQUIRE(model.uiScale() == 0.5F);
 }
 
 TEST_CASE("MainMenuPanel renders model-backed main menu snapshot", "[project][main_menu][editor][panel]") {

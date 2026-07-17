@@ -1,7 +1,13 @@
 #include "editor/diagnostics/editor_error_card.h"
+#include "editor/ui/editor_widget_state.h"
 
 #include <algorithm>
 #include <cctype>
+#include <utility>
+
+#ifdef URPG_IMGUI_ENABLED
+#include <imgui.h>
+#endif
 
 namespace urpg::editor {
 namespace {
@@ -73,6 +79,28 @@ nlohmann::json editorErrorCardJson(const EditorErrorCard& card) {
     };
 }
 
+std::optional<EditorErrorCard> editorErrorCardFromJson(const nlohmann::json& value) {
+    if (!value.is_object() || value.value("schema", "") != "urpg.editor_error.v1" ||
+        !value.contains("go_to") || !value["go_to"].is_object() ||
+        !value.contains("retry") || !value["retry"].is_object() ||
+        !value.contains("details") || !value["details"].is_object()) {
+        return std::nullopt;
+    }
+    EditorErrorCard card;
+    card.code = value.value("code", "");
+    card.summary = value.value("summary", "");
+    card.affected_object = value.value("affected_object", "");
+    card.consequence = value.value("consequence", "");
+    card.suggested_fix = value.value("suggested_fix", "");
+    card.go_to = {value["go_to"].value("label", ""), value["go_to"].value("route", ""),
+                  value["go_to"].value("enabled", false)};
+    card.retry = {value["retry"].value("label", ""), value["retry"].value("route", ""),
+                  value["retry"].value("enabled", false)};
+    card.details = value["details"];
+    if (!validateEditorErrorCard(card).valid) return std::nullopt;
+    return card;
+}
+
 nlohmann::json redactedEditorErrorSupportExport(const EditorErrorCard& card) {
     auto result = editorErrorCardJson(card);
     result["schema"] = "urpg.editor_error_support.v1";
@@ -83,6 +111,50 @@ nlohmann::json redactedEditorErrorSupportExport(const EditorErrorCard& card) {
 
 std::string copyEditorErrorDetails(const EditorErrorCard& card) {
     return redactedEditorErrorSupportExport(card).dump(2);
+}
+
+EditorErrorCardRenderResult renderEditorErrorCard(const EditorErrorCard& card) {
+    EditorErrorCardRenderResult result;
+#ifdef URPG_IMGUI_ENABLED
+    if (!validateEditorErrorCard(card).valid) return result;
+    ImGui::PushID(card.code.c_str());
+    ImGui::BeginChild("ActionableError", ImVec2(0.0f, 0.0f), ImGuiChildFlags_Borders |
+                      ImGuiChildFlags_AutoResizeY);
+    ImGui::TextWrapped("%s", card.summary.c_str());
+    ImGui::TextDisabled("Affected: %s", card.affected_object.c_str());
+    ImGui::TextWrapped("Consequence: %s", card.consequence.c_str());
+    ImGui::TextWrapped("Suggested fix: %s", card.suggested_fix.c_str());
+    const auto actionDescriptor = [](std::string id, std::string label, const bool enabled,
+                                     const EditorWidgetIntent intent) {
+        EditorWidgetDescriptor descriptor{
+            std::move(id), std::move(label), EditorWidgetKind::Button, intent,
+            enabled ? EditorWidgetVisualState::Normal : EditorWidgetVisualState::Disabled,
+            enabled ? "" : "This recovery action is unavailable for the current error.", {}};
+        descriptor.accessible_name = descriptor.label;
+        descriptor.keyboard_action = "Enter or Space activates this recovery action.";
+        descriptor.controller_action = "Confirm activates this recovery action.";
+        descriptor.canvas_alternative = "Use the ordered diagnostic action list.";
+        descriptor.focus_order = 0;
+        return descriptor;
+    };
+    result.go_to_requested = renderEditorWidget(
+        actionDescriptor("error.go_to", card.go_to.label, card.go_to.enabled, EditorWidgetIntent::Primary)).activated;
+    ImGui::SameLine();
+    result.retry_requested = renderEditorWidget(
+        actionDescriptor("error.retry", card.retry.label, card.retry.enabled, EditorWidgetIntent::Secondary)).activated;
+    ImGui::SameLine();
+    if (renderEditorWidget(actionDescriptor("error.copy", "Copy Redacted Details", true,
+                                            EditorWidgetIntent::Secondary)).activated) {
+        const auto details = copyEditorErrorDetails(card);
+        ImGui::SetClipboardText(details.c_str());
+        result.details_copied = true;
+    }
+    ImGui::EndChild();
+    ImGui::PopID();
+#else
+    (void)card;
+#endif
+    return result;
 }
 
 } // namespace urpg::editor

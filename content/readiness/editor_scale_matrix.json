@@ -1,0 +1,12 @@
+{
+  "schema": "urpg.editor_scale_matrix.v1",
+  "updatedAt": "2026-07-16",
+  "persistenceOwner": "engine/core/settings/app_settings_store.*",
+  "levels": [
+    {"scale":0.5,"globalStyle":"implemented_live","fonts":"implemented_live","icons":"contract","hitTargets":"contract","popups":"implemented_primary_live","canvases":"resizable_contract","fixedWindows":"implemented_primary_live","snapshot":"automated_contract"},
+    {"scale":1.0,"globalStyle":"implemented_live","fonts":"implemented_live","icons":"contract","hitTargets":"contract","popups":"implemented_primary_live","canvases":"resizable_contract","fixedWindows":"implemented_primary_live","snapshot":"automated_contract"},
+    {"scale":1.5,"globalStyle":"implemented_live","fonts":"implemented_live","icons":"contract","hitTargets":"contract","popups":"implemented_primary_live","canvases":"resizable_contract","fixedWindows":"implemented_primary_live","snapshot":"automated_contract"},
+    {"scale":2.0,"globalStyle":"implemented_live","fonts":"implemented_live","icons":"contract","hitTargets":"contract","popups":"implemented_primary_live","canvases":"resizable_contract","fixedWindows":"implemented_primary_live","snapshot":"automated_contract"},
+    {"scale":3.0,"globalStyle":"implemented_live","fonts":"implemented_live","icons":"contract","hitTargets":"contract","popups":"implemented_primary_live","canvases":"resizable_contract","fixedWindows":"implemented_primary_live","snapshot":"automated_contract"}
+  ]
+}

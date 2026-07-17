@@ -683,7 +683,8 @@ std::optional<DialogueGraph> DialogueGraph::fromJson(const nlohmann::json& json)
                               node_json["text_preview"].get<std::string>(), node_json["ending"].get<bool>(), {},
                               node_json.value("voice_asset_id", ""),
                               node_json.value("caption_localization_key", ""), node_json.value("canvas_x", 0),
-                              node_json.value("canvas_y", 0), node_json.value("has_canvas_position", false)};
+                              node_json.value("canvas_y", 0), node_json.value("has_canvas_position", false),
+                              {}, 0, 0, {}};
             if (node_json.contains("voice_takes")) for (const auto& take : node_json["voice_takes"]) {
                 if (!take.is_object() || !take.contains("locale") || !take["locale"].is_string() ||
                     !take.contains("take_id") || !take["take_id"].is_string() ||
@@ -716,7 +717,7 @@ std::optional<DialogueGraph> DialogueGraph::fromJson(const nlohmann::json& json)
                     return std::nullopt;
                 }
                 DialogueChoice choice{choice_json["id"].get<std::string>(), choice_json["label"].get<std::string>(),
-                                      choice_json["target_node_id"].get<std::string>(), {}, {}};
+                                      choice_json["target_node_id"].get<std::string>(), {}, {}, {}};
                 choice.localization_key = choice_json.value("localization_key", "");
                 for (const auto& condition_json : choice_json["conditions"]) {
                     if (!condition_json.is_object() || !condition_json.contains("key") ||

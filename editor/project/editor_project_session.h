@@ -20,12 +20,18 @@ struct EditorProjectSessionResult {
     std::string message;
 };
 
+struct EditorProjectInspection {
+    EditorProjectSessionResult result;
+    EditorProjectIdentity identity;
+};
+
 class EditorProjectSession {
   public:
     using SwitchListener = std::function<void(const EditorProjectIdentity&)>;
     using CloseListener = std::function<void(const EditorProjectIdentity&)>;
 
     EditorProjectSessionResult openProject(const std::filesystem::path& project_root);
+    EditorProjectInspection inspectProject(const std::filesystem::path& project_root) const;
     EditorProjectSessionResult closeProject();
     void addSwitchListener(SwitchListener listener);
     void addCloseListener(CloseListener listener);

@@ -19,9 +19,10 @@ TEST_CASE("dialogue graph supports speaker metadata localization choices effects
         "dialogue.start",
         "Welcome.",
         false,
-        {{"choice_help", "Help", "end", {{"guide_affinity", ">=", 0}}, {{"guide_affinity", 5}}}},
+        {{"choice_help", "Help", "end", {{"guide_affinity", ">=", 0}}, {{"guide_affinity", 5}}, {}}},
+        {}, {}, 0, 0, false, {}, 0, 0, {},
     }));
-    REQUIRE(graph.addNode({"end", "guide", "Guide", "dialogue.end", "Thanks.", true, {}}));
+    REQUIRE(graph.addNode({"end", "guide", "Guide", "dialogue.end", "Thanks.", true, {}, {}, {}, 0, 0, false, {}, 0, 0, {}}));
 
     const auto route = graph.previewRoute();
     const auto json = graph.serialize();
@@ -45,8 +46,8 @@ TEST_CASE("dialogue graph supports speaker metadata localization choices effects
 
 TEST_CASE("dialogue choices preserve optional localization references", "[dialogue][localization]") {
     urpg::dialogue::DialogueGraph graph;
-    REQUIRE(graph.addNode({"start", "guide", "Guide", "dialogue.start", "Welcome.", false, {}}));
-    REQUIRE(graph.addNode({"end", "guide", "Guide", "dialogue.end", "Thanks.", true, {}}));
+    REQUIRE(graph.addNode({"start", "guide", "Guide", "dialogue.start", "Welcome.", false, {}, {}, {}, 0, 0, false, {}, 0, 0, {}}));
+    REQUIRE(graph.addNode({"end", "guide", "Guide", "dialogue.end", "Thanks.", true, {}, {}, {}, 0, 0, false, {}, 0, 0, {}}));
     REQUIRE(graph.addChoice("start", {"choice_help", "Help", "end", {}, {}, "dialogue.choice.help"}));
 
     const auto serialized = graph.serialize();
@@ -88,7 +89,7 @@ TEST_CASE("dialogue choices preserve optional localization references", "[dialog
 TEST_CASE("dialogue media tracks persist locale takes timing cues and deterministic selection",
           "[dialogue][captions][voice][pcq653]") {
     urpg::dialogue::DialogueGraph graph;
-    REQUIRE(graph.addNode({"line", "guide", "Guide", "dialogue.line", "Hello", true, {}}));
+    REQUIRE(graph.addNode({"line", "guide", "Guide", "dialogue.line", "Hello", true, {}, {}, {}, 0, 0, false, {}, 0, 0, {}}));
     REQUIRE(graph.upsertNodeVoiceTake("line", {"en-US", "take.en.1", "voice.en", 1200, "muted.en"}));
     REQUIRE(graph.upsertNodeVoiceTake("line", {"fr-FR", "take.fr.1", "voice.fr", 1250, "muted.fr"}));
     REQUIRE(graph.updateNodeCaptionCue("line", "caption.line", 250, 1500, {"door opens"}));
@@ -187,13 +188,13 @@ TEST_CASE("project localization audit reports dialogue voice, caption, and gover
         << '\n';
 
     urpg::dialogue::DialogueGraph graph;
-    REQUIRE(graph.addNode({"complete", "guide", "Guide", "", "Spoken", true, {}, "voice.present", "dialogue.caption"}));
-    REQUIRE(graph.addNode({"voice_only", "guide", "Guide", "", "Uncaptioned", true, {}, "voice.missing", ""}));
-    REQUIRE(graph.addNode({"caption_only", "guide", "Guide", "", "Caption only", true, {}, "", "dialogue.caption"}));
-    REQUIRE(graph.addNode({"metadata_missing", "guide", "Guide", "", "Missing take", true, {}, "voice.muted", "dialogue.caption"}));
-    REQUIRE(graph.addNode({"malformed", "guide", "Guide", "", "Malformed take", true, {}, "voice.malformed", "dialogue.caption"}));
+    REQUIRE(graph.addNode({"complete", "guide", "Guide", "", "Spoken", true, {}, "voice.present", "dialogue.caption", 0, 0, false, {}, 0, 0, {}}));
+    REQUIRE(graph.addNode({"voice_only", "guide", "Guide", "", "Uncaptioned", true, {}, "voice.missing", "", 0, 0, false, {}, 0, 0, {}}));
+    REQUIRE(graph.addNode({"caption_only", "guide", "Guide", "", "Caption only", true, {}, "", "dialogue.caption", 0, 0, false, {}, 0, 0, {}}));
+    REQUIRE(graph.addNode({"metadata_missing", "guide", "Guide", "", "Missing take", true, {}, "voice.muted", "dialogue.caption", 0, 0, false, {}, 0, 0, {}}));
+    REQUIRE(graph.addNode({"malformed", "guide", "Guide", "", "Malformed take", true, {}, "voice.malformed", "dialogue.caption", 0, 0, false, {}, 0, 0, {}}));
     REQUIRE(graph.addNode(
-        {"missing_alternative", "guide", "Guide", "", "No muted attachment", true, {}, "voice.missing-alternative", "dialogue.caption"}));
+        {"missing_alternative", "guide", "Guide", "", "No muted attachment", true, {}, "voice.missing-alternative", "dialogue.caption", 0, 0, false, {}, 0, 0, {}}));
     std::ofstream(root / "content" / "dialogues" / "media.json", std::ios::binary | std::ios::trunc)
         << graph.serialize().dump(2) << '\n';
 

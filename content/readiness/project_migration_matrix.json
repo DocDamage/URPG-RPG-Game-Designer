@@ -1,0 +1,21 @@
+{
+  "schema": "urpg.project_migration_matrix.v1",
+  "updatedAt": "2026-07-16",
+  "registry": "engine/core/project/project_schema_migration_registry.*",
+  "documents": [
+    {"type":"grid_part_map","versionField":"schema","current":"urpg.grid_part_document.v1","oldestSupported":"urpg.grid_part_document.v1","status":"current_only","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"perspective_2d_map","versionField":"version","current":"1","oldestSupported":"1","status":"current_only","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"ability","versionField":"schema","current":"urpg.ability.v1","oldestSupported":"unversioned","status":"forward_migration_registered","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"character_creator","versionField":"schemaVersion","current":"1.0.0","oldestSupported":"unversioned","status":"forward_migration_registered","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"quest","versionField":"schema_version","current":"urpg.quest_objective_graph.v1","oldestSupported":"urpg.quest_objective_graph.v1","status":"current_only","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"dialogue","versionField":"schema_version","current":"urpg.dialogue_graph.v1","oldestSupported":"urpg.dialogue_graph.v1","status":"current_only","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"database","versionField":"schema","current":"urpg.database.v1","oldestSupported":"unversioned","status":"forward_migration_registered","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"vendor_catalog","versionField":"schema","current":"urpg.vendor_catalog.v1","oldestSupported":"unversioned","status":"forward_migration_registered","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"audio_mix","versionField":"schema","current":"urpg.audio_mix_bank.v1","oldestSupported":"urpg.audio_mix_bank.v1","status":"current_only","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"input_remap","versionField":"version","current":"1.0.0","oldestSupported":"1.0.0","status":"current_only","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"controller_bindings","versionField":"version","current":"1.0.0","oldestSupported":"1.0.0","status":"current_only","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"gameplay_recipes","versionField":"schema_version","current":"urpg.gameplay_recipe_project.v1","oldestSupported":"urpg.gameplay_recipe_project.v1","status":"current_only","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"menu_studio","versionField":"schema","current":"urpg.menu_graph.v1","oldestSupported":"unversioned","status":"forward_migration_registered","fixture":"content/fixtures/project_document_migration_corpus.json"},
+    {"type":"mz_plugin_lock","versionField":"schema_version","current":"urpg.mz_plugin_static_lock.v1","oldestSupported":"urpg.mz_plugin_static_lock.v1","status":"current_only","fixture":"content/fixtures/project_document_migration_corpus.json"}
+  ]
+}

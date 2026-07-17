@@ -18,11 +18,11 @@ TEST_CASE("Compat fixtures: failure diagnostics project to telemetry envelopes",
     REQUIRE(row["schema"] == "urpg.telemetry.event.v1");
     REQUIRE(row["subsystem"] == "compat.plugin_manager");
     REQUIRE(row["name"] == "compat_failure");
-    REQUIRE(row["severity"] == "critical");
+    REQUIRE(row["severity"] == "warning");
     REQUIRE(row["code"] == "compat.plugin_manager.execute_command");
     REQUIRE(row["fields"]["plugin"] == "VisuStella_CoreEngine_MZ");
     REQUIRE(row["fields"]["command"] == "missing_telemetry_command");
-    REQUIRE(row["fields"]["severity_tag"] == "HARD_FAIL");
+    REQUIRE(row["fields"]["severity_tag"] == "WARN");
 
     pm.clearFailureDiagnostics();
     REQUIRE(pm.exportFailureTelemetryJsonl().empty());

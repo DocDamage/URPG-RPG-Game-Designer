@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 
 #include <string>
+#include <optional>
 #include <vector>
 
 namespace urpg::editor {
@@ -29,9 +30,17 @@ struct EditorErrorCardValidation {
     std::vector<std::string> issues;
 };
 
+struct EditorErrorCardRenderResult {
+    bool go_to_requested = false;
+    bool retry_requested = false;
+    bool details_copied = false;
+};
+
 EditorErrorCardValidation validateEditorErrorCard(const EditorErrorCard& card);
 nlohmann::json editorErrorCardJson(const EditorErrorCard& card);
+std::optional<EditorErrorCard> editorErrorCardFromJson(const nlohmann::json& value);
 nlohmann::json redactedEditorErrorSupportExport(const EditorErrorCard& card);
 std::string copyEditorErrorDetails(const EditorErrorCard& card);
+EditorErrorCardRenderResult renderEditorErrorCard(const EditorErrorCard& card);
 
 } // namespace urpg::editor

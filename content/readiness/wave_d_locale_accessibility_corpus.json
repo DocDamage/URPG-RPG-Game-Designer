@@ -1,0 +1,6 @@
+{
+  "schema":"urpg.wave_d_locale_accessibility_corpus.v1",
+  "locales":[{"id":"en","direction":"ltr","ime":false},{"id":"en-XA","direction":"ltr","ime":false},{"id":"ar","direction":"rtl","ime":true},{"id":"ja","direction":"ltr","ime":true}],
+  "localizationCases":["expansion","fallback","plural","grammar_variant","missing_glyph","line_break","mixed_rtl_number","punctuation_mirroring","number_format","date_format","stale_key","ime_entry"],
+  "accessibilityFailures":["missing_label","invalid_focus_order","contrast","hit_target","clipping","localization_overflow","unsafe_motion"]
+}

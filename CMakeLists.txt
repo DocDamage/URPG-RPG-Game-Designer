@@ -512,6 +512,7 @@ set(URPG_CORE_SOURCES
     engine/core/events/event_debugger.cpp
     engine/core/events/event_dependency_graph.cpp
     engine/core/events/event_template_library.cpp
+    engine/core/events/event_template_project_service.cpp
     engine/core/events/event_document.cpp
     engine/core/events/event_command_graph.cpp
     engine/core/events/event_macro_recorder.cpp
@@ -524,6 +525,7 @@ set(URPG_CORE_SOURCES
     engine/core/quest/quest_validator.cpp
     engine/core/dialogue/dialogue_graph.cpp
     engine/core/narrative/branching_quest_document.cpp
+    engine/core/narrative/branching_quest_project_service.cpp
     engine/core/narrative/choice_consequence_tracker.cpp
     engine/core/narrative/ending_route_manager.cpp
     engine/core/narrative/narrative_continuity_checker.cpp
@@ -642,11 +644,21 @@ set(URPG_CORE_SOURCES
     engine/core/project/project_reference_change_plan.cpp
     engine/core/project/project_operation_coordinator.cpp
     engine/core/project/project_operation_journal.cpp
+    engine/core/project/project_document_migration_service.cpp
     engine/core/project/project_schema_migration_registry.cpp
     engine/core/project/project_external_change_inspector.cpp
     engine/core/map/grid_part_prefab_lifecycle.cpp
     engine/core/map/project_world_graph.cpp
     engine/core/map/spatial_performance_budget.cpp
+    engine/core/playtest/playtest_command_bridge.cpp
+    engine/core/playtest/playtest_event_trace_bridge.cpp
+    engine/core/playtest/playtest_event_debugger_runtime.cpp
+    engine/core/playtest/playtest_runtime_state_bridge.cpp
+    engine/core/playtest/playtest_runtime_state_owner.cpp
+    engine/core/playtest/playtest_scenario_replay_bridge.cpp
+    engine/core/playtest/playtest_scenario_replay_runtime.cpp
+    engine/core/playtest/playtest_performance_bridge.cpp
+    engine/core/playtest/playtest_performance_runtime.cpp
     engine/core/events/native_event_command_matrix.cpp
     engine/core/events/event_reference_picker.cpp
     engine/core/events/event_static_analyzer.cpp
@@ -688,6 +700,7 @@ set(URPG_CORE_SOURCES
     engine/core/accessibility/render_contrast_adapter.cpp
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
+    editor/diagnostics/event_trace_diagnostics_panel.cpp
     editor/diagnostics/diagnostics_workspace.cpp
     editor/diagnostics/diagnostics_bundle_panel.cpp
     editor/diagnostics/diagnostics_workspace_export.cpp
@@ -711,11 +724,14 @@ set(URPG_CORE_SOURCES
     editor/project/new_project_wizard_panel.cpp
     editor/project/main_menu_panel.cpp
     editor/project/editor_project_session.cpp
+    editor/project/project_import_job.cpp
+    editor/project/project_external_change_coordinator.cpp
     editor/project/editor_dirty_state_registry.cpp
     editor/project/editor_recovery_service.cpp
     editor/project/project_recovery_coordinator.cpp
     editor/project/creator_checklist.cpp
     editor/project/creator_checklist_panel.cpp
+    editor/ui/editor_route_scale_contract.cpp
     editor/quest/quest_panel.cpp
     editor/progression/skill_tree_panel.cpp
     editor/dialogue/dialogue_graph_panel.cpp
@@ -732,6 +748,7 @@ set(URPG_CORE_SOURCES
     editor/database/database_batch_edit.cpp
     editor/database/database_table_model.cpp
     editor/database/database_reference_workspace.cpp
+    editor/database/database_record_operation_service.cpp
     editor/balance/balance_panel.cpp
     editor/balance/encounter_designer_panel.cpp
     editor/items/loot_generator_panel.cpp
@@ -783,6 +800,7 @@ set(URPG_CORE_SOURCES
     editor/diagnostics/editor_error_card.cpp
     editor/ui/menu_inspector_panel.cpp
     editor/ui/menu_preview_panel.cpp
+    editor/ui/menu_authoring_workspace.cpp
     editor/ability/ability_inspector_model.cpp
     editor/ability/ability_inspector_panel.cpp
     editor/ability/ability_orchestration_panel.cpp
@@ -862,6 +880,7 @@ set(URPG_CORE_SOURCES
     engine/core/tools/export_packager_executable_staging.cpp
     engine/core/tools/export_packager_license_audit.cpp
     engine/core/tools/export_packager_payload_builder.cpp
+    engine/core/tools/failed_package_recovery.cpp
     engine/core/project/dev_room_generator.cpp
     engine/core/project/project_snapshot_store.cpp
     engine/core/project/project_template_generator.cpp
@@ -1246,8 +1265,8 @@ add_library(urpg_domain_dependencies INTERFACE)
 target_include_directories(urpg_domain_dependencies INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/generated
-    ${stb_SOURCE_DIR}
 )
+target_include_directories(urpg_domain_dependencies SYSTEM INTERFACE ${stb_SOURCE_DIR})
 target_link_libraries(urpg_domain_dependencies INTERFACE
     urpg_project_warnings
     imgui
@@ -1329,6 +1348,9 @@ target_link_libraries(urpg_runtime PRIVATE
     urpg_export
     urpg_project_tools
 )
+if(WIN32)
+    target_link_libraries(urpg_runtime PRIVATE psapi)
+endif()
 target_include_directories(urpg_runtime PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(urpg_editor
@@ -1407,6 +1429,12 @@ endif()
 install(TARGETS urpg_runtime urpg_editor urpg_audio_smoke
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     COMPONENT Runtime
+)
+
+install(
+    DIRECTORY content/examples/creator_vertical_slice
+    DESTINATION "${CMAKE_INSTALL_BINDIR}/examples"
+    COMPONENT RuntimeData
 )
 
 set(URPG_INSTALL_DATA_ROOT "${CMAKE_INSTALL_DATADIR}/urpg")
@@ -1605,6 +1633,8 @@ add_executable(urpg_tests
     tests/unit/test_frame_budget.cpp
     tests/unit/test_process_runner.cpp
     tests/unit/test_playtest_session_controller.cpp
+    tests/unit/test_playtest_command_bridge.cpp
+    tests/unit/test_playtest_event_trace_bridge.cpp
     tests/unit/test_playtest_hot_reload.cpp
     tests/unit/test_playtest_runtime_state_inspector.cpp
     tests/unit/test_runtime_diagnostics.cpp
@@ -1648,6 +1678,9 @@ add_executable(urpg_tests
     tests/unit/test_choice_consequence_tracker.cpp
     tests/unit/test_dialogue_graph.cpp
     tests/unit/test_branching_quest_document.cpp
+    tests/unit/test_wave_c_qualification_evidence.cpp
+    tests/unit/test_wave_d_qualification_evidence.cpp
+    tests/unit/test_wave_e_qualification_evidence.cpp
     tests/unit/test_ending_route_manager.cpp
     tests/unit/test_narrative_continuity_checker.cpp
     tests/unit/test_quest_registry.cpp
@@ -1659,7 +1692,10 @@ add_executable(urpg_tests
     tests/unit/test_project_operation_coordinator.cpp
     tests/unit/test_project_operation_journal.cpp
     tests/unit/test_project_schema_migration_registry.cpp
+    tests/unit/test_project_document_migration_service.cpp
     tests/unit/test_project_external_change_inspector.cpp
+    tests/unit/test_project_external_change_coordinator.cpp
+    tests/unit/test_authored_ability_asset_atomic_save.cpp
     tests/unit/test_grid_part_prefab_lifecycle.cpp
     tests/unit/test_project_world_graph.cpp
     tests/unit/test_native_event_command_matrix.cpp
@@ -1667,6 +1703,7 @@ add_executable(urpg_tests
     tests/unit/test_event_reference_picker.cpp
     tests/unit/test_event_static_analyzer.cpp
     tests/unit/test_event_template_library.cpp
+    tests/unit/test_event_template_project_service.cpp
     tests/unit/test_save_compatibility_preview.cpp
     tests/unit/test_save_corruption_lab.cpp
     tests/unit/test_save_debugger.cpp
@@ -1684,11 +1721,13 @@ add_executable(urpg_tests
     tests/unit/test_new_project_wizard_panel.cpp
     tests/unit/test_main_menu_panel.cpp
     tests/unit/test_editor_project_session.cpp
+    tests/unit/test_project_import_job.cpp
     tests/unit/test_editor_recovery_service.cpp
     tests/unit/test_project_recovery_coordinator.cpp
     tests/unit/test_editor_dirty_state_registry.cpp
     tests/unit/test_creator_checklist.cpp
     tests/unit/test_creator_checklist_panel.cpp
+    tests/unit/test_editor_route_scale_contract.cpp
     tests/unit/test_plugin_compatibility_score.cpp
     tests/unit/test_plugin_inspector_panel.cpp
     tests/unit/test_mz_project_corpus_schema.cpp
@@ -1797,6 +1836,7 @@ add_executable(urpg_tests
     tests/unit/test_menu_inspector_model.cpp
     tests/unit/test_menu_preview_panel.cpp
     tests/unit/test_menu_authoring_document.cpp
+    tests/unit/test_menu_authoring_workspace.cpp
     tests/unit/test_inclusive_experience.cpp
     tests/unit/test_inclusive_runtime_policy.cpp
     tests/unit/test_semantic_editor_command_surface.cpp
@@ -1894,6 +1934,7 @@ add_executable(urpg_tests
     tests/unit/test_database_balance_panels.cpp
     tests/unit/test_database_batch_edit.cpp
     tests/unit/test_database_reference_workspace.cpp
+    tests/unit/test_database_record_operation_service.cpp
     tests/unit/test_database_table_model.cpp
     tests/unit/test_database_vertical_slice_integration.cpp
     tests/unit/test_world_simulation_suite.cpp

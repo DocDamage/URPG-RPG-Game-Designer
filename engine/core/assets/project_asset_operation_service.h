@@ -5,6 +5,7 @@
 #include "engine/core/project/project_reference_change_plan.h"
 
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -32,6 +33,8 @@ struct ProjectAssetOperationPreview {
 
 class ProjectAssetOperationService {
 public:
+    ProjectAssetOperationService() = default;
+    explicit ProjectAssetOperationService(std::filesystem::path journal_path);
     ProjectAssetOperationPreview preview(const urpg::project::ProjectReferenceIndex& index,
                                          const AssetLibrary& library,
                                          const ProjectAssetOperationRequest& request) const;
@@ -44,6 +47,7 @@ public:
     std::string redoLabel() const { return coordinator_.redoLabel(); }
 
 private:
+    std::unique_ptr<urpg::project::ProjectOperationJournal> journal_;
     urpg::project::ProjectOperationCoordinator coordinator_;
 };
 

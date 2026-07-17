@@ -1,0 +1,14 @@
+{
+  "schema":"urpg.product_completion_wave_gap_matrix.v1",
+  "wave":"G",
+  "authority":"docs/superpowers/plans/2026-07-15-product-completion-nintendo-quality-and-ardy-plan.md",
+  "executionPlan":"docs/superpowers/plans/2026-07-16-product-completion-batched-finish-plan.md",
+  "sourceCommit":"ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
+  "auditedAt":"2026-07-17",
+  "summary":{"required":3,"proved":0,"partial":0,"missing":0,"external":3},
+  "entries":[
+    {"requirementId":"PCQ-904","classification":"external","existingProof":["the candidate ledger authority requires exact build and commit identity, explicit freeze, approved blocker-only changes, and focused plus full retest chains","the current evidence truthfully records that no candidate is frozen while implementation remains dirty"],"missingProof":["freeze a clean commit-matched candidate and admit only approved P0/P1 blocker fixes with complete retest chains"],"externalDependencies":["release-owner candidate freeze and blocker admission decisions","completion or disposition of earlier external qualification evidence"]},
+    {"requirementId":"PCQ-905","classification":"external","existingProof":["the final qualification authority requires current candidate-matched passing rows for clean clone, clean machine, package, upgrade, save migration, accessibility, performance, security, license, and truth"],"missingProof":["run all ten final gates against one frozen candidate on the required clean environments and hardware"],"externalDependencies":["clean clone and clean supported-OS machines","target hardware and human accessibility/localization/input review","signing, legal, package, and release-owner evidence"]},
+    {"requirementId":"PCQ-906","classification":"external","existingProof":["the release-decision authority validates ship, delay, or reduced-scope decisions only with a signed candidate identity, owners, risks, unsupported targets, known issues, and aligned public claims","the current decision is truthfully unsigned and undecided"],"missingProof":["record the signed release-owner decision after final qualification, including risks, owners, unsupported targets, known issues, and public-claim alignment"],"externalDependencies":["release-owner decision and signatures","completed final qualification evidence"]}
+  ]
+}

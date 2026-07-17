@@ -214,6 +214,7 @@ bool AssetLibraryModel::loadExternalCatalog(const std::filesystem::path& catalog
     const auto result = external_catalog_.load(catalog_directory);
     external_catalog_diagnostics_ = result.diagnostics;
     if (!result.success) {
+        external_catalog_query_job_.reset();
         if (error_message) {
             std::ostringstream message;
             for (size_t index = 0; index < result.diagnostics.size(); ++index) {
@@ -228,6 +229,8 @@ bool AssetLibraryModel::loadExternalCatalog(const std::filesystem::path& catalog
         return false;
     }
     external_catalog_directory_ = catalog_directory;
+    external_catalog_query_job_.emplace(external_catalog_.beginQuery(external_catalog_query_));
+    (void)external_catalog_query_job_->advance(1000);
     if (error_message) {
         error_message->clear();
     }
@@ -237,7 +240,22 @@ bool AssetLibraryModel::loadExternalCatalog(const std::filesystem::path& catalog
 
 void AssetLibraryModel::setExternalCatalogQuery(urpg::assets::LocalAssetCatalogQuery query) {
     external_catalog_query_ = std::move(query);
+    if (external_catalog_.isLoaded()) {
+        external_catalog_query_job_.emplace(external_catalog_.beginQuery(external_catalog_query_));
+        (void)external_catalog_query_job_->advance(1000);
+    } else {
+        external_catalog_query_job_.reset();
+    }
     refreshSnapshot();
+}
+
+bool AssetLibraryModel::advanceExternalCatalogQuery(const size_t maximum_records) {
+    if (!external_catalog_query_job_.has_value()) {
+        return true;
+    }
+    const bool complete = external_catalog_query_job_->advance(maximum_records);
+    refreshExternalCatalogSnapshot();
+    return complete;
 }
 
 void AssetLibraryModel::selectExternalCatalogAsset(std::string asset_id) {
@@ -3112,6 +3130,7 @@ void AssetLibraryModel::clear() {
     action_history_ = nlohmann::json::array();
     external_catalog_.clear();
     external_catalog_query_ = {};
+    external_catalog_query_job_.reset();
     external_catalog_directory_.clear();
     selected_external_catalog_asset_id_.clear();
     external_catalog_diagnostics_.clear();
@@ -3291,7 +3310,11 @@ void AssetLibraryModel::refreshExternalCatalogSnapshot() {
     }
 
     const auto& metadata = external_catalog_.metadata();
-    const auto page = external_catalog_.query(external_catalog_query_);
+    if (!external_catalog_query_job_.has_value()) {
+        external_catalog_query_job_.emplace(external_catalog_.beginQuery(external_catalog_query_));
+    }
+    const auto& page = external_catalog_query_job_->result();
+    const auto queryProgress = external_catalog_query_job_->progress();
     for (const auto& diagnostic : page.diagnostics) {
         diagnosticRows.push_back(diagnostic);
     }
@@ -3340,7 +3363,10 @@ void AssetLibraryModel::refreshExternalCatalogSnapshot() {
           {"offset", external_catalog_query_.offset},
           {"page_size", external_catalog_query_.pageSize}}},
         {"page",
-         {{"total_matches", page.totalMatches}, {"has_more", page.hasMore}, {"records", std::move(records)}}},
+         {{"total_matches", page.totalMatches}, {"has_more", page.hasMore}, {"records", std::move(records)},
+          {"complete", queryProgress.complete}, {"cancelled", queryProgress.cancelled},
+          {"processed_records", queryProgress.processedRecords},
+          {"expected_records", queryProgress.expectedRecords}}},
         {"diagnostics", std::move(diagnosticRows)},
         {"actions",
          {{"refresh_index",
@@ -3349,10 +3375,12 @@ void AssetLibraryModel::refreshExternalCatalogSnapshot() {
             {"command", urpg::assets::kLocalAssetCatalogRegenerateCommand},
             {"reason", "Refresh exports metadata only from the configured local index database."}}},
           {"open_source_location",
-           {{"enabled", std::any_of(page.records.begin(), page.records.end(), [&](const auto& record) {
+           {{"enabled", queryProgress.complete && std::any_of(page.records.begin(), page.records.end(), [&](const auto& record) {
                  return record.assetId == selected_external_catalog_asset_id_;
              })},
-            {"reason", "Select a visible catalog record to open its containing source location."}}}}},
+            {"reason", queryProgress.complete
+                           ? "Select a visible catalog record to open its containing source location."
+                           : "Catalog query is still running in bounded slices."}}}}},
     };
 }
 

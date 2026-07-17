@@ -138,6 +138,13 @@ struct EditorSettingsLoadResult {
     SettingsLoadReport report;
 };
 
+struct SettingsQuarantineResult {
+    bool success = false;
+    std::string code;
+    std::filesystem::path quarantined_path;
+    std::string message;
+};
+
 AppSettingsPaths appSettingsPaths(const std::filesystem::path& project_root);
 AppSettingsPaths editorUserSettingsPaths();
 
@@ -146,6 +153,7 @@ EditorSettings defaultEditorSettings(const AppSettingsPaths& paths);
 
 RuntimeSettingsLoadResult loadRuntimeSettings(const std::filesystem::path& path);
 EditorSettingsLoadResult loadEditorSettings(const std::filesystem::path& path, const AppSettingsPaths& paths);
+SettingsQuarantineResult quarantineMalformedSettings(const std::filesystem::path& path);
 
 bool saveRuntimeSettings(const std::filesystem::path& path, const RuntimeSettings& settings, std::string* error = nullptr);
 bool saveEditorSettings(const std::filesystem::path& path, const EditorSettings& settings, std::string* error = nullptr);

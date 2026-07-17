@@ -1,5 +1,7 @@
 #include "engine/core/assets/project_asset_operation_service.h"
 
+#include <algorithm>
+#include <set>
 #include <utility>
 
 namespace urpg::assets {
@@ -47,6 +49,10 @@ const char* projectAssetOperationName(const ProjectAssetOperationKind kind) {
     return "replace";
 }
 
+ProjectAssetOperationService::ProjectAssetOperationService(std::filesystem::path journal_path)
+    : journal_(std::make_unique<urpg::project::ProjectOperationJournal>(std::move(journal_path))),
+      coordinator_(journal_.get()) {}
+
 ProjectAssetOperationPreview ProjectAssetOperationService::preview(
     const urpg::project::ProjectReferenceIndex& index, const AssetLibrary& library,
     const ProjectAssetOperationRequest& request) const {
@@ -88,6 +94,21 @@ urpg::project::ProjectOperationResult ProjectAssetOperationService::execute(
     if (!preview.success || !preview.applicable) {
         return {false, false, "project_asset_operation_preview_not_applicable",
                 "The asset operation cannot execute until its impact preview is applicable.", {}};
+    }
+    std::set<std::filesystem::path> requiredDocuments;
+    for (const auto& update : preview.reference_plan.updates) {
+        requiredDocuments.insert(update.before.document_path.lexically_normal());
+    }
+    for (const auto& required : requiredDocuments) {
+        const auto owner = std::find_if(participants.begin(), participants.end(), [&](const auto& participant) {
+            return !participant.document_path.empty() && participant.document_path.lexically_normal() == required;
+        });
+        if (owner == participants.end()) {
+            return {false, false, "project_asset_operation_owner_coverage_missing",
+                    "The reviewed reference plan names a document without a participating typed owner: " +
+                        required.generic_string(),
+                    {}};
+        }
     }
     return coordinator_.execute({preview.request.operation_id, preview.label, std::move(participants)});
 }

@@ -331,6 +331,9 @@ TEST_CASE("MapScene Render Sync", "[render][scene]") {
         {"render_test_tileset", {}},
     });
     map.setTile(0, 0, 101, true);
+    map.setTile(1, 0, 102, true);
+    map.setTile(0, 1, 103, true);
+    map.setTile(1, 1, 104, true);
 
     // Trigger render submission
     map.onUpdate(0.016f);

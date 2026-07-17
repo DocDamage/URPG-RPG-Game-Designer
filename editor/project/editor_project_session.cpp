@@ -1,5 +1,7 @@
 #include "editor/project/editor_project_session.h"
 
+#include "engine/core/project/project_document_migration_service.h"
+
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <system_error>
@@ -44,23 +46,41 @@ EditorProjectSessionResult EditorProjectSession::validateProject(const std::file
 }
 
 EditorProjectSessionResult EditorProjectSession::openProject(const std::filesystem::path& project_root) {
-    EditorProjectIdentity next_project;
-    auto result = validateProject(project_root, next_project);
+    auto inspection = inspectProject(project_root);
+    auto result = inspection.result;
     if (!result.success) {
         last_diagnostic_ = result;
         return result;
     }
 
+    const auto migration = urpg::project::migrateProjectDocumentsOnDisk(inspection.identity.root);
+    if (!migration.success) {
+        result = {false, migration.code,
+                  "Project documents could not be migrated safely before open; no partial migration was retained."};
+        last_diagnostic_ = result;
+        return result;
+    }
+    if (migration.code == "project_document_migration_applied") {
+        result.code = "project_opened_after_migration";
+        result.message = "Project opened successfully after forward migration; originals were retained privately.";
+    }
+
     if (open_) {
         for (const auto& listener : close_listeners_) listener(active_project_);
     }
-    active_project_ = std::move(next_project);
+    active_project_ = std::move(inspection.identity);
     open_ = true;
     last_diagnostic_ = result;
     for (const auto& listener : switch_listeners_) {
         listener(active_project_);
     }
     return result;
+}
+
+EditorProjectInspection EditorProjectSession::inspectProject(const std::filesystem::path& project_root) const {
+    EditorProjectInspection inspection;
+    inspection.result = validateProject(project_root, inspection.identity);
+    return inspection;
 }
 
 EditorProjectSessionResult EditorProjectSession::closeProject() {

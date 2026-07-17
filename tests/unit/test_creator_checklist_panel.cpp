@@ -32,3 +32,26 @@ TEST_CASE("CreatorChecklistPanel persists dismissal and restoration per project"
     REQUIRE(panel.isVisible());
     std::filesystem::remove_all(root);
 }
+
+TEST_CASE("CreatorChecklistPanel dispatches the next contextual task through its live route owner",
+          "[project][creator_checklist][onboarding]") {
+    const auto root = uniqueChecklistPanelRoot();
+    std::filesystem::create_directories(root);
+    urpg::editor::CreatorChecklistPanel panel;
+    panel.setProjectRoot(root);
+    std::string routedItem;
+    std::string routedSurface;
+    panel.setRouteHandler([&](const urpg::editor::CreatorChecklistItem& item) {
+        routedItem = item.id;
+        routedSurface = item.route;
+        return true;
+    });
+
+    REQUIRE(panel.activateNextAction());
+    REQUIRE(routedItem == "hero_art");
+    REQUIRE(routedSurface == "asset_library");
+    REQUIRE(panel.statusMessage() == "Opened the next creator task.");
+    REQUIRE(panel.dismiss());
+    REQUIRE_FALSE(panel.activateNextAction());
+    std::filesystem::remove_all(root);
+}

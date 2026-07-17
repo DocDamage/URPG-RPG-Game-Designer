@@ -1,6 +1,8 @@
 #include "editor/playtest/playtest_session_controller.h"
 
 #include "engine/core/save/save_journal.h"
+#include "engine/core/security/sha256.h"
+#include "engine/core/version.h"
 
 #include <chrono>
 #include <fstream>
@@ -33,19 +35,6 @@ bool isSafeMapId(const std::string& map_id) {
     const std::filesystem::path mapPath(map_id);
     return !map_id.empty() && !mapPath.is_absolute() && mapPath.filename().string() == map_id && map_id != "." &&
            map_id != "..";
-}
-
-const char* stateName(const PlaytestSessionState state) {
-    switch (state) {
-    case PlaytestSessionState::Inactive: return "inactive";
-    case PlaytestSessionState::Starting: return "starting";
-    case PlaytestSessionState::Running: return "running";
-    case PlaytestSessionState::Stopping: return "stopping";
-    case PlaytestSessionState::Exited: return "exited";
-    case PlaytestSessionState::Crashed: return "crashed";
-    case PlaytestSessionState::Returned: return "returned";
-    }
-    return "unknown";
 }
 
 const char* severityName(const diagnostics::DiagnosticSeverity severity) {
@@ -94,6 +83,10 @@ bool PlaytestSessionController::start(const std::filesystem::path& project_root,
     started_at_ = {};
     diagnostics_.clear();
     diagnostics_offset_ = 0;
+    next_command_id_ = 1;
+    map_reload_revision_ = 0;
+    pending_map_reload_command_id_.reset();
+    acknowledgement_offset_ = 0;
     if (!std::filesystem::is_directory(project_root) || !isSafeMapId(map_id)) {
         state_ = PlaytestSessionState::Crashed;
         message_ = "Choose a project and a valid map before starting playtest.";
@@ -129,12 +122,18 @@ bool PlaytestSessionController::start(const std::filesystem::path& project_root,
     }
     const auto manifestPath = session_directory_ / "session.json";
     checkpoint_id_ = "launch";
+    const std::string revision_material = project_root.generic_string() + "\n" + map_id + "\n" + spawn + "\n" +
+                                          grid_draft + "\n" + perspective_2d_draft;
+    const std::vector<uint8_t> revision_bytes(revision_material.begin(), revision_material.end());
+    const auto project_revision = security::Sha256::toHex(security::Sha256::compute(revision_bytes));
     const nlohmann::json manifest = {{"schema", "urpg.playtest_session.v1"},
                                      {"project_root", project_root.generic_string()},
                                      {"overlay_dir", session_directory_.generic_string()},
                                      {"map_id", map_id},
                                      {"spawn", spawn},
                                      {"selected_object_id", selected_object_id},
+                                     {"project_revision", project_revision},
+                                     {"replay_seed", static_cast<uint64_t>(nonce)},
                                      {"checkpoint", {{"id", checkpoint_id_}, {"disposable_overlay", true}}},
                                      {"diagnostics_path", (session_directory_ / "diagnostics.jsonl").generic_string()}};
     if (!SaveJournal::WriteAtomically(manifestPath, manifest.dump(2) + "\n", &writeError)) {
@@ -183,12 +182,42 @@ bool PlaytestSessionController::teleportHere(const std::string& map_id, const in
     if (!isActive() || !isSafeMapId(map_id) || tile_x < 0 || tile_y < 0 || session_directory_.empty()) return false;
     std::ofstream output(session_directory_ / "editor_commands.jsonl", std::ios::app);
     if (!output) return false;
-    output << nlohmann::json{{"version",1},{"command","teleport_here"},{"map_id",map_id},
+    output << nlohmann::json{{"version",1},{"command_id",next_command_id_},{"command","teleport_here"},{"map_id",map_id},
                              {"tile_x",tile_x},{"tile_y",tile_y},{"selected_object_id",selected_object_id}}.dump() << '\n';
     if (!output) return false;
+    ++next_command_id_;
     map_id_ = map_id; spawn_ = std::to_string(tile_x) + "," + std::to_string(tile_y);
     selected_object_id_ = selected_object_id; checkpoint_id_ = "teleport";
     message_ = "Playtest teleport was queued for the selected Map cell.";
+    return true;
+}
+
+bool PlaytestSessionController::hotReloadCurrentMap(const std::string& grid_draft,
+                                                    const std::string& perspective_2d_draft) {
+    if (!isActive() || pending_map_reload_command_id_.has_value() || session_directory_.empty() ||
+        !isSafeMapId(map_id_) ||
+        (grid_draft.empty() && perspective_2d_draft.empty()) ||
+        grid_draft.size() > 4U * 1024U * 1024U || perspective_2d_draft.size() > 4U * 1024U * 1024U) return false;
+    const auto overlay_maps = session_directory_ / "content" / "maps";
+    std::string error;
+    if ((!grid_draft.empty() &&
+         !SaveJournal::WriteAtomically(overlay_maps / (map_id_ + ".grid.json"), grid_draft, &error)) ||
+        (!perspective_2d_draft.empty() &&
+         !SaveJournal::WriteAtomically(overlay_maps / (map_id_ + ".p2d.json"), perspective_2d_draft, &error))) {
+        message_ = "Playtest map reload staging failed: " + error;
+        return false;
+    }
+    std::ofstream output(session_directory_ / "editor_commands.jsonl", std::ios::app | std::ios::binary);
+    if (!output) return false;
+    const auto command_id = next_command_id_;
+    output << nlohmann::json{{"version", 1}, {"command_id", command_id}, {"command", "hot_reload_map"},
+                             {"map_id", map_id_}, {"expected_revision", map_reload_revision_},
+                             {"state_policy", "reset_affected"}, {"selected_object_id", selected_object_id_}}.dump()
+           << '\n';
+    if (!output) return false;
+    ++next_command_id_;
+    pending_map_reload_command_id_ = command_id;
+    message_ = "Bounded Map hot reload was queued with reset-affected state policy.";
     return true;
 }
 
@@ -207,58 +236,114 @@ std::chrono::seconds PlaytestSessionController::elapsed() const {
 }
 
 PlaytestSupportBundleResult PlaytestSessionController::writeRedactedSupportBundle() const {
+    return writeApprovedSupportBundle(previewRedactedSupportBundle(), true);
+}
+
+diagnostics::RedactedSupportBundlePreview PlaytestSessionController::previewRedactedSupportBundle() const {
+    diagnostics::RedactedSupportBundleInput input;
+    input.logs = {capturedStdout(), capturedStderr()};
+    input.diagnostics = nlohmann::json::array();
+    for (const auto& diagnostic : diagnostics_) {
+        input.diagnostics.push_back({{"severity", severityName(diagnostic.severity)},
+                                     {"subsystem", diagnostic.subsystem},
+                                     {"code", diagnostic.code},
+                                     {"message", diagnostic.message},
+                                     {"map_id", diagnostic.map_id},
+                                     {"object_id", diagnostic.object_id},
+                                     {"source_path", diagnostic.source_file}});
+    }
+    input.versions = {{"editor_runtime_contract", urpg::versionString()}, {"support_schema", 1}};
+    input.platform_capabilities = {{"os", "windows"},
+                                   {"runtime_child_process", true},
+                                   {"disposable_overlay", true},
+                                   {"automatic_upload", false}};
+    const auto manifest_path = session_directory_ / "session.json";
+    std::ifstream manifest_input(manifest_path, std::ios::binary);
+    if (manifest_input) {
+        const std::string contents{std::istreambuf_iterator<char>(manifest_input),
+                                   std::istreambuf_iterator<char>()};
+        const std::vector<uint8_t> bytes(contents.begin(), contents.end());
+        input.project_manifest_hashes["playtest_session_manifest"] =
+            security::Sha256::toHex(security::Sha256::compute(bytes));
+    }
+    const auto replay_path = session_directory_ / "replay.json";
+    std::ifstream replay_input(replay_path, std::ios::binary);
+    if (replay_input) input.replay = nlohmann::json::parse(replay_input, nullptr, false);
+    input.include_replay = input.replay.is_object();
+    input.include_selected_project_data = false;
+    return diagnostics::RedactedSupportBundleBuilder{}.preview(input);
+}
+
+PlaytestSupportBundleResult PlaytestSessionController::writeApprovedSupportBundle(
+    const diagnostics::RedactedSupportBundlePreview& preview, const bool approved) const {
     PlaytestSupportBundleResult result;
     if (session_directory_.empty() || !std::filesystem::is_directory(session_directory_)) {
-        result.message = "Start a playtest session before writing a redacted support summary.";
+        result.message = "Start a playtest session before writing a redacted support bundle.";
         return result;
     }
-    nlohmann::json diagnostics = nlohmann::json::array();
-    for (const auto& diagnostic : diagnostics_) {
-        diagnostics.push_back({{"severity", severityName(diagnostic.severity)},
-                               {"subsystem", diagnostic.subsystem},
-                               {"code", diagnostic.code},
-                               {"map_id", diagnostic.map_id}});
-    }
-    const nlohmann::json bundle = {
-        {"schema", "urpg.playtest_support_summary.v1"},
-        {"redaction", {{"project_paths", "omitted"},
-                       {"session_paths", "omitted"},
-                       {"process_output", "omitted"},
-                       {"diagnostic_messages", "omitted"},
-                       {"diagnostic_source_paths", "omitted"},
-                       {"runtime_object_ids", "omitted"}}},
-        {"session_state", stateName(state_)},
-        {"exit_code", exit_code_},
-        {"elapsed_seconds", elapsed().count()},
-        {"map_id", map_id_},
-        {"spawn", spawn_},
-        {"diagnostic_count", diagnostics_.size()},
-        {"diagnostics", diagnostics},
-    };
-    std::string error;
-    result.path = session_directory_ / "redacted_support_summary.json";
-    if (!SaveJournal::WriteAtomically(result.path, bundle.dump(2) + "\n", &error)) {
-        result.path.clear();
-        result.message = "Could not write the redacted playtest support summary: " + error;
+    const auto written = diagnostics::RedactedSupportBundleBuilder{}.writeApproved(
+        preview, session_directory_ / "support", approved);
+    if (!written.success) {
+        result.message = written.message;
         return result;
     }
     result.success = true;
+    result.path = written.path;
     result.diagnostic_count = diagnostics_.size();
-    result.message = "Redacted playtest support summary was written without process output or local paths.";
+    result.message = written.message;
     return result;
 }
 
 void PlaytestSessionController::update() {
     if (!isActive()) return;
     pollDiagnostics();
+    pollCommandAcknowledgements();
     if (process_.isRunning(&exit_code_)) {
         state_ = PlaytestSessionState::Running;
         return;
     }
     pollDiagnostics();
+    pollCommandAcknowledgements();
     state_ = exit_code_ == 0 ? PlaytestSessionState::Exited : PlaytestSessionState::Crashed;
     message_ = exit_code_ == 0 ? "Playtest runtime exited; the editor remains open." :
                                  "Playtest runtime exited with code " + std::to_string(exit_code_) + ".";
+}
+
+void PlaytestSessionController::pollCommandAcknowledgements() {
+    const auto path = session_directory_ / "runtime_acknowledgements.jsonl";
+    std::error_code error;
+    if (!pending_map_reload_command_id_.has_value() || !std::filesystem::is_regular_file(path, error) || error) return;
+    const auto file_size = std::filesystem::file_size(path, error);
+    if (error) return;
+    if (acknowledgement_offset_ < 0 || static_cast<uintmax_t>(acknowledgement_offset_) > file_size) {
+        acknowledgement_offset_ = 0;
+    }
+    std::ifstream input(path, std::ios::binary);
+    if (!input) return;
+    input.seekg(acknowledgement_offset_);
+    const std::string chunk{std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+    std::size_t consumed = 0;
+    std::size_t processed = 0;
+    while (processed < 64) {
+        const auto newline = chunk.find('\n', consumed);
+        if (newline == std::string::npos) break;
+        const auto json = nlohmann::json::parse(chunk.substr(consumed, newline - consumed), nullptr, false);
+        consumed = newline + 1;
+        ++processed;
+        if (!json.is_object() || json.value("version", 0) != 1 ||
+            json.value("command", "") != "hot_reload_map" ||
+            json.value("command_id", uint64_t{0}) != *pending_map_reload_command_id_) continue;
+        if (json.value("status", "") == "applied" &&
+            json.value("expected_revision", uint64_t{0}) == map_reload_revision_) {
+            ++map_reload_revision_;
+            checkpoint_id_ = "hot_reload:" + std::to_string(map_reload_revision_);
+            message_ = "Map hot reload was acknowledged; affected map state was reset.";
+        } else {
+            message_ = "Map hot reload was rejected; the prior runtime state remains active.";
+        }
+        pending_map_reload_command_id_.reset();
+    }
+    acknowledgement_offset_ += static_cast<std::streamoff>(consumed);
 }
 
 void PlaytestSessionController::pollDiagnostics() {

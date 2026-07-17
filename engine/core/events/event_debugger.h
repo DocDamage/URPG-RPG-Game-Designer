@@ -98,6 +98,7 @@ public:
     void pause();
     bool step();
     bool advanceFrame();
+    void continueBounded();
     void continueExecution();
     void resume();
     void watchVariable(std::string variable_id);

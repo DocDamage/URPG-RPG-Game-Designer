@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/core/project/project_operation_coordinator.h"
+
 #include <string>
 #include <vector>
 
@@ -31,5 +33,22 @@ struct AssetUseHereContract {
 
 AssetUseHereContract resolveAssetUseHere(const AssetUseHereRequest& request);
 const char* assetUseTargetId(AssetUseTarget target);
+
+enum class AssetUseInputPath { Picker, DragDrop, Keyboard };
+
+class AssetUseHereService {
+  public:
+    urpg::project::ProjectOperationResult assign(const AssetUseHereContract& contract,
+                                                 AssetUseInputPath input_path,
+                                                 std::string operation_id,
+                                                 urpg::project::ProjectOperationParticipant owner);
+    urpg::project::ProjectOperationResult undoLast() { return coordinator_.undoLast(); }
+    urpg::project::ProjectOperationResult redoLast() { return coordinator_.redoLast(); }
+    std::string undoLabel() const { return coordinator_.undoLabel(); }
+    std::string redoLabel() const { return coordinator_.redoLabel(); }
+
+  private:
+    urpg::project::ProjectOperationCoordinator coordinator_;
+};
 
 } // namespace urpg::editor

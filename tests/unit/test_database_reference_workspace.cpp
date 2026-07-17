@@ -82,6 +82,12 @@ TEST_CASE("Database delete and replacement previews prevent dangling references"
     REQUIRE(replacement.shared_plan.updates[0].after.target_id == "item.two");
     REQUIRE(replacement.shared_plan.inverse_request.source_id == "item.two");
 
+    const auto rename = workspace.previewRename(urpg::editor::DatabaseTableKind::Items, "item.one",
+                                                "item.renamed", "rename.item");
+    REQUIRE(rename.safe);
+    REQUIRE(rename.uses.size() == 2);
+    REQUIRE(rename.shared_plan.updates[0].after.target_id == "item.renamed");
+
     const auto missing = workspace.previewReplace(urpg::editor::DatabaseTableKind::Items, "item.one",
                                                    "item.missing", "replace.missing");
     REQUIRE_FALSE(missing.safe);

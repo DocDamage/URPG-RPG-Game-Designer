@@ -1,0 +1,19 @@
+{
+  "schema": "urpg.project_document_migration_corpus.v1",
+  "documents": [
+    {"type":"grid_part_map","versionField":"schema","oldest":"urpg.grid_part_document.v1","current":"urpg.grid_part_document.v1","document":{"schema":"urpg.grid_part_document.v1","fixture_marker":"grid"}},
+    {"type":"perspective_2d_map","versionField":"version","oldest":"1","current":"1","document":{"version":"1","fixture_marker":"perspective"}},
+    {"type":"ability","versionField":"schema","oldest":"unversioned","current":"urpg.ability.v1","document":{"fixture_marker":"ability","ability_id":"legacy_ability"}},
+    {"type":"character_creator","versionField":"schemaVersion","oldest":"unversioned","current":"1.0.0","document":{"fixture_marker":"character","name":"Legacy Character"}},
+    {"type":"quest","versionField":"schema_version","oldest":"urpg.quest_objective_graph.v1","current":"urpg.quest_objective_graph.v1","document":{"schema_version":"urpg.quest_objective_graph.v1","fixture_marker":"quest"}},
+    {"type":"dialogue","versionField":"schema_version","oldest":"urpg.dialogue_graph.v1","current":"urpg.dialogue_graph.v1","document":{"schema_version":"urpg.dialogue_graph.v1","fixture_marker":"dialogue"}},
+    {"type":"database","versionField":"schema","oldest":"unversioned","current":"urpg.database.v1","document":{"fixture_marker":"database","actors":[],"items":[]}},
+    {"type":"vendor_catalog","versionField":"schema","oldest":"unversioned","current":"urpg.vendor_catalog.v1","document":{"fixture_marker":"vendor","vendors":[]}},
+    {"type":"audio_mix","versionField":"schema","oldest":"urpg.audio_mix_bank.v1","current":"urpg.audio_mix_bank.v1","document":{"schema":"urpg.audio_mix_bank.v1","fixture_marker":"audio"}},
+    {"type":"input_remap","versionField":"version","oldest":"1.0.0","current":"1.0.0","document":{"version":"1.0.0","fixture_marker":"input"}},
+    {"type":"controller_bindings","versionField":"version","oldest":"1.0.0","current":"1.0.0","document":{"version":"1.0.0","fixture_marker":"controller"}},
+    {"type":"gameplay_recipes","versionField":"schema_version","oldest":"urpg.gameplay_recipe_project.v1","current":"urpg.gameplay_recipe_project.v1","document":{"schema_version":"urpg.gameplay_recipe_project.v1","fixture_marker":"recipes"}},
+    {"type":"menu_studio","versionField":"schema","oldest":"unversioned","current":"urpg.menu_graph.v1","document":{"fixture_marker":"menu","scenes":[]}},
+    {"type":"mz_plugin_lock","versionField":"schema_version","oldest":"urpg.mz_plugin_static_lock.v1","current":"urpg.mz_plugin_static_lock.v1","document":{"schema_version":"urpg.mz_plugin_static_lock.v1","fixture_marker":"plugin"}}
+  ]
+}

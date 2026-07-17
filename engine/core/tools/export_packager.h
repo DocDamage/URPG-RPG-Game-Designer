@@ -47,6 +47,7 @@ namespace urpg::tools {
         ExportReleaseProfile releaseProfile;
         std::string assetBundleManifestRootOverride;
         std::string normalizedAssetRootOverride;
+        std::vector<std::string> promotedAssetBundleIds;
         std::vector<std::string> assetDiscoveryRoots;
         bool enableAutoAssetDiscovery = true;
         bool obfuscateScripts = false;

@@ -1,6 +1,7 @@
 #include "editor/project/editor_project_session.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <nlohmann/json.hpp>
 
 #include <chrono>
 #include <filesystem>
@@ -26,6 +27,12 @@ class TempProjectRoot {
 
     void writeManifest(const std::string& payload) const {
         std::ofstream output(root_ / "project.json", std::ios::binary);
+        output << payload;
+    }
+
+    void writeDocument(const std::filesystem::path& relative, const std::string& payload) const {
+        std::filesystem::create_directories((root_ / relative).parent_path());
+        std::ofstream output(root_ / relative, std::ios::binary);
         output << payload;
     }
 
@@ -89,4 +96,41 @@ TEST_CASE("EditorProjectSession rejects malformed and incomplete manifests", "[p
     incomplete.writeManifest(R"({"project_id":"missing_fields"})");
     REQUIRE(session.openProject(incomplete.root()).code == "project_manifest_incomplete");
     REQUIRE_FALSE(session.isOpen());
+}
+
+TEST_CASE("EditorProjectSession pre-open inspection validates identity without switching session",
+          "[project][project session][preflight]") {
+    TempProjectRoot project;
+    project.writeManifest(
+        R"({"schema_version":"urpg.project.v1","project_id":"health_check","project_name":"Health Check"})");
+    urpg::editor::EditorProjectSession session;
+    int notifications = 0;
+    session.addSwitchListener([&](const auto&) { ++notifications; });
+    const auto inspection = session.inspectProject(project.root());
+    REQUIRE(inspection.result.success);
+    REQUIRE(inspection.identity.project_id == "health_check");
+    REQUIRE(inspection.identity.display_name == "Health Check");
+    REQUIRE_FALSE(session.isOpen());
+    REQUIRE(notifications == 0);
+    REQUIRE(session.lastDiagnostic().code.empty());
+}
+
+TEST_CASE("EditorProjectSession migrates durable legacy documents before owner notification",
+          "[project][project session][migration]") {
+    TempProjectRoot project;
+    project.writeManifest(
+        R"({"schema_version":"urpg.project.v1","project_id":"legacy","project_name":"Legacy"})");
+    project.writeDocument("content/abilities/fire.json", R"({"ability_id":"fire"})");
+    urpg::editor::EditorProjectSession session;
+    bool listenerSawCurrentSchema = false;
+    session.addSwitchListener([&](const auto&) {
+        std::ifstream input(project.root() / "content" / "abilities" / "fire.json", std::ios::binary);
+        const auto value = nlohmann::json::parse(input);
+        listenerSawCurrentSchema = value.value("schema", "") == "urpg.ability.v1";
+    });
+
+    const auto result = session.openProject(project.root());
+    REQUIRE(result.success);
+    REQUIRE(result.code == "project_opened_after_migration");
+    REQUIRE(listenerSawCurrentSchema);
 }

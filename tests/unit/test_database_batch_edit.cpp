@@ -1,4 +1,5 @@
 #include "editor/database/database_batch_edit.h"
+#include "editor/database/database_panel.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -113,4 +114,31 @@ TEST_CASE("Batch fill edits names but refuses identity", "[editor][database][bat
     plan = urpg::editor::DatabaseBatchEditService::preview(table, fill);
     REQUIRE_FALSE(plan.valid());
     REQUIRE(plan.diagnostics.front().code == "field_not_editable");
+}
+
+TEST_CASE("Database panel commits item batches through the bound typed authority with undo and redo",
+          "[editor][database][batch][authority][pcq451]") {
+    urpg::database::RpgDatabase database;
+    database.upsertItem({"potion", "Potion", 20, {"healing"}});
+    database.upsertItem({"ether", "Ether", 35, {"mana"}});
+    urpg::editor::DatabasePanel panel;
+    panel.bindDatabase(database);
+    urpg::editor::DatabaseBatchEditRequest request;
+    request.operation = urpg::editor::DatabaseBatchOperation::NumericFormula;
+    request.target_ids = {"potion", "ether"};
+    request.field = "price";
+    request.multiplier = 2.0;
+    auto plan = urpg::editor::DatabaseBatchEditService::preview(
+        panel.tables().table(urpg::editor::DatabaseTableKind::Items), request);
+    REQUIRE(plan.valid());
+    std::string diagnostic;
+    REQUIRE(panel.applyBatch(plan, &diagnostic));
+    REQUIRE(diagnostic.empty());
+    REQUIRE(database.items().at("potion").price == 40);
+    REQUIRE(database.items().at("potion").tags == std::set<std::string>{"healing"});
+    REQUIRE(database.items().at("ether").price == 70);
+    REQUIRE(panel.undoBatch(plan, &diagnostic));
+    REQUIRE(database.items().at("potion").price == 20);
+    REQUIRE(panel.redoBatch(plan, &diagnostic));
+    REQUIRE(database.items().at("potion").price == 40);
 }

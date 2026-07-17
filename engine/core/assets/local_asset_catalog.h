@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -79,6 +80,47 @@ struct LocalAssetCatalogLoadResult {
     std::vector<std::string> diagnostics;
 };
 
+struct LocalAssetCatalogQueryProgress {
+    size_t processedRecords = 0;
+    size_t expectedRecords = 0;
+    bool complete = false;
+    bool cancelled = false;
+};
+
+// Incremental query owner used by the editor so a broad 100k-row search never
+// parses an entire catalog on the UI thread in one frame.
+class LocalAssetCatalogQueryJob {
+  public:
+    LocalAssetCatalogQueryJob() = default;
+    LocalAssetCatalogQueryJob(const LocalAssetCatalogQueryJob&) = delete;
+    LocalAssetCatalogQueryJob& operator=(const LocalAssetCatalogQueryJob&) = delete;
+    LocalAssetCatalogQueryJob(LocalAssetCatalogQueryJob&&) noexcept = default;
+    LocalAssetCatalogQueryJob& operator=(LocalAssetCatalogQueryJob&&) noexcept = default;
+
+    bool advance(size_t maximumRecords = 1000);
+    void cancel();
+    const LocalAssetCatalogPage& result() const { return page_; }
+    LocalAssetCatalogQueryProgress progress() const;
+
+  private:
+    friend class LocalAssetCatalog;
+    LocalAssetCatalogQueryJob(std::filesystem::path catalogDirectory, LocalAssetCatalogMetadata metadata,
+                              LocalAssetCatalogQuery query);
+
+    std::filesystem::path catalogDirectory_;
+    LocalAssetCatalogMetadata metadata_;
+    LocalAssetCatalogQuery query_;
+    LocalAssetCatalogQuery normalizedQuery_;
+    LocalAssetCatalogPage page_;
+    size_t shardIndex_ = 0;
+    size_t shardLineNumber_ = 0;
+    size_t processedRecords_ = 0;
+    size_t expectedRecords_ = 0;
+    bool complete_ = false;
+    bool cancelled_ = false;
+    std::ifstream input_;
+};
+
 // Streams metadata shards on demand. Loading a catalog only reads catalog_meta.json;
 // query() materializes no more than a single requested page of records.
 class LocalAssetCatalog {
@@ -88,6 +130,7 @@ class LocalAssetCatalog {
 
     bool isLoaded() const { return loaded_; }
     const LocalAssetCatalogMetadata& metadata() const { return metadata_; }
+    LocalAssetCatalogQueryJob beginQuery(const LocalAssetCatalogQuery& query) const;
     LocalAssetCatalogPage query(const LocalAssetCatalogQuery& query) const;
 
   private:

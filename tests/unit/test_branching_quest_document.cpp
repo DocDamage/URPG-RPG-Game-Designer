@@ -8,11 +8,11 @@ urpg::narrative::BranchingQuestDocument makeBranchingQuest() {
     urpg::narrative::BranchingQuestDocument document;
     document.id = "quest.echoes";
     document.dialogue.addNode({"start", "guide", "Guide", "dialogue.guide.start", "Will you help?", false, {},
-                               "voice.guide.start", "caption.guide.start", 0, 0, true});
+                               "voice.guide.start", "caption.guide.start", 0, 0, true, {}, 0, 0, {}});
     document.dialogue.addNode({"accept", "guide", "Guide", "dialogue.guide.accept", "Find the echo.", true, {},
-                               "voice.guide.accept", "caption.guide.accept", 320, 0, true});
+                               "voice.guide.accept", "caption.guide.accept", 320, 0, true, {}, 0, 0, {}});
     document.dialogue.addNode({"decline", "guide", "Guide", "dialogue.guide.decline", "Another time.", true, {},
-                               "voice.guide.decline", "caption.guide.decline", 320, 180, true});
+                               "voice.guide.decline", "caption.guide.decline", 320, 180, true, {}, 0, 0, {}});
     document.dialogue.addChoice("start", {"decline_quest", "No", "decline", {}, {}, "choice.quest.decline"});
     document.dialogue.addChoice("start", {"accept_quest", "Yes", "accept", {{"reputation", ">=", 2}},
                                            {{"quest_started", 1}}, "choice.quest.accept"});
@@ -20,11 +20,11 @@ urpg::narrative::BranchingQuestDocument makeBranchingQuest() {
 
     document.quest.quest_id = "quest.echoes";
     document.quest.title = "Echoes in Stone";
-    document.quest.addNode({"start", "start", "Start", "", "quest.echoes.start"});
+    document.quest.addNode({"start", "start", "Start", "", "quest.echoes.start", {}, {}, 0, 0, false});
     document.quest.addNode({"find_echo", "objective", "Find the echo", "find_echo", "quest.echoes.find",
-                            {{"dialogue_choice", "accept_quest", 1}}, {{"item", "echo_shard", 1}}});
+                            {{"dialogue_choice", "accept_quest", 1}}, {{"item", "echo_shard", 1}}, 0, 0, false});
     document.quest.addNode({"complete", "complete", "Complete", "", "quest.echoes.complete", {},
-                            {{"gold", "gold", 250}}});
+                            {{"gold", "gold", 250}}, 0, 0, false});
     document.quest.connect("start", "find_echo");
     document.quest.connect("find_echo", "complete");
     return document;

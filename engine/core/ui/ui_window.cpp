@@ -71,7 +71,9 @@ void UIWindow::drawGauge(SpriteBatcher& batcher, float x, float y, float width, 
     };
 
     const float clampedRate = std::clamp(rate, 0.0f, 1.0f);
-    constexpr uint32_t kSolidQuadTextureId = 1;
+    // Handle 0 selects the renderer's untextured color path. A non-zero
+    // sentinel can collide with a live OpenGL texture name.
+    constexpr uint32_t kSolidQuadTextureId = 0;
     constexpr uint32_t kGaugeBackground = 0x1B1B24CCu;
     constexpr float gaugeHeight = 12.0f;
 

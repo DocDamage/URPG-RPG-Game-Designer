@@ -29,21 +29,49 @@ std::string sensitiveReason(const std::string& key) {
     return {};
 }
 
+std::string percentDecoded(const std::string& value) {
+    const auto hex = [](const char character) -> int {
+        if (character >= '0' && character <= '9') return character - '0';
+        if (character >= 'a' && character <= 'f') return character - 'a' + 10;
+        if (character >= 'A' && character <= 'F') return character - 'A' + 10;
+        return -1;
+    };
+    std::string decoded;
+    decoded.reserve(value.size());
+    for (std::size_t index = 0; index < value.size(); ++index) {
+        if (value[index] == '%' && index + 2 < value.size()) {
+            const auto high = hex(value[index + 1]);
+            const auto low = hex(value[index + 2]);
+            if (high >= 0 && low >= 0) {
+                decoded.push_back(static_cast<char>((high << 4) | low));
+                index += 2;
+                continue;
+            }
+        }
+        decoded.push_back(value[index] == '+' ? ' ' : value[index]);
+    }
+    return decoded;
+}
+
 std::string freeTextReason(const std::string& value) {
-    const auto normalized = lower(value);
+    const auto inspected = percentDecoded(value);
+    const auto normalized = lower(inspected);
+    if ((normalized.starts_with("sk-") || normalized.starts_with("ghp_") ||
+         normalized.starts_with("akia")) && normalized.size() >= 12) return "secret_text";
     for (const auto& marker : {"password=", "password:", "token=", "token:", "authorization:", "bearer ",
                                "api_key=", "secret="}) {
         if (normalized.find(marker) != std::string::npos) return "secret_text";
     }
-    if (value.find('@') != std::string::npos && value.find('.', value.find('@')) != std::string::npos) return "pii_text";
+    if (inspected.find('@') != std::string::npos &&
+        inspected.find('.', inspected.find('@')) != std::string::npos) return "pii_text";
     const auto contains_windows_path = [&] {
-        for (size_t index = 0; index + 2 < value.size(); ++index) {
-            if (std::isalpha(static_cast<unsigned char>(value[index])) && value[index + 1] == ':' &&
-                (value[index + 2] == '\\' || value[index + 2] == '/')) return true;
+        for (size_t index = 0; index + 2 < inspected.size(); ++index) {
+            if (std::isalpha(static_cast<unsigned char>(inspected[index])) && inspected[index + 1] == ':' &&
+                (inspected[index + 2] == '\\' || inspected[index + 2] == '/')) return true;
         }
         return false;
     }();
-    if (contains_windows_path || value.starts_with("/") || value.starts_with("\\\\")) {
+    if (contains_windows_path || inspected.starts_with("/") || inspected.starts_with("\\\\")) {
         return "filesystem_path_text";
     }
     return {};
@@ -101,19 +129,33 @@ RedactedSupportBundleWriteResult RedactedSupportBundleBuilder::writeApproved(
     if (error) return {false, "support_bundle_directory_failed", error.message(), {}};
     const auto path = output_directory / "redacted_support_bundle.json";
     const auto temporary = output_directory / "redacted_support_bundle.json.tmp";
+    const auto backup = output_directory / "redacted_support_bundle.json.bak";
     {
         std::ofstream stream(temporary, std::ios::binary | std::ios::trunc);
         if (!stream) return {false, "support_bundle_write_failed", "Could not open support bundle output.", {}};
         stream << preview.bundle.dump(2) << '\n';
         if (!stream.good()) return {false, "support_bundle_write_failed", "Could not write support bundle output.", {}};
     }
-    std::filesystem::remove(path, error);
-    error.clear();
+    const bool replacing = std::filesystem::exists(path);
+    if (replacing) {
+        std::filesystem::remove(backup, error);
+        error.clear();
+        std::filesystem::rename(path, backup, error);
+        if (error) {
+            std::filesystem::remove(temporary, error);
+            return {false, "support_bundle_publish_failed", "Could not stage the previous support bundle.", {}};
+        }
+    }
     std::filesystem::rename(temporary, path, error);
     if (error) {
         std::filesystem::remove(temporary, error);
+        if (replacing) {
+            std::error_code restore_error;
+            std::filesystem::rename(backup, path, restore_error);
+        }
         return {false, "support_bundle_publish_failed", "Could not publish support bundle atomically.", {}};
     }
+    if (replacing) std::filesystem::remove(backup, error);
     return {true, "support_bundle_written", "Redacted support bundle written locally; nothing was uploaded.", path};
 }
 

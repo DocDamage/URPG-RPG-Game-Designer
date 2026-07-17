@@ -13,6 +13,8 @@ const char* TabName(DiagnosticsTab tab) {
         return "save";
     case DiagnosticsTab::EventAuthority:
         return "event_authority";
+    case DiagnosticsTab::EventTrace:
+        return "event_trace";
     case DiagnosticsTab::MessageText:
         return "message_text";
     case DiagnosticsTab::Battle:
@@ -921,6 +923,47 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         if (snapshot.selected_navigation_target.has_value()) {
             activeTabDetail["selected_navigation_target"] =
                 EventAuthorityTargetJson(snapshot.selected_navigation_target.value());
+        }
+        break;
+    }
+    case DiagnosticsTab::EventTrace: {
+        const auto& snapshot = event_trace_panel_.snapshot();
+        activeTabDetail["connected"] = snapshot.connected;
+        activeTabDetail["running"] = snapshot.running;
+        activeTabDetail["paused"] = snapshot.paused;
+        activeTabDetail["paused_on_breakpoint"] = snapshot.paused_on_breakpoint;
+        activeTabDetail["frame_advance_available"] = snapshot.frame_advance_available;
+        activeTabDetail["revision"] = snapshot.revision;
+        activeTabDetail["runtime_frame"] = snapshot.runtime_frame;
+        activeTabDetail["total_rows"] = snapshot.total_rows;
+        activeTabDetail["visible_rows"] = snapshot.visible_rows;
+        activeTabDetail["parallel_lane_ids"] = snapshot.parallel_lane_ids;
+        activeTabDetail["call_stack_depth"] = snapshot.call_stack.size();
+        activeTabDetail["breakpoint_count"] = snapshot.breakpoints.size();
+        activeTabDetail["watched_variables"] = snapshot.watched_variables;
+        if (snapshot.active_breakpoint_id) {
+            activeTabDetail["active_breakpoint_id"] = *snapshot.active_breakpoint_id;
+        }
+        if (snapshot.current_source) {
+            activeTabDetail["current_source"] = {
+                {"route", snapshot.current_source->route},
+                {"event_id", snapshot.current_source->event_id},
+                {"page_id", snapshot.current_source->page_id},
+                {"command_id", snapshot.current_source->command_id},
+                {"command_index", snapshot.current_source->command_index},
+            };
+        }
+        activeTabDetail["event_filter"] = snapshot.event_filter;
+        activeTabDetail["lane_filter"] = snapshot.lane_filter;
+        activeTabDetail["last_control_code"] = snapshot.last_control_code;
+        if (snapshot.selected_source) {
+            activeTabDetail["selected_source"] = {
+                {"route", snapshot.selected_source->route},
+                {"event_id", snapshot.selected_source->event_id},
+                {"page_id", snapshot.selected_source->page_id},
+                {"command_id", snapshot.selected_source->command_id},
+                {"command_index", snapshot.selected_source->command_index},
+            };
         }
         break;
     }

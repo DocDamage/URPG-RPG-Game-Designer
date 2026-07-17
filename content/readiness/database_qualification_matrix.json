@@ -1,0 +1,10 @@
+{
+  "schema":"urpg.database_qualification_matrix.v1",
+  "largeFixture":{"rows":50000,"maximumVisibleRows":128,"requiredOperations":["sort","filter","search","select","edit"]},
+  "atomicInvalidBatch":{"invalidRows":3,"requiresCompletePreview":true,"requiresZeroMutation":true},
+  "recordKinds":["actors","classes","skills","items","equipment","enemies","encounters","states","quests","vendors","recipes","switches","variables"],
+  "referenceOperations":{"operations":["rename","safe_delete","replace"],"requiresTypedRecordOwner":true,"requiresEveryAffectedDocumentOwner":true,"requiresVisibleImpactReview":true,"requiresSaveReopen":true,"requiresNoDanglingReference":true,"history":["undo","redo"]},
+  "batchOperations":["multi_row_edit","fill","formula","curve","duplicate","import","export","validation_preview","undo","redo"],
+  "integrationDomains":["battle","inventory","equipment","quests","vendors","crafting","saves","localization","package_closure"],
+  "seededBalanceReports":[{"scenario":"creator_vertical_slice","seed":654453,"version":1,"strategies":["balanced","spender","saver"],"sensitivityParameters":["starting_gold","reward_multiplier"]}]
+}

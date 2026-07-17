@@ -2,7 +2,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <filesystem>
+
 using urpg::project::ProjectOperationCoordinator;
+using urpg::project::ProjectOperationJournal;
 using urpg::project::ProjectOperationParticipant;
 using urpg::project::ProjectOperationRequest;
 
@@ -16,6 +19,7 @@ struct OwnerState {
 };
 
 ProjectOperationParticipant participant(std::string id, OwnerState& state, const int nextValue) {
+    const auto documentPath = std::filesystem::path("content") / (id + ".json");
     return {std::move(id),
             state.revision,
             [&] { return state.revision; },
@@ -40,7 +44,9 @@ ProjectOperationParticipant participant(std::string id, OwnerState& state, const
                 state.value = state.before;
                 ++state.revision;
                 return true;
-            }};
+            },
+            [&] { return std::to_string(state.value); },
+            documentPath};
 }
 
 } // namespace
@@ -132,4 +138,96 @@ TEST_CASE("ProjectOperationCoordinator refuses redo after an owner changes", "[p
     REQUIRE(redo.code == "project_operation_redo_revision_mismatch");
     REQUIRE(map.value == 1);
     REQUIRE(coordinator.redoSize() == 1);
+}
+
+TEST_CASE("ProjectOperationCoordinator journals real prepare and acknowledged commit boundaries",
+          "[project][operation_coordinator][operation_journal]") {
+    const auto root = std::filesystem::temp_directory_path() / "urpg_coordinator_journal_test";
+    std::error_code error;
+    std::filesystem::remove_all(root, error);
+    ProjectOperationJournal journal(root / "journal.json");
+    ProjectOperationCoordinator coordinator(&journal);
+    OwnerState map{1};
+    OwnerState dialogue{2};
+
+    const auto result = coordinator.execute({"op.journaled", "Journalled operation",
+        {participant("map", map, 10), participant("dialogue", dialogue, 20)}});
+    REQUIRE(result.success);
+    const auto recovered = journal.recover();
+    REQUIRE(recovered.success);
+    REQUIRE(recovered.code == "project_operation_recovery_clean");
+    REQUIRE(recovered.has_acknowledged_operation);
+    REQUIRE(recovered.last_acknowledged.operation_id == "op.journaled");
+    REQUIRE(recovered.last_acknowledged.owners.size() == 2);
+    REQUIRE(recovered.last_acknowledged.owners[0].snapshot == "10");
+    REQUIRE(recovered.last_acknowledged.owners[1].snapshot == "20");
+    REQUIRE_FALSE(recovered.last_acknowledged.owners[0].document_path.empty());
+    std::filesystem::remove_all(root, error);
+}
+
+TEST_CASE("ProjectOperationCoordinator refuses durable mutation without owner recovery snapshots",
+          "[project][operation_coordinator][operation_journal]") {
+    const auto root = std::filesystem::temp_directory_path() / "urpg_coordinator_snapshot_required_test";
+    std::error_code error;
+    std::filesystem::remove_all(root, error);
+    ProjectOperationJournal journal(root / "journal.json");
+    ProjectOperationCoordinator coordinator(&journal);
+    OwnerState map{1};
+    auto owner = participant("map", map, 10);
+    owner.recovery_snapshot = {};
+    const auto result = coordinator.execute({"op.no-snapshot", "Unsafe operation", {owner}});
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.code == "project_operation_participant_invalid");
+    REQUIRE(map.value == 1);
+    REQUIRE_FALSE(std::filesystem::exists(root / "journal.json"));
+    std::filesystem::remove_all(root, error);
+}
+
+TEST_CASE("ProjectOperationCoordinator aborts durable prepare after owner commit failure and can retry",
+          "[project][operation_coordinator][operation_journal]") {
+    const auto root = std::filesystem::temp_directory_path() / "urpg_coordinator_journal_abort_test";
+    std::error_code error;
+    std::filesystem::remove_all(root, error);
+    ProjectOperationJournal journal(root / "journal.json");
+    ProjectOperationCoordinator coordinator(&journal);
+    OwnerState map{1};
+    OwnerState dialogue{2};
+    dialogue.fail_commit = true;
+    auto request = ProjectOperationRequest{"op.retry", "Retry operation",
+        {participant("map", map, 10), participant("dialogue", dialogue, 20)}};
+    REQUIRE_FALSE(coordinator.execute(request).success);
+    REQUIRE(journal.recover().code == "project_operation_recovery_clean");
+    REQUIRE(map.value == 1);
+    REQUIRE(dialogue.value == 2);
+
+    dialogue.fail_commit = false;
+    request.participants = {participant("map", map, 10), participant("dialogue", dialogue, 20)};
+    REQUIRE(coordinator.execute(request).success);
+    REQUIRE(journal.recover().has_acknowledged_operation);
+    std::filesystem::remove_all(root, error);
+}
+
+TEST_CASE("ProjectOperationCoordinator rolls back and closes prepare when journal acknowledgement fails",
+          "[project][operation_coordinator][operation_journal]") {
+    const auto root = std::filesystem::temp_directory_path() / "urpg_coordinator_ack_failure_test";
+    std::error_code error;
+    std::filesystem::remove_all(root, error);
+    int replacements = 0;
+    ProjectOperationJournal journal(root / "journal.json", [&replacements] {
+        ++replacements;
+        return replacements != 2;
+    });
+    ProjectOperationCoordinator coordinator(&journal);
+    OwnerState map{1};
+
+    const auto failed = coordinator.execute({"op.ack-failure", "Ack failure", {participant("map", map, 10)}});
+    REQUIRE_FALSE(failed.success);
+    REQUIRE(failed.code == "project_operation_journal_commit_failed");
+    REQUIRE(map.value == 1);
+    REQUIRE(coordinator.historySize() == 0);
+    const auto recovered = journal.recover();
+    REQUIRE(recovered.success);
+    REQUIRE(recovered.code == "project_operation_recovery_clean");
+    REQUIRE_FALSE(recovered.has_acknowledged_operation);
+    std::filesystem::remove_all(root, error);
 }

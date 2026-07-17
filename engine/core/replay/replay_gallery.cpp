@@ -9,6 +9,14 @@ void ReplayGallery::add(ReplayArtifact artifact) {
     artifacts_.push_back(std::move(artifact));
 }
 
+void ReplayGallery::upsert(ReplayArtifact artifact) {
+    const auto existing = std::find_if(artifacts_.begin(), artifacts_.end(), [&](const auto& candidate) {
+        return candidate.id == artifact.id;
+    });
+    if (existing == artifacts_.end()) artifacts_.push_back(std::move(artifact));
+    else *existing = std::move(artifact);
+}
+
 std::vector<ReplayArtifact> ReplayGallery::findByLabel(const std::string& label) const {
     std::vector<ReplayArtifact> matches;
     for (const auto& artifact : artifacts_) {

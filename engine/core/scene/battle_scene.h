@@ -12,6 +12,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace urpg::accessibility { struct InclusiveSettings; }
@@ -90,6 +91,7 @@ class BattleScene : public GameScene {
                   std::shared_ptr<urpg::Texture> texture);
     void addEnemy(const std::string& id, const std::string& name, int hp, int mp, Vector2f pos,
                   std::shared_ptr<urpg::Texture> texture);
+    void setBattlebackTexture(std::shared_ptr<urpg::Texture> texture) { m_backgroundTexture = std::move(texture); }
 
     struct BattleAction {
         BattleParticipant* subject;

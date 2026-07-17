@@ -32,6 +32,7 @@ TEST_CASE("RuntimeDiagnostics writes a versioned playtest JSONL record", "[runti
     REQUIRE(record["map_id"] == "starter");
     REQUIRE(record["object_id"] == "event_01");
     REQUIRE(record["source_file"] == "content/maps/starter.grid.json");
+    input.close();
 
     urpg::diagnostics::RuntimeDiagnostics::clear();
     urpg::diagnostics::g_DiagnosticsFilePath = previousPath;

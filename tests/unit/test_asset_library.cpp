@@ -799,7 +799,7 @@ TEST_CASE("AssetPromotionManifest validates package and readiness blockers", "[a
 }
 
 TEST_CASE("AssetTransformRevisionService creates deterministic atlas metadata revisions",
-          "[assets][asset_library][asset_transform]") {
+          "[assets][asset_library][asset_transform][pcq506]") {
     const auto root = uniqueAssetTempRoot("urpg_asset_transform_revision");
     std::filesystem::remove_all(root);
     const auto sourcePayload = root / ".urpg" / "asset-library" / "promoted" / "asset.atlas" / "payloads" / "atlas.png";

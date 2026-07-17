@@ -1,0 +1,14 @@
+{
+  "schema":"urpg.playtest_reload_capabilities.v1",
+  "capabilities":[
+    {"resource_class":"map","behavior":"hot_reloadable","supports_state_preservation":false,"failureRecovery":"rollback_then_restart"},
+    {"resource_class":"dialogue","behavior":"hot_reloadable","supports_state_preservation":false,"failureRecovery":"rollback_then_restart"},
+    {"resource_class":"quest","behavior":"restart_required","supports_state_preservation":false,"failureRecovery":"restart_from_checkpoint"},
+    {"resource_class":"database","behavior":"restart_required","supports_state_preservation":false,"failureRecovery":"restart_from_checkpoint"},
+    {"resource_class":"localization","behavior":"hot_reloadable","supports_state_preservation":true,"failureRecovery":"rollback_then_restart"},
+    {"resource_class":"audio","behavior":"hot_reloadable","supports_state_preservation":true,"failureRecovery":"rollback_then_restart"},
+    {"resource_class":"script","behavior":"restart_required","supports_state_preservation":false,"failureRecovery":"restart_from_checkpoint"},
+    {"resource_class":"plugin","behavior":"rejected","supports_state_preservation":false,"failureRecovery":"preserve_runtime"},
+    {"resource_class":"renderer","behavior":"rejected","supports_state_preservation":false,"failureRecovery":"preserve_runtime"}
+  ]
+}

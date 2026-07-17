@@ -738,11 +738,17 @@ MenuStarterTemplateLibrary MenuStarterTemplateLibrary::originalUrpgTemplates() {
         root.id = id + ".root";
         root.kind = MenuElementKind::Panel;
         root.layout = {32, 32, 1216, 656};
+        root.layout.anchor_right = true;
+        root.layout.anchor_bottom = true;
+        root.layout.min_width = 320;
+        root.layout.min_height = 240;
         MenuCanvasNode action;
         action.id = id + ".primary";
         action.parent_id = root.id;
         action.kind = MenuElementKind::Button;
         action.layout = {64, 560, 320, 64};
+        action.layout.anchor_top = false;
+        action.layout.anchor_bottom = true;
         action.label = id + " primary";
         action.accessible_label = action.label;
         action.focusable = true;

@@ -41,6 +41,9 @@ class ProjectWorldGraph {
     WorldGraphImpact previewMarkerChange(const std::string& map_id, const std::string& marker_kind,
                                          const std::string& marker_id, const std::string& replacement_id = {}) const;
     bool renameMarker(const WorldGraphImpact& reviewed_impact);
+    // Removes the reviewed marker and every route listed by the impact. The
+    // operation fails closed when the graph changed after the preview.
+    bool deleteMarker(const WorldGraphImpact& reviewed_impact);
     WorldGraphPreview buildPreview() const;
     nlohmann::json toJson() const;
     static std::optional<ProjectWorldGraph> fromJson(const nlohmann::json& value);

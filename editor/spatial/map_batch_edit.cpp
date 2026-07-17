@@ -20,24 +20,72 @@ bool insidePolygon(const MapCellPoint point, const std::vector<MapCellPoint>& po
     }
     return inside;
 }
+bool selectedPoint(const MapCellPoint point, const MapSelectionShape shape,
+                   const std::vector<MapCellPoint>& points) {
+    if (points.empty() || (shape != MapSelectionShape::Point && points.size() < 2) ||
+        (shape == MapSelectionShape::Lasso && points.size() < 3)) return false;
+    if (shape == MapSelectionShape::Point) return point.x == points[0].x && point.y == points[0].y;
+    if (shape == MapSelectionShape::Lasso) return insidePolygon(point, points);
+    const auto minmaxX = std::minmax_element(points.begin(), points.end(), [](auto a, auto b) { return a.x < b.x; });
+    const auto minmaxY = std::minmax_element(points.begin(), points.end(), [](auto a, auto b) { return a.y < b.y; });
+    return point.x >= minmaxX.first->x && point.x <= minmaxX.second->x &&
+           point.y >= minmaxY.first->y && point.y <= minmaxY.second->y;
+}
 }
 
 std::vector<MapTileCell> MapBatchEdit::select(const std::vector<MapTileCell>& cells, const MapSelectionShape shape,
                                                const std::vector<MapCellPoint>& points) {
-    if (points.empty() || (shape != MapSelectionShape::Point && points.size() < 2) ||
-        (shape == MapSelectionShape::Lasso && points.size() < 3)) return {};
-    const auto minmaxX = std::minmax_element(points.begin(), points.end(), [](auto a, auto b) { return a.x < b.x; });
-    const auto minmaxY = std::minmax_element(points.begin(), points.end(), [](auto a, auto b) { return a.y < b.y; });
     std::vector<MapTileCell> selected;
     for (const auto& cell : cells) {
-        const MapCellPoint point{cell.x, cell.y};
-        const bool match = shape == MapSelectionShape::Point ? (cell.x == points[0].x && cell.y == points[0].y) :
-            (shape == MapSelectionShape::Box ? cell.x >= minmaxX.first->x && cell.x <= minmaxX.second->x &&
-                                               cell.y >= minmaxY.first->y && cell.y <= minmaxY.second->y
-                                             : insidePolygon(point, points));
-        if (match) selected.push_back(cell);
+        if (selectedPoint({cell.x, cell.y}, shape, points)) selected.push_back(cell);
     }
     return selected;
+}
+
+std::vector<MapPropCell> MapBatchEdit::selectProps(const std::vector<MapPropCell>& props,
+                                                    const MapSelectionShape shape,
+                                                    const std::vector<MapCellPoint>& points) {
+    std::vector<MapPropCell> selected;
+    for (const auto& prop : props) if (selectedPoint({prop.x, prop.y}, shape, points)) selected.push_back(prop);
+    return selected;
+}
+
+std::vector<MapEventCell> MapBatchEdit::selectEvents(const std::vector<MapEventCell>& events,
+                                                      const MapSelectionShape shape,
+                                                      const std::vector<MapCellPoint>& points) {
+    std::vector<MapEventCell> selected;
+    for (const auto& event : events) if (selectedPoint({event.x, event.y}, shape, points)) selected.push_back(event);
+    return selected;
+}
+
+MapObjectBatchEditPreview MapBatchEdit::objectProperties(
+    const std::vector<MapPropCell>& props, const std::vector<MapEventCell>& events,
+    const int32_t delta_x, const int32_t delta_y, const std::optional<float> prop_rotation_y,
+    const std::optional<float> prop_scale, const std::optional<bool> event_blocks_movement,
+    const std::optional<bool> event_sprite_visible) {
+    MapObjectBatchEditPreview result;
+    const bool changesPosition = delta_x != 0 || delta_y != 0;
+    result.valid = (!props.empty() || !events.empty()) &&
+                   (changesPosition || prop_rotation_y || prop_scale || event_blocks_movement || event_sprite_visible);
+    result.code = result.valid ? "map_object_batch_preview" : "map_object_batch_empty";
+    if (!result.valid) return result;
+    for (const auto& prop : props) {
+        SpatialAuthoringWorkspace::Perspective2DNativePropPropertyEdit edit;
+        edit.instance_id = prop.instance_id;
+        if (changesPosition) { edit.tile_x = prop.x + delta_x; edit.tile_y = prop.y + delta_y; }
+        edit.rotation_y = prop_rotation_y;
+        edit.scale = prop_scale;
+        result.prop_edits.push_back(std::move(edit));
+    }
+    for (const auto& event : events) {
+        SpatialAuthoringWorkspace::Perspective2DNativeEventPropertyEdit edit;
+        edit.event_id = event.event_id;
+        if (changesPosition) { edit.tile_x = event.x + delta_x; edit.tile_y = event.y + delta_y; }
+        edit.blocks_movement = event_blocks_movement;
+        edit.sprite_visible = event_sprite_visible;
+        result.event_edits.push_back(std::move(edit));
+    }
+    return result;
 }
 
 MapBatchEditPreview MapBatchEdit::cut(const std::vector<MapTileCell>& cells) {

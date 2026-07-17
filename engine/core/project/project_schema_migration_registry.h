@@ -37,4 +37,9 @@ private:
     std::vector<ProjectSchemaMigrationStep> steps_;
 };
 
+// Registers the forward-only version-adoption steps for durable native
+// documents whose oldest supported form predates an explicit schema field.
+bool registerBuiltInProjectSchemaMigrations(ProjectSchemaMigrationRegistry& registry,
+                                            std::string* diagnostic = nullptr);
+
 } // namespace urpg::project

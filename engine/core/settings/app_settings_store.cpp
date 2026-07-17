@@ -474,6 +474,39 @@ EditorSettingsLoadResult loadEditorSettings(const std::filesystem::path& path, c
     return result;
 }
 
+SettingsQuarantineResult quarantineMalformedSettings(const std::filesystem::path& path) {
+    SettingsQuarantineResult result;
+    if (!std::filesystem::is_regular_file(path)) {
+        result.code = "settings_quarantine_source_missing";
+        result.message = "The malformed settings source no longer exists.";
+        return result;
+    }
+    std::error_code error;
+    const auto quarantine_directory = path.parent_path() / "quarantine";
+    std::filesystem::create_directories(quarantine_directory, error);
+    if (error) {
+        result.code = "settings_quarantine_directory_failed";
+        result.message = error.message();
+        return result;
+    }
+    auto destination = quarantine_directory / (path.filename().string() + ".corrupt");
+    for (uint32_t suffix = 1; std::filesystem::exists(destination) && suffix < 10000; ++suffix) {
+        destination = quarantine_directory /
+                      (path.filename().string() + "." + std::to_string(suffix) + ".corrupt");
+    }
+    std::filesystem::rename(path, destination, error);
+    if (error) {
+        result.code = "settings_quarantine_move_failed";
+        result.message = error.message();
+        return result;
+    }
+    result.success = true;
+    result.code = "settings_quarantined";
+    result.quarantined_path = std::move(destination);
+    result.message = "Malformed settings were preserved in quarantine; safe defaults may now be written.";
+    return result;
+}
+
 bool saveRuntimeSettings(const std::filesystem::path& path, const RuntimeSettings& settings, std::string* error) {
     const nlohmann::json payload = {
         {"schema", "urpg.runtime_settings.v1"},

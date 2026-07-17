@@ -109,6 +109,12 @@ bool isPathWithinRoot(const std::filesystem::path& root, const std::filesystem::
     return mismatch.first == normalizedRoot.end();
 }
 
+bool isSafeBundleId(const std::string& id) {
+    return !id.empty() && std::all_of(id.begin(), id.end(), [](const unsigned char ch) {
+        return std::isalnum(ch) != 0 || ch == '-' || ch == '_';
+    });
+}
+
 std::filesystem::path repoRootPath() {
     return std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().parent_path();
 }
@@ -329,31 +335,51 @@ std::vector<BundlePayload> collectPromotedAssetBundlePayloads(const ExportConfig
     const auto assetRoot = normalizedAssetRoot(config);
     std::vector<BundlePayload> payloads;
 
-    if (!std::filesystem::exists(manifestRoot) || !std::filesystem::is_directory(manifestRoot) ||
-        !std::filesystem::exists(assetRoot) || !std::filesystem::is_directory(assetRoot)) {
+    if (config.promotedAssetBundleIds.empty()) {
         return payloads;
     }
 
-    std::vector<std::filesystem::path> manifestFiles;
-    for (const auto& entry : std::filesystem::directory_iterator(manifestRoot)) {
-        if (entry.is_regular_file() && entry.path().extension() == ".json" &&
-            entry.path().filename() != "asset_bundle.schema.json") {
-            manifestFiles.push_back(entry.path());
-        }
+    if (!std::filesystem::exists(manifestRoot) || !std::filesystem::is_directory(manifestRoot)) {
+        errors.push_back("Selected promoted asset bundle manifest root is unavailable: " + manifestRoot.string());
+        return payloads;
     }
-    std::sort(manifestFiles.begin(), manifestFiles.end());
+    if (!std::filesystem::exists(assetRoot) || !std::filesystem::is_directory(assetRoot)) {
+        errors.push_back("Selected promoted asset root is unavailable: " + assetRoot.string());
+        return payloads;
+    }
+
+    auto selectedIds = config.promotedAssetBundleIds;
+    std::sort(selectedIds.begin(), selectedIds.end());
+    selectedIds.erase(std::unique(selectedIds.begin(), selectedIds.end()), selectedIds.end());
+
+    std::vector<std::filesystem::path> manifestFiles;
+    for (const auto& id : selectedIds) {
+        if (!isSafeBundleId(id)) {
+            errors.push_back("Selected promoted asset bundle ID is unsafe: " + id);
+            continue;
+        }
+        const auto manifestPath = manifestRoot / (id + ".json");
+        if (!std::filesystem::is_regular_file(manifestPath)) {
+            errors.push_back("Selected promoted asset bundle manifest is missing: " + manifestPath.string());
+            continue;
+        }
+        manifestFiles.push_back(manifestPath);
+    }
 
     for (const auto& manifestPath : manifestFiles) {
         nlohmann::json manifest;
         try {
             const auto manifestBytes = readFileBytes(manifestPath);
             manifest = nlohmann::json::parse(manifestBytes.begin(), manifestBytes.end());
-        } catch (const std::exception&) {
+        } catch (const std::exception& ex) {
+            errors.push_back("Selected promoted asset bundle manifest is malformed: " + manifestPath.string() +
+                             " (" + ex.what() + ")");
             continue;
         }
 
         if (!manifest.is_object() || manifest.value("bundle_state", "") != "promoted" || !manifest.contains("assets") ||
             !manifest["assets"].is_array()) {
+            errors.push_back("Selected asset bundle is not a governed promoted bundle: " + manifestPath.string());
             continue;
         }
 
@@ -525,6 +551,7 @@ BundleBuildResult buildBundlePayloads(const ExportConfig& config) {
         {"includeDebugSymbols", config.includeDebugSymbols},     {"obfuscateScripts", config.obfuscateScripts},
         {"projectEntry", "runtime/project_entry.json"},          {"scriptPolicy", "runtime/script_pack_policy.json"},
         {"assetDiscoveryManifest", kAssetDiscoveryManifestPath},
+        {"selectedPromotedAssetBundleIds", config.promotedAssetBundleIds},
     };
     entries.push_back({
         "export/export_metadata.json",

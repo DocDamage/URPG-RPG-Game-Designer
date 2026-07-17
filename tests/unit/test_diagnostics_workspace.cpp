@@ -213,7 +213,7 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(auditSummary.has_data);
 
     const auto allSummaries = workspace.allTabSummaries();
-    REQUIRE(allSummaries.size() == 11);
+    REQUIRE(allSummaries.size() == 12);
 
     urpg::editor::DiagnosticsFacade facade(workspace);
     const auto exportedJson = nlohmann::json::parse(facade.emitSnapshot());
@@ -236,18 +236,19 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(exportedJson["active_tab_detail"]["recent_events"][0]["pluginId"] == "MissingPlugin");
     REQUIRE(exportedJson["active_tab_detail"]["recent_events"][0]["severity"] == "WARNING");
     REQUIRE(exportedJson["tabs"].is_array());
-    REQUIRE(exportedJson["tabs"].size() == 11);
+    REQUIRE(exportedJson["tabs"].size() == 12);
     REQUIRE(exportedJson["tabs"][0]["name"] == "compat");
     REQUIRE(exportedJson["tabs"][0]["item_count"] == 1);
     REQUIRE(exportedJson["tabs"][1]["name"] == "save");
     REQUIRE(exportedJson["tabs"][2]["name"] == "event_authority");
-    REQUIRE(exportedJson["tabs"][3]["name"] == "message_text");
-    REQUIRE(exportedJson["tabs"][4]["name"] == "battle");
-    REQUIRE(exportedJson["tabs"][5]["name"] == "menu");
-    REQUIRE(exportedJson["tabs"][6]["name"] == "audio");
-    REQUIRE(exportedJson["tabs"][7]["name"] == "migration_wizard");
-    REQUIRE(exportedJson["tabs"][8]["name"] == "abilities");
-    REQUIRE(exportedJson["tabs"][9]["name"] == "project_audit");
+    REQUIRE(exportedJson["tabs"][3]["name"] == "event_trace");
+    REQUIRE(exportedJson["tabs"][4]["name"] == "message_text");
+    REQUIRE(exportedJson["tabs"][5]["name"] == "battle");
+    REQUIRE(exportedJson["tabs"][6]["name"] == "menu");
+    REQUIRE(exportedJson["tabs"][7]["name"] == "audio");
+    REQUIRE(exportedJson["tabs"][8]["name"] == "migration_wizard");
+    REQUIRE(exportedJson["tabs"][9]["name"] == "abilities");
+    REQUIRE(exportedJson["tabs"][10]["name"] == "project_audit");
 
     REQUIRE(workspace.activeTab() == urpg::editor::DiagnosticsTab::Compat);
     REQUIRE(workspace.compatPanel().isVisible());

@@ -1,0 +1,6 @@
+{
+  "schema":"urpg.runtime_presentation_showcase_matrix.v1",
+  "components":["button","dialogue_box","interaction_prompt","quest_update","battle_command","damage_feedback","results_panel"],
+  "variants":["default","large_text","high_contrast","reduced_motion"],
+  "requiredProperties":["palette","typography","iconography","spacing","motion","particles","sound_motif","camera_language","feedback_tier","non_color_cue"]
+}

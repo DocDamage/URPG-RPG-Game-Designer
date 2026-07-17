@@ -1,0 +1,32 @@
+{
+  "schema": "urpg.event_command_runtime_diagnostic_matrix.v1",
+  "authority": "engine/core/events/native_event_command_matrix.cpp",
+  "commands": [
+    {"id":"message","authoring":"message_editor","serialization":"message","runtime":"show_message","diagnostics":["event_message_empty"],"undo":true},
+    {"id":"condition","authoring":"condition_builder","serialization":"condition","runtime":"evaluate_condition","diagnostics":["event_condition_invalid"],"undo":true},
+    {"id":"else","authoring":"branch_editor","serialization":"else","runtime":"enter_else","diagnostics":["event_else_unmatched"],"undo":true},
+    {"id":"end_branch","authoring":"branch_editor","serialization":"end_branch","runtime":"leave_branch","diagnostics":["event_branch_unclosed"],"undo":true},
+    {"id":"loop","authoring":"loop_editor","serialization":"loop","runtime":"enter_loop","diagnostics":["event_loop_unbounded"],"undo":true},
+    {"id":"break_loop","authoring":"loop_editor","serialization":"break_loop","runtime":"break_loop","diagnostics":["event_break_outside_loop"],"undo":true},
+    {"id":"end_loop","authoring":"loop_editor","serialization":"end_loop","runtime":"repeat_loop","diagnostics":["event_loop_unclosed"],"undo":true},
+    {"id":"wait","authoring":"duration_editor","serialization":"wait","runtime":"wait_frames","diagnostics":["event_wait_invalid"],"undo":true},
+    {"id":"timer","authoring":"timer_editor","serialization":"timer","runtime":"set_timer","diagnostics":["event_timer_invalid"],"undo":true},
+    {"id":"parallel","authoring":"parallel_lane_editor","serialization":"parallel","runtime":"start_parallel_lane","diagnostics":["event_parallel_unsafe_write"],"undo":true},
+    {"id":"switch","authoring":"switch_picker","serialization":"switch","runtime":"set_switch","diagnostics":["missing_switch_reference"],"undo":true},
+    {"id":"variable","authoring":"variable_picker","serialization":"variable","runtime":"set_variable","diagnostics":["missing_variable_reference"],"undo":true},
+    {"id":"self_switch","authoring":"self_switch_picker","serialization":"self_switch","runtime":"set_self_switch","diagnostics":["event_self_switch_invalid"],"undo":true},
+    {"id":"movement_route","authoring":"movement_route_editor","serialization":"movement_route","runtime":"move_entity","diagnostics":["event_movement_route_invalid"],"undo":true},
+    {"id":"camera","authoring":"camera_editor","serialization":"camera","runtime":"camera_action","diagnostics":["event_camera_target_missing"],"undo":true},
+    {"id":"animation","authoring":"animation_picker","serialization":"animation","runtime":"play_animation","diagnostics":["event_animation_missing"],"undo":true},
+    {"id":"audio","authoring":"audio_picker","serialization":"sound","runtime":"play_audio","diagnostics":["event_audio_missing"],"undo":true},
+    {"id":"common_event","authoring":"common_event_picker","serialization":"common_event","runtime":"call_common_event","diagnostics":["missing_common_event"],"undo":true},
+    {"id":"transfer","authoring":"map_entrance_picker","serialization":"transfer","runtime":"transfer_player","diagnostics":["missing_transfer_map"],"undo":true},
+    {"id":"battle","authoring":"encounter_picker","serialization":"battle","runtime":"start_battle","diagnostics":["event_battle_missing"],"undo":true},
+    {"id":"shop","authoring":"vendor_picker","serialization":"shop","runtime":"open_shop","diagnostics":["event_shop_missing"],"undo":true},
+    {"id":"item","authoring":"item_picker","serialization":"item","runtime":"change_item","diagnostics":["event_item_missing"],"undo":true},
+    {"id":"gold","authoring":"amount_editor","serialization":"gold","runtime":"change_gold","diagnostics":["event_amount_invalid"],"undo":true},
+    {"id":"fade","authoring":"fade_editor","serialization":"fade","runtime":"fade_screen","diagnostics":["event_fade_invalid"],"undo":true},
+    {"id":"script","authoring":"controlled_call_picker","serialization":"script","runtime":"call_controlled_script","diagnostics":["event_script_not_allowed"],"undo":true,"controlledCall":true},
+    {"id":"extension","authoring":"controlled_call_picker","serialization":"extension","runtime":"call_native_extension","diagnostics":["event_extension_not_allowed"],"undo":true,"controlledCall":true}
+  ]
+}

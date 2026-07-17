@@ -52,6 +52,15 @@ void RpgDatabase::upsertItem(ItemRecord item) {
     items_[item.id] = std::move(item);
 }
 
+bool RpgDatabase::eraseActor(const std::string_view id) {
+    return actors_.erase(std::string(id)) != 0;
+}
+
+bool RpgDatabase::eraseItem(const std::string_view id) {
+    item_insert_counts_.erase(std::string(id));
+    return items_.erase(std::string(id)) != 0;
+}
+
 std::string RpgDatabase::exportItemsCsv() const {
     std::ostringstream out;
     out << "id,name,price,tags\n";

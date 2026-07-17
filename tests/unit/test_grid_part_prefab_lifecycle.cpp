@@ -1,4 +1,5 @@
 #include "engine/core/map/grid_part_prefab_lifecycle.h"
+#include "engine/core/map/grid_part_serializer.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -32,4 +33,8 @@ TEST_CASE("Smart prefab update preserves overrides applies atomically and detach
     for (const auto& instance : document.parts()) REQUIRE_FALSE(instance.properties.contains("smart_prefab.id"));
     REQUIRE(history.undo(document));
     REQUIRE(document.parts()[0].properties.contains("smart_prefab.id"));
+    const auto reopened = GridPartDocumentFromJson(GridPartDocumentToJson(document));
+    REQUIRE(reopened.has_value());
+    REQUIRE(reopened->parts().size() == 2);
+    REQUIRE(reopened->parts()[0].properties.contains("smart_prefab.version"));
 }

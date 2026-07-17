@@ -10,6 +10,7 @@ namespace urpg::replay {
 class ReplayGallery {
 public:
     void add(ReplayArtifact artifact);
+    void upsert(ReplayArtifact artifact);
     std::vector<ReplayArtifact> findByLabel(const std::string& label) const;
     const std::vector<ReplayArtifact>& artifacts() const { return artifacts_; }
 

@@ -38,3 +38,24 @@ TEST_CASE("World preview and marker impact enumerate and rewrite every affected 
     REQUIRE(graph.routes()[0].target_entrance_id=="west_gate"); REQUIRE(graph.routes()[1].target_entrance_id=="west_gate");
     const auto preview=graph.buildPreview(); REQUIRE(preview.nodes.size()==3); REQUIRE(preview.edges.size()==2); REQUIRE(preview.nodes[0].x==0); REQUIRE(preview.nodes[1].x==240);
 }
+
+TEST_CASE("World marker deletion requires a current reviewed impact and removes affected routes",
+          "[map][world_graph][impact][delete]") {
+    using namespace urpg::map;
+    ProjectWorldGraph graph;
+    REQUIRE(graph.addMap({"hub", "Hub", {{"gate", "Gate", 1, 1}}, {}, {}, {}}));
+    REQUIRE(graph.addMap({"field", "Field", {}, {{"to_hub", "Hub", 2, 1}}, {}, {}}));
+    REQUIRE(graph.addRoute({"field_hub", "Field to Hub", "field", "to_hub", "hub", "gate", ""}));
+    auto stale = graph.previewMarkerChange("hub", "entrance", "gate");
+    stale.affected_routes.clear();
+    REQUIRE_FALSE(graph.deleteMarker(stale));
+    REQUIRE(graph.maps()[1].entrances.size() == 1);
+    const auto reviewed = graph.previewMarkerChange("hub", "entrance", "gate");
+    REQUIRE(reviewed.affected_routes.size() == 1);
+    REQUIRE(graph.deleteMarker(reviewed));
+    REQUIRE(graph.routes().empty());
+    REQUIRE(graph.maps()[1].entrances.empty());
+    const auto restored = ProjectWorldGraph::fromJson(graph.toJson());
+    REQUIRE(restored.has_value());
+    REQUIRE(restored->toJson() == graph.toJson());
+}

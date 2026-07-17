@@ -1,0 +1,19 @@
+{
+  "schema": "urpg.project_reference_matrix.v1",
+  "updatedAt": "2026-07-16",
+  "indexOwner": "engine/core/project/project_reference_index.*",
+  "families": [
+    {"type":"map","extractor":"grid_part/perspective_2d","inbound":true,"outbound":true,"package":true,"liveRoute":"spatial_authoring","status":"implemented_index","gap":"direct context selection for every local ID"},
+    {"type":"event","extractor":"perspective_2d","inbound":true,"outbound":true,"package":true,"liveRoute":"spatial_authoring","status":"partial","gap":"context selection inside the owning map"},
+    {"type":"switch_variable","extractor":"perspective_2d/dialogue/quest/menu/gameplay","inbound":true,"outbound":true,"package":false,"liveRoute":"diagnostics","status":"partial","gap":"dedicated data-object navigation"},
+    {"type":"asset","extractor":"grid_part/perspective_2d/dialogue/character/audio_mix","inbound":true,"outbound":true,"package":true,"liveRoute":"assets","status":"implemented_index","gap":"direct context selection for every owner"},
+    {"type":"dialogue","extractor":"dialogue/perspective_2d","inbound":true,"outbound":true,"package":true,"liveRoute":"spatial_authoring","status":"partial","gap":"select graph node from global navigation"},
+    {"type":"quest","extractor":"quest","inbound":true,"outbound":true,"package":true,"liveRoute":"spatial_authoring","status":"partial","gap":"select objective from global navigation"},
+    {"type":"menu","extractor":"menu","inbound":true,"outbound":true,"package":true,"liveRoute":"diagnostics","status":"partial","gap":"select scene/pane/command from global navigation"},
+    {"type":"database_record","extractor":"database/vendor/ability/character","inbound":true,"outbound":true,"package":true,"liveRoute":"diagnostics","status":"implemented_index","gap":"complete direct row selection"},
+    {"type":"recipe","extractor":"gameplay","inbound":true,"outbound":true,"package":true,"liveRoute":"ability","status":"partial","gap":"target-owner edges and direct selection"},
+    {"type":"plugin","extractor":"mz_plugin_lock","inbound":true,"outbound":true,"package":true,"liveRoute":"mod","status":"partial","gap":"direct plugin row selection"},
+    {"type":"mod","extractor":"mod_manifest","inbound":true,"outbound":true,"package":true,"liveRoute":"mod","status":"partial","gap":"incremental manifest watcher"},
+    {"type":"package_inclusion","extractor":"all","inbound":true,"outbound":false,"package":true,"liveRoute":"diagnostics","status":"partial","gap":"package UI explanation route"}
+  ]
+}

@@ -12,6 +12,7 @@ This directory is the agent-facing map for URPG. It points to canonical files ra
 | Current release gaps and debt | `docs/agent/KNOWN_DEBT.md` |
 | Current release execution tasks | `docs/release/AAA_RELEASE_EXECUTION_PLAN.md` |
 | Current creator-product implementation tasks | `docs/superpowers/plans/2026-07-14-product-feature-usability-native-absorption-plan.md` |
+| Current 100% product-completion batching and finish sequence | `docs/superpowers/plans/2026-07-16-product-completion-batched-finish-plan.md` |
 | Current creator journey and implementation checkpoint | `docs/product/CREATOR_JOURNEY.md`, `docs/product/CREATOR_JOURNEY_BASELINE.md` |
 | Current release-surface audit tasks | `docs/superpowers/plans/2026-04-30-release-surface-audit-execution-plan.md` |
 | Current verified app-release status | `README.md`, `docs/APP_RELEASE_READINESS_MATRIX.md` |

@@ -5,6 +5,7 @@
 #include "editor/battle/battle_inspector_panel.h"
 #include "editor/compat/compat_report_panel.h"
 #include "editor/diagnostics/event_authority_panel.h"
+#include "editor/diagnostics/event_trace_diagnostics_panel.h"
 #include "editor/diagnostics/migration_wizard_panel.h"
 #include "editor/diagnostics/project_audit_export_parity.h"
 #include "editor/diagnostics/project_audit_panel.h"
@@ -34,6 +35,7 @@ enum class DiagnosticsTab : uint8_t {
     Abilities = 8,
     ProjectAudit = 9,
     ProjectHealth = 10,
+    EventTrace = 11,
 };
 
 struct DiagnosticsTabSummary {
@@ -56,6 +58,9 @@ class DiagnosticsWorkspace {
 
     urpg::EventAuthorityPanel& eventAuthorityPanel();
     const urpg::EventAuthorityPanel& eventAuthorityPanel() const;
+    EventTraceDiagnosticsPanel& eventTracePanel();
+    const EventTraceDiagnosticsPanel& eventTracePanel() const;
+    void bindEventTraceBridge(playtest::PlaytestEventTraceBridge* bridge);
     MessageInspectorPanel& messagePanel();
     const MessageInspectorPanel& messagePanel() const;
     BattleInspectorPanel& battlePanel();
@@ -232,6 +237,7 @@ class DiagnosticsWorkspace {
     CompatReportPanel compat_panel_;
     SaveInspectorPanel save_panel_;
     urpg::EventAuthorityPanel event_authority_panel_;
+    EventTraceDiagnosticsPanel event_trace_panel_;
     MessageInspectorPanel message_panel_;
     BattleInspectorPanel battle_panel_;
 

@@ -250,6 +250,22 @@ class SpatialAuthoringWorkspace : public EditorPanel {
         int32_t tile_y = 0;
     };
 
+    struct Perspective2DNativePropPropertyEdit {
+        std::string instance_id;
+        std::optional<int32_t> tile_x;
+        std::optional<int32_t> tile_y;
+        std::optional<float> rotation_y;
+        std::optional<float> scale;
+    };
+
+    struct Perspective2DNativeEventPropertyEdit {
+        std::string event_id;
+        std::optional<int32_t> tile_x;
+        std::optional<int32_t> tile_y;
+        std::optional<bool> blocks_movement;
+        std::optional<bool> sprite_visible;
+    };
+
     struct Perspective2DNativeCommandResult {
         bool success = false;
         std::string code;
@@ -639,6 +655,10 @@ class SpatialAuthoringWorkspace : public EditorPanel {
     Perspective2DNativeCommandResult applyNativeEventMessageEdits(
         const std::string& expected_document_revision,
         const std::vector<Perspective2DNativeEventMessageEdit>& edits);
+    Perspective2DNativeCommandResult applyNativeObjectPropertyEdits(
+        const std::string& expected_document_revision,
+        const std::vector<Perspective2DNativePropPropertyEdit>& prop_edits,
+        const std::vector<Perspective2DNativeEventPropertyEdit>& event_edits);
     bool SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages);
     bool SetPerspectiveTileDefinition(Perspective2DTileDefinition definition);
     std::optional<Perspective2DTileDefinition> perspectiveTileDefinition(const std::string& tileset_id,

@@ -1644,6 +1644,98 @@ SpatialAuthoringWorkspace::applyNativeEventMessageEdits(
     return result;
 }
 
+SpatialAuthoringWorkspace::Perspective2DNativeCommandResult
+SpatialAuthoringWorkspace::applyNativeObjectPropertyEdits(
+    const std::string& expected_document_revision,
+    const std::vector<Perspective2DNativePropPropertyEdit>& prop_edits,
+    const std::vector<Perspective2DNativeEventPropertyEdit>& event_edits) {
+    Perspective2DNativeCommandResult result;
+    result.document_revision = perspectiveDocumentRevision();
+    if (m_target_overlay == nullptr) {
+        result.code = "map_batch_owner_unavailable";
+        result.message = "Open a Perspective 2D map before applying batch object properties.";
+        return result;
+    }
+    if (expected_document_revision.empty() || expected_document_revision != result.document_revision) {
+        result.code = "map_batch_revision_conflict";
+        result.message = "The Map changed after this batch edit was reviewed.";
+        return result;
+    }
+    if (prop_edits.empty() && event_edits.empty()) {
+        result.code = "map_batch_object_edits_empty";
+        result.message = "Select at least one prop or event before applying batch properties.";
+        return result;
+    }
+    const auto inBounds = [&](const int32_t x, const int32_t y) {
+        return x >= 0 && y >= 0 && x < static_cast<int32_t>(m_target_overlay->elevation.width) &&
+               y < static_cast<int32_t>(m_target_overlay->elevation.height);
+    };
+    std::vector<std::string> ids;
+    for (const auto& edit : prop_edits) {
+        const auto item = std::find_if(m_target_overlay->props.begin(), m_target_overlay->props.end(),
+                                       [&](const auto& prop) { return prop.instanceId == edit.instance_id; });
+        const int32_t x = edit.tile_x.value_or(item == m_target_overlay->props.end() ? -1 :
+                                              static_cast<int32_t>(item->posX));
+        const int32_t y = edit.tile_y.value_or(item == m_target_overlay->props.end() ? -1 :
+                                              static_cast<int32_t>(item->posZ));
+        if (edit.instance_id.empty() || item == m_target_overlay->props.end() ||
+            std::find(ids.begin(), ids.end(), "prop:" + edit.instance_id) != ids.end() || !inBounds(x, y) ||
+            (edit.rotation_y && !std::isfinite(*edit.rotation_y)) ||
+            (edit.scale && (!std::isfinite(*edit.scale) || *edit.scale <= 0.0f))) {
+            result.code = "map_batch_prop_edit_invalid";
+            result.message = "A selected prop is missing, duplicated, out of bounds, or has invalid properties.";
+            return result;
+        }
+        ids.push_back("prop:" + edit.instance_id);
+    }
+    for (const auto& edit : event_edits) {
+        const auto item = std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                                       [&](const auto& event) { return event.event_id == edit.event_id; });
+        const int32_t x = edit.tile_x.value_or(item == perspective_events_.end() ? -1 : item->tile_x);
+        const int32_t y = edit.tile_y.value_or(item == perspective_events_.end() ? -1 : item->tile_y);
+        if (edit.event_id.empty() || item == perspective_events_.end() ||
+            std::find(ids.begin(), ids.end(), "event:" + edit.event_id) != ids.end() || !inBounds(x, y)) {
+            result.code = "map_batch_event_edit_invalid";
+            result.message = "A selected event is missing, duplicated, or out of bounds.";
+            return result;
+        }
+        ids.push_back("event:" + edit.event_id);
+    }
+    const auto before = serializePerspectiveMapDraft();
+    for (const auto& edit : prop_edits) {
+        auto& prop = *std::find_if(m_target_overlay->props.begin(), m_target_overlay->props.end(),
+                                   [&](const auto& value) { return value.instanceId == edit.instance_id; });
+        if (edit.tile_x) prop.posX = static_cast<float>(*edit.tile_x) + 0.5f;
+        if (edit.tile_y) prop.posZ = static_cast<float>(*edit.tile_y) + 0.5f;
+        if (edit.rotation_y) prop.rotY = *edit.rotation_y;
+        if (edit.scale) prop.scale = *edit.scale;
+    }
+    for (const auto& edit : event_edits) {
+        auto& event = *std::find_if(perspective_events_.begin(), perspective_events_.end(),
+                                    [&](const auto& value) { return value.event_id == edit.event_id; });
+        if (edit.tile_x) event.tile_x = *edit.tile_x;
+        if (edit.tile_y) event.tile_y = *edit.tile_y;
+        if (edit.blocks_movement) event.blocks_movement = *edit.blocks_movement;
+        if (edit.sprite_visible) event.sprite_visible = *edit.sprite_visible;
+    }
+    perspective_undo_drafts_.push_back(before);
+    perspective_redo_drafts_.clear();
+    perspective_has_unsaved_changes_ = true;
+    perspective_playtest_ready_ = false;
+    result.applied_prop_count = prop_edits.size();
+    result.applied_event_count = event_edits.size();
+    syncEventSpritesToTargetScene();
+    syncEventCollidersToTargetScene();
+    captureRenderSnapshot();
+    result.success = true;
+    result.code = "map_batch_object_properties_applied";
+    result.message = "Applied reviewed properties to " +
+                     std::to_string(result.applied_prop_count + result.applied_event_count) +
+                     " selected Map object(s) as one undoable command.";
+    result.document_revision = perspectiveDocumentRevision();
+    return result;
+}
+
 bool SpatialAuthoringWorkspace::SetPerspectiveTilesetPages(std::vector<Perspective2DTilesetPage> pages) {
     if (pages.empty()) {
         return false;
@@ -1718,7 +1810,8 @@ bool SpatialAuthoringWorkspace::ImportAssignedTilesetBundle(const std::filesyste
         tilePaths.reserve(static_cast<size_t>(tileCount));
         for (size_t index = 0; index < static_cast<size_t>(tileCount); ++index) {
             const auto& tile = manifest["tile_paths"][index];
-            if (!tile.is_object() || tile.value("index", size_t{tileCount}) != index || !tile["path"].is_string()) {
+            if (!tile.is_object() || tile.value("index", static_cast<size_t>(tileCount)) != index ||
+                !tile["path"].is_string()) {
                 return fail("The project tileset assignment tile list is invalid.");
             }
             std::ostringstream filename;
@@ -3906,6 +3999,7 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
                             urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetSwitch,
                             entry.key,
                             normalized_value == "true" || normalized_value == "1" || normalized_value == "on" ? 1 : 0,
+                            {},
                         });
                     }
                     for (const auto& entry : result.variables) {
@@ -3915,6 +4009,7 @@ SpatialAuthoringWorkspace::ExecutePerspectiveRuntimeEvent(const std::string& eve
                                 urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetVariable,
                                 entry.key,
                                 static_cast<int32_t>(value),
+                                {},
                             });
                         }
                     }
@@ -4621,7 +4716,7 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
                     const std::string value = lowerCopy(trimCopy(argument.substr(equals + 1)));
                     if (!key.empty()) {
                         state_writes.push_back({urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetSwitch,
-                                                key, value == "true" || value == "1" || value == "on" ? 1 : 0});
+                                                key, value == "true" || value == "1" || value == "on" ? 1 : 0, {}});
                     }
                 } else if (command.code == "change_variable") {
                     const auto add = argument.find("+=");
@@ -4643,7 +4738,7 @@ void SpatialAuthoringWorkspace::syncAuthoredDialogueInteractionsToTargetScene() 
                                           : (subtract != std::string::npos
                                                  ? urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::AddVariable
                                                  : urpg::scene::MapScene::AuthoredDialogueInteraction::StateWriteKind::SetVariable);
-                    state_writes.push_back({kind, key, subtract != std::string::npos ? -value : value});
+                    state_writes.push_back({kind, key, subtract != std::string::npos ? -value : value, {}});
                 } else if (command.code == "change_self_switch") {
                     const auto equals = argument.find('=');
                     if (equals == std::string::npos) {

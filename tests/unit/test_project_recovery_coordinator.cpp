@@ -1,8 +1,12 @@
 #include "editor/project/project_recovery_coordinator.h"
+#include "engine/core/tools/failed_package_recovery.h"
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
 
 TEST_CASE("Project recovery fault injection covers every primary document and failure class",
           "[editor][recovery][pcq506]") {
@@ -81,4 +85,28 @@ TEST_CASE("Project recovery reports incomplete or ambiguous fault matrices", "[e
     REQUIRE(coverage.missing_primary_documents.size() == primaryRecoveryDocumentTypes().size() - 1);
     REQUIRE(coverage.diagnostics.size() == 6);
     REQUIRE(coverage.actions.size() == 1);
+}
+
+TEST_CASE("Failed package recovery removes only marker-owned partial output and preserves sources",
+          "[editor][recovery][pcq506][package][process]") {
+    const auto root = std::filesystem::temp_directory_path() /
+        ("urpg_pcq506_package_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    const auto sources = root / "content" / "maps" / "map.json";
+    const auto partial = root / ".urpg" / "package-staging" / "windows-test";
+    std::filesystem::create_directories(sources.parent_path());
+    std::filesystem::create_directories(partial);
+    { std::ofstream output(sources); output << "source"; }
+    { std::ofstream output(partial / "partial.exe"); output << "partial"; }
+    { std::ofstream output(partial / ".urpg-package-staging.json");
+      output << R"({"schema":"urpg.package_staging.v1","packageId":"windows-test"})"; }
+    const auto recovered = urpg::tools::FailedPackageRecovery::quarantinePartialOutput(
+        root, partial, "windows-test");
+    REQUIRE(recovered.success);
+    REQUIRE_FALSE(std::filesystem::exists(partial));
+    REQUIRE(std::filesystem::is_regular_file(recovered.quarantined_output / "partial.exe"));
+    REQUIRE(std::filesystem::is_regular_file(recovered.receipt_path));
+    REQUIRE(std::filesystem::is_regular_file(sources));
+    REQUIRE(urpg::tools::FailedPackageRecovery::quarantinePartialOutput(
+        root, root / "content", "windows-test").code == "failed_package_recovery_scope_rejected");
+    std::filesystem::remove_all(root);
 }

@@ -1,8 +1,15 @@
 #include "editor/ui/editor_widget_state.h"
 
 #include <array>
+#include <algorithm>
+#include <cmath>
 #include <set>
 #include <utility>
+
+#ifdef URPG_IMGUI_ENABLED
+#include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
+#endif
 
 namespace urpg::editor {
 namespace {
@@ -17,6 +24,7 @@ bool interactive(const EditorWidgetKind kind) {
 const char* intentRole(const EditorWidgetIntent intent) {
     switch (intent) {
     case EditorWidgetIntent::Primary: return "accent";
+    case EditorWidgetIntent::Secondary: return "surface_raised";
     case EditorWidgetIntent::Destructive: return "danger";
     case EditorWidgetIntent::Success: return "success";
     case EditorWidgetIntent::Warning: return "warning";
@@ -61,7 +69,7 @@ const char* editorWidgetStateName(const EditorWidgetVisualState state) {
     return "unknown";
 }
 
-EditorWidgetSnapshot resolveEditorWidgetState(const EditorWidgetDescriptor& descriptor) {
+EditorWidgetSnapshot resolveEditorWidgetState(const EditorWidgetDescriptor& descriptor, const float requestedScale) {
     EditorWidgetSnapshot result;
     if (descriptor.id.empty() || descriptor.label.empty()) {
         result.code = "editor_widget_identity_missing";
@@ -72,6 +80,10 @@ EditorWidgetSnapshot resolveEditorWidgetState(const EditorWidgetDescriptor& desc
         return result;
     }
     result.valid = true;
+    result.scale = std::isfinite(requestedScale) ? std::clamp(requestedScale, 0.5F, 3.0F) : 1.0F;
+    result.minimum_hit_target = std::max(30.0F, 40.0F * result.scale);
+    result.icon_size = 20.0F * result.scale;
+    result.content_padding = 8.0F * result.scale;
     result.code = std::string("editor_widget_") + editorWidgetStateName(descriptor.state);
     result.color_role = descriptor.state == EditorWidgetVisualState::Error ? "danger" : intentRole(descriptor.intent);
     result.border_role = descriptor.state == EditorWidgetVisualState::Focused ? "focus" :
@@ -93,6 +105,91 @@ EditorWidgetSnapshot resolveEditorWidgetState(const EditorWidgetDescriptor& desc
     else if (descriptor.state == EditorWidgetVisualState::Error) result.announcement = descriptor.diagnostic;
     else if (descriptor.state == EditorWidgetVisualState::Disabled && !descriptor.help.empty())
         result.announcement = descriptor.help;
+    return result;
+}
+
+EditorWidgetRenderResult renderEditorWidget(const EditorWidgetDescriptor& descriptor, const float scale,
+                                            const float progress) {
+    EditorWidgetRenderResult result;
+    result.snapshot = resolveEditorWidgetState(descriptor, scale);
+    if (!result.snapshot.valid) return result;
+#ifdef URPG_IMGUI_ENABLED
+    if (ImGui::GetCurrentContext() == nullptr) return result;
+    result.rendered = true;
+    ImGui::PushID(descriptor.id.c_str());
+    if (!result.snapshot.action_enabled) ImGui::BeginDisabled();
+    switch (descriptor.kind) {
+    case EditorWidgetKind::Button:
+    case EditorWidgetKind::Confirmation:
+        result.activated = ImGui::Button(descriptor.label.c_str(),
+                                        ImVec2(0.0F, result.snapshot.minimum_hit_target));
+        break;
+    case EditorWidgetKind::SegmentedControl:
+        result.activated = ImGui::SmallButton(descriptor.label.c_str());
+        break;
+    case EditorWidgetKind::Card:
+        if (ImGui::BeginChild("card", ImVec2(0.0F, result.snapshot.minimum_hit_target * 2.0F),
+                              ImGuiChildFlags_Borders)) {
+            ImGui::TextUnformatted(descriptor.label.c_str());
+            if (!descriptor.help.empty()) ImGui::TextWrapped("%s", descriptor.help.c_str());
+        }
+        ImGui::EndChild();
+        break;
+    case EditorWidgetKind::Field: {
+        auto value = descriptor.help;
+        result.activated = ImGui::InputText(descriptor.label.c_str(), &value);
+        break;
+    }
+    case EditorWidgetKind::Picker:
+        if (ImGui::BeginCombo(descriptor.label.c_str(), descriptor.help.empty() ? "Choose" : descriptor.help.c_str())) {
+            result.activated = ImGui::Selectable(descriptor.label.c_str());
+            ImGui::EndCombo();
+        }
+        break;
+    case EditorWidgetKind::Tree:
+        if (ImGui::TreeNodeEx(descriptor.label.c_str())) {
+            ImGui::TextWrapped("%s", descriptor.help.c_str());
+            ImGui::TreePop();
+        }
+        break;
+    case EditorWidgetKind::Tabs:
+        if (ImGui::BeginTabBar("tabs")) {
+            if (ImGui::BeginTabItem(descriptor.label.c_str())) ImGui::EndTabItem();
+            ImGui::EndTabBar();
+        }
+        break;
+    case EditorWidgetKind::Table:
+        if (ImGui::BeginTable("table", 1, ImGuiTableFlags_Borders)) {
+            ImGui::TableNextRow(); ImGui::TableNextColumn(); ImGui::TextUnformatted(descriptor.label.c_str());
+            ImGui::EndTable();
+        }
+        break;
+    case EditorWidgetKind::ProgressJob:
+        ImGui::ProgressBar(std::clamp(progress, 0.0F, 1.0F), ImVec2(-1.0F, 0.0F), descriptor.label.c_str());
+        break;
+    case EditorWidgetKind::Toast:
+    case EditorWidgetKind::Banner:
+    case EditorWidgetKind::Diagnostic:
+        ImGui::SeparatorText(descriptor.label.c_str());
+        if (!descriptor.help.empty()) ImGui::TextWrapped("%s", descriptor.help.c_str());
+        break;
+    case EditorWidgetKind::EmptyState:
+        ImGui::TextDisabled("%s", descriptor.label.c_str());
+        if (!descriptor.help.empty()) ImGui::TextWrapped("%s", descriptor.help.c_str());
+        break;
+    case EditorWidgetKind::CommandPreview:
+        result.activated = ImGui::Selectable(descriptor.label.c_str());
+        if (!descriptor.help.empty() && ImGui::IsItemHovered()) ImGui::SetTooltip("%s", descriptor.help.c_str());
+        break;
+    }
+    if (!result.snapshot.action_enabled) ImGui::EndDisabled();
+    if (!result.snapshot.announcement.empty() && ImGui::IsItemHovered()) {
+        ImGui::SetTooltip("%s", result.snapshot.announcement.c_str());
+    }
+    ImGui::PopID();
+#else
+    (void)progress;
+#endif
     return result;
 }
 

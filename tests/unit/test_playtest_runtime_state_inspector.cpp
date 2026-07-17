@@ -1,6 +1,9 @@
 #include "editor/playtest/playtest_runtime_state_inspector.h"
+#include "engine/core/playtest/playtest_runtime_state_owner.h"
 
 #include <catch2/catch_test_macros.hpp>
+
+#include <filesystem>
 
 namespace {
 
@@ -113,4 +116,72 @@ TEST_CASE("Playtest inspector switches between explicit runtime checkpoints",
     REQUIRE(inspector.state().inventory.at("item.potion") == 2);
     REQUIRE(inspector.state().quests.at("quest.wisp").state == "completed");
     REQUIRE(inspector.packageState().variables.at("score") == 7);
+}
+
+TEST_CASE("Live runtime state bridge acknowledges disposable edits and checkpoint reset",
+          "[playtest][state_inspector][pcq502][runtime_bridge]") {
+    const auto root = std::filesystem::temp_directory_path() / "urpg_live_runtime_state_inspector";
+    std::error_code error;
+    std::filesystem::remove_all(root, error);
+    const nlohmann::json initial{
+        {"switches", {{"door.open", false}}}, {"variables", {{"score", 7}}},
+        {"self_switches", {{"event.chest:A", false}}},
+        {"entities", {{"player", {{"type", "player"}, {"fields", {{"tile_x", 1}, {"tile_y", 2}}}}}}},
+        {"quests", {{"quest.wisp", {{"state", "active"},
+                                      {"objectives", {{"objective.defeat", "active"}}}}}}},
+        {"inventory", {{"item.potion", 1}}},
+    };
+    urpg::playtest::PlaytestRuntimeStateOwner runtime(root);
+    urpg::playtest::PlaytestRuntimeStateBridge editorBridge(root);
+    urpg::editor::PlaytestRuntimeStateInspector inspector;
+    REQUIRE(runtime.start("session-state", "launch", initial));
+    inspector.bindLiveBridge(&editorBridge);
+    REQUIRE(inspector.refreshLive());
+    REQUIRE(inspector.liveConnected());
+    REQUIRE(inspector.liveRevision() == 1);
+    REQUIRE(inspector.packageState().variables.at("score") == 7);
+    REQUIRE(inspector.watch({urpg::editor::PlaytestDebugValueKind::Variable, "score", {}}));
+
+    REQUIRE(inspector.requestLiveTemporaryEdit(
+        "edit.score", {urpg::editor::PlaytestDebugValueKind::Variable, "score", {}}, 99));
+    REQUIRE(runtime.poll());
+    REQUIRE(runtime.revision() == 2);
+    REQUIRE(inspector.refreshLive());
+    REQUIRE(inspector.state().variables.at("score") == 99);
+    REQUIRE(inspector.lastLiveControlCode() == "runtime_state_temporary_edit_applied");
+    REQUIRE(inspector.packageState().variables.at("score") == 7);
+    REQUIRE(inspector.mutations().size() == 1);
+    REQUIRE(inspector.mutations()[0].temporary);
+    REQUIRE_FALSE(inspector.mutations()[0].packaged);
+    REQUIRE(inspector.watchedValues()[0].debug_modified);
+
+    auto moved = initial;
+    moved["entities"]["player"]["fields"]["tile_x"] = 4;
+    REQUIRE(runtime.synchronize(moved));
+    REQUIRE(inspector.refreshLive());
+    REQUIRE(inspector.state().entities.at("player").fields.at("tile_x") == 4);
+    REQUIRE(inspector.state().variables.at("score") == 99);
+
+    REQUIRE(inspector.requestLiveReset("launch"));
+    REQUIRE(runtime.poll());
+    REQUIRE(inspector.refreshLive());
+    REQUIRE(inspector.state().variables.at("score") == 7);
+    REQUIRE(inspector.mutations().empty());
+    REQUIRE(inspector.lastLiveControlCode() == "runtime_state_checkpoint_reset_applied");
+    REQUIRE(inspector.exportDisposableOverlay()["packaged"] == false);
+
+    urpg::playtest::RuntimeStateControl stale;
+    stale.control_id = 99;
+    stale.expected_revision = 1;
+    stale.action = urpg::playtest::RuntimeStateControlAction::TemporaryEdit;
+    stale.mutation_id = "edit.stale";
+    stale.kind = "variable";
+    stale.id = "score";
+    stale.value = 1000;
+    REQUIRE(editorBridge.appendControl(stale));
+    REQUIRE(runtime.poll());
+    REQUIRE(inspector.refreshLive());
+    REQUIRE(inspector.lastLiveControlCode() == "runtime_state_control_revision_rejected");
+    REQUIRE(inspector.state().variables.at("score") == 7);
+    std::filesystem::remove_all(root, error);
 }

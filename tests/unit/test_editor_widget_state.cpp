@@ -39,6 +39,11 @@ TEST_CASE("Editor shared widget matrix covers every family and required state", 
 }
 
 TEST_CASE("Editor destructive and invalid widget states resolve safely", "[editor][widget_state]") {
+    const auto secondary = resolveEditorWidgetState(
+        {"cancel", "Cancel", EditorWidgetKind::Button, EditorWidgetIntent::Secondary,
+         EditorWidgetVisualState::Normal, "", ""});
+    REQUIRE(secondary.valid);
+    REQUIRE(secondary.color_role == "surface_raised");
     const auto destructive = resolveEditorWidgetState(
         {"delete", "Delete", EditorWidgetKind::Button, EditorWidgetIntent::Destructive,
          EditorWidgetVisualState::Focused, "", ""});
@@ -76,4 +81,19 @@ TEST_CASE("Editor widget accessibility audit rejects missing and duplicate navig
     REQUIRE(codes.contains("keyboard_semantics_missing"));
     REQUIRE(codes.contains("controller_semantics_missing"));
     REQUIRE(codes.contains("pointer_alternative_missing"));
+}
+
+TEST_CASE("Shared widget render models preserve state geometry across all supported scales",
+          "[editor][widget_state][scale][snapshot]") {
+    constexpr float scales[]{0.5F, 1.0F, 1.5F, 2.0F, 3.0F};
+    for (const auto scale : scales) {
+        for (const auto& descriptor : buildEditorWidgetStateMatrix()) {
+            const auto rendered = renderEditorWidget(descriptor, scale, 0.5F);
+            REQUIRE(rendered.snapshot.valid);
+            REQUIRE(rendered.snapshot.scale == scale);
+            REQUIRE(rendered.snapshot.minimum_hit_target >= 30.0F);
+            REQUIRE(rendered.snapshot.icon_size > 0.0F);
+            REQUIRE(rendered.snapshot.content_padding > 0.0F);
+        }
+    }
 }

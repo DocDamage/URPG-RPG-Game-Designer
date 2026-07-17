@@ -10,7 +10,7 @@ enum class EditorWidgetKind {
     Button, SegmentedControl, Card, Field, Picker, Tree, Tabs, Table, Toast, Banner, ProgressJob,
     EmptyState, Diagnostic, Confirmation, CommandPreview
 };
-enum class EditorWidgetIntent { Neutral, Primary, Destructive, Success, Warning };
+enum class EditorWidgetIntent { Neutral, Primary, Secondary, Destructive, Success, Warning };
 enum class EditorWidgetVisualState { Normal, Hover, Focused, Pressed, Disabled, Loading, Error };
 
 struct EditorWidgetDescriptor {
@@ -52,6 +52,16 @@ struct EditorWidgetSnapshot {
     bool keyboard_reachable = false;
     bool controller_reachable = false;
     bool has_canvas_alternative = false;
+    float scale = 1.0F;
+    float minimum_hit_target = 40.0F;
+    float icon_size = 20.0F;
+    float content_padding = 8.0F;
+};
+
+struct EditorWidgetRenderResult {
+    EditorWidgetSnapshot snapshot;
+    bool rendered = false;
+    bool activated = false;
 };
 
 struct EditorWidgetAccessibilityIssue {
@@ -60,7 +70,9 @@ struct EditorWidgetAccessibilityIssue {
     std::string message;
 };
 
-EditorWidgetSnapshot resolveEditorWidgetState(const EditorWidgetDescriptor& descriptor);
+EditorWidgetSnapshot resolveEditorWidgetState(const EditorWidgetDescriptor& descriptor, float scale = 1.0F);
+EditorWidgetRenderResult renderEditorWidget(const EditorWidgetDescriptor& descriptor, float scale = 1.0F,
+                                            float progress = 0.0F);
 std::vector<EditorWidgetDescriptor> buildEditorWidgetStateMatrix();
 std::vector<EditorWidgetAccessibilityIssue> auditEditorWidgetAccessibility(
     const std::vector<EditorWidgetDescriptor>& descriptors);

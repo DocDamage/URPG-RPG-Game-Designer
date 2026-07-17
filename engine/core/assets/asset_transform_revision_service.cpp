@@ -711,16 +711,17 @@ AssetAudioSourceInspectionResult AssetTransformRevisionService::inspectAudioTrim
     const AssetPromotionManifest& source) const {
     AssetTransformRevisionResult eligibility;
     if (!isEligibleSource(source, &eligibility)) {
-        return {false, eligibility.code, eligibility.message};
+        return {false, eligibility.code, eligibility.message, {}, 0, 0, 0, 0, {}, 0, 0, {}};
     }
     const auto sourcePath = std::filesystem::path(source.promotedPath);
     if (!std::filesystem::is_regular_file(sourcePath)) {
-        return {false, "asset_transform_source_payload_missing", "The promoted source payload is missing."};
+        return {false, "asset_transform_source_payload_missing", "The promoted source payload is missing.",
+                {}, 0, 0, 0, 0, {}, 0, 0, {}};
     }
     Pcm16Wav wav;
     std::string wavError;
     if (!readPcm16Wav(sourcePath, &wav, &wavError)) {
-        return {false, "asset_transform_audio_decode_unsupported", wavError};
+        return {false, "asset_transform_audio_decode_unsupported", wavError, {}, 0, 0, 0, 0, {}, 0, 0, {}};
     }
     const auto frameCount = static_cast<uint64_t>(wav.samples.size() / wav.channels);
     constexpr size_t waveformBucketCount = 128;

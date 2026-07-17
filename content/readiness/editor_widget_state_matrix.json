@@ -1,0 +1,23 @@
+{
+  "schema": "urpg.editor_widget_state_matrix.v1",
+  "updatedAt": "2026-07-16",
+  "requiredStates": ["normal","hover","focused","pressed","disabled","loading","error"],
+  "supportedScales": [0.5,1.0,1.5,2.0,3.0],
+  "families": [
+    {"id":"button","intents":["primary","secondary","destructive"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"segmented_control","intents":["neutral"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"card","intents":["neutral"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"field","intents":["neutral"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"picker","intents":["neutral"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"tree","intents":["neutral"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"tabs","intents":["neutral"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"table","intents":["neutral"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"toast","intents":["success","warning"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"banner","intents":["warning"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"progress_job","intents":["neutral"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"empty_state","intents":["neutral"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"diagnostic","intents":["warning"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"confirmation","intents":["destructive"],"contract":"implemented","rendererAdoption":"partial"},
+    {"id":"command_preview","intents":["neutral"],"contract":"implemented","rendererAdoption":"partial"}
+  ]
+}

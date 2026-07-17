@@ -65,6 +65,17 @@ TEST_CASE("LocalAssetCatalog loads compatible metadata and streams paged matches
     REQUIRE(catalog.metadata().assetCount == 2);
     REQUIRE(catalog.metadata().roots.size() == 1);
 
+    urpg::assets::LocalAssetCatalogQuery incrementalQuery;
+    incrementalQuery.text = "hero";
+    auto incremental = catalog.beginQuery(incrementalQuery);
+    REQUIRE_FALSE(incremental.advance(1));
+    REQUIRE(incremental.progress().processedRecords == 1);
+    REQUIRE(incremental.result().records.size() == 1);
+    while (!incremental.advance(1)) {
+    }
+    REQUIRE(incremental.progress().complete);
+    REQUIRE(incremental.result().totalMatches == 1);
+
     urpg::assets::LocalAssetCatalogQuery heroQuery;
     heroQuery.text = "HERO";
     heroQuery.pageSize = 1;

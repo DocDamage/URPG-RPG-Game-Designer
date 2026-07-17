@@ -132,7 +132,7 @@ TEST_CASE("ExportPackager stages promoted asset bundles from governed manifests"
       "original_relative_path": "sprites/missing.svg",
       "promoted_relative_path": "prototype_sprites/missing_placeholder.svg",
       "category": "prototype_sprite",
-      "status": "promoted"
+      "status": "normalized"
     },
     {
       "original_relative_path": "sprites/not_promoted.svg",
@@ -173,6 +173,7 @@ TEST_CASE("ExportPackager stages promoted asset bundles from governed manifests"
     config.compressAssets = true;
     config.assetBundleManifestRootOverride = manifestRoot.string();
     config.normalizedAssetRootOverride = normalizedRoot.string();
+    config.promotedAssetBundleIds = {"BND-900"};
 
     const auto result = packager.runExport(config);
 
@@ -258,6 +259,7 @@ TEST_CASE("ExportPackager fails closed when promoted asset source license eviden
     config.outputDir = (base / "out").string();
     config.assetBundleManifestRootOverride = manifestRoot.string();
     config.normalizedAssetRootOverride = normalizedRoot.string();
+    config.promotedAssetBundleIds = {"BND-910"};
 
     const auto result = packager.runExport(config);
 
@@ -303,6 +305,7 @@ TEST_CASE("ExportPackager fails closed on disallowed promoted asset legal dispos
     config.outputDir = (base / "out").string();
     config.assetBundleManifestRootOverride = manifestRoot.string();
     config.normalizedAssetRootOverride = normalizedRoot.string();
+    config.promotedAssetBundleIds = {"BND-911"};
 
     const auto result = packager.runExport(config);
 
@@ -323,6 +326,7 @@ TEST_CASE("ExportPackager stages canonical release-required visual intake lane",
     config.target = ExportTarget::Windows_x64;
     config.outputDir = (base / "out").string();
     config.compressAssets = true;
+    config.promotedAssetBundleIds = {"BND-001"};
 
     const auto result = packager.runExport(config);
 
@@ -362,6 +366,29 @@ TEST_CASE("ExportPackager stages canonical release-required visual intake lane",
     }
 
     std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager includes promoted global bundles only by explicit safe ID",
+          "[export][packager][assets][selection]") {
+    ExportConfig unselected{};
+    unselected.target = ExportTarget::Windows_x64;
+    unselected.enableAutoAssetDiscovery = false;
+
+    const auto defaultPayloads = urpg::tools::export_packager_detail::buildBundlePayloads(unselected);
+    REQUIRE(defaultPayloads.errors.empty());
+    REQUIRE(std::none_of(defaultPayloads.payloads.begin(), defaultPayloads.payloads.end(), [](const auto& payload) {
+        return payload.path.rfind("imports/manifests/asset_bundles/", 0) == 0 ||
+               payload.path.rfind("imports/normalized/", 0) == 0;
+    }));
+
+    ExportConfig unsafe = unselected;
+    unsafe.promotedAssetBundleIds = {"../BND-001"};
+    const auto unsafePayloads = urpg::tools::export_packager_detail::buildBundlePayloads(unsafe);
+    REQUIRE(std::find(unsafePayloads.errors.begin(), unsafePayloads.errors.end(),
+                      "Selected promoted asset bundle ID is unsafe: ../BND-001") != unsafePayloads.errors.end());
+    REQUIRE(std::none_of(unsafePayloads.payloads.begin(), unsafePayloads.payloads.end(), [](const auto& payload) {
+        return payload.path.rfind("imports/manifests/asset_bundles/", 0) == 0;
+    }));
 }
 
 TEST_CASE("ExportPackager auto-discovers configured project asset roots and writes a discovery manifest",

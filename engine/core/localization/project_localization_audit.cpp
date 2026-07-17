@@ -216,7 +216,7 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
                               for (const auto& take : node["voice_takes"]) {
                                   if (!take.is_object()) continue;
                                   ProjectDialogueMediaReference reference{
-                                      entry.path(), id, stringField(take, "voice_asset_id"), captionKey};
+                                      entry.path(), id, stringField(take, "voice_asset_id"), captionKey, {}, {}, {}};
                                   reference.voice_take_locale = stringField(take, "locale");
                                   reference.voice_take_id = stringField(take, "take_id");
                                   reference.muted_alternative_asset_id = stringField(take, "muted_alternative_asset_id");
@@ -228,7 +228,7 @@ ProjectLocalizationAudit buildProjectLocalizationAudit(const std::filesystem::pa
                               }
                           } else if (!voiceAssetId.empty() || !captionKey.empty()) {
                               audit.dialogue_media_references.push_back(
-                                  {entry.path(), id, voiceAssetId, captionKey});
+                                  {entry.path(), id, voiceAssetId, captionKey, {}, {}, {}});
                           }
                           if (node.contains("choices") && node["choices"].is_array()) {
                               for (const auto& choice : node["choices"]) {

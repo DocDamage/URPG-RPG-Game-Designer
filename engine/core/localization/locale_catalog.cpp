@@ -124,12 +124,6 @@ void appendUtf8(std::string& output, char32_t value) {
     }
 }
 
-std::string encodeUtf8(const std::vector<char32_t>& values) {
-    std::string result;
-    for (const auto value : values) appendUtf8(result, value);
-    return result;
-}
-
 bool isCombining(char32_t cp) {
     return (cp >= 0x0300 && cp <= 0x036F) || (cp >= 0x0591 && cp <= 0x05BD) ||
            (cp >= 0x064B && cp <= 0x065F) || (cp >= 0xFE00 && cp <= 0xFE0F) ||

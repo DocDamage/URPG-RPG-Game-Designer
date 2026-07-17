@@ -83,6 +83,28 @@ DatabaseRecordImpactPreview DatabaseReferenceWorkspace::previewDelete(DatabaseTa
     return preview;
 }
 
+DatabaseRecordImpactPreview DatabaseReferenceWorkspace::previewRename(DatabaseTableKind kind, std::string_view id,
+                                                                      std::string_view renamed_id,
+                                                                      std::string operation_id) const {
+    DatabaseRecordImpactPreview preview;
+    const auto& table = tables_.table(kind);
+    preview.record_found = table.find(id) != nullptr;
+    preview.replacement_found = table.find(renamed_id) != nullptr;
+    if (!preview.record_found || renamed_id.empty() || id == renamed_id || preview.replacement_found) {
+        preview.code = !preview.record_found ? "database_record_missing" :
+            (renamed_id.empty() || id == renamed_id ? "database_rename_id_invalid" : "database_rename_conflict");
+        return preview;
+    }
+    const auto object_type = std::string(databaseReferenceType(kind));
+    preview.uses = index_.findUses(object_type, id).matches;
+    preview.shared_plan = project::previewProjectReferenceChange(
+        index_, {std::move(operation_id), project::ProjectReferenceChangeKind::Rename, object_type,
+                 std::string(id), std::string(renamed_id), {}});
+    preview.safe = preview.shared_plan.success && preview.shared_plan.applicable;
+    preview.code = preview.shared_plan.code;
+    return preview;
+}
+
 DatabaseRecordImpactPreview DatabaseReferenceWorkspace::previewReplace(DatabaseTableKind kind, std::string_view id,
                                                                        std::string_view replacement_id,
                                                                        std::string operation_id) const {

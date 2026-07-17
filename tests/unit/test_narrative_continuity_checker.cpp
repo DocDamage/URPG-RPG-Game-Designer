@@ -13,9 +13,18 @@ TEST_CASE("narrative continuity checker detects orphaned nodes unresolved choice
         "dialogue.start",
         "Start",
         false,
-        {{"impossible", "Impossible", "missing", {{"trust", ">=", 10}, {"trust", "<=", 5}}, {}}},
+        {{"impossible", "Impossible", "missing", {{"trust", ">=", 10}, {"trust", "<=", 5}}, {}, {}}},
+        {},
+        {},
+        0,
+        0,
+        false,
+        {},
+        0,
+        0,
+        {},
     }));
-    REQUIRE(graph.addNode({"orphan", "guide", "Guide", "", "Lost", false, {}}));
+    REQUIRE(graph.addNode({"orphan", "guide", "Guide", "", "Lost", false, {}, {}, {}, 0, 0, false, {}, 0, 0, {}}));
 
     const urpg::narrative::NarrativeContinuityChecker checker;
     const auto diagnostics = checker.check(graph, {"trust"});

@@ -20,7 +20,7 @@ std::filesystem::path makeProjectRoot() {
 
 } // namespace
 
-TEST_CASE("EditorRecoveryService keeps recovery data outside project snapshots", "[editor][recovery]") {
+TEST_CASE("EditorRecoveryService keeps recovery data outside project snapshots", "[editor][recovery][pcq506]") {
     const auto root = makeProjectRoot();
     urpg::editor::EditorRecoveryService service;
     REQUIRE(service.writeSessionMarker(root));
@@ -40,6 +40,7 @@ TEST_CASE("EditorRecoveryService keeps recovery data outside project snapshots",
     std::ifstream restoredStory(restoreRoot / "content" / "story.json");
     REQUIRE(restoredStory.good());
     REQUIRE(nlohmann::json::parse(restoredStory)["chapter"] == 2);
+    restoredStory.close();
     REQUIRE(std::filesystem::is_regular_file(restoreRoot / "content" / "abilities" / "recovery.json"));
     REQUIRE(service.clearSessionMarker(root));
     REQUIRE_FALSE(service.hasUncleanSessionMarker(root));

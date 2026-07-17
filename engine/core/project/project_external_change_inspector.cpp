@@ -35,10 +35,12 @@ ProjectExternalChangeInspection inspectProjectExternalChange(
 
     std::string observed;
     if (!readFile(baseline.document_path, observed)) {
+        std::vector<std::pair<std::filesystem::path, std::string>> readableCandidates;
         for (const auto& candidate : rename_candidates) {
             std::string candidateContent;
-            if (candidate.lexically_normal() != result.original_path && readFile(candidate, candidateContent) &&
-                candidateContent == baseline.persisted_content) {
+            if (candidate.lexically_normal() == result.original_path || !readFile(candidate, candidateContent)) continue;
+            readableCandidates.emplace_back(candidate.lexically_normal(), candidateContent);
+            if (candidateContent == baseline.persisted_content) {
                 result.success = true;
                 result.kind = ProjectExternalChangeKind::Renamed;
                 result.code = "project_external_change_renamed";
@@ -49,6 +51,27 @@ ProjectExternalChangeInspection inspectProjectExternalChange(
                                                 ProjectExternalResolution::Reload};
                 return result;
             }
+        }
+        // A caller supplies rename candidates scoped to one stable document
+        // owner. When exactly one readable candidate exists, retain rename
+        // custody even if its contents also changed so reference-impact review
+        // can block a stable-ID mutation before reload.
+        if (readableCandidates.size() == 1) {
+            const auto& [candidatePath, candidateContent] = readableCandidates.front();
+            result.success = true;
+            result.kind = ProjectExternalChangeKind::Renamed;
+            result.code = "project_external_change_renamed_modified";
+            result.observed_path = candidatePath;
+            result.observed_content = candidateContent;
+            result.has_unsaved_conflict = baseline.dirty;
+            result.available_resolutions = {ProjectExternalResolution::Compare, ProjectExternalResolution::KeepLocal};
+            if (!baseline.require_valid_json || validJson(candidateContent)) {
+                result.available_resolutions.push_back(ProjectExternalResolution::Reload);
+            } else {
+                result.diagnostics.push_back(
+                    "Renamed external JSON is malformed; reload remains unavailable until explicitly repaired.");
+            }
+            return result;
         }
         result.success = true;
         result.kind = ProjectExternalChangeKind::Deleted;

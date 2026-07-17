@@ -77,29 +77,39 @@ bool contains(const std::string& haystack, const std::string& needle) {
     return needle.empty() || haystack.find(needle) != std::string::npos;
 }
 
+LocalAssetCatalogQuery normalizeQuery(LocalAssetCatalogQuery query) {
+    query.text = normalized(std::move(query.text));
+    query.mediaKind = normalized(std::move(query.mediaKind));
+    query.extension = normalized(std::move(query.extension));
+    query.pack = normalized(std::move(query.pack));
+    query.category = normalized(std::move(query.category));
+    return query;
+}
+
 bool matches(const LocalAssetCatalogRecord& record, const LocalAssetCatalogQuery& query) {
-    const auto text = normalized(query.text);
-    if (!text.empty()) {
-        bool found = contains(record.normalizedFilename, text) || contains(record.normalizedVirtualPath, text) ||
-                     contains(record.normalizedExtension, text) || contains(record.normalizedPack, text) ||
-                     contains(record.normalizedCategory, text);
+    if (!query.text.empty()) {
+        bool found = contains(record.normalizedFilename, query.text) ||
+                     contains(record.normalizedVirtualPath, query.text) ||
+                     contains(record.normalizedExtension, query.text) ||
+                     contains(record.normalizedPack, query.text) ||
+                     contains(record.normalizedCategory, query.text);
         found = found || std::any_of(record.normalizedTags.begin(), record.normalizedTags.end(), [&](const auto& tag) {
-            return contains(tag, text);
+            return contains(tag, query.text);
         });
         if (!found) {
             return false;
         }
     }
-    if (!query.mediaKind.empty() && normalized(record.mediaKind) != normalized(query.mediaKind)) {
+    if (!query.mediaKind.empty() && normalized(record.mediaKind) != query.mediaKind) {
         return false;
     }
-    if (!query.extension.empty() && record.normalizedExtension != normalized(query.extension)) {
+    if (!query.extension.empty() && record.normalizedExtension != query.extension) {
         return false;
     }
-    if (!query.pack.empty() && !contains(record.normalizedPack, normalized(query.pack))) {
+    if (!query.pack.empty() && !contains(record.normalizedPack, query.pack)) {
         return false;
     }
-    if (!query.category.empty() && !contains(record.normalizedCategory, normalized(query.category))) {
+    if (!query.category.empty() && !contains(record.normalizedCategory, query.category)) {
         return false;
     }
     return !query.archiveOnly || !record.archiveKind.empty();
@@ -176,40 +186,105 @@ LocalAssetCatalogLoadResult LocalAssetCatalog::load(const std::filesystem::path&
 }
 
 LocalAssetCatalogPage LocalAssetCatalog::query(const LocalAssetCatalogQuery& query) const {
-    LocalAssetCatalogPage page;
     if (!loaded_) {
+        LocalAssetCatalogPage page;
         page.diagnostics.push_back("catalog_not_loaded");
         return page;
     }
-    const size_t pageSize = std::clamp(query.pageSize, size_t{1}, kMaximumPageSize);
+    auto job = beginQuery(query);
+    while (!job.advance(8192)) {
+    }
+    return job.result();
+}
+
+LocalAssetCatalogQueryJob LocalAssetCatalog::beginQuery(const LocalAssetCatalogQuery& query) const {
+    if (!loaded_) {
+        return {};
+    }
+    return LocalAssetCatalogQueryJob(catalogDirectory_, metadata_, query);
+}
+
+LocalAssetCatalogQueryJob::LocalAssetCatalogQueryJob(std::filesystem::path catalogDirectory,
+                                                     LocalAssetCatalogMetadata metadata,
+                                                     LocalAssetCatalogQuery query)
+    : catalogDirectory_(std::move(catalogDirectory)), metadata_(std::move(metadata)), query_(std::move(query)),
+      normalizedQuery_(normalizeQuery(query_)) {
+    normalizedQuery_.pageSize = std::clamp(normalizedQuery_.pageSize, size_t{1}, kMaximumPageSize);
     for (const auto& shard : metadata_.shards) {
-        std::ifstream input(catalogDirectory_ / shard.path);
-        if (!input) {
-            addDiagnostic(page.diagnostics, "catalog_shard_unreadable: " + shard.path + remediation());
+        expectedRecords_ += shard.recordCount;
+    }
+    if (metadata_.shards.empty()) {
+        complete_ = true;
+    }
+}
+
+bool LocalAssetCatalogQueryJob::advance(const size_t maximumRecords) {
+    if (complete_ || cancelled_) {
+        return true;
+    }
+    if (maximumRecords == 0) {
+        return false;
+    }
+
+    size_t consumed = 0;
+    while (consumed < maximumRecords && shardIndex_ < metadata_.shards.size()) {
+        const auto& shard = metadata_.shards[shardIndex_];
+        if (!input_.is_open()) {
+            input_.open(catalogDirectory_ / shard.path);
+            shardLineNumber_ = 0;
+            if (!input_) {
+                addDiagnostic(page_.diagnostics, "catalog_shard_unreadable: " + shard.path + remediation());
+                processedRecords_ += shard.recordCount;
+                input_.clear();
+                ++shardIndex_;
+                continue;
+            }
+        }
+
+        std::string line;
+        if (!std::getline(input_, line)) {
+            input_.close();
+            ++shardIndex_;
             continue;
         }
-        std::string line;
-        size_t lineNumber = 0;
-        while (std::getline(input, line)) {
-            ++lineNumber;
-            const auto value = nlohmann::json::parse(line, nullptr, false);
-            if (value.is_discarded() || !value.is_object()) {
-                addDiagnostic(page.diagnostics, "catalog_record_invalid: " + shard.path + ":" +
-                                                  std::to_string(lineNumber));
-                continue;
-            }
-            const auto record = parseRecord(value);
-            if (!matches(record, query)) {
-                continue;
-            }
-            ++page.totalMatches;
-            if (page.totalMatches > query.offset && page.records.size() < pageSize) {
-                page.records.push_back(record);
-            }
+
+        ++consumed;
+        ++processedRecords_;
+        ++shardLineNumber_;
+        const auto value = nlohmann::json::parse(line, nullptr, false);
+        if (value.is_discarded() || !value.is_object()) {
+            addDiagnostic(page_.diagnostics, "catalog_record_invalid: " + shard.path + ":" +
+                                                  std::to_string(shardLineNumber_));
+            continue;
+        }
+        const auto record = parseRecord(value);
+        if (!matches(record, normalizedQuery_)) {
+            continue;
+        }
+        ++page_.totalMatches;
+        if (page_.totalMatches > normalizedQuery_.offset &&
+            page_.records.size() < normalizedQuery_.pageSize) {
+            page_.records.push_back(record);
         }
     }
-    page.hasMore = page.totalMatches > query.offset + page.records.size();
-    return page;
+
+    if (shardIndex_ >= metadata_.shards.size()) {
+        complete_ = true;
+        page_.hasMore = page_.totalMatches > normalizedQuery_.offset + page_.records.size();
+    }
+    return complete_;
+}
+
+void LocalAssetCatalogQueryJob::cancel() {
+    cancelled_ = true;
+    complete_ = true;
+    if (input_.is_open()) {
+        input_.close();
+    }
+}
+
+LocalAssetCatalogQueryProgress LocalAssetCatalogQueryJob::progress() const {
+    return {processedRecords_, expectedRecords_, complete_, cancelled_};
 }
 
 } // namespace urpg::assets

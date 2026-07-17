@@ -24,9 +24,10 @@ ProjectOperationResult ProjectOperationCoordinator::execute(const ProjectOperati
     for (const auto& participant : request.participants) {
         if (participant.owner_id.empty() || !owners.insert(participant.owner_id).second ||
             !participant.current_revision || !participant.prepare || !participant.commit || !participant.rollback ||
-            !participant.inverse) {
+            !participant.inverse || (journal_ && !participant.recovery_snapshot)) {
             return {false, false, "project_operation_participant_invalid",
-                    "Every project operation participant requires one unique owner and complete lifecycle callbacks.", {}};
+                    "Every project operation participant requires one unique owner, complete lifecycle callbacks, and "
+                    "a recovery snapshot when durable journaling is enabled.", {}};
         }
         if (participant.current_revision() != participant.expected_source_revision) {
             return {false, false, "project_operation_source_revision_mismatch",
@@ -42,6 +43,21 @@ ProjectOperationResult ProjectOperationCoordinator::execute(const ProjectOperati
         }
     }
 
+    if (journal_) {
+        std::vector<ProjectOperationOwnerSnapshot> snapshots;
+        snapshots.reserve(request.participants.size());
+        for (const auto& participant : request.participants) {
+            snapshots.push_back({participant.owner_id, participant.current_revision(),
+                                 participant.recovery_snapshot(), participant.document_path});
+        }
+        std::string diagnostic;
+        if (!journal_->recordPrepared(request.operation_id, request.label, std::move(snapshots), &diagnostic)) {
+            return {false, false, "project_operation_journal_prepare_failed",
+                    diagnostic.empty() ? "The durable project-operation journal rejected preparation." : diagnostic,
+                    {}};
+        }
+    }
+
     std::vector<size_t> committed;
     for (size_t index = 0; index < request.participants.size(); ++index) {
         std::string diagnostic;
@@ -49,6 +65,19 @@ ProjectOperationResult ProjectOperationCoordinator::execute(const ProjectOperati
             request.participants[index].rollback();
             for (auto committedIndex = committed.rbegin(); committedIndex != committed.rend(); ++committedIndex) {
                 request.participants[*committedIndex].rollback();
+            }
+            if (journal_) {
+                std::vector<ProjectOperationOwnerSnapshot> snapshots;
+                snapshots.reserve(request.participants.size());
+                for (const auto& participant : request.participants) {
+                    snapshots.push_back({participant.owner_id, participant.current_revision(),
+                                         participant.recovery_snapshot(), participant.document_path});
+                }
+                std::string journalDiagnostic;
+                if (!journal_->recordAborted(request.operation_id, request.label, std::move(snapshots),
+                                             &journalDiagnostic) && diagnostic.empty()) {
+                    diagnostic = journalDiagnostic;
+                }
             }
             return {false, false, "project_operation_commit_failed",
                     diagnostic.empty() ? "A domain owner failed commit; all admitted owners were rolled back." : diagnostic, {}};
@@ -62,6 +91,35 @@ ProjectOperationResult ProjectOperationCoordinator::execute(const ProjectOperati
     for (const auto& participant : request.participants) {
         result.committed_owners.push_back(participant.owner_id);
         postRevisions.push_back(participant.current_revision());
+    }
+    if (journal_) {
+        std::vector<ProjectOperationOwnerSnapshot> snapshots;
+        snapshots.reserve(request.participants.size());
+        for (const auto& participant : request.participants) {
+            snapshots.push_back({participant.owner_id, participant.current_revision(),
+                                 participant.recovery_snapshot(), participant.document_path});
+        }
+        std::string diagnostic;
+        if (!journal_->acknowledgeCommitted(request.operation_id, request.label, std::move(snapshots), &diagnostic)) {
+            for (auto index = request.participants.size(); index > 0; --index) {
+                request.participants[index - 1].rollback();
+            }
+            std::vector<ProjectOperationOwnerSnapshot> rolledBackSnapshots;
+            rolledBackSnapshots.reserve(request.participants.size());
+            for (const auto& participant : request.participants) {
+                rolledBackSnapshots.push_back({participant.owner_id, participant.current_revision(),
+                                               participant.recovery_snapshot(), participant.document_path});
+            }
+            std::string abortDiagnostic;
+            if (!journal_->recordAborted(request.operation_id, request.label, std::move(rolledBackSnapshots),
+                                         &abortDiagnostic)) {
+                diagnostic += diagnostic.empty() ? abortDiagnostic : "; " + abortDiagnostic;
+            }
+            return {false, false, "project_operation_journal_commit_failed",
+                    diagnostic.empty() ? "The durable project-operation journal could not acknowledge commit."
+                                       : diagnostic,
+                    {}};
+        }
     }
     history_.push_back({request.operation_id, request.label, request.participants, std::move(postRevisions), result});
     redo_.clear();

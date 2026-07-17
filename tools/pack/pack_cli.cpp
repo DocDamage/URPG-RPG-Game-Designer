@@ -41,6 +41,7 @@ struct CliOptions {
     std::string notarizationMode;
     std::string releaseArtifactPolicy;
     std::string ownerApproval;
+    std::vector<std::string> promotedAssetBundleIds;
     std::vector<std::filesystem::path> assetDiscoveryRoots;
 };
 
@@ -98,6 +99,7 @@ void printHelp() {
               << "  --owner-approval <id>         Release profile owner approval reference\n"
               << "  --manifest-root <path>        Manifest root for bundled assets\n"
               << "  --normalized-root <path>      Normalized asset root for bundled assets\n"
+              << "  --asset-bundle-id <id>        Selected promoted bundle ID; may be repeated\n"
               << "  --asset-root <path>           Asset discovery root; may be repeated\n"
               << "  --no-auto-discovery           Disable default asset discovery roots\n"
               << "  --no-compress                 Disable asset bundle compression\n"
@@ -214,6 +216,12 @@ ParseResult parseArgs(int argc, char** argv) {
                 return result;
             }
             result.options.normalizedAssetRootOverride = value;
+        } else if (arg == "--asset-bundle-id") {
+            if (!readValue(argc, argv, i, value, result.error)) {
+                result.ok = false;
+                return result;
+            }
+            result.options.promotedAssetBundleIds.push_back(value);
         } else if (arg == "--asset-root") {
             if (!readValue(argc, argv, i, value, result.error)) {
                 result.ok = false;
@@ -261,6 +269,7 @@ ExportConfig toExportConfig(const CliOptions& options) {
     config.releaseProfile.ownerApproval = options.ownerApproval;
     config.assetBundleManifestRootOverride = options.assetBundleManifestRootOverride.string();
     config.normalizedAssetRootOverride = options.normalizedAssetRootOverride.string();
+    config.promotedAssetBundleIds = options.promotedAssetBundleIds;
     for (const auto& root : options.assetDiscoveryRoots) {
         config.assetDiscoveryRoots.push_back(root.string());
     }

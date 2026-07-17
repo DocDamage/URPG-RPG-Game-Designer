@@ -1,0 +1,10 @@
+{
+  "schema":"urpg.menu_authoring_qualification_matrix.v1",
+  "viewports":["1280x720","1920x1080","2560x1440","steam_deck_1280x800","switch_handheld_1280x720"],
+  "states":["default","focus","pressed","disabled","selected","loading","error"],
+  "transitionPolicies":["replace","queue","blend","reduced_motion"],
+  "focusInputs":["keyboard","generic_controller","touch_like"],
+  "bindingSources":["project","runtime","save","localization"],
+  "requiredAudits":["focus_trap","unreachable_focus","safe_area","text_overflow","missing_binding","missing_localization"],
+  "templates":["title","save_load","settings","pause","inventory","equipment","quest_log","dialogue","shop","battle_hud","results"]
+}

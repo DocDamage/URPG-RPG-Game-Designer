@@ -1,6 +1,7 @@
 #include "engine/core/project/project_reference_index.h"
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <set>
 #include <tuple>
@@ -9,6 +10,25 @@
 
 namespace urpg::project {
 namespace {
+
+std::string normalizedSearchText(std::string_view value) {
+    std::string result(value);
+    std::transform(result.begin(), result.end(), result.begin(), [](const unsigned char character) {
+        return static_cast<char>(std::tolower(character));
+    });
+    return result;
+}
+
+std::set<std::string> searchGrams(const std::string& text) {
+    std::set<std::string> grams;
+    for (size_t length = 1; length <= 3; ++length) {
+        if (text.size() < length) break;
+        for (size_t offset = 0; offset + length <= text.size(); ++offset) {
+            grams.insert(text.substr(offset, length));
+        }
+    }
+    return grams;
+}
 
 auto edgeKey(const ProjectReferenceEdge& edge) {
     return std::tie(edge.document_path, edge.source_type, edge.source_id, edge.reference_type, edge.target_type,
@@ -183,10 +203,95 @@ ProjectReferenceQueryResult ProjectReferenceIndex::explainInclusion(const std::s
     return result;
 }
 
+std::vector<ProjectReferenceObjectSearchResult> ProjectReferenceIndex::searchObjects(
+    const std::string_view query, const size_t limit) const {
+    std::vector<ProjectReferenceObjectSearchResult> result;
+    if (limit == 0) {
+        last_query_candidate_count_ = 0;
+        return result;
+    }
+    const auto needle = normalizedSearchText(query);
+    std::vector<size_t> candidates;
+    if (needle.empty()) {
+        candidates.resize(searchable_objects_.size());
+        for (size_t index = 0; index < candidates.size(); ++index) candidates[index] = index;
+    } else {
+        const auto gramLength = std::min<size_t>(3, needle.size());
+        bool first = true;
+        for (size_t offset = 0; offset + gramLength <= needle.size(); ++offset) {
+            const auto posting = object_search_postings_.find(needle.substr(offset, gramLength));
+            if (posting == object_search_postings_.end()) {
+                last_query_candidate_count_ = 0;
+                return result;
+            }
+            if (first) {
+                candidates = posting->second;
+                first = false;
+            } else {
+                std::vector<size_t> intersection;
+                std::set_intersection(candidates.begin(), candidates.end(), posting->second.begin(),
+                                      posting->second.end(), std::back_inserter(intersection));
+                candidates = std::move(intersection);
+            }
+            if (candidates.empty()) break;
+        }
+    }
+    last_query_candidate_count_ = candidates.size();
+    for (const auto index : candidates) {
+        const auto& object = searchable_objects_[index];
+        const auto text = normalizedSearchText(object.object_type + " " + object.object_id);
+        if (!needle.empty() && text.find(needle) == std::string::npos) continue;
+        result.push_back(object);
+        if (result.size() == limit) break;
+    }
+    return result;
+}
+
+ProjectReferenceNavigationTarget ProjectReferenceIndex::navigationTarget(
+    const std::string_view object_type, const std::string_view object_id) const {
+    ProjectReferenceNavigationTarget result;
+    result.object_type = object_type;
+    result.object_id = object_id;
+    if (object_type.empty() || object_id.empty()) {
+        result.code = "project_reference_navigation_object_missing";
+        return result;
+    }
+    const auto candidates = searchObjects(object_id, 100);
+    const auto object = std::find_if(candidates.begin(), candidates.end(), [&](const auto& candidate) {
+        return candidate.object_type == object_type && candidate.object_id == object_id;
+    });
+    if (object == candidates.end()) {
+        result.code = "project_reference_navigation_object_not_indexed";
+        return result;
+    }
+    result.document_path = object->document_path;
+    result.local_id = object->local_id;
+    const auto type = std::string(object_type);
+    if (type == "asset") result.panel_id = "assets";
+    else if (type == "plugin" || type == "plugin_package" || type == "mod" || type == "script") {
+        result.panel_id = "mod";
+    } else if (type == "ability" || type == "effect" || type == "gameplay_feature" || type == "recipe") {
+        result.panel_id = "ability";
+    } else if (type == "character") {
+        result.panel_id = "character_creator";
+    } else if (type == "map" || type == "grid_part_instance" || type == "grid_part" || type == "event" ||
+               type == "dialogue" || type == "dialogue_node" || type == "quest" || type == "quest_node") {
+        result.panel_id = "spatial_authoring";
+    } else {
+        result.panel_id = "diagnostics";
+    }
+    result.success = true;
+    result.code = "project_reference_navigation_ready";
+    return result;
+}
+
 void ProjectReferenceIndex::rebuildQueryIndexes() {
     inbound_index_.clear();
     outbound_index_.clear();
     package_inclusion_index_.clear();
+    searchable_objects_.clear();
+    object_search_postings_.clear();
+    std::map<ObjectKey, ProjectReferenceObjectSearchResult> objects;
     for (size_t index = 0; index < edges_.size(); ++index) {
         const auto& edge = edges_[index];
         inbound_index_[{edge.target_type, edge.target_id}].push_back(index);
@@ -194,6 +299,34 @@ void ProjectReferenceIndex::rebuildQueryIndexes() {
         if (edge.package_inclusion) {
             package_inclusion_index_[{edge.target_type, edge.target_id}].push_back(index);
         }
+        const auto addObject = [&](const std::string& type, const std::string& id) -> ProjectReferenceObjectSearchResult& {
+            auto [found, inserted] = objects.try_emplace({type, id});
+            if (inserted) {
+                found->second.object_type = type;
+                found->second.object_id = id;
+                found->second.document_path = edge.document_path;
+                found->second.local_id = edge.local_id;
+            } else if (!edge.document_path.empty() &&
+                       (found->second.document_path.empty() || edge.document_path < found->second.document_path)) {
+                found->second.document_path = edge.document_path;
+                found->second.local_id = edge.local_id;
+            }
+            return found->second;
+        };
+        (void)addObject(edge.source_type, edge.source_id);
+        auto& target = addObject(edge.target_type, edge.target_id);
+        target.package_included = target.package_included || edge.package_inclusion;
+    }
+    searchable_objects_.reserve(objects.size());
+    for (auto& [key, object] : objects) {
+        object.inbound_count = inbound_index_[key].size();
+        object.outbound_count = outbound_index_[key].size();
+        searchable_objects_.push_back(std::move(object));
+    }
+    for (size_t index = 0; index < searchable_objects_.size(); ++index) {
+        const auto& object = searchable_objects_[index];
+        const auto text = normalizedSearchText(object.object_type + " " + object.object_id);
+        for (const auto& gram : searchGrams(text)) object_search_postings_[gram].push_back(index);
     }
     last_query_candidate_count_ = 0;
     ++index_revision_;
@@ -281,6 +414,138 @@ ProjectReferenceExtractionResult extractPerspective2DReferences(const std::files
     }
     result.success = true;
     result.code = "project_reference_perspective_document_extracted";
+    return result;
+}
+
+ProjectReferenceExtractionResult extractGridPartReferences(const std::filesystem::path& document_path,
+                                                           const nlohmann::json& document) {
+    ProjectReferenceExtractionResult result;
+    result.document.document_path = document_path;
+    if (!document.is_object()) {
+        result.code = "project_reference_grid_part_invalid";
+        return result;
+    }
+    const auto mapId = document.value("mapId", "");
+    if (mapId.empty() || !document.value("parts", nlohmann::json::array()).is_array()) {
+        result.code = "project_reference_grid_part_invalid";
+        return result;
+    }
+    for (const auto& part : document["parts"]) {
+        if (!part.is_object()) continue;
+        const auto instanceId = part.value("instanceId", "");
+        const auto sourceId = mapId + "/" + instanceId;
+        addEdge(result.document, "grid_part_instance", sourceId, "grid_part", part.value("partId", ""),
+                "placed_part", "part:" + instanceId, true);
+        const auto properties = part.value("properties", nlohmann::json::object());
+        if (!properties.is_object()) continue;
+        for (const auto& [key, value] : properties.items()) {
+            if (value.is_string() && (key.ends_with("asset_id") || key.ends_with("assetId"))) {
+                addEdge(result.document, "grid_part_instance", sourceId, "asset", value.get<std::string>(),
+                        "part_property_asset", "part:" + instanceId + ".property:" + key, true);
+            }
+        }
+    }
+    result.success = true;
+    result.code = "project_reference_grid_part_extracted";
+    return result;
+}
+
+ProjectReferenceExtractionResult extractAbilityReferences(const std::filesystem::path& document_path,
+                                                          const nlohmann::json& document) {
+    ProjectReferenceExtractionResult result;
+    result.document.document_path = document_path;
+    if (!document.is_object()) {
+        result.code = "project_reference_ability_invalid";
+        return result;
+    }
+    const auto abilityId = document.value("ability_id", "");
+    if (abilityId.empty()) {
+        result.code = "project_reference_ability_invalid";
+        return result;
+    }
+    addEdge(result.document, "ability", abilityId, "effect", document.value("effect_id", ""),
+            "ability_effect", "effect", true);
+    result.success = true;
+    result.code = "project_reference_ability_extracted";
+    return result;
+}
+
+ProjectReferenceExtractionResult extractCharacterReferences(const std::filesystem::path& document_path,
+                                                            const nlohmann::json& document) {
+    ProjectReferenceExtractionResult result;
+    result.document.document_path = document_path;
+    if (!document.is_object() || document.value("schemaVersion", "") != "1.0.0") {
+        result.code = "project_reference_character_invalid";
+        return result;
+    }
+    const auto characterId = document_path.stem().string();
+    for (const auto& [field, target] : std::vector<std::pair<const char*, const char*>>{
+             {"classId", "class"}, {"speciesId", "species"}, {"originId", "origin"},
+             {"backgroundId", "background"}}) {
+        addEdge(result.document, "character", characterId, target, document.value(field, ""),
+                std::string("character_") + field, field);
+    }
+    for (const auto* field : {"portraitAssetId", "fieldSpriteAssetId", "battleSpriteAssetId"}) {
+        addEdge(result.document, "character", characterId, "asset", document.value(field, ""),
+                "character_appearance_asset", field, true);
+    }
+    const auto layers = document.value("layeredPartAssetIds", nlohmann::json::array());
+    if (!layers.is_array()) {
+        result.code = "project_reference_character_invalid";
+        return result;
+    }
+    for (std::size_t index = 0; index < layers.size(); ++index) {
+        const auto& value = layers[index];
+        if (value.is_string()) addEdge(result.document, "character", characterId, "asset", value.get<std::string>(),
+                                      "character_layer_asset", "layer:" + std::to_string(index), true);
+    }
+    result.success = true;
+    result.code = "project_reference_character_extracted";
+    return result;
+}
+
+ProjectReferenceExtractionResult extractVendorReferences(const std::filesystem::path& document_path,
+                                                         const nlohmann::json& document) {
+    ProjectReferenceExtractionResult result;
+    result.document.document_path = document_path;
+    if (!document.is_object() || !document.value("vendors", nlohmann::json::array()).is_array()) {
+        result.code = "project_reference_vendor_invalid";
+        return result;
+    }
+    for (const auto& vendor : document["vendors"]) {
+        if (!vendor.is_object()) continue;
+        const auto vendorId = vendor.value("id", "");
+        const auto stockRows = vendor.value("stock", nlohmann::json::array());
+        if (vendorId.empty() || !stockRows.is_array()) continue;
+        for (std::size_t index = 0; index < stockRows.size(); ++index) {
+            const auto& stock = stockRows[index];
+            if (!stock.is_object()) continue;
+            const auto local = "stock:" + std::to_string(index);
+            addEdge(result.document, "vendor", vendorId, "item", stock.value("item_id", ""),
+                    "vendor_stock_item", local, true);
+            for (const auto& flag : stock.value("required_flags", nlohmann::json::array())) {
+                if (flag.is_string()) addEdge(result.document, "vendor", vendorId, "flag", flag.get<std::string>(),
+                                              "vendor_required_flag", local);
+            }
+        }
+    }
+    result.success = true;
+    result.code = "project_reference_vendor_extracted";
+    return result;
+}
+
+ProjectReferenceExtractionResult extractAudioMixReferences(const std::filesystem::path& document_path,
+                                                           const nlohmann::json& document) {
+    ProjectReferenceExtractionResult result;
+    result.document.document_path = document_path;
+    if (!document.is_object()) {
+        result.code = "project_reference_audio_mix_invalid";
+        return result;
+    }
+    addEdge(result.document, "audio_mix", "project", "asset", document.value("encounter_preview_asset_id", ""),
+            "audio_preview_asset", "encounter_preview", true);
+    result.success = true;
+    result.code = "project_reference_audio_mix_extracted";
     return result;
 }
 
@@ -625,6 +890,45 @@ ProjectReferenceExtractionResult extractModManifestReferences(const std::filesys
     return result;
 }
 
+ProjectReferenceExtractionResult extractProjectDocumentReferences(const std::filesystem::path& project_root,
+                                                                   const std::filesystem::path& document_path,
+                                                                   const nlohmann::json& document) {
+    const auto normalized = document_path.lexically_normal();
+    const auto relative = normalized.lexically_relative(project_root.lexically_normal()).generic_string();
+    if (relative.starts_with("content/maps/") && relative.ends_with(".p2d.json")) {
+        return extractPerspective2DReferences(normalized, document);
+    }
+    if (relative.starts_with("content/maps/") && relative.ends_with(".grid.json")) {
+        return extractGridPartReferences(normalized, document);
+    }
+    if (relative.starts_with("content/abilities/") && relative.ends_with(".json")) {
+        return extractAbilityReferences(normalized, document);
+    }
+    if (relative.starts_with("content/characters/") && relative.ends_with(".json")) {
+        return extractCharacterReferences(normalized, document);
+    }
+    if (relative.starts_with("content/vendors/") && relative.ends_with(".json")) {
+        return extractVendorReferences(normalized, document);
+    }
+    if (relative == "config/audio_mix_presets.json") return extractAudioMixReferences(normalized, document);
+    if (relative.starts_with("content/dialogues/") && relative.ends_with(".json")) {
+        return extractDialogueReferences(normalized, document);
+    }
+    if (relative.starts_with("content/quests/") && relative.ends_with(".json")) {
+        return extractQuestReferences(normalized, document);
+    }
+    if (relative == "content/ui/menus.json") return extractMenuReferences(normalized, document);
+    if (relative == "content/database.json") return extractDatabaseReferences(normalized, document);
+    if (relative == "content/gameplay/recipes.json") return extractGameplayRecipeReferences(normalized, document);
+    if (relative == "content/compat/mz_plugin_lock.json") return extractMzPluginLockReferences(normalized, document);
+    if (relative.starts_with("mods/") &&
+        (normalized.filename() == "mod.json" || normalized.filename() == "manifest.json")) {
+        return extractModManifestReferences(normalized, document);
+    }
+    return {false, "project_reference_document_kind_unsupported", {normalized, {}},
+            {"No stable-reference extractor owns this document path."}};
+}
+
 ProjectReferenceBuildResult buildProjectReferenceIndex(const std::filesystem::path& project_root) {
     ProjectReferenceBuildResult result;
     if (project_root.empty()) {
@@ -632,7 +936,8 @@ ProjectReferenceBuildResult buildProjectReferenceIndex(const std::filesystem::pa
         return result;
     }
 
-    enum class DocumentKind { Perspective2D, Dialogue, Quest, Menu, Database, Gameplay, MzPluginLock, ModManifest };
+    enum class DocumentKind { GridPart, Perspective2D, Ability, Character, Dialogue, Quest, Vendor, AudioMix,
+                              Menu, Database, Gameplay, MzPluginLock, ModManifest };
     std::vector<std::pair<std::filesystem::path, DocumentKind>> candidates;
     const auto addFile = [&](const std::filesystem::path& path, const DocumentKind kind) {
         std::error_code error;
@@ -656,8 +961,17 @@ ProjectReferenceBuildResult buildProjectReferenceIndex(const std::filesystem::pa
     };
 
     addJsonDirectory(project_root / "content" / "maps", DocumentKind::Perspective2D, true);
+    addJsonDirectory(project_root / "content" / "maps", DocumentKind::GridPart);
+    std::erase_if(candidates, [](const auto& candidate) {
+        return candidate.second == DocumentKind::GridPart &&
+               !candidate.first.filename().string().ends_with(".grid.json");
+    });
+    addJsonDirectory(project_root / "content" / "abilities", DocumentKind::Ability);
+    addJsonDirectory(project_root / "content" / "characters", DocumentKind::Character);
     addJsonDirectory(project_root / "content" / "dialogues", DocumentKind::Dialogue);
     addJsonDirectory(project_root / "content" / "quests", DocumentKind::Quest);
+    addJsonDirectory(project_root / "content" / "vendors", DocumentKind::Vendor);
+    addFile(project_root / "config" / "audio_mix_presets.json", DocumentKind::AudioMix);
     addFile(project_root / "content" / "ui" / "menus.json", DocumentKind::Menu);
     addFile(project_root / "content" / "database.json", DocumentKind::Database);
     addFile(project_root / "content" / "gameplay" / "recipes.json", DocumentKind::Gameplay);
@@ -694,9 +1008,14 @@ ProjectReferenceBuildResult buildProjectReferenceIndex(const std::filesystem::pa
         }
         ProjectReferenceExtractionResult extracted;
         switch (kind) {
+        case DocumentKind::GridPart: extracted = extractGridPartReferences(path, document); break;
         case DocumentKind::Perspective2D: extracted = extractPerspective2DReferences(path, document); break;
+        case DocumentKind::Ability: extracted = extractAbilityReferences(path, document); break;
+        case DocumentKind::Character: extracted = extractCharacterReferences(path, document); break;
         case DocumentKind::Dialogue: extracted = extractDialogueReferences(path, document); break;
         case DocumentKind::Quest: extracted = extractQuestReferences(path, document); break;
+        case DocumentKind::Vendor: extracted = extractVendorReferences(path, document); break;
+        case DocumentKind::AudioMix: extracted = extractAudioMixReferences(path, document); break;
         case DocumentKind::Menu: extracted = extractMenuReferences(path, document); break;
         case DocumentKind::Database: extracted = extractDatabaseReferences(path, document); break;
         case DocumentKind::Gameplay: extracted = extractGameplayRecipeReferences(path, document); break;

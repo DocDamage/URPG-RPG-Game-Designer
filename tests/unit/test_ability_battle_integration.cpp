@@ -61,6 +61,7 @@ TEST_CASE("AuthoredAbilityAsset serializes all schema-required fields", "[abilit
     json j;
     to_json(j, asset);
 
+    REQUIRE(j["schema"] == "urpg.ability.v1");
     REQUIRE(j.contains("ability_id"));
     REQUIRE(j.contains("cooldown_seconds"));
     REQUIRE(j.contains("mp_cost"));

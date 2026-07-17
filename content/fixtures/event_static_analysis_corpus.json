@@ -1,0 +1,7 @@
+{
+  "schema": "urpg.event_static_analysis_corpus.v1",
+  "cases": [
+    {"id":"all_requested_hazards","expectedCodes":["unsafe_parallel_mutation","tight_loop","infinite_loop","localization_id_missing","voice_caption_missing","transfer_dead_end","missing_switch_reference","event_command_unreachable","likely_autorun_softlock"]},
+    {"id":"localized_bounded_return_loop","expectedCodes":[]}
+  ]
+}

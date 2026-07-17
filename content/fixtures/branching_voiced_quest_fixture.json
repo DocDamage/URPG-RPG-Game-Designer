@@ -1,0 +1,27 @@
+{
+  "schema_version": "urpg.branching_quest.v2",
+  "id": "quest.echoes",
+  "dialogue_graph": {
+    "schema_version": "urpg.dialogue_graph.v1",
+    "start_node_id": "start",
+    "nodes": [
+      {"id":"accept","speaker_id":"guide","speaker_name":"Guide","localization_key":"dialogue.guide.accept","text_preview":"Find the echo.","ending":true,"choices":[],"voice_asset_id":"voice.guide.accept","caption_localization_key":"caption.guide.accept","canvas_x":320,"canvas_y":0,"has_canvas_position":true},
+      {"id":"decline","speaker_id":"guide","speaker_name":"Guide","localization_key":"dialogue.guide.decline","text_preview":"Another time.","ending":true,"choices":[],"voice_asset_id":"voice.guide.decline","caption_localization_key":"caption.guide.decline","canvas_x":320,"canvas_y":180,"has_canvas_position":true},
+      {"id":"start","speaker_id":"guide","speaker_name":"Guide","localization_key":"dialogue.guide.start","text_preview":"Will you help?","ending":false,"choices":[{"id":"accept_quest","label":"Yes","target_node_id":"accept","conditions":[{"key":"reputation","op":">=","value":2}],"effects":[{"key":"quest_started","delta":1}],"localization_key":"choice.quest.accept"},{"id":"decline_quest","label":"No","target_node_id":"decline","conditions":[],"effects":[],"localization_key":"choice.quest.decline"}],"voice_asset_id":"voice.guide.start","caption_localization_key":"caption.guide.start"}
+    ]
+  },
+  "quest_graph": {
+    "schema_version":"urpg.quest_objective_graph.v1","quest_id":"quest.echoes","title":"Echoes in Stone",
+    "nodes":[
+      {"id":"start","type":"start","title":"Start","objective_id":"","localization_key":"quest.echoes.start","conditions":[],"rewards":[]},
+      {"id":"find_echo","type":"objective","title":"Find the echo","objective_id":"find_echo","localization_key":"quest.echoes.find","conditions":[{"type":"dialogue_choice","id":"accept_quest","value":1}],"rewards":[{"type":"item","id":"echo_shard","value":1}],"canvas_x":200,"canvas_y":120,"has_canvas_position":true},
+      {"id":"complete","type":"complete","title":"Complete","objective_id":"","localization_key":"quest.echoes.complete","conditions":[],"rewards":[{"type":"gold","id":"gold","value":250}]}
+    ],
+    "links":[{"from":"start","to":"find_echo"},{"from":"find_echo","to":"complete"}]
+  },
+  "package_closure": {
+    "localization_keys":["caption.guide.accept","caption.guide.decline","caption.guide.start","choice.quest.accept","choice.quest.decline","dialogue.guide.accept","dialogue.guide.decline","dialogue.guide.start","quest.echoes.complete","quest.echoes.find","quest.echoes.start"],
+    "voice_asset_ids":["voice.guide.accept","voice.guide.decline","voice.guide.start"],
+    "quest_ids":["quest.echoes"]
+  }
+}

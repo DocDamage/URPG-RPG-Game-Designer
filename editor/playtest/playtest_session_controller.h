@@ -2,13 +2,16 @@
 
 #include "engine/core/platform/process_runner.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
+#include "engine/core/diagnostics/redacted_support_bundle.h"
 
 #include <chrono>
 #include <cstddef>
 #include <filesystem>
 #include <ios>
 #include <string>
+#include <optional>
 #include <vector>
+#include <cstdint>
 
 namespace urpg::editor {
 
@@ -48,6 +51,7 @@ class PlaytestSessionController {
                        const std::string& perspective_2d_draft, const std::string& selected_object_id = {});
     bool teleportHere(const std::string& map_id, int32_t tile_x, int32_t tile_y,
                       const std::string& selected_object_id = {});
+    bool hotReloadCurrentMap(const std::string& grid_draft, const std::string& perspective_2d_draft);
     void returnToDiagnostic(const diagnostics::RuntimeDiagnostic& diagnostic, int32_t tile_x, int32_t tile_y);
     void update();
     void returnToEditor();
@@ -73,10 +77,14 @@ class PlaytestSessionController {
     // project/session paths, process output, diagnostic messages/source paths,
     // and runtime object IDs.
     PlaytestSupportBundleResult writeRedactedSupportBundle() const;
+    diagnostics::RedactedSupportBundlePreview previewRedactedSupportBundle() const;
+    PlaytestSupportBundleResult writeApprovedSupportBundle(
+        const diagnostics::RedactedSupportBundlePreview& preview, bool approved) const;
 
   private:
     std::filesystem::path resolveRuntimeExecutable() const;
     void pollDiagnostics();
+    void pollCommandAcknowledgements();
     void cleanStaleOverlays(const std::filesystem::path& project_root) const;
 
     std::filesystem::path runtime_executable_;
@@ -93,6 +101,10 @@ class PlaytestSessionController {
     std::string message_;
     std::vector<diagnostics::RuntimeDiagnostic> diagnostics_;
     std::streamoff diagnostics_offset_ = 0;
+    uint64_t next_command_id_ = 1;
+    uint64_t map_reload_revision_ = 0;
+    std::optional<uint64_t> pending_map_reload_command_id_;
+    std::streamoff acknowledgement_offset_ = 0;
 };
 
 } // namespace urpg::editor

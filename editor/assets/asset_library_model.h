@@ -159,6 +159,7 @@ class AssetLibraryModel {
     void setPromotionCatalogDetailLimitBytes(std::uintmax_t limit_bytes);
     bool loadExternalCatalog(const std::filesystem::path& catalog_directory, std::string* error_message = nullptr);
     void setExternalCatalogQuery(urpg::assets::LocalAssetCatalogQuery query);
+    bool advanceExternalCatalogQuery(size_t maximum_records = 1000);
     void selectExternalCatalogAsset(std::string asset_id);
     nlohmann::json refreshExternalCatalog(ConversionCommandExecutor executor = {});
     nlohmann::json openSelectedExternalCatalogSource(ConversionCommandExecutor executor = {});
@@ -272,6 +273,7 @@ class AssetLibraryModel {
     urpg::assets::AssetCleanupPlan cleanup_plan_;
     urpg::assets::LocalAssetCatalog external_catalog_;
     urpg::assets::LocalAssetCatalogQuery external_catalog_query_;
+    std::optional<urpg::assets::LocalAssetCatalogQueryJob> external_catalog_query_job_;
     std::filesystem::path external_catalog_directory_;
     std::string selected_external_catalog_asset_id_;
     std::vector<std::string> external_catalog_diagnostics_;

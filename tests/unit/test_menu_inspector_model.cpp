@@ -79,6 +79,7 @@ TEST_CASE("Menu inspector model builds rows and summary from active scene",
     sidePane.id = "side_pane";
     sidePane.displayName = "Side";
     sidePane.isVisible = true;
+    sidePane.layout.x = mainPane.layout.x + mainPane.layout.width;
 
     urpg::MenuCommandMeta duplicateItem = itemCommand;
     duplicateItem.label = "Item Duplicate";

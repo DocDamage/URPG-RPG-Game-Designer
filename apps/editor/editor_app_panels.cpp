@@ -15,6 +15,7 @@ std::vector<std::string> editorAppRegisteredNestedPanelFactoryIds() {
     std::vector<std::string> ids = {
         "compat_report",
         "event_authority",
+        "event_trace",
         "battle_inspector",
         "menu_inspector",
         "menu_preview",

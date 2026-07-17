@@ -1,0 +1,25 @@
+{
+  "schema":"urpg.product_completion_wave_gap_matrix.v1",
+  "wave":"F",
+  "authority":"docs/superpowers/plans/2026-07-15-product-completion-nintendo-quality-and-ardy-plan.md",
+  "executionPlan":"docs/superpowers/plans/2026-07-16-product-completion-batched-finish-plan.md",
+  "sourceCommit":"ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
+  "auditedAt":"2026-07-17",
+  "summary":{"required":14,"proved":8,"partial":1,"missing":0,"external":5},
+  "entries":[
+    {"requirementId":"ARDY-000","classification":"proved","existingProof":["the one-page use-case admission records the only plausible bounded use cases and an explicit deferral because no admitted character, rig, skeletal lane, baseline, owner, or legal approval exists"],"missingProof":[]},
+    {"requirementId":"ARDY-001","classification":"external","existingProof":["the preliminary engineering inventory separates repository code, checkpoints, gated Llama access, dependencies, datasets, output rights, notices, and the no-package boundary"],"missingProof":["obtain signed legal review for the exact intended pilot and terms before any use"],"externalDependencies":["qualified legal reviewer and signed redistribution decision"]},
+    {"requirementId":"ARDY-002","classification":"partial","existingProof":["the external-workstation manifest records the reference environment, exact checkpoint revision, forbidden repository custody, and activation requirements","no tokens, weights, SDKs, datasets, or workstation paths are present in the product"],"missingProof":["provision an admitted workstation and pin exact OS, Python, CUDA, PyTorch, compiler, ARDY commit, checkpoint hashes, and dependency lock"]},
+    {"requirementId":"ARDY-003","classification":"proved","existingProof":["the recorded defer decision closes the conditional MotionClipDocument row without inventing a skeletal 3D product lane"],"missingProof":[]},
+    {"requirementId":"ARDY-004","classification":"proved","existingProof":["the recorded defer decision closes the conditional NPZ converter and retarget/bake row; no runtime reader or vendor coupling was added"],"missingProof":[]},
+    {"requirementId":"ARDY-005","classification":"proved","existingProof":["the recorded defer decision closes conditional skeletal preview work because no approved rig, mesh/skin, or skeletal runtime path exists"],"missingProof":[]},
+    {"requirementId":"ARDY-006","classification":"proved","existingProof":["the recorded defer decision closes human motion review because no admitted generated artifact exists and no unsafe auto-repair path was added"],"missingProof":[]},
+    {"requirementId":"ARDY-007","classification":"proved","existingProof":["the recorded defer decision closes the three-case pilot because no admitted rig/output workflow or valid manual baseline exists; no ROI is claimed"],"missingProof":[]},
+    {"requirementId":"ARDY-008","classification":"proved","existingProof":["the governed decision is defer, with false admission gates and explicit absence from editor startup, authoring, runtime, and packages"],"missingProof":[]},
+    {"requirementId":"ARDY-009","classification":"proved","existingProof":["the optional 2D experiment is explicitly deferred because no accepted licensed motion exists; native sprite/timeline work remains authoritative"],"missingProof":[]},
+    {"requirementId":"PCQ-900","classification":"external","existingProof":["the native research-plan auditor requires all four participant profiles, anonymous IDs, consent, privacy review, non-leading tasks, and deletion policy"],"missingProof":["recruit participants, approve the privacy plan, and execute consented sessions"],"externalDependencies":["representative external participants","approved human-research privacy and consent process"]},
+    {"requirementId":"PCQ-901","classification":"external","existingProof":["the journey auditor requires all ten creator routes and completion, error, assistance, time, abandonment, and confidence metrics"],"missingProof":["run and record the full journey with representative external users and severity-rank findings"],"externalDependencies":["consented external participant sessions and recordings or notes"]},
+    {"requirementId":"PCQ-902","classification":"external","existingProof":["the finding auditor requires every P0/P1 to be resolved, retested with a new user, and protected by automation"],"missingProof":["obtain real findings, implement the consolidated remediation batch, and retest with new participants"],"externalDependencies":["external findings and new-user retest cohort"]},
+    {"requirementId":"PCQ-903","classification":"external","existingProof":["the beta auditor requires opt-in diagnostics, migration and backup instructions, known issues, support owner, rollback, crash ledger, and zero unresolved data loss"],"missingProof":["run the bounded beta cohort and publish its privacy-safe report and crash/data-loss ledger"],"externalDependencies":["opt-in beta cohort","named support and release owners"]}
+  ]
+}

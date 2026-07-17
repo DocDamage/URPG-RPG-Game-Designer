@@ -3,8 +3,12 @@
 #include "editor/assets/asset_library_panel.h"
 #include "editor/diagnostics/editor_error_card.h"
 #include "editor/project/new_project_wizard_model.h"
+#include "editor/project/editor_project_session.h"
+#include "editor/project/editor_recovery_service.h"
 
 #include <algorithm>
+#include <chrono>
+#include <cmath>
 #include <string>
 #include <utility>
 #include <vector>
@@ -69,6 +73,18 @@ void MainMenuModel::setHelpTipsEnabled(bool enabled) {
     help_tips_enabled_ = enabled;
 }
 
+void MainMenuModel::setUiScale(const float scale) {
+    if (std::isfinite(scale)) ui_scale_ = std::clamp(scale, 0.5F, 3.0F);
+}
+
+void MainMenuModel::setHighContrast(const bool enabled) {
+    high_contrast_ = enabled;
+}
+
+void MainMenuModel::setReducedMotion(const bool enabled) {
+    reduced_motion_ = enabled;
+}
+
 void MainMenuModel::setAssetBrowserLayout(std::string layout) {
     if (layout != "compact_list") {
         layout = "left_collapsible_folder_tree";
@@ -83,6 +99,9 @@ void MainMenuModel::setExternalAssetLibraryRoot(std::filesystem::path root) {
 void MainMenuModel::applySettings(const urpg::settings::EditorSettings& settings) {
     onboarding_enabled_ = settings.onboarding_enabled;
     help_tips_enabled_ = settings.help_tips_enabled;
+    setUiScale(settings.accessibility.ui_scale);
+    high_contrast_ = settings.accessibility.high_contrast;
+    reduced_motion_ = settings.accessibility.reduce_motion;
     setAssetBrowserLayout(settings.asset_browser_layout);
     external_asset_library_root_ = settings.external_asset_library_root;
     last_project_ = settings.last_project;
@@ -117,6 +136,9 @@ void MainMenuModel::writeSettings(urpg::settings::EditorSettings* settings) cons
     settings->hidden_missing_projects = hidden_missing_projects_;
     settings->onboarding_enabled = onboarding_enabled_;
     settings->help_tips_enabled = help_tips_enabled_;
+    settings->accessibility.ui_scale = ui_scale_;
+    settings->accessibility.high_contrast = high_contrast_;
+    settings->accessibility.reduce_motion = reduced_motion_;
     settings->asset_browser_layout = asset_browser_layout_;
     settings->external_asset_library_root = external_asset_library_root_;
 }
@@ -166,6 +188,20 @@ void MainMenuModel::hideMissingProject(const std::string& path) {
     hidden_missing_projects_.push_back(path);
 }
 
+void MainMenuModel::setRecoveryProjects(std::vector<StartupRecoveryProject> projects) {
+    std::sort(projects.begin(), projects.end(), [](const auto& left, const auto& right) {
+        return projectPathKey(left.project_path) < projectPathKey(right.project_path);
+    });
+    projects.erase(std::unique(projects.begin(), projects.end(), [](const auto& left, const auto& right) {
+                       return projectPathKey(left.project_path) == projectPathKey(right.project_path);
+                   }), projects.end());
+    recovery_projects_ = std::move(projects);
+}
+
+void MainMenuModel::setExampleProjectAvailable(const bool available) {
+    example_project_available_ = available;
+}
+
 bool MainMenuModel::chooseNewProject() {
     route_ = onboarding_enabled_ ? "onboarding" : "template_picker";
     pending_action_ = {{"action", "new_project"}, {"route", route_}};
@@ -175,6 +211,36 @@ bool MainMenuModel::chooseNewProject() {
 void MainMenuModel::chooseOpenProjectRequest() {
     route_ = "open_project";
     pending_action_ = {{"action", "open_project_request"}, {"route", route_}};
+}
+
+bool MainMenuModel::chooseImportProject() {
+    route_ = "import_project";
+    pending_action_ = {{"action", "import_project"}, {"route", route_}};
+    return true;
+}
+
+bool MainMenuModel::chooseExamples() {
+    if (!example_project_available_) return false;
+    route_ = "examples";
+    pending_action_ = {{"action", "clone_example_project"}, {"route", route_}};
+    return true;
+}
+
+bool MainMenuModel::chooseProjectHealth(std::string path) {
+    if (path.empty()) return false;
+    route_ = "project_health";
+    pending_action_ = {{"action", "inspect_project_health"}, {"projectPath", std::move(path)}, {"route", route_}};
+    return true;
+}
+
+bool MainMenuModel::chooseRecoveryProject(std::string path) {
+    const auto found = std::find_if(recovery_projects_.begin(), recovery_projects_.end(), [&](const auto& project) {
+        return projectPathKey(project.project_path) == projectPathKey(path) && project.snapshot_count > 0;
+    });
+    if (found == recovery_projects_.end()) return false;
+    route_ = "recovery";
+    pending_action_ = {{"action", "recover_project"}, {"projectPath", std::move(path)}, {"route", route_}};
+    return true;
 }
 
 bool MainMenuModel::chooseOpenProject(std::string path) {
@@ -285,31 +351,47 @@ void MainMenuModel::refreshProjectAvailability() {
 }
 
 nlohmann::json MainMenuModel::snapshot() const {
+    auto recoveryRows = nlohmann::json::array();
+    std::size_t recoverySnapshotCount = 0;
+    for (const auto& project : recovery_projects_) {
+        recoverySnapshotCount += project.snapshot_count;
+        recoveryRows.push_back({{"projectPath", project.project_path}, {"snapshot_count", project.snapshot_count},
+                                {"unclean_session", project.unclean_session}});
+    }
+    const bool canInspectHealth = !recent_projects_.empty() || !pinned_projects_.empty() || !last_project_.empty();
     const auto startupDestinations = nlohmann::json::array({
         {{"id", "recent_projects"}, {"label", "Recent projects"}, {"available", true},
          {"route", "main_menu"}, {"item_count", recent_projects_.size()}},
         {{"id", "create"}, {"label", "Create from a template"}, {"available", true},
          {"route", onboarding_enabled_ ? "onboarding" : "template_picker"}},
         {{"id", "open"}, {"label", "Open a project"}, {"available", true}, {"route", "open_project"}},
-        {{"id", "import"}, {"label", "Import another project"}, {"available", false},
-         {"route", nullptr},
-         {"reason", "Project import is not installed in this build; asset import remains available after opening a project."}},
-        {{"id", "recovery"}, {"label", "Recover a missing project"}, {"available", !missing_projects_.empty()},
-         {"route", missing_projects_.empty() ? nlohmann::json(nullptr) : nlohmann::json("main_menu")},
-         {"item_count", missing_projects_.size()},
-         {"reason", missing_projects_.empty() ? "No missing recent or pinned projects need recovery." : "Choose Locate beside a missing project."}},
-        {{"id", "health"}, {"label", "Project health"}, {"available", false}, {"route", nullptr},
-         {"reason", "Open a project to run its health and diagnostics workspace."}},
+        {{"id", "import"}, {"label", "Import another project"}, {"available", true},
+         {"route", "import_project"},
+         {"reason", "Clone a validated project through bounded private staging before opening it."}},
+        {{"id", "recovery"}, {"label", "Recovery snapshots"}, {"available", recoverySnapshotCount > 0},
+         {"route", recoverySnapshotCount > 0 ? nlohmann::json("recovery") : nlohmann::json(nullptr)},
+         {"item_count", recoverySnapshotCount},
+         {"reason", recoverySnapshotCount == 0 ? "No private recovery snapshots were found for recent projects."
+                                                : "Restore a private snapshot to a separate project folder."}},
+        {{"id", "health"}, {"label", "Pre-open project health"}, {"available", canInspectHealth},
+         {"route", canInspectHealth ? nlohmann::json("project_health") : nlohmann::json(nullptr)},
+         {"reason", canInspectHealth ? "Inspect project identity and manifest readiness without opening it."
+                                      : "Add or open a recent project before running pre-open health."}},
         {{"id", "templates"}, {"label", "Certified templates"}, {"available", true},
          {"route", onboarding_enabled_ ? "onboarding" : "template_picker"}},
-        {{"id", "examples"}, {"label", "Example projects"}, {"available", false}, {"route", nullptr},
-         {"reason", "No qualified example-project bundle is installed in this build."}},
+        {{"id", "examples"}, {"label", "Example projects"}, {"available", example_project_available_},
+         {"route", example_project_available_ ? nlohmann::json("examples") : nlohmann::json(nullptr)},
+         {"reason", example_project_available_ ? "Clone the qualified creator vertical slice into a writable project folder."
+                                                : "No qualified example-project bundle was found in this build."}},
     });
     return {
         {"surface", "main_menu"},
         {"route", route_},
         {"onboarding_enabled", onboarding_enabled_},
         {"help_tips_enabled", help_tips_enabled_},
+        {"ui_scale", ui_scale_},
+        {"high_contrast", high_contrast_},
+        {"reduced_motion", reduced_motion_},
         {"asset_browser_layout", asset_browser_layout_},
         {"external_asset_library_root", external_asset_library_root_.generic_string()},
         {"settings",
@@ -317,6 +399,9 @@ nlohmann::json MainMenuModel::snapshot() const {
              {"onboarding_enabled", onboarding_enabled_},
              {"help_tips_enabled", help_tips_enabled_},
              {"asset_browser_layout", asset_browser_layout_},
+             {"ui_scale", ui_scale_},
+             {"high_contrast", high_contrast_},
+             {"reduced_motion", reduced_motion_},
          }},
         {"commands",
          {
@@ -329,6 +414,7 @@ nlohmann::json MainMenuModel::snapshot() const {
         {"recent_projects", projectRows(recent_projects_)},
         {"pinned_projects", projectRows(pinned_projects_)},
         {"missing_projects", missingRows(missing_projects_)},
+        {"recovery_projects", std::move(recoveryRows)},
         {"hidden_missing_projects", hidden_missing_projects_},
         {"pending_missing_project", pending_missing_project_},
         {"startup_destinations", startupDestinations},
@@ -343,6 +429,42 @@ void MainMenuPanel::bindModel(MainMenuModel* model) {
 void MainMenuPanel::bindWizard(NewProjectWizardModel* wizard) {
     wizard_ = wizard;
     wizard_inputs_initialized_ = false;
+}
+
+void MainMenuPanel::bindProjectServices(EditorProjectSession* session,
+                                        EditorRecoveryService* recovery_service) {
+    project_session_ = session;
+    recovery_service_ = recovery_service;
+    refreshStartupRecovery();
+}
+
+void MainMenuPanel::bindExampleProjectRoot(std::filesystem::path root) {
+    example_project_root_ = std::move(root);
+    if (model_) model_->setExampleProjectAvailable(!example_project_root_.empty());
+}
+
+void MainMenuPanel::refreshStartupRecovery() {
+    if (!model_ || !recovery_service_) return;
+    const auto snapshot = model_->snapshot();
+    std::vector<std::string> paths;
+    const auto appendRows = [&](const char* field) {
+        for (const auto& row : snapshot.value(field, nlohmann::json::array())) {
+            const auto path = row.value("path", "");
+            if (!path.empty() && !containsProject(paths, path)) paths.push_back(path);
+        }
+    };
+    appendRows("recent_projects");
+    appendRows("pinned_projects");
+    const auto last = snapshot["commands"]["continue_last_project"].value("projectPath", "");
+    if (!last.empty() && !containsProject(paths, last)) paths.push_back(last);
+    std::vector<StartupRecoveryProject> projects;
+    for (const auto& path : paths) {
+        const auto snapshots = recovery_service_->listSnapshots(path);
+        if (!snapshots.empty()) {
+            projects.push_back({path, snapshots.size(), recovery_service_->hasUncleanSessionMarker(path)});
+        }
+    }
+    model_->setRecoveryProjects(std::move(projects));
 }
 
 void MainMenuPanel::setAccessibleOpenProjectPath(std::string path) {
@@ -413,7 +535,12 @@ void MainMenuPanel::render() {
     };
 #ifdef URPG_IMGUI_ENABLED
     if (ImGui::GetCurrentContext() != nullptr) {
-        ImGui::SetNextWindowSize(ImVec2(680.0f, 520.0f), ImGuiCond_FirstUseEver);
+        const auto display = ImGui::GetIO().DisplaySize;
+        const auto scale = model_->uiScale();
+        ImGui::SetNextWindowSize(
+            ImVec2(std::min(680.0F * scale, std::max(160.0F, display.x - 24.0F * scale)),
+                   std::min(520.0F * scale, std::max(120.0F, display.y - 24.0F * scale))),
+            ImGuiCond_FirstUseEver);
         if (ImGui::Begin("URPG Maker")) {
             const auto modelSnapshot = snapshot_["model"];
             const auto folderPickerAvailability = pickerAvailability;
@@ -438,6 +565,16 @@ void MainMenuPanel::render() {
                 if (ImGui::Checkbox("Help Tips", &helpTips)) {
                     model_->setHelpTipsEnabled(helpTips);
                 }
+                float uiScale = modelSnapshot.value("ui_scale", 1.0F);
+                if (ImGui::SliderFloat("UI Scale", &uiScale, 0.5F, 3.0F, "%.2fx",
+                                       ImGuiSliderFlags_AlwaysClamp)) {
+                    model_->setUiScale(uiScale);
+                }
+                ImGui::TextDisabled("Scale range: 50%% to 300%%. Changes apply to fonts and layout immediately.");
+                bool highContrast = modelSnapshot.value("high_contrast", false);
+                if (ImGui::Checkbox("High Contrast", &highContrast)) model_->setHighContrast(highContrast);
+                bool reducedMotion = modelSnapshot.value("reduced_motion", false);
+                if (ImGui::Checkbox("Reduced Motion", &reducedMotion)) model_->setReducedMotion(reducedMotion);
                 const bool compact = modelSnapshot.value("asset_browser_layout", "") == "compact_list";
                 if (ImGui::RadioButton("Left Browser Drawer", !compact)) {
                     model_->setAssetBrowserLayout("left_collapsible_folder_tree");
@@ -452,6 +589,140 @@ void MainMenuPanel::render() {
                 ImGui::TextDisabled("This local user setting is never written into a project or release manifest.");
                 if (ImGui::Button("Back", ImVec2(-1.0f, 0.0f))) {
                     settings_inputs_initialized_ = false;
+                    model_->returnToMainMenu();
+                }
+                ImGui::End();
+                return;
+            }
+            if (model_->route() == "project_health") {
+                const auto pending = modelSnapshot.value("pending_action", nlohmann::json::object());
+                const auto projectPath = pending.value("projectPath", "");
+                ImGui::TextUnformatted("Pre-open Project Health");
+                ImGui::Separator();
+                if (!project_session_) {
+                    ImGui::TextWrapped("Project health is unavailable because no project-session validator is bound.");
+                } else {
+                    const auto inspection = project_session_->inspectProject(projectPath);
+                    ImGui::TextWrapped("Project: %s", projectPath.c_str());
+                    ImGui::Text("Status: %s", inspection.result.success ? "ready" : "blocked");
+                    ImGui::TextWrapped("%s", inspection.result.message.c_str());
+                    if (inspection.result.success) {
+                        ImGui::BulletText("ID: %s", inspection.identity.project_id.c_str());
+                        ImGui::BulletText("Name: %s", inspection.identity.display_name.c_str());
+                        ImGui::BulletText("Schema: %s", inspection.identity.schema_version.c_str());
+                        if (ImGui::Button("Open Validated Project", ImVec2(-1.0F, 0.0F))) {
+                            (void)model_->chooseOpenProject(projectPath);
+                        }
+                    }
+                }
+                if (ImGui::Button("Back", ImVec2(-1.0F, 0.0F))) model_->returnToMainMenu();
+                ImGui::End();
+                return;
+            }
+            if (model_->route() == "recovery") {
+                const auto pending = modelSnapshot.value("pending_action", nlohmann::json::object());
+                const auto projectPath = std::filesystem::path(pending.value("projectPath", ""));
+                ImGui::TextUnformatted("Recover Project");
+                ImGui::Separator();
+                ImGui::TextWrapped("Saved project: %s", projectPath.generic_string().c_str());
+                if (!recovery_service_) {
+                    ImGui::TextWrapped("Recovery is unavailable because no recovery service is bound.");
+                } else {
+                    const auto snapshots = recovery_service_->listSnapshots(projectPath);
+                    ImGui::Text("Validated private snapshots: %zu", snapshots.size());
+                    if (!snapshots.empty()) {
+                        ImGui::BulletText("Latest ID: %s", snapshots.front().snapshot_id.c_str());
+                        ImGui::BulletText("Dirty documents: %zu", snapshots.front().dirty_document_ids.size());
+                        if (ImGui::Button("Restore Latest to a New Folder", ImVec2(-1.0F, 0.0F))) {
+                            const auto stamp = std::chrono::duration_cast<std::chrono::seconds>(
+                                                   std::chrono::system_clock::now().time_since_epoch()).count();
+                            const auto destination = projectPath.parent_path() /
+                                (projectPath.filename().string() + "_recovered_" + std::to_string(stamp));
+                            if (recovery_service_->restoreRecoverySnapshot(snapshots.front().path, destination)) {
+                                restored_recovery_path_ = destination;
+                                recovery_route_status_ = "Restored the snapshot to a separate project folder.";
+                            } else {
+                                recovery_route_status_ =
+                                    "Recovery failed; the saved project and snapshot were unchanged.";
+                            }
+                        }
+                    }
+                }
+                if (!recovery_route_status_.empty()) ImGui::TextWrapped("%s", recovery_route_status_.c_str());
+                if (!restored_recovery_path_.empty() &&
+                    ImGui::Button("Open Recovered Project", ImVec2(-1.0F, 0.0F))) {
+                    (void)model_->chooseOpenProject(restored_recovery_path_.generic_string());
+                }
+                if (ImGui::Button("Back", ImVec2(-1.0F, 0.0F))) model_->returnToMainMenu();
+                ImGui::End();
+                return;
+            }
+            if (model_->route() == "import_project" || model_->route() == "examples") {
+                const bool exampleRoute = model_->route() == "examples";
+                if (exampleRoute && !import_job_ && import_source_ != example_project_root_.generic_string()) {
+                    import_source_ = example_project_root_.generic_string();
+                    import_project_id_ = "lantern_of_the_willow_copy";
+                    import_project_name_ = "Lantern of the Willow (Copy)";
+                }
+                if (import_job_ && !import_job_->snapshot().complete) (void)import_job_->advance(64);
+                ImGui::TextUnformatted(exampleRoute ? "Example Projects" : "Import Project");
+                ImGui::Separator();
+                if (exampleRoute) {
+                    ImGui::TextWrapped("Qualified example: Lantern of the Willow creator vertical slice");
+                    ImGui::TextDisabled("The bundled example is never edited in place; cloning publishes a new project only after validation.");
+                } else {
+                    ImGui::InputText("Source project folder", &import_source_);
+                    if (!folderPickerAvailability.available) ImGui::BeginDisabled();
+                    if (ImGui::Button("Browse for Source", ImVec2(-1.0F, 0.0F))) {
+                        if (const auto selected = pickFolder("import_project_source")) {
+                            import_source_ = selected->generic_string();
+                        }
+                    }
+                    if (!folderPickerAvailability.available) ImGui::EndDisabled();
+                }
+                ImGui::InputText("New project ID", &import_project_id_);
+                ImGui::InputText("New project name", &import_project_name_);
+                ImGui::InputText("Destination project folder", &import_destination_);
+                if (!folderPickerAvailability.available) ImGui::BeginDisabled();
+                if (ImGui::Button("Choose Destination Parent", ImVec2(-1.0F, 0.0F))) {
+                    if (const auto selected = pickFolder("import_project_destination")) {
+                        import_destination_ = (*selected / import_project_id_).generic_string();
+                    }
+                }
+                if (!folderPickerAvailability.available) ImGui::EndDisabled();
+
+                if (!import_job_) {
+                    const bool ready = !import_source_.empty() && !import_destination_.empty() &&
+                                       !import_project_id_.empty() && !import_project_name_.empty();
+                    if (!ready) ImGui::BeginDisabled();
+                    if (ImGui::Button(exampleRoute ? "Clone Example" : "Start Import", ImVec2(-1.0F, 0.0F))) {
+                        import_job_ = std::make_unique<ProjectImportJob>(ProjectImportRequest{
+                            import_source_, import_destination_, import_project_id_, import_project_name_});
+                        import_status_ = "Import queued; discovery and copying run in bounded frame slices.";
+                    }
+                    if (!ready) ImGui::EndDisabled();
+                } else {
+                    const auto importSnapshot = import_job_->snapshot();
+                    ImGui::Text("Stage: %s", projectImportJobStateName(importSnapshot.state));
+                    ImGui::Text("Discovered: %zu  Copied: %zu", importSnapshot.discovered_items,
+                                importSnapshot.copied_items);
+                    ImGui::TextWrapped("%s", importSnapshot.message.c_str());
+                    if (!importSnapshot.complete && ImGui::Button("Cancel Import", ImVec2(-1.0F, 0.0F))) {
+                        import_job_->cancel();
+                    }
+                    if (importSnapshot.success &&
+                        ImGui::Button("Open Imported Project", ImVec2(-1.0F, 0.0F))) {
+                        (void)model_->chooseOpenProject(importSnapshot.destination_root.generic_string());
+                    }
+                    if (importSnapshot.complete && !importSnapshot.success &&
+                        ImGui::Button("Reset Import", ImVec2(-1.0F, 0.0F))) {
+                        import_job_.reset();
+                    }
+                }
+                if (!import_status_.empty()) ImGui::TextWrapped("%s", import_status_.c_str());
+                if (ImGui::Button("Back", ImVec2(-1.0F, 0.0F))) {
+                    if (import_job_ && !import_job_->snapshot().complete) import_job_->cancel();
+                    import_job_.reset();
                     model_->returnToMainMenu();
                 }
                 ImGui::End();
@@ -640,7 +911,13 @@ void MainMenuPanel::render() {
             ImGui::TextUnformatted("URPG Maker");
             ImGui::Separator();
             const auto pending = modelSnapshot.value("pending_action", nlohmann::json::object());
-            if (pending.value("success", true) == false && pending.contains("message")) {
+            if (pending.value("success", true) == false && pending.contains("error_card")) {
+                if (const auto card = editorErrorCardFromJson(pending["error_card"]); card.has_value()) {
+                    const auto action = renderEditorErrorCard(*card);
+                    if (action.go_to_requested) (void)model_->beginLocateMissingProject(card->affected_object);
+                    if (action.retry_requested) (void)model_->chooseOpenProject(card->affected_object);
+                }
+            } else if (pending.value("success", true) == false && pending.contains("message")) {
                 ImGui::TextWrapped("%s", pending.value("message", "Unable to open the requested project.").c_str());
             }
             const auto continueCommand = modelSnapshot["commands"]["continue_last_project"];
@@ -659,6 +936,15 @@ void MainMenuPanel::render() {
             if (ImGui::Button("Open Project", ImVec2(-1.0f, 0.0f))) {
                 model_->chooseOpenProjectRequest();
             }
+            if (ImGui::Button("Import Project", ImVec2(-1.0f, 0.0f))) {
+                (void)model_->chooseImportProject();
+            }
+            const bool examplesAvailable = modelSnapshot["startup_destinations"][7].value("available", false);
+            if (!examplesAvailable) ImGui::BeginDisabled();
+            if (ImGui::Button("Clone Example Project", ImVec2(-1.0f, 0.0f)) && examplesAvailable) {
+                (void)model_->chooseExamples();
+            }
+            if (!examplesAvailable) ImGui::EndDisabled();
             if (ImGui::Button("Settings", ImVec2(-1.0f, 0.0f))) {
                 model_->chooseSettings();
             }
@@ -674,11 +960,33 @@ void MainMenuPanel::render() {
                 }
             }
             ImGui::SeparatorText("Recent Projects");
-            for (const auto& row : modelSnapshot.value("recent_projects", nlohmann::json::array())) {
-                const auto path = row.value("path", "");
-                if (ImGui::Selectable(path.c_str())) {
-                    (void)model_->chooseOpenProject(path);
+            if (ImGui::SmallButton("Refresh Recovery Snapshots")) refreshStartupRecovery();
+            const auto recoveryRows = modelSnapshot.value("recovery_projects", nlohmann::json::array());
+            if (ImGui::BeginTable("RecentProjectRoutes", 3, ImGuiTableFlags_SizingStretchProp)) {
+                ImGui::TableSetupColumn("Project", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("Health", ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableSetupColumn("Recovery", ImGuiTableColumnFlags_WidthFixed);
+                for (const auto& row : modelSnapshot.value("recent_projects", nlohmann::json::array())) {
+                    const auto path = row.value("path", "");
+                    const auto hasRecovery = std::any_of(
+                        recoveryRows.begin(), recoveryRows.end(),
+                        [&](const auto& recovery) {
+                            return projectPathKey(recovery.value("projectPath", "")) == projectPathKey(path) &&
+                                   recovery.value("snapshot_count", std::size_t{0}) > 0;
+                        });
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    if (ImGui::Selectable((path + "##open").c_str())) (void)model_->chooseOpenProject(path);
+                    ImGui::TableNextColumn();
+                    if (ImGui::SmallButton(("Inspect##" + path).c_str())) (void)model_->chooseProjectHealth(path);
+                    ImGui::TableNextColumn();
+                    if (!hasRecovery) ImGui::BeginDisabled();
+                    if (ImGui::SmallButton(("Restore##" + path).c_str()) && hasRecovery) {
+                        (void)model_->chooseRecoveryProject(path);
+                    }
+                    if (!hasRecovery) ImGui::EndDisabled();
                 }
+                ImGui::EndTable();
             }
             ImGui::SeparatorText("Pinned");
             for (const auto& row : modelSnapshot.value("pinned_projects", nlohmann::json::array())) {

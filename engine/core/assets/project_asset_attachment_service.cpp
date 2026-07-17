@@ -143,6 +143,12 @@ bool isSha256Hex(const std::string& value) {
 }
 
 struct DerivedTilesetCandidate {
+    DerivedTilesetCandidate() = default;
+    DerivedTilesetCandidate(bool isValid, std::string diagnosticCode, std::string diagnosticMessage,
+                            std::vector<std::string> candidateDiagnostics = {})
+        : valid(isValid), code(std::move(diagnosticCode)), message(std::move(diagnosticMessage)),
+          diagnostics(std::move(candidateDiagnostics)) {}
+
     bool valid = false;
     std::string code;
     std::string message;
@@ -512,7 +518,9 @@ DerivedAttachmentReferencePreparation prepareDerivedAttachmentReference(
     if (error) {
         return {false, false, markerPath, "asset_derived_attachment_reference_path_invalid", error.message()};
     }
-    const auto staged = siblingWorkingPath(markerPath, "stage-derived-reference");
+    auto temporaryKey = hashText(operationId + markerPath.generic_string());
+    if (temporaryKey.size() > 12U) temporaryKey.resize(12U);
+    const auto staged = markerPath.parent_path() / (".ref-" + temporaryKey + ".tmp");
     if (!writeJsonFile(staged, marker)) {
         removeIfPresent(staged);
         return {false, false, markerPath, "asset_derived_attachment_reference_write_failed",
@@ -743,6 +751,19 @@ ProjectAssetAttachmentResult ProjectAssetAttachmentService::attachDerivedRevisio
     const auto candidate = derivedAttachmentCandidate(request.source, request.derivedManifestPath);
     if (!candidate.valid) {
         return blocked(candidate.code, candidate.message, candidate.diagnostics);
+    }
+    const bool hasOperationReceipt = std::filesystem::is_regular_file(
+        operationReceiptPath(request.projectRoot, request.operationId));
+    if (!hasOperationReceipt) {
+        const auto plan = planPromotedAssetAttachment(candidate.manifest, request.projectRoot, request.conflictPolicy);
+        if (!plan.valid) {
+            return blocked(plan.diagnostics.empty() ? "asset_attachment_plan_invalid" : plan.diagnostics.front(),
+                           "Derived asset attachment plan is no longer valid.", plan.diagnostics);
+        }
+        if (request.expectedSourceRevision.empty() || request.expectedSourceRevision != plan.sourceRevision) {
+            return blocked("asset_attachment_source_revision_mismatch",
+                           "The reviewed derived asset changed. Refresh the plan before attaching it.");
+        }
     }
     const auto reference = prepareDerivedAttachmentReference(candidate.manifest, request.derivedManifestPath,
                                                               request.projectRoot, request.operationId);

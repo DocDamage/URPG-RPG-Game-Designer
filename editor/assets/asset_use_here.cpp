@@ -90,4 +90,26 @@ AssetUseHereContract resolveAssetUseHere(const AssetUseHereRequest& request) {
     return result;
 }
 
+urpg::project::ProjectOperationResult AssetUseHereService::assign(
+    const AssetUseHereContract& contract, const AssetUseInputPath input_path, std::string operation_id,
+    urpg::project::ProjectOperationParticipant owner) {
+    if (!contract.compatible || !contract.undo) {
+        return {false, false, "asset_use_here_not_ready",
+                contract.disabled_reason.empty() ? "Asset assignment is not ready." : contract.disabled_reason, {}};
+    }
+    const bool inputSupported = input_path == AssetUseInputPath::Picker
+                                    ? contract.picker
+                                    : input_path == AssetUseInputPath::DragDrop ? contract.drag_drop : contract.keyboard;
+    if (!inputSupported) {
+        return {false, false, "asset_use_input_unsupported",
+                "The requested input path is not supported by this destination.", {}};
+    }
+    if (operation_id.empty() || owner.owner_id.empty() || owner.document_path.empty() || !owner.current_revision ||
+        !owner.prepare || !owner.commit || !owner.rollback || !owner.inverse) {
+        return {false, false, "asset_use_owner_invalid",
+                "The destination must provide a complete authoritative mutation owner.", {}};
+    }
+    return coordinator_.execute({std::move(operation_id), contract.action_label, {std::move(owner)}});
+}
+
 } // namespace urpg::editor

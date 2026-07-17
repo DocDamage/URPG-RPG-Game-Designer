@@ -191,6 +191,10 @@ class LevelBuilderWorkspace : public EditorPanel {
     void SetActiveMode(WorkflowMode mode);
     bool ActivateToolbarAction(const std::string& action_id);
     bool SelectGridPart(const std::string& part_id);
+    urpg::map::GridPartPrefabUpdatePreview PreviewSmartPrefabUpdate(
+        const urpg::map::GridPartSmartPrefab& next) const;
+    bool ApplySmartPrefabUpdate(const urpg::map::GridPartPrefabUpdatePreview& reviewed_preview);
+    bool DetachSmartPrefabGroup(const std::string& group_id);
     bool RouteCanvasHover(float screen_x, float screen_y);
     bool RouteCanvasPrimaryAction(float screen_x, float screen_y);
     bool RouteCanvasSecondaryAction(float screen_x, float screen_y);

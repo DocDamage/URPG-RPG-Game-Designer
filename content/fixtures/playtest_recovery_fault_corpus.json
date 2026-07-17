@@ -1,0 +1,14 @@
+{
+  "schema":"urpg.playtest_recovery_fault_corpus.v1",
+  "primaryDocuments":["project","map","event","dialogue","quest","database","localization","audio","script","plugin","ui","input","save"],
+  "otherClasses":["asset_job","external_change_conflict","layout_or_settings","migration","package"],
+  "adapters":[
+    {"class":"primary_document","owner":"EditorRecoveryService","source":"editor/project/editor_recovery_service.cpp"},
+    {"class":"asset_job","owner":"AssetTransformRevisionService","source":"engine/core/assets/asset_transform_revision_service.cpp"},
+    {"class":"external_change_conflict","owner":"ProjectExternalChangeCoordinator","source":"editor/project/project_external_change_coordinator.cpp"},
+    {"class":"layout_or_settings","owner":"AppSettingsStore","source":"engine/core/settings/app_settings_store.cpp"},
+    {"class":"migration","owner":"ProjectDocumentMigrationService","source":"engine/core/project/project_document_migration_service.cpp"},
+    {"class":"package","owner":"FailedPackageRecovery","source":"engine/core/tools/failed_package_recovery.cpp"}
+  ],
+  "guarantees":["project_data_preserved","explicit_user_choice","validated_checkpoint_only","failed_package_sources_preserved"]
+}

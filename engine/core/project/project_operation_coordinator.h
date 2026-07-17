@@ -1,6 +1,9 @@
 #pragma once
 
+#include "engine/core/project/project_operation_journal.h"
+
 #include <cstdint>
+#include <filesystem>
 #include <functional>
 #include <string>
 #include <vector>
@@ -15,6 +18,12 @@ struct ProjectOperationParticipant {
     std::function<bool(std::string&)> commit;
     std::function<void()> rollback;
     std::function<bool(std::string&)> inverse;
+    // Required when durable journaling is enabled. The returned value is the
+    // complete owner state needed to restore the acknowledged boundary.
+    std::function<std::string()> recovery_snapshot;
+    // Optional authoritative document path used by reference-aware services
+    // to prove that every previewed update has a participating typed owner.
+    std::filesystem::path document_path;
 };
 
 struct ProjectOperationRequest {
@@ -36,6 +45,9 @@ struct ProjectOperationResult {
 // inverse behavior for the exact revisions admitted by the request.
 class ProjectOperationCoordinator {
 public:
+    explicit ProjectOperationCoordinator(ProjectOperationJournal* journal = nullptr) : journal_(journal) {}
+
+    void setJournal(ProjectOperationJournal* journal) { journal_ = journal; }
     ProjectOperationResult execute(const ProjectOperationRequest& request);
     ProjectOperationResult undoLast();
     ProjectOperationResult redoLast();
@@ -56,6 +68,7 @@ private:
 
     std::vector<HistoryEntry> history_;
     std::vector<HistoryEntry> redo_;
+    ProjectOperationJournal* journal_ = nullptr;
 };
 
 } // namespace urpg::project

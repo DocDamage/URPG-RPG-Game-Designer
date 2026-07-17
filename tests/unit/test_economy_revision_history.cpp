@@ -1,8 +1,12 @@
 #include "engine/core/balance/economy_revision_history.h"
+#include "engine/core/project/project_operation_journal.h"
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
 
 namespace {
 
@@ -49,6 +53,17 @@ TEST_CASE("Economy history compares committed revisions and exports deterministi
     REQUIRE(report["after"]["simulation"]["seed"] == 99);
     REQUIRE(report["differences"].size() == comparison.differences.size());
     REQUIRE(report.dump() == history.exportReviewReport("balance.r1", "balance.r2").dump());
+
+    const auto path = std::filesystem::temp_directory_path() /
+                      ("urpg-economy-review-" +
+                       std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()) + ".json");
+    std::string diagnostic;
+    REQUIRE(history.writeReviewReport(path, "balance.r1", "balance.r2", &diagnostic));
+    REQUIRE(diagnostic.empty());
+    std::ifstream input(path, std::ios::binary);
+    REQUIRE(nlohmann::json::parse(input) == report);
+    input.close();
+    std::filesystem::remove(path);
 }
 
 TEST_CASE("Economy revision restore uses composite project command undo and redo",
@@ -77,6 +92,32 @@ TEST_CASE("Economy revision restore uses composite project command undo and redo
     REQUIRE(coordinator.redoLast().success);
     REQUIRE(current.version == "v1");
     REQUIRE(currentRevision == 5);
+}
+
+TEST_CASE("Economy revision restore supplies durable recovery snapshots",
+          "[balance][economy][history][project][operation_journal]") {
+    const auto root = std::filesystem::temp_directory_path() / "urpg_economy_restore_journal_test";
+    std::error_code error;
+    std::filesystem::remove_all(root, error);
+    urpg::project::ProjectOperationJournal journal(root / "journal.json");
+    urpg::project::ProjectOperationCoordinator coordinator(&journal);
+    urpg::balance::EconomyRevisionHistory history;
+    const auto first = scenario("v1", 20, 40);
+    auto current = scenario("v2", 50, 60);
+    REQUIRE(history.commit("balance.r1", "Initial economy", 1, first));
+    uint64_t currentRevision = 2;
+    auto participant = history.makeRestoreParticipant("balance.r1", current, currentRevision);
+    REQUIRE(participant.has_value());
+    REQUIRE(participant->recovery_snapshot);
+
+    REQUIRE(coordinator.execute({"balance.restore.journaled", "Restore Initial economy", {*participant}}).success);
+    const auto recovered = journal.recover();
+    REQUIRE(recovered.success);
+    REQUIRE(recovered.has_acknowledged_operation);
+    REQUIRE(recovered.last_acknowledged.owners.size() == 1);
+    REQUIRE(recovered.last_acknowledged.owners[0].snapshot.find("starting_gold") != std::string::npos);
+    REQUIRE(recovered.last_acknowledged.owners[0].snapshot.find("20") != std::string::npos);
+    std::filesystem::remove_all(root, error);
 }
 
 TEST_CASE("Economy history rejects invalid duplicate missing and stale restoration requests",

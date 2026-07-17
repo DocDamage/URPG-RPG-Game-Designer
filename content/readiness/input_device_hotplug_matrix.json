@@ -1,0 +1,6 @@
+{
+  "schema":"urpg.input_device_hotplug_matrix.v1",
+  "devices":["keyboard_mouse","xbox_controller","playstation_controller","switch_controller","generic_controller"],
+  "scenarios":["connect","disconnect_held_action","reconnect","active_device_change","ownership_change","axis_calibration","deadzone","chord","repeat","binding_conflict","invalid_binding_recovery","controller_only_flow"],
+  "requiredContexts":["global","editor","runtime","menu","gameplay","text_entry"]
+}

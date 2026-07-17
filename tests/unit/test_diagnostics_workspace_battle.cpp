@@ -4,6 +4,7 @@
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/input/input_core.h"
 #include "engine/core/message/message_core.h"
+#include "engine/core/platform/gl_texture.h"
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/ui/menu_command_registry.h"
 #include "engine/core/ui/menu_scene_graph.h"
@@ -37,6 +38,7 @@ TEST_CASE("DiagnosticsWorkspace - Battle tab exports live scene diagnostics prev
     data_manager.setupNewGame();
 
     urpg::scene::BattleScene battle({"2"});
+    battle.setBattlebackTexture(std::make_shared<urpg::Texture>());
     battle.onStart();
     battle.addActor("1", "Hero", 100, 20, {0, 0}, nullptr);
     battle.addEnemy("2", "Goblin", 50, 0, {100, 100}, nullptr);

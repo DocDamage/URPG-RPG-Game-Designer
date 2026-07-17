@@ -2,6 +2,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <filesystem>
+#include <fstream>
+#include <set>
+
 using urpg::project::ProjectSchemaMigrationRegistry;
 using urpg::project::ProjectSchemaMigrationStep;
 
@@ -61,4 +65,43 @@ TEST_CASE("Project schema migration failure leaves source document unchanged", "
     REQUIRE(failed.code == "project_schema_migration_step_failed");
     REQUIRE(document == original);
     REQUIRE(failed.backup == original);
+}
+
+TEST_CASE("Built-in project migration corpus adopts versions without losing legacy fields",
+          "[project][schema_migration][corpus]") {
+    std::ifstream input(std::filesystem::path(URPG_SOURCE_DIR) / "content" / "fixtures" /
+                        "project_document_migration_corpus.json");
+    const auto corpus = nlohmann::json::parse(input);
+    REQUIRE(corpus["documents"].size() == 14);
+
+    ProjectSchemaMigrationRegistry builtIns;
+    std::string diagnostic;
+    REQUIRE(urpg::project::registerBuiltInProjectSchemaMigrations(builtIns, &diagnostic));
+    REQUIRE(diagnostic.empty());
+    const std::set<std::string> migratedTypes = {
+        "ability", "character_creator", "database", "vendor_catalog", "menu_studio"};
+
+    for (const auto& fixture : corpus["documents"]) {
+        const auto type = fixture.at("type").get<std::string>();
+        auto document = fixture.at("document");
+        const auto original = document;
+        if (!migratedTypes.contains(type)) {
+            REQUIRE(fixture.at("oldest") == fixture.at("current"));
+            REQUIRE(document.at(fixture.at("versionField").get<std::string>()) == fixture.at("current"));
+            continue;
+        }
+        const auto dryRun = builtIns.migrate(type, fixture.at("current").get<std::string>(), document, true);
+        REQUIRE(dryRun.success);
+        REQUIRE(dryRun.changed);
+        REQUIRE(document == original);
+        const auto applied = builtIns.migrate(type, fixture.at("current").get<std::string>(), document, false);
+        REQUIRE(applied.success);
+        REQUIRE(document.at(fixture.at("versionField").get<std::string>()) == fixture.at("current"));
+        REQUIRE(document.at("fixture_marker") == original.at("fixture_marker"));
+        const auto idempotent = builtIns.migrate(type, fixture.at("current").get<std::string>(), document, false);
+        REQUIRE(idempotent.success);
+        REQUIRE_FALSE(idempotent.changed);
+        REQUIRE(builtIns.restoreBackup(applied, document));
+        REQUIRE(document == original);
+    }
 }

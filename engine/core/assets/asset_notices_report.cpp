@@ -1,7 +1,12 @@
 #include "engine/core/assets/asset_notices_report.h"
 
 #include <algorithm>
+#include <fstream>
 #include <sstream>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace urpg::assets {
 
@@ -63,6 +68,69 @@ AssetNoticesReport buildAssetNoticesReport(const std::vector<AssetRecord>& asset
         return left.code < right.code;
     });
     return report;
+}
+
+AssetNoticesWriteResult writeAssetNoticesReport(const std::filesystem::path& package_root,
+                                                const AssetNoticesReport& report) {
+    AssetNoticesWriteResult result;
+    if (!report.package_allowed) {
+        result.code = "asset_notices_rights_blocked";
+        result.message = "Package notices were not emitted because required rights metadata is unresolved.";
+        return result;
+    }
+    if (package_root.empty()) {
+        result.code = "asset_notices_package_root_missing";
+        result.message = "Package root is required.";
+        return result;
+    }
+
+    std::error_code error;
+    const auto noticesDirectory = package_root / "licenses";
+    std::filesystem::create_directories(noticesDirectory, error);
+    if (error) {
+        result.code = "asset_notices_directory_failed";
+        result.message = error.message();
+        return result;
+    }
+    result.json_path = noticesDirectory / "third_party_assets.json";
+    result.notice_path = noticesDirectory / "THIRD_PARTY_ASSETS.txt";
+
+    const auto publish = [&](const std::filesystem::path& path, const std::string& content) {
+        const auto temporary = path.parent_path() / ("." + path.filename().string() + ".tmp");
+        {
+            std::ofstream output(temporary, std::ios::binary | std::ios::trunc);
+            output << content;
+            if (!output) {
+                return false;
+            }
+        }
+#ifdef _WIN32
+        if (!MoveFileExW(temporary.c_str(), path.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+            std::filesystem::remove(temporary, error);
+            return false;
+        }
+#else
+        std::filesystem::rename(temporary, path, error);
+        if (error) {
+            std::filesystem::remove(temporary, error);
+            return false;
+        }
+#endif
+        return true;
+    };
+
+    if (!publish(result.json_path, report.toJson().dump(2) + "\n") ||
+        !publish(result.notice_path, report.toNoticeText())) {
+        std::filesystem::remove(result.json_path, error);
+        std::filesystem::remove(result.notice_path, error);
+        result.code = "asset_notices_publish_failed";
+        result.message = "Unable to atomically publish the package notices.";
+        return result;
+    }
+    result.success = true;
+    result.code = "asset_notices_published";
+    result.message = "Deterministic package notices were published.";
+    return result;
 }
 
 } // namespace urpg::assets

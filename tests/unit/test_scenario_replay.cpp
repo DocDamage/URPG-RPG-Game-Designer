@@ -1,6 +1,11 @@
 #include "engine/core/replay/scenario_replay.h"
+#include "engine/core/playtest/playtest_scenario_replay_runtime.h"
+#include "editor/replay/replay_panel.h"
 
 #include <catch2/catch_test_macros.hpp>
+
+#include <chrono>
+#include <filesystem>
 
 TEST_CASE("Scenario replay captures semantic inputs metadata checkpoints and redaction", "[replay][scenario][pcq504]") {
     using namespace urpg::replay;
@@ -77,4 +82,64 @@ TEST_CASE("Scenario replay clearly reports environment input and state divergenc
     REQUIRE(diverged.divergence->first_mismatched_tick == 3);
     REQUIRE_FALSE(diverged.divergence->expected_hash.empty());
     REQUIRE_FALSE(diverged.divergence->actual_hash.empty());
+}
+
+TEST_CASE("Live playtest scenario workflow captures persists and replays a reported failure",
+          "[replay][scenario][pcq504][live]") {
+    using namespace urpg;
+    const auto root = std::filesystem::temp_directory_path() /
+        ("urpg_pcq504_live_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    std::filesystem::create_directories(root);
+
+    playtest::PlaytestScenarioReplayRuntime runtime(
+        root, replay::ScenarioReplayCaptureConfig{42, "project-revision-a", "runtime-a", {}, 100000, 64});
+    std::string diagnostic;
+    REQUIRE(runtime.start("session-a", {{"player_x", 0}}, &diagnostic));
+    runtime.observeInput(input::InputAction::MoveRight, input::ActionState::Pressed);
+    REQUIRE(runtime.finishFrame({{"player_x", 1}}, &diagnostic));
+
+    editor::ReplayPanel panel;
+    panel.bindLiveSession(root);
+    REQUIRE(panel.refreshLive(&diagnostic));
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().live_connected);
+    REQUIRE(panel.lastRenderSnapshot().semantic_input_count == 1);
+    REQUIRE(panel.lastRenderSnapshot().checkpoint_count == 1);
+    REQUIRE(panel.lastRenderSnapshot().project_revision == "project-revision-a");
+    REQUIRE(std::filesystem::is_regular_file(root / "replay.json"));
+
+    REQUIRE(panel.requestLiveReplay(replay::ReplayExecutionMode::Headless, &diagnostic));
+    REQUIRE(runtime.poll([](const replay::ReplayArtifact& artifact, const replay::ReplayExecutionMode mode) {
+        return replay::ScenarioReplayRunner::run(
+            {artifact, mode, "project-revision-a", "runtime-a"},
+            [](const replay::ReplayInput& semantic, uint64_t,
+               replay::ReplayExecutionMode) -> std::optional<nlohmann::json> {
+                if (semantic.action != "move_right") return std::nullopt;
+                return nlohmann::json{{"player_x", 1}};
+            });
+    }, &diagnostic));
+    REQUIRE(panel.refreshLive(&diagnostic));
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().last_result.success);
+    REQUIRE(panel.lastRenderSnapshot().last_result.code == "replay_completed");
+    REQUIRE(panel.lastRenderSnapshot().last_result.mode == replay::ReplayExecutionMode::Headless);
+
+    REQUIRE(panel.requestLiveReplay(replay::ReplayExecutionMode::Interactive, &diagnostic));
+    REQUIRE(runtime.poll([](const replay::ReplayArtifact& artifact, const replay::ReplayExecutionMode mode) {
+        return replay::ScenarioReplayRunner::run(
+            {artifact, mode, "project-revision-a", "runtime-a"},
+            [](const replay::ReplayInput&, uint64_t,
+               replay::ReplayExecutionMode) -> std::optional<nlohmann::json> {
+                return nlohmann::json{{"player_x", 9}};
+            });
+    }, &diagnostic));
+    REQUIRE(panel.refreshLive(&diagnostic));
+    panel.render();
+    REQUIRE_FALSE(panel.lastRenderSnapshot().last_result.success);
+    REQUIRE(panel.lastRenderSnapshot().last_result.code == "replay_diverged");
+    REQUIRE(panel.lastRenderSnapshot().last_result.divergence.has_value());
+    REQUIRE(panel.lastRenderSnapshot().last_result.divergence->first_mismatched_tick == 0);
+
+    std::error_code cleanup_error;
+    std::filesystem::remove_all(root, cleanup_error);
 }

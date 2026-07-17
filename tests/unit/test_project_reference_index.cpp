@@ -153,6 +153,45 @@ TEST_CASE("ProjectReferenceIndex extracts map event and dialogue stable-ID edges
     REQUIRE(incremental.whyIncluded("asset", "asset.grass").size() == 1);
 }
 
+TEST_CASE("ProjectReferenceIndex extracts grid ability character vendor and audio owner edges",
+          "[project][reference_index][owners]") {
+    const auto grid = urpg::project::extractGridPartReferences(
+        "content/maps/start.grid.json",
+        {{"schemaVersion", 1}, {"mapId", "start"},
+         {"parts", {{{"instanceId", "hero"}, {"partId", "part.player"},
+                       {"properties", {{"portrait_asset_id", "asset.hero.portrait"}}}}}}});
+    const auto ability = urpg::project::extractAbilityReferences(
+        "content/abilities/fire.json", {{"ability_id", "fire"}, {"effect_id", "burn"}});
+    const auto character = urpg::project::extractCharacterReferences(
+        "content/characters/hero.json",
+        {{"schemaVersion", "1.0.0"}, {"classId", "guardian"}, {"speciesId", "human"},
+         {"originId", "willow"}, {"backgroundId", "warden"},
+         {"portraitAssetId", "asset.hero.portrait"}, {"fieldSpriteAssetId", "asset.hero.field"},
+         {"battleSpriteAssetId", "asset.hero.battle"},
+         {"layeredPartAssetIds", {"asset.hero.hat"}}});
+    const auto vendor = urpg::project::extractVendorReferences(
+        "content/vendors/village.json",
+        nlohmann::json::parse(R"({"vendors":[{"id":"village","stock":[{"item_id":"potion","required_flags":["shop_open"]}]}]})"));
+    const auto audio = urpg::project::extractAudioMixReferences(
+        "config/audio_mix_presets.json", {{"version", "1.0.0"},
+                                           {"encounter_preview_asset_id", "asset.battle.theme"}});
+    REQUIRE(grid.success);
+    REQUIRE(ability.success);
+    REQUIRE(character.success);
+    REQUIRE(vendor.success);
+    REQUIRE(audio.success);
+
+    ProjectReferenceIndex index;
+    REQUIRE(index.rebuild({grid.document, ability.document, character.document, vendor.document, audio.document}).success);
+    REQUIRE(index.inbound("grid_part", "part.player").size() == 1);
+    REQUIRE(index.inbound("effect", "burn").size() == 1);
+    REQUIRE(index.inbound("class", "guardian").size() == 1);
+    REQUIRE(index.inbound("asset", "asset.hero.portrait").size() == 2);
+    REQUIRE(index.inbound("item", "potion").size() == 1);
+    REQUIRE(index.inbound("flag", "shop_open").size() == 1);
+    REQUIRE(index.whyIncluded("asset", "asset.battle.theme").size() == 1);
+}
+
 TEST_CASE("ProjectReferenceIndex extracts quest and menu stable-ID edges", "[project][reference_index]") {
     const nlohmann::json quest = {
         {"schema_version", "urpg.quest_objective_graph.v1"}, {"quest_id", "relic"},
@@ -278,4 +317,116 @@ TEST_CASE("ProjectReferenceIndex project rebuild matches document incremental re
     REQUIRE(rebuilt.index.whyIncluded("mod", "core_rules").size() == 1);
 
     std::filesystem::remove_all(root, cleanupError);
+}
+
+TEST_CASE("Project reference document dispatcher incrementally replaces a live owning document",
+          "[project][reference_index][incremental]") {
+    const std::filesystem::path root = "C:/projects/demo";
+    const auto path = root / "content" / "dialogues" / "intro.json";
+    const auto initial = nlohmann::json{
+        {"schema_version", "urpg.dialogue_graph.v1"},
+        {"nodes", {{{"id", "start"}, {"localization_key", "dialogue.start"},
+                     {"voice_asset_id", "voice.old"}, {"choices", nlohmann::json::array()}}}}};
+    const auto changed = nlohmann::json{
+        {"schema_version", "urpg.dialogue_graph.v1"},
+        {"nodes", {{{"id", "start"}, {"localization_key", "dialogue.start"},
+                     {"voice_asset_id", "voice.new"}, {"choices", nlohmann::json::array()}}}}};
+
+    ProjectReferenceIndex incremental;
+    const auto first = urpg::project::extractProjectDocumentReferences(root, path, initial);
+    REQUIRE(first.success);
+    REQUIRE(incremental.replaceDocument(first.document).success);
+    REQUIRE(incremental.inbound("asset", "voice.old").size() == 1);
+    const auto replacement = urpg::project::extractProjectDocumentReferences(root, path, changed);
+    REQUIRE(replacement.success);
+    REQUIRE(incremental.replaceDocument(replacement.document).success);
+    REQUIRE(incremental.inbound("asset", "voice.old").empty());
+    REQUIRE(incremental.inbound("asset", "voice.new").size() == 1);
+
+    ProjectReferenceIndex rebuilt;
+    REQUIRE(rebuilt.rebuild({replacement.document}).success);
+    REQUIRE(incremental.edges() == rebuilt.edges());
+    REQUIRE_FALSE(urpg::project::extractProjectDocumentReferences(
+                      root, root / "content" / "unknown.json", nlohmann::json::object()).success);
+}
+
+TEST_CASE("ProjectReferenceIndex global object search is indexed deterministic and navigable",
+          "[project][reference_index][global_search]") {
+    ProjectReferenceIndex index;
+    REQUIRE(index.rebuild({
+        {"content/maps/start.p2d.json",
+         {{"map", "start", "asset", "asset.hero.portrait", "portrait", {}, "event:hero", true},
+          {"event", "guide", "dialogue", "moonwell_intro", "start_dialogue", {}, "command:0", true}}},
+        {"content/dialogues/moonwell_intro.json",
+         {{"dialogue", "moonwell_intro", "asset", "asset.guide.voice", "voice", {}, "node:intro", true}}},
+    }).success);
+
+    const auto dialogue = index.searchObjects("moonwell");
+    REQUIRE(dialogue.size() == 1);
+    REQUIRE(dialogue[0].object_type == "dialogue");
+    REQUIRE(dialogue[0].object_id == "moonwell_intro");
+    REQUIRE(dialogue[0].document_path == "content/dialogues/moonwell_intro.json");
+    REQUIRE(dialogue[0].inbound_count == 1);
+    REQUIRE(dialogue[0].outbound_count == 1);
+    REQUIRE(dialogue[0].package_included);
+    REQUIRE(index.lastQueryCandidateCount() == 1);
+
+    const auto assets = index.searchObjects("asset", 2);
+    REQUIRE(assets.size() == 2);
+    REQUIRE(assets[0].object_type == "asset");
+    REQUIRE(assets[0].object_id == "asset.guide.voice");
+    REQUIRE(assets[1].object_id == "asset.hero.portrait");
+    REQUIRE(index.searchObjects("does-not-exist").empty());
+    REQUIRE(index.searchObjects({}, 0).empty());
+}
+
+TEST_CASE("ProjectReferenceIndex resolves canonical owning workspace navigation",
+          "[project][reference_index][navigation]") {
+    ProjectReferenceIndex index;
+    std::vector<ProjectReferenceEdge> edges;
+    const std::vector<std::pair<std::string, std::string>> expectedPanels = {
+        {"asset", "assets"},
+        {"plugin", "mod"},
+        {"plugin_package", "mod"},
+        {"mod", "mod"},
+        {"script", "mod"},
+        {"ability", "ability"},
+        {"effect", "ability"},
+        {"gameplay_feature", "ability"},
+        {"recipe", "ability"},
+        {"character", "character_creator"},
+        {"map", "spatial_authoring"},
+        {"grid_part_instance", "spatial_authoring"},
+        {"grid_part", "spatial_authoring"},
+        {"event", "spatial_authoring"},
+        {"dialogue", "spatial_authoring"},
+        {"dialogue_node", "spatial_authoring"},
+        {"quest", "spatial_authoring"},
+        {"quest_node", "spatial_authoring"},
+        {"database_item", "diagnostics"},
+    };
+    for (size_t i = 0; i < expectedPanels.size(); ++i) {
+        const auto& [type, panel] = expectedPanels[i];
+        (void)panel;
+        edges.push_back({type, type + ".object", "asset", "asset.target." + std::to_string(i),
+                         "test_reference", {}, "local:" + std::to_string(i), false});
+    }
+    REQUIRE(index.rebuild({{"content/navigation_contract.json", std::move(edges)}}).success);
+
+    for (const auto& [type, panel] : expectedPanels) {
+        const auto target = index.navigationTarget(type, type + ".object");
+        CAPTURE(type, panel, target.code);
+        REQUIRE(target.success);
+        REQUIRE(target.panel_id == panel);
+        REQUIRE(target.document_path == "content/navigation_contract.json");
+        REQUIRE_FALSE(target.local_id.empty());
+        REQUIRE(target.object_type == type);
+        REQUIRE(target.object_id == type + ".object");
+    }
+
+    REQUIRE_FALSE(index.navigationTarget({}, "object").success);
+    REQUIRE(index.navigationTarget({}, "object").code == "project_reference_navigation_object_missing");
+    REQUIRE_FALSE(index.navigationTarget("map", "missing").success);
+    REQUIRE(index.navigationTarget("map", "missing").code ==
+            "project_reference_navigation_object_not_indexed");
 }

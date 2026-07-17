@@ -99,6 +99,19 @@ const urpg::EventAuthorityPanel& DiagnosticsWorkspace::eventAuthorityPanel() con
     return event_authority_panel_;
 }
 
+EventTraceDiagnosticsPanel& DiagnosticsWorkspace::eventTracePanel() {
+    return event_trace_panel_;
+}
+
+const EventTraceDiagnosticsPanel& DiagnosticsWorkspace::eventTracePanel() const {
+    return event_trace_panel_;
+}
+
+void DiagnosticsWorkspace::bindEventTraceBridge(playtest::PlaytestEventTraceBridge* bridge) {
+    event_trace_panel_.bind(bridge);
+    if (visible_ && active_tab_ == DiagnosticsTab::EventTrace) event_trace_panel_.render();
+}
+
 MessageInspectorPanel& DiagnosticsWorkspace::messagePanel() {
     return message_panel_;
 }
@@ -1042,6 +1055,13 @@ DiagnosticsTabSummary DiagnosticsWorkspace::tabSummary(DiagnosticsTab tab) const
         summary.has_data = !rows.empty();
         break;
     }
+    case DiagnosticsTab::EventTrace: {
+        const auto& trace = event_trace_panel_.snapshot();
+        summary.item_count = trace.visible_rows;
+        summary.issue_count = 0;
+        summary.has_data = trace.connected;
+        break;
+    }
     case DiagnosticsTab::MessageText: {
         const auto& model_summary = message_panel_.getModel().Summary();
         summary.item_count = model_summary.total_pages;
@@ -1108,6 +1128,7 @@ std::vector<DiagnosticsTabSummary> DiagnosticsWorkspace::allTabSummaries() const
         tabSummary(DiagnosticsTab::Compat),
         tabSummary(DiagnosticsTab::Save),
         tabSummary(DiagnosticsTab::EventAuthority),
+        tabSummary(DiagnosticsTab::EventTrace),
         tabSummary(DiagnosticsTab::MessageText),
         tabSummary(DiagnosticsTab::Battle),
         tabSummary(DiagnosticsTab::Menu),
@@ -1139,6 +1160,8 @@ void DiagnosticsWorkspace::render() {
         save_panel_.render();
     } else if (active_tab_ == DiagnosticsTab::EventAuthority) {
         event_authority_panel_.render();
+    } else if (active_tab_ == DiagnosticsTab::EventTrace) {
+        event_trace_panel_.render();
     } else if (active_tab_ == DiagnosticsTab::MessageText) {
         message_panel_.render();
     } else if (active_tab_ == DiagnosticsTab::Battle) {
@@ -1169,6 +1192,7 @@ void DiagnosticsWorkspace::refresh() {
     compat_panel_.refresh();
     save_panel_.refresh();
     event_authority_panel_.refresh();
+    event_trace_panel_.refresh();
     message_panel_.refresh();
     battle_panel_.refresh();
     if (menu_panel_) {
@@ -1249,6 +1273,7 @@ void DiagnosticsWorkspace::syncPanelVisibility() {
     compat_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Compat);
     save_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Save);
     event_authority_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::EventAuthority);
+    event_trace_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::EventTrace);
     message_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::MessageText);
     battle_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Battle);
     if (menu_panel_) {
@@ -1272,6 +1297,9 @@ void DiagnosticsWorkspace::refreshActiveSnapshotBackedTabIfVisible() {
     switch (active_tab_) {
     case DiagnosticsTab::EventAuthority:
         refreshEventAuthoritySnapshotIfActive();
+        break;
+    case DiagnosticsTab::EventTrace:
+        if (visible_) event_trace_panel_.render();
         break;
     case DiagnosticsTab::Audio:
         refreshAudioSnapshotIfActive();

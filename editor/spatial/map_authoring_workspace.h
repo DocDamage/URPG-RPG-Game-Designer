@@ -2,7 +2,10 @@
 
 #include "editor/spatial/map_authoring_context.h"
 #include "editor/assets/editor_asset_drag_payload.h"
+#include "engine/core/map/project_world_graph.h"
 
+#include <filesystem>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -65,6 +68,11 @@ struct MapAuthoringWorkspaceSnapshot {
     MapAuthoringContextSnapshot context;
     bool hasLevelBuilder = false;
     bool hasPerspective2D = false;
+    bool worldGraphAvailable = false;
+    bool worldGraphPersisted = false;
+    std::string worldGraphMessage;
+    urpg::map::WorldGraphPreview worldPreview;
+    std::vector<urpg::map::WorldGraphDiagnostic> worldDiagnostics;
     std::string nextAction = "Bind map workspaces to begin authoring.";
 };
 
@@ -72,6 +80,12 @@ struct MapAuthoringHistoryResult {
     bool success = false;
     std::string message;
     std::string owner;
+};
+
+struct MapWorldGraphMutationResult {
+    bool success = false;
+    std::string code;
+    std::string message;
 };
 
 // One creator-facing map surface that routes to the existing native child
@@ -103,6 +117,15 @@ class MapAuthoringWorkspace {
     void setProjectRoot(std::filesystem::path projectRoot);
     void setActiveMapId(std::string mapId);
     void refresh();
+    bool reloadWorldGraph();
+    MapWorldGraphMutationResult addWorldMap(urpg::map::WorldMapNode map);
+    MapWorldGraphMutationResult addWorldRoute(urpg::map::WorldRoute route);
+    urpg::map::WorldGraphImpact previewWorldMarkerChange(
+        const std::string& map_id, const std::string& marker_kind, const std::string& marker_id,
+        const std::string& replacement_id = {}) const;
+    MapWorldGraphMutationResult renameWorldMarker(const urpg::map::WorldGraphImpact& reviewed_impact);
+    MapWorldGraphMutationResult deleteWorldMarker(const urpg::map::WorldGraphImpact& reviewed_impact);
+    const urpg::map::ProjectWorldGraph& worldGraph() const { return world_graph_; }
 
     MapAuthoringContext& context() { return context_; }
     const MapAuthoringContext& context() const { return context_; }
@@ -111,6 +134,8 @@ class MapAuthoringWorkspace {
 
   private:
     void rebuildSnapshot();
+    MapWorldGraphMutationResult commitWorldGraph(urpg::map::ProjectWorldGraph next, std::string code,
+                                                  std::string message, bool record_history = true);
 
     LevelBuilderWorkspace* level_builder_ = nullptr;
     SpatialAuthoringWorkspace* perspective_2d_ = nullptr;
@@ -120,6 +145,12 @@ class MapAuthoringWorkspace {
     bool layout_recovered_ = false;
     std::string layout_recovery_message_;
     std::string next_action_hint_;
+    urpg::map::ProjectWorldGraph world_graph_;
+    bool world_graph_loaded_ = false;
+    bool world_graph_persisted_ = false;
+    std::string world_graph_message_;
+    std::vector<urpg::map::ProjectWorldGraph> world_undo_;
+    std::vector<urpg::map::ProjectWorldGraph> world_redo_;
     MapAuthoringWorkspaceSnapshot snapshot_;
 };
 

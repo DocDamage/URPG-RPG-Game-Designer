@@ -4,6 +4,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -32,7 +33,17 @@ struct AssetNoticesReport {
     std::string toNoticeText() const;
 };
 
+struct AssetNoticesWriteResult {
+    bool success = false;
+    std::string code;
+    std::filesystem::path json_path;
+    std::filesystem::path notice_path;
+    std::string message;
+};
+
 AssetNoticesReport buildAssetNoticesReport(const std::vector<AssetRecord>& assets,
                                            const AssetRightsPolicy& policy = {});
+AssetNoticesWriteResult writeAssetNoticesReport(const std::filesystem::path& package_root,
+                                                const AssetNoticesReport& report);
 
 } // namespace urpg::assets

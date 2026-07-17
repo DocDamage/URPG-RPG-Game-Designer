@@ -13,6 +13,17 @@ const WorldMarker* marker(const std::vector<WorldMarker>& values, const std::str
 bool validMarkers(const std::vector<WorldMarker>& values) { std::set<std::string> ids; return std::all_of(values.begin(),values.end(),[&](const auto& value){return !value.id.empty()&&ids.insert(value.id).second;}); }
 nlohmann::json markers(const std::vector<WorldMarker>& values){ auto result=nlohmann::json::array(); for(const auto& value:values) result.push_back({{"id",value.id},{"label",value.label},{"x",value.x},{"y",value.y}}); return result; }
 std::vector<WorldMarker> readMarkers(const nlohmann::json& value){ std::vector<WorldMarker> result; if(!value.is_array()) return result; for(const auto& row:value) if(row.is_object()) result.push_back({row.value("id",""),row.value("label",""),row.value("x",0),row.value("y",0)}); return result; }
+bool sameImpactReferences(const std::vector<WorldGraphImpactReference>& left,
+                          const std::vector<WorldGraphImpactReference>& right) {
+    if (left.size() != right.size()) return false;
+    for (size_t index = 0; index < left.size(); ++index) {
+        if (std::tie(left[index].route_id, left[index].route_label, left[index].role, left[index].other_map_id) !=
+            std::tie(right[index].route_id, right[index].route_label, right[index].role, right[index].other_map_id)) {
+            return false;
+        }
+    }
+    return true;
+}
 }
 
 bool ProjectWorldGraph::addMap(WorldMapNode map) {
@@ -74,6 +85,10 @@ WorldGraphImpact ProjectWorldGraph::previewMarkerChange(const std::string& mapId
 }
 bool ProjectWorldGraph::renameMarker(const WorldGraphImpact& reviewed) {
     if(!reviewed.object_found||!reviewed.rename_allowed||reviewed.replacement_id.empty())return false;
+    const auto current = previewMarkerChange(reviewed.map_id, reviewed.marker_kind, reviewed.marker_id,
+                                             reviewed.replacement_id);
+    if (!current.object_found || !current.rename_allowed ||
+        !sameImpactReferences(current.affected_routes, reviewed.affected_routes)) return false;
     auto map=std::find_if(maps_.begin(),maps_.end(),[&](const auto& value){return value.id==reviewed.map_id;});if(map==maps_.end())return false;
     std::vector<WorldMarker>* values=reviewed.marker_kind=="entrance"?&map->entrances:reviewed.marker_kind=="exit"?&map->exits:reviewed.marker_kind=="checkpoint"?&map->checkpoints:reviewed.marker_kind=="spawn"?&map->spawn_points:nullptr;
     if(values==nullptr)return false;
@@ -82,6 +97,27 @@ bool ProjectWorldGraph::renameMarker(const WorldGraphImpact& reviewed) {
     item->id=reviewed.replacement_id;
     for(auto& route:routes_){if(reviewed.marker_kind=="entrance"&&route.target_map_id==reviewed.map_id&&route.target_entrance_id==reviewed.marker_id)route.target_entrance_id=reviewed.replacement_id;
         if(reviewed.marker_kind=="exit"&&route.source_map_id==reviewed.map_id&&route.source_exit_id==reviewed.marker_id)route.source_exit_id=reviewed.replacement_id;}return true;
+}
+bool ProjectWorldGraph::deleteMarker(const WorldGraphImpact& reviewed) {
+    if (!reviewed.object_found || reviewed.rename_allowed || !reviewed.replacement_id.empty()) return false;
+    const auto current = previewMarkerChange(reviewed.map_id, reviewed.marker_kind, reviewed.marker_id);
+    if (!current.object_found || !sameImpactReferences(current.affected_routes, reviewed.affected_routes)) return false;
+    auto map = std::find_if(maps_.begin(), maps_.end(), [&](const auto& value) { return value.id == reviewed.map_id; });
+    if (map == maps_.end()) return false;
+    std::vector<WorldMarker>* values = reviewed.marker_kind == "entrance" ? &map->entrances :
+        reviewed.marker_kind == "exit" ? &map->exits : reviewed.marker_kind == "checkpoint" ? &map->checkpoints :
+        reviewed.marker_kind == "spawn" ? &map->spawn_points : nullptr;
+    if (values == nullptr) return false;
+    const auto markerItem = std::find_if(values->begin(), values->end(),
+                                         [&](const auto& value) { return value.id == reviewed.marker_id; });
+    if (markerItem == values->end()) return false;
+    std::set<std::string> affectedRouteIds;
+    for (const auto& reference : reviewed.affected_routes) affectedRouteIds.insert(reference.route_id);
+    routes_.erase(std::remove_if(routes_.begin(), routes_.end(), [&](const auto& route) {
+        return affectedRouteIds.contains(route.id);
+    }), routes_.end());
+    values->erase(markerItem);
+    return true;
 }
 WorldGraphPreview ProjectWorldGraph::buildPreview() const {WorldGraphPreview preview;std::set<std::string> orphan;
     for(const auto& diagnostic:validate())if(diagnostic.code=="orphan_map")orphan.insert(diagnostic.map_id);

@@ -4,6 +4,7 @@
 #include "editor/ui/editor_panel.h"
 #include "engine/core/map/grid_part_catalog.h"
 #include "engine/core/map/grid_part_commands.h"
+#include "engine/core/map/grid_part_prefab_lifecycle.h"
 #include "engine/core/map/grid_part_validator.h"
 #include "engine/core/presentation/presentation_schema.h"
 
@@ -98,6 +99,10 @@ class GridPartPlacementPanel : public EditorPanel {
         int32_t grid_x, int32_t grid_y, const std::unordered_map<std::string, std::string>& parameter_values = {}) const;
     bool PlaceSelectedSmartPrefabAtGrid(int32_t grid_x, int32_t grid_y,
                                         const std::unordered_map<std::string, std::string>& parameter_values = {});
+    urpg::map::GridPartPrefabUpdatePreview PreviewSmartPrefabUpdate(
+        const urpg::map::GridPartSmartPrefab& next) const;
+    bool ApplySmartPrefabUpdate(const urpg::map::GridPartPrefabUpdatePreview& reviewed_preview);
+    bool DetachSmartPrefabGroup(const std::string& group_id);
     bool Undo();
     bool Redo();
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/core/playtest/playtest_runtime_state_bridge.h"
+
 #include <nlohmann/json.hpp>
 
 #include <cstddef>
@@ -75,6 +77,11 @@ public:
     std::vector<PlaytestWatchedValue> watchedValues() const;
     PlaytestDebugEditResult applyTemporaryEdit(std::string mutation_id, PlaytestDebugValueAddress address,
                                                nlohmann::json value);
+    void bindLiveBridge(playtest::PlaytestRuntimeStateBridge* bridge);
+    bool refreshLive();
+    bool requestLiveTemporaryEdit(std::string mutation_id, PlaytestDebugValueAddress address,
+                                  nlohmann::json value);
+    bool requestLiveReset(std::string checkpoint_id);
 
     const PlaytestRuntimeState& state() const { return current_; }
     const PlaytestRuntimeState& packageState() const { return package_state_; }
@@ -82,6 +89,9 @@ public:
     std::string_view activeCheckpointId() const { return active_checkpoint_id_; }
     nlohmann::json snapshotView() const;
     nlohmann::json exportDisposableOverlay() const;
+    bool liveConnected() const { return live_connected_; }
+    uint64_t liveRevision() const { return live_revision_; }
+    const std::string& lastLiveControlCode() const { return last_live_control_code_; }
 
     static constexpr std::size_t kMaxCheckpoints = 32;
     static constexpr std::size_t kMaxWatches = 256;
@@ -99,6 +109,11 @@ private:
     std::string active_checkpoint_id_;
     std::vector<PlaytestDebugValueAddress> watches_;
     std::vector<PlaytestDebugMutation> mutations_;
+    playtest::PlaytestRuntimeStateBridge* live_bridge_ = nullptr;
+    uint64_t live_revision_ = 0;
+    uint64_t next_live_control_id_ = 1;
+    bool live_connected_ = false;
+    std::string last_live_control_code_;
 };
 
 } // namespace urpg::editor

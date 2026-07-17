@@ -130,6 +130,12 @@ bool EventDebugger::advanceFrame() {
     return true;
 }
 
+void EventDebugger::continueBounded() {
+    paused_manually_ = false;
+    paused_on_breakpoint_ = false;
+    active_breakpoint_id_.reset();
+}
+
 void EventDebugger::continueExecution() {
     paused_manually_ = false;
     while (step()) {

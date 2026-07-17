@@ -1,6 +1,7 @@
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/battle/battle_core.h"
+#include "engine/core/platform/gl_texture.h"
 #include "engine/core/sprite_batcher.h"
 #include "runtimes/compat_js/battle_manager.h"
 #include "runtimes/compat_js/data_manager.h"
@@ -389,6 +390,7 @@ TEST_CASE("BattleScene builds diagnostics preview from the next ordered queued a
     skillData->damage.canCrit = true;
 
     BattleScene battle({"1", "2"});
+    battle.setBattlebackTexture(std::make_shared<urpg::Texture>());
     battle.onStart();
     battle.addActor("1", "Hero", 120, 40, {0, 0}, nullptr);
     battle.addEnemy("1", "Slime", 30, 0, {100, 100}, nullptr);
@@ -461,6 +463,7 @@ TEST_CASE("BattleScene routes actor skills through participant ability runtimes"
     skillData->mpCost = 7;
 
     BattleScene battle({"1"});
+    battle.setBattlebackTexture(std::make_shared<urpg::Texture>());
     battle.onStart();
     battle.addActor("1", "Hero", 120, 20, {0, 0}, nullptr);
     battle.addEnemy("1", "Slime", 40, 0, {100, 100}, nullptr);
@@ -738,6 +741,8 @@ TEST_CASE("BattleScene draws bounded colored HUD cues for gauges, guard, states,
     batcher.end();
 
     REQUIRE_FALSE(batcher.getBatches().empty());
+    REQUIRE(std::all_of(batcher.getBatches().begin(), batcher.getBatches().end(),
+                        [](const urpg::SpriteDrawData& batch) { return batch.textureId == 0; }));
     REQUIRE(batchContainsColor(batcher, 0x1B1B24CCu));
     REQUIRE(batchContainsColor(batcher, 0xFF0000FFu));
     REQUIRE(batchContainsColor(batcher, 0xAAAA00FFu));
@@ -753,6 +758,7 @@ TEST_CASE("BattleScene diagnostics preview is unavailable without a queued actio
     dm.setupNewGame();
 
     BattleScene battle({"1"});
+    battle.setBattlebackTexture(std::make_shared<urpg::Texture>());
     battle.onStart();
     battle.addActor("1", "Hero", 100, 20, {0, 0}, nullptr);
     battle.addEnemy("1", "Slime", 30, 0, {100, 100}, nullptr);

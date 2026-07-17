@@ -42,6 +42,11 @@ That manifest records the one packaged source per plugin key and the raw DLC can
 
 `urpg_pack_cli --release` also requires an explicit release artifact profile before it will label an export as release staging: `--signing-mode`, `--certificate-ref`, `--notarization-mode`, `--artifact-policy`, and `--owner-approval`. Development/package-smoke exports may use explicit non-production values such as `unsigned_dev`, `none`, `not_applicable`, and `dev_package_smoke_only`; production credentials and account identifiers remain project configuration.
 
+Promoted-library assets are excluded by default. Add each project-selected governed bundle explicitly with repeatable
+`--asset-bundle-id <stable-id>` arguments. The packager resolves only those exact manifests, records the sorted selection
+in export metadata, and rejects unsafe IDs or missing manifests. It never treats the full global promoted library as a
+shipping project selection.
+
 ## External Service Provider Profiles
 
 Achievement, mod marketplace, and analytics release integrations use validated provider profiles rather than repository-owned proprietary service credentials. The shared status vocabulary is:

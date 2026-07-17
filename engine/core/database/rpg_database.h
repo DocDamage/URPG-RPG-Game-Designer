@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace urpg::database {
@@ -42,6 +43,8 @@ class RpgDatabase {
 public:
     void upsertActor(ActorRecord actor);
     void upsertItem(ItemRecord item);
+    bool eraseActor(std::string_view id);
+    bool eraseItem(std::string_view id);
 
     const std::map<std::string, ActorRecord>& actors() const { return actors_; }
     const std::map<std::string, ItemRecord>& items() const { return items_; }

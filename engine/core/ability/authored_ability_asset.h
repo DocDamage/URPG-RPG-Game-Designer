@@ -8,12 +8,20 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
+
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 
 namespace urpg::ability {
 
@@ -61,6 +69,7 @@ inline urpg::ModifierOp modifierOpFromString(const std::string& value) {
 
 inline void to_json(nlohmann::json& j, const AuthoredAbilityAsset& asset) {
     j = nlohmann::json{
+        {"schema", "urpg.ability.v1"},
         {"ability_id", asset.ability_id},
         {"cooldown_seconds", asset.cooldown_seconds},
         {"mp_cost", asset.mp_cost},
@@ -142,7 +151,8 @@ inline std::filesystem::path canonicalAbilityContentDirectory(const std::filesys
 }
 
 inline bool saveAuthoredAbilityAssetToFile(const AuthoredAbilityAsset& asset, const std::filesystem::path& path,
-                                           std::string* error = nullptr) {
+                                           std::string* error = nullptr,
+                                           std::function<bool()> before_atomic_replace = {}) {
     std::error_code ec;
     const auto parent = path.parent_path();
     if (!parent.empty()) {
@@ -156,22 +166,51 @@ inline bool saveAuthoredAbilityAssetToFile(const AuthoredAbilityAsset& asset, co
         }
     }
 
-    std::ofstream ofs(path);
+    const auto temporary = std::filesystem::path(path.string() + ".tmp");
+    std::ofstream ofs(temporary, std::ios::binary | std::ios::trunc);
     if (!ofs) {
         if (error != nullptr) {
-            *error = "Unable to open ability asset file for write: " + path.generic_string();
+            *error = "Unable to open ability asset staging file: " + temporary.generic_string();
         }
         return false;
     }
 
     const nlohmann::json json = asset;
-    ofs << json.dump(2);
+    ofs << json.dump(2) << '\n';
+    ofs.flush();
     if (!ofs.good()) {
+        ofs.close();
+        std::filesystem::remove(temporary, ec);
         if (error != nullptr) {
-            *error = "Unable to finish writing ability asset file: " + path.generic_string();
+            *error = "Unable to finish writing ability asset staging file: " + temporary.generic_string();
         }
         return false;
     }
+    ofs.close();
+    if (before_atomic_replace && !before_atomic_replace()) {
+        std::filesystem::remove(temporary, ec);
+        if (error != nullptr) *error = "Ability asset atomic replacement was interrupted before publication.";
+        return false;
+    }
+#ifdef _WIN32
+    if (!MoveFileExW(temporary.wstring().c_str(), path.wstring().c_str(),
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        std::filesystem::remove(temporary, ec);
+        if (error != nullptr) *error = "Unable to atomically replace ability asset: " + path.generic_string();
+        return false;
+    }
+#else
+    std::filesystem::rename(temporary, path, ec);
+    if (ec) {
+        const auto replaceError = ec.message();
+        std::error_code ignored;
+        std::filesystem::remove(temporary, ignored);
+        if (error != nullptr) {
+            *error = "Unable to atomically replace ability asset: " + path.generic_string() + " (" + replaceError + ")";
+        }
+        return false;
+    }
+#endif
     if (error != nullptr) {
         error->clear();
     }

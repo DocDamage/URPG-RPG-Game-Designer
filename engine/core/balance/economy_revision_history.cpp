@@ -1,6 +1,8 @@
 #include "engine/core/balance/economy_revision_history.h"
 
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <memory>
 #include <set>
@@ -184,6 +186,66 @@ nlohmann::json EconomyRevisionHistory::exportReviewReport(std::string_view befor
             {"after", revisionToJson(*find(after_revision_id))}, {"differences", std::move(differences)}};
 }
 
+bool EconomyRevisionHistory::writeReviewReport(const std::filesystem::path& path,
+                                               const std::string_view before_revision_id,
+                                               const std::string_view after_revision_id,
+                                               std::string* diagnostic) const {
+    const auto report = exportReviewReport(before_revision_id, after_revision_id);
+    if (!report.value("success", false) || path.empty()) {
+        if (diagnostic) {
+            *diagnostic = path.empty() ? "economy_review_path_invalid"
+                                       : report.value("code", "economy_review_invalid");
+        }
+        return false;
+    }
+    std::error_code error;
+    std::filesystem::create_directories(path.parent_path(), error);
+    if (error) {
+        if (diagnostic) *diagnostic = "economy_review_directory_failed:" + error.message();
+        return false;
+    }
+    auto temporary = path;
+    temporary += ".tmp";
+    std::ofstream output(temporary, std::ios::binary | std::ios::trunc);
+    if (!output) {
+        if (diagnostic) *diagnostic = "economy_review_open_failed";
+        return false;
+    }
+    output << report.dump(2) << '\n';
+    output.close();
+    if (!output) {
+        std::filesystem::remove(temporary);
+        if (diagnostic) *diagnostic = "economy_review_write_failed";
+        return false;
+    }
+    auto backup = path;
+    backup += ".bak";
+    const bool replacing = std::filesystem::exists(path);
+    if (replacing) {
+        std::filesystem::remove(backup, error);
+        error.clear();
+        std::filesystem::rename(path, backup, error);
+        if (error) {
+            std::filesystem::remove(temporary);
+            if (diagnostic) *diagnostic = "economy_review_stage_failed:" + error.message();
+            return false;
+        }
+    }
+    std::filesystem::rename(temporary, path, error);
+    if (error) {
+        std::filesystem::remove(temporary);
+        if (replacing) {
+            std::error_code restore_error;
+            std::filesystem::rename(backup, path, restore_error);
+        }
+        if (diagnostic) *diagnostic = "economy_review_publish_failed:" + error.message();
+        return false;
+    }
+    if (replacing) std::filesystem::remove(backup, error);
+    if (diagnostic) diagnostic->clear();
+    return true;
+}
+
 std::optional<project::ProjectOperationParticipant> EconomyRevisionHistory::makeRestoreParticipant(
     std::string_view revision_id, EconomyScenario& authoritative_scenario, uint64_t& authoritative_revision) const {
     const auto* revision = find(revision_id);
@@ -218,7 +280,8 @@ std::optional<project::ProjectOperationParticipant> EconomyRevisionHistory::make
             *state->authority = state->before;
             ++*state->revision;
             return true;
-        }};
+        },
+        [state] { return scenarioToJson(*state->authority).dump(); }, {}};
 }
 
 } // namespace urpg::balance

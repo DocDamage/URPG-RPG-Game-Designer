@@ -73,6 +73,12 @@ std::string sanitizeBundleSegment(std::string value) {
     return value.empty() ? "root" : value;
 }
 
+bool isSafeBundleId(const std::string& id) {
+    return !id.empty() && std::all_of(id.begin(), id.end(), [](const unsigned char ch) {
+        return std::isalnum(ch) != 0 || ch == '-' || ch == '_';
+    });
+}
+
 std::vector<AssetDiscoveryRoot> assetDiscoveryRoots(const ExportConfig& config) {
     std::vector<AssetDiscoveryRoot> roots;
     if (!config.enableAutoAssetDiscovery) {
@@ -283,20 +289,34 @@ std::map<std::string, AssetLicenseManifestEntry> readAssetLicenseManifest(
 } // namespace
 
 bool auditPromotedAssetBundleLicenses(const ExportConfig& config, std::vector<std::string>& errors) {
-    const auto manifestRoot = assetBundleManifestRoot(config);
-    const auto sourceRoot = assetSourceManifestRoot(config);
-    if (!std::filesystem::exists(manifestRoot) || !std::filesystem::is_directory(manifestRoot)) {
+    if (config.promotedAssetBundleIds.empty()) {
         return true;
     }
 
-    std::vector<std::filesystem::path> manifestFiles;
-    for (const auto& entry : std::filesystem::directory_iterator(manifestRoot)) {
-        if (entry.is_regular_file() && entry.path().extension() == ".json" &&
-            entry.path().filename() != "asset_bundle.schema.json") {
-            manifestFiles.push_back(entry.path());
-        }
+    const auto manifestRoot = assetBundleManifestRoot(config);
+    const auto sourceRoot = assetSourceManifestRoot(config);
+    if (!std::filesystem::exists(manifestRoot) || !std::filesystem::is_directory(manifestRoot)) {
+        errors.push_back("Selected promoted asset bundle manifest root is unavailable: " + manifestRoot.string());
+        return false;
     }
-    std::sort(manifestFiles.begin(), manifestFiles.end());
+
+    auto selectedIds = config.promotedAssetBundleIds;
+    std::sort(selectedIds.begin(), selectedIds.end());
+    selectedIds.erase(std::unique(selectedIds.begin(), selectedIds.end()), selectedIds.end());
+
+    std::vector<std::filesystem::path> manifestFiles;
+    for (const auto& id : selectedIds) {
+        if (!isSafeBundleId(id)) {
+            errors.push_back("Selected promoted asset bundle ID is unsafe: " + id);
+            continue;
+        }
+        const auto manifestPath = manifestRoot / (id + ".json");
+        if (!std::filesystem::is_regular_file(manifestPath)) {
+            errors.push_back("Selected promoted asset bundle manifest is missing: " + manifestPath.string());
+            continue;
+        }
+        manifestFiles.push_back(manifestPath);
+    }
 
     for (const auto& manifestPath : manifestFiles) {
         nlohmann::json manifest;

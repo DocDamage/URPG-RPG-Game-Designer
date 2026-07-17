@@ -569,7 +569,7 @@ std::optional<SceneSnapshot> VisualRegressionHarness::captureEngineTick(
 
             try {
                 setupCallback(shell);
-                shell.tick();
+                shell.tick(0.0f);
             } catch (const std::exception& ex) {
                 if (errorMessage != nullptr) {
                     *errorMessage = std::string("Deterministic EngineShell callback failed: ") + ex.what();
@@ -975,7 +975,7 @@ std::optional<SceneSnapshot> VisualRegressionHarness::captureOpenGLEngineTick(
 
     try {
         setupCallback(shell);
-        shell.tick();
+        shell.tick(0.0f);
     } catch (const std::exception& ex) {
         if (errorMessage != nullptr) {
             *errorMessage = std::string("Renderer-backed EngineShell callback failed: ") + ex.what();

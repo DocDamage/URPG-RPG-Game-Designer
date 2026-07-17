@@ -714,18 +714,18 @@ TEST_CASE("MapScene projects validated authored event sprites into runtime rende
 
     MapScene map("EventSpriteMap", 3, 2);
     REQUIRE(map.setEventSprites({
-        {"event_vendor", {"asset.vendor", "content/assets/vendor.png"}, 2, 1},
-        {"event_sign", {"asset.sign", "content/assets/sign.png"}, 0, 1},
+        {"event_vendor", {"asset.vendor", "content/assets/vendor.png"}, 2, 1, 48, 48, 1, 0.15f, true, true, {}},
+        {"event_sign", {"asset.sign", "content/assets/sign.png"}, 0, 1, 48, 48, 1, 0.15f, true, true, {}},
     }));
     REQUIRE(map.eventSprites().size() == 2);
     REQUIRE(map.eventSprites()[0].event_id == "event_sign");
     REQUIRE_FALSE(map.setEventSprites({
-        {"event_invalid", {"asset.invalid", "content/assets/invalid.png"}, 3, 1},
+        {"event_invalid", {"asset.invalid", "content/assets/invalid.png"}, 3, 1, 48, 48, 1, 0.15f, true, true, {}},
     }));
     REQUIRE(map.eventSprites().size() == 2);
     REQUIRE_FALSE(map.setEventSprites({
-        {"event_a", {"asset.shared", "content/assets/a.png"}, 0, 0},
-        {"event_b", {"asset.shared", "content/assets/b.png"}, 1, 0},
+        {"event_a", {"asset.shared", "content/assets/a.png"}, 0, 0, 48, 48, 1, 0.15f, true, true, {}},
+        {"event_b", {"asset.shared", "content/assets/b.png"}, 1, 0, 48, 48, 1, 0.15f, true, true, {}},
     }));
     REQUIRE(map.eventSprites().size() == 2);
 
@@ -753,7 +753,7 @@ TEST_CASE("MapScene advances authored event sprite-sheet frames deterministicall
 
     MapScene map("AnimatedEventSpriteMap", 2, 1);
     REQUIRE(map.setEventSprites({
-        {"event_torch", {"asset.torch", "content/assets/torch.png"}, 1, 0, 16, 24, 3, 0.10f, true},
+        {"event_torch", {"asset.torch", "content/assets/torch.png"}, 1, 0, 16, 24, 3, 0.10f, true, true, {}},
     }));
 
     map.onUpdate(0.11f);
@@ -792,7 +792,8 @@ TEST_CASE("MapScene makes authored event sprites follow the final matching page 
     auto& state = urpg::GlobalStateHub::getInstance();
     state.setSwitch("torch_extinguished", false);
 
-    MapEventSprite sprite{"event_torch", {"asset.torch", "content/assets/torch.png"}, 0, 0};
+    MapEventSprite sprite{"event_torch", {"asset.torch", "content/assets/torch.png"}, 0, 0,
+                          48, 48, 1, 0.15f, true, true, {}};
     MapEventSprite::PageCandidate extinguished;
     extinguished.page_id = "extinguished";
     extinguished.has_visible_override = true;
@@ -974,8 +975,10 @@ TEST_CASE("MapScene executes a saved native Dialogue Graph through the message r
 
     urpg::dialogue::DialogueGraph graph;
     REQUIRE(graph.addNode({"start", "guide", "Guide", "dialogue.start", "Choose a route.", false,
-                           {{"continue", "Continue", "end", {}, {}, "dialogue.choice.continue"}}}));
-    REQUIRE(graph.addNode({"end", "guide", "Guide", "dialogue.end", "Journey complete.", true, {}}));
+                           {{"continue", "Continue", "end", {}, {}, "dialogue.choice.continue"}},
+                           {}, {}, 0, 0, false, {}, 0, 0, {}}));
+    REQUIRE(graph.addNode({"end", "guide", "Guide", "dialogue.end", "Journey complete.", true, {},
+                           {}, {}, 0, 0, false, {}, 0, 0, {}}));
 
     MapScene map("AuthoredDialogueMap", 2, 2);
     urpg::localization::LocaleCatalog locale;
@@ -1025,8 +1028,10 @@ TEST_CASE("MapScene executes a saved native Dialogue Graph through the message r
     state.setVariable("score", std::numeric_limits<int32_t>::max() - 1);
     urpg::dialogue::DialogueGraph stateful;
     REQUIRE(stateful.addNode({"start", "guide", "Guide", "dialogue.start", "Stateful.", false,
-                              {{"continue", "Continue", "end", {{"flag", "==", 1}}, {{"score", 5}}}}}));
-    REQUIRE(stateful.addNode({"end", "guide", "Guide", "dialogue.end", "End.", true, {}}));
+                              {{"continue", "Continue", "end", {{"flag", "==", 1}}, {{"score", 5}}, {}}},
+                              {}, {}, 0, 0, false, {}, 0, 0, {}}));
+    REQUIRE(stateful.addNode({"end", "guide", "Guide", "dialogue.end", "End.", true, {},
+                              {}, {}, 0, 0, false, {}, 0, 0, {}}));
     REQUIRE(map.startAuthoredDialogue(stateful, "test.stateful_dialogue"));
     input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Released);
     map.handleInput(input);
@@ -1068,8 +1073,10 @@ TEST_CASE("MapScene restores a saved project Dialogue Graph checkpoint at its ac
 
     urpg::dialogue::DialogueGraph graph;
     REQUIRE(graph.addNode({"start", "guide", "Guide", "", "Start.", false,
-                           {{"continue", "Continue", "end", {}, {}}}}));
-    REQUIRE(graph.addNode({"end", "guide", "Guide", "", "Resumed ending.", true, {}}));
+                           {{"continue", "Continue", "end", {}, {}, {}}},
+                           {}, {}, 0, 0, false, {}, 0, 0, {}}));
+    REQUIRE(graph.addNode({"end", "guide", "Guide", "", "Resumed ending.", true, {},
+                           {}, {}, 0, 0, false, {}, 0, 0, {}}));
     graph.setStartNode("start");
     {
         std::ofstream output(project.root() / "content" / "dialogues" / "checkpoint_dialogue.json", std::ios::binary);

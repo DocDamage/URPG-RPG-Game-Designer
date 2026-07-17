@@ -1,0 +1,15 @@
+{
+  "schema":"urpg.wave_e_qualification_matrix.v1",
+  "stressScenarios":["repeated_open_close","repeated_playtest","repeated_package","large_undo","asset_churn","device_churn","save_cycles","suspend_minimize"],
+  "faultClasses":["disk_full","permission_loss","interrupted_write","malformed_document","missing_asset","bad_archive","failed_migration","renderer_device_loss","child_process_failure"],
+  "securitySurfaces":["external_process","archive_extraction","path_containment","plugin_mod_trust","secrets","network_defaults","logs","support_bundles"],
+  "sanitizerLanes":["address","undefined_behavior","thread","memory"],
+  "fuzzBoundaries":["schema","archive","event_stream","compatibility"],
+  "privacyDefaults":["offline_first","no_automatic_upload","explicit_preview","explicit_consent","bounded_retention","user_deletion","telemetry_opt_in"],
+  "sbomComponentClasses":["binary","tool","packaged_asset","optional_provider","research_output"],
+  "platformCapabilities":["lifecycle","users","storage","input_devices","display_modes","achievements","presence","network_status","virtual_keyboard","locale","clock","power_suspend","error_presentation"],
+  "compatibilityDomains":["project_schema","save_data","runtime","plugin_mod","package","update_channel"],
+  "releaseTargets":{"windows":"qualified_evidence_required","linux":"experimental","macos":"unavailable","web":"unsupported"},
+  "packageManifestFields":["content_hashes","references","licenses","notices","platform_capabilities","version","reproducibility_inputs"],
+  "promotedAssetSelection":{"default":"none","authority":"explicit_bundle_ids","unsafeIdBehavior":"reject","missingManifestBehavior":"reject"}
+}

@@ -1,0 +1,14 @@
+{
+  "schema":"urpg.support_redaction_corpus.v1",
+  "values":[
+    {"kind":"api_key","value":"sk-live-super-secret-123"},
+    {"kind":"email","value":"creator@example.invalid"},
+    {"kind":"windows_path","value":"C:\\Users\\Creator\\Private\\project.json"},
+    {"kind":"unix_path","value":"/home/creator/private/project.json"},
+    {"kind":"unc_path","value":"\\\\studio-server\\private\\project.json"},
+    {"kind":"credential_text","value":"Authorization: Bearer abcdefghijklmnop"},
+    {"kind":"url_encoded_secret","value":"token%3Dencoded-secret-value"},
+    {"kind":"url_encoded_path","value":"C%3A%5CUsers%5CCreator%5CPrivate%5Cproject.json"},
+    {"kind":"unicode_email","value":"créateur@example.invalid"}
+  ]
+}

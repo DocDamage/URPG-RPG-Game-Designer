@@ -114,6 +114,7 @@ TEST_CASE("ProjectCreationService can create the draft creator vertical-slice se
     REQUIRE(seed["status"] == "draft");
     REQUIRE(seed["seed_revision"] == "native_creator_seed.v2");
     REQUIRE(seed["maps"] == nlohmann::json::array({"willow_village", "moonwell_shrine"}));
+    seedInput.close();
     std::ifstream villageDraftInput(destination / "content" / "maps" / "willow_village.p2d.json", std::ios::binary);
     const auto villageDraft = nlohmann::json::parse(villageDraftInput);
     REQUIRE(villageDraft["document_kind"] == "urpg.perspective_2d.map");
@@ -122,6 +123,7 @@ TEST_CASE("ProjectCreationService can create the draft creator vertical-slice se
     REQUIRE(villageDraft["events"].size() == 3);
     REQUIRE(villageDraft["events"][0]["event_id"] == "elder_mira_intro");
     REQUIRE(villageDraft["events"][0]["pages"][0]["commands"][1]["code"] == "show_choice");
+    villageDraftInput.close();
     std::filesystem::remove_all(root);
 }
 

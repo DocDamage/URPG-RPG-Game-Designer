@@ -40,6 +40,38 @@ std::string kindName(PlaytestDebugValueKind kind) {
     return "unknown";
 }
 
+std::optional<PlaytestDebugValueKind> parseKind(const std::string& kind) {
+    if (kind == "switch") return PlaytestDebugValueKind::Switch;
+    if (kind == "variable") return PlaytestDebugValueKind::Variable;
+    if (kind == "self_switch") return PlaytestDebugValueKind::SelfSwitch;
+    if (kind == "entity") return PlaytestDebugValueKind::EntityField;
+    if (kind == "quest") return PlaytestDebugValueKind::QuestState;
+    if (kind == "inventory") return PlaytestDebugValueKind::Inventory;
+    return std::nullopt;
+}
+
+std::optional<PlaytestRuntimeState> runtimeStateFromJson(const nlohmann::json& value) {
+    if (!value.is_object()) return std::nullopt;
+    try {
+        PlaytestRuntimeState state;
+        state.switches = value.at("switches").get<std::map<std::string, bool>>();
+        state.variables = value.at("variables").get<std::map<std::string, int64_t>>();
+        state.self_switches = value.at("self_switches").get<std::map<std::string, bool>>();
+        state.inventory = value.at("inventory").get<std::map<std::string, int64_t>>();
+        for (const auto& [id, entity] : value.at("entities").items()) {
+            state.entities.emplace(id, PlaytestEntityState{id, entity.value("type", ""),
+                entity.at("fields").get<std::map<std::string, nlohmann::json>>()});
+        }
+        for (const auto& [id, quest] : value.at("quests").items()) {
+            state.quests.emplace(id, PlaytestQuestRuntimeState{id, quest.value("state", ""),
+                quest.at("objectives").get<std::map<std::string, std::string>>()});
+        }
+        return state;
+    } catch (const nlohmann::json::exception&) {
+        return std::nullopt;
+    }
+}
+
 } // namespace
 
 bool PlaytestRuntimeStateInspector::beginSession(std::string checkpoint_id, PlaytestRuntimeState state) {
@@ -99,6 +131,92 @@ PlaytestDebugEditResult PlaytestRuntimeStateInspector::applyTemporaryEdit(
     if (!written.success) return written;
     mutations_.push_back({std::move(mutation_id), std::move(address), *before, std::move(value), true, false});
     return {true, "playtest_debug_mutation_applied", "Temporary edit applied to disposable playtest state."};
+}
+
+void PlaytestRuntimeStateInspector::bindLiveBridge(playtest::PlaytestRuntimeStateBridge* bridge) {
+    live_bridge_ = bridge;
+    live_revision_ = 0;
+    next_live_control_id_ = 1;
+    live_connected_ = false;
+    last_live_control_code_.clear();
+}
+
+bool PlaytestRuntimeStateInspector::refreshLive() {
+    if (live_bridge_ == nullptr) {
+        live_connected_ = false;
+        return false;
+    }
+    std::string diagnostic;
+    auto live = live_bridge_->readAfter(live_revision_, &diagnostic);
+    if (!diagnostic.empty()) {
+        last_live_control_code_ = std::move(diagnostic);
+        return false;
+    }
+    if (!live) return live_connected_;
+    auto state = runtimeStateFromJson(live->state);
+    auto packageState = runtimeStateFromJson(live->package_state);
+    if (!state || !packageState) {
+        last_live_control_code_ = "runtime_state_snapshot_type_invalid";
+        return false;
+    }
+    std::vector<PlaytestDebugMutation> mutations;
+    for (const auto& value : live->mutations) {
+        const auto kind = parseKind(value.value("kind", ""));
+        if (!kind || value.value("temporary", false) != true || value.value("packaged", true) != false) {
+            last_live_control_code_ = "runtime_state_snapshot_mutation_invalid";
+            return false;
+        }
+        mutations.push_back({value.value("mutation_id", ""),
+                             {*kind, value.value("id", ""), value.value("field", "")},
+                             value.value("before", nlohmann::json{}),
+                             value.value("after", nlohmann::json{}), true, false});
+    }
+    current_ = std::move(*state);
+    package_state_ = std::move(*packageState);
+    active_checkpoint_id_ = live->checkpoint_id;
+    mutations_ = std::move(mutations);
+    live_revision_ = live->revision;
+    live_connected_ = true;
+    last_live_control_code_ = live->last_control_code.empty() ? "runtime_state_snapshot_acknowledged"
+                                                              : live->last_control_code;
+    return true;
+}
+
+bool PlaytestRuntimeStateInspector::requestLiveTemporaryEdit(
+    std::string mutation_id, PlaytestDebugValueAddress address, nlohmann::json value) {
+    if (live_bridge_ == nullptr || !live_connected_) {
+        last_live_control_code_ = "runtime_state_bridge_not_connected";
+        return false;
+    }
+    playtest::RuntimeStateControl control;
+    control.control_id = next_live_control_id_++;
+    control.expected_revision = live_revision_;
+    control.action = playtest::RuntimeStateControlAction::TemporaryEdit;
+    control.mutation_id = std::move(mutation_id);
+    control.kind = kindName(address.kind);
+    control.id = std::move(address.id);
+    control.field = std::move(address.field);
+    control.value = std::move(value);
+    std::string diagnostic;
+    const bool queued = live_bridge_->appendControl(control, &diagnostic);
+    last_live_control_code_ = queued ? "runtime_state_edit_queued" : std::move(diagnostic);
+    return queued;
+}
+
+bool PlaytestRuntimeStateInspector::requestLiveReset(std::string checkpoint_id) {
+    if (live_bridge_ == nullptr || !live_connected_) {
+        last_live_control_code_ = "runtime_state_bridge_not_connected";
+        return false;
+    }
+    playtest::RuntimeStateControl control;
+    control.control_id = next_live_control_id_++;
+    control.expected_revision = live_revision_;
+    control.action = playtest::RuntimeStateControlAction::ResetCheckpoint;
+    control.checkpoint_id = std::move(checkpoint_id);
+    std::string diagnostic;
+    const bool queued = live_bridge_->appendControl(control, &diagnostic);
+    last_live_control_code_ = queued ? "runtime_state_reset_queued" : std::move(diagnostic);
+    return queued;
 }
 
 std::optional<nlohmann::json> PlaytestRuntimeStateInspector::read(

@@ -27,6 +27,13 @@
 namespace urpg {
 namespace editor {
 
+// Windows headers expose ERROR as a numeric macro, which corrupts the scoped
+// severity enumerator below when this header is reached through native UI
+// translation units.
+#ifdef ERROR
+#undef ERROR
+#endif
+
 // Forward declarations
 class CompatReportModel;
 class CompatReportView;

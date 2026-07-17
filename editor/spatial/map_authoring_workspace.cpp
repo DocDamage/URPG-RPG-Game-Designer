@@ -2,11 +2,14 @@
 
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/spatial_authoring_workspace.h"
+#include "engine/core/save/save_journal.h"
 
 #include <array>
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 namespace urpg::editor {
 namespace {
@@ -39,7 +42,110 @@ void MapAuthoringWorkspace::bind(LevelBuilderWorkspace* levelBuilder, SpatialAut
 
 void MapAuthoringWorkspace::setProjectRoot(std::filesystem::path projectRoot) {
     context_.setProjectRoot(std::move(projectRoot));
+    (void)reloadWorldGraph();
     rebuildSnapshot();
+}
+
+bool MapAuthoringWorkspace::reloadWorldGraph() {
+    world_graph_ = {};
+    world_undo_.clear();
+    world_redo_.clear();
+    world_graph_loaded_ = true;
+    world_graph_persisted_ = false;
+    const auto& root = context_.snapshot().projectRoot;
+    if (root.empty()) {
+        world_graph_loaded_ = false;
+        world_graph_message_ = "Choose a project before editing the world graph.";
+        rebuildSnapshot();
+        return false;
+    }
+    const auto path = root / "content" / "maps" / "world_graph.json";
+    std::error_code error;
+    if (!std::filesystem::is_regular_file(path, error)) {
+        world_graph_message_ = error ? "The world graph could not be inspected: " + error.message() :
+                                       "No world graph exists yet; add the first map to create it.";
+        rebuildSnapshot();
+        return !error;
+    }
+    std::ifstream input(path, std::ios::binary);
+    const auto json = input ? nlohmann::json::parse(input, nullptr, false) : nlohmann::json{};
+    const auto restored = urpg::map::ProjectWorldGraph::fromJson(json);
+    if (!restored) {
+        world_graph_loaded_ = false;
+        world_graph_message_ = "The project world graph is invalid and was not changed.";
+        rebuildSnapshot();
+        return false;
+    }
+    world_graph_ = *restored;
+    world_graph_persisted_ = true;
+    world_graph_message_ = "The project world graph is loaded.";
+    rebuildSnapshot();
+    return true;
+}
+
+MapWorldGraphMutationResult MapAuthoringWorkspace::commitWorldGraph(urpg::map::ProjectWorldGraph next,
+                                                                    std::string code, std::string message,
+                                                                    const bool record_history) {
+    const auto& root = context_.snapshot().projectRoot;
+    if (root.empty() || !world_graph_loaded_) {
+        return {false, "world_graph_owner_unavailable", "Open a valid project world graph before changing it."};
+    }
+    const auto path = root / "content" / "maps" / "world_graph.json";
+    std::error_code filesystemError;
+    std::filesystem::create_directories(path.parent_path(), filesystemError);
+    if (filesystemError) {
+        return {false, "world_graph_directory_failed", "Could not prepare the world graph directory: " + filesystemError.message()};
+    }
+    std::string writeError;
+    if (!SaveJournal::WriteAtomically(path, next.toJson().dump(2) + "\n", &writeError)) {
+        return {false, "world_graph_save_failed", "Could not save the project world graph: " + writeError};
+    }
+    if (record_history) {
+        world_undo_.push_back(world_graph_);
+        if (world_undo_.size() > 64) world_undo_.erase(world_undo_.begin());
+        world_redo_.clear();
+    }
+    world_graph_ = std::move(next);
+    world_graph_persisted_ = true;
+    world_graph_message_ = message;
+    rebuildSnapshot();
+    return {true, std::move(code), std::move(message)};
+}
+
+MapWorldGraphMutationResult MapAuthoringWorkspace::addWorldMap(urpg::map::WorldMapNode map) {
+    auto next = world_graph_;
+    if (!next.addMap(std::move(map))) return {false, "world_map_invalid", "The map is invalid or already exists."};
+    return commitWorldGraph(std::move(next), "world_map_added", "The map was added to the persisted world graph.");
+}
+
+MapWorldGraphMutationResult MapAuthoringWorkspace::addWorldRoute(urpg::map::WorldRoute route) {
+    auto next = world_graph_;
+    if (!next.addRoute(std::move(route))) return {false, "world_route_invalid", "The route is invalid or already exists."};
+    return commitWorldGraph(std::move(next), "world_route_added", "The route was added to the persisted world graph.");
+}
+
+urpg::map::WorldGraphImpact MapAuthoringWorkspace::previewWorldMarkerChange(
+    const std::string& map_id, const std::string& marker_kind, const std::string& marker_id,
+    const std::string& replacement_id) const {
+    return world_graph_.previewMarkerChange(map_id, marker_kind, marker_id, replacement_id);
+}
+
+MapWorldGraphMutationResult MapAuthoringWorkspace::renameWorldMarker(
+    const urpg::map::WorldGraphImpact& reviewed_impact) {
+    auto next = world_graph_;
+    if (!next.renameMarker(reviewed_impact)) {
+        return {false, "world_marker_review_stale", "Review the current marker impact before renaming it."};
+    }
+    return commitWorldGraph(std::move(next), "world_marker_renamed", "The marker and every affected route were renamed.");
+}
+
+MapWorldGraphMutationResult MapAuthoringWorkspace::deleteWorldMarker(
+    const urpg::map::WorldGraphImpact& reviewed_impact) {
+    auto next = world_graph_;
+    if (!next.deleteMarker(reviewed_impact)) {
+        return {false, "world_marker_review_stale", "Review the current marker impact before deleting it."};
+    }
+    return commitWorldGraph(std::move(next), "world_marker_deleted", "The marker and reviewed affected routes were deleted.");
 }
 
 void MapAuthoringWorkspace::setActiveMapId(std::string mapId) {
@@ -121,6 +227,16 @@ bool MapAuthoringWorkspace::focusGridDiagnostic(size_t diagnosticIndex) {
 }
 
 MapAuthoringHistoryResult MapAuthoringWorkspace::undo() {
+    if (active_mode_ == MapAuthoringMode::World && !world_undo_.empty()) {
+        const auto previous = world_undo_.back();
+        const auto current = world_graph_;
+        const auto result = commitWorldGraph(previous, "world_graph_undo", "World graph undo applied.", false);
+        if (result.success) {
+            world_undo_.pop_back();
+            world_redo_.push_back(current);
+        }
+        return {result.success, result.message, "world_graph"};
+    }
     if (active_mode_ != MapAuthoringMode::Parts && perspective_2d_ != nullptr && perspective_2d_->canUndoPerspective2D()) {
         const bool success = perspective_2d_->UndoPerspective2D();
         rebuildSnapshot();
@@ -133,6 +249,16 @@ MapAuthoringHistoryResult MapAuthoringWorkspace::undo() {
 }
 
 MapAuthoringHistoryResult MapAuthoringWorkspace::redo() {
+    if (active_mode_ == MapAuthoringMode::World && !world_redo_.empty()) {
+        const auto next = world_redo_.back();
+        const auto current = world_graph_;
+        const auto result = commitWorldGraph(next, "world_graph_redo", "World graph redo applied.", false);
+        if (result.success) {
+            world_redo_.pop_back();
+            world_undo_.push_back(current);
+        }
+        return {result.success, result.message, "world_graph"};
+    }
     if (active_mode_ != MapAuthoringMode::Parts && perspective_2d_ != nullptr && perspective_2d_->canRedoPerspective2D()) {
         const bool success = perspective_2d_->RedoPerspective2D();
         rebuildSnapshot();
@@ -334,6 +460,11 @@ void MapAuthoringWorkspace::rebuildSnapshot() {
     snapshot_.context = context_.snapshot();
     snapshot_.hasLevelBuilder = level_builder_ != nullptr;
     snapshot_.hasPerspective2D = perspective_2d_ != nullptr;
+    snapshot_.worldGraphAvailable = world_graph_loaded_;
+    snapshot_.worldGraphPersisted = world_graph_persisted_;
+    snapshot_.worldGraphMessage = world_graph_message_;
+    snapshot_.worldPreview = world_graph_.buildPreview();
+    snapshot_.worldDiagnostics = world_graph_.validate();
     snapshot_.modes.clear();
     snapshot_.layout = layout_;
     snapshot_.layoutRecovered = layout_recovered_;

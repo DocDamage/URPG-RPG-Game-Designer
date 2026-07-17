@@ -13,6 +13,7 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "implemented_owner_local",
       "recoveryStatus": "implemented_private_overlay",
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
       "migrationStatus": "partial_schema_validation_only",
       "referenceStatus": "partial_asset_edges",
       "gaps": ["forward migration corpus", "project-wide composite history", "complete stable-ID edges"]
@@ -27,6 +28,7 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "implemented_owner_local",
       "recoveryStatus": "implemented_private_overlay",
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
       "migrationStatus": "partial_schema_validation_only",
       "referenceStatus": "partial_map_event_asset_edges",
       "gaps": ["forward migration corpus", "cross-document inverse", "complete event/data/reference edges"]
@@ -38,12 +40,13 @@
       "ownerFiles": ["editor/ability/ability_inspector_panel.h", "engine/core/ability/authored_ability_asset.h"],
       "pathPattern": "content/abilities/<ability-id>.json",
       "saveOwner": "saveAuthoredAbilityAssetToFile",
-      "atomicSaveStatus": "unproven",
+      "atomicSaveStatus": "implemented",
       "historyStatus": "missing_authoring_history",
       "recoveryStatus": "implemented_private_overlay",
-      "migrationStatus": "missing",
-      "referenceStatus": "missing",
-      "gaps": ["prove atomic publication", "authoring undo/redo", "migration", "stable-ID reference edges"]
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
+      "migrationStatus": "implemented_transactional_preopen_backup",
+      "referenceStatus": "implemented_incremental_ability_effect_asset_edges",
+      "gaps": ["authoring undo/redo", "project-wide composite history"]
     },
     {
       "documentType": "character_creator",
@@ -55,9 +58,10 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "partial_appearance_assignments",
       "recoveryStatus": "implemented_private_overlay",
-      "migrationStatus": "missing",
-      "referenceStatus": "partial_appearance_asset_edges",
-      "gaps": ["whole-document history", "migration", "non-asset stable-ID edges"]
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
+      "migrationStatus": "implemented_transactional_preopen_backup",
+      "referenceStatus": "implemented_incremental_appearance_and_class_edges",
+      "gaps": ["whole-document history", "project-wide composite history"]
     },
     {
       "documentType": "quest",
@@ -69,6 +73,7 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "implemented_owner_local_64",
       "recoveryStatus": "implemented_private_overlay",
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
       "migrationStatus": "missing",
       "referenceStatus": "partial_localization_audit_only",
       "gaps": ["migration", "runtime/data/reference edges", "project-wide composite history"]
@@ -83,6 +88,7 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "implemented_owner_local_64",
       "recoveryStatus": "implemented_private_overlay",
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
       "migrationStatus": "missing",
       "referenceStatus": "partial_voice_localization_edges",
       "gaps": ["migration", "complete graph/runtime reference edges", "project-wide composite history"]
@@ -97,9 +103,10 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "missing",
       "recoveryStatus": "implemented_private_overlay",
-      "migrationStatus": "missing",
-      "referenceStatus": "missing",
-      "gaps": ["undo/redo", "migration", "stable-ID reference edges"]
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
+      "migrationStatus": "implemented_transactional_preopen_backup",
+      "referenceStatus": "implemented_incremental_actor_item_class_asset_edges",
+      "gaps": ["undo/redo", "project-wide composite history"]
     },
     {
       "documentType": "vendor_catalog",
@@ -111,9 +118,10 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "missing",
       "recoveryStatus": "implemented_private_overlay",
-      "migrationStatus": "missing",
-      "referenceStatus": "missing",
-      "gaps": ["undo/redo", "migration", "item/currency/reference edges"]
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
+      "migrationStatus": "implemented_transactional_preopen_backup",
+      "referenceStatus": "implemented_incremental_item_currency_edges",
+      "gaps": ["undo/redo", "project-wide composite history"]
     },
     {
       "documentType": "audio_mix",
@@ -125,6 +133,7 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "partial_assignment_only",
       "recoveryStatus": "implemented_private_overlay",
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
       "migrationStatus": "missing",
       "referenceStatus": "partial_encounter_preview_asset_edge",
       "gaps": ["whole-document history", "migration", "complete audio reference edges"]
@@ -139,6 +148,7 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "missing",
       "recoveryStatus": "implemented_private_overlay",
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
       "migrationStatus": "missing",
       "referenceStatus": "not_applicable_no_cross_document_ids",
       "gaps": ["undo/redo", "migration"]
@@ -153,6 +163,7 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "missing",
       "recoveryStatus": "implemented_private_overlay",
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
       "migrationStatus": "versioned_v1_reject_unknown",
       "referenceStatus": "not_applicable_no_cross_document_ids",
       "gaps": ["undo/redo", "forward migration corpus"]
@@ -167,6 +178,7 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "partial_receipt_apply_revert",
       "recoveryStatus": "implemented_private_overlay",
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
       "migrationStatus": "missing",
       "referenceStatus": "missing",
       "gaps": ["general undo/redo", "migration", "target-owner reference edges"]
@@ -181,9 +193,10 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "implemented_owner_local_64",
       "recoveryStatus": "implemented_private_overlay",
-      "migrationStatus": "partial_legacy_defaults",
-      "referenceStatus": "missing",
-      "gaps": ["formal migration corpus", "command/data reference edges", "project-wide composite history"]
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
+      "migrationStatus": "implemented_transactional_preopen_backup",
+      "referenceStatus": "implemented_incremental_command_data_route_edges",
+      "gaps": ["project-wide composite history"]
     },
     {
       "documentType": "mz_plugin_lock",
@@ -195,6 +208,7 @@
       "atomicSaveStatus": "implemented",
       "historyStatus": "missing",
       "recoveryStatus": "implemented_private_overlay",
+      "externalChangeStatus": "implemented_live_compare_reload_keep_local",
       "migrationStatus": "missing",
       "referenceStatus": "missing",
       "gaps": ["undo/redo", "migration", "plugin dependency/package reference edges"]

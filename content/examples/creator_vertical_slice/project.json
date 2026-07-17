@@ -1,6 +1,9 @@
 {
   "_urpg_format_version": "1.0",
   "_engine_version_min": "0.1.0",
+  "schema_version": "urpg.project.v1",
+  "project_id": "lantern_of_the_willow",
+  "project_name": "Lantern of the Willow",
   "id": "lantern_of_the_willow",
   "name": "Lantern of the Willow",
   "template_id": "jrpg",

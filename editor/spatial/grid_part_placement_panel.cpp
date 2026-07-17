@@ -289,14 +289,16 @@ bool GridPartPlacementPanel::PlaceSelectedSmartPrefabAtGrid(
     int32_t grid_x, int32_t grid_y, const std::unordered_map<std::string, std::string>& parameter_values) {
     if (catalog_ == nullptr || document_ == nullptr || selected_smart_prefab_id_.empty()) {
         last_smart_prefab_result_ = {false, "smart_prefab_owner_unavailable",
-                                     "Open a Grid Part document and select a smart prefab before applying it."};
+                                     "Open a Grid Part document and select a smart prefab before applying it.",
+                                     0, {}, {}};
         captureRenderSnapshot();
         return false;
     }
     const auto* prefab = catalog_->findSmartPrefab(selected_smart_prefab_id_);
     if (prefab == nullptr) {
         last_smart_prefab_result_ = {false, "smart_prefab_missing_definition",
-                                     "The selected smart prefab is no longer present in the active catalog."};
+                                     "The selected smart prefab is no longer present in the active catalog.",
+                                     0, {}, {}};
         captureRenderSnapshot();
         return false;
     }
@@ -347,6 +349,35 @@ bool GridPartPlacementPanel::Redo() {
     const bool redone = history_.redo(*document_);
     captureRenderSnapshot();
     return redone;
+}
+
+urpg::map::GridPartPrefabUpdatePreview GridPartPlacementPanel::PreviewSmartPrefabUpdate(
+    const urpg::map::GridPartSmartPrefab& next) const {
+    if (document_ == nullptr || catalog_ == nullptr) {
+        urpg::map::GridPartPrefabUpdatePreview result;
+        result.code = "prefab_update_owner_unavailable";
+        return result;
+    }
+    return urpg::map::previewGridPartPrefabUpdate(*document_, *catalog_, next);
+}
+
+bool GridPartPlacementPanel::ApplySmartPrefabUpdate(
+    const urpg::map::GridPartPrefabUpdatePreview& reviewed_preview) {
+    if (document_ == nullptr || !urpg::map::applyGridPartPrefabUpdate(*document_, history_, reviewed_preview)) {
+        captureRenderSnapshot();
+        return false;
+    }
+    captureRenderSnapshot();
+    return true;
+}
+
+bool GridPartPlacementPanel::DetachSmartPrefabGroup(const std::string& group_id) {
+    if (document_ == nullptr || !urpg::map::detachGridPartPrefabGroup(*document_, history_, group_id)) {
+        captureRenderSnapshot();
+        return false;
+    }
+    captureRenderSnapshot();
+    return true;
 }
 
 void GridPartPlacementPanel::captureRenderSnapshot() {

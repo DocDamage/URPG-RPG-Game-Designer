@@ -368,6 +368,7 @@ void AssetLibraryPanel::render() {
     if (model_.promotionCatalogIngestActive()) {
         (void)model_.advancePromotionCatalogIngest();
     }
+    (void)model_.advanceExternalCatalogQuery();
     refreshRenderSnapshotsFromModel();
     has_rendered_frame_ = true;
 }

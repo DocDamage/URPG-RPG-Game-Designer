@@ -19,7 +19,10 @@ namespace urpg::scene {
 namespace {
 
 constexpr const char* kMissingBattlebackDiagnostic = "MISSING_BATTLEBACK";
-constexpr uint32_t kSolidQuadTextureId = 1;
+// Texture handle 0 is the renderer's explicit untextured path. Never use a
+// generated OpenGL texture name as a sentinel: the first live texture commonly
+// receives handle 1 and would make solid cues sample unrelated image data.
+constexpr uint32_t kSolidQuadTextureId = 0;
 class BattleSkillAbility final : public urpg::ability::GameplayAbility {
   public:
     explicit BattleSkillAbility(const compat::SkillData& skill)
@@ -584,7 +587,7 @@ void BattleScene::onStart() {
     // Release builds must use an explicitly configured and packaged battleback.
     const std::string configuredBattlebackPath =
         buildBattlebackPath(compat::BattleManager::instance().getBattleBackground());
-    if (!configuredBattlebackPath.empty()) {
+    if (!m_backgroundTexture && !configuredBattlebackPath.empty()) {
         m_backgroundTexture = loadOptionalTexture(configuredBattlebackPath);
     }
 

@@ -42,13 +42,13 @@ ProjectSchemaMigrationResult ProjectSchemaMigrationRegistry::migrate(const std::
         return step.document_type == document_type;
     });
     if (document_type.empty() || target_version.empty() || first == steps_.end() || !document.is_object() ||
-        !document.contains(first->version_field) || !document[first->version_field].is_string()) {
+        (document.contains(first->version_field) && !document[first->version_field].is_string())) {
         result.code = "project_schema_migration_preflight_invalid";
         result.diagnostics.push_back(result.code);
         return result;
     }
     const auto versionField = first->version_field;
-    auto current = document[versionField].get<std::string>();
+    auto current = document.contains(versionField) ? document[versionField].get<std::string>() : "unversioned";
     if (current == target_version) {
         result.success = true;
         result.code = "project_schema_migration_already_current";
@@ -96,6 +96,21 @@ bool ProjectSchemaMigrationRegistry::restoreBackup(const ProjectSchemaMigrationR
                                                    nlohmann::json& document) const {
     if (!result.success || !result.changed || !result.backup.is_object()) return false;
     document = result.backup;
+    return true;
+}
+
+bool registerBuiltInProjectSchemaMigrations(ProjectSchemaMigrationRegistry& registry, std::string* diagnostic) {
+    const std::vector<ProjectSchemaMigrationStep> steps = {
+        {"ability", "schema", "unversioned", "urpg.ability.v1", {}},
+        {"character_creator", "schemaVersion", "unversioned", "1.0.0", {}},
+        {"database", "schema", "unversioned", "urpg.database.v1", {}},
+        {"vendor_catalog", "schema", "unversioned", "urpg.vendor_catalog.v1", {}},
+        {"menu_studio", "schema", "unversioned", "urpg.menu_graph.v1", {}},
+    };
+    for (auto step : steps) {
+        step.migration_spec = {{"from", step.from_version}, {"to", step.to_version}, {"ops", nlohmann::json::array()}};
+        if (!registry.registerStep(std::move(step), diagnostic)) return false;
+    }
     return true;
 }
 

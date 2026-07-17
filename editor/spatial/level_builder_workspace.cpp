@@ -272,6 +272,24 @@ bool LevelBuilderWorkspace::ActivateToolbarAction(const std::string& action_id) 
     return false;
 }
 
+urpg::map::GridPartPrefabUpdatePreview LevelBuilderWorkspace::PreviewSmartPrefabUpdate(
+    const urpg::map::GridPartSmartPrefab& next) const {
+    return placement_panel_.PreviewSmartPrefabUpdate(next);
+}
+
+bool LevelBuilderWorkspace::ApplySmartPrefabUpdate(
+    const urpg::map::GridPartPrefabUpdatePreview& reviewed_preview) {
+    const bool applied = placement_panel_.ApplySmartPrefabUpdate(reviewed_preview);
+    captureRenderSnapshot();
+    return applied;
+}
+
+bool LevelBuilderWorkspace::DetachSmartPrefabGroup(const std::string& group_id) {
+    const bool detached = placement_panel_.DetachSmartPrefabGroup(group_id);
+    captureRenderSnapshot();
+    return detached;
+}
+
 LevelBuilderWorkspace::EditHistoryResult LevelBuilderWorkspace::UndoLastEdit() {
     EditHistoryResult result;
     result.command_id = "undo";

@@ -372,6 +372,15 @@ std::vector<uint8_t> makeBattleEnemyPixels() {
     return pixels;
 }
 
+std::shared_ptr<urpg::Texture> makeTransparentBattlebackTexture() {
+    auto texture = std::make_shared<urpg::Texture>();
+    const std::vector<uint8_t> transparentPixel = {0, 0, 0, 0};
+    if (!texture->loadFromMemory(transparentPixel, 1, 1)) {
+        throw std::runtime_error("Failed to load in-memory transparent battleback texture.");
+    }
+    return texture;
+}
+
 SceneSnapshot captureBattleSceneSnapshot(bool includeEnemyAndCues) {
     auto& layer = RenderLayer::getInstance();
     layer.flush();
@@ -393,6 +402,7 @@ SceneSnapshot captureBattleSceneSnapshot(bool includeEnemyAndCues) {
             }
 
             urpg::scene::BattleScene battle({});
+            battle.setBattlebackTexture(makeTransparentBattlebackTexture());
             battle.addActor("1", "Hero", 96, 28, {120.0f, 280.0f}, actorTexture);
             if (includeEnemyAndCues) {
                 battle.addEnemy("1", "Slime", 44, 0, {540.0f, 170.0f}, enemyTexture);
@@ -592,6 +602,7 @@ SceneSnapshot captureEngineShellBattleSceneSnapshot() {
             }
 
             auto battle = std::make_shared<urpg::scene::BattleScene>(std::vector<std::string>{});
+            battle->setBattlebackTexture(makeTransparentBattlebackTexture());
             battle->addActor("1", "Hero", 96, 28, {120.0f, 280.0f}, actorTexture);
             battle->addEnemy("1", "Slime", 44, 0, {540.0f, 170.0f}, enemyTexture);
 

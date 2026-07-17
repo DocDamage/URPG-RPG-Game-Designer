@@ -1,7 +1,7 @@
 {
   "schema": "urpg.release_evidence_index.v1",
   "authority": "docs/superpowers/plans/2026-07-15-product-completion-nintendo-quality-and-ardy-plan.md",
-  "updatedAt": "2026-07-16",
+  "updatedAt": "2026-07-17",
   "entries": [
     {
       "requirementId": "PCQ-000",
@@ -24,7 +24,7 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; PowerShell 7",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
       "notes": "Deliberately stale runtime rejection passed. The CMake/Ninja runtime-DLL rule now uses a Windows PowerShell 5.1/PowerShell 7 compatible SHA-256 helper, skips byte-identical locked DLLs, and still copies or fails truthfully when content differs. Configure and an actual urpg_tests link/post-build completed successfully. Clean qualification emission remains pending."
@@ -88,20 +88,20 @@
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "All 13 durable native editor documents have explicit owner, save, history, recovery, migration, reference, and gap status; clean-commit evidence remains pending."
+      "notes": "All 14 durable native editor documents have explicit owner, atomic save, history, recovery, migration, reference, external-change, and gap status. Every owner now identifies live compare/reload/keep-local registration through its authoritative serializer, including the paired Grid Map and Perspective 2D Map owners. Ability publication now uses staged atomic replacement with injected-interruption coverage instead of an unproven direct write. Direct stable-ID changes fail closed pending a reference-aware rename plan. Clean-commit and Wave A boundary evidence remain pending."
     },
     {
       "requirementId": "PCQ-102",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[project][reference_index]\" --reporter compact",
-      "reports": [],
+      "command": ".\\tools\\ci\\check_wave_a_foundation_matrices.ps1; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[project][reference_index]\" --reporter compact",
+      "reports": ["content/readiness/project_reference_matrix.json"],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "Typed deterministic graph, canonical project-root rebuild, atomic incremental replacement, rebuild equivalence, inbound/outbound, and package-inclusion queries pass within the 68-assertion 7-case focused suite. Extractors cover maps/events/switches/variables/assets, dialogue, quests, menus, database records, gameplay recipes, MZ plugins, and native mods. Clean-commit evidence remains pending."
+      "notes": "Typed deterministic graph, canonical project-root rebuild, atomic incremental replacement, inbound/outbound, package-inclusion, and indexed object search cover the required families. The live editor refreshes the graph off the UI thread and Ctrl+P exposes navigable object results; document-level incremental extraction, grouped-boundary verification, and clean-candidate evidence remain pending."
     },
     {
       "requirementId": "PCQ-101",
@@ -171,8 +171,8 @@
     {
       "requirementId": "PCQ-107",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[project][schema_migration]\" --reporter compact",
-      "reports": [],
+      "command": ".\\tools\\ci\\check_wave_a_foundation_matrices.ps1; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[project][schema_migration]\" --reporter compact",
+      "reports": ["content/readiness/project_migration_matrix.json"],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
@@ -210,15 +210,15 @@
     {
       "requirementId": "PCQ-202",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[ui][design_tokens]\" --reporter compact",
-      "reports": [],
+      "command": ".\\tools\\ci\\check_wave_a_foundation_matrices.ps1; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[ui][design_tokens]\" --reporter compact",
+      "reports": ["content/readiness/editor_scale_matrix.json"],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "Persisted UI scale now applies globally to ImGui fonts and style metrics at startup, semantic light/dark/high-contrast tokens drive core style roles, and supported 50%-300% token bounds pass within the 77-assertion suite. Live scale rebuild, fixed-canvas conversion, route-by-scale snapshots/manual review, and clean-commit evidence remain pending."
+      "notes": "Persisted UI scale applies globally to ImGui fonts and style metrics, semantic dark/high-contrast tokens drive core style roles, and the startup Settings route now rebuilds the live default font atlas and style at 50%-300% while persisting scale, high contrast, and reduced motion. Fixed-canvas/icon/hit-target conversion, route-by-scale snapshots/manual review, grouped-boundary verification, and clean-candidate evidence remain pending."
     },
     {
       "requirementId": "PCQ-500",
@@ -236,8 +236,8 @@
     {
       "requirementId": "PCQ-201",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[editor][widget_state]\" --reporter compact",
-      "reports": [],
+      "command": ".\\tools\\ci\\check_wave_a_foundation_matrices.ps1; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[editor][widget_state]\" --reporter compact",
+      "reports": ["content/readiness/editor_widget_state_matrix.json"],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
@@ -257,7 +257,7 @@
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "Recent, pinned, missing-project recovery, guided certified-template creation, settings, create-and-playtest, and native browse-backed open/create/locate paths pass 95 assertions in 9 cases. The startup capability matrix names every required destination and assigns enabled routes only to working flows, with explicit unavailable reasons for project import, pre-open health, and examples. First-class import, recovery-snapshot, project-health, and example startup routes plus first-user visual qualification and clean-commit evidence remain pending."
+      "notes": "Recent, pinned, missing-project location, guided certified-template creation, settings, create-and-playtest, and native browse-backed open/create/locate paths exist. Recent projects now expose non-mutating pre-open manifest/identity health inspection, while validated private snapshots are discovered from startup and restored only to a separate project folder before an explicit open. Project import, a qualified shipped example route, first-user visual qualification, grouped-boundary verification, and clean-candidate evidence remain pending."
     },
     {
       "requirementId": "PCQ-204",
@@ -328,14 +328,14 @@
       "requirementId": "PCQ-209",
       "status": "in_progress",
       "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[editor][diagnostics][error_card]\" --reporter compact; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[project][main_menu]\" --reporter compact",
-      "reports": [],
+      "reports": ["content/fixtures/editor_error_corpus.json"],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "A validated editor error-card contract requires a plain summary, affected object, consequence, suggested fix, Go To action, Retry action, copy-details payload, and redacted support export. Recursive redaction removes credential-bearing fields and filesystem paths; raw std:: diagnostics and dead-end cards are rejected. Startup project-open failures now emit this actionable card while retaining compatibility text. The focused error and startup suites pass 113 assertions in 11 cases. Error-corpus conversion/audit across all panels, shared visual renderer adoption, interactive action dispatch, and clean-commit evidence remain pending."
+      "notes": "A validated editor error-card contract requires a plain summary, affected object, consequence, suggested fix, Go To action, Retry action, copy-details payload, and redacted support export. Recursive redaction removes credential-bearing fields and filesystem paths; raw std:: diagnostics and dead-end cards are rejected. A curated project/save/external-change/migration/playtest/package corpus is machine-reviewed through the same JSON adapter, and a shared ImGui renderer provides live Go To, Retry, and redacted-copy actions for startup project-open failures. Remaining production-panel conversion, grouped-boundary verification, and clean-candidate evidence remain pending."
     },
     {
       "requirementId": "PCQ-300",
@@ -358,10 +358,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "The catalog now combines existing collections, favorites, rich quick/facet filters, provenance, license, usage references, and package readiness with persisted named searches and two-to-four-asset comparison rows. Browser/action rows expose explicit usage_count, provenance, and package_status fields. Curation/settings persistence passes 60 assertions in 2 cases. The deterministic 100,000-row fixture passes 8 assertions; this run recorded fixture generation 4868 ms, catalog load 9 ms, and a 50,000-match filtered page query 2689 ms. Visual comparison UI adoption, interactive responsiveness capture, broader query-index optimization, and clean-commit evidence remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "Collections, favorites, saved searches, rich filters, comparison, usage, provenance, license, and package status remain available. Broad local-catalog queries now advance in bounded 1,000-record UI slices with progress and cancellation instead of monopolizing one frame; the deterministic 100,000-row fixture remains covered. The complete asset lane passed 1,883 assertions in 116 cases. Target-hardware budget approval, manual comparison recording, and clean-candidate provenance remain pending."
     },
     {
       "requirementId": "PCQ-302",
@@ -371,10 +371,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "One asset lifecycle orchestration service now normalizes relink, detach, replace, deduplicate, rename, move, and delete through ProjectReferenceIndex impact previews, ProjectReferenceChangePlan package/reference effects, and ProjectOperationCoordinator typed-owner execution. Deduplication requires equal non-empty hashes; referenced detach/delete are refused; successful multi-owner intent exposes one stable label and undo/redo boundary. The focused suite passes 42 assertions in 2 cases. Concrete map/dialogue/menu/database owner adapters, attachment file detach/move transactions, save/reopen/playtest/package round trips, editor impact UI, and clean-commit evidence remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "Relink, detach, replace, deduplicate, rename, move, and delete share reference impacts and the project-operation coordinator. Concrete map/event/data fixture mutations now persist and reopen with one journal/history boundary. Derived attachment admission checks stale revisions before reference mutation, preserves idempotent receipt replay, and uses Windows-safe atomic reference staging. The complete asset lane passed 1,883 assertions in 116 cases. Full playtest/package round trips and clean-candidate provenance remain pending."
     },
     {
       "requirementId": "PCQ-303",
@@ -410,10 +410,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "One shared use-here compatibility contract now covers map tile, map prop, map event sprite, battle asset, menu image, portrait, animation, and audio destinations. Each compatible destination exposes picker, drag/drop, keyboard, and owner-undo paths; raw/unattached assets, incompatible targets, media-kind mismatches, and owners without undo are refused with explicit codes and reasons. Asset Library picker metadata advertises the eight governed destination selectors, and the focused suite passes 70 assertions in 2 cases. Concrete destination-owner mutation adapters, end-to-end undo/save/playtest/package round trips, manual UI input verification, and clean-commit evidence remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "One shared use-here compatibility contract covers all eight required destinations. Picker, drag/drop, and keyboard paths now commit through a complete authoritative ProjectOperationParticipant, reject stale or non-undoable owners, and share live undo/redo plus reopened JSON persistence. The consolidated Wave B focused run passed 420 assertions in 17 cases. Manual UI recording and clean-candidate provenance remain pending."
     },
     {
       "requirementId": "PCQ-306",
@@ -436,10 +436,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "A deterministic third-party asset notices/BOM generator now derives package rows from governed AssetRecord provenance and authored rights metadata, sorts them independently of input order, and emits stable JSON plus reviewed human-readable notice text. Configurable policy fails packaging closed for unresolved license, source, rights-review, or export-eligibility metadata while excluding non-runtime source-only records by default. The focused suite passes 14 assertions in 2 cases. Export-packager file emission, reviewer approval/signoff UI, package-content round trip, and clean-commit evidence remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "The deterministic notices/BOM owner derives sorted rows from governed provenance and rights metadata. It now atomically publishes licenses/third_party_assets.json and licenses/THIRD_PARTY_ASSETS.txt to a package root and emits nothing when required rights are unresolved. The notices lane passed 22 assertions in 2 cases. Integration with the real export packager, reviewer signoff custody, and clean-candidate provenance remain pending."
     },
     {
       "requirementId": "PCQ-350",
@@ -462,10 +462,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "The native Perspective 2D owner now accepts atomic erase as well as upsert tile edits. A shared batch-edit layer supplies point, box, and lasso selection plus cut, paste, duplicate, move, fill, line, rectangle, replace, and stamp previews that resolve to one reviewed owner command; existing layer multi-select/visibility/lock/duplicate/delete remains intact. The focused suite passes 25 assertions in 2 cases, including 13 round-trip assertions proving destructive move, undo/redo, save, and reopen. Prop/event multi-selection and batch property editing, interactive clipboard/gesture adapters, runtime projection round trip, larger-map performance, and clean-commit evidence remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "Tile point/box/lasso selection and cut, paste, duplicate, move, fill, line, rectangle, replace, and stamp remain one reviewed owner command. Prop and event box/lasso selection plus batch movement, rotation, scale, collision, and visibility now commit atomically through the revision-guarded Perspective 2D owner with undo/redo and reopen coverage. The complete Map lane passed 535 assertions in 56 cases. Full destructive-operation runtime projection and manual keyboard recording remain pending."
     },
     {
       "requirementId": "PCQ-352",
@@ -475,10 +475,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "Smart-prefab placement now uses version-independent stable operation instance IDs and records a stable group ID. The lifecycle owner previews affected instances and deterministic dependency closure, updates matched operations, adds/removes version operations, preserves explicit instance property overrides, and supports content-preserving detach; update and detach both execute through one native bulk-history boundary. The focused suite passes 21 assertions in 1 case including update, override preservation, add, undo/redo, detach, and detach undo. Placement/editor update UI, serialized save/reopen and runtime/package closure round trips, multi-group conflict handling, and clean-commit evidence remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "Versioned prefab placement, update preview, override preservation, deterministic dependency closure, update, detach, and one bulk history boundary now route through the live Grid Parts child of the canonical Map workspace. Serialized reopen preserves prefab identity. The Grid Parts lane passed 1,059 assertions in 110 cases. Real runtime/package closure and clean-candidate provenance remain pending."
     },
     {
       "requirementId": "PCQ-353",
@@ -501,23 +501,23 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "A durable project world graph now owns named maps, entrances, exits, checkpoints, spawn points, conditional routes, object-linked invalid-reference diagnostics, orphan-map detection, deterministic JSON persistence, and transfer resolution to authored entrance coordinates. The focused suite passes 25 assertions in 2 cases; its golden slice authors and simulates a condition-gated town-to-forest transfer and unconditional return loop, then proves checkpoints/spawns and graph identity survive round trip. Map workspace graph editor, event-command synchronization, live runtime scene transfer/playtest, project save-file placement, and clean-commit evidence remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "The durable graph owns maps, entrances, exits, checkpoints, spawns, conditional routes, orphans, diagnostics, persistence, and transfer resolution. Canonical Map World mode now creates and atomically persists maps/routes, renders deterministic preview and diagnostics, and provides world undo/redo. The world-graph suite passed 55 assertions in 4 cases. A UI-authored two-map loop in a live runtime process and clean-candidate provenance remain pending."
     },
     {
       "requirementId": "PCQ-355",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[playtest session][editor][spatial_bridge]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[playtest session][editor]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[runtime_bridge],[map_batch_edit],[world_graph],[notices],[use_here],[local_catalog],[prefab]\"",
       "reports": [],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "PlaytestSessionController now supports coordinate-based play-from-here, a structured session-local teleport_here command channel, normal return-to-editor selection, and diagnostic-to-cell return context. Map, cell spawn, selected object, and checkpoint identity remain authoritative across launch, teleport, diagnostic focus, and return; unsafe map/coordinate requests remain refused. The spatial bridge passes 15 assertions in 1 case and the complete controller suite passes 48 assertions in 3 cases. Runtime-side command consumption, live scene teleport acknowledgement, Map workspace button adapters, manual cross-process focus recording, and clean-commit evidence remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "Play-from-here, live teleport, return selection, and diagnostic focus retain stable map/object identity. Runtime now consumes a bounded append-only command stream, changes map scenes when required, updates the player position, rejects malformed input, and acknowledges every consumed command. Visible Map controls queue teleports and restore returned selection. The consolidated focused run passed 420 assertions in 17 cases; clean-candidate provenance remains pending."
     },
     {
       "requirementId": "PCQ-356",
@@ -527,10 +527,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "ProjectWorldGraph now produces a deterministic minimap/world preview with map nodes, route edges, condition keys, stable positions, and orphan state. Entrance/exit/checkpoint/spawn marker change previews identify the exact object and enumerate every affected route with source/target role and counterpart map; a reviewed entrance rename rewrites all affected route references before graph validation. The impact slice passes 19 assertions in 1 case and the full graph suite passes 44 assertions in 3 cases. Visual Map panel rendering/interaction, reviewed deletion application, event-command synchronization, save/package round trip, and clean-commit evidence remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "The deterministic world preview and impact model enumerate every affected route. World mode renders those impacts; reviewed rename and deletion fail closed on stale previews, rewrite or remove affected routes, persist atomically, and round-trip through world undo/redo and reopen. The world-graph suite passed 55 assertions in 4 cases. Real package-content round trip and clean-candidate provenance remain pending."
     },
     {
       "requirementId": "PCQ-357",
@@ -553,10 +553,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "The native EventCommandKind schema now covers conditions/branches, loops/breaks, waits/timers, parallel lanes, switch/variable/self-switch state, movement routes, camera, animation, audio, common events, transfer, battle, shop, item/gold, fade, and controlled script/extension calls. One authoritative 26-row capability matrix binds each command to authoring UI, serialization key, runtime effect, diagnostics, undo support, and controlled-call policy; a UI-neutral executor proves state, branch/loop, timing, action, and allowlist effects. The matrix/executor suite passes 199 assertions in 2 cases and existing EventDocument serialization/validation remains green at 24 assertions in 6 cases. Nested native compiler/scene adapters, real editor insertion widgets and history, full runtime-effect integrations, and clean-commit evidence remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "The governed 26-row native command matrix is now executable evidence synchronized to the production capability authority: every row names authoring, serialization, runtime effect, diagnostics, undo, and controlled-call policy. The complete event lane passed 927 assertions in 56 cases, and the grouped urpg_tests/urpg_runtime/urpg_editor build completed without compiler warnings. Clean-candidate provenance and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-401",
@@ -592,10 +592,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "A native EventDocument static analyzer now combines existing reference validation with source-linked checks for commands after terminal effects, missing references, tight loops, infinite loops, unsafe parallel writes, transfer dead ends, missing localization IDs, voiced messages without captions, and autorun softlock risk. Findings carry severity, event/page/command identity, explanation, and actionable remediation. The curated bad/clean corpus passes 27 assertions in 2 cases, proving every requested hazard family and a finding-free localized two-way transfer. Diagnostics-panel integration, review/suppression workflow, larger false-positive calibration corpus, live runtime correlation, and clean-commit evidence remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "The source-linked analyzer covers unreachable commands, missing references, tight and infinite loops, unsafe parallel mutation, transfer dead ends, localization and caption gaps, and likely softlocks. A governed clean/bad corpus now enumerates every required hazard and is consumed by the Wave C qualification test instead of existing only as in-test construction. Review/suppression UX, live runtime correlation, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-404",
@@ -605,15 +605,15 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "Dialogue choices and quest nodes now support deterministic reorder, while quest graphs expose visual-authoring mutations for node create/remove, connect/disconnect, and canvas placement. A unified branching-quest document cross-validates dialogue-choice quest conditions, migrates legacy v1/editor-shaped data, collects deterministic voice/caption/localization/quest package closure, drives dialogue choices into quest runtime progress, and preserves runtime state through save/load. The focused voiced branching quest passes 26 assertions in 2 cases; dialogue and quest regressions pass 88 assertions in 6 cases and 36 assertions in 4 cases. The monolithic executable linked successfully, then the known running-editor SDL2d.dll post-build copy failed with permission denied. Concrete ImGui graph gestures, undo/history integration for these mutations, real project-file/package writer integration, manual visual/accessibility proof, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "The governed branching voiced quest cross-validates dialogue choices and quest conditions, carries voice/caption/localization closure, migrates legacy data, and preserves runtime state through save/load. BranchingQuestProjectService now atomically saves the project document, transactionally publishes document plus semantic closure, verifies installed-package closure, and reloads the installed quest into runtime. Wave C qualification passed 250 assertions in 4 cases; dialogue passed 134 assertions and quest passed 36. Manual visual/accessibility review, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-405",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[events][templates][pcq405]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[events][authoring][document]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[events][authoring][graph]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq405]\" --reporter console",
       "reports": [],
       "screenshots": [],
       "recordings": [],
@@ -621,12 +621,12 @@
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "A project-level EventTemplateLibrary now supports reusable common-event and narrative templates with typed string/integer/boolean/reference parameters, defaults, deterministic substitution, stable instances, per-command overrides, canonical CommonEventDefinition generation, persistence, dependency-backed find-uses, update/delete impact previews, versioned updates, safe deletion refusal, and replacement. Replacement preflights every instance and override before mutation; incompatible replacements fail atomically, while compatible updates and replacements preserve instance bindings, overrides, caller IDs, save-field metadata, payloads, and compatibility fallbacks. The focused suite passes 38 assertions in 2 cases; EventDocument and dependency-graph regressions pass 24 assertions in 6 cases and 6 assertions in 1 case. The test executable linked successfully before the known running-editor SDL2d.dll post-build copy denial. Visual library/picker UI, undo/history transaction wiring, project-file ownership, cross-document replacement UI, manual usability proof, clean-commit evidence, and release signoff remain pending."
+      "notes": "The template library validates typed parameters and preserves overrides. EventTemplateProjectService now owns definitions, instances, and rendered events in one atomic revisioned project document; reviewed update/delete/replacement commits through ProjectOperationCoordinator with durable recovery snapshots, stale rejection, undo, and redo. EventAuthoringModel exposes deterministic picker, selection, affected-instance/caller, validity, and explicit-apply state. Strict PCQ-405 coverage passes 76 assertions in four cases. Clean-candidate provenance, manual visual review, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-406",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[events][runtime_trace][pcq406]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[events][authoring][debugger]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[events][native_command_matrix]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq406]\" --reporter console",
       "reports": [],
       "screenshots": [],
       "recordings": [],
@@ -634,7 +634,7 @@
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "EventDebugger now executes nested common events correctly through the authoritative native command executor and emits a bounded 4,096-entry runtime trace. Each entry identifies the current command and editor source route, event/page/command/index, stack depth, main or parallel lane, branch outcome, wait duration, result code, and before/after switch or variable mutations. Snapshots expose the next command/source, full stack, watched variables, branch depth, wait state, parallel lanes, and trace; any retained trace sequence resolves back to its exact event or common-event editor source. A failing ritual/quest corpus passes 19 assertions in 1 case across variable mutation, false branch, wait, parallel lane, nested common-event switch mutation, stack depth, and source navigation; existing debugger and native matrix suites pass 5 assertions in 1 case and 199 assertions in 2 cases. The executable linked before the known editor-owned SDL2d.dll copy denial. Live playtest transport, trace panel rendering/filtering, pause/resume timing semantics, parallel-lane scheduling visualization, source-opening UI, manual workflow proof, clean-commit evidence, and release signoff remain pending."
+      "notes": "EventDebugger emits a bounded source-linked 4,096-row trace with command, stack, branch, wait, lane, result, and mutation state. PlaytestEventTraceBridge now atomically transports revisioned snapshots from the live runtime session and accepts bounded revision-guarded pause, continue, step, and frame-advance controls. DiagnosticsWorkspace exposes a Live Event Trace tab with connection and pause state, event/lane filters, parallel lanes, exact event/common-event source opening, and control acknowledgement. Strict PCQ-406 coverage passes 46 assertions in three cases. Manual workflow proof, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-407",
@@ -670,23 +670,23 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "DatabaseBatchEditService now preflights fill, numeric formula, linear curve, stable-ID duplication, and structured import operations against a copied table projection, reporting every missing or invalid target before any mutation. Valid plans carry before/after snapshots, changed-row counts, the owning table kind, and a generation guard; apply is atomic, stale plans are rejected, and undo/redo refuse intervening edits. Export/import preserves row identity, names, summaries, typed field strings, and revisions, while duplicate/import validation rejects missing or repeated stable IDs. Focused batch coverage passes 40 assertions in 4 cases; PCQ-450 virtual-table regressions pass 72 assertions in 4 cases and the combined database tag passes 128 assertions in 13 cases. The source-matching urpg_tests target built successfully; Ninja recovered from its existing premature build-log EOF warning. Concrete multi-select/table UI, richer expression parsing and curve visualization, domain-level command/history adapters, CSV interchange, manual workflow proof, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "The visible database workspace exposes bounded tables, multi-selection, fill, formulas, curves, duplication, complete validation preview, apply, undo, and redo. Actor and item plans now commit through the bound typed RpgDatabase authority, preserve item metadata, reject stale generations, and remove duplicated records through typed undo rather than mutating an editor-only projection. The focused batch lane passed 50 assertions in 5 cases and the full database lane passed 286 assertions in 20 cases. Remaining typed safe replace/delete work is tracked under PCQ-452; clean-candidate provenance remains pending."
     },
     {
       "requirementId": "PCQ-452",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[editor][database][references][pcq452]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[project][reference_index]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[project][reference_change]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[database]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq452]\" --reporter compact; .\\build\\dev-ninja-debug-warnings-as-errors\\urpg_tests.exe \"[pcq452]\" --reporter compact; .\\build\\dev-ninja-debug-warnings-as-errors\\urpg_tests.exe \"[database]\" --reporter compact",
       "reports": [],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "DatabaseReferenceWorkspace now maps all 13 golden-slice record tables onto the shared ProjectReferenceIndex and ProjectReferenceChangePlan authorities. It provides stable-ID/name picker options, bounded search, find-uses with document/local source identity, deterministic orphan detection, package-aware delete impact, and same-kind replacement preview with inverse details. Indexed inbound uses block deletion; unreferenced records preview as safe; replacements require both source and replacement records and produce no dangling target in the planned edge set. The adapter remains read-only so typed domain owners and ProjectOperationCoordinator retain mutation/undo authority. Focused database-reference coverage passes 75 assertions in 3 cases; reference-index and reference-change regressions pass 68 assertions in 7 cases and 22 assertions in 3 cases; the combined database tag passes 203 assertions in 16 cases. The source-matching urpg_tests target built successfully with the existing Ninja build-log recovery warning. Concrete picker/find-uses/impact UI, typed-owner apply adapters for every domain, cross-document commit tests, manual workflow proof, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "Database reference tooling covers all 13 golden-slice record kinds with stable pickers, find-uses, orphan detection, and reviewed rename, safe-delete, and replacement impacts. DatabaseRecordOperationService requires a typed owner for the authoritative record document and every affected referencing document before ProjectOperationCoordinator can commit. The production DatabasePanel exposes pending review, applicability, affected uses, package impact, and exact review code. Focused tests apply typed-owner rename across all 13 kinds, reopen both record and consumer documents with no dangling source edge, and prove safe delete, referenced replacement, owner-coverage rejection, durable recovery snapshots, undo, and redo. Normal and warnings-as-errors PCQ-452 runs each pass 238 assertions in 7 cases; the final strict database suite passes 456 assertions in 24 cases. Manual workflow proof, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-453",
@@ -709,10 +709,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "EconomyRevisionHistory now records immutable committed scenario snapshots with stable revision IDs, source revisions, deterministic content hashes, and their reproducible simulation reports. Recursive comparison covers scenario parameters and derived outcomes with JSON paths and numeric deltas. Deterministic review export embeds both hashed revisions, assumptions, strategies, sensitivities, findings, and the complete difference set without timestamps or ambient state. Restore is exposed only as a ProjectOperationParticipant, so the authoritative scenario changes through the existing ProjectOperationCoordinator with source-revision validation, rollback, labeled undo, and redo rather than through a second mutable balance store. Focused history coverage passes 41 assertions in 3 cases; project-operation coordinator and combined economy regressions pass 40 assertions in 5 cases and 63 assertions in 6 cases. The source-matching urpg_tests target built successfully with the existing Ninja build-log recovery warning. Concrete comparison/history UI, project-file persistence for committed review snapshots, report-file writing and redaction, manual review proof, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "Immutable balance revisions retain stable IDs, hashes, seeded simulations, recursive differences, and deterministic review JSON. Review reports now publish atomically to a governed file, while restore remains a durable ProjectOperationParticipant with source-revision guards, recovery snapshot, rollback, undo, and redo; the newer document-path field is initialized explicitly with no compiler warning. Economy history passed 53 assertions in 4 cases and the complete economy lane passed 75 assertions in 7 cases. Clean-candidate provenance and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-455",
@@ -722,9 +722,9 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
+      "evidenceDate": "2026-07-17",
       "notes": "DatabaseVerticalSliceIntegration now exercises one selected actor and stable record set through encounter/battle reward selection, inventory, equipment-tag validation, crafting output, vendor stock, quest completion, localization resolution, fresh-save rehydration, typed compat-save migration, and semantic package closure. The closure identifies every actor, item, enemy, encounter, quest, vendor, recipe, and localization key actually exercised. Save migration now recognizes a validated databaseState payload, maps it to native database_state without fallback, and preserves malformed state losslessly with an actionable diagnostic. A deliberately broken cross-domain fixture fails actor/item/equipment/battle/vendor/quest/localization/save checks before packaging. Focused vertical-slice and malformed-migration coverage pass 33 assertions in 2 cases and 4 assertions in 1 case; save-migration and combined database regressions pass 53 assertions in 6 cases and 236 assertions in 18 cases. The source-matching urpg_tests target built successfully with the existing Ninja build-log recovery warning. Full BattleScene combat execution, real package-file writer consumption of the semantic closure, migrated installed-package playthrough, concrete editor integration, manual proof, clean-commit evidence, and release signoff remain pending."
     },
     {
@@ -737,60 +737,60 @@
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "PlaytestHotReloadCoordinator now defines a bounded nine-class product matrix for maps, dialogue, quests, database, localization, audio, scripts, plugins, and renderer resources, then intersects it with runtime-advertised capabilities. Requests require stable safe IDs, non-empty payloads capped at 4 MiB, valid JSON for structured resources, optimistic source revisions, and an explicit preserve/reset-affected/reset-all policy. Preserve is allowed only where both sides support it. Hot-reloadable, restart-required, and rejected outcomes are explicit. A failed partial apply must roll back before restart fallback; rollback failure leaves revision unchanged and forbids unsafe restart. Focused capability/validation/apply/restart/recovery coverage passes 39 assertions in 5 cases; existing playtest session/overlay/return regressions pass 48 assertions in 3 cases. The warning-clean source-matching urpg_tests target built successfully with the existing Ninja build-log recovery warning. Live runtime transport/session-manifest wiring, concrete document-owner validators, visible reload controls/status, process-level restart verification, manual creator-loop proof, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "PlaytestHotReloadCoordinator defines the bounded nine-class product matrix and fail-closed payload, revision, policy, rollback, restart-required, and rejection rules. The live current-map path now atomically stages bounded Grid and Perspective 2D overlays, admits only safe map IDs and reset_affected policy, sends the expected revision through the editor/runtime command bridge, permits one pending reload, and advances the editor revision only after an applied runtime acknowledgement. The runtime rebuilds the active MapScene from the staged overlay, resets affected map state, emits a diagnostic, and reports the new revision. The production editor exposes Hot Reload Current Map visibly. Focused Wave D, bridge, and playtest-session coverage passes 71 assertions in 4 cases, 14 assertions in 2 cases, and 58 assertions in 3 cases. The grouped native build is warning-free. Live ownership for the other eight declared resource classes, richer per-resource status, process-level restart recovery, manual creator-loop proof, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-502",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[playtest][state_inspector][pcq502]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[playtest][hot_reload][pcq501]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[events][authoring][debugger]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq502]\" --reporter compact; .\\build\\dev-ninja-debug-warnings-as-errors\\urpg_tests.exe \"[pcq502]\" --reporter compact; cmake --build build/dev-ninja-debug-warnings-as-errors --target urpg_editor urpg_runtime -j 8; cmake --build build/dev-ninja-debug --target urpg_editor urpg_runtime -j 8",
       "reports": [],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "PlaytestRuntimeStateInspector now exposes typed switch, variable, self-switch, entity scalar-field, quest/objective, and inventory views with bounded watches. Safe temporary edits require unique mutation IDs, existing addresses, correct types, constrained numeric ranges, supported quest states, and scalar entity values. Every mutation retains before/after values and is explicitly marked temporary=true and packaged=false. The package projection remains immutable, disposable overlay export separates debug and package state, and reset restores an explicit named checkpoint while clearing the mutation ledger. Multiple bounded runtime checkpoints are supported without replacing the initial package authority. Focused inspector coverage passes 71 assertions in 4 cases; hot-reload and existing event-debugger regressions pass 39 assertions in 5 cases and 5 assertions in 1 case. The source-matching urpg_tests target built successfully with the existing Ninja build-log recovery warning. Live runtime snapshot/edit transport, visible inspector/watch UI and mutation styling, runtime acknowledgement, package-audit integration, manual debugging proof, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "PlaytestRuntimeStateInspector exposes typed switch, variable, self-switch, entity scalar-field, quest/objective, and inventory views with bounded watches. A file-backed atomic process bridge now transports revisioned runtime snapshots and revision-guarded temporary-edit or checkpoint-reset controls with explicit acknowledgement IDs and codes. PlaytestRuntimeStateOwner captures an immutable package baseline, synchronizes live runtime base state, reapplies admitted disposable mutations, rejects stale revisions, and resets the mutation overlay without changing package state. The production runtime publishes authored switches, variables, self-switches, and the live player entity from the active MapScene; the production Diagnostics route binds the active playtest session and visibly marks the inspector, watches, and mutation records temporary and non-packaged. Focused normal and warnings-as-errors PCQ-502 coverage passes 104 assertions in 5 cases, related strict PCQ-503 and diagnostics suites pass, and normal plus warnings-as-errors editor/runtime executables link successfully. Clean-commit evidence and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-503",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[events][debugger][pcq503]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[events][runtime_trace][pcq406]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[events][authoring][debugger]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq503]\" --reporter compact; .\\build\\dev-ninja-debug-warnings-as-errors\\urpg_tests.exe \"[pcq503]\" --reporter compact; cmake --build build/dev-ninja-debug-warnings-as-errors --target urpg_editor urpg_runtime -j 8",
       "reports": [],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "EventDebugger now supports stable typed breakpoint records, variable/switch/self-switch conditions, enable/remove lifecycle, explicit manual pause and continue, single-command stepping, and deterministic frame advance only while paused on a native wait. Breakpoint hit counts, active breakpoint identity, runtime frame, current command source, full common-event call stack, and bounded before/after trace remain available in one snapshot. Legacy addBreakpoint and resume behavior are retained. Focused PCQ-503 coverage passes 42 assertions in 3 cases; PCQ-406 runtime trace and legacy debugger regressions pass 19 assertions in 1 case and 5 assertions in 1 case. The warning-clean source-matching urpg_tests target built successfully with the existing Ninja build-log recovery warning. Live runtime/editor transport, concrete breakpoint/source-focus UI, replay-clock integration beyond native waits, manual failing-event proof, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "The live playtest event-debugger lane now loads the authoritative project event-template document, advances at most one native command per runtime frame, publishes revisioned debugger snapshots, and consumes bounded revision-guarded controls through the same runtime/editor process bridge as live trace. Snapshots carry current exact source, full call stack, active and conditional breakpoints, watches, parallel lanes, and trace. Controls cover pause, bounded continue, step, wait-frame advance, add/remove/enable/disable breakpoint, and watch-variable. The production Diagnostics Live Trace UI binds to the active playtest session and exposes all controls, filters, stack, watches, and exact command focus into Map authoring context. Normal and warnings-as-errors PCQ-503 suites each pass 70 assertions in 5 cases; PCQ-406 passes 62 assertions, events 1,036, and diagnostics 2,218 under both modes. The production editor and runtime executables link successfully under warnings-as-errors. Clean-candidate provenance and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-504",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[replay][scenario][pcq504]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[replay][ffs11]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq504]\" --reporter compact; .\\build\\dev-ninja-debug-warnings-as-errors\\urpg_tests.exe \"[pcq504]\" --reporter compact; .\\build\\dev-ninja-debug-warnings-as-errors\\urpg_tests.exe \"[replay]\" --reporter compact; cmake --build build/dev-ninja-debug-warnings-as-errors --target urpg_tests urpg_editor urpg_runtime -j 8; cmake --build build/dev-ninja-debug --target urpg_tests urpg_editor urpg_runtime -j 8",
       "reports": [],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "ScenarioReplayCapture now records bounded typed semantic inputs with deterministic state hashes, seed, exact project revision, runtime version, sorted labeled checkpoints, redacted checkpoint previews, and an explicit redaction-field ledger. ReplayArtifact JSON remains backward compatible with legacy inputs while round-tripping the new capture fields. ScenarioReplayRunner gates execution on project/runtime identity, supports the same semantic executor in headless and interactive modes, and clearly reports missing executors, unsupported inputs, environment mismatch, or the first divergent tick with expected and actual hashes. Focused PCQ-504 coverage passes 40 assertions in 3 cases; legacy replay/gallery/golden regressions pass 38 assertions in 8 cases. The warning-clean source-matching urpg_tests target built successfully with the existing Ninja build-log recovery warning. Live runtime semantic-input capture/execution adapters, file persistence and signing, visible replay workflow, broader redaction corpus, manual reported-failure replay proof, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "ScenarioReplayCapture records bounded typed semantic inputs with deterministic state hashes, seed, SHA-256 playtest project revision, runtime version, sorted labeled checkpoints, redacted checkpoint previews, and an explicit redaction-field ledger. The production runtime observes remap-independent InputCore actions, captures their post-frame live MapScene state, and atomically persists the evolving replay.json artifact inside the private playtest session for approved support bundles. A bounded revision-guarded process bridge queues headless or interactive replay; the runtime recreates the launch MapScene checkpoint, applies semantic actions through InputCore at a deterministic fixed step, and returns completion or exact environment/input/state divergence. The production Diagnostics Live Trace route exposes capture identity/counts, both replay modes, applied-input totals, and exact expected/actual divergence hashes. Focused normal and warnings-as-errors PCQ-504 coverage passes 61 assertions in 4 cases; the strict replay suite passes 134 assertions in 14 cases; normal and warnings-as-errors test/editor/runtime targets link successfully. Clean-commit evidence and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-505",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[perf][capture][pcq505]\" --reporter console; .\\build\\dev-ninja-debug\\urpg_tests.exe \"[perf][profiler]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq505]\" --reporter compact; .\\build\\dev-ninja-debug-warnings-as-errors\\urpg_tests.exe \"[pcq505]\" --reporter compact; .\\build\\dev-ninja-debug-warnings-as-errors\\urpg_tests.exe \"[perf]\" --reporter compact; cmake --build build/dev-ninja-debug-warnings-as-errors --target urpg_tests urpg_editor urpg_runtime -j 8; cmake --build build/dev-ninja-debug --target urpg_tests urpg_editor urpg_runtime -j 8",
       "reports": [],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "PerformanceCapture now accepts bounded monotonic frame samples spanning total frame time, render, script/event, asset streaming, audio, and memory. Its overlay reports latest/average/maximum frame time, current subsystem timings and memory, plus the most recent retained spike. Threshold crossings are linked deterministically to frame index, timestamp, dominant subsystem, and dominant time; the stable local JSON report contains the same retained frames and spike attribution. Invalid ordering, zero-time samples, duplicate capture starts, and inactive recording are rejected. Focused PCQ-505 coverage passes 39 assertions in 3 cases; legacy PerfProfiler regressions pass 25 assertions in 7 cases. The warning-clean source-matching urpg_tests target built successfully with the existing Ninja build-log recovery warning. Runtime instrumentation wiring, concrete overlay/capture UI, GPU/allocator platform adapters, capture-file writing, manual visible-hitch proof, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "PerformanceCapture accepts bounded monotonic samples spanning total frame time, render, script/event, asset streaming, audio, memory, and spikes. EngineShell now measures platform-input, scene-update, render, and total duration with monotonic clocks; the Windows runtime also samples private process memory. The production playtest lane records live frames, publishes every ten frames or immediately on a threshold crossing, persists performance_capture.json, and accepts revision-guarded start/stop controls. The production Diagnostics Live Trace overlay displays latest/average/maximum frame time, all subsystem lanes, private memory, capture identity and controls, plus exact hitch frame, timestamp, dominant subsystem, and dominant duration. A source-matched EngineShell test measures an actual 40 ms delayed scene update and attributes its spike to Script/Event at the recorded timestamp. Focused normal and warnings-as-errors PCQ-505 coverage passes 68 assertions in 5 cases; the strict performance suite passes 589 assertions in 29 cases; normal and warnings-as-errors test/editor/runtime targets link successfully. Clean-commit evidence and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-506",
@@ -815,8 +815,8 @@
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "RedactedSupportBundleBuilder now assembles structured logs, diagnostics, versions, platform capabilities, project manifest hashes, optional replay, and explicitly opted-in selected project data. A mandatory preview lists included/excluded sections and every redaction before any write. Secret/credential keys, PII keys, filesystem-path keys, suspicious free-text credentials, embedded Windows paths, Unix/UNC paths, and email-like text are conservatively redacted; a corpus proves the source values do not survive serialization. Declined approval writes nothing. Approved output is published locally through a temporary file and rename, declares upload_performed=false, and exposes no network/upload API. Focused PCQ-507 coverage passes 30 assertions in 3 cases. The warning-clean source-matching urpg_tests target built successfully with the existing Ninja build-log recovery warning. Integration with live log/diagnostic/version/platform/manifest/replay providers, concrete preview UI, broader multilingual/encoded PII corpus, archive packaging, manual review evidence, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "The live playtest controller assembles support evidence from captured process output, RuntimeDiagnostics, version, platform capabilities, a SHA-256 session manifest, optional replay, and explicitly selected project data. The production editor renders the mandatory preview with included and excluded sections plus every redaction, then requires explicit Approve or Decline; decline writes nothing. Approved output uses recoverable atomic local replacement, declares upload_performed=false, and no network/upload API exists. The governed corpus covers ordinary and URL-encoded credentials and paths, key prefixes, Unicode email/PII, Windows, Unix, and UNC paths, and verifies source values do not survive serialization. Wave D, playtest-session, and support-redaction coverage passes 71 assertions in 4 cases, 58 assertions in 3 cases, and 12 assertions in 1 case. PCQ-507 is proved for its bounded requirement; manual review, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-600",
@@ -939,13 +939,13 @@
       "requirementId": "PCQ-701",
       "status": "in_progress",
       "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[perf][primary_routes][pcq701]\" --reporter console",
-      "reports": ["content/readiness/primary_route_latency_infrastructure_pcq701.json"],
+      "reports": ["content/readiness/primary_route_latency_infrastructure_pcq701.json", "content/readiness/wave_e_qualification_matrix.json"],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "c9fae9059e1bd3fc3ef635fdc60d6142f9f57e38",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
+      "evidenceDate": "2026-07-17",
       "notes": "PCQ-701 has one file-backed pcq701.v1 policy naming the exact eight primary routes, stable owner/source custody, provisional budgets, maximum slices, index requirements, and a 20-sample minimum. PrimaryRouteWorkAudit aggregates raw samples into urpg.primary_route_latency_report.v1 with nearest-rank p95 and rejects incomplete, blocking, unbounded, unindexed, slow, or regressed captures. Command search maintains stable-ID and normalized 1-3-gram posting indexes. EditorCommandSearchJob snapshots candidates/recency, advances at most 64 candidates by default, retains bounded top results, and matches compatibility ranking. Production editor chrome exposes a button and Ctrl+P route, advances one slice per frame, reports candidate/progress/slice/revision state, and executes only navigation-safe native routes. Save and Playtest remain visible but disabled with their precise pending bounded-route diagnostics. Asset browsing intersects maintained classification, tag, status, and readiness postings instead of rescanning the full asset set; the model caches global action and project-picker rows by asset index revision. AssetPromotionCatalogIngestJob atomically stages existing/catalog records, derived counts, and complete filter postings in at most 64-item advances; revision conflicts preserve intervening mutations, the compatibility API drives the same job to completion, and the native asset panel advances one active slice per visible frame with observable progress. Project-reference queries use revisioned inbound, outbound, and package-inclusion postings over stable object IDs instead of rescanning every edge. A visible large-project smoke observed 7/7 command candidates in one 7-item slice, narrowed save to one inert row, and displayed the PCQ-701 Save diagnostic; a three-frame headless large-project run also passed. PCQ-701 coverage passes 401 assertions in 9 cases, asset-library editor coverage passes 614 assertions in 45 cases, asset-intake coverage passes 105 assertions in 4 cases, project-reference-index coverage passes 88 assertions in 8 cases, asset-library browser coverage passes 121 assertions in 6 cases, command-palette coverage passes 337 assertions in 3 cases, and the grouped build passes. Two legacy asset-editor test objects with missing depfile entries were rebuilt before the final focused run; the formerly crashing conversion-wizard case then passed 11 assertions. Default asset report/shard discovery and JSON parsing, bounded project-graph discovery/parsing/mutation rebuilds, the other five route migrations, real instrumentation, repeated target-hardware capture, approved budgets, measured reports, clean-candidate evidence, and signoff remain pending."
     },
     {
@@ -995,10 +995,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "ReleaseSecurityAudit produces a deterministic threat model across external processes, archive extraction, path containment, plugin/mod trust, secrets, network defaults, logs, and support bundles. Each surface requires a named owner/control, adversarial fixture, default-deny behavior, bounded execution, and secret-free output. Conservative relative-path and likely-secret helpers reject traversal, absolute/UNC paths, credentials, authorization headers, and private-key markers. The combined batch run passes 526 assertions in 45 cases. Static repository/process/archive audit integration, broader encoded-secret corpus, concrete adversarial package runs, reviewed threat model, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "ReleaseSecurityAudit produces a deterministic threat model across external processes, archive extraction, path containment, plugin/mod trust, secrets, network defaults, logs, and support bundles. Each surface requires a named owner/control, adversarial fixture, default-deny behavior, bounded execution, and secret-free output. Conservative relative-path and likely-secret helpers reject traversal, absolute/UNC paths, credentials, authorization headers, and private-key markers. The real export path now accepts global promoted assets only through explicit stable bundle IDs, rejects traversal-shaped IDs and missing manifests, and defaults to no global-library selection. The governed Wave E matrix, focused PCQ-705 suite, and full export preset pass. Static repository/process/archive audit integration, broader concrete adversarial runs, reviewed threat model, clean-candidate evidence, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-706",
@@ -1099,10 +1099,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "GovernedPackageManifest emits deterministic content hashes, references, licenses, notices, capability declarations, version metadata, and reproducibility diagnostics, including a structured explanation of differences. The combined PCQ-750–756 run passes 35 assertions in 10 cases. Integration with the real packager, byte-for-byte clean-build comparison, signed manifest emission, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "GovernedPackageManifest emits deterministic content hashes, references, licenses, notices, capability declarations, version metadata, and reproducibility diagnostics, including a structured explanation of differences. The real packager now excludes the global promoted library by default, accepts only explicit safe bundle IDs, resolves exact manifests without directory-wide enumeration, rejects unsafe or missing selections, and records selected IDs in export metadata. The formerly timing-out full export preset passes all three lanes in 141 seconds; Wave E package/platform coverage passes 35 assertions in 10 cases. Emitting the governed manifest from the real writer, equivalent clean-build comparison, signed manifest emission, clean-candidate evidence, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-756",
@@ -1125,10 +1125,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "MenuAuthoringDocument extends the existing direct-manipulation preview and scene graph with a persistent hierarchy, multi-selection, constrained move/resize, snapping, alignment, distribution, safe area, zoom, responsive anchors, and bounded undo/redo. Its versioned JSON round trip retains geometry, routes, bindings, component instances, states, and transitions. Authoring documents now materialize panels/buttons into the native MenuSceneGraph and MenuPreviewPanel owns a safe preview graph for that runtime representation. The combined production-integration regression passes 1,073 assertions in 72 settings/menu/input cases. Full ImGui hierarchy/tool exposure, runtime pixel comparison at target viewports, migration corpus, manual screenshots, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "MenuAuthoringWorkspace now owns the visible hierarchy, semantic tree/list route, selection, movement, alignment, distribution, target audit, undo/redo, and atomic project persistence. Its MenuAuthoringDocument is the sole editable source; the legacy native graph is a read-only compatibility projection derived from it. Save/reopen preserves the complete document and native runtime materialization. The workspace and five-viewport starter matrix passed 137 assertions in 2 cases, and the grouped build completed warning-free. Manual pixel review, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-481",
@@ -1177,10 +1177,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "Menu authoring audit resolves target canvases and reports overflow, required actions outside safe areas, missing labels, broken focus edges, unreachable focus nodes, and text expansion overflow. It exposes five target-resolution presets and keyboard/mouse, generic-controller, and touch-like glyph-preview modes. MenuPreviewPanel now carries authored state and reduced-motion/audio policy into its inspectable runtime snapshot. The integration regression passes 628 assertions in 67 menu/accessibility cases. Editor overlays, platform-specific glyph packs, automated screenshot matrix, manual controller review, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "The live menu authoring route exposes target viewport selection and object-linked focus, safe-area, text-overflow, binding, and resolution diagnostics alongside keyboard/controller semantic controls. A preexisting 1024x768 title-template overflow was found by the new matrix and fixed with responsive opposite-edge anchors; all 11 starters now pass all five target presets. Platform glyph visual review, automated screenshots, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-485",
@@ -1190,10 +1190,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "MenuStarterTemplateLibrary ships original editable URPG authoring documents for title, save/load, settings, pause, inventory, equipment, quest log, dialogue, shop, battle HUD, and results. Every starter has safe-area-contained required actions, a complete focus cycle, accessible labels, deterministic document round trip, and a stable custom route that materializes into the native runtime graph and preview panel. The combined production-integration regression passes 1,073 assertions in 72 settings/menu/input cases. First-party visual art/content refinement, concrete application-route handlers, package fixtures, accessibility and visual review, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "The 11 original editable URPG starters cover title, save/load, settings, pause, inventory, equipment, quest log, dialogue, shop, battle HUD, and results. Every starter now has responsive anchors, safe required actions, a complete focus cycle, accessible labels, deterministic persistence, and a native runtime route, and all pass the governed five-viewport package audit. Visual polish review, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-650",
@@ -1255,10 +1255,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "SemanticEditorAlternative and SemanticEditorCommandSurface provide one non-pointer tree/list route for MenuAuthoringDocument, DialogueGraph, QuestObjectiveGraphDocument, TileLayerDocument, and ProjectWorldGraph. Ordered Home/End/Up/Down and shoulder/D-pad navigation contracts are inspectable beside keyboard/controller property-edit and connection commands. The route now exposes and validates owner-backed menu labels, accessibility labels, focus order/edges, geometry, visibility, dialogue text/speaker/localization/caption fields, quest fields, tile-layer flags, and world-map labels. Connection creation remains authoritative: menu hierarchy changes, dialogue choices, quest links, and validated world routes; tile layers explicitly report that connections are not applicable. Structured diagnostics retain code, message, blocking state, owning object ID, and related object ID, report whether the object remains focusable, and can move list selection directly to affected menu nodes, dialogue nodes, quest nodes, tile layers, and world-map nodes. Quest canvas and semantic selections stay synchronized. Inspectable operation coverage declares tree/list navigation, property editing, connection capability, object-linked diagnostics, and both keyboard and controller navigation. The grouped urpg_tests/urpg_runtime/urpg_editor build succeeded after reconstruction of a tool-timeout-corrupted generated archive; the focused regression passes 111 assertions in 7 cases. Platform screen-reader automation semantics, manual keyboard/controller task-completion proof, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "A governed cross-editor matrix now names keyboard/controller routes and canvas-equivalent operations for menu, dialogue, quest, tile-map, and world-map surfaces. The owners provide ordered navigation, property edits, connection creation where meaningful, object-linked diagnostic focus, and domain operations without precise pointer input; the live Menu route exposes these commands visibly. Qualification consumes the matrix and PCQ-654 passed 151 assertions in 8 cases. Platform screen-reader automation, manual task recording, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-655",
@@ -1268,10 +1268,10 @@
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "502fe017003c6ff01f9aac3c5b5c8eba5a57348c",
+      "sourceCommit": "ac309be6e107a3fe3273ddc6e0e6ccf3d23d26a4",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "AccessibilityAuditor is now the single governed snapshot rule authority for missing labels, invalid or duplicate focus order, configurable contrast thresholds, touch/hit targets, clipping, localization overflow, unsafe non-essential motion under reduced-motion settings, and no-focus navigation. UiElementSnapshot carries geometry, clipping, localized-layout, motion, and source-context evidence without breaking existing menu, spatial, audio, battle, renderer, or editor-panel adapters. The legacy Inclusive UI/Menu Preview route delegates to the canonical auditor with its 4.5:1 contrast, 44-by-44 target, and zero-based focus-order policy instead of maintaining a divergent rule engine. AccessibilityPanel snapshots expose stable diagnostic codes, category names, severity, source context, owning element IDs, and explicit object-linked state. Known-bad canonical and panel fixtures each prove all seven PCQ-655 failures against one owning object; the authored Menu Preview fixture continues to prove its five applicable failures. Fix advice now covers target size, clipping, localization overflow, and reduced-motion repairs. The grouped urpg_tests/urpg_runtime/urpg_editor build succeeded, the focused PCQ-655 regression passes 77 assertions in 4 cases, and the shared accessibility regression passes 490 assertions in 53 cases. CI artifact/report ingestion beyond the editor snapshot, manual navigation/retest evidence, clean-candidate provenance, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "AccessibilityAuditor is the single governed snapshot rule authority for missing labels, invalid or duplicate focus order, configurable contrast thresholds, touch targets, clipping, localization overflow, unsafe non-essential motion, and no-focus navigation. AccessibilityPanel exposes stable codes, categories, severity, source context, owner IDs, and object-linked state. The governed Wave D locale/accessibility corpus and canonical known-bad fixtures prove every required failure family, while the legacy Menu Preview delegates to the same authority. Wave D qualification passes 71 assertions in 4 cases; the full accessibility lane passes 570 assertions in 59 cases and PCQ-655 coverage remains proved. CI artifact ingestion beyond the editor snapshot, manual navigation/retest evidence, clean-candidate provenance, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-656",
@@ -1448,15 +1448,15 @@
     {
       "requirementId": "PCQ-005",
       "status": "in_progress",
-      "command": ".\\tools\\ci\\check_release_evidence_index.ps1 -AllowIncomplete",
-      "reports": ["build/reports/product_completion/release_evidence_health.json"],
+      "command": ".\\tools\\ci\\check_product_completion_wave_gap_matrix.ps1; .\\tools\\ci\\check_release_evidence_index.ps1 -AllowIncomplete",
+      "reports": ["content/readiness/product_completion_wave_a_gap_matrix.json", "build/reports/product_completion/release_evidence_health.json"],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
       "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "The evidence index maps every plan requirement to commands, reports, screenshots, recordings, hardware, commit, dirty state, date, and notes. Its validator derives the required ID set from the authoritative plan, rejects duplicates/unknown IDs/schema errors/missing artifacts, detects stale commit/dirty/date provenance, emits a health report, and distinguishes incomplete development evidence from final qualification. All 117 rows are indexed, but all remain truthfully in_progress and final clean-candidate evidence is outstanding."
+      "notes": "The evidence index maps every plan requirement to commands, reports, screenshots, recordings, hardware, commit, dirty state, date, and notes. Its validator derives the required ID set from the authoritative plan, rejects duplicates/unknown IDs/schema errors/missing artifacts, detects stale commit/dirty/date provenance, emits a health report, and distinguishes incomplete development evidence from final qualification. The governed Wave A gap matrix classifies all 26 rows and names exact missing proof before implementation begins. All 117 evidence rows remain truthfully in_progress and final clean-candidate evidence is outstanding."
     }
   ]
 }

@@ -17,11 +17,13 @@
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/sprite_batcher.h"
 #include "runtimes/compat_js/audio_manager.h"
+#include <algorithm>
 #include <atomic>
 #include <charconv>
 #include <chrono>
 #include <filesystem>
 #include <memory>
+#include <limits>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -34,6 +36,13 @@ namespace urpg {
  */
 class EngineShell {
   public:
+    struct FrameTimingSnapshot {
+        uint32_t input_us = 0;
+        uint32_t scene_update_us = 0;
+        uint32_t render_us = 0;
+        uint32_t total_us = 0;
+    };
+
     struct StartupOptions {
         StartupOptions() : project_root(std::filesystem::current_path()) {}
         explicit StartupOptions(std::filesystem::path root) : project_root(std::move(root)) {}
@@ -82,27 +91,52 @@ class EngineShell {
         if (!m_isRunning)
             return;
 
-        // 1. Poll Platform Events
-        if (m_platform && !m_platform->pollEvents()) {
-            shutdown();
-            return;
-        }
-
         // 2. Calculate Delta Time
         float dt = m_clock.getDelta();
         if (dt > 0.1f)
             dt = 0.016f;
 
+        tick(dt);
+    }
+
+    /**
+     * @brief Performs one tick with an explicit deterministic delta.
+     *
+     * Replay, snapshot, and fixed-step qualification paths use this overload;
+     * interactive runtime callers use tick() and the engine clock.
+     */
+    void tick(float dt) {
+        if (!m_isRunning)
+            return;
+
+        const auto frame_started = std::chrono::steady_clock::now();
+        const auto elapsed_us = [](const auto started, const auto ended) {
+            const auto value = std::chrono::duration_cast<std::chrono::microseconds>(ended - started).count();
+            return static_cast<uint32_t>(std::clamp<int64_t>(
+                value, 0, static_cast<int64_t>(std::numeric_limits<uint32_t>::max())));
+        };
+
+        // 1. Poll Platform Events
+        const auto input_started = std::chrono::steady_clock::now();
+        if (m_platform && !m_platform->pollEvents()) {
+            shutdown();
+            return;
+        }
+        const auto input_ended = std::chrono::steady_clock::now();
+
         // 3. Update active scene
         auto& sceneMgr = scene::SceneManager::getInstance();
         auto activeScene = sceneMgr.getActiveScene();
+        const auto update_started = std::chrono::steady_clock::now();
         if (activeScene) {
             sceneMgr.handleInput(m_inputCore);
             sceneMgr.update(dt);
         }
         m_inputCore.endFrame();
+        const auto update_ended = std::chrono::steady_clock::now();
 
         // 4. Record and Render Frame
+        const auto render_started = std::chrono::steady_clock::now();
         if (m_renderer && m_batcher) {
             m_renderer->beginFrame();
 
@@ -122,6 +156,9 @@ class EngineShell {
 
             m_renderer->endFrame();
         }
+        const auto render_ended = std::chrono::steady_clock::now();
+        m_lastFrameTimings = {elapsed_us(input_started, input_ended), elapsed_us(update_started, update_ended),
+                              elapsed_us(render_started, render_ended), elapsed_us(frame_started, render_ended)};
     }
 
     void shutdown() {
@@ -143,6 +180,7 @@ class EngineShell {
     const RuntimeStartupReport& getRuntimeStartupReport() const { return m_runtimeStartupReport; }
     IPlatformSurface* getPlatform() { return m_platform.get(); }
     RendererBackend* getRenderer() { return m_renderer.get(); }
+    const FrameTimingSnapshot& getLastFrameTimings() const { return m_lastFrameTimings; }
     /**
      * @brief Exports the current engine dialogue state to a metadata map.
      */
@@ -358,6 +396,7 @@ class EngineShell {
     std::atomic<bool> m_isRunning;
     input::InputCore m_inputCore;
     audio::AudioCore m_audioCore;
+    FrameTimingSnapshot m_lastFrameTimings;
     Clock m_clock;
     message::DialogueCommandProcessor m_dialogueProcessor;
     message::DialogueProjectLoadResult m_dialogueLoadResult;

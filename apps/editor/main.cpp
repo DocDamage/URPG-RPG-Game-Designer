@@ -16,6 +16,7 @@
 #include "editor/audio/audio_mix_panel.h"
 #include "editor/character/character_creator_model.h"
 #include "editor/character/character_creator_panel.h"
+#include "editor/database/database_panel.h"
 #include "editor/export/export_diagnostics_panel.h"
 #include "editor/gameplay/gameplay_recipe_panel.h"
 #include "editor/project/creator_checklist_panel.h"
@@ -24,13 +25,18 @@
 #include "editor/project/editor_project_session.h"
 #include "editor/project/editor_dirty_state_registry.h"
 #include "editor/project/editor_recovery_service.h"
+#include "editor/project/project_external_change_coordinator.h"
 #include "editor/playtest/playtest_session_controller.h"
+#include "editor/playtest/playtest_runtime_state_inspector.h"
+#include "editor/replay/replay_panel.h"
+#include "editor/perf/perf_diagnostics_panel.h"
 #include "editor/plugin/plugin_inspector_panel.h"
 #include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/mod/mod_manager_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/map_authoring_workspace.h"
 #include "editor/ui/editor_command_palette.h"
+#include "editor/ui/menu_authoring_workspace.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/character/character_identity.h"
 #include "editor/spatial/map_authoring_persistence.h"
@@ -42,9 +48,11 @@
 #include "engine/core/audio/audio_mix_presets.h"
 #include "engine/core/app_cli.h"
 #include "engine/core/assets/asset_promotion_manifest.h"
+#include "engine/core/assets/project_asset_operation_service.h"
 #include "engine/core/assets/project_asset_reference_index.h"
 #include "engine/core/action/controller_binding_runtime.h"
 #include "engine/core/project/project_reference_index.h"
+#include "engine/core/project/project_operation_journal.h"
 #include "engine/core/security/sha256.h"
 
 #include <type_traits>
@@ -99,11 +107,13 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <cmath>
 #include <cctype>
 #include <cstdint>
 #include <exception>
 #include <filesystem>
 #include <functional>
+#include <future>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -155,6 +165,56 @@ void clearSceneStack() {
     }
 }
 
+#ifdef URPG_IMGUI_ENABLED
+float g_editor_ui_scale = 1.0F;
+ImVec4 g_editor_success_color{0.43F, 0.86F, 0.56F, 1.0F};
+ImVec4 g_editor_warning_color{1.0F, 0.75F, 0.30F, 1.0F};
+ImVec4 g_editor_danger_color{1.0F, 0.48F, 0.45F, 1.0F};
+
+ImVec2 editorScaledWindowSize(const float width, const float height) {
+    const auto display = ImGui::GetIO().DisplaySize;
+    const auto margin = 24.0F * g_editor_ui_scale;
+    return {std::min(width * g_editor_ui_scale, std::max(160.0F, display.x - margin)),
+            std::min(height * g_editor_ui_scale, std::max(120.0F, display.y - margin))};
+}
+
+void applyEditorDesignTokensToImGui(const urpg::ui::UrpgThemeMode mode, const float scale,
+                                    const bool reducedMotion, const bool rebuildBackendTexture,
+                                    const bool headless) {
+    const auto tokens = urpg::ui::makeUrpgDesignTokens(mode, scale, reducedMotion);
+    g_editor_ui_scale = tokens.scale;
+    auto& io = ImGui::GetIO();
+    auto& style = ImGui::GetStyle();
+    style = ImGuiStyle{};
+    style.ScaleAllSizes(tokens.scale);
+    const auto color = [](const urpg::ui::UrpgColorToken& value) {
+        return ImVec4(value.red, value.green, value.blue, value.alpha);
+    };
+    g_editor_success_color = color(tokens.colors.at("success"));
+    g_editor_warning_color = color(tokens.colors.at("warning"));
+    g_editor_danger_color = color(tokens.colors.at("danger"));
+    style.Colors[ImGuiCol_WindowBg] = color(tokens.colors.at("surface"));
+    style.Colors[ImGuiCol_ChildBg] = color(tokens.colors.at("surface"));
+    style.Colors[ImGuiCol_PopupBg] = color(tokens.colors.at("surface_raised"));
+    style.Colors[ImGuiCol_Text] = color(tokens.colors.at("text"));
+    style.Colors[ImGuiCol_TextDisabled] = color(tokens.colors.at("text_muted"));
+    style.Colors[ImGuiCol_CheckMark] = color(tokens.colors.at("accent"));
+    style.Colors[ImGuiCol_NavHighlight] = color(tokens.colors.at("focus"));
+    style.FrameRounding = tokens.corner_radius.at("control");
+    style.WindowRounding = tokens.corner_radius.at("card");
+    style.PopupRounding = tokens.corner_radius.at("popover");
+    style.FrameBorderSize = tokens.borders.at("hairline");
+
+    io.Fonts->Clear();
+    ImFontConfig fontConfig;
+    fontConfig.SizePixels = tokens.typography.at("body");
+    io.Fonts->AddFontDefault(&fontConfig);
+    io.FontGlobalScale = 1.0F;
+    (void)rebuildBackendTexture;
+    (void)headless;
+}
+#endif
+
 struct EditorPanelRuntime {
     urpg::editor::DiagnosticsWorkspace diagnostics_workspace;
     urpg::editor::AssetLibraryPanel asset_library_panel;
@@ -167,6 +227,9 @@ struct EditorPanelRuntime {
     urpg::editor::EditorProjectSession project_session;
     urpg::editor::EditorRecoveryService recovery_service;
     urpg::editor::EditorDirtyStateRegistry dirty_state_registry;
+    urpg::editor::ProjectExternalChangeCoordinator external_change_coordinator;
+    urpg::editor::ProjectExternalResolutionResult external_change_result;
+    std::chrono::steady_clock::time_point next_external_change_inspection_at{};
     urpg::editor::EditorCommandPalette command_palette = urpg::editor::buildGoldenLoopCommandPalette();
     std::optional<urpg::editor::EditorCommandSearchJob> command_palette_search;
     std::vector<urpg::editor::EditorCommandSearchResult> command_palette_results;
@@ -176,6 +239,14 @@ struct EditorPanelRuntime {
     size_t command_palette_last_slice = 0;
     bool command_palette_visible = false;
     bool command_palette_focus_query = false;
+    std::optional<std::future<urpg::project::ProjectReferenceBuildResult>> project_reference_refresh;
+    std::filesystem::path project_reference_refresh_root;
+    std::filesystem::path project_reference_requested_root;
+    std::uint64_t project_reference_refresh_revision = 0;
+    std::uint64_t project_reference_requested_revision = 0;
+    urpg::project::ProjectReferenceIndex project_reference_index;
+    std::vector<std::string> project_reference_diagnostics;
+    bool project_reference_index_ready = false;
     urpg::editor::AbilityInspectorPanel ability_inspector_panel;
     urpg::editor::gameplay::GameplayRecipePanel gameplay_recipe_panel;
     std::vector<urpg::gameplay::GameplayRecipe> gameplay_recipe_templates;
@@ -195,6 +266,9 @@ struct EditorPanelRuntime {
     std::vector<std::string> dialogue_preview_trace;
     std::vector<urpg::dialogue::DialogueGraphDiagnostic> dialogue_preview_diagnostics;
     urpg::database::RpgDatabase database_draft;
+    urpg::editor::DatabasePanel database_panel;
+    std::optional<urpg::editor::DatabaseBatchEditPlan> database_batch_plan;
+    std::optional<urpg::diagnostics::RedactedSupportBundlePreview> support_bundle_preview;
     urpg::shop::VendorCatalog vendor_draft;
     urpg::editor::PatternFieldModel pattern_field_model;
     urpg::editor::CreatorCommandPanel creator_command_panel;
@@ -208,6 +282,12 @@ struct EditorPanelRuntime {
     // their creator-facing mode, selection, history, and project context.
     urpg::editor::MapAuthoringWorkspace map_authoring_workspace;
     urpg::editor::PlaytestSessionController playtest_session;
+    std::optional<urpg::playtest::PlaytestEventTraceBridge> playtest_event_trace_bridge;
+    std::optional<urpg::playtest::PlaytestRuntimeStateBridge> playtest_runtime_state_bridge;
+    urpg::editor::PlaytestRuntimeStateInspector playtest_runtime_state_inspector;
+    urpg::editor::ReplayPanel scenario_replay_panel;
+    urpg::editor::PerfDiagnosticsPanel live_performance_panel;
+    std::unique_ptr<urpg::assets::ProjectAssetOperationService> project_asset_operations;
     urpg::SaveCatalog map_runtime_save_catalog;
     std::unique_ptr<urpg::SaveSessionCoordinator> map_runtime_save_session;
     urpg::message::MessageFlowRunner map_message_preview_flow;
@@ -230,6 +310,7 @@ struct EditorPanelRuntime {
     std::unique_ptr<urpg::scene::MapScene> perspective_2d_scene =
         std::make_unique<urpg::scene::MapScene>("EditorPreview", 16, 12);
     urpg::scene::MenuScene menu_studio_runtime{"editor_menu_studio"};
+    urpg::editor::MenuAuthoringWorkspace menu_authoring_workspace;
     urpg::mod::ModRegistry mod_registry;
     std::unique_ptr<urpg::mod::ModLoader> mod_loader;
     urpg::analytics::AnalyticsDispatcher analytics_dispatcher;
@@ -247,6 +328,20 @@ struct EditorPanelRuntime {
     std::string quest_draft_id = "quest_draft";
     std::string dialogue_draft_id = "dialogue_draft";
     std::string vendor_draft_id = "vendor_draft";
+    std::filesystem::path quest_document_path;
+    std::filesystem::path dialogue_document_path;
+    std::filesystem::path database_document_path;
+    std::filesystem::path vendor_document_path;
+    std::filesystem::path audio_mix_document_path;
+    std::filesystem::path gameplay_recipe_document_path;
+    std::filesystem::path menu_studio_document_path;
+    std::filesystem::path mz_plugin_lock_document_path;
+    std::filesystem::path input_remap_document_path;
+    std::filesystem::path controller_binding_document_path;
+    std::filesystem::path ability_document_path;
+    std::filesystem::path character_document_path;
+    std::filesystem::path grid_map_document_path;
+    std::filesystem::path perspective_map_document_path;
     std::string battle_preview_encounter_id;
     std::string audio_mix_preset = "Default";
     std::string audio_preview_asset_id;
@@ -260,6 +355,7 @@ struct EditorPanelRuntime {
     std::string gameplay_recipe_save_status;
     std::string menu_studio_load_status;
     std::string menu_studio_save_status;
+    std::string menu_authoring_status;
     std::string menu_studio_persisted_json;
     std::string mz_plugin_lock_status;
     std::string map_asset_drop_status;
@@ -283,6 +379,61 @@ struct EditorPanelRuntime {
     bool menu_studio_dirty_surface_registered = false;
     bool mz_plugin_lock_dirty_surface_registered = false;
 };
+
+void beginProjectReferenceRefresh(EditorPanelRuntime& runtime, const std::filesystem::path& projectRoot) {
+    runtime.project_reference_requested_root = projectRoot.lexically_normal();
+    ++runtime.project_reference_requested_revision;
+    runtime.project_reference_index_ready = false;
+    if (runtime.project_reference_refresh.has_value() || runtime.project_reference_requested_root.empty()) return;
+    runtime.project_reference_refresh_root = runtime.project_reference_requested_root;
+    runtime.project_reference_refresh_revision = runtime.project_reference_requested_revision;
+    const auto refreshRoot = runtime.project_reference_refresh_root;
+    runtime.project_reference_refresh.emplace(std::async(std::launch::async, [refreshRoot] {
+        return urpg::project::buildProjectReferenceIndex(refreshRoot);
+    }));
+}
+
+void pollProjectReferenceRefresh(EditorPanelRuntime& runtime) {
+    if (!runtime.project_reference_refresh.has_value() ||
+        runtime.project_reference_refresh->wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+        return;
+    }
+    auto build = runtime.project_reference_refresh->get();
+    runtime.project_reference_refresh.reset();
+    if (runtime.project_reference_refresh_root == runtime.project_reference_requested_root &&
+        runtime.project_reference_refresh_revision == runtime.project_reference_requested_revision) {
+        runtime.project_reference_index = std::move(build.index);
+        runtime.project_reference_diagnostics = std::move(build.diagnostics);
+        runtime.project_reference_index_ready = true;
+    }
+    if ((runtime.project_reference_refresh_root != runtime.project_reference_requested_root ||
+         runtime.project_reference_refresh_revision != runtime.project_reference_requested_revision) &&
+        !runtime.project_reference_requested_root.empty()) {
+        beginProjectReferenceRefresh(runtime, runtime.project_reference_requested_root);
+    }
+}
+
+void replaceProjectReferenceDocument(EditorPanelRuntime& runtime, const std::filesystem::path& documentPath,
+                                     const std::string_view payload) {
+    if (!runtime.project_reference_index_ready || runtime.project_reference_refresh.has_value()) {
+        beginProjectReferenceRefresh(runtime, runtime.project_root);
+        return;
+    }
+    const auto document = nlohmann::json::parse(payload, nullptr, false);
+    if (document.is_discarded()) {
+        runtime.project_reference_diagnostics = {
+            "project_reference_saved_document_json_invalid:" + documentPath.generic_string()};
+        return;
+    }
+    auto extracted = urpg::project::extractProjectDocumentReferences(runtime.project_root, documentPath, document);
+    if (!extracted.success) {
+        runtime.project_reference_diagnostics = std::move(extracted.diagnostics);
+        return;
+    }
+    const auto updated = runtime.project_reference_index.replaceDocument(extracted.document);
+    runtime.project_reference_diagnostics = updated.success ? std::vector<std::string>{}
+                                                            : std::vector<std::string>{updated.code};
+}
 
 constexpr const char* kMapDirtyDocumentId = "map.grid_parts";
 constexpr const char* kPerspective2DDirtyDocumentId = "map.perspective_2d";
@@ -863,6 +1014,8 @@ std::string starterMapIdForProject(const std::filesystem::path& projectRoot) {
 }
 
 bool atomicWriteTextFile(const std::filesystem::path& target, std::string_view contents, std::string* error);
+urpg::project::ProjectOperationRestoreResult restoreInterruptedProjectOperations(
+    const std::filesystem::path& projectRoot);
 std::filesystem::path gameplayRecipeProjectPath(const EditorPanelRuntime& runtime);
 bool loadGameplayRecipeProject(EditorPanelRuntime& runtime, std::string* error);
 urpg::editor::EditorDirtySaveResult saveGameplayRecipeProject(EditorPanelRuntime& runtime);
@@ -875,18 +1028,26 @@ urpg::editor::EditorDirtySaveResult saveAbilityDraft(EditorPanelRuntime& runtime
         return {false, "ability_save_project_unavailable", "Open a project before saving an ability draft."};
     }
     const auto asset = runtime.ability_inspector_panel.getDraftAsset();
-    const auto target_path =
-        urpg::ability::canonicalAbilityContentDirectory(runtime.project_root) / abilityAssetFileName(asset);
+    const auto target_path = runtime.ability_document_path.empty()
+                                 ? urpg::ability::canonicalAbilityContentDirectory(runtime.project_root) /
+                                       abilityAssetFileName(asset)
+                                 : runtime.ability_document_path;
     if (!urpg::ability::saveAuthoredAbilityAssetToFile(asset, target_path)) {
         return {false, "ability_save_failed", "Failed to save ability draft to " + target_path.generic_string() + "."};
     }
+    const auto payload = nlohmann::json(asset).dump(2) + "\n";
+    (void)runtime.external_change_coordinator.acknowledgeSaved(
+        "ability.draft", payload, target_path);
+    replaceProjectReferenceDocument(runtime, target_path, payload);
     runtime.ability_inspector_panel.markDraftPersisted();
     return {true, "ability_saved",
             "Saved draft ability to " + std::filesystem::relative(target_path, runtime.project_root).generic_string() + "."};
 }
 
 std::filesystem::path characterDraftPath(const EditorPanelRuntime& runtime) {
-    return runtime.project_root / "content" / "characters" / (runtime.character_draft_id + ".json");
+    return runtime.character_document_path.empty()
+               ? runtime.project_root / "content" / "characters" / (runtime.character_draft_id + ".json")
+               : runtime.character_document_path;
 }
 
 urpg::editor::EditorDirtySaveResult saveCharacterDraft(EditorPanelRuntime& runtime) {
@@ -895,16 +1056,21 @@ urpg::editor::EditorDirtySaveResult saveCharacterDraft(EditorPanelRuntime& runti
     }
     std::string error;
     const auto target = characterDraftPath(runtime);
-    if (!atomicWriteTextFile(target, runtime.character_creator_model.getIdentity().toJson().dump(2) + "\n", &error)) {
+    const auto payload = runtime.character_creator_model.getIdentity().toJson().dump(2) + "\n";
+    if (!atomicWriteTextFile(target, payload, &error)) {
         return {false, "character_save_failed", "Failed to save character draft: " + error};
     }
+    (void)runtime.external_change_coordinator.acknowledgeSaved(kCharacterDirtyDocumentId, payload, target);
+    replaceProjectReferenceDocument(runtime, target, payload);
     runtime.character_creator_model.markDraftPersisted();
     return {true, "character_saved",
             "Saved character draft to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
 std::filesystem::path questDraftPath(const EditorPanelRuntime& runtime) {
-    return runtime.project_root / "content" / "quests" / (runtime.quest_draft_id + ".json");
+    return runtime.quest_document_path.empty()
+               ? runtime.project_root / "content" / "quests" / (runtime.quest_draft_id + ".json")
+               : runtime.quest_document_path;
 }
 
 urpg::editor::EditorDirtySaveResult saveQuestDraft(EditorPanelRuntime& runtime) {
@@ -913,15 +1079,20 @@ urpg::editor::EditorDirtySaveResult saveQuestDraft(EditorPanelRuntime& runtime) 
     }
     std::string error;
     const auto target = questDraftPath(runtime);
-    if (!atomicWriteTextFile(target, runtime.quest_draft->toJson().dump(2) + "\n", &error)) {
+    const auto payload = runtime.quest_draft->toJson().dump(2) + "\n";
+    if (!atomicWriteTextFile(target, payload, &error)) {
         return {false, "quest_save_failed", "Failed to save quest draft: " + error};
     }
+    (void)runtime.external_change_coordinator.acknowledgeSaved(kQuestDirtyDocumentId, payload, target);
+    replaceProjectReferenceDocument(runtime, target, payload);
     return {true, "quest_saved",
             "Saved quest draft to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
 std::filesystem::path dialogueDraftPath(const EditorPanelRuntime& runtime) {
-    return runtime.project_root / "content" / "dialogues" / (runtime.dialogue_draft_id + ".json");
+    return runtime.dialogue_document_path.empty()
+               ? runtime.project_root / "content" / "dialogues" / (runtime.dialogue_draft_id + ".json")
+               : runtime.dialogue_document_path;
 }
 
 urpg::editor::EditorDirtySaveResult saveDialogueDraft(EditorPanelRuntime& runtime) {
@@ -930,15 +1101,20 @@ urpg::editor::EditorDirtySaveResult saveDialogueDraft(EditorPanelRuntime& runtim
     }
     std::string error;
     const auto target = dialogueDraftPath(runtime);
-    if (!atomicWriteTextFile(target, runtime.dialogue_draft->serialize().dump(2) + "\n", &error)) {
+    const auto payload = runtime.dialogue_draft->serialize().dump(2) + "\n";
+    if (!atomicWriteTextFile(target, payload, &error)) {
         return {false, "dialogue_save_failed", "Failed to save dialogue draft: " + error};
     }
+    (void)runtime.external_change_coordinator.acknowledgeSaved(kDialogueDirtyDocumentId, payload, target);
+    replaceProjectReferenceDocument(runtime, target, payload);
     return {true, "dialogue_saved",
             "Saved dialogue draft to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
 std::filesystem::path mzPluginStaticLockPath(const EditorPanelRuntime& runtime) {
-    return runtime.project_root / "content" / "compat" / "mz_plugin_lock.json";
+    return runtime.mz_plugin_lock_document_path.empty()
+               ? runtime.project_root / "content" / "compat" / "mz_plugin_lock.json"
+               : runtime.mz_plugin_lock_document_path;
 }
 
 urpg::editor::EditorDirtySaveResult saveMzPluginStaticLock(EditorPanelRuntime& runtime) {
@@ -948,9 +1124,12 @@ urpg::editor::EditorDirtySaveResult saveMzPluginStaticLock(EditorPanelRuntime& r
     }
     std::string error;
     const auto target = mzPluginStaticLockPath(runtime);
-    if (!atomicWriteTextFile(target, runtime.mz_plugin_lock_draft.dump(2) + "\n", &error)) {
+    const auto payload = runtime.mz_plugin_lock_draft.dump(2) + "\n";
+    if (!atomicWriteTextFile(target, payload, &error)) {
         return {false, "mz_plugin_lock_save_failed", "Failed to save the MZ plugin lock: " + error};
     }
+    (void)runtime.external_change_coordinator.acknowledgeSaved(kMzPluginLockDirtyDocumentId, payload, target);
+    replaceProjectReferenceDocument(runtime, target, payload);
     return {true, "mz_plugin_lock_saved",
             "Saved static MZ plugin lock to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
@@ -1137,15 +1316,22 @@ urpg::editor::EditorDirtySaveResult saveDatabaseDraft(EditorPanelRuntime& runtim
         return {false, "database_save_project_unavailable", "Open a project before saving database items."};
     }
     std::string error;
-    const auto target = runtime.project_root / "content" / "database.json";
-    if (!atomicWriteTextFile(target, runtime.database_draft.toJson().dump(2) + "\n", &error)) {
+    const auto target = runtime.database_document_path.empty()
+                            ? runtime.project_root / "content" / "database.json"
+                            : runtime.database_document_path;
+    const auto payload = runtime.database_draft.toJson().dump(2) + "\n";
+    if (!atomicWriteTextFile(target, payload, &error)) {
         return {false, "database_save_failed", "Failed to save database items: " + error};
     }
+    (void)runtime.external_change_coordinator.acknowledgeSaved(kDatabaseDirtyDocumentId, payload, target);
+    replaceProjectReferenceDocument(runtime, target, payload);
     return {true, "database_saved", "Saved project database items."};
 }
 
 std::filesystem::path vendorDraftPath(const EditorPanelRuntime& runtime) {
-    return runtime.project_root / "content" / "vendors" / (runtime.vendor_draft_id + ".json");
+    return runtime.vendor_document_path.empty()
+               ? runtime.project_root / "content" / "vendors" / (runtime.vendor_draft_id + ".json")
+               : runtime.vendor_document_path;
 }
 
 urpg::editor::EditorDirtySaveResult saveVendorDraft(EditorPanelRuntime& runtime) {
@@ -1154,15 +1340,20 @@ urpg::editor::EditorDirtySaveResult saveVendorDraft(EditorPanelRuntime& runtime)
     }
     std::string error;
     const auto target = vendorDraftPath(runtime);
-    if (!atomicWriteTextFile(target, runtime.vendor_draft.toJson().dump(2) + "\n", &error)) {
+    const auto payload = runtime.vendor_draft.toJson().dump(2) + "\n";
+    if (!atomicWriteTextFile(target, payload, &error)) {
         return {false, "vendor_save_failed", "Failed to save vendor stock: " + error};
     }
+    (void)runtime.external_change_coordinator.acknowledgeSaved(kVendorDirtyDocumentId, payload, target);
+    replaceProjectReferenceDocument(runtime, target, payload);
     return {true, "vendor_saved",
             "Saved vendor stock to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
 std::filesystem::path audioMixDraftPath(const EditorPanelRuntime& runtime) {
-    return runtime.project_root / "config" / "audio_mix_presets.json";
+    return runtime.audio_mix_document_path.empty()
+               ? runtime.project_root / "config" / "audio_mix_presets.json"
+               : runtime.audio_mix_document_path;
 }
 
 nlohmann::json audioMixDraftJson(const EditorPanelRuntime& runtime) {
@@ -1179,15 +1370,20 @@ urpg::editor::EditorDirtySaveResult saveAudioMixDraft(EditorPanelRuntime& runtim
     }
     std::string error;
     const auto target = audioMixDraftPath(runtime);
-    if (!atomicWriteTextFile(target, audioMixDraftJson(runtime).dump(2) + "\n", &error)) {
+    const auto payload = audioMixDraftJson(runtime).dump(2) + "\n";
+    if (!atomicWriteTextFile(target, payload, &error)) {
         return {false, "audio_mix_save_failed", "Failed to save audio mix: " + error};
     }
+    (void)runtime.external_change_coordinator.acknowledgeSaved(kAudioMixDirtyDocumentId, payload, target);
+    replaceProjectReferenceDocument(runtime, target, payload);
     return {true, "audio_mix_saved",
             "Saved audio mix to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
 std::filesystem::path inputRemapDraftPath(const EditorPanelRuntime& runtime) {
-    return runtime.project_root / "config" / "input_mappings.json";
+    return runtime.input_remap_document_path.empty()
+               ? runtime.project_root / "config" / "input_mappings.json"
+               : runtime.input_remap_document_path;
 }
 
 std::filesystem::path legacyInputRemapDraftPath(const EditorPanelRuntime& runtime) {
@@ -1200,15 +1396,19 @@ urpg::editor::EditorDirtySaveResult saveInputRemapDraft(EditorPanelRuntime& runt
     }
     std::string error;
     const auto target = inputRemapDraftPath(runtime);
-    if (!atomicWriteTextFile(target, runtime.input_remap_draft.saveToJson().dump(2) + "\n", &error)) {
+    const auto payload = runtime.input_remap_draft.saveToJson().dump(2) + "\n";
+    if (!atomicWriteTextFile(target, payload, &error)) {
         return {false, "input_remap_save_failed", "Failed to save input remaps: " + error};
     }
+    (void)runtime.external_change_coordinator.acknowledgeSaved(kInputRemapDirtyDocumentId, payload, target);
     return {true, "input_remap_saved",
             "Saved input remaps to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
 std::filesystem::path controllerBindingDraftPath(const EditorPanelRuntime& runtime) {
-    return runtime.project_root / "config" / "controller_bindings.json";
+    return runtime.controller_binding_document_path.empty()
+               ? runtime.project_root / "config" / "controller_bindings.json"
+               : runtime.controller_binding_document_path;
 }
 
 bool applyControllerBindingsToEditorSurface(EditorPanelRuntime& runtime, std::string* status) {
@@ -1250,6 +1450,8 @@ urpg::editor::EditorDirtySaveResult saveControllerBindingDraft(EditorPanelRuntim
     if (!runtime.controller_binding_draft.saveToFile(target, &error)) {
         return {false, "controller_binding_save_failed", "Failed to save controller bindings: " + error};
     }
+    (void)runtime.external_change_coordinator.acknowledgeSaved(
+        kControllerBindingDirtyDocumentId, runtime.controller_binding_draft.saveToJson().dump(2) + "\n", target);
     runtime.controller_binding_draft.markPersisted();
     std::string liveStatus;
     (void)applyControllerBindingsToEditorSurface(runtime, &liveStatus);
@@ -1260,7 +1462,9 @@ urpg::editor::EditorDirtySaveResult saveControllerBindingDraft(EditorPanelRuntim
 }
 
 std::filesystem::path gameplayRecipeProjectPath(const EditorPanelRuntime& runtime) {
-    return runtime.project_root / "content" / "gameplay" / "recipes.json";
+    return runtime.gameplay_recipe_document_path.empty()
+               ? runtime.project_root / "content" / "gameplay" / "recipes.json"
+               : runtime.gameplay_recipe_document_path;
 }
 
 bool loadGameplayRecipeProject(EditorPanelRuntime& runtime, std::string* error) {
@@ -1297,16 +1501,21 @@ urpg::editor::EditorDirtySaveResult saveGameplayRecipeProject(EditorPanelRuntime
     }
     std::string error;
     const auto target = gameplayRecipeProjectPath(runtime);
-    if (!atomicWriteTextFile(target, runtime.gameplay_recipe_panel.project().toJson().dump(2) + "\n", &error)) {
+    const auto payload = runtime.gameplay_recipe_panel.project().toJson().dump(2) + "\n";
+    if (!atomicWriteTextFile(target, payload, &error)) {
         return {false, "gameplay_recipe_save_failed", "Failed to save gameplay recipes: " + error};
     }
+    (void)runtime.external_change_coordinator.acknowledgeSaved(kGameplayRecipeDirtyDocumentId, payload, target);
+    replaceProjectReferenceDocument(runtime, target, payload);
     runtime.gameplay_recipe_panel.markProjectDocumentPersisted();
     return {true, "gameplay_recipe_saved",
             "Saved gameplay recipes to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
 }
 
 std::filesystem::path menuStudioProjectPath(const EditorPanelRuntime& runtime) {
-    return runtime.project_root / "content" / "ui" / "menus.json";
+    return runtime.menu_studio_document_path.empty()
+               ? runtime.project_root / "content" / "ui" / "menus.json"
+               : runtime.menu_studio_document_path;
 }
 
 void registerNativeMenuStudioCommands(urpg::ui::MenuCommandRegistry& registry) {
@@ -1344,6 +1553,16 @@ void initializeNativeMenuStudioDefault(EditorPanelRuntime& runtime) {
 
 std::string menuStudioSerializedGraph(const EditorPanelRuntime& runtime) {
     return urpg::ui::MenuSceneSerializer::SerializeGraph(runtime.menu_studio_runtime.getSceneGraph()).dump(2);
+}
+
+void projectMenuAuthoringRuntime(EditorPanelRuntime& runtime) {
+    const auto& materialization = runtime.menu_authoring_workspace.runtimeMaterialization();
+    if (materialization.scene == nullptr) return;
+    auto& graph = runtime.menu_studio_runtime.getSceneGraphMutable();
+    graph.clearRegisteredScenes();
+    graph.registerScene(materialization.scene);
+    (void)graph.restoreActiveScene(materialization.scene->getId());
+    runtime.menu_studio_persisted_json = menuStudioSerializedGraph(runtime);
 }
 
 bool loadMenuStudioProject(EditorPanelRuntime& runtime, std::string* error) {
@@ -1388,6 +1607,8 @@ urpg::editor::EditorDirtySaveResult saveMenuStudioProject(EditorPanelRuntime& ru
     if (!atomicWriteTextFile(target, serialized + "\n", &error)) {
         return {false, "menu_studio_save_failed", "Failed to save the native menu document: " + error};
     }
+    (void)runtime.external_change_coordinator.acknowledgeSaved(kMenuStudioDirtyDocumentId, serialized + "\n", target);
+    replaceProjectReferenceDocument(runtime, target, serialized);
     runtime.menu_studio_persisted_json = serialized;
     return {true, "menu_studio_saved",
             "Saved native menu document to " + std::filesystem::relative(target, runtime.project_root).generic_string() + "."};
@@ -1395,6 +1616,8 @@ urpg::editor::EditorDirtySaveResult saveMenuStudioProject(EditorPanelRuntime& ru
 
 void bindMenuStudioProject(EditorPanelRuntime& runtime, const std::filesystem::path& project_root) {
     runtime.project_root = project_root;
+    runtime.menu_studio_document_path = project_root / "content" / "ui" / "menus.json";
+    (void)runtime.external_change_coordinator.unregisterDocument(kMenuStudioDirtyDocumentId);
     std::string error;
     if (!loadMenuStudioProject(runtime, &error)) {
         initializeNativeMenuStudioDefault(runtime);
@@ -1404,12 +1627,55 @@ void bindMenuStudioProject(EditorPanelRuntime& runtime, const std::filesystem::p
         runtime.menu_studio_load_status.clear();
     }
     runtime.menu_studio_save_status.clear();
+    const auto authoring_result = runtime.menu_authoring_workspace.bindProjectRoot(project_root);
+    runtime.menu_authoring_status = authoring_result.message;
+    projectMenuAuthoringRuntime(runtime);
 
     urpg::ui::MenuCommandRegistry::SwitchState switches;
     urpg::ui::MenuCommandRegistry::VariableState variables;
     urpg::ui::MenuCommandRegistry::captureGlobalState(switches, variables);
     runtime.diagnostics_workspace.bindMenuRuntime(runtime.menu_studio_runtime.getSceneGraphMutable(),
                                                   runtime.menu_studio_runtime.getRegistry(), switches, variables);
+    if (std::ifstream input(runtime.menu_studio_document_path, std::ios::binary); input.good()) {
+        const std::string persisted{std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+        if (!persisted.empty()) {
+            (void)runtime.external_change_coordinator.registerDocument({
+                kMenuStudioDirtyDocumentId,
+                {runtime.menu_studio_document_path, persisted, menuStudioSerializedGraph(runtime) + "\n", false, true},
+                [&runtime] { return menuStudioSerializedGraph(runtime) + "\n"; },
+                [&runtime] { return runtime.dirty_state_registry.isDirty(kMenuStudioDirtyDocumentId); },
+                [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                           std::string& diagnostic) {
+                    const auto document = nlohmann::json::parse(contents, nullptr, false);
+                    if (!document.is_object()) {
+                        diagnostic = "External Menu Studio document is malformed; the local draft was preserved.";
+                        return false;
+                    }
+                    const auto graphDocument = document.contains("scenes") && document["scenes"].is_array()
+                                                   ? document
+                                                   : nlohmann::json{{"scenes", nlohmann::json::array({document})}};
+                    urpg::ui::MenuSceneGraph replacement;
+                    if (!urpg::ui::MenuSceneSerializer::DeserializeGraph(graphDocument, replacement)) {
+                        diagnostic = "External Menu Studio document failed graph validation; the local draft was preserved.";
+                        return false;
+                    }
+                    runtime.menu_studio_runtime.getSceneGraphMutable() = std::move(replacement);
+                    auto& registry = runtime.menu_studio_runtime.getRegistryMutable();
+                    registerNativeMenuStudioCommands(registry);
+                    urpg::ui::MenuCommandRegistry::SwitchState currentSwitches;
+                    urpg::ui::MenuCommandRegistry::VariableState currentVariables;
+                    urpg::ui::MenuCommandRegistry::captureGlobalState(currentSwitches, currentVariables);
+                    runtime.menu_studio_runtime.getSceneGraphMutable().setCommandStateFromRegistry(
+                        registry, currentSwitches, currentVariables);
+                    runtime.menu_studio_persisted_json = menuStudioSerializedGraph(runtime);
+                    runtime.menu_studio_document_path = observedPath;
+                    runtime.diagnostics_workspace.bindMenuRuntime(runtime.menu_studio_runtime.getSceneGraphMutable(),
+                                                                  registry, currentSwitches, currentVariables);
+                    (void)runtime.dirty_state_registry.markDirty(kMenuStudioDirtyDocumentId, false);
+                    return true;
+                }});
+        }
+    }
 }
 
 void captureRecoverySnapshot(EditorPanelRuntime& runtime) {
@@ -1527,6 +1793,9 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
                              const std::filesystem::path& projectRoot,
                              std::string requestedMapId = {}) {
     runtime.project_root = projectRoot;
+    runtime.project_asset_operations = std::make_unique<urpg::assets::ProjectAssetOperationService>(
+        projectRoot / ".urpg" / "project_operations" / "journal.json");
+    beginProjectReferenceRefresh(runtime, projectRoot);
     runtime.dialogue_localization_key_options = collectProjectLocalizationKeys(projectRoot);
     runtime.dialogue_speaker_options = collectProjectDialogueSpeakerOptions(projectRoot);
     runtime.dialogue_voice_asset_options = collectProjectDialogueVoiceAssetOptions(projectRoot);
@@ -1581,11 +1850,26 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
             runtime.vendor_draft_id = "rowan_tonics";
         }
     }
+    runtime.quest_document_path = projectRoot / "content" / "quests" / (runtime.quest_draft_id + ".json");
+    runtime.dialogue_document_path = projectRoot / "content" / "dialogues" / (runtime.dialogue_draft_id + ".json");
+    runtime.database_document_path = projectRoot / "content" / "database.json";
+    runtime.vendor_document_path = projectRoot / "content" / "vendors" / (runtime.vendor_draft_id + ".json");
+    runtime.audio_mix_document_path = projectRoot / "config" / "audio_mix_presets.json";
+    runtime.gameplay_recipe_document_path = projectRoot / "content" / "gameplay" / "recipes.json";
+    runtime.mz_plugin_lock_document_path = projectRoot / "content" / "compat" / "mz_plugin_lock.json";
+    runtime.input_remap_document_path = projectRoot / "config" / "input_mappings.json";
+    runtime.controller_binding_document_path = projectRoot / "config" / "controller_bindings.json";
+    runtime.character_document_path = projectRoot / "content" / "characters" / (runtime.character_draft_id + ".json");
+    runtime.ability_document_path.clear();
+    std::string persistedCharacterContent;
+    std::string persistedAbilityContent;
     const auto characterPath = characterDraftPath(runtime);
     if (std::ifstream characterInput(characterPath, std::ios::binary); characterInput.good()) {
         try {
+            persistedCharacterContent.assign(std::istreambuf_iterator<char>(characterInput),
+                                             std::istreambuf_iterator<char>());
             runtime.character_creator_model.loadIdentity(
-                urpg::character::CharacterIdentity::fromJson(nlohmann::json::parse(characterInput)));
+                urpg::character::CharacterIdentity::fromJson(nlohmann::json::parse(persistedCharacterContent)));
         } catch (const std::exception&) {
             runtime.character_creator_model.resetDraft();
         }
@@ -1611,6 +1895,11 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
                                                    });
         const auto& selectedAbility = preferredAbility != authoredAbilities.end() ? *preferredAbility
                                                                                     : authoredAbilities.front();
+        runtime.ability_document_path = selectedAbility.absolute_path;
+        if (std::ifstream abilityInput(runtime.ability_document_path, std::ios::binary); abilityInput.good()) {
+            persistedAbilityContent.assign(std::istreambuf_iterator<char>(abilityInput),
+                                           std::istreambuf_iterator<char>());
+        }
         if (const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(selectedAbility.absolute_path);
             asset.has_value()) {
             runtime.ability_inspector_panel.setDraftFromAsset(*asset);
@@ -1620,11 +1909,28 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
             runtime.map_save_status = "An authored ability draft could not be loaded for this Map context.";
         }
     }
+    (void)runtime.external_change_coordinator.unregisterDocument(kQuestDirtyDocumentId);
+    (void)runtime.external_change_coordinator.unregisterDocument(kDialogueDirtyDocumentId);
+    (void)runtime.external_change_coordinator.unregisterDocument(kDatabaseDirtyDocumentId);
+    (void)runtime.external_change_coordinator.unregisterDocument(kVendorDirtyDocumentId);
+    (void)runtime.external_change_coordinator.unregisterDocument(kAudioMixDirtyDocumentId);
+    (void)runtime.external_change_coordinator.unregisterDocument(kGameplayRecipeDirtyDocumentId);
+    (void)runtime.external_change_coordinator.unregisterDocument(kMzPluginLockDirtyDocumentId);
+    (void)runtime.external_change_coordinator.unregisterDocument(kInputRemapDirtyDocumentId);
+    (void)runtime.external_change_coordinator.unregisterDocument(kControllerBindingDirtyDocumentId);
+    (void)runtime.external_change_coordinator.unregisterDocument("ability.draft");
+    (void)runtime.external_change_coordinator.unregisterDocument(kCharacterDirtyDocumentId);
+    (void)runtime.external_change_coordinator.unregisterDocument(kMapDirtyDocumentId);
+    (void)runtime.external_change_coordinator.unregisterDocument(kPerspective2DDirtyDocumentId);
+    runtime.external_change_result = {};
+    runtime.next_external_change_inspection_at = {};
     runtime.quest_draft.reset();
     runtime.quest_undo_history.clear();
     runtime.quest_redo_history.clear();
+    std::string persistedQuestContent;
     if (std::ifstream questInput(questDraftPath(runtime), std::ios::binary); questInput.good()) {
-        const auto questJson = nlohmann::json::parse(questInput, nullptr, false);
+        persistedQuestContent.assign(std::istreambuf_iterator<char>(questInput), std::istreambuf_iterator<char>());
+        const auto questJson = nlohmann::json::parse(persistedQuestContent, nullptr, false);
         if (questJson.is_object() && questJson.value("schema_version", "") == "urpg.quest_objective_graph.v1") {
             runtime.quest_draft = urpg::quest::QuestObjectiveGraphDocument::fromJson(questJson);
         }
@@ -1632,31 +1938,217 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
     runtime.dialogue_draft.reset();
     runtime.dialogue_undo_history.clear();
     runtime.dialogue_redo_history.clear();
+    std::string persistedDialogueContent;
     if (std::ifstream dialogueInput(dialogueDraftPath(runtime), std::ios::binary); dialogueInput.good()) {
-        const auto dialogueJson = nlohmann::json::parse(dialogueInput, nullptr, false);
+        persistedDialogueContent.assign(std::istreambuf_iterator<char>(dialogueInput),
+                                        std::istreambuf_iterator<char>());
+        const auto dialogueJson = nlohmann::json::parse(persistedDialogueContent, nullptr, false);
         if (const auto dialogue = urpg::dialogue::DialogueGraph::fromJson(dialogueJson); dialogue.has_value()) {
             runtime.dialogue_draft = std::move(*dialogue);
         } else {
             runtime.map_save_status = "Saved dialogue draft is invalid and was not loaded.";
         }
     }
-    runtime.database_draft = {};
-    if (std::ifstream databaseInput(projectRoot / "content" / "database.json", std::ios::binary); databaseInput.good()) {
-        runtime.database_draft = urpg::database::RpgDatabase::fromJson(nlohmann::json::parse(databaseInput, nullptr, false));
+    if (!runtime.ability_document_path.empty() && !persistedAbilityContent.empty()) {
+        (void)runtime.external_change_coordinator.registerDocument({
+            "ability.draft",
+            {runtime.ability_document_path, persistedAbilityContent,
+             nlohmann::json(runtime.ability_inspector_panel.getDraftAsset()).dump(2), false, true},
+            [&runtime] { return nlohmann::json(runtime.ability_inspector_panel.getDraftAsset()).dump(2); },
+            [&runtime] { return runtime.dirty_state_registry.isDirty("ability.draft"); },
+            [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                       std::string& diagnostic) {
+                try {
+                    const auto json = nlohmann::json::parse(contents);
+                    auto replacement = json.get<urpg::ability::AuthoredAbilityAsset>();
+                    if (replacement.ability_id.empty() || replacement.effect_id.empty() ||
+                        replacement.effect_attribute.empty() || !std::isfinite(replacement.cooldown_seconds) ||
+                        !std::isfinite(replacement.mp_cost) || replacement.cooldown_seconds < 0.0F ||
+                        replacement.mp_cost < 0.0F) {
+                        diagnostic = "External ability failed field validation; the local draft was preserved.";
+                        return false;
+                    }
+                    if (replacement.ability_id != runtime.ability_inspector_panel.getDraftAsset().ability_id) {
+                        diagnostic = "External ability changed its stable ID; use a reference-aware rename operation.";
+                        return false;
+                    }
+                    runtime.ability_inspector_panel.setDraftFromAsset(replacement);
+                    runtime.ability_inspector_panel.applyDraftToRuntime(runtime.ability_runtime);
+                    runtime.ability_inspector_panel.update(runtime.ability_runtime);
+                    runtime.ability_inspector_panel.markDraftPersisted();
+                } catch (const std::exception&) {
+                    diagnostic = "External ability could not be decoded; the local draft was preserved.";
+                    return false;
+                }
+                runtime.ability_document_path = observedPath;
+                (void)runtime.dirty_state_registry.markDirty("ability.draft", false);
+                return true;
+            }});
     }
+    if (!persistedCharacterContent.empty()) {
+        (void)runtime.external_change_coordinator.registerDocument({
+            kCharacterDirtyDocumentId,
+            {runtime.character_document_path, persistedCharacterContent,
+             runtime.character_creator_model.getIdentity().toJson().dump(2) + "\n", false, true},
+            [&runtime] { return runtime.character_creator_model.getIdentity().toJson().dump(2) + "\n"; },
+            [&runtime] { return runtime.dirty_state_registry.isDirty(kCharacterDirtyDocumentId); },
+            [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                       std::string& diagnostic) {
+                try {
+                    const auto identity = urpg::character::CharacterIdentity::fromJson(nlohmann::json::parse(contents));
+                    runtime.character_creator_model.loadIdentity(identity);
+                    runtime.character_creator_model.markDraftPersisted();
+                } catch (const std::exception&) {
+                    diagnostic = "External character identity failed validation; the local draft was preserved.";
+                    return false;
+                }
+                runtime.character_document_path = observedPath;
+                (void)runtime.dirty_state_registry.markDirty(kCharacterDirtyDocumentId, false);
+                return true;
+            }});
+    }
+    if (runtime.quest_draft.has_value() && !persistedQuestContent.empty()) {
+        (void)runtime.external_change_coordinator.registerDocument({
+            kQuestDirtyDocumentId,
+            {questDraftPath(runtime), persistedQuestContent, runtime.quest_draft->toJson().dump(2) + "\n", false, true},
+            [&runtime] {
+                return runtime.quest_draft.has_value() ? runtime.quest_draft->toJson().dump(2) + "\n" : std::string{};
+            },
+            [&runtime] { return runtime.dirty_state_registry.isDirty(kQuestDirtyDocumentId); },
+            [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                       std::string& diagnostic) {
+                const auto json = nlohmann::json::parse(contents, nullptr, false);
+                if (!json.is_object() || json.value("schema_version", "") != "urpg.quest_objective_graph.v1") {
+                    diagnostic = "External quest failed schema validation; the local draft was preserved.";
+                    return false;
+                }
+                try {
+                    auto replacement = urpg::quest::QuestObjectiveGraphDocument::fromJson(json);
+                    if (runtime.quest_draft.has_value() && replacement.quest_id != runtime.quest_draft->quest_id) {
+                        diagnostic = "External quest changed its stable ID; use a reference-aware rename operation.";
+                        return false;
+                    }
+                    runtime.quest_draft = std::move(replacement);
+                } catch (const std::exception&) {
+                    diagnostic = "External quest could not be decoded; the local draft was preserved.";
+                    return false;
+                }
+                runtime.quest_document_path = observedPath;
+                runtime.quest_undo_history.clear();
+                runtime.quest_redo_history.clear();
+                (void)runtime.dirty_state_registry.markDirty(kQuestDirtyDocumentId, false);
+                return true;
+            }});
+    }
+    if (runtime.dialogue_draft.has_value() && !persistedDialogueContent.empty()) {
+        (void)runtime.external_change_coordinator.registerDocument({
+            kDialogueDirtyDocumentId,
+            {dialogueDraftPath(runtime), persistedDialogueContent,
+             runtime.dialogue_draft->serialize().dump(2) + "\n", false, true},
+            [&runtime] {
+                return runtime.dialogue_draft.has_value() ? runtime.dialogue_draft->serialize().dump(2) + "\n"
+                                                          : std::string{};
+            },
+            [&runtime] { return runtime.dirty_state_registry.isDirty(kDialogueDirtyDocumentId); },
+            [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                       std::string& diagnostic) {
+                const auto json = nlohmann::json::parse(contents, nullptr, false);
+                auto dialogue = urpg::dialogue::DialogueGraph::fromJson(json);
+                if (!dialogue.has_value()) {
+                    diagnostic = "External dialogue failed schema validation; the local draft was preserved.";
+                    return false;
+                }
+                runtime.dialogue_draft = std::move(*dialogue);
+                runtime.dialogue_document_path = observedPath;
+                runtime.dialogue_undo_history.clear();
+                runtime.dialogue_redo_history.clear();
+                (void)runtime.dirty_state_registry.markDirty(kDialogueDirtyDocumentId, false);
+                return true;
+            }});
+    }
+    runtime.database_draft = {};
+    std::string persistedDatabaseContent;
+    if (std::ifstream databaseInput(runtime.database_document_path, std::ios::binary); databaseInput.good()) {
+        persistedDatabaseContent.assign(std::istreambuf_iterator<char>(databaseInput),
+                                        std::istreambuf_iterator<char>());
+        runtime.database_draft = urpg::database::RpgDatabase::fromJson(
+            nlohmann::json::parse(persistedDatabaseContent, nullptr, false));
+    }
+    if (!persistedDatabaseContent.empty()) {
+        (void)runtime.external_change_coordinator.registerDocument({
+            kDatabaseDirtyDocumentId,
+            {runtime.database_document_path, persistedDatabaseContent,
+             runtime.database_draft.toJson().dump(2) + "\n", false, true},
+            [&runtime] { return runtime.database_draft.toJson().dump(2) + "\n"; },
+            [&runtime] { return runtime.dirty_state_registry.isDirty(kDatabaseDirtyDocumentId); },
+            [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                       std::string& diagnostic) {
+                const auto json = nlohmann::json::parse(contents, nullptr, false);
+                if (!json.is_object() || json.value("schema", "") != "urpg.database.v1") {
+                    diagnostic = "External database failed schema validation; the local draft was preserved.";
+                    return false;
+                }
+                try {
+                    runtime.database_draft = urpg::database::RpgDatabase::fromJson(json);
+                } catch (const std::exception&) {
+                    diagnostic = "External database could not be decoded; the local draft was preserved.";
+                    return false;
+                }
+                runtime.database_panel.bindDatabase(runtime.database_draft);
+                runtime.database_batch_plan.reset();
+                runtime.database_document_path = observedPath;
+                (void)runtime.dirty_state_registry.markDirty(kDatabaseDirtyDocumentId, false);
+                return true;
+            }});
+    }
+    runtime.database_panel.bindDatabase(runtime.database_draft);
+    runtime.database_batch_plan.reset();
     runtime.vendor_draft = {};
+    std::string persistedVendorContent;
     if (std::ifstream vendorInput(vendorDraftPath(runtime), std::ios::binary); vendorInput.good()) {
-        runtime.vendor_draft = urpg::shop::VendorCatalog::fromJson(nlohmann::json::parse(vendorInput, nullptr, false));
+        persistedVendorContent.assign(std::istreambuf_iterator<char>(vendorInput), std::istreambuf_iterator<char>());
+        runtime.vendor_draft = urpg::shop::VendorCatalog::fromJson(
+            nlohmann::json::parse(persistedVendorContent, nullptr, false));
     }
     runtime.vendor_draft.setKnownItems(databaseItemIds(runtime.database_draft));
+    if (!persistedVendorContent.empty()) {
+        (void)runtime.external_change_coordinator.registerDocument({
+            kVendorDirtyDocumentId,
+            {runtime.vendor_document_path, persistedVendorContent, runtime.vendor_draft.toJson().dump(2) + "\n",
+             false, true},
+            [&runtime] { return runtime.vendor_draft.toJson().dump(2) + "\n"; },
+            [&runtime] { return runtime.dirty_state_registry.isDirty(kVendorDirtyDocumentId); },
+            [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                       std::string& diagnostic) {
+                const auto json = nlohmann::json::parse(contents, nullptr, false);
+                if (!json.is_object()) {
+                    diagnostic = "External vendor catalog failed schema validation; the local draft was preserved.";
+                    return false;
+                }
+                try {
+                    auto replacement = urpg::shop::VendorCatalog::fromJson(json);
+                    replacement.setKnownItems(databaseItemIds(runtime.database_draft));
+                    runtime.vendor_draft = std::move(replacement);
+                } catch (const std::exception&) {
+                    diagnostic = "External vendor catalog could not be decoded; the local draft was preserved.";
+                    return false;
+                }
+                runtime.vendor_document_path = observedPath;
+                (void)runtime.dirty_state_registry.markDirty(kVendorDirtyDocumentId, false);
+                return true;
+            }});
+    }
     runtime.audio_mix_draft.loadDefaults();
     runtime.audio_mix_preset = "Default";
     runtime.audio_preview_asset_id.clear();
     runtime.audio_preview_asset_undo.clear();
     runtime.audio_preview_asset_redo.clear();
+    std::string persistedAudioMixContent;
     if (std::ifstream audioMixInput(audioMixDraftPath(runtime), std::ios::binary); audioMixInput.good()) {
         try {
-            const auto audioMixJson = nlohmann::json::parse(audioMixInput);
+            persistedAudioMixContent.assign(std::istreambuf_iterator<char>(audioMixInput),
+                                            std::istreambuf_iterator<char>());
+            const auto audioMixJson = nlohmann::json::parse(persistedAudioMixContent);
             runtime.audio_mix_draft.fromJson(audioMixJson);
             runtime.audio_mix_preset = audioMixJson.value("active_preset", "Default");
             runtime.audio_preview_asset_id = audioMixJson.value("encounter_preview_asset_id", "");
@@ -1664,6 +2156,102 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
             runtime.map_save_status = "Saved audio mix is invalid; the default mix was loaded instead.";
             runtime.audio_mix_draft.loadDefaults();
             runtime.audio_mix_preset = "Default";
+        }
+    }
+    if (!persistedAudioMixContent.empty()) {
+        (void)runtime.external_change_coordinator.registerDocument({
+            kAudioMixDirtyDocumentId,
+            {runtime.audio_mix_document_path, persistedAudioMixContent, audioMixDraftJson(runtime).dump(2) + "\n",
+             false, true},
+            [&runtime] { return audioMixDraftJson(runtime).dump(2) + "\n"; },
+            [&runtime] { return runtime.dirty_state_registry.isDirty(kAudioMixDirtyDocumentId); },
+            [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                       std::string& diagnostic) {
+                const auto json = nlohmann::json::parse(contents, nullptr, false);
+                if (!json.is_object() || json.value("schema", "") != "urpg.project_audio_mix.v1") {
+                    diagnostic = "External audio mix failed schema validation; the local draft was preserved.";
+                    return false;
+                }
+                try {
+                    urpg::audio::AudioMixPresetBank replacement;
+                    replacement.fromJson(json);
+                    const auto preset = json.value("active_preset", "Default");
+                    if (!replacement.loadPreset(preset).has_value()) {
+                        diagnostic = "External audio mix selected an unknown preset; the local draft was preserved.";
+                        return false;
+                    }
+                    runtime.audio_mix_draft = std::move(replacement);
+                    runtime.audio_mix_preset = preset;
+                    runtime.audio_preview_asset_id = json.value("encounter_preview_asset_id", "");
+                } catch (const std::exception&) {
+                    diagnostic = "External audio mix could not be decoded; the local draft was preserved.";
+                    return false;
+                }
+                runtime.audio_mix_document_path = observedPath;
+                runtime.audio_preview_asset_undo.clear();
+                runtime.audio_preview_asset_redo.clear();
+                runtime.audio_mix_panel.bindBank(&runtime.audio_mix_draft);
+                (void)runtime.audio_mix_panel.selectPreset(runtime.audio_mix_preset);
+                (void)runtime.dirty_state_registry.markDirty(kAudioMixDirtyDocumentId, false);
+                return true;
+            }});
+    }
+    if (std::ifstream recipeInput(runtime.gameplay_recipe_document_path, std::ios::binary); recipeInput.good()) {
+        const std::string persistedRecipeContent{std::istreambuf_iterator<char>(recipeInput),
+                                                 std::istreambuf_iterator<char>()};
+        if (!persistedRecipeContent.empty()) {
+            (void)runtime.external_change_coordinator.registerDocument({
+                kGameplayRecipeDirtyDocumentId,
+                {runtime.gameplay_recipe_document_path, persistedRecipeContent,
+                 runtime.gameplay_recipe_panel.project().toJson().dump(2) + "\n", false, true},
+                [&runtime] { return runtime.gameplay_recipe_panel.project().toJson().dump(2) + "\n"; },
+                [&runtime] { return runtime.dirty_state_registry.isDirty(kGameplayRecipeDirtyDocumentId); },
+                [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                           std::string& diagnostic) {
+                    const auto json = nlohmann::json::parse(contents, nullptr, false);
+                    if (!json.is_object()) {
+                        diagnostic = "External gameplay recipe document is malformed; the local draft was preserved.";
+                        return false;
+                    }
+                    const auto replacement = urpg::gameplay::GameplayRecipeProjectDocument::fromJson(json);
+                    const auto diagnostics = replacement.validate();
+                    if (!diagnostics.empty()) {
+                        diagnostic = "External gameplay recipe document failed validation: " +
+                                     diagnostics.front().code + ".";
+                        return false;
+                    }
+                    runtime.gameplay_recipe_panel.loadProject(replacement);
+                    runtime.gameplay_recipe_document_path = observedPath;
+                    (void)runtime.dirty_state_registry.markDirty(kGameplayRecipeDirtyDocumentId, false);
+                    return true;
+                }});
+        }
+    }
+    if (std::ifstream lockInput(runtime.mz_plugin_lock_document_path, std::ios::binary); lockInput.good()) {
+        const std::string persistedLock{std::istreambuf_iterator<char>(lockInput), std::istreambuf_iterator<char>()};
+        if (!persistedLock.empty() && isValidMzPluginStaticLock(runtime.mz_plugin_lock_draft)) {
+            (void)runtime.external_change_coordinator.registerDocument({
+                kMzPluginLockDirtyDocumentId,
+                {runtime.mz_plugin_lock_document_path, persistedLock,
+                 runtime.mz_plugin_lock_draft.dump(2) + "\n", false, true},
+                [&runtime] { return runtime.mz_plugin_lock_draft.dump(2) + "\n"; },
+                [&runtime] { return runtime.dirty_state_registry.isDirty(kMzPluginLockDirtyDocumentId); },
+                [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                           std::string& diagnostic) {
+                    const auto replacement = nlohmann::json::parse(contents, nullptr, false);
+                    if (!isValidMzPluginStaticLock(replacement)) {
+                        diagnostic = "External MZ plugin lock failed validation; the local lock was preserved.";
+                        return false;
+                    }
+                    runtime.mz_plugin_lock_draft = replacement;
+                    runtime.mz_plugin_lock_document_path = observedPath;
+                    runtime.mz_plugin_lock_source_current =
+                        runtime.mz_plugin_lock_draft == buildMzPluginStaticLock(runtime.project_root);
+                    runtime.mz_plugin_lock_status =
+                        "Reloaded externally changed static MZ plugin lock as non-executing compatibility metadata.";
+                    (void)runtime.dirty_state_registry.markDirty(kMzPluginLockDirtyDocumentId, false);
+                    return true;
+                }});
         }
     }
     runtime.audio_preview_core.setAssetRoot(projectRoot / "content");
@@ -1680,9 +2268,12 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
     const auto loadedInputRemapPath = std::filesystem::is_regular_file(canonicalInputRemapPath)
                                           ? canonicalInputRemapPath
                                           : legacyInputRemapPath;
+    std::string persistedInputRemapContent;
     if (std::ifstream inputRemapInput(loadedInputRemapPath, std::ios::binary); inputRemapInput.good()) {
         try {
-            runtime.input_remap_draft.loadFromJson(nlohmann::json::parse(inputRemapInput));
+            persistedInputRemapContent.assign(std::istreambuf_iterator<char>(inputRemapInput),
+                                              std::istreambuf_iterator<char>());
+            runtime.input_remap_draft.loadFromJson(nlohmann::json::parse(persistedInputRemapContent));
             if (loadedInputRemapPath == legacyInputRemapPath) {
                 runtime.map_save_status =
                     "Loaded legacy input remaps; the next save will migrate them to config/input_mappings.json.";
@@ -1692,15 +2283,73 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
             runtime.input_remap_draft.resetToDefaults();
         }
     }
+    if (!persistedInputRemapContent.empty()) {
+        (void)runtime.external_change_coordinator.registerDocument({
+            kInputRemapDirtyDocumentId,
+            {loadedInputRemapPath, persistedInputRemapContent,
+             runtime.input_remap_draft.saveToJson().dump(2) + "\n", false, true},
+            [&runtime] { return runtime.input_remap_draft.saveToJson().dump(2) + "\n"; },
+            [&runtime] { return runtime.dirty_state_registry.isDirty(kInputRemapDirtyDocumentId); },
+            [&runtime, legacyInputRemapPath](const std::string& contents, const std::filesystem::path& observedPath,
+                                             std::string& diagnostic) {
+                try {
+                    const auto parsed = nlohmann::json::parse(contents);
+                    urpg::input::InputRemapStore replacement;
+                    replacement.loadFromJson(parsed);
+                    runtime.input_remap_draft.loadFromJson(parsed);
+                } catch (const std::exception&) {
+                    diagnostic = "External input remap failed validation; the local mappings were preserved.";
+                    return false;
+                }
+                if (observedPath != legacyInputRemapPath) runtime.input_remap_document_path = observedPath;
+                (void)runtime.dirty_state_registry.markDirty(kInputRemapDirtyDocumentId, false);
+                return true;
+            }});
+    }
     runtime.controller_binding_draft.resetToDefaults();
     runtime.controller_binding_status.clear();
     const auto controllerBindingsPath = controllerBindingDraftPath(runtime);
+    std::string persistedControllerContent;
     if (std::filesystem::is_regular_file(controllerBindingsPath)) {
         std::string error;
+        if (std::ifstream input(controllerBindingsPath, std::ios::binary); input.good()) {
+            persistedControllerContent.assign(std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>());
+        }
         if (!runtime.controller_binding_draft.loadFromFile(controllerBindingsPath, &error)) {
             runtime.controller_binding_status =
                 "Saved controller bindings are invalid; safe defaults remain active: " + error;
         }
+    }
+    if (!persistedControllerContent.empty()) {
+        (void)runtime.external_change_coordinator.registerDocument({
+            kControllerBindingDirtyDocumentId,
+            {controllerBindingsPath, persistedControllerContent,
+             runtime.controller_binding_draft.saveToJson().dump(2) + "\n", false, true},
+            [&runtime] { return runtime.controller_binding_draft.saveToJson().dump(2) + "\n"; },
+            [&runtime] { return runtime.dirty_state_registry.isDirty(kControllerBindingDirtyDocumentId); },
+            [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                       std::string& diagnostic) {
+                try {
+                    const auto parsed = nlohmann::json::parse(contents);
+                    urpg::action::ControllerBindingRuntime replacement;
+                    replacement.loadFromJson(parsed);
+                    const auto issues = replacement.getIssues();
+                    if (!issues.empty()) {
+                        diagnostic = "External controller bindings omit a required action; local bindings were preserved.";
+                        return false;
+                    }
+                    runtime.controller_binding_draft.loadFromJson(parsed);
+                } catch (const std::exception&) {
+                    diagnostic = "External controller bindings failed validation; local bindings were preserved.";
+                    return false;
+                }
+                runtime.controller_binding_document_path = observedPath;
+                std::string status;
+                (void)applyControllerBindingsToEditorSurface(runtime, &status);
+                runtime.controller_binding_status = status;
+                (void)runtime.dirty_state_registry.markDirty(kControllerBindingDirtyDocumentId, false);
+                return true;
+            }});
     }
     runtime.controller_binding_panel.bindRuntime(&runtime.controller_binding_draft);
     std::string liveControllerStatus;
@@ -1715,9 +2364,13 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
                                     runtime.available_map_ids.end();
     const auto mapId = requestedMapExists ? requestedMapId : starterMapId;
     runtime.level_builder_document = urpg::map::GridPartDocument{mapId, 16, 12};
-    const auto gridPath = projectRoot / "content" / "maps" / (mapId + ".grid.json");
+    runtime.grid_map_document_path = projectRoot / "content" / "maps" / (mapId + ".grid.json");
+    runtime.perspective_map_document_path = projectRoot / "content" / "maps" / (mapId + ".p2d.json");
+    const auto gridPath = runtime.grid_map_document_path;
+    std::string persistedGridContent;
     if (std::ifstream gridInput(gridPath, std::ios::binary); gridInput.good()) {
-        const auto gridJson = nlohmann::json::parse(gridInput, nullptr, false);
+        persistedGridContent.assign(std::istreambuf_iterator<char>(gridInput), std::istreambuf_iterator<char>());
+        const auto gridJson = nlohmann::json::parse(persistedGridContent, nullptr, false);
         if (const auto restored = urpg::map::GridPartDocumentFromJson(gridJson); restored.has_value() &&
             restored->mapId() == mapId) {
             runtime.level_builder_document = *restored;
@@ -1727,13 +2380,70 @@ void bindMapAuthoringProject(EditorPanelRuntime& runtime,
     }
     runtime.perspective_2d_scene = std::make_unique<urpg::scene::MapScene>(mapId, 16, 12);
     bindLevelBuilder(runtime);
-    const auto perspectivePath = projectRoot / "content" / "maps" / (mapId + ".p2d.json");
+    const auto perspectivePath = runtime.perspective_map_document_path;
+    std::string persistedPerspectiveContent;
     if (std::ifstream perspectiveInput(perspectivePath, std::ios::binary); perspectiveInput.good()) {
+        persistedPerspectiveContent.assign(std::istreambuf_iterator<char>(perspectiveInput),
+                                           std::istreambuf_iterator<char>());
         const auto result = runtime.perspective_2d_workspace.LoadPerspectiveMapDraft(
-            std::string{std::istreambuf_iterator<char>(perspectiveInput), {}});
+            persistedPerspectiveContent);
         if (!result.success) {
             runtime.map_save_status = "Saved Perspective 2D map draft could not be loaded: " + result.message;
         }
+    }
+    if (!persistedGridContent.empty()) {
+        (void)runtime.external_change_coordinator.registerDocument({
+            kMapDirtyDocumentId,
+            {runtime.grid_map_document_path, persistedGridContent,
+             urpg::map::GridPartDocumentToJson(runtime.level_builder_document).dump(2) + "\n", false, true},
+            [&runtime] { return urpg::map::GridPartDocumentToJson(runtime.level_builder_document).dump(2) + "\n"; },
+            [&runtime] { return runtime.dirty_state_registry.isDirty(kMapDirtyDocumentId); },
+            [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                       std::string& diagnostic) {
+                const auto json = nlohmann::json::parse(contents, nullptr, false);
+                const auto replacement = urpg::map::GridPartDocumentFromJson(json);
+                if (!replacement.has_value() || replacement->mapId() != runtime.level_builder_document.mapId()) {
+                    diagnostic = "External Grid Map failed validation or changed the stable map ID; the local map was preserved.";
+                    return false;
+                }
+                runtime.level_builder_document = *replacement;
+                runtime.grid_map_document_path = observedPath;
+                bindLevelBuilder(runtime);
+                runtime.level_builder_workspace.MarkLevelDraftPersisted();
+                runtime.map_authoring_workspace.context().markSaved(
+                    urpg::editor::MapAuthoringDocumentOwner::GridParts);
+                runtime.map_authoring_workspace.refresh();
+                (void)runtime.dirty_state_registry.markDirty(kMapDirtyDocumentId, false);
+                return true;
+            }});
+    }
+    if (!persistedPerspectiveContent.empty()) {
+        (void)runtime.external_change_coordinator.registerDocument({
+            kPerspective2DDirtyDocumentId,
+            {runtime.perspective_map_document_path, persistedPerspectiveContent,
+             runtime.perspective_2d_workspace.PreparePerspectiveMapDraftSave().serialized_document_json + "\n",
+             false, true},
+            [&runtime] {
+                const auto prepared = runtime.perspective_2d_workspace.PreparePerspectiveMapDraftSave();
+                return prepared.success ? prepared.serialized_document_json + "\n" : std::string{};
+            },
+            [&runtime] { return runtime.dirty_state_registry.isDirty(kPerspective2DDirtyDocumentId); },
+            [&runtime](const std::string& contents, const std::filesystem::path& observedPath,
+                       std::string& diagnostic) {
+                const auto result = runtime.perspective_2d_workspace.LoadPerspectiveMapDraft(contents);
+                if (!result.success) {
+                    diagnostic = "External Perspective 2D Map failed validation; the local map was preserved: " +
+                                 result.message;
+                    return false;
+                }
+                runtime.perspective_map_document_path = observedPath;
+                runtime.perspective_2d_workspace.MarkPerspectiveMapDraftPersisted();
+                runtime.map_authoring_workspace.context().markSaved(
+                    urpg::editor::MapAuthoringDocumentOwner::Perspective2D);
+                runtime.map_authoring_workspace.refresh();
+                (void)runtime.dirty_state_registry.markDirty(kPerspective2DDirtyDocumentId, false);
+                return true;
+            }});
     }
     runtime.map_runtime_save_catalog.clear();
     runtime.map_runtime_save_session = std::make_unique<urpg::SaveSessionCoordinator>(runtime.map_runtime_save_catalog);
@@ -1774,22 +2484,91 @@ bool atomicWriteTextFile(const std::filesystem::path& target, std::string_view c
     return true;
 }
 
+urpg::project::ProjectOperationRestoreResult restoreInterruptedProjectOperations(
+    const std::filesystem::path& projectRoot) {
+    urpg::project::ProjectOperationJournal journal(
+        projectRoot / ".urpg" / "project_operations" / "journal.json");
+    const auto recovery = journal.recover();
+    if (!recovery.success || recovery.interrupted_operations.empty()) {
+        return {recovery.success, recovery.code, {}, {}, {}, {}};
+    }
+    struct RestoreState {
+        std::filesystem::path path;
+        std::string prior_content;
+        bool existed = false;
+    };
+    std::map<std::string, std::shared_ptr<RestoreState>> states;
+    for (const auto& operation : recovery.interrupted_operations) {
+        for (const auto& snapshot : operation.owners) {
+            states.try_emplace(snapshot.owner_id, std::make_shared<RestoreState>());
+        }
+    }
+    std::vector<urpg::project::ProjectOperationRecoveryOwner> owners;
+    owners.reserve(states.size());
+    for (const auto& [ownerId, state] : states) {
+        owners.push_back({
+            ownerId,
+            [projectRoot, state](const auto& snapshot, std::string& diagnostic) {
+                if (snapshot.document_path.empty() || snapshot.snapshot.empty() ||
+                    !nlohmann::json::parse(snapshot.snapshot, nullptr, false).is_object()) {
+                    diagnostic = "Recovery snapshot requires an owned document path and valid JSON object.";
+                    return false;
+                }
+                auto path = snapshot.document_path.is_absolute()
+                                ? snapshot.document_path.lexically_normal()
+                                : (projectRoot / snapshot.document_path).lexically_normal();
+                const auto root = projectRoot.lexically_normal();
+                const auto relative = path.lexically_relative(root);
+                if (relative.empty() || relative.is_absolute() ||
+                    std::any_of(relative.begin(), relative.end(), [](const auto& part) { return part == ".."; })) {
+                    diagnostic = "Recovery document path escapes the open project.";
+                    return false;
+                }
+                state->path = std::move(path);
+                std::ifstream input(state->path, std::ios::binary);
+                state->existed = input.good();
+                state->prior_content.assign(std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>());
+                return true;
+            },
+            [state](const auto& snapshot, std::string& diagnostic) {
+                return atomicWriteTextFile(state->path, snapshot.snapshot, &diagnostic);
+            },
+            [state] {
+                std::string ignored;
+                if (state->existed) {
+                    (void)atomicWriteTextFile(state->path, state->prior_content, &ignored);
+                } else {
+                    std::error_code error;
+                    std::filesystem::remove(state->path, error);
+                }
+            },
+        });
+    }
+    return journal.restoreInterrupted(owners);
+}
+
 bool saveMapAuthoringDocument(EditorPanelRuntime& runtime, std::string* error) {
     if (runtime.project_root.empty()) {
         if (error) *error = "Open a project before saving a map.";
         return false;
     }
     const auto& document = runtime.level_builder_document;
-    const auto mapPath = runtime.project_root / "content" / "maps" / (document.mapId() + ".grid.json");
+    const auto mapPath = runtime.grid_map_document_path.empty()
+                             ? runtime.project_root / "content" / "maps" / (document.mapId() + ".grid.json")
+                             : runtime.grid_map_document_path;
     const auto perspectiveSave = runtime.perspective_2d_workspace.PreparePerspectiveMapDraftSave();
     if (!perspectiveSave.success) {
         if (error) *error = perspectiveSave.message;
         return false;
     }
-    const auto perspectivePath = runtime.project_root / "content" / "maps" / (document.mapId() + ".p2d.json");
+    const auto perspectivePath = runtime.perspective_map_document_path.empty()
+                                     ? runtime.project_root / "content" / "maps" / (document.mapId() + ".p2d.json")
+                                     : runtime.perspective_map_document_path;
+    const auto gridPayload = urpg::map::GridPartDocumentToJson(document).dump(2) + "\n";
+    const auto perspectivePayload = perspectiveSave.serialized_document_json + "\n";
     const auto persistence = urpg::editor::publishMapAuthoringDocuments({
-        {mapPath, urpg::map::GridPartDocumentToJson(document).dump(2) + "\n"},
-        {perspectivePath, perspectiveSave.serialized_document_json + "\n"},
+        {mapPath, gridPayload},
+        {perspectivePath, perspectivePayload},
     });
     if (!persistence.success) {
         if (error) *error = persistence.message;
@@ -1806,6 +2585,11 @@ bool saveMapAuthoringDocument(EditorPanelRuntime& runtime, std::string* error) {
     runtime.perspective_2d_workspace.MarkPerspectiveMapDraftPersisted();
     runtime.map_authoring_workspace.context().markSaved(urpg::editor::MapAuthoringDocumentOwner::GridParts);
     runtime.map_authoring_workspace.context().markSaved(urpg::editor::MapAuthoringDocumentOwner::Perspective2D);
+    (void)runtime.external_change_coordinator.acknowledgeSaved(kMapDirtyDocumentId, gridPayload, mapPath);
+    (void)runtime.external_change_coordinator.acknowledgeSaved(
+        kPerspective2DDirtyDocumentId, perspectivePayload, perspectivePath);
+    replaceProjectReferenceDocument(runtime, mapPath, gridPayload);
+    replaceProjectReferenceDocument(runtime, perspectivePath, perspectivePayload);
     runtime.map_authoring_workspace.refresh();
     return true;
 }
@@ -1866,6 +2650,23 @@ bool startCurrentMapPlaytest(EditorPanelRuntime& runtime, bool fromSelectedPart 
     const bool started = runtime.playtest_session.start(runtime.project_root, runtime.level_builder_document.mapId(),
                                                         spawn, gridDraft, perspectiveDraft.serialized_document_json + "\n",
                                                         selectedObjectId);
+    if (started) {
+        runtime.playtest_event_trace_bridge.emplace(runtime.playtest_session.sessionDirectory());
+        runtime.diagnostics_workspace.bindEventTraceBridge(&*runtime.playtest_event_trace_bridge);
+        runtime.diagnostics_workspace.eventTracePanel().setSourceOpenHandler([&runtime](const auto& source) {
+            auto selection = runtime.map_authoring_workspace.context().snapshot().selection;
+            selection.eventId = source.event_id;
+            selection.viewportFocus = source.page_id + "/" + source.command_id;
+            runtime.map_authoring_workspace.context().setSelection(std::move(selection));
+            runtime.map_save_status = "Focused event source " + source.event_id + "/" + source.page_id + "/" +
+                                      source.command_id + ".";
+            return true;
+        });
+        runtime.playtest_runtime_state_bridge.emplace(runtime.playtest_session.sessionDirectory());
+        runtime.playtest_runtime_state_inspector.bindLiveBridge(&*runtime.playtest_runtime_state_bridge);
+        runtime.scenario_replay_panel.bindLiveSession(runtime.playtest_session.sessionDirectory());
+        runtime.live_performance_panel.bindLiveSession(runtime.playtest_session.sessionDirectory());
+    }
     runtime.map_save_status = runtime.playtest_session.message();
     if (!started && runtime.map_save_status.empty()) {
         runtime.map_save_status = "Map playtest could not start.";
@@ -2206,10 +3007,12 @@ CommandPaletteAvailability commandPaletteAvailability(const EditorPanelRuntime& 
         return {false, "Open a project before using this command."};
     }
     if (commandId == "project.save") {
-        return {false, "Bounded asynchronous Save route adoption is still required by PCQ-701."};
+        return {true, {}};
     }
     if (commandId == "playtest.current_map") {
-        return {false, "Bounded asynchronous Playtest Launch route adoption is still required by PCQ-701."};
+        const auto blocker = playtestDocumentBlocker(runtime);
+        return blocker.empty() ? CommandPaletteAvailability{true, {}}
+                               : CommandPaletteAvailability{false, blocker};
     }
     if (commandId == "map.open" || commandId == "event.create" || commandId == "project.health" ||
         commandId == "export.validate") {
@@ -2236,6 +3039,22 @@ bool executeCommandPaletteRoute(urpg::editor::EditorShell& editorShell, EditorPa
         runtime.map_authoring_workspace.setNextActionHint(
             "Use Event Authoring to create the event, its first page, and a supported native command.");
         runtime.command_palette_status = "Opened the native Map event-authoring route.";
+    } else if (commandId == "project.save") {
+        const auto guard = runtime.dirty_state_registry.resolveNavigation(
+            urpg::editor::EditorNavigationDecision::Save);
+        if (!guard.allowed) {
+            runtime.command_palette_status = guard.diagnostic.message;
+            return false;
+        }
+        runtime.command_palette_status = guard.dirty_document_ids.empty()
+                                             ? "All changed project documents were saved through their owners."
+                                             : "Project documents were already saved.";
+    } else if (commandId == "playtest.current_map") {
+        if (!startCurrentMapPlaytest(runtime)) {
+            runtime.command_palette_status = runtime.map_save_status;
+            return false;
+        }
+        runtime.command_palette_status = "Launched the current map in a private playtest overlay.";
     } else if (commandId == "project.health") {
         runtime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::ProjectHealth);
         (void)editorShell.openPanel("diagnostics");
@@ -2269,6 +3088,7 @@ void openCommandPalette(EditorPanelRuntime& runtime) {
 }
 
 void renderCommandPalette(urpg::editor::EditorShell& editorShell, EditorPanelRuntime& runtime) {
+    pollProjectReferenceRefresh(runtime);
     auto& io = ImGui::GetIO();
     if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_P, false)) {
         openCommandPalette(runtime);
@@ -2279,7 +3099,7 @@ void renderCommandPalette(urpg::editor::EditorShell& editorShell, EditorPanelRun
         return;
     }
 
-    ImGui::SetNextWindowSize(ImVec2(640.0f, 420.0f), ImGuiCond_Appearing);
+    ImGui::SetNextWindowSize(editorScaledWindowSize(640.0F, 420.0F), ImGuiCond_Appearing);
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
     if (!ImGui::Begin("Command Palette###URPG Command Palette", &runtime.command_palette_visible,
                       ImGuiWindowFlags_NoCollapse)) {
@@ -2348,6 +3168,46 @@ void renderCommandPalette(urpg::editor::EditorShell& editorShell, EditorPanelRun
         runtime.command_palette_search->complete()) {
         ImGui::TextDisabled("No matching commands.");
     }
+    if (runtime.project_session.isOpen() && runtime.command_palette_query.size() >= 2) {
+        ImGui::SeparatorText("Project Objects");
+        if (!runtime.project_reference_index_ready) {
+            ImGui::TextDisabled("Refreshing the project reference index in the background...");
+        } else {
+            const auto objects = runtime.project_reference_index.searchObjects(runtime.command_palette_query, 8);
+            for (const auto& object : objects) {
+                ImGui::PushID((object.object_type + ":" + object.object_id).c_str());
+                const auto label = object.object_id + "  [" + object.object_type + "]";
+                if (ImGui::Selectable(label.c_str(), false)) {
+                    const auto target = runtime.project_reference_index.navigationTarget(
+                        object.object_type, object.object_id);
+                    if (target.success && editorShell.openPanel(target.panel_id)) {
+                        runtime.map_authoring_workspace.setNextActionHint(
+                            "Located " + target.object_type + " '" + target.object_id + "' in " +
+                            target.document_path.generic_string() + " at " + target.local_id + ".");
+                        runtime.command_palette_status =
+                            "Opened the owning workspace for " + target.object_id + ".";
+                        runtime.command_palette_visible = false;
+                        runtime.focus_workspace_next_frame = true;
+                    } else {
+                        runtime.command_palette_status =
+                            "Could not open the owning workspace for " + object.object_id + ".";
+                    }
+                }
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("%s\n%s\nInbound: %zu | outbound: %zu | package: %s",
+                                      object.document_path.generic_string().c_str(), object.local_id.c_str(),
+                                      object.inbound_count, object.outbound_count,
+                                      object.package_included ? "included" : "not included");
+                }
+                ImGui::PopID();
+            }
+            if (objects.empty()) ImGui::TextDisabled("No matching project objects.");
+            if (!runtime.project_reference_diagnostics.empty()) {
+                ImGui::TextDisabled("Index diagnostics: %zu (open Project Health for details)",
+                                    runtime.project_reference_diagnostics.size());
+            }
+        }
+    }
     if (!runtime.command_palette_status.empty()) {
         ImGui::Separator();
         ImGui::TextWrapped("%s", runtime.command_palette_status.c_str());
@@ -2355,11 +3215,172 @@ void renderCommandPalette(urpg::editor::EditorShell& editorShell, EditorPanelRun
     ImGui::End();
 }
 
+void inspectExternalProjectChanges(EditorPanelRuntime& runtime) {
+    if (runtime.creator_mode || !runtime.project_session.isOpen()) return;
+    const auto now = std::chrono::steady_clock::now();
+    if (runtime.next_external_change_inspection_at != std::chrono::steady_clock::time_point{} &&
+        now < runtime.next_external_change_inspection_at) return;
+    std::map<std::string, std::vector<std::filesystem::path>> renameCandidates;
+    std::error_code error;
+    const auto dialogueDirectory = runtime.project_root / "content" / "dialogues";
+    for (const auto& entry : std::filesystem::directory_iterator(dialogueDirectory, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        renameCandidates[kDialogueDirtyDocumentId].push_back(entry.path());
+    }
+    error.clear();
+    const auto questDirectory = runtime.project_root / "content" / "quests";
+    for (const auto& entry : std::filesystem::directory_iterator(questDirectory, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        renameCandidates[kQuestDirtyDocumentId].push_back(entry.path());
+    }
+    error.clear();
+    const auto vendorDirectory = runtime.project_root / "content" / "vendors";
+    for (const auto& entry : std::filesystem::directory_iterator(vendorDirectory, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        renameCandidates[kVendorDirtyDocumentId].push_back(entry.path());
+    }
+    error.clear();
+    const auto contentDirectory = runtime.project_root / "content";
+    for (const auto& entry : std::filesystem::directory_iterator(contentDirectory, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        renameCandidates[kDatabaseDirtyDocumentId].push_back(entry.path());
+    }
+    error.clear();
+    const auto configDirectory = runtime.project_root / "config";
+    for (const auto& entry : std::filesystem::directory_iterator(configDirectory, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        renameCandidates[kAudioMixDirtyDocumentId].push_back(entry.path());
+        renameCandidates[kInputRemapDirtyDocumentId].push_back(entry.path());
+        renameCandidates[kControllerBindingDirtyDocumentId].push_back(entry.path());
+    }
+    error.clear();
+    const auto gameplayDirectory = runtime.project_root / "content" / "gameplay";
+    for (const auto& entry : std::filesystem::directory_iterator(gameplayDirectory, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        renameCandidates[kGameplayRecipeDirtyDocumentId].push_back(entry.path());
+    }
+    error.clear();
+    const auto menuDirectory = runtime.project_root / "content" / "ui";
+    for (const auto& entry : std::filesystem::directory_iterator(menuDirectory, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        renameCandidates[kMenuStudioDirtyDocumentId].push_back(entry.path());
+    }
+    error.clear();
+    const auto compatDirectory = runtime.project_root / "content" / "compat";
+    for (const auto& entry : std::filesystem::directory_iterator(compatDirectory, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        renameCandidates[kMzPluginLockDirtyDocumentId].push_back(entry.path());
+    }
+    error.clear();
+    const auto abilityDirectory = runtime.project_root / "content" / "abilities";
+    for (const auto& entry : std::filesystem::directory_iterator(abilityDirectory, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        renameCandidates["ability.draft"].push_back(entry.path());
+    }
+    error.clear();
+    const auto characterDirectory = runtime.project_root / "content" / "characters";
+    for (const auto& entry : std::filesystem::directory_iterator(characterDirectory, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        renameCandidates[kCharacterDirtyDocumentId].push_back(entry.path());
+    }
+    error.clear();
+    const auto mapDirectory = runtime.project_root / "content" / "maps";
+    for (const auto& entry : std::filesystem::directory_iterator(mapDirectory, error)) {
+        if (error || !entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        const auto filename = entry.path().filename().string();
+        if (filename.ends_with(".grid.json")) renameCandidates[kMapDirtyDocumentId].push_back(entry.path());
+        if (filename.ends_with(".p2d.json")) {
+            renameCandidates[kPerspective2DDirtyDocumentId].push_back(entry.path());
+        }
+    }
+    (void)runtime.external_change_coordinator.inspect(renameCandidates);
+    runtime.next_external_change_inspection_at = now + std::chrono::seconds(1);
+}
+
+void renderExternalChangeConflicts(EditorPanelRuntime& runtime) {
+    const auto& conflicts = runtime.external_change_coordinator.conflicts();
+    if (conflicts.empty()) return;
+    ImGui::SetNextWindowSize(editorScaledWindowSize(680.0F, 360.0F), ImGuiCond_Appearing);
+    if (!ImGui::Begin("External Project Changes###URPG External Changes")) {
+        ImGui::End();
+        return;
+    }
+    ImGui::TextWrapped("A project document changed outside URPG. Review it before reloading; unsaved local work is never overwritten automatically.");
+    std::optional<std::pair<std::string, urpg::project::ProjectExternalResolution>> requestedResolution;
+    for (const auto& conflict : conflicts) {
+        ImGui::PushID(conflict.document_id.c_str());
+        ImGui::SeparatorText(conflict.document_id.c_str());
+        ImGui::TextWrapped("%s", conflict.inspection.code.c_str());
+        ImGui::TextWrapped("Observed: %s", conflict.inspection.observed_path.generic_string().c_str());
+        if (conflict.inspection.has_unsaved_conflict) {
+            ImGui::TextWrapped("Unsaved local edits conflict with the external document.");
+        }
+        if (ImGui::Button("Compare")) {
+            requestedResolution = {conflict.document_id, urpg::project::ProjectExternalResolution::Compare};
+        }
+        ImGui::SameLine();
+        const auto canReload = std::find(conflict.inspection.available_resolutions.begin(),
+                                         conflict.inspection.available_resolutions.end(),
+                                         urpg::project::ProjectExternalResolution::Reload) !=
+                               conflict.inspection.available_resolutions.end();
+        if (!canReload) ImGui::BeginDisabled();
+        if (ImGui::Button("Reload External")) {
+            requestedResolution = {conflict.document_id, urpg::project::ProjectExternalResolution::Reload};
+        }
+        if (!canReload) ImGui::EndDisabled();
+        ImGui::SameLine();
+        if (ImGui::Button("Keep Local")) {
+            requestedResolution = {conflict.document_id, urpg::project::ProjectExternalResolution::KeepLocal};
+        }
+        ImGui::PopID();
+        if (requestedResolution.has_value()) break;
+    }
+    if (requestedResolution.has_value()) {
+        runtime.external_change_result = runtime.external_change_coordinator.resolve(
+            requestedResolution->first, requestedResolution->second);
+        if (runtime.external_change_result.success &&
+            requestedResolution->second == urpg::project::ProjectExternalResolution::Reload) {
+            beginProjectReferenceRefresh(runtime, runtime.project_root);
+        }
+    }
+    if (!runtime.external_change_result.code.empty()) {
+        ImGui::Separator();
+        ImGui::TextWrapped("%s", runtime.external_change_result.message.c_str());
+        if (runtime.external_change_result.code == "project_external_compare_ready") {
+            ImGui::TextUnformatted("Local draft:");
+            ImGui::BeginChild("local_compare", ImVec2(0.0f, 72.0f), true);
+            ImGui::TextWrapped("%s", runtime.external_change_result.local_content.c_str());
+            ImGui::EndChild();
+            ImGui::TextUnformatted("External document:");
+            ImGui::BeginChild("external_compare", ImVec2(0.0f, 72.0f), true);
+            ImGui::TextWrapped("%s", runtime.external_change_result.external_content.c_str());
+            ImGui::EndChild();
+        } else if (runtime.external_change_result.code == "project_external_identity_impact_review_required") {
+            ImGui::TextWrapped("Stable ID: %s -> %s",
+                               runtime.external_change_result.previous_stable_id.c_str(),
+                               runtime.external_change_result.external_stable_id.c_str());
+            if (ImGui::Button("Review Reference Impact")) {
+                runtime.command_palette_query = runtime.external_change_result.previous_stable_id;
+                runtime.command_palette_search = runtime.command_palette.beginSearch(
+                    runtime.command_palette_query, 12);
+                runtime.command_palette_results.clear();
+                runtime.command_palette_visible = true;
+                runtime.command_palette_focus_query = true;
+            }
+        }
+    }
+    ImGui::End();
+}
+
 void renderEditorChrome(urpg::editor::EditorShell& editorShell, EditorPanelRuntime* runtime) {
-    if (runtime != nullptr) renderCommandPalette(editorShell, *runtime);
+    if (runtime != nullptr) {
+        inspectExternalProjectChanges(*runtime);
+        renderCommandPalette(editorShell, *runtime);
+        renderExternalChangeConflicts(*runtime);
+    }
     ImGui::SetNextWindowBgAlpha(1.0f);
-    ImGui::SetNextWindowPos(ImVec2(12.0f, 12.0f), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(340.0f, 520.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(12.0F * g_editor_ui_scale, 12.0F * g_editor_ui_scale), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(editorScaledWindowSize(340.0F, 520.0F), ImGuiCond_Always);
     if (!ImGui::Begin("URPG Editor", nullptr, ImGuiWindowFlags_NoCollapse)) {
         ImGui::End();
         return;
@@ -2391,6 +3412,28 @@ void renderEditorChrome(urpg::editor::EditorShell& editorShell, EditorPanelRunti
 
     if (runtime != nullptr) {
         ImGui::Separator();
+        if (runtime->project_session.isOpen() && runtime->project_asset_operations) {
+            const auto undoLabel = runtime->project_asset_operations->undoLabel();
+            const auto redoLabel = runtime->project_asset_operations->redoLabel();
+            ImGui::TextUnformatted("Project History");
+            ImGui::BeginDisabled(undoLabel.empty());
+            if (ImGui::Button((undoLabel.empty() ? "Undo Project Operation"
+                                                : "Undo " + undoLabel).c_str(), ImVec2(-1.0f, 0.0f))) {
+                const auto result = runtime->project_asset_operations->undoLast();
+                runtime->command_palette_status = result.message;
+                if (result.success) beginProjectReferenceRefresh(*runtime, runtime->project_root);
+            }
+            ImGui::EndDisabled();
+            ImGui::BeginDisabled(redoLabel.empty());
+            if (ImGui::Button((redoLabel.empty() ? "Redo Project Operation"
+                                                : "Redo " + redoLabel).c_str(), ImVec2(-1.0f, 0.0f))) {
+                const auto result = runtime->project_asset_operations->redoLast();
+                runtime->command_palette_status = result.message;
+                if (result.success) beginProjectReferenceRefresh(*runtime, runtime->project_root);
+            }
+            ImGui::EndDisabled();
+            ImGui::Separator();
+        }
         if (ImGui::Button("Command Palette (Ctrl+P)", ImVec2(-1.0f, 0.0f))) {
             openCommandPalette(*runtime);
         }
@@ -2410,6 +3453,8 @@ const char* diagnosticsTabName(urpg::editor::DiagnosticsTab tab) {
         return "Save";
     case urpg::editor::DiagnosticsTab::EventAuthority:
         return "Events";
+    case urpg::editor::DiagnosticsTab::EventTrace:
+        return "Live Trace";
     case urpg::editor::DiagnosticsTab::MessageText:
         return "Messages";
     case urpg::editor::DiagnosticsTab::Battle:
@@ -2681,6 +3726,307 @@ void renderEventAuthorityDiagnostics(urpg::EventAuthorityPanel& panel) {
             }
             ImGui::EndTable();
         }
+    }
+}
+
+void renderEventTraceDiagnostics(urpg::editor::EventTraceDiagnosticsPanel& panel) {
+    panel.render();
+    const auto& snapshot = panel.snapshot();
+    ImGui::Text("Connection: %s | Runtime: %s | Frame: %llu | Revision: %llu",
+                snapshot.connected ? "live" : "waiting", snapshot.paused ? "paused" :
+                (snapshot.running ? "running" : "stopped"),
+                static_cast<unsigned long long>(snapshot.runtime_frame),
+                static_cast<unsigned long long>(snapshot.revision));
+    if (snapshot.paused_on_breakpoint && snapshot.active_breakpoint_id) {
+        ImGui::TextColored(g_editor_warning_color, "Paused on breakpoint: %s",
+                           snapshot.active_breakpoint_id->c_str());
+    }
+
+    if (ImGui::Button("Pause")) (void)panel.requestControl(urpg::playtest::EventTraceControlAction::Pause);
+    ImGui::SameLine();
+    if (ImGui::Button("Continue")) (void)panel.requestControl(urpg::playtest::EventTraceControlAction::Continue);
+    ImGui::SameLine();
+    if (ImGui::Button("Step")) (void)panel.requestControl(urpg::playtest::EventTraceControlAction::Step);
+    ImGui::SameLine();
+    ImGui::BeginDisabled(!snapshot.frame_advance_available);
+    if (ImGui::Button("Advance Frame")) {
+        (void)panel.requestControl(urpg::playtest::EventTraceControlAction::AdvanceFrame);
+    }
+    ImGui::EndDisabled();
+
+    static std::string eventFilter;
+    static std::string laneFilter;
+    ImGui::InputText("Event Filter", &eventFilter);
+    ImGui::InputText("Lane Filter", &laneFilter);
+    if (ImGui::Button("Apply Trace Filters")) {
+        (void)panel.setEventFilter(eventFilter);
+        (void)panel.setLaneFilter(laneFilter);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Clear Trace Filters")) {
+        eventFilter.clear();
+        laneFilter.clear();
+        panel.clearFilters();
+    }
+
+    if (snapshot.current_source) {
+        ImGui::Text("Current source: %s / %s / %s [%zu]", snapshot.current_source->event_id.c_str(),
+                    snapshot.current_source->page_id.c_str(), snapshot.current_source->command_id.c_str(),
+                    snapshot.current_source->command_index);
+        if (ImGui::Button("Focus Current Command in Editor")) (void)panel.openCurrentSource();
+    }
+
+    if (ImGui::CollapsingHeader("Call Stack", ImGuiTreeNodeFlags_DefaultOpen)) {
+        for (const auto& frame : snapshot.call_stack) {
+            ImGui::BulletText("%s / %s [%zu]", frame.event_id.c_str(), frame.page_id.c_str(), frame.command_index);
+        }
+    }
+
+    if (ImGui::CollapsingHeader("Breakpoints", ImGuiTreeNodeFlags_DefaultOpen)) {
+        for (const auto& breakpoint : snapshot.breakpoints) {
+            ImGui::PushID(breakpoint.id.c_str());
+            bool enabled = breakpoint.enabled;
+            if (ImGui::Checkbox("Enabled", &enabled)) {
+                (void)panel.requestBreakpointEnabled(breakpoint.id, enabled);
+            }
+            ImGui::SameLine();
+            ImGui::Text("%s: %s / %s [%zu] hits %llu", breakpoint.id.c_str(), breakpoint.event_id.c_str(),
+                        breakpoint.page_id.c_str(), breakpoint.command_index,
+                        static_cast<unsigned long long>(breakpoint.hit_count));
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Remove")) (void)panel.requestRemoveBreakpoint(breakpoint.id);
+            ImGui::PopID();
+        }
+        static std::string breakpointId;
+        static std::string breakpointEvent;
+        static std::string breakpointPage;
+        static std::string breakpointTarget;
+        static int breakpointCommandIndex = 0;
+        static int breakpointCondition = 0;
+        static int breakpointNumber = 0;
+        static bool breakpointBoolean = false;
+        constexpr const char* conditionNames[] = {"Always", "Variable Equals", "Variable At Least",
+                                                  "Switch Equals", "Self Switch Equals"};
+        ImGui::InputText("Breakpoint ID", &breakpointId);
+        ImGui::InputText("Breakpoint Event", &breakpointEvent);
+        ImGui::InputText("Breakpoint Page", &breakpointPage);
+        ImGui::InputInt("Command Index", &breakpointCommandIndex);
+        ImGui::Combo("Condition", &breakpointCondition, conditionNames,
+                     static_cast<int>(std::size(conditionNames)));
+        if (breakpointCondition != 0) ImGui::InputText("Condition Target", &breakpointTarget);
+        if (breakpointCondition == 1 || breakpointCondition == 2) {
+            ImGui::InputInt("Condition Number", &breakpointNumber);
+        } else if (breakpointCondition >= 3) {
+            ImGui::Checkbox("Condition Value", &breakpointBoolean);
+        }
+        if (ImGui::Button("Add Reviewed Breakpoint")) {
+            urpg::events::EventBreakpoint breakpoint;
+            breakpoint.id = breakpointId;
+            breakpoint.event_id = breakpointEvent;
+            breakpoint.page_id = breakpointPage;
+            breakpoint.command_index = static_cast<size_t>(std::max(0, breakpointCommandIndex));
+            breakpoint.condition.kind = static_cast<urpg::events::EventBreakpointConditionKind>(
+                std::clamp(breakpointCondition, 0, 4));
+            breakpoint.condition.target = breakpointTarget;
+            breakpoint.condition.number_value = breakpointNumber;
+            breakpoint.condition.bool_value = breakpointBoolean;
+            (void)panel.requestAddBreakpoint(std::move(breakpoint));
+        }
+    }
+
+    static std::string watchedVariable;
+    ImGui::InputText("Watch Variable", &watchedVariable);
+    ImGui::SameLine();
+    if (ImGui::Button("Add Watch")) (void)panel.requestWatchVariable(watchedVariable);
+    for (const auto& [id, value] : snapshot.watched_variables) {
+        ImGui::BulletText("%s = %lld", id.c_str(), static_cast<long long>(value));
+    }
+
+    if (ImGui::BeginTable("Live Event Trace", 4,
+                          ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY,
+                          ImVec2(0.0f, 240.0f))) {
+        ImGui::TableSetupColumn("Sequence");
+        ImGui::TableSetupColumn("Event");
+        ImGui::TableSetupColumn("Command");
+        ImGui::TableSetupColumn("Lane");
+        ImGui::TableHeadersRow();
+        const auto& rows = panel.visibleRows();
+        for (size_t index = 0; index < rows.size(); ++index) {
+            const auto& row = rows[index];
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            const auto label = std::to_string(row.sequence) + "##trace-" + std::to_string(index);
+            if (ImGui::Selectable(label.c_str(), snapshot.selected_visible_row == index,
+                                  ImGuiSelectableFlags_SpanAllColumns)) {
+                (void)panel.selectVisibleRow(index);
+            }
+            ImGui::TableNextColumn();
+            ImGui::TextUnformatted(row.source.event_id.c_str());
+            ImGui::TableNextColumn();
+            ImGui::TextUnformatted(row.source.command_id.c_str());
+            ImGui::TableNextColumn();
+            ImGui::TextUnformatted(row.lane_id.c_str());
+        }
+        ImGui::EndTable();
+    }
+    if (snapshot.selected_source && ImGui::Button("Focus Selected Trace Command")) {
+        (void)panel.openSelectedSource();
+    }
+    if (!snapshot.last_control_code.empty()) ImGui::TextDisabled("%s", snapshot.last_control_code.c_str());
+}
+
+void renderPlaytestRuntimeStateInspector(urpg::editor::PlaytestRuntimeStateInspector& inspector) {
+    if (!ImGui::CollapsingHeader("Disposable Runtime State Inspector", ImGuiTreeNodeFlags_DefaultOpen)) return;
+    (void)inspector.refreshLive();
+    ImGui::TextColored(g_editor_warning_color,
+                       "DEBUG OVERLAY — temporary, disposable, and never written to packaged data");
+    ImGui::Text("Connection: %s | Revision: %llu | Checkpoint: %s",
+                inspector.liveConnected() ? "live" : "waiting",
+                static_cast<unsigned long long>(inspector.liveRevision()),
+                std::string(inspector.activeCheckpointId()).c_str());
+    const auto& state = inspector.state();
+    ImGui::Text("Switches %zu | Variables %zu | Self-switches %zu | Entities %zu | Quests %zu | Inventory %zu",
+                state.switches.size(), state.variables.size(), state.self_switches.size(), state.entities.size(),
+                state.quests.size(), state.inventory.size());
+    ImGui::Text("Temporary mutations: %zu | Package baseline unchanged: %s", inspector.mutations().size(),
+                inspector.exportDisposableOverlay().value("packaged", true) ? "no" : "yes");
+
+    static int valueKind = 1;
+    static std::string mutationId;
+    static std::string addressId;
+    static std::string addressField;
+    static std::string valueJson;
+    static std::string editStatus;
+    constexpr const char* kindNames[] = {"Switch", "Variable", "Self Switch", "Entity Field", "Quest", "Inventory"};
+    ImGui::Combo("State Family", &valueKind, kindNames, static_cast<int>(std::size(kindNames)));
+    ImGui::InputText("Mutation ID", &mutationId);
+    ImGui::InputText("Stable State ID", &addressId);
+    if (valueKind == 3 || valueKind == 4) ImGui::InputText("Field / Objective", &addressField);
+    ImGui::InputText("JSON Value", &valueJson);
+    const auto address = urpg::editor::PlaytestDebugValueAddress{
+        static_cast<urpg::editor::PlaytestDebugValueKind>(std::clamp(valueKind, 0, 5)), addressId, addressField};
+    if (ImGui::Button("Queue Disposable Edit")) {
+        const auto value = nlohmann::json::parse(valueJson, nullptr, false);
+        if (value.is_discarded()) {
+            editStatus = "Enter a valid JSON scalar value.";
+        } else {
+            editStatus = inspector.requestLiveTemporaryEdit(mutationId, address, value)
+                             ? "Disposable edit queued for runtime acknowledgement."
+                             : inspector.lastLiveControlCode();
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Watch Address")) (void)inspector.watch(address);
+    ImGui::SameLine();
+    if (ImGui::Button("Reset to Runtime Checkpoint")) {
+        (void)inspector.requestLiveReset(std::string(inspector.activeCheckpointId()));
+    }
+
+    for (const auto& watch : inspector.watchedValues()) {
+        ImGui::PushID((std::to_string(static_cast<int>(watch.address.kind)) + watch.address.id +
+                       watch.address.field).c_str());
+        ImGui::BulletText("%s%s%s = %s%s", watch.address.id.c_str(), watch.address.field.empty() ? "" : "/",
+                          watch.address.field.c_str(), watch.available ? watch.value.dump().c_str() : "(missing)",
+                          watch.debug_modified ? "  [TEMPORARY MODIFIED]" : "");
+        ImGui::PopID();
+    }
+    for (const auto& mutation : inspector.mutations()) {
+        ImGui::TextColored(g_editor_warning_color, "TEMP %s: %s%s%s %s -> %s (packaged: no)",
+                           mutation.mutation_id.c_str(), mutation.address.id.c_str(),
+                           mutation.address.field.empty() ? "" : "/", mutation.address.field.c_str(),
+                           mutation.before.dump().c_str(), mutation.after.dump().c_str());
+    }
+    if (!inspector.lastLiveControlCode().empty()) {
+        ImGui::TextDisabled("%s", inspector.lastLiveControlCode().c_str());
+    }
+    if (!editStatus.empty()) ImGui::TextWrapped("%s", editStatus.c_str());
+}
+
+void renderScenarioReplayWorkflow(urpg::editor::ReplayPanel& panel) {
+    if (!ImGui::CollapsingHeader("Reported Failure Replay", ImGuiTreeNodeFlags_DefaultOpen)) return;
+    panel.render();
+    const auto& snapshot = panel.lastRenderSnapshot();
+    ImGui::Text("Connection: %s | Capture: %s | Revision: %llu",
+                snapshot.live_connected ? "live" : "waiting",
+                snapshot.capturing ? "recording semantic inputs" : "idle",
+                static_cast<unsigned long long>(snapshot.live_revision));
+    ImGui::Text("Semantic inputs: %zu | Checkpoints: %zu", snapshot.semantic_input_count,
+                snapshot.checkpoint_count);
+    if (!snapshot.project_revision.empty()) {
+        ImGui::TextWrapped("Project revision: %s", snapshot.project_revision.c_str());
+        ImGui::Text("Runtime version: %s", snapshot.runtime_version.c_str());
+    }
+    static std::string replayStatus;
+    if (ImGui::Button("Replay Report Headless")) {
+        replayStatus = panel.requestLiveReplay(urpg::replay::ReplayExecutionMode::Headless)
+                           ? "Headless replay queued against the live captured checkpoint."
+                           : "Headless replay could not be queued.";
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Replay Report Interactively")) {
+        replayStatus = panel.requestLiveReplay(urpg::replay::ReplayExecutionMode::Interactive)
+                           ? "Interactive replay queued in the playtest runtime."
+                           : "Interactive replay could not be queued.";
+    }
+    if (!snapshot.last_result.code.empty()) {
+        const auto color = snapshot.last_result.success ? g_editor_success_color : g_editor_warning_color;
+        ImGui::TextColored(color, "%s: %s", snapshot.last_result.code.c_str(),
+                           snapshot.last_result.message.c_str());
+        ImGui::Text("Applied inputs: %zu", snapshot.last_result.applied_inputs);
+        if (snapshot.last_result.divergence) {
+            ImGui::TextWrapped("Divergence tick %lld | expected %s | actual %s",
+                               static_cast<long long>(snapshot.last_result.divergence->first_mismatched_tick),
+                               snapshot.last_result.divergence->expected_hash.c_str(),
+                               snapshot.last_result.divergence->actual_hash.c_str());
+        }
+    }
+    if (!replayStatus.empty()) ImGui::TextWrapped("%s", replayStatus.c_str());
+    ImGui::TextDisabled("The persisted replay.json artifact is included by the approved support-bundle workflow.");
+}
+
+void renderLivePerformanceCapture(urpg::editor::PerfDiagnosticsPanel& panel) {
+    if (!ImGui::CollapsingHeader("Live Performance Overlay", ImGuiTreeNodeFlags_DefaultOpen)) return;
+    panel.render();
+    const auto& snapshot = panel.lastRenderSnapshot();
+    if (snapshot.value("status", "") != "live") {
+        ImGui::TextDisabled("Waiting for live runtime performance samples.");
+        return;
+    }
+    const auto latestMs = static_cast<double>(snapshot.value("latest_frame_us", 0U)) / 1000.0;
+    const auto averageMs = static_cast<double>(snapshot.value("average_frame_us", 0U)) / 1000.0;
+    const auto maximumMs = static_cast<double>(snapshot.value("maximum_frame_us", 0U)) / 1000.0;
+    ImGui::Text("Capture: %s | Frames: %zu | Revision: %llu",
+                snapshot.value("capturing", false) ? "recording" : "stopped",
+                snapshot.value("captured_frames", size_t{0}),
+                static_cast<unsigned long long>(snapshot.value("revision", uint64_t{0})));
+    ImGui::Text("Frame %.3f ms | Average %.3f ms | Maximum %.3f ms", latestMs, averageMs, maximumMs);
+    ImGui::Text("Private process memory: %.2f MiB",
+                static_cast<double>(snapshot.value("memory_bytes", uint64_t{0})) / (1024.0 * 1024.0));
+    const auto subsystems = snapshot.value("subsystems", nlohmann::json::object());
+    ImGui::Text("Render %.3f | Script/Event %.3f | Streaming %.3f | Audio %.3f | Other %.3f ms",
+                static_cast<double>(subsystems.value("render", 0U)) / 1000.0,
+                static_cast<double>(subsystems.value("script_event", 0U)) / 1000.0,
+                static_cast<double>(subsystems.value("asset_streaming", 0U)) / 1000.0,
+                static_cast<double>(subsystems.value("audio", 0U)) / 1000.0,
+                static_cast<double>(subsystems.value("other", 0U)) / 1000.0);
+    static std::string captureId = "reported-hitch";
+    ImGui::InputText("Performance Capture ID", &captureId);
+    if (ImGui::Button("Start New Capture")) (void)panel.requestLiveCapture(true, captureId);
+    ImGui::SameLine();
+    if (ImGui::Button("Stop and Persist Capture")) (void)panel.requestLiveCapture(false);
+    const auto spike = snapshot.value("latest_spike", nlohmann::json{});
+    if (spike.is_object()) {
+        ImGui::TextColored(g_editor_warning_color,
+                           "Hitch frame %llu at %llu us: %.3f ms, dominated by %s (%.3f ms)",
+                           static_cast<unsigned long long>(spike.value("frame_index", uint64_t{0})),
+                           static_cast<unsigned long long>(spike.value("timestamp_us", uint64_t{0})),
+                           static_cast<double>(spike.value("frame_time_us", 0U)) / 1000.0,
+                           spike.value("dominant_subsystem", "other").c_str(),
+                           static_cast<double>(spike.value("dominant_time_us", 0U)) / 1000.0);
+    }
+    ImGui::TextDisabled("The bounded capture is persisted as performance_capture.json in the private playtest session.");
+    if (!snapshot.value("last_control_code", "").empty()) {
+        ImGui::TextDisabled("%s", snapshot.value("last_control_code", "").c_str());
     }
 }
 
@@ -2964,23 +4310,133 @@ void renderDiagnosticsWorkspace(EditorPanelRuntime& runtime) {
         renderSaveDiagnostics(diagnostics.savePanel());
     } else if (activeTab == urpg::editor::DiagnosticsTab::EventAuthority) {
         renderEventAuthorityDiagnostics(diagnostics.eventAuthorityPanel());
+    } else if (activeTab == urpg::editor::DiagnosticsTab::EventTrace) {
+        renderEventTraceDiagnostics(diagnostics.eventTracePanel());
+        renderPlaytestRuntimeStateInspector(runtime.playtest_runtime_state_inspector);
+        renderScenarioReplayWorkflow(runtime.scenario_replay_panel);
+        renderLivePerformanceCapture(runtime.live_performance_panel);
     } else if (activeTab == urpg::editor::DiagnosticsTab::MessageText) {
         renderMessageDiagnostics(diagnostics.messagePanel());
     } else if (activeTab == urpg::editor::DiagnosticsTab::Battle) {
         renderBattleDiagnostics(diagnostics.battlePanel());
     } else if (activeTab == urpg::editor::DiagnosticsTab::Menu) {
-        ImGui::TextUnformatted("Native Menu Studio");
-        ImGui::TextDisabled("Project document: content/ui/menus.json");
+        ImGui::TextUnformatted("Menu Canvas Authoring");
+        ImGui::TextDisabled("Authoritative project document: content/ui/menu_authoring.json");
+        auto& workspace = runtime.menu_authoring_workspace;
+        const auto starters = urpg::ui::MenuStarterTemplateLibrary::originalUrpgTemplates();
+        if (ImGui::BeginCombo("Starter Template", workspace.templateId().c_str())) {
+            for (const auto& starter : starters.templates()) {
+                if (ImGui::Selectable(starter.id.c_str(), starter.id == workspace.templateId())) {
+                    const auto result = workspace.resetFromTemplate(starter.id);
+                    runtime.menu_authoring_status = result.message;
+                }
+            }
+            ImGui::EndCombo();
+        }
+        if (ImGui::Button("Undo Menu Edit")) runtime.menu_authoring_status = workspace.undo().message;
+        ImGui::SameLine();
+        if (ImGui::Button("Redo Menu Edit")) runtime.menu_authoring_status = workspace.redo().message;
+        ImGui::SameLine();
+        if (ImGui::Button("Save Menu Authoring Document")) {
+            runtime.menu_authoring_status = workspace.save().message;
+        }
+        ImGui::Text("Runtime projection: %s | Package audit: %s | %s",
+                    workspace.runtimeMaterialization().scene != nullptr ? "ready" : "blocked",
+                    workspace.audit().package_safe ? "ready" : "blocked", workspace.dirty() ? "unsaved" : "saved");
+        if (!runtime.menu_authoring_status.empty()) ImGui::TextWrapped("%s", runtime.menu_authoring_status.c_str());
+
+        if (ImGui::CollapsingHeader("Hierarchy and Semantic Alternative", ImGuiTreeNodeFlags_DefaultOpen)) {
+            for (const auto& node : workspace.document().nodes()) {
+                const bool selected = std::ranges::find(workspace.document().selection(), node.id) !=
+                                      workspace.document().selection().end();
+                if (ImGui::Selectable((node.label + "##menu-node-" + node.id).c_str(), selected)) {
+                    runtime.menu_authoring_status = workspace.select({node.id}).message;
+                }
+            }
+            if (ImGui::Button("First")) (void)workspace.navigateSemantic(urpg::editor::SemanticEditorNavigation::First);
+            ImGui::SameLine();
+            if (ImGui::Button("Previous")) (void)workspace.navigateSemantic(urpg::editor::SemanticEditorNavigation::Previous);
+            ImGui::SameLine();
+            if (ImGui::Button("Next")) (void)workspace.navigateSemantic(urpg::editor::SemanticEditorNavigation::Next);
+            ImGui::SameLine();
+            if (ImGui::Button("Last")) (void)workspace.navigateSemantic(urpg::editor::SemanticEditorNavigation::Last);
+            if (!workspace.document().selection().empty()) {
+                const auto* selected = workspace.document().findNode(workspace.document().selection().front());
+                if (selected != nullptr) {
+                    static std::string semanticProperty = "accessible_label";
+                    static std::string semanticValue;
+                    static std::string semanticConnectionTarget;
+                    ImGui::InputText("Semantic Property", &semanticProperty);
+                    ImGui::InputText("Semantic Value", &semanticValue);
+                    if (ImGui::Button("Apply Property Without Pointer Precision")) {
+                        const auto result = workspace.setSemanticProperty(semanticProperty, semanticValue);
+                        runtime.menu_authoring_status = result.message;
+                    }
+                    ImGui::InputText("Connection Target ID", &semanticConnectionTarget);
+                    if (ImGui::Button("Create Connection Without Pointer Precision")) {
+                        const auto result = workspace.connectSemanticSelectionTo(semanticConnectionTarget);
+                        runtime.menu_authoring_status = result.message;
+                    }
+                }
+            }
+        }
+
+        if (ImGui::CollapsingHeader("Canvas Tools", ImGuiTreeNodeFlags_DefaultOpen)) {
+            if (ImGui::Button("Move Left")) runtime.menu_authoring_status = workspace.moveSelection(-8, 0, true).message;
+            ImGui::SameLine();
+            if (ImGui::Button("Move Right")) runtime.menu_authoring_status = workspace.moveSelection(8, 0, true).message;
+            ImGui::SameLine();
+            if (ImGui::Button("Move Up")) runtime.menu_authoring_status = workspace.moveSelection(0, -8, true).message;
+            ImGui::SameLine();
+            if (ImGui::Button("Move Down")) runtime.menu_authoring_status = workspace.moveSelection(0, 8, true).message;
+            if (ImGui::Button("Align Left")) {
+                runtime.menu_authoring_status = workspace.alignSelection(urpg::ui::MenuCanvasAlignment::Left).message;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Distribute Horizontally")) {
+                runtime.menu_authoring_status =
+                    workspace.distributeSelection(urpg::ui::MenuCanvasDistribution::Horizontal).message;
+            }
+        }
+
+        if (ImGui::CollapsingHeader("Focus, Overflow, Binding, and Target Audit", ImGuiTreeNodeFlags_DefaultOpen)) {
+            const auto targets = urpg::ui::menuTargetResolutionPresets();
+            static int targetIndex = 0;
+            targetIndex = std::clamp(targetIndex, 0, static_cast<int>(targets.size()) - 1);
+            if (ImGui::BeginCombo("Target Viewport", (std::to_string(targets[targetIndex].width) + "x" +
+                                                       std::to_string(targets[targetIndex].height)).c_str())) {
+                for (int index = 0; index < static_cast<int>(targets.size()); ++index) {
+                    const auto label = std::to_string(targets[index].width) + "x" + std::to_string(targets[index].height);
+                    if (ImGui::Selectable(label.c_str(), index == targetIndex)) {
+                        targetIndex = index;
+                        urpg::ui::MenuAuthoringAuditOptions options;
+                        options.target_canvas = targets[index];
+                        options.input = urpg::ui::MenuInputPreview::Controller;
+                        workspace.setAuditOptions(options);
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            for (std::size_t index = 0; index < workspace.audit().issues.size(); ++index) {
+                const auto& issue = workspace.audit().issues[index];
+                ImGui::PushID(static_cast<int>(index));
+                if (ImGui::Selectable((issue.code + ": " + issue.message).c_str())) {
+                    if (!issue.node_id.empty()) (void)workspace.select({issue.node_id});
+                }
+                ImGui::PopID();
+            }
+        }
+
+        ImGui::Separator();
+        ImGui::TextUnformatted("Legacy Native Menu Runtime (read-only compatibility projection)");
+        ImGui::TextDisabled("Compatibility document: content/ui/menus.json");
         if (!runtime.menu_studio_load_status.empty()) {
             ImGui::TextWrapped("Menu document was not loaded: %s", runtime.menu_studio_load_status.c_str());
-        }
-        if (ImGui::Button("Save Native Menu Document")) {
-            const auto result = runtime.dirty_state_registry.save(kMenuStudioDirtyDocumentId);
-            runtime.menu_studio_save_status = result.message;
         }
         if (!runtime.menu_studio_save_status.empty()) {
             ImGui::TextDisabled("Save: %s", runtime.menu_studio_save_status.c_str());
         }
+        projectMenuAuthoringRuntime(runtime);
         diagnostics.render();
     } else if (activeTab == urpg::editor::DiagnosticsTab::Audio) {
         renderAudioDiagnostics(diagnostics.audioPanel());
@@ -3606,10 +5062,17 @@ void renderAssetWorkspace(EditorPanelRuntime& runtime) {
             if (projectAttached && !runtime.project_root.empty()) {
                 ImGui::SameLine();
                 if (ImGui::SmallButton("Project References")) {
-                    const auto build = urpg::project::buildProjectReferenceIndex(runtime.project_root);
                     inspectedMapReferenceAssetId = row.value("asset_id", "");
-                    inspectedMapReferences = build.index.findUses("asset", inspectedMapReferenceAssetId).matches;
-                    inspectedMapReferenceDiagnostics = build.diagnostics;
+                    pollProjectReferenceRefresh(runtime);
+                    if (runtime.project_reference_index_ready) {
+                        inspectedMapReferences =
+                            runtime.project_reference_index.findUses("asset", inspectedMapReferenceAssetId).matches;
+                        inspectedMapReferenceDiagnostics = runtime.project_reference_diagnostics;
+                    } else {
+                        inspectedMapReferences.clear();
+                        inspectedMapReferenceDiagnostics = {
+                            "project_reference_index_refresh_in_progress: retry after the background refresh completes"};
+                    }
                 }
                 ImGui::SameLine();
                 if (ImGui::SmallButton("Removal Impact")) {
@@ -4501,7 +5964,7 @@ void renderModWorkspace(EditorPanelRuntime& runtime) {
                     runtime.mz_plugin_lock_draft["plugins"].size(),
                     runtime.mz_plugin_lock_source_current ? "current" : "check required/source changed");
         if (!runtime.mz_plugin_lock_source_current) {
-            ImGui::TextColored(ImVec4(1.0f, 0.65f, 0.25f, 1.0f),
+            ImGui::TextColored(g_editor_warning_color,
                                "Refresh and review the static lock before relying on this compatibility report.");
         }
         renderJsonLines(runtime.mz_plugin_lock_draft.value("plugins", nlohmann::json::array()), 8);
@@ -5627,7 +7090,7 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         const auto issues = runtime.controller_binding_draft.getIssues();
         if (!issues.empty()) {
             for (const auto& issue : issues) {
-                ImGui::TextColored(ImVec4(0.95F, 0.38F, 0.32F, 1.0F), "%s", issue.message.c_str());
+                ImGui::TextColored(g_editor_danger_color, "%s", issue.message.c_str());
             }
         }
         if (!runtime.controller_binding_status.empty()) {
@@ -6343,9 +7806,9 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             const auto localization_diagnostics = runtime.quest_draft->validateLocalizationKeys(localization_keys);
             diagnostics.insert(diagnostics.end(), localization_diagnostics.begin(), localization_diagnostics.end());
             if (diagnostics.empty()) {
-                ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "Quest graph validation: ready");
+                ImGui::TextColored(g_editor_success_color, "Quest graph validation: ready");
             } else {
-                ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.4f, 1.0f), "Quest graph validation: %zu issue(s)", diagnostics.size());
+                ImGui::TextColored(g_editor_danger_color, "Quest graph validation: %zu issue(s)", diagnostics.size());
                 for (const auto& diagnostic : diagnostics) {
                     ImGui::BulletText("%s: %s", diagnostic.code.c_str(), diagnostic.message.c_str());
                 }
@@ -6415,7 +7878,8 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             } else {
                 urpg::dialogue::DialogueGraph graph;
                 if (!graph.addNode({dialogueStartNodeId, dialogueSpeakerId, dialogueSpeakerName,
-                                    dialogueLocalizationKey, dialogueTextPreview, false, {}})) {
+                                    dialogueLocalizationKey, dialogueTextPreview, false, {}, {}, {}, 0, 0,
+                                    false, {}, 0, 0, {}})) {
                     runtime.map_save_status = "Dialogue start node ID is invalid or duplicated.";
                 } else {
                     runtime.dialogue_draft = std::move(graph);
@@ -6561,7 +8025,8 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                     node_exists(dialogueNodeId)) {
                     runtime.map_save_status = "Dialogue nodes require unique IDs, speaker IDs, and localization keys.";
                 } else if (next.addNode({dialogueNodeId, dialogueNodeSpeakerId, dialogueNodeSpeakerName,
-                                         dialogueNodeLocalizationKey, dialogueNodeTextPreview, dialogueNodeEnding, {}}) &&
+                                         dialogueNodeLocalizationKey, dialogueNodeTextPreview, dialogueNodeEnding,
+                                         {}, {}, {}, 0, 0, false, {}, 0, 0, {}}) &&
                            applyDialogueGraphMutation(runtime, std::move(next))) {
                     runtime.map_save_status = "Dialogue node added as one undoable project edit.";
                 }
@@ -6851,9 +8316,9 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             const auto voice_diagnostics = runtime.dialogue_draft->validateVoiceAssetIds(voice_asset_ids);
             diagnostics.insert(diagnostics.end(), voice_diagnostics.begin(), voice_diagnostics.end());
             if (diagnostics.empty()) {
-                ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "Dialogue graph validation: ready");
+                ImGui::TextColored(g_editor_success_color, "Dialogue graph validation: ready");
             } else {
-                ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.4f, 1.0f), "Dialogue graph validation: %zu issue(s)",
+                ImGui::TextColored(g_editor_danger_color, "Dialogue graph validation: %zu issue(s)",
                                    diagnostics.size());
                 for (const auto& diagnostic : diagnostics) {
                     ImGui::BulletText("%s: %s", diagnostic.code.c_str(), diagnostic.message.c_str());
@@ -6926,7 +8391,7 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                     ImGui::Text("Preview node: %s", preview_node->id.c_str());
                     ImGui::TextDisabled("%s", preview_node->text_preview.c_str());
                     if (preview_node->ending) {
-                        ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "Ending node reached.");
+                        ImGui::TextColored(g_editor_success_color, "Ending node reached.");
                     }
                     for (const auto& choice : runtime.dialogue_draft->previewChoices(
                              runtime.dialogue_preview_node_id, runtime.dialogue_preview_values)) {
@@ -6968,7 +8433,7 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                 ImGui::TextDisabled("%s = %d", key.c_str(), value);
             }
             for (const auto& diagnostic : runtime.dialogue_preview_diagnostics) {
-                ImGui::TextColored(ImVec4(1.0f, 0.58f, 0.22f, 1.0f), "%s: %s", diagnostic.code.c_str(),
+                ImGui::TextColored(g_editor_warning_color, "%s: %s", diagnostic.code.c_str(),
                                    diagnostic.message.c_str());
             }
         }
@@ -6978,6 +8443,143 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         }
     }
     if (ImGui::CollapsingHeader("Database and Vendor Authoring")) {
+        auto& databasePanel = runtime.database_panel;
+        static int databaseTableIndex = 3;
+        static int previousDatabaseTableIndex = -1;
+        static std::string databaseSearch;
+        static std::set<std::string> databaseBatchSelection;
+        static int databaseBatchOperation = 0;
+        static std::string databaseBatchField = "price";
+        static std::string databaseBatchValue = "0";
+        static float databaseBatchMultiplier = 1.0F;
+        static float databaseBatchOffset = 0.0F;
+        static float databaseCurveStart = 0.0F;
+        static float databaseCurveEnd = 100.0F;
+        const auto& databaseKinds = urpg::editor::allDatabaseTableKinds();
+        databaseTableIndex = std::clamp(databaseTableIndex, 0, static_cast<int>(databaseKinds.size()) - 1);
+        if (previousDatabaseTableIndex != databaseTableIndex) {
+            databaseBatchSelection.clear();
+            runtime.database_batch_plan.reset();
+            previousDatabaseTableIndex = databaseTableIndex;
+        }
+        const auto activeDatabaseKind = databaseKinds[databaseTableIndex];
+        if (ImGui::BeginCombo("Database Table", urpg::editor::databaseTableKindName(activeDatabaseKind).data())) {
+            for (int index = 0; index < static_cast<int>(databaseKinds.size()); ++index) {
+                if (ImGui::Selectable(urpg::editor::databaseTableKindName(databaseKinds[index]).data(),
+                                      index == databaseTableIndex)) {
+                    databaseTableIndex = index;
+                }
+            }
+            ImGui::EndCombo();
+        }
+        auto& databaseTable = databasePanel.tables().table(activeDatabaseKind);
+        if (ImGui::InputText("Search Records", &databaseSearch)) databaseTable.setSearch(databaseSearch);
+        const auto databaseWindow = databaseTable.visibleWindow(0, 128);
+        ImGui::Text("Records: %zu total | %zu matching | showing %zu", databaseWindow.total_rows,
+                    databaseWindow.matching_rows, databaseWindow.rows.size());
+        if (ImGui::BeginTable("VirtualDatabaseRows", 4,
+                              ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY,
+                              ImVec2(0.0F, 220.0F))) {
+            ImGui::TableSetupColumn("Batch");
+            ImGui::TableSetupColumn("Stable ID");
+            ImGui::TableSetupColumn("Name");
+            ImGui::TableSetupColumn("Summary");
+            ImGui::TableHeadersRow();
+            for (const auto& row : databaseWindow.rows) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                bool selected = databaseBatchSelection.contains(row.id);
+                ImGui::PushID(row.id.c_str());
+                if (ImGui::Checkbox("##batch", &selected)) {
+                    if (selected) databaseBatchSelection.insert(row.id);
+                    else databaseBatchSelection.erase(row.id);
+                    (void)databaseTable.select(row.id);
+                    runtime.database_batch_plan.reset();
+                }
+                ImGui::TableNextColumn();
+                ImGui::TextUnformatted(row.id.c_str());
+                ImGui::TableNextColumn();
+                ImGui::TextUnformatted(row.name.c_str());
+                ImGui::TableNextColumn();
+                ImGui::TextUnformatted(row.summary.c_str());
+                ImGui::PopID();
+            }
+            ImGui::EndTable();
+        }
+        ImGui::TextDisabled("The visible window is bounded to 128 rows; sort/filter/search stay in the virtual model.");
+
+        const char* databaseBatchOperations[] = {"Fill", "Numeric Formula", "Linear Curve", "Duplicate"};
+        ImGui::Combo("Batch Operation", &databaseBatchOperation, databaseBatchOperations,
+                     static_cast<int>(std::size(databaseBatchOperations)));
+        ImGui::InputText("Batch Field", &databaseBatchField);
+        if (databaseBatchOperation == 0) ImGui::InputText("Fill Value", &databaseBatchValue);
+        if (databaseBatchOperation == 1) {
+            ImGui::InputFloat("Formula Multiplier", &databaseBatchMultiplier);
+            ImGui::InputFloat("Formula Offset", &databaseBatchOffset);
+        }
+        if (databaseBatchOperation == 2) {
+            ImGui::InputFloat("Curve Start", &databaseCurveStart);
+            ImGui::InputFloat("Curve End", &databaseCurveEnd);
+        }
+        if (ImGui::Button("Preview Atomic Batch")) {
+            urpg::editor::DatabaseBatchEditRequest request;
+            request.operation = static_cast<urpg::editor::DatabaseBatchOperation>(databaseBatchOperation);
+            request.target_ids.assign(databaseBatchSelection.begin(), databaseBatchSelection.end());
+            request.field = databaseBatchField;
+            request.value = databaseBatchValue;
+            request.multiplier = databaseBatchMultiplier;
+            request.offset = databaseBatchOffset;
+            request.curve_start = databaseCurveStart;
+            request.curve_end = databaseCurveEnd;
+            if (request.operation == urpg::editor::DatabaseBatchOperation::Duplicate) {
+                for (const auto& id : request.target_ids) request.duplicate_ids[id] = id + "_copy";
+            }
+            runtime.database_batch_plan = urpg::editor::DatabaseBatchEditService::preview(databaseTable, request);
+            runtime.map_save_status = runtime.database_batch_plan->valid()
+                                          ? "Atomic database batch is ready for reviewed apply."
+                                          : "Atomic database batch was rejected with " +
+                                                std::to_string(runtime.database_batch_plan->diagnostics.size()) +
+                                                " row diagnostic(s); no record changed.";
+        }
+        if (runtime.database_batch_plan.has_value()) {
+            ImGui::Text("Batch preview: %zu changed row(s), %zu diagnostic(s)",
+                        runtime.database_batch_plan->changed_rows, runtime.database_batch_plan->diagnostics.size());
+            for (const auto& diagnostic : runtime.database_batch_plan->diagnostics) {
+                ImGui::TextColored(g_editor_warning_color, "%s [%s]: %s", diagnostic.code.c_str(),
+                                   diagnostic.row_id.c_str(), diagnostic.message.c_str());
+            }
+            const bool canApplyDatabaseBatch = runtime.database_batch_plan->valid() &&
+                                               (activeDatabaseKind == urpg::editor::DatabaseTableKind::Actors ||
+                                                activeDatabaseKind == urpg::editor::DatabaseTableKind::Items);
+            if (!canApplyDatabaseBatch) ImGui::BeginDisabled();
+            if (ImGui::Button("Apply Reviewed Batch")) {
+                std::string diagnostic;
+                if (databasePanel.applyBatch(*runtime.database_batch_plan, &diagnostic)) {
+                    (void)runtime.dirty_state_registry.markDirty(kDatabaseDirtyDocumentId, true);
+                    runtime.vendor_draft.setKnownItems(databaseItemIds(runtime.database_draft));
+                    runtime.map_save_status = "Database batch committed through the typed project owner.";
+                } else {
+                    runtime.map_save_status = "Database batch apply failed closed: " + diagnostic;
+                }
+            }
+            if (!canApplyDatabaseBatch) ImGui::EndDisabled();
+            ImGui::SameLine();
+            if (ImGui::Button("Undo Database Batch")) {
+                std::string diagnostic;
+                runtime.map_save_status = databasePanel.undoBatch(*runtime.database_batch_plan, &diagnostic)
+                                              ? "Database batch undone through the typed project owner."
+                                              : "Database batch undo failed closed: " + diagnostic;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Redo Database Batch")) {
+                std::string diagnostic;
+                runtime.map_save_status = databasePanel.redoBatch(*runtime.database_batch_plan, &diagnostic)
+                                              ? "Database batch redone through the typed project owner."
+                                              : "Database batch redo failed closed: " + diagnostic;
+            }
+        }
+
+        ImGui::Separator();
         static std::string itemId = "moonwell_lantern";
         static std::string itemName = "Moonwell Lantern";
         static int itemPrice = 75;
@@ -6990,6 +8592,8 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                 runtime.map_save_status = "Project items need a non-empty ID/name and a non-negative price.";
             } else {
                 runtime.database_draft.upsertItem({itemId, itemName, itemPrice, {"vendor"}});
+                runtime.database_panel.refreshFromAuthority();
+                runtime.database_batch_plan.reset();
                 runtime.vendor_draft.setKnownItems(databaseItemIds(runtime.database_draft));
                 (void)runtime.dirty_state_registry.markDirty(kDatabaseDirtyDocumentId, true);
                 runtime.map_save_status = "Project item updated; vendor stock can now reference it.";
@@ -7134,11 +8738,19 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
     const auto startSelectedPartPlaytest = [&] { (void)startCurrentMapPlaytest(runtime, true); };
     const bool hasSelectedPartPlaytestTarget =
         runtime.level_builder_document.findPart(levelSnapshot.inspector.selected_instance_id) != nullptr;
+    const auto restorePlaytestSelection = [&] {
+        const auto& returned = runtime.playtest_session.lastReturnContext();
+        if (!returned.valid) return;
+        (void)workspace.enterCanonicalRoute({urpg::editor::MapAuthoringEntrySource::Playtest,
+                                             returned.map_id, returned.selected_object_id, {}, {},
+                                             "cell:" + returned.spawn, urpg::editor::MapAuthoringMode::Playtest});
+    };
     if (!io.WantTextInput && ImGui::IsKeyPressed(ImGuiKey_F5, false)) {
         if (io.KeyShift) {
             startPlaytest();
         } else if (runtime.playtest_session.isActive()) {
             runtime.playtest_session.returnToEditor();
+            restorePlaytestSelection();
             runtime.map_save_status = runtime.playtest_session.message();
         } else {
             startPlaytest();
@@ -7155,11 +8767,36 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
     if (runtime.playtest_session.isActive()) {
         if (ImGui::Button("Return to Editor")) {
             runtime.playtest_session.returnToEditor();
+            restorePlaytestSelection();
             runtime.map_save_status = runtime.playtest_session.message();
         }
         ImGui::SameLine();
         if (ImGui::Button("Restart Playtest")) {
             startPlaytest();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Hot Reload Current Map")) {
+            const auto perspectiveDraft = runtime.perspective_2d_workspace.PreparePerspectiveMapDraftSave();
+            if (!perspectiveDraft.success) {
+                runtime.map_save_status = "Map hot reload could not stage the Perspective 2D draft: " +
+                                          perspectiveDraft.message;
+            } else {
+                const auto gridDraft = urpg::map::GridPartDocumentToJson(runtime.level_builder_document).dump(2) + "\n";
+                const bool queued = runtime.playtest_session.hotReloadCurrentMap(
+                    gridDraft, perspectiveDraft.serialized_document_json + "\n");
+                runtime.map_save_status = queued ? runtime.playtest_session.message()
+                                                  : "Map hot reload is unavailable while another reload is pending or the draft exceeds 4 MiB.";
+            }
+        }
+        if (hasSelectedPartPlaytestTarget) {
+            ImGui::SameLine();
+            if (ImGui::Button("Teleport to Selected Part")) {
+                const auto* selected = runtime.level_builder_document.findPart(levelSnapshot.inspector.selected_instance_id);
+                const bool queued = selected != nullptr && runtime.playtest_session.teleportHere(
+                    runtime.level_builder_document.mapId(), selected->grid_x, selected->grid_y, selected->instance_id);
+                runtime.map_save_status = queued ? runtime.playtest_session.message() :
+                                                   "The selected Map part could not be queued for live teleport.";
+            }
         }
     } else {
         if (ImGui::Button("Playtest Current Map")) {
@@ -7182,12 +8819,35 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
                             runtime.playtest_session.mapId().c_str(), runtime.playtest_session.spawn().c_str(),
                             static_cast<long long>(runtime.playtest_session.elapsed().count()), runtime.playtest_session.exitCode(),
                             runtime.playtest_session.sessionDirectory().generic_string().c_str());
-        if (ImGui::SmallButton("Write Redacted Playtest Support Summary")) {
-            const auto supportBundle = runtime.playtest_session.writeRedactedSupportBundle();
-            runtime.map_save_status = supportBundle.message;
+        if (ImGui::SmallButton("Preview Redacted Support Bundle")) {
+            runtime.support_bundle_preview = runtime.playtest_session.previewRedactedSupportBundle();
+            runtime.map_save_status = runtime.support_bundle_preview->valid
+                                          ? "Review the included sections and redactions before local write."
+                                          : "Support bundle preview failed: " + runtime.support_bundle_preview->code;
         }
         ImGui::SameLine();
-        ImGui::TextDisabled("Excludes paths, process output, diagnostic messages, source paths, and object IDs.");
+        ImGui::TextDisabled("No upload API exists; declined previews write nothing.");
+        if (runtime.support_bundle_preview.has_value()) {
+            const auto& preview = *runtime.support_bundle_preview;
+            ImGui::Text("Preview: %zu included | %zu excluded | %zu redaction(s)",
+                        preview.included_sections.size(), preview.excluded_sections.size(), preview.redactions.size());
+            for (const auto& section : preview.included_sections) ImGui::BulletText("Include: %s", section.c_str());
+            for (const auto& section : preview.excluded_sections) ImGui::BulletText("Exclude: %s", section.c_str());
+            for (const auto& redaction : preview.redactions) {
+                ImGui::TextDisabled("Redact %s (%s)", redaction.path.c_str(), redaction.reason.c_str());
+            }
+            if (ImGui::SmallButton("Approve and Write Locally")) {
+                const auto result = runtime.playtest_session.writeApprovedSupportBundle(preview, true);
+                runtime.map_save_status = result.message;
+                if (result.success) runtime.support_bundle_preview.reset();
+            }
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Decline Bundle")) {
+                const auto result = runtime.playtest_session.writeApprovedSupportBundle(preview, false);
+                runtime.map_save_status = result.message;
+                runtime.support_bundle_preview.reset();
+            }
+        }
     }
     for (size_t runtimeDiagnosticIndex = 0;
          runtimeDiagnosticIndex < runtime.playtest_session.diagnostics().size(); ++runtimeDiagnosticIndex) {
@@ -7218,7 +8878,8 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
             !ImGui::CollapsingHeader("Map Diagnostics", ImGuiTreeNodeFlags_DefaultOpen)) {
             return;
         }
-        if (levelSnapshot.diagnostics.empty() && perspectiveSnapshot.perspective_2d_project.diagnostics.empty()) {
+        if (levelSnapshot.diagnostics.empty() && perspectiveSnapshot.perspective_2d_project.diagnostics.empty() &&
+            snapshot.worldDiagnostics.empty()) {
             ImGui::TextDisabled("No Map diagnostics are currently reported.");
         }
         for (size_t index = 0; index < levelSnapshot.diagnostics.size(); ++index) {
@@ -7236,6 +8897,9 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         }
         for (const auto& diagnostic : perspectiveSnapshot.perspective_2d_project.diagnostics) {
             ImGui::BulletText("Perspective 2D: %s", diagnostic.c_str());
+        }
+        for (const auto& diagnostic : snapshot.worldDiagnostics) {
+            ImGui::BulletText("World %s: %s", diagnostic.code.c_str(), diagnostic.message.c_str());
         }
     };
 
@@ -7280,7 +8944,108 @@ void renderMapAuthoringWorkspace(urpg::editor::EditorShell& editorShell, EditorP
         ImGui::BeginChild("MapAuthoringCanvas", ImVec2(0.0f, canvasHeight), true);
         // Keep the established child renderers as the source-of-truth canvas;
         // the shared workspace determines which deep editor is foregrounded.
-        if (snapshot.activeMode == "parts" || snapshot.activeMode == "validate" ||
+        if (snapshot.activeMode == "world") {
+            static std::string worldMapId;
+            static std::string worldMapLabel;
+            static std::string worldEntranceId;
+            static std::string worldExitId;
+            static std::string routeId;
+            static std::string routeLabel;
+            static std::string routeSourceMap;
+            static std::string routeSourceExit;
+            static std::string routeTargetMap;
+            static std::string routeTargetEntrance;
+            static std::string routeCondition;
+            static std::string markerReplacement;
+            static urpg::map::WorldGraphImpact reviewedImpact;
+            ImGui::TextWrapped("%s", snapshot.worldGraphMessage.c_str());
+            ImGui::Text("%zu maps | %zu routes | %zu diagnostics",
+                        workspace.worldGraph().maps().size(), workspace.worldGraph().routes().size(),
+                        snapshot.worldDiagnostics.size());
+            for (const auto& node : snapshot.worldPreview.nodes) {
+                ImGui::PushID(node.map_id.c_str());
+                ImGui::Text("%s%s", node.label.c_str(), node.orphan ? " (orphan)" : "");
+                const auto map = std::find_if(workspace.worldGraph().maps().begin(), workspace.worldGraph().maps().end(),
+                                              [&](const auto& value) { return value.id == node.map_id; });
+                if (map != workspace.worldGraph().maps().end()) {
+                    for (const auto& entrance : map->entrances) {
+                        const auto label = "Review entrance: " + entrance.label + "##" + entrance.id;
+                        if (ImGui::SmallButton(label.c_str())) {
+                            reviewedImpact = workspace.previewWorldMarkerChange(map->id, "entrance", entrance.id);
+                            markerReplacement.clear();
+                        }
+                    }
+                    for (const auto& exit : map->exits) {
+                        const auto label = "Review exit: " + exit.label + "##" + exit.id;
+                        if (ImGui::SmallButton(label.c_str())) {
+                            reviewedImpact = workspace.previewWorldMarkerChange(map->id, "exit", exit.id);
+                            markerReplacement.clear();
+                        }
+                    }
+                }
+                ImGui::PopID();
+            }
+            for (const auto& edge : snapshot.worldPreview.edges) {
+                ImGui::BulletText("%s -> %s%s", edge.source_map_id.c_str(), edge.target_map_id.c_str(),
+                                  edge.condition_key.empty() ? "" : (" when " + edge.condition_key).c_str());
+            }
+            if (reviewedImpact.object_found) {
+                ImGui::SeparatorText("Reviewed marker impact");
+                ImGui::Text("%s / %s affects %zu route(s)", reviewedImpact.map_id.c_str(),
+                            reviewedImpact.marker_id.c_str(), reviewedImpact.affected_routes.size());
+                for (const auto& affected : reviewedImpact.affected_routes) {
+                    ImGui::BulletText("%s (%s)", affected.route_label.c_str(), affected.role.c_str());
+                }
+                ImGui::InputText("Replacement marker ID", &markerReplacement);
+                if (ImGui::Button("Review Rename")) {
+                    reviewedImpact = workspace.previewWorldMarkerChange(
+                        reviewedImpact.map_id, reviewedImpact.marker_kind, reviewedImpact.marker_id, markerReplacement);
+                }
+                ImGui::SameLine();
+                if (!reviewedImpact.rename_allowed) ImGui::BeginDisabled();
+                if (ImGui::Button("Apply Reviewed Rename")) {
+                    const auto result = workspace.renameWorldMarker(reviewedImpact);
+                    runtime.map_save_status = result.message;
+                    if (result.success) reviewedImpact = {};
+                }
+                if (!reviewedImpact.rename_allowed) ImGui::EndDisabled();
+                ImGui::SameLine();
+                if (!reviewedImpact.replacement_id.empty()) ImGui::BeginDisabled();
+                if (ImGui::Button("Delete Marker + Affected Routes")) {
+                    const auto result = workspace.deleteWorldMarker(reviewedImpact);
+                    runtime.map_save_status = result.message;
+                    if (result.success) reviewedImpact = {};
+                }
+                if (!reviewedImpact.replacement_id.empty()) ImGui::EndDisabled();
+            }
+            if (ImGui::CollapsingHeader("Add World Map")) {
+                ImGui::InputText("Map ID", &worldMapId);
+                ImGui::InputText("Map label", &worldMapLabel);
+                ImGui::InputText("Entrance ID", &worldEntranceId);
+                ImGui::InputText("Exit ID", &worldExitId);
+                if (ImGui::Button("Add Map to World")) {
+                    urpg::map::WorldMapNode map{worldMapId, worldMapLabel, {}, {}, {}, {}};
+                    if (!worldEntranceId.empty()) map.entrances.push_back({worldEntranceId, worldEntranceId, 0, 0});
+                    if (!worldExitId.empty()) map.exits.push_back({worldExitId, worldExitId, 0, 0});
+                    const auto result = workspace.addWorldMap(std::move(map));
+                    runtime.map_save_status = result.message;
+                }
+            }
+            if (ImGui::CollapsingHeader("Add Transfer Route")) {
+                ImGui::InputText("Route ID", &routeId);
+                ImGui::InputText("Route label", &routeLabel);
+                ImGui::InputText("Source map", &routeSourceMap);
+                ImGui::InputText("Source exit", &routeSourceExit);
+                ImGui::InputText("Target map", &routeTargetMap);
+                ImGui::InputText("Target entrance", &routeTargetEntrance);
+                ImGui::InputText("Condition (optional)", &routeCondition);
+                if (ImGui::Button("Add Route to World")) {
+                    const auto result = workspace.addWorldRoute({routeId, routeLabel, routeSourceMap, routeSourceExit,
+                                                                 routeTargetMap, routeTargetEntrance, routeCondition});
+                    runtime.map_save_status = result.message;
+                }
+            }
+        } else if (snapshot.activeMode == "parts" || snapshot.activeMode == "validate" ||
             snapshot.activeMode == "playtest" || snapshot.activeMode == "package") {
             renderLevelBuilderWorkspace(runtime);
         } else {
@@ -7650,13 +9415,13 @@ void renderEditorWorkspace(urpg::editor::EditorShell& editorShell, EditorPanelRu
                                 snapshot.active_panel_id == "spatial_authoring";
     if (isMapWorkspace) {
         const auto& display = ImGui::GetIO().DisplaySize;
-        ImGui::SetNextWindowPos(ImVec2(12.0f, 12.0f), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(std::max(480.0f, display.x - 24.0f),
-                                        std::max(480.0f, display.y - 24.0f)),
+        ImGui::SetNextWindowPos(ImVec2(12.0F * g_editor_ui_scale, 12.0F * g_editor_ui_scale), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(std::max(160.0F, display.x - 24.0F * g_editor_ui_scale),
+                                        std::max(120.0F, display.y - 24.0F * g_editor_ui_scale)),
                                  ImGuiCond_Always);
     } else {
-        ImGui::SetNextWindowPos(ImVec2(370.0f, 12.0f), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(560.0f, 580.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(370.0F * g_editor_ui_scale, 12.0F * g_editor_ui_scale), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(editorScaledWindowSize(560.0F, 580.0F), ImGuiCond_Always);
     }
     if (runtime.focus_workspace_next_frame) {
         ImGui::SetNextWindowFocus();
@@ -7838,6 +9603,12 @@ void leaveCreatorModeWhenProjectOpened(urpg::editor::EditorShell& editorShell, E
     if (!runtime.creator_mode || runtime.main_menu_model.route() != "editor") return;
     const auto action = runtime.main_menu_model.snapshot().value("pending_action", nlohmann::json::object());
     const auto projectPath = action.value("projectPath", "");
+    const auto operationRecovery = restoreInterruptedProjectOperations(projectPath);
+    if (!operationRecovery.success) {
+        runtime.main_menu_model.reportProjectOpenFailure(
+            projectPath, "Interrupted project operations could not be restored safely: " + operationRecovery.code);
+        return;
+    }
     const auto opened = runtime.project_session.openProject(projectPath);
     if (!opened.success) {
         runtime.main_menu_model.reportProjectOpenFailure(projectPath, opened.message);
@@ -8047,6 +9818,16 @@ int main(int argc, char** argv) {
         const urpg::cli::EditorCliOptions options = cli.options;
         const auto settingsPaths = urpg::settings::editorUserSettingsPaths();
         auto settingsLoad = urpg::settings::loadEditorSettings(settingsPaths.editor_settings, settingsPaths);
+        if (settingsLoad.report.recovered_from_malformed) {
+            const auto quarantine = urpg::settings::quarantineMalformedSettings(settingsPaths.editor_settings);
+            std::string recoveryError;
+            if (!quarantine.success ||
+                !urpg::settings::saveEditorSettings(settingsPaths.editor_settings, settingsLoad.settings,
+                                                     &recoveryError)) {
+                std::cerr << "URPG editor settings quarantine failed: "
+                          << (quarantine.success ? recoveryError : quarantine.message) << "\n";
+            }
+        }
         for (const auto& warning : settingsLoad.report.warnings) {
             std::cerr << "URPG editor settings warning: " << warning << "\n";
         }
@@ -8138,27 +9919,11 @@ int main(int argc, char** argv) {
         ImGui::CreateContext();
         auto& imguiIo = ImGui::GetIO();
         imguiIo.DisplaySize = ImVec2(static_cast<float>(config.width), static_cast<float>(config.height));
-        const auto designTokens = urpg::ui::makeUrpgDesignTokens(
+        applyEditorDesignTokensToImGui(
             settingsLoad.settings.accessibility.high_contrast ? urpg::ui::UrpgThemeMode::HighContrast
                                                               : urpg::ui::UrpgThemeMode::Dark,
-            settingsLoad.settings.accessibility.ui_scale, settingsLoad.settings.accessibility.reduce_motion);
-        auto& imguiStyle = ImGui::GetStyle();
-        imguiStyle.ScaleAllSizes(designTokens.scale);
-        imguiIo.FontGlobalScale = designTokens.scale;
-        const auto imguiColor = [](const urpg::ui::UrpgColorToken& color) {
-            return ImVec4(color.red, color.green, color.blue, color.alpha);
-        };
-        imguiStyle.Colors[ImGuiCol_WindowBg] = imguiColor(designTokens.colors.at("surface"));
-        imguiStyle.Colors[ImGuiCol_ChildBg] = imguiColor(designTokens.colors.at("surface"));
-        imguiStyle.Colors[ImGuiCol_PopupBg] = imguiColor(designTokens.colors.at("surface_raised"));
-        imguiStyle.Colors[ImGuiCol_Text] = imguiColor(designTokens.colors.at("text"));
-        imguiStyle.Colors[ImGuiCol_TextDisabled] = imguiColor(designTokens.colors.at("text_muted"));
-        imguiStyle.Colors[ImGuiCol_CheckMark] = imguiColor(designTokens.colors.at("accent"));
-        imguiStyle.Colors[ImGuiCol_NavHighlight] = imguiColor(designTokens.colors.at("focus"));
-        imguiStyle.FrameRounding = designTokens.corner_radius.at("control");
-        imguiStyle.WindowRounding = designTokens.corner_radius.at("card");
-        imguiStyle.PopupRounding = designTokens.corner_radius.at("popover");
-        imguiStyle.FrameBorderSize = designTokens.borders.at("hairline");
+            settingsLoad.settings.accessibility.ui_scale, settingsLoad.settings.accessibility.reduce_motion,
+            false, options.headless);
         std::filesystem::create_directories(settingsLoad.settings.imgui_ini_path.parent_path());
         const std::string imguiIniFilename = settingsLoad.settings.imgui_ini_path.string();
         imguiIo.IniFilename = imguiIniFilename.c_str();
@@ -8214,6 +9979,54 @@ int main(int argc, char** argv) {
         panelRuntime.new_project_wizard.setExternalAssetLibraryRoot(panelRuntime.external_asset_library_root);
         panelRuntime.main_menu_panel.bindModel(&panelRuntime.main_menu_model);
         panelRuntime.main_menu_panel.bindWizard(&panelRuntime.new_project_wizard);
+        panelRuntime.main_menu_panel.bindProjectServices(&panelRuntime.project_session,
+                                                         &panelRuntime.recovery_service);
+        panelRuntime.creator_checklist_panel.setRouteHandler(
+            [&editorShell, &panelRuntime](const urpg::editor::CreatorChecklistItem& item) {
+                if (item.route == "asset_library") {
+                    panelRuntime.focus_workspace_next_frame = true;
+                    return editorShell.openPanel("assets");
+                }
+                if (item.id == "npc_event") {
+                    return executeCommandPaletteRoute(editorShell, panelRuntime, "event.create");
+                }
+                if (item.route == "map" && item.id != "playtest") {
+                    return executeCommandPaletteRoute(editorShell, panelRuntime, "map.open");
+                }
+                if (item.id == "playtest") return startCurrentMapPlaytest(panelRuntime);
+                if (item.id == "save") {
+                    const auto result = panelRuntime.dirty_state_registry.save(kMapDirtyDocumentId);
+                    return result.success;
+                }
+                if (item.route == "project_health") {
+                    return executeCommandPaletteRoute(editorShell, panelRuntime, "project.health");
+                }
+                if (item.route == "dialogue") {
+                    panelRuntime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::MessageText);
+                    panelRuntime.focus_workspace_next_frame = true;
+                    return editorShell.openPanel("diagnostics");
+                }
+                return false;
+            });
+        {
+            std::vector<std::filesystem::path> exampleCandidates;
+            std::error_code examplePathError;
+            const auto workingDirectory = std::filesystem::current_path(examplePathError);
+            if (!examplePathError) {
+                exampleCandidates.push_back(workingDirectory / "content" / "examples" / "creator_vertical_slice");
+            }
+            examplePathError.clear();
+            const auto executablePath = std::filesystem::absolute(std::filesystem::path(argv[0]), examplePathError);
+            if (!examplePathError) {
+                exampleCandidates.push_back(executablePath.parent_path() / "examples" / "creator_vertical_slice");
+            }
+            for (const auto& candidate : exampleCandidates) {
+                if (panelRuntime.project_session.inspectProject(candidate).result.success) {
+                    panelRuntime.main_menu_panel.bindExampleProjectRoot(candidate);
+                    break;
+                }
+            }
+        }
         panelRuntime.project_session.addSwitchListener([&panelRuntime](const urpg::editor::EditorProjectIdentity& identity) {
             const bool unclean = panelRuntime.recovery_service.hasUncleanSessionMarker(identity.root);
             bindMapAuthoringProject(panelRuntime, identity.root);
@@ -8245,6 +10058,7 @@ int main(int argc, char** argv) {
         });
         panelRuntime.project_session.addCloseListener([&panelRuntime](const urpg::editor::EditorProjectIdentity& identity) {
             (void)panelRuntime.recovery_service.clearSessionMarker(identity.root);
+            panelRuntime.project_asset_operations.reset();
             panelRuntime.gameplay_recipe_panel.loadProject({});
             if (panelRuntime.gameplay_recipe_dirty_surface_registered) {
                 (void)panelRuntime.dirty_state_registry.markDirty(kGameplayRecipeDirtyDocumentId, false);
@@ -8278,7 +10092,12 @@ int main(int argc, char** argv) {
         // its manifest. This prevents a stale directory from becoming an
         // implicit global project merely because the engine shell could start.
         if (!panelRuntime.creator_mode && !options.smoke) {
-            const auto opened = panelRuntime.project_session.openProject(activeProjectRoot);
+            const auto operationRecovery = restoreInterruptedProjectOperations(activeProjectRoot);
+            const auto opened = operationRecovery.success
+                                    ? panelRuntime.project_session.openProject(activeProjectRoot)
+                                    : urpg::editor::EditorProjectSessionResult{
+                                          false, operationRecovery.code,
+                                          "Interrupted project operations could not be restored safely."};
             if (opened.success) {
                 panelRuntime.main_menu_model.setLastProject(panelRuntime.project_session.activeProject().root.generic_string());
                 panelRuntime.main_menu_model.addRecentProject(panelRuntime.project_session.activeProject().root.generic_string());
@@ -8379,7 +10198,22 @@ int main(int argc, char** argv) {
         }
 
         int frame = 0;
+        float appliedUiScale = panelRuntime.main_menu_model.uiScale();
+        bool appliedHighContrast = panelRuntime.main_menu_model.highContrast();
+        bool appliedReducedMotion = panelRuntime.main_menu_model.reducedMotion();
         while (engineShell.isRunning() && editorShell.isRunning() && (options.frames < 0 || frame < options.frames)) {
+#ifdef URPG_IMGUI_ENABLED
+            if (std::abs(appliedUiScale - panelRuntime.main_menu_model.uiScale()) > 0.001F ||
+                appliedHighContrast != panelRuntime.main_menu_model.highContrast() ||
+                appliedReducedMotion != panelRuntime.main_menu_model.reducedMotion()) {
+                appliedUiScale = panelRuntime.main_menu_model.uiScale();
+                appliedHighContrast = panelRuntime.main_menu_model.highContrast();
+                appliedReducedMotion = panelRuntime.main_menu_model.reducedMotion();
+                applyEditorDesignTokensToImGui(
+                    appliedHighContrast ? urpg::ui::UrpgThemeMode::HighContrast : urpg::ui::UrpgThemeMode::Dark,
+                    appliedUiScale, appliedReducedMotion, true, options.headless);
+            }
+#endif
             (void)runEditorFrame(engineShell, editorShell, options.render_all_panels, &panelRuntime);
 #ifdef _WIN32
             if (windowsAccessibilityBridge) windowsAccessibilityBridge->synchronizeTree();

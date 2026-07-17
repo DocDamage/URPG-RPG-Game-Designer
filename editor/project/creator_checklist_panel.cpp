@@ -1,4 +1,7 @@
 #include "editor/project/creator_checklist_panel.h"
+#include "editor/ui/editor_widget_state.h"
+
+#include <algorithm>
 
 #ifdef URPG_IMGUI_ENABLED
 #include <imgui.h>
@@ -65,6 +68,18 @@ bool CreatorChecklistPanel::replay(std::string* error) {
     return saved;
 }
 
+bool CreatorChecklistPanel::activateNextAction() {
+    refresh();
+    if (!route_handler_ || snapshot_.dismissed || snapshot_.next_item_id.empty()) return false;
+    const auto item = std::find_if(snapshot_.items.begin(), snapshot_.items.end(), [&](const auto& candidate) {
+        return candidate.id == snapshot_.next_item_id;
+    });
+    if (item == snapshot_.items.end()) return false;
+    const bool activated = route_handler_(*item);
+    status_message_ = activated ? "Opened the next creator task." : "The next creator task is not available yet.";
+    return activated;
+}
+
 void CreatorChecklistPanel::render() {
     if (!visible_) return;
     refresh();
@@ -80,6 +95,17 @@ void CreatorChecklistPanel::render() {
                         ImGui::Indent();
                         ImGui::TextWrapped("%s", item.coaching.c_str());
                         ImGui::TextDisabled("Next action: %s (%s)", item.action_label.c_str(), item.route.c_str());
+                        EditorWidgetDescriptor action{
+                            "creator.next." + item.id, item.action_label, EditorWidgetKind::Button,
+                            EditorWidgetIntent::Primary, EditorWidgetVisualState::Normal, item.coaching, {}};
+                        action.accessible_name = item.action_label;
+                        action.keyboard_action = "Enter or Space activates the next creator task.";
+                        action.controller_action = "Confirm activates the next creator task.";
+                        action.canvas_alternative = "Use the ordered creator checklist.";
+                        action.focus_order = 0;
+                        if (renderEditorWidget(action).activated) {
+                            (void)activateNextAction();
+                        }
                         ImGui::Unindent();
                     }
                 }
