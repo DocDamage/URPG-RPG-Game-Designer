@@ -4,6 +4,7 @@
 #include <cctype>
 #include <filesystem>
 #include <map>
+#include <numeric>
 #include <sstream>
 
 namespace urpg::assets {
@@ -400,6 +401,9 @@ std::string exportProvenancePacket(const AssetRecord& record) {
 void AssetLibrary::clear() {
     snapshot_ = {};
     referenced_assets_.clear();
+    filter_index_.clear();
+    last_filter_candidate_count_ = 0;
+    ++filter_index_revision_;
 }
 
 AssetRecord& AssetLibrary::ensureAsset(std::string path) {
@@ -782,6 +786,7 @@ void AssetLibrary::addReferencedAsset(std::string path) {
     std::replace(path.begin(), path.end(), '\\', '/');
     referenced_assets_.insert(std::move(path));
     snapshot_.referenced_asset_count = referenced_assets_.size();
+    rebuildFilterIndex();
 }
 
 void AssetLibrary::addUsageReference(std::string path, std::string owner_id) {
@@ -794,6 +799,7 @@ void AssetLibrary::addUsageReference(std::string path, std::string owner_id) {
     }
     referenced_assets_.insert(record.path);
     refreshDerivedCounts();
+    rebuildFilterIndex();
 }
 
 AssetLibraryActionResult AssetLibrary::promoteAsset(std::string path) {
@@ -842,11 +848,13 @@ AssetLibraryActionResult AssetLibrary::archiveAsset(std::string path, std::strin
 void AssetLibrary::markMissingFile(std::string path) {
     ensureAsset(std::move(path)).statuses.insert(AssetStatus::MissingFile);
     refreshDerivedCounts();
+    rebuildFilterIndex();
 }
 
 void AssetLibrary::markUnsupportedFormat(std::string path) {
     ensureAsset(std::move(path)).statuses.insert(AssetStatus::UnsupportedFormat);
     refreshDerivedCounts();
+    rebuildFilterIndex();
 }
 
 void AssetLibrary::detectCaseCollisions() {
@@ -879,52 +887,59 @@ std::optional<AssetRecord> AssetLibrary::findAsset(std::string_view path) const 
 }
 
 std::vector<AssetRecord> AssetLibrary::filterAssets(const AssetLibraryFilter& filter) const {
-    std::vector<AssetRecord> result;
-    for (const auto& asset : snapshot_.assets) {
-        if (!filter.media_kind.empty() && asset.media_kind != filter.media_kind) {
-            continue;
+    const auto key = [](const std::string_view kind, const std::string_view value) {
+        return std::string(kind) + "\x1f" + std::string(value);
+    };
+    std::vector<const std::vector<size_t>*> postings;
+    bool missingPosting = false;
+    const auto addPosting = [&](const std::string& postingKey) {
+        const auto found = filter_index_.find(postingKey);
+        if (found == filter_index_.end()) {
+            missingPosting = true;
+        } else {
+            postings.push_back(&found->second);
         }
-        if (!filter.category.empty() && asset.category != filter.category) {
-            continue;
-        }
-        if (!filter.game_use_category.empty() && asset.game_use_category != filter.game_use_category) {
-            continue;
-        }
-        if (!filter.required_tag.empty() &&
-            std::find(asset.tags.begin(), asset.tags.end(), filter.required_tag) == asset.tags.end()) {
-            continue;
-        }
-        if (!filter.required_game_use_tag.empty() &&
-            std::find(asset.game_use_tags.begin(), asset.game_use_tags.end(), filter.required_game_use_tag) ==
-                asset.game_use_tags.end()) {
-            continue;
-        }
-        if (!filter.source_bundle_id.empty() && asset.source_bundle_id != filter.source_bundle_id) {
-            continue;
-        }
-        if (filter.required_status.has_value() && !asset.statuses.contains(*filter.required_status)) {
-            continue;
-        }
-        if (filter.referenced_only && !referenced_assets_.contains(asset.path)) {
-            continue;
-        }
-        if (filter.runtime_ready_only && !isRuntimeReady(asset)) {
-            continue;
-        }
-        if (filter.previewable_only && !isPreviewable(asset)) {
-            continue;
-        }
-        if (filter.project_attached_only && !isProjectAttached(asset)) {
-            continue;
-        }
-        if (filter.attachable_only && !isProjectAttachable(asset)) {
-            continue;
-        }
-        if (filter.release_eligible_only && !(asset.release_eligible || asset.provenance.export_eligible)) {
-            continue;
-        }
-        result.push_back(asset);
+    };
+    if (!filter.media_kind.empty()) addPosting(key("media", filter.media_kind));
+    if (!filter.category.empty()) addPosting(key("category", filter.category));
+    if (!filter.game_use_category.empty()) addPosting(key("game_use_category", filter.game_use_category));
+    if (!filter.required_tag.empty()) addPosting(key("tag", filter.required_tag));
+    if (!filter.required_game_use_tag.empty()) addPosting(key("game_use_tag", filter.required_game_use_tag));
+    if (!filter.source_bundle_id.empty()) addPosting(key("source_bundle", filter.source_bundle_id));
+    if (filter.required_status.has_value()) {
+        addPosting(key("status", std::to_string(static_cast<int>(*filter.required_status))));
     }
+    if (filter.referenced_only) addPosting(key("flag", "referenced"));
+    if (filter.runtime_ready_only) addPosting(key("flag", "runtime_ready"));
+    if (filter.previewable_only) addPosting(key("flag", "previewable"));
+    if (filter.project_attached_only) addPosting(key("flag", "project_attached"));
+    if (filter.attachable_only) addPosting(key("flag", "attachable"));
+    if (filter.release_eligible_only) addPosting(key("flag", "release_eligible"));
+    if (missingPosting) {
+        last_filter_candidate_count_ = 0;
+        return {};
+    }
+
+    std::vector<size_t> candidates;
+    if (postings.empty()) {
+        candidates.resize(snapshot_.assets.size());
+        std::iota(candidates.begin(), candidates.end(), 0);
+    } else {
+        std::sort(postings.begin(), postings.end(), [](const auto* left, const auto* right) {
+            return left->size() < right->size();
+        });
+        candidates = *postings.front();
+        for (size_t index = 1; index < postings.size() && !candidates.empty(); ++index) {
+            std::vector<size_t> intersection;
+            std::set_intersection(candidates.begin(), candidates.end(), postings[index]->begin(),
+                                  postings[index]->end(), std::back_inserter(intersection));
+            candidates = std::move(intersection);
+        }
+    }
+    last_filter_candidate_count_ = candidates.size();
+    std::vector<AssetRecord> result;
+    result.reserve(candidates.size());
+    for (const auto index : candidates) result.push_back(snapshot_.assets[index]);
     return result;
 }
 
@@ -972,6 +987,37 @@ void AssetLibrary::refreshDerivedCounts() {
 
 void AssetLibrary::sortSnapshot() {
     std::sort(snapshot_.assets.begin(), snapshot_.assets.end(), statusLess);
+    rebuildFilterIndex();
+}
+
+void AssetLibrary::rebuildFilterIndex() {
+    filter_index_.clear();
+    const auto key = [](const std::string_view kind, const std::string_view value) {
+        return std::string(kind) + "\x1f" + std::string(value);
+    };
+    const auto add = [&](const std::string& postingKey, const size_t index) {
+        filter_index_[postingKey].push_back(index);
+    };
+    for (size_t index = 0; index < snapshot_.assets.size(); ++index) {
+        const auto& asset = snapshot_.assets[index];
+        if (!asset.media_kind.empty()) add(key("media", asset.media_kind), index);
+        if (!asset.category.empty()) add(key("category", asset.category), index);
+        if (!asset.game_use_category.empty()) add(key("game_use_category", asset.game_use_category), index);
+        for (const auto& tag : asset.tags) add(key("tag", tag), index);
+        for (const auto& tag : asset.game_use_tags) add(key("game_use_tag", tag), index);
+        if (!asset.source_bundle_id.empty()) add(key("source_bundle", asset.source_bundle_id), index);
+        for (const auto status : asset.statuses) {
+            add(key("status", std::to_string(static_cast<int>(status))), index);
+        }
+        if (referenced_assets_.contains(asset.path)) add(key("flag", "referenced"), index);
+        if (isRuntimeReady(asset)) add(key("flag", "runtime_ready"), index);
+        if (isPreviewable(asset)) add(key("flag", "previewable"), index);
+        if (isProjectAttached(asset)) add(key("flag", "project_attached"), index);
+        if (isProjectAttachable(asset)) add(key("flag", "attachable"), index);
+        if (asset.release_eligible || asset.provenance.export_eligible) add(key("flag", "release_eligible"), index);
+    }
+    last_filter_candidate_count_ = 0;
+    ++filter_index_revision_;
 }
 
 } // namespace urpg::assets

@@ -1796,7 +1796,8 @@ TEST_CASE("AssetLibrary detects case collisions and unsupported paths", "[assets
     REQUIRE(library.snapshot().case_collision_count == 2);
 }
 
-TEST_CASE("AssetLibrary filters by tags status references and runtime readiness", "[assets][asset_library][browser]") {
+TEST_CASE("AssetLibrary filters through a maintained candidate index",
+          "[assets][asset_library][browser][pcq701][perf][primary_routes]") {
     urpg::assets::AssetLibrary library;
     library.ingestPromotionCatalog(
         nlohmann::json{{"source_id", "SRC-007"},
@@ -1857,6 +1858,7 @@ TEST_CASE("AssetLibrary filters by tags status references and runtime readiness"
     const auto images = library.filterAssets(image_filter);
 
     REQUIRE(images.size() == 1);
+    REQUIRE(library.lastFilterCandidateCount() == 1);
     REQUIRE(images.front().used_by.size() == 2);
     REQUIRE(library.snapshot().referenced_asset_count == 1);
     REQUIRE(library.snapshot().runtime_ready_count == 2);
@@ -1865,6 +1867,19 @@ TEST_CASE("AssetLibrary filters by tags status references and runtime readiness"
     urpg::assets::AssetLibraryFilter duplicate_filter;
     duplicate_filter.required_status = urpg::assets::AssetStatus::Duplicate;
     REQUIRE(library.filterAssets(duplicate_filter).size() == 1);
+    REQUIRE(library.lastFilterCandidateCount() == 1);
+
+    urpg::assets::AssetLibraryFilter absent_filter;
+    absent_filter.category = "tilesets/absent";
+    REQUIRE(library.filterAssets(absent_filter).empty());
+    REQUIRE(library.lastFilterCandidateCount() == 0);
+
+    const auto revision = library.filterIndexRevision();
+    library.markMissingFile("imports/raw/urpg_stuff/audio/click.ogg");
+    REQUIRE(library.filterIndexRevision() > revision);
+    urpg::assets::AssetLibraryFilter missing_filter;
+    missing_filter.required_status = urpg::assets::AssetStatus::MissingFile;
+    REQUIRE(library.filterAssets(missing_filter).size() == 1);
 }
 
 TEST_CASE("AssetLibrary promotes and archives curated assets", "[assets][asset_library][browser][actions]") {

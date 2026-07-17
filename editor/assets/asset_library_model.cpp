@@ -3089,18 +3089,25 @@ void AssetLibraryModel::refreshSnapshot() {
     snapshot_.sequence_clip_count = asset_snapshot.sequence_clip_count;
     snapshot_.promoted_count = asset_snapshot.promoted_count;
     snapshot_.archived_count = asset_snapshot.archived_count;
-    const auto all_action_rows = urpg::assets::buildAssetActionRows(asset_snapshot);
-    snapshot_.project_attached_count = 0;
-    snapshot_.project_attachable_count = 0;
-    for (const auto& row : all_action_rows) {
-        if (row.value("project_attached", false)) {
-            ++snapshot_.project_attached_count;
+    const auto assetRevision = library_.filterIndexRevision();
+    if (cached_asset_revision_ != assetRevision) {
+        cached_all_action_rows_ = urpg::assets::buildAssetActionRows(asset_snapshot);
+        cached_project_asset_picker_rows_ = buildProjectAssetPickerRows(asset_snapshot);
+        cached_project_attached_count_ = 0;
+        cached_project_attachable_count_ = 0;
+        for (const auto& row : cached_all_action_rows_) {
+            if (row.value("project_attached", false)) {
+                ++cached_project_attached_count_;
+            }
+            const auto attach_button = row.find("attach_button");
+            if (attach_button != row.end() && attach_button->value("enabled", false)) {
+                ++cached_project_attachable_count_;
+            }
         }
-        const auto attach_button = row.find("attach_button");
-        if (attach_button != row.end() && attach_button->value("enabled", false)) {
-            ++snapshot_.project_attachable_count;
-        }
+        cached_asset_revision_ = assetRevision;
     }
+    snapshot_.project_attached_count = cached_project_attached_count_;
+    snapshot_.project_attachable_count = cached_project_attachable_count_;
     auto filteredAssets = library_.filterAssets(filter_);
     snapshot_.filtered_asset_count = filteredAssets.size();
     snapshot_.filter_controls = filterControls(filter_, asset_snapshot, snapshot_.filtered_asset_count,
@@ -3146,7 +3153,7 @@ void AssetLibraryModel::refreshSnapshot() {
     visible_snapshot.assets = std::move(filteredAssets);
     snapshot_.asset_action_rows = urpg::assets::buildAssetActionRows(visible_snapshot);
     snapshot_.asset_preview_rows = urpg::assets::buildAssetPreviewRows(visible_snapshot);
-    snapshot_.project_asset_picker_rows = buildProjectAssetPickerRows(asset_snapshot);
+    snapshot_.project_asset_picker_rows = cached_project_asset_picker_rows_;
     snapshot_.import_session_rows = urpg::assets::buildAssetImportSessionRows(import_sessions_);
     snapshot_.import_review_rows = urpg::assets::buildAssetImportReviewRows(import_sessions_);
     snapshot_.import_session_count = import_sessions_.size();

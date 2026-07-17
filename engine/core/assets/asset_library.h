@@ -156,14 +156,20 @@ class AssetLibrary {
     const std::set<std::string>& referencedAssets() const { return referenced_assets_; }
     std::optional<AssetRecord> findAsset(std::string_view path) const;
     std::vector<AssetRecord> filterAssets(const AssetLibraryFilter& filter) const;
+    uint64_t filterIndexRevision() const { return filter_index_revision_; }
+    size_t lastFilterCandidateCount() const { return last_filter_candidate_count_; }
 
   private:
     AssetRecord& ensureAsset(std::string path);
     void refreshDerivedCounts();
     void sortSnapshot();
+    void rebuildFilterIndex();
 
     AssetLibrarySnapshot snapshot_{};
     std::set<std::string> referenced_assets_;
+    std::map<std::string, std::vector<size_t>> filter_index_;
+    uint64_t filter_index_revision_ = 0;
+    mutable size_t last_filter_candidate_count_ = 0;
 };
 
 const char* toString(AssetStatus status);

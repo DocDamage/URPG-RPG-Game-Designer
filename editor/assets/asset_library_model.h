@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <functional>
+#include <limits>
 #include <map>
 #include <string>
 #include <vector>
@@ -283,6 +284,11 @@ class AssetLibraryModel {
     std::vector<urpg::settings::AssetLibraryCollectionSettings> asset_collections_;
     std::vector<urpg::settings::AssetLibrarySavedSearchSettings> asset_saved_searches_;
     std::vector<std::string> comparison_paths_;
+    uint64_t cached_asset_revision_ = std::numeric_limits<uint64_t>::max();
+    nlohmann::json cached_all_action_rows_ = nlohmann::json::array();
+    nlohmann::json cached_project_asset_picker_rows_ = nlohmann::json::array();
+    size_t cached_project_attached_count_ = 0;
+    size_t cached_project_attachable_count_ = 0;
     std::uintmax_t duplicate_csv_detail_limit_bytes_ = 8ull * 1024ull * 1024ull;
     std::uintmax_t promotion_catalog_detail_limit_bytes_ = 4ull * 1024ull * 1024ull;
 };
