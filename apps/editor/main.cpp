@@ -30,6 +30,7 @@
 #include "editor/mod/mod_manager_panel.h"
 #include "editor/spatial/level_builder_workspace.h"
 #include "editor/spatial/map_authoring_workspace.h"
+#include "editor/ui/editor_command_palette.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/character/character_identity.h"
 #include "editor/spatial/map_authoring_persistence.h"
@@ -166,6 +167,15 @@ struct EditorPanelRuntime {
     urpg::editor::EditorProjectSession project_session;
     urpg::editor::EditorRecoveryService recovery_service;
     urpg::editor::EditorDirtyStateRegistry dirty_state_registry;
+    urpg::editor::EditorCommandPalette command_palette = urpg::editor::buildGoldenLoopCommandPalette();
+    std::optional<urpg::editor::EditorCommandSearchJob> command_palette_search;
+    std::vector<urpg::editor::EditorCommandSearchResult> command_palette_results;
+    std::string command_palette_query;
+    std::string command_palette_status;
+    size_t command_palette_selection = 0;
+    size_t command_palette_last_slice = 0;
+    bool command_palette_visible = false;
+    bool command_palette_focus_query = false;
     urpg::editor::AbilityInspectorPanel ability_inspector_panel;
     urpg::editor::gameplay::GameplayRecipePanel gameplay_recipe_panel;
     std::vector<urpg::gameplay::GameplayRecipe> gameplay_recipe_templates;
@@ -2180,7 +2190,173 @@ const char* workspaceTitleForPanelId(const urpg::editor::EditorShellSnapshot& sn
     return active == snapshot.panels.end() ? "Workspace" : active->title.c_str();
 }
 
+struct CommandPaletteAvailability {
+    bool enabled = false;
+    std::string reason;
+};
+
+CommandPaletteAvailability commandPaletteAvailability(const EditorPanelRuntime& runtime,
+                                                       const std::string_view commandId) {
+    if (commandId == "project.create") {
+        return runtime.creator_mode && !runtime.project_session.isOpen()
+                   ? CommandPaletteAvailability{true, {}}
+                   : CommandPaletteAvailability{false, "Return to the creator start screen before creating a project."};
+    }
+    if (!runtime.project_session.isOpen()) {
+        return {false, "Open a project before using this command."};
+    }
+    if (commandId == "project.save") {
+        return {false, "Bounded asynchronous Save route adoption is still required by PCQ-701."};
+    }
+    if (commandId == "playtest.current_map") {
+        return {false, "Bounded asynchronous Playtest Launch route adoption is still required by PCQ-701."};
+    }
+    if (commandId == "map.open" || commandId == "event.create" || commandId == "project.health" ||
+        commandId == "export.validate") {
+        return {true, {}};
+    }
+    return {false, "This command has no native editor route."};
+}
+
+bool executeCommandPaletteRoute(urpg::editor::EditorShell& editorShell, EditorPanelRuntime& runtime,
+                                const std::string_view commandId) {
+    const auto availability = commandPaletteAvailability(runtime, commandId);
+    if (!availability.enabled) {
+        runtime.command_palette_status = availability.reason;
+        return false;
+    }
+    if (commandId == "project.create") {
+        (void)runtime.main_menu_model.chooseNewProject();
+        runtime.command_palette_status = "Opened the governed new-project wizard.";
+    } else if (commandId == "map.open") {
+        (void)editorShell.openPanel("level_builder");
+        runtime.command_palette_status = "Opened native Map Parts authoring.";
+    } else if (commandId == "event.create") {
+        (void)editorShell.openPanel("spatial_authoring");
+        runtime.map_authoring_workspace.setNextActionHint(
+            "Use Event Authoring to create the event, its first page, and a supported native command.");
+        runtime.command_palette_status = "Opened the native Map event-authoring route.";
+    } else if (commandId == "project.health") {
+        runtime.diagnostics_workspace.setActiveTab(urpg::editor::DiagnosticsTab::ProjectHealth);
+        (void)editorShell.openPanel("diagnostics");
+        runtime.command_palette_status = "Opened Project Health diagnostics.";
+    } else if (commandId == "export.validate") {
+        (void)editorShell.openPanel("spatial_authoring");
+        runtime.map_authoring_workspace.setNextActionHint(
+            "Open Export Diagnostics and run the governed preflight when the bounded Package route is available.");
+        runtime.command_palette_status = "Opened the native Export Diagnostics route without starting blocking I/O.";
+    } else {
+        runtime.command_palette_status = "The selected command has no native editor route.";
+        return false;
+    }
+    runtime.focus_workspace_next_frame = true;
+    (void)runtime.command_palette.recordAction(commandId);
+    return true;
+}
+
+void restartCommandPaletteSearch(EditorPanelRuntime& runtime) {
+    runtime.command_palette_search = runtime.command_palette.beginSearch(runtime.command_palette_query);
+    runtime.command_palette_results.clear();
+    runtime.command_palette_selection = 0;
+    runtime.command_palette_last_slice = 0;
+}
+
+void openCommandPalette(EditorPanelRuntime& runtime) {
+    runtime.command_palette_visible = true;
+    runtime.command_palette_focus_query = true;
+    runtime.command_palette_status.clear();
+    restartCommandPaletteSearch(runtime);
+}
+
+void renderCommandPalette(urpg::editor::EditorShell& editorShell, EditorPanelRuntime& runtime) {
+    auto& io = ImGui::GetIO();
+    if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_P, false)) {
+        openCommandPalette(runtime);
+    }
+    if (!runtime.command_palette_visible) return;
+    if (ImGui::IsKeyPressed(ImGuiKey_Escape, false)) {
+        runtime.command_palette_visible = false;
+        return;
+    }
+
+    ImGui::SetNextWindowSize(ImVec2(640.0f, 420.0f), ImGuiCond_Appearing);
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    if (!ImGui::Begin("Command Palette###URPG Command Palette", &runtime.command_palette_visible,
+                      ImGuiWindowFlags_NoCollapse)) {
+        ImGui::End();
+        return;
+    }
+    ImGui::TextDisabled("Ctrl+P opens this route. Search work advances in bounded 64-candidate frame slices.");
+    if (runtime.command_palette_focus_query) {
+        ImGui::SetKeyboardFocusHere();
+        runtime.command_palette_focus_query = false;
+    }
+    if (ImGui::InputTextWithHint("##command_palette_query", "Search commands, categories, or help",
+                                 &runtime.command_palette_query)) {
+        restartCommandPaletteSearch(runtime);
+    }
+
+    if (runtime.command_palette_search.has_value() && !runtime.command_palette_search->complete()) {
+        const auto before = runtime.command_palette_search->processedCount();
+        (void)runtime.command_palette_search->advance();
+        runtime.command_palette_last_slice = runtime.command_palette_search->processedCount() - before;
+        runtime.command_palette_results = runtime.command_palette_search->results();
+    }
+    if (runtime.command_palette_search.has_value()) {
+        ImGui::TextDisabled("Candidates: %zu | processed: %zu | last slice: %zu | index revision: %llu%s",
+                            runtime.command_palette_search->candidateCount(),
+                            runtime.command_palette_search->processedCount(), runtime.command_palette_last_slice,
+                            static_cast<unsigned long long>(runtime.command_palette.searchIndexRevision()),
+                            runtime.command_palette_search->complete() ? " | complete" : "");
+    }
+
+    if (!runtime.command_palette_results.empty()) {
+        if (ImGui::IsKeyPressed(ImGuiKey_DownArrow, false)) {
+            runtime.command_palette_selection =
+                std::min(runtime.command_palette_selection + 1, runtime.command_palette_results.size() - 1);
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false) && runtime.command_palette_selection > 0) {
+            --runtime.command_palette_selection;
+        }
+    }
+    const bool activateSelection = !runtime.command_palette_results.empty() &&
+                                   ImGui::IsKeyPressed(ImGuiKey_Enter, false);
+    ImGui::Separator();
+    for (size_t index = 0; index < runtime.command_palette_results.size(); ++index) {
+        const auto& result = runtime.command_palette_results[index];
+        const auto availability = commandPaletteAvailability(runtime, result.command.id);
+        ImGui::PushID(result.command.id.c_str());
+        if (!availability.enabled) ImGui::BeginDisabled();
+        const bool clicked = ImGui::Selectable(result.command.label.c_str(),
+                                               runtime.command_palette_selection == index);
+        if (!availability.enabled) ImGui::EndDisabled();
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+            const auto& detail = availability.enabled ? result.command.help : availability.reason;
+            ImGui::SetTooltip("%s\n%s", detail.c_str(), result.command.requirement.c_str());
+        }
+        ImGui::SameLine();
+        ImGui::TextDisabled("%s", result.command.shortcut.empty() ? result.command.category.c_str()
+                                                                  : result.command.shortcut.c_str());
+        if ((clicked || (activateSelection && runtime.command_palette_selection == index)) && availability.enabled) {
+            if (executeCommandPaletteRoute(editorShell, runtime, result.command.id)) {
+                runtime.command_palette_visible = false;
+            }
+        }
+        ImGui::PopID();
+    }
+    if (runtime.command_palette_results.empty() && runtime.command_palette_search.has_value() &&
+        runtime.command_palette_search->complete()) {
+        ImGui::TextDisabled("No matching commands.");
+    }
+    if (!runtime.command_palette_status.empty()) {
+        ImGui::Separator();
+        ImGui::TextWrapped("%s", runtime.command_palette_status.c_str());
+    }
+    ImGui::End();
+}
+
 void renderEditorChrome(urpg::editor::EditorShell& editorShell, EditorPanelRuntime* runtime) {
+    if (runtime != nullptr) renderCommandPalette(editorShell, *runtime);
     ImGui::SetNextWindowBgAlpha(1.0f);
     ImGui::SetNextWindowPos(ImVec2(12.0f, 12.0f), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(340.0f, 520.0f), ImGuiCond_Always);
@@ -2215,6 +2391,9 @@ void renderEditorChrome(urpg::editor::EditorShell& editorShell, EditorPanelRunti
 
     if (runtime != nullptr) {
         ImGui::Separator();
+        if (ImGui::Button("Command Palette (Ctrl+P)", ImVec2(-1.0f, 0.0f))) {
+            openCommandPalette(*runtime);
+        }
         if (ImGui::Button("Help: Creator Checklist", ImVec2(-1.0f, 0.0f))) {
             runtime->creator_checklist_panel.setVisible(true);
         }

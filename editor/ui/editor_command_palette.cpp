@@ -173,20 +173,20 @@ std::vector<EditorCommandDescriptor> EditorCommandPalette::shortcutDiscovery() c
 
 EditorCommandPalette buildGoldenLoopCommandPalette() {
     EditorCommandPalette palette;
-    (void)palette.registerCommand({"project.create", "Create Project", "Project", {"new", "template"}, "Ctrl+Shift+N",
-                                   "Startup shell is open.", "Create a project from a certified template."});
+    (void)palette.registerCommand({"project.create", "Open New Project Wizard", "Project", {"new", "template"}, "Ctrl+Shift+N",
+                                   "Startup shell is open.", "Open the governed project wizard and choose a certified template."});
     (void)palette.registerCommand({"map.open", "Open Map", "Map", {"level", "canvas"}, "Ctrl+Alt+M",
                                    "A project is open.", "Open the unified Map authoring workspace."});
-    (void)palette.registerCommand({"event.create", "Create Event", "Event", {"dialogue", "interaction"}, "Ctrl+Shift+E",
-                                   "A writable map is open.", "Create an event on the active map."});
+    (void)palette.registerCommand({"event.create", "Open Event Authoring", "Event", {"dialogue", "interaction"}, "Ctrl+Shift+E",
+                                   "A writable map is open.", "Open the active Map's native event-authoring route."});
     (void)palette.registerCommand({"project.save", "Save Project", "Project", {"write", "persist"}, "Ctrl+S",
                                    "A project is open.", "Save changed project documents through their owners."});
     (void)palette.registerCommand({"playtest.current_map", "Playtest Current Map", "Playtest", {"run", "preview"}, "F6",
                                    "The active map has no blocking diagnostics.", "Launch a private current-map playtest overlay."});
     (void)palette.registerCommand({"project.health", "Open Project Health", "Diagnostics", {"validate", "fix"}, "Ctrl+Shift+H",
                                    "A project is open.", "Review blockers, warnings, and suggested fixes."});
-    (void)palette.registerCommand({"export.validate", "Validate Export", "Export", {"package", "release"}, "Ctrl+Shift+B",
-                                   "A project and export target are selected.", "Run export readiness checks without packaging."});
+    (void)palette.registerCommand({"export.validate", "Open Export Validation", "Export", {"package", "release"}, "Ctrl+Shift+B",
+                                   "A project is open.", "Open governed export diagnostics without starting blocking I/O."});
     return palette;
 }
 
