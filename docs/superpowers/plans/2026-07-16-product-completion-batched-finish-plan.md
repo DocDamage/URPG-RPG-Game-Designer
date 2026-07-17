@@ -5,6 +5,25 @@
 **Scope:** all 117 PCQ and ARDY rows in the canonical product-completion ledger
 **Status:** active execution overlay; it changes sequencing and verification cadence, not requirement scope
 
+## Current execution snapshot
+
+This snapshot is current through `45740b5b46` (2026-07-17). Classifications are implementation-evidence accounting,
+not release approval; the authoritative per-row detail remains in `content/readiness/product_completion_wave_*_gap_matrix.json`.
+
+| Wave | Proved | Partial | Missing | External |
+| --- | ---: | ---: | ---: | ---: |
+| A | 0 | 23 | 0 | 3 |
+| B | 5 | 11 | 0 | 0 |
+| C | 21 | 0 | 0 | 0 |
+| D | 8 | 10 | 0 | 4 |
+| E | 0 | 14 | 0 | 1 |
+| F | 8 | 1 | 0 | 5 |
+| G | 0 | 0 | 0 | 3 |
+
+PCQ-506 is now proved within Wave D: the fault corpus invokes all six concrete recovery-class adapters, application settings
+quarantine malformed input before defaults are saved, and marker-validated failed package staging is relocated to
+project recovery with a receipt. Focused normal and warnings-as-errors coverage passes 204 assertions in nine cases.
+
 ## Authority and purpose
 
 The requirement definitions and acceptance criteria remain authoritative in

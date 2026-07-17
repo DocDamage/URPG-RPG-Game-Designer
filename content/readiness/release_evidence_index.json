@@ -795,15 +795,15 @@
     {
       "requirementId": "PCQ-506",
       "status": "in_progress",
-      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[editor][recovery][pcq506]\" --reporter console",
+      "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[pcq506]\" --reporter compact; .\\build\\dev-ninja-debug-warnings-as-errors\\urpg_tests.exe \"[pcq506]\" --reporter compact; .\\tools\\ci\\check_wave_d_qualification_matrices.ps1",
       "reports": [],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "45740b5b4612b80cf759c888dee4eeddf1b7cc9d",
       "dirtyState": "dirty",
-      "evidenceDate": "2026-07-16",
-      "notes": "ProjectRecoveryCoordinator now provides one deterministic fault matrix for 13 canonical primary document types plus asset jobs, external-change conflicts, corrupted layout/settings, failed migrations, and failed packages. Every action identifies its owner, disposition, safe next action, automation boundary, user-choice requirement, and project-data preservation guarantee. Document recovery offers only private copies, conflicts require explicit resolution, asset jobs resume only from validated checkpoints, layouts may reset to safe defaults, migrations roll back only with a backup, and package failures preserve sources while discarding partial output. Missing classes, missing primary documents, duplicate IDs, and invalid rows make coverage incomplete. Focused fault-injection coverage passes 70 assertions in 3 cases. The warning-clean source-matching urpg_tests target built successfully with the existing Ninja build-log recovery warning. Concrete adapters that invoke each existing subsystem owner, visible recovery workflow, corrupted-settings quarantine persistence, process-level package cleanup, human walkthrough evidence, clean-commit evidence, and release signoff remain pending."
+      "evidenceDate": "2026-07-17",
+      "notes": "ProjectRecoveryCoordinator provides one deterministic fault matrix for 13 canonical primary document types plus asset jobs, external-change conflicts, corrupted layout/settings, failed migrations, and failed packages. Every action identifies its owner, disposition, safe next action, automation boundary, user-choice requirement, and project-data preservation guarantee. The governed corpus now invokes six concrete owners: EditorRecoveryService, AssetTransformRevisionService, ProjectExternalChangeCoordinator, AppSettingsStore, ProjectDocumentMigrationService, and FailedPackageRecovery. Malformed application settings are quarantined under the settings root before safe defaults are saved; failed package staging must have an owned marker and matching package ID before it is relocated to project recovery with a receipt, preserving source project data. Normal and warnings-as-errors PCQ-506 coverage each pass 204 assertions in 9 cases, and the Wave D matrix gate passes. PCQ-506 is proved for its bounded requirement; clean-candidate provenance and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-507",
