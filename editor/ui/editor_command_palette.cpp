@@ -54,7 +54,38 @@ std::set<std::string> searchGrams(const std::string& text) {
     return grams;
 }
 
+void rankSearchResults(std::vector<EditorCommandSearchResult>& results, const std::size_t limit) {
+    std::sort(results.begin(), results.end(), [](const auto& left, const auto& right) {
+        if (left.score != right.score) return left.score > right.score;
+        if (left.command.label != right.command.label) return left.command.label < right.command.label;
+        return left.command.id < right.command.id;
+    });
+    if (results.size() > limit) results.resize(limit);
+}
+
 } // namespace
+
+EditorCommandSearchJob::EditorCommandSearchJob(const EditorCommandPalette* palette, std::string query,
+                                               const std::size_t limit,
+                                               std::vector<std::size_t> candidate_indexes,
+                                               std::vector<std::string> recent_ids)
+    : palette_(palette), query_(std::move(query)), limit_(limit), candidate_indexes_(std::move(candidate_indexes)),
+      recent_ids_(std::move(recent_ids)), complete_(palette == nullptr || limit == 0 || candidate_indexes_.empty()) {}
+
+bool EditorCommandSearchJob::advance(const std::size_t maximum_candidates) {
+    if (complete_ || maximum_candidates == 0) return complete_;
+    const auto end = cursor_ + std::min(maximum_candidates, candidate_indexes_.size() - cursor_);
+    for (; cursor_ < end; ++cursor_) {
+        const auto& command = palette_->commands_[candidate_indexes_[cursor_]];
+        const int score = matchScore(command, query_);
+        if (score == 0) continue;
+        const bool recent = std::find(recent_ids_.begin(), recent_ids_.end(), command.id) != recent_ids_.end();
+        results_.push_back({command, score + (recent ? 5 : 0), recent});
+    }
+    rankSearchResults(results_, limit_);
+    complete_ = cursor_ == candidate_indexes_.size();
+    return complete_;
+}
 
 bool EditorCommandPalette::registerCommand(EditorCommandDescriptor command) {
     if (command.id.empty() || command.label.empty() || command.category.empty() || command.help.empty() ||
@@ -71,20 +102,16 @@ bool EditorCommandPalette::registerCommand(EditorCommandDescriptor command) {
     return true;
 }
 
-std::vector<EditorCommandSearchResult> EditorCommandPalette::search(const std::string_view query,
-                                                                     const std::size_t limit) const {
-    last_search_candidate_count_ = 0;
-    if (limit == 0) return {};
-    const auto needle = normalized(query);
+std::vector<std::size_t> EditorCommandPalette::searchCandidates(const std::string& normalized_query) const {
     std::vector<std::size_t> candidates;
-    if (needle.empty()) {
+    if (normalized_query.empty()) {
         candidates.resize(commands_.size());
         std::iota(candidates.begin(), candidates.end(), 0);
     } else {
-        const auto gramLength = std::min<std::size_t>(3, needle.size());
+        const auto gramLength = std::min<std::size_t>(3, normalized_query.size());
         bool first = true;
-        for (std::size_t offset = 0; offset + gramLength <= needle.size(); ++offset) {
-            const auto posting = search_postings_.find(needle.substr(offset, gramLength));
+        for (std::size_t offset = 0; offset + gramLength <= normalized_query.size(); ++offset) {
+            const auto posting = search_postings_.find(normalized_query.substr(offset, gramLength));
             if (posting == search_postings_.end()) return {};
             if (first) {
                 candidates = posting->second;
@@ -98,23 +125,21 @@ std::vector<EditorCommandSearchResult> EditorCommandPalette::search(const std::s
             if (candidates.empty()) return {};
         }
     }
+    return candidates;
+}
+
+EditorCommandSearchJob EditorCommandPalette::beginSearch(const std::string_view query, const std::size_t limit) const {
+    const auto needle = normalized(query);
+    auto candidates = limit == 0 ? std::vector<std::size_t>{} : searchCandidates(needle);
     last_search_candidate_count_ = candidates.size();
-    std::vector<EditorCommandSearchResult> results;
-    results.reserve(std::min(limit, candidates.size()));
-    for (const auto commandIndex : candidates) {
-        const auto& command = commands_[commandIndex];
-        const int score = matchScore(command, needle);
-        if (score == 0) continue;
-        const bool recent = std::find(recent_ids_.begin(), recent_ids_.end(), command.id) != recent_ids_.end();
-        results.push_back({command, score + (recent ? 5 : 0), recent});
-    }
-    std::sort(results.begin(), results.end(), [](const auto& left, const auto& right) {
-        if (left.score != right.score) return left.score > right.score;
-        if (left.command.label != right.command.label) return left.command.label < right.command.label;
-        return left.command.id < right.command.id;
-    });
-    if (results.size() > limit) results.resize(limit);
-    return results;
+    return EditorCommandSearchJob(this, needle, limit, std::move(candidates), recent_ids_);
+}
+
+std::vector<EditorCommandSearchResult> EditorCommandPalette::search(const std::string_view query,
+                                                                     const std::size_t limit) const {
+    auto job = beginSearch(query, limit);
+    while (!job.complete()) (void)job.advance();
+    return job.results();
 }
 
 bool EditorCommandPalette::recordAction(const std::string_view command_id) {

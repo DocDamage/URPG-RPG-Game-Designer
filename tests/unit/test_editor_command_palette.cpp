@@ -79,4 +79,29 @@ TEST_CASE("Editor command palette maintains an incremental candidate search inde
     REQUIRE(palette.lastSearchCandidateCount() == 256);
     REQUIRE(palette.search("route-token-1137", 0).empty());
     REQUIRE(palette.lastSearchCandidateCount() == 0);
+
+    REQUIRE(palette.recordAction("generated.command.1255"));
+    REQUIRE(urpg::editor::EditorCommandSearchJob::kDefaultMaximumCandidatesPerSlice == 64);
+    auto job = palette.beginSearch("generated", 20);
+    REQUIRE_FALSE(job.complete());
+    REQUIRE(job.candidateCount() == 256);
+    REQUIRE_FALSE(job.advance(0));
+    REQUIRE(job.processedCount() == 0);
+    REQUIRE_FALSE(job.advance(64));
+    REQUIRE(job.processedCount() == 64);
+    REQUIRE_FALSE(job.advance(64));
+    REQUIRE(job.processedCount() == 128);
+    REQUIRE_FALSE(job.advance(64));
+    REQUIRE(job.processedCount() == 192);
+    REQUIRE(job.advance(64));
+    REQUIRE(job.complete());
+    REQUIRE(job.processedCount() == 256);
+    REQUIRE(job.results().size() == 20);
+    REQUIRE(job.results().front().command.id == "generated.command.1255");
+    const auto synchronous = palette.search("generated", 20);
+    REQUIRE(std::equal(job.results().begin(), job.results().end(), synchronous.begin(), synchronous.end(),
+                       [](const auto& left, const auto& right) {
+                           return left.command.id == right.command.id && left.score == right.score &&
+                                  left.recent == right.recent;
+                       }));
 }
