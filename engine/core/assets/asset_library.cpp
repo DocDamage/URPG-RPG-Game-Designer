@@ -313,6 +313,59 @@ bool isProjectAttachable(const AssetRecord& record) {
            !isProjectAttached(record);
 }
 
+std::string filterKey(const std::string_view kind, const std::string_view value) {
+    return std::string(kind) + "\x1f" + std::string(value);
+}
+
+void resetDerivedCounts(AssetLibrarySnapshot& snapshot, const size_t referencedAssetCount) {
+    snapshot.referenced_asset_count = referencedAssetCount;
+    snapshot.runtime_ready_count = 0;
+    snapshot.previewable_count = 0;
+    snapshot.sequence_asset_count = 0;
+    snapshot.sequence_frame_count = 0;
+    snapshot.sequence_clip_count = 0;
+    snapshot.promoted_count = 0;
+    snapshot.archived_count = 0;
+    snapshot.game_use_category_counts.clear();
+    snapshot.game_use_tag_counts.clear();
+    snapshot.source_bundle_counts.clear();
+}
+
+void accumulateDerivedCounts(AssetLibrarySnapshot& snapshot, const AssetRecord& asset) {
+    if (isRuntimeReady(asset)) ++snapshot.runtime_ready_count;
+    if (isPreviewable(asset)) ++snapshot.previewable_count;
+    if (isSequenceAsset(asset)) {
+        ++snapshot.sequence_asset_count;
+        snapshot.sequence_frame_count += asset.frame_count;
+        snapshot.sequence_clip_count += asset.sequence_count;
+    }
+    if (asset.statuses.contains(AssetStatus::Promoted)) ++snapshot.promoted_count;
+    if (asset.statuses.contains(AssetStatus::Archived)) ++snapshot.archived_count;
+    if (!asset.game_use_category.empty()) ++snapshot.game_use_category_counts[asset.game_use_category];
+    for (const auto& tag : asset.game_use_tags) ++snapshot.game_use_tag_counts[tag];
+    if (!asset.source_bundle_id.empty()) ++snapshot.source_bundle_counts[asset.source_bundle_id];
+}
+
+void addFilterPostings(std::map<std::string, std::vector<size_t>>& filterIndex,
+                       const std::set<std::string>& referencedAssets, const AssetRecord& asset, const size_t index) {
+    const auto add = [&](const std::string& postingKey) { filterIndex[postingKey].push_back(index); };
+    if (!asset.media_kind.empty()) add(filterKey("media", asset.media_kind));
+    if (!asset.category.empty()) add(filterKey("category", asset.category));
+    if (!asset.game_use_category.empty()) add(filterKey("game_use_category", asset.game_use_category));
+    for (const auto& tag : asset.tags) add(filterKey("tag", tag));
+    for (const auto& tag : asset.game_use_tags) add(filterKey("game_use_tag", tag));
+    if (!asset.source_bundle_id.empty()) add(filterKey("source_bundle", asset.source_bundle_id));
+    for (const auto status : asset.statuses) {
+        add(filterKey("status", std::to_string(static_cast<int>(status))));
+    }
+    if (referencedAssets.contains(asset.path)) add(filterKey("flag", "referenced"));
+    if (isRuntimeReady(asset)) add(filterKey("flag", "runtime_ready"));
+    if (isPreviewable(asset)) add(filterKey("flag", "previewable"));
+    if (isProjectAttached(asset)) add(filterKey("flag", "project_attached"));
+    if (isProjectAttachable(asset)) add(filterKey("flag", "attachable"));
+    if (asset.release_eligible || asset.provenance.export_eligible) add(filterKey("flag", "release_eligible"));
+}
+
 } // namespace
 
 const char* toString(AssetStatus status) {
@@ -398,6 +451,240 @@ std::string exportProvenancePacket(const AssetRecord& record) {
     return packet.dump();
 }
 
+AssetPromotionCatalogIngestJob::AssetPromotionCatalogIngestJob(AssetLibrary* library, nlohmann::json catalog)
+    : library_(library), catalog_(std::move(catalog)) {
+    if (library_ == nullptr) {
+        fail("asset_promotion_catalog_library_missing");
+        return;
+    }
+    progress_.starting_index_revision = library_->filter_index_revision_;
+    progress_.published_index_revision = library_->filter_index_revision_;
+}
+
+bool AssetPromotionCatalogIngestJob::advance(const size_t maximum_items) {
+    progress_.last_slice_items = 0;
+    if (progress_.complete || progress_.failed || maximum_items == 0) return progress_.complete;
+    if (library_ == nullptr || library_->filter_index_revision_ != progress_.starting_index_revision) {
+        fail("asset_promotion_catalog_revision_conflict");
+        return false;
+    }
+
+    while (!progress_.complete && !progress_.failed && progress_.last_slice_items < maximum_items) {
+        switch (stage_) {
+        case Stage::Header:
+            applyHeader();
+            ++progress_.processed_items;
+            ++progress_.last_slice_items;
+            break;
+        case Stage::CopyExisting:
+            if (existing_cursor_ < progress_.existing_records_total) {
+                copyExistingRecord();
+                ++progress_.processed_items;
+                ++progress_.last_slice_items;
+            } else {
+                stage_ = Stage::ApplyCatalog;
+                progress_.stage = "catalog";
+            }
+            break;
+        case Stage::ApplyCatalog:
+            if (catalog_cursor_ < progress_.catalog_records_total) {
+                applyCatalogRecord();
+                ++progress_.processed_items;
+                ++progress_.last_slice_items;
+            } else {
+                beginMaterialization();
+            }
+            break;
+        case Stage::Materialize:
+            if (!staged_records_.empty()) {
+                materializeRecord();
+                ++progress_.processed_items;
+                ++progress_.last_slice_items;
+            } else {
+                publish();
+            }
+            break;
+        case Stage::Complete: progress_.complete = true; break;
+        case Stage::Failed: progress_.failed = true; break;
+        }
+    }
+    return progress_.complete;
+}
+
+void AssetPromotionCatalogIngestJob::applyHeader() {
+    if (!catalog_.is_object()) {
+        stage_ = Stage::Complete;
+        progress_.complete = true;
+        progress_.code = "asset_promotion_catalog_ignored";
+        progress_.stage = "complete";
+        return;
+    }
+
+    promotion_status_ = readString(catalog_, "promotion_status").value_or(library_->snapshot_.promotion_status);
+    export_eligible_ = catalog_.value("export_eligible", library_->snapshot_.export_eligible);
+    const auto summary = catalog_.find("summary");
+    if (summary != catalog_.end() && summary->is_object()) {
+        catalog_asset_count_delta_ =
+            readCount(*summary, "asset_count").value_or(readCount(*summary, "asset_record_count").value_or(0));
+        canonical_asset_count_delta_ = readCount(*summary, "canonical_asset_count")
+                                             .value_or(readCount(*summary, "asset_record_count").value_or(0));
+        duplicate_group_count_delta_ =
+            readCount(*summary, "duplicate_group_count")
+                .value_or(readCount(*summary, "potential_duplicate_group_count").value_or(0));
+        duplicate_asset_count_delta_ =
+            readCount(*summary, "duplicate_asset_count")
+                .value_or(readCount(*summary, "potential_duplicate_asset_count").value_or(0));
+        unsupported_count_delta_ = readCount(*summary, "unsupported_count").value_or(0);
+        category_count_deltas_ = readCountMap(*summary, "category_counts");
+        kind_count_deltas_ = readCountMap(*summary, "kind_counts");
+        promotion_status_ = readString(*summary, "promotion_status").value_or(promotion_status_);
+        export_eligible_ = summary->value("export_eligible", export_eligible_);
+    }
+    const auto shards = catalog_.find("shards");
+    if (shards != catalog_.end() && shards->is_array()) catalog_shard_count_delta_ = shards->size();
+
+    const auto assets = catalog_.find("assets");
+    if (assets == catalog_.end() || !assets->is_array()) {
+        publish();
+        return;
+    }
+    progress_.existing_records_total = library_->snapshot_.assets.size();
+    progress_.catalog_records_total = assets->size();
+    progress_.total_items = 1 + progress_.existing_records_total + progress_.catalog_records_total;
+    progress_.stage = "copy_existing";
+    stage_ = Stage::CopyExisting;
+}
+
+void AssetPromotionCatalogIngestJob::copyExistingRecord() {
+    const auto& record = library_->snapshot_.assets[existing_cursor_++];
+    staged_records_[record.path] = record;
+}
+
+void AssetPromotionCatalogIngestJob::applyCatalogRecord() {
+    const auto& assets = catalog_["assets"];
+    const auto& asset = assets[catalog_cursor_++];
+    if (!asset.is_object()) return;
+    const auto sourcePath = readString(asset, "source_path").value_or("");
+    const auto normalizedPath = readString(asset, "normalized_path").value_or(sourcePath);
+    if (sourcePath.empty() && normalizedPath.empty()) return;
+
+    const auto path = sourcePath.empty() ? normalizedPath : sourcePath;
+    auto [recordIt, inserted] = staged_records_.try_emplace(path);
+    auto& record = recordIt->second;
+    if (inserted) {
+        record.path = path;
+        record.statuses.insert(AssetStatus::Usable);
+    }
+    const auto sourceId = readString(catalog_, "source_id").value_or("");
+    const auto sourceRoot = readString(catalog_, "source_root").value_or("");
+    const bool catalogExportEligible = catalog_.value("export_eligible", false);
+    record.source_path = sourcePath;
+    record.normalized_path = normalizedPath;
+    record.preview_path = readString(asset, "preview_path").value_or("");
+    record.preview_kind = readString(asset, "preview_kind").value_or("");
+    record.preview_width = readInt32(asset, "preview_width");
+    record.preview_height = readInt32(asset, "preview_height");
+    record.duration_ms = readInt32(asset, "duration_ms");
+    record.waveform_peaks = readFloatArray(asset, "waveform_peaks");
+    record.media_kind = readString(asset, "media_kind").value_or("");
+    record.category = readString(asset, "category").value_or("");
+    record.pack = readString(asset, "pack").value_or("");
+    record.duplicate_of = readString(asset, "duplicate_of").value_or("");
+    record.size_bytes = readUint64(asset, "size_bytes");
+    record.frame_count = readCount(asset, "frame_count").value_or(0);
+    record.sequence_count = readCount(asset, "sequence_count").value_or(0);
+    record.sha256 = readString(asset, "sha256").value_or("");
+    record.tags = readStringArray(asset, "tags");
+    record.representative_sequences = asset.value("representative_sequences", nlohmann::json::array());
+    record.provenance.original_source = record.pack.empty() ? sourceId : record.pack;
+    record.provenance.license = readString(asset, "license").value_or("");
+    record.provenance.normalized_path = normalizedPath;
+    record.provenance.export_eligible = asset.value("export_eligible", catalogExportEligible);
+    record.release_eligible = record.provenance.export_eligible;
+    applyVirtualCatalogTags(record);
+
+    if (record.provenance.license.empty()) {
+        record.statuses.insert(AssetStatus::MissingLicense);
+        ++missing_license_count_delta_;
+    }
+    if (!record.duplicate_of.empty() || readString(asset, "status").value_or("") == "duplicate") {
+        record.statuses.insert(AssetStatus::Duplicate);
+    }
+    if (readString(asset, "status").value_or("") == "unsupported") {
+        record.statuses.insert(AssetStatus::UnsupportedFormat);
+    }
+    if (sourcePath.rfind(sourceRoot, 0) != 0 && !sourceRoot.empty()) {
+        record.statuses.insert(AssetStatus::Risky);
+    }
+}
+
+void AssetPromotionCatalogIngestJob::beginMaterialization() {
+    progress_.materialized_records_total = staged_records_.size();
+    progress_.total_items += progress_.materialized_records_total;
+    staged_assets_.reserve(progress_.materialized_records_total);
+    resetDerivedCounts(staged_derived_counts_, library_->referenced_assets_.size());
+    progress_.stage = "materialize";
+    stage_ = Stage::Materialize;
+}
+
+void AssetPromotionCatalogIngestJob::materializeRecord() {
+    auto node = staged_records_.extract(staged_records_.begin());
+    staged_assets_.push_back(std::move(node.mapped()));
+    const auto index = staged_assets_.size() - 1;
+    accumulateDerivedCounts(staged_derived_counts_, staged_assets_.back());
+    addFilterPostings(staged_filter_index_, library_->referenced_assets_, staged_assets_.back(), index);
+}
+
+void AssetPromotionCatalogIngestJob::publish() {
+    if (library_ == nullptr || library_->filter_index_revision_ != progress_.starting_index_revision) {
+        fail("asset_promotion_catalog_revision_conflict");
+        return;
+    }
+    auto& snapshot = library_->snapshot_;
+    snapshot.promotion_status = promotion_status_;
+    snapshot.export_eligible = export_eligible_;
+    snapshot.catalog_asset_count += catalog_asset_count_delta_;
+    snapshot.canonical_asset_count += canonical_asset_count_delta_;
+    snapshot.duplicate_group_count += duplicate_group_count_delta_;
+    snapshot.duplicate_asset_count += duplicate_asset_count_delta_;
+    snapshot.unsupported_count += unsupported_count_delta_;
+    snapshot.catalog_shard_count += catalog_shard_count_delta_;
+    snapshot.missing_license_count += missing_license_count_delta_;
+    addCountMap(snapshot.category_counts, category_count_deltas_);
+    addCountMap(snapshot.kind_counts, kind_count_deltas_);
+
+    const auto assets = catalog_.find("assets");
+    if (assets != catalog_.end() && assets->is_array()) {
+        snapshot.assets = std::move(staged_assets_);
+        snapshot.referenced_asset_count = staged_derived_counts_.referenced_asset_count;
+        snapshot.runtime_ready_count = staged_derived_counts_.runtime_ready_count;
+        snapshot.previewable_count = staged_derived_counts_.previewable_count;
+        snapshot.sequence_asset_count = staged_derived_counts_.sequence_asset_count;
+        snapshot.sequence_frame_count = staged_derived_counts_.sequence_frame_count;
+        snapshot.sequence_clip_count = staged_derived_counts_.sequence_clip_count;
+        snapshot.promoted_count = staged_derived_counts_.promoted_count;
+        snapshot.archived_count = staged_derived_counts_.archived_count;
+        snapshot.game_use_category_counts = std::move(staged_derived_counts_.game_use_category_counts);
+        snapshot.game_use_tag_counts = std::move(staged_derived_counts_.game_use_tag_counts);
+        snapshot.source_bundle_counts = std::move(staged_derived_counts_.source_bundle_counts);
+        library_->filter_index_ = std::move(staged_filter_index_);
+        library_->last_filter_candidate_count_ = 0;
+        ++library_->filter_index_revision_;
+    }
+    progress_.published_index_revision = library_->filter_index_revision_;
+    progress_.stage = "complete";
+    progress_.code = "asset_promotion_catalog_ingested";
+    progress_.complete = true;
+    stage_ = Stage::Complete;
+}
+
+void AssetPromotionCatalogIngestJob::fail(std::string code) {
+    progress_.stage = "failed";
+    progress_.code = std::move(code);
+    progress_.failed = true;
+    stage_ = Stage::Failed;
+}
+
 void AssetLibrary::clear() {
     snapshot_ = {};
     referenced_assets_.clear();
@@ -478,98 +765,12 @@ void AssetLibrary::ingestIntakeReport(const nlohmann::json& report) {
 }
 
 void AssetLibrary::ingestPromotionCatalog(const nlohmann::json& catalog) {
-    if (!catalog.is_object()) {
-        return;
-    }
-    snapshot_.promotion_status = readString(catalog, "promotion_status").value_or(snapshot_.promotion_status);
-    snapshot_.export_eligible = catalog.value("export_eligible", snapshot_.export_eligible);
+    auto job = beginPromotionCatalogIngest(catalog);
+    while (!job.complete() && !job.failed()) (void)job.advance();
+}
 
-    const auto summary = catalog.find("summary");
-    if (summary != catalog.end() && summary->is_object()) {
-        snapshot_.catalog_asset_count +=
-            readCount(*summary, "asset_count").value_or(readCount(*summary, "asset_record_count").value_or(0));
-        snapshot_.canonical_asset_count += readCount(*summary, "canonical_asset_count")
-                                               .value_or(readCount(*summary, "asset_record_count").value_or(0));
-        snapshot_.duplicate_group_count +=
-            readCount(*summary, "duplicate_group_count")
-                .value_or(readCount(*summary, "potential_duplicate_group_count").value_or(0));
-        snapshot_.duplicate_asset_count +=
-            readCount(*summary, "duplicate_asset_count")
-                .value_or(readCount(*summary, "potential_duplicate_asset_count").value_or(0));
-        snapshot_.unsupported_count += readCount(*summary, "unsupported_count").value_or(0);
-        addCountMap(snapshot_.category_counts, readCountMap(*summary, "category_counts"));
-        addCountMap(snapshot_.kind_counts, readCountMap(*summary, "kind_counts"));
-        snapshot_.promotion_status = readString(*summary, "promotion_status").value_or(snapshot_.promotion_status);
-        snapshot_.export_eligible = summary->value("export_eligible", snapshot_.export_eligible);
-    }
-
-    const auto shards = catalog.find("shards");
-    if (shards != catalog.end() && shards->is_array()) {
-        snapshot_.catalog_shard_count += shards->size();
-    }
-
-    const auto assets = catalog.find("assets");
-    if (assets == catalog.end() || !assets->is_array()) {
-        return;
-    }
-
-    const auto source_id = readString(catalog, "source_id").value_or("");
-    const auto source_root = readString(catalog, "source_root").value_or("");
-    const bool catalog_export_eligible = catalog.value("export_eligible", false);
-
-    for (const auto& asset : *assets) {
-        if (!asset.is_object()) {
-            continue;
-        }
-        const auto source_path = readString(asset, "source_path").value_or("");
-        const auto normalized_path = readString(asset, "normalized_path").value_or(source_path);
-        if (source_path.empty() && normalized_path.empty()) {
-            continue;
-        }
-
-        auto& record = ensureAsset(source_path.empty() ? normalized_path : source_path);
-        record.source_path = source_path;
-        record.normalized_path = normalized_path;
-        record.preview_path = readString(asset, "preview_path").value_or("");
-        record.preview_kind = readString(asset, "preview_kind").value_or("");
-        record.preview_width = readInt32(asset, "preview_width");
-        record.preview_height = readInt32(asset, "preview_height");
-        record.duration_ms = readInt32(asset, "duration_ms");
-        record.waveform_peaks = readFloatArray(asset, "waveform_peaks");
-        record.media_kind = readString(asset, "media_kind").value_or("");
-        record.category = readString(asset, "category").value_or("");
-        record.pack = readString(asset, "pack").value_or("");
-        record.duplicate_of = readString(asset, "duplicate_of").value_or("");
-        record.size_bytes = readUint64(asset, "size_bytes");
-        record.frame_count = readCount(asset, "frame_count").value_or(0);
-        record.sequence_count = readCount(asset, "sequence_count").value_or(0);
-        record.sha256 = readString(asset, "sha256").value_or("");
-        record.tags = readStringArray(asset, "tags");
-        record.representative_sequences = asset.value("representative_sequences", nlohmann::json::array());
-        record.provenance.original_source = record.pack.empty() ? source_id : record.pack;
-        record.provenance.license = readString(asset, "license").value_or("");
-        record.provenance.normalized_path = normalized_path;
-        record.provenance.export_eligible = asset.value("export_eligible", catalog_export_eligible);
-        record.release_eligible = record.provenance.export_eligible;
-        applyVirtualCatalogTags(record);
-
-        if (record.provenance.license.empty()) {
-            record.statuses.insert(AssetStatus::MissingLicense);
-            ++snapshot_.missing_license_count;
-        }
-        if (!record.duplicate_of.empty() || readString(asset, "status").value_or("") == "duplicate") {
-            record.statuses.insert(AssetStatus::Duplicate);
-        }
-        if (readString(asset, "status").value_or("") == "unsupported") {
-            record.statuses.insert(AssetStatus::UnsupportedFormat);
-        }
-        if (source_path.rfind(source_root, 0) != 0 && !source_root.empty()) {
-            record.statuses.insert(AssetStatus::Risky);
-        }
-    }
-
-    refreshDerivedCounts();
-    sortSnapshot();
+AssetPromotionCatalogIngestJob AssetLibrary::beginPromotionCatalogIngest(nlohmann::json catalog) {
+    return AssetPromotionCatalogIngestJob(this, std::move(catalog));
 }
 
 void AssetLibrary::ingestAssetBundleManifest(const nlohmann::json& manifest) {
@@ -944,45 +1145,8 @@ std::vector<AssetRecord> AssetLibrary::filterAssets(const AssetLibraryFilter& fi
 }
 
 void AssetLibrary::refreshDerivedCounts() {
-    snapshot_.referenced_asset_count = referenced_assets_.size();
-    snapshot_.runtime_ready_count = 0;
-    snapshot_.previewable_count = 0;
-    snapshot_.sequence_asset_count = 0;
-    snapshot_.sequence_frame_count = 0;
-    snapshot_.sequence_clip_count = 0;
-    snapshot_.promoted_count = 0;
-    snapshot_.archived_count = 0;
-    snapshot_.game_use_category_counts.clear();
-    snapshot_.game_use_tag_counts.clear();
-    snapshot_.source_bundle_counts.clear();
-    for (const auto& asset : snapshot_.assets) {
-        if (isRuntimeReady(asset)) {
-            ++snapshot_.runtime_ready_count;
-        }
-        if (isPreviewable(asset)) {
-            ++snapshot_.previewable_count;
-        }
-        if (isSequenceAsset(asset)) {
-            ++snapshot_.sequence_asset_count;
-            snapshot_.sequence_frame_count += asset.frame_count;
-            snapshot_.sequence_clip_count += asset.sequence_count;
-        }
-        if (asset.statuses.contains(AssetStatus::Promoted)) {
-            ++snapshot_.promoted_count;
-        }
-        if (asset.statuses.contains(AssetStatus::Archived)) {
-            ++snapshot_.archived_count;
-        }
-        if (!asset.game_use_category.empty()) {
-            ++snapshot_.game_use_category_counts[asset.game_use_category];
-        }
-        for (const auto& tag : asset.game_use_tags) {
-            ++snapshot_.game_use_tag_counts[tag];
-        }
-        if (!asset.source_bundle_id.empty()) {
-            ++snapshot_.source_bundle_counts[asset.source_bundle_id];
-        }
-    }
+    resetDerivedCounts(snapshot_, referenced_assets_.size());
+    for (const auto& asset : snapshot_.assets) accumulateDerivedCounts(snapshot_, asset);
 }
 
 void AssetLibrary::sortSnapshot() {
@@ -992,29 +1156,8 @@ void AssetLibrary::sortSnapshot() {
 
 void AssetLibrary::rebuildFilterIndex() {
     filter_index_.clear();
-    const auto key = [](const std::string_view kind, const std::string_view value) {
-        return std::string(kind) + "\x1f" + std::string(value);
-    };
-    const auto add = [&](const std::string& postingKey, const size_t index) {
-        filter_index_[postingKey].push_back(index);
-    };
     for (size_t index = 0; index < snapshot_.assets.size(); ++index) {
-        const auto& asset = snapshot_.assets[index];
-        if (!asset.media_kind.empty()) add(key("media", asset.media_kind), index);
-        if (!asset.category.empty()) add(key("category", asset.category), index);
-        if (!asset.game_use_category.empty()) add(key("game_use_category", asset.game_use_category), index);
-        for (const auto& tag : asset.tags) add(key("tag", tag), index);
-        for (const auto& tag : asset.game_use_tags) add(key("game_use_tag", tag), index);
-        if (!asset.source_bundle_id.empty()) add(key("source_bundle", asset.source_bundle_id), index);
-        for (const auto status : asset.statuses) {
-            add(key("status", std::to_string(static_cast<int>(status))), index);
-        }
-        if (referenced_assets_.contains(asset.path)) add(key("flag", "referenced"), index);
-        if (isRuntimeReady(asset)) add(key("flag", "runtime_ready"), index);
-        if (isPreviewable(asset)) add(key("flag", "previewable"), index);
-        if (isProjectAttached(asset)) add(key("flag", "project_attached"), index);
-        if (isProjectAttachable(asset)) add(key("flag", "attachable"), index);
-        if (asset.release_eligible || asset.provenance.export_eligible) add(key("flag", "release_eligible"), index);
+        addFilterPostings(filter_index_, referenced_assets_, snapshot_.assets[index], index);
     }
     last_filter_candidate_count_ = 0;
     ++filter_index_revision_;

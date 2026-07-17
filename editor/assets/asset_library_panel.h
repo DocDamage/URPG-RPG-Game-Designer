@@ -83,6 +83,7 @@ class AssetLibraryPanel {
                                                        bool desktop_helper_available);
     void setImportSourcePicker(ImportSourcePicker picker);
     void render();
+    bool beginPromotionCatalogIngest(nlohmann::json promotion_catalog);
     nlohmann::json requestImportSource(const std::filesystem::path& source, const std::filesystem::path& library_root,
                                        std::string session_id, std::string license_note = {},
                                        std::vector<std::string> external_extractor_command = {},

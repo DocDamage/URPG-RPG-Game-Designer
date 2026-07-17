@@ -16,6 +16,7 @@
 #include <functional>
 #include <limits>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -76,6 +77,7 @@ struct AssetLibraryModelSnapshot {
     nlohmann::json action_history = nlohmann::json::array();
     nlohmann::json user_curation = nlohmann::json::object();
     nlohmann::json asset_comparison_rows = nlohmann::json::array();
+    nlohmann::json catalog_ingest_progress = nlohmann::json::object();
     std::map<std::string, size_t> category_counts;
     std::map<std::string, size_t> game_use_category_counts;
     std::map<std::string, size_t> game_use_tag_counts;
@@ -110,6 +112,10 @@ class AssetLibraryModel {
                        std::string_view duplicate_csv);
     void ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                        const nlohmann::json& promotion_catalog, std::string_view duplicate_csv);
+    bool beginPromotionCatalogIngest(nlohmann::json promotion_catalog);
+    bool advancePromotionCatalogIngest(
+        size_t maximum_items = urpg::assets::AssetPromotionCatalogIngestJob::kDefaultMaximumItemsPerSlice);
+    bool promotionCatalogIngestActive() const;
     void ingestPromotionManifest(const urpg::assets::AssetPromotionManifest& manifest);
     nlohmann::json requestImportSource(const std::filesystem::path& source, const std::filesystem::path& library_root,
                                        std::string session_id, std::string license_note = {},
@@ -284,6 +290,7 @@ class AssetLibraryModel {
     std::vector<urpg::settings::AssetLibraryCollectionSettings> asset_collections_;
     std::vector<urpg::settings::AssetLibrarySavedSearchSettings> asset_saved_searches_;
     std::vector<std::string> comparison_paths_;
+    std::optional<urpg::assets::AssetPromotionCatalogIngestJob> catalog_ingest_job_;
     uint64_t cached_asset_revision_ = std::numeric_limits<uint64_t>::max();
     nlohmann::json cached_all_action_rows_ = nlohmann::json::array();
     nlohmann::json cached_project_asset_picker_rows_ = nlohmann::json::array();

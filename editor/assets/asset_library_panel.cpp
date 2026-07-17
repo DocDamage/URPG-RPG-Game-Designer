@@ -365,8 +365,17 @@ void AssetLibraryPanel::render() {
     if (!visible_) {
         return;
     }
+    if (model_.promotionCatalogIngestActive()) {
+        (void)model_.advancePromotionCatalogIngest();
+    }
     refreshRenderSnapshotsFromModel();
     has_rendered_frame_ = true;
+}
+
+bool AssetLibraryPanel::beginPromotionCatalogIngest(nlohmann::json promotion_catalog) {
+    const bool started = model_.beginPromotionCatalogIngest(std::move(promotion_catalog));
+    refreshRenderSnapshotsFromModel();
+    return started;
 }
 
 nlohmann::json AssetLibraryPanel::requestImportSource(const std::filesystem::path& source,

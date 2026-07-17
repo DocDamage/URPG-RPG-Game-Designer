@@ -1739,6 +1739,73 @@ TEST_CASE("AssetLibrary ingests local promotion catalog records", "[assets][asse
     REQUIRE(duplicate->statuses.contains(urpg::assets::AssetStatus::Duplicate));
 }
 
+TEST_CASE("AssetLibrary stages catalog records and indexes in governed slices",
+          "[assets][asset_library][asset_intake][pcq701][perf][primary_routes]") {
+    urpg::assets::AssetLibrary library;
+    library.markMissingFile("imports/raw/existing.png");
+    const auto startingRevision = library.filterIndexRevision();
+
+    nlohmann::json assets = nlohmann::json::array();
+    for (size_t index = 0; index < 129; ++index) {
+        assets.push_back({
+            {"source_path", "imports/raw/batch/asset_" + std::to_string(index) + ".png"},
+            {"normalized_path", "asset://batch/asset_" + std::to_string(index) + ".png"},
+            {"preview_path", "imports/raw/batch/asset_" + std::to_string(index) + ".png"},
+            {"preview_kind", "image"},
+            {"media_kind", "image"},
+            {"category", "characters"},
+            {"tags", {"route:" + std::to_string(index), "kind:image"}},
+            {"license", "cc0"},
+        });
+    }
+    nlohmann::json catalog = {
+        {"source_id", "BATCH-001"},
+        {"source_root", "imports/raw/batch"},
+        {"summary", {{"asset_count", 129}, {"canonical_asset_count", 129}}},
+        {"assets", std::move(assets)},
+    };
+
+    auto job = library.beginPromotionCatalogIngest(std::move(catalog));
+    size_t advances = 0;
+    while (!job.complete() && !job.failed()) {
+        const bool complete = job.advance();
+        ++advances;
+        REQUIRE(job.progress().last_slice_items <=
+                urpg::assets::AssetPromotionCatalogIngestJob::kDefaultMaximumItemsPerSlice);
+        if (!complete) REQUIRE(library.snapshot().assets.size() == 1);
+    }
+
+    REQUIRE_FALSE(job.failed());
+    REQUIRE(job.progress().processed_items == job.progress().total_items);
+    REQUIRE(job.progress().catalog_records_total == 129);
+    REQUIRE(job.progress().materialized_records_total == 130);
+    REQUIRE(job.progress().published_index_revision == startingRevision + 1);
+    REQUIRE(advances == 5);
+    REQUIRE(library.snapshot().assets.size() == 130);
+    REQUIRE(library.snapshot().catalog_asset_count == 129);
+    REQUIRE(library.snapshot().canonical_asset_count == 129);
+    REQUIRE(std::is_sorted(library.snapshot().assets.begin(), library.snapshot().assets.end(),
+                           [](const auto& left, const auto& right) { return left.path < right.path; }));
+
+    urpg::assets::AssetLibraryFilter exactFilter;
+    exactFilter.required_tag = "route:127";
+    const auto exact = library.filterAssets(exactFilter);
+    REQUIRE(exact.size() == 1);
+    REQUIRE(library.lastFilterCandidateCount() == 1);
+
+    auto conflicting = library.beginPromotionCatalogIngest(nlohmann::json{
+        {"source_root", "imports/raw/conflict"},
+        {"assets", {{{"source_path", "imports/raw/conflict/new.png"}, {"license", "cc0"}}}},
+    });
+    REQUIRE_FALSE(conflicting.advance(1));
+    library.markUnsupportedFormat("imports/raw/conflict/external.png");
+    REQUIRE_FALSE(conflicting.advance());
+    REQUIRE(conflicting.failed());
+    REQUIRE(conflicting.progress().code == "asset_promotion_catalog_revision_conflict");
+    REQUIRE_FALSE(library.findAsset("imports/raw/conflict/new.png").has_value());
+    REQUIRE(library.findAsset("imports/raw/conflict/external.png").has_value());
+}
+
 TEST_CASE("AssetLibrary ingests promotion catalog summary", "[assets][asset_library][asset_intake]") {
     urpg::assets::AssetLibrary library;
     library.ingestPromotionCatalog(nlohmann::json{

@@ -481,6 +481,63 @@ void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, con
     snapshot_.error_message = "";
 }
 
+namespace {
+
+nlohmann::json catalogIngestProgressJson(const urpg::assets::AssetPromotionCatalogIngestProgress& progress) {
+    return {
+        {"stage", progress.stage},
+        {"total_items", progress.total_items},
+        {"processed_items", progress.processed_items},
+        {"last_slice_items", progress.last_slice_items},
+        {"existing_records_total", progress.existing_records_total},
+        {"catalog_records_total", progress.catalog_records_total},
+        {"materialized_records_total", progress.materialized_records_total},
+        {"starting_index_revision", progress.starting_index_revision},
+        {"published_index_revision", progress.published_index_revision},
+        {"complete", progress.complete},
+        {"failed", progress.failed},
+        {"code", progress.code},
+    };
+}
+
+} // namespace
+
+bool AssetLibraryModel::beginPromotionCatalogIngest(nlohmann::json promotion_catalog) {
+    if (promotionCatalogIngestActive()) return false;
+    catalog_ingest_job_.emplace(library_.beginPromotionCatalogIngest(std::move(promotion_catalog)));
+    snapshot_.catalog_ingest_progress = catalogIngestProgressJson(catalog_ingest_job_->progress());
+    snapshot_.status = "loading";
+    snapshot_.status_message = "Asset catalog ingestion is running in bounded slices.";
+    snapshot_.error_message.clear();
+    return true;
+}
+
+bool AssetLibraryModel::advancePromotionCatalogIngest(const size_t maximum_items) {
+    if (!catalog_ingest_job_.has_value()) return true;
+    const bool complete = catalog_ingest_job_->advance(maximum_items);
+    const auto progress = catalog_ingest_job_->progress();
+    snapshot_.catalog_ingest_progress = catalogIngestProgressJson(progress);
+    if (complete) {
+        catalog_ingest_job_.reset();
+        rebuildCleanupPreview();
+        snapshot_.reports_loaded = true;
+        snapshot_.status = "ready";
+        snapshot_.status_message.clear();
+        snapshot_.error_message.clear();
+    } else if (progress.failed) {
+        catalog_ingest_job_.reset();
+        refreshSnapshot();
+        snapshot_.status = "error";
+        snapshot_.status_message = "Asset catalog ingestion stopped before publication.";
+        snapshot_.error_message = progress.code;
+    }
+    return complete;
+}
+
+bool AssetLibraryModel::promotionCatalogIngestActive() const {
+    return catalog_ingest_job_.has_value() && !catalog_ingest_job_->complete() && !catalog_ingest_job_->failed();
+}
+
 void AssetLibraryModel::ingestPromotionManifest(const urpg::assets::AssetPromotionManifest& manifest) {
     library_.ingestPromotionManifest(manifest);
     rebuildCleanupPreview();

@@ -135,12 +135,80 @@ struct AssetLibrarySnapshot {
     std::vector<AssetDuplicateGroup> duplicate_groups;
 };
 
+class AssetLibrary;
+
+struct AssetPromotionCatalogIngestProgress {
+    std::string stage = "header";
+    size_t total_items = 1;
+    size_t processed_items = 0;
+    size_t last_slice_items = 0;
+    size_t existing_records_total = 0;
+    size_t catalog_records_total = 0;
+    size_t materialized_records_total = 0;
+    uint64_t starting_index_revision = 0;
+    uint64_t published_index_revision = 0;
+    bool complete = false;
+    bool failed = false;
+    std::string code = "asset_promotion_catalog_ingest_pending";
+};
+
+class AssetPromotionCatalogIngestJob {
+  public:
+    static constexpr size_t kDefaultMaximumItemsPerSlice = 64;
+
+    AssetPromotionCatalogIngestJob(const AssetPromotionCatalogIngestJob&) = delete;
+    AssetPromotionCatalogIngestJob& operator=(const AssetPromotionCatalogIngestJob&) = delete;
+    AssetPromotionCatalogIngestJob(AssetPromotionCatalogIngestJob&&) noexcept = default;
+    AssetPromotionCatalogIngestJob& operator=(AssetPromotionCatalogIngestJob&&) noexcept = default;
+
+    bool advance(size_t maximum_items = kDefaultMaximumItemsPerSlice);
+    bool complete() const { return progress_.complete; }
+    bool failed() const { return progress_.failed; }
+    const AssetPromotionCatalogIngestProgress& progress() const { return progress_; }
+
+  private:
+    friend class AssetLibrary;
+    enum class Stage { Header, CopyExisting, ApplyCatalog, Materialize, Complete, Failed };
+
+    AssetPromotionCatalogIngestJob(AssetLibrary* library, nlohmann::json catalog);
+    void applyHeader();
+    void copyExistingRecord();
+    void applyCatalogRecord();
+    void beginMaterialization();
+    void materializeRecord();
+    void publish();
+    void fail(std::string code);
+
+    AssetLibrary* library_ = nullptr;
+    nlohmann::json catalog_;
+    Stage stage_ = Stage::Header;
+    size_t existing_cursor_ = 0;
+    size_t catalog_cursor_ = 0;
+    std::map<std::string, AssetRecord> staged_records_;
+    std::vector<AssetRecord> staged_assets_;
+    std::map<std::string, std::vector<size_t>> staged_filter_index_;
+    AssetLibrarySnapshot staged_derived_counts_{};
+    std::string promotion_status_;
+    bool export_eligible_ = false;
+    size_t catalog_asset_count_delta_ = 0;
+    size_t canonical_asset_count_delta_ = 0;
+    size_t duplicate_group_count_delta_ = 0;
+    size_t duplicate_asset_count_delta_ = 0;
+    size_t unsupported_count_delta_ = 0;
+    size_t catalog_shard_count_delta_ = 0;
+    size_t missing_license_count_delta_ = 0;
+    std::map<std::string, size_t> category_count_deltas_;
+    std::map<std::string, size_t> kind_count_deltas_;
+    AssetPromotionCatalogIngestProgress progress_{};
+};
+
 class AssetLibrary {
   public:
     void clear();
     void ingestHygieneSummary(const nlohmann::json& summary);
     void ingestIntakeReport(const nlohmann::json& report);
     void ingestPromotionCatalog(const nlohmann::json& catalog);
+    AssetPromotionCatalogIngestJob beginPromotionCatalogIngest(nlohmann::json catalog);
     void ingestAssetBundleManifest(const nlohmann::json& manifest);
     void ingestPromotionManifest(const AssetPromotionManifest& manifest);
     void ingestDuplicateCsv(std::string_view csv_text);
@@ -160,6 +228,7 @@ class AssetLibrary {
     size_t lastFilterCandidateCount() const { return last_filter_candidate_count_; }
 
   private:
+    friend class AssetPromotionCatalogIngestJob;
     AssetRecord& ensureAsset(std::string path);
     void refreshDerivedCounts();
     void sortSnapshot();

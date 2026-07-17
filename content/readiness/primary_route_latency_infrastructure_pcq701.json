@@ -3,7 +3,7 @@
   "requirementId": "PCQ-701",
   "status": "in_progress",
   "date": "2026-07-16",
-  "baseCommit": "48c83f89e22bcfe4be6b678a0e1e60bb5dfb3e98",
+  "baseCommit": "c9fae9059e1bd3fc3ef635fdc60d6142f9f57e38",
   "dirtyState": "dirty",
   "governedPlan": {
     "path": "content/benchmarks/primary_route_latency_plan_v1.json",
@@ -55,14 +55,19 @@
       ]
     },
     "asset_browse": {
-      "source": "engine/core/assets/asset_library.cpp; editor/assets/asset_library_model.cpp",
-      "status": "indexed_filter_query_adopted",
+      "source": "engine/core/assets/asset_library.cpp; editor/assets/asset_library_model.cpp; editor/assets/asset_library_panel.cpp",
+      "status": "indexed_filter_and_bounded_catalog_job_adopted",
       "properties": [
         "catalog mutations rebuild a revisioned posting index over media kind, category, game-use classification, tags, source bundle, status, and governed readiness flags",
         "multi-constraint filters intersect the smallest sorted posting lists instead of scanning every asset record",
         "empty and absent constraints preserve existing result ordering and semantics while exposing the narrowed candidate count",
         "asset-library model refreshes cache global action and project-picker rows by asset index revision so filter-only changes rebuild visible rows rather than global rows",
-        "mutation regression coverage proves status changes advance the index revision and immediately become queryable"
+        "mutation regression coverage proves status changes advance the index revision and immediately become queryable",
+        "AssetPromotionCatalogIngestJob stages header metadata, existing records, catalog records, derived counts, and filter postings without exposing partial results",
+        "each advance processes at most the governed 64 items and atomically publishes a path-sorted snapshot plus its complete filter index",
+        "an index-revision conflict aborts publication without overwriting the intervening asset mutation",
+        "the native asset panel advances exactly one active catalog slice per visible rendered frame and exposes stage, totals, last-slice work, completion, failure, and index revisions",
+        "the synchronous catalog API remains backward compatible by driving the same resumable job to completion"
       ]
     },
     "project_graph": {
@@ -80,7 +85,15 @@
   "verification": [
     {
       "command": "build/dev-ninja-debug/urpg_tests.exe [perf][primary_routes][pcq701] --reporter compact",
-      "result": "passed; 363 assertions in 7 cases"
+      "result": "passed; 401 assertions in 9 cases"
+    },
+    {
+      "command": "build/dev-ninja-debug/urpg_tests.exe [assets][asset_library][asset_intake] --reporter compact",
+      "result": "passed; 105 assertions in 4 cases"
+    },
+    {
+      "command": "build/dev-ninja-debug/urpg_tests.exe [assets][asset_library][editor] --reporter compact",
+      "result": "passed; 614 assertions in 45 cases"
     },
     {
       "command": "build/dev-ninja-debug/urpg_tests.exe [project][reference_index] --reporter compact",
@@ -112,8 +125,8 @@
     }
   ],
   "interpretation": {
-    "completed": "PCQ-701 now has a file-backed policy, a native raw-sample-to-versioned-report path, incremental command-search candidate indexing, a resumable search job with the governed 64-candidate default slice, a production editor-chrome route that advances one slice per frame, revisioned posting-index adoption for asset-library filtering with revision-cached global rows, and revisioned stable-object postings for project-graph queries.",
+    "completed": "PCQ-701 now has a file-backed policy, a native raw-sample-to-versioned-report path, incremental command-search candidate indexing, a resumable search job with the governed 64-candidate default slice, a production editor-chrome route that advances one slice per frame, revisioned posting-index adoption for asset-library filtering with revision-cached global rows, a staged atomic catalog-ingestion job with a governed 64-item frame driver, and revisioned stable-object postings for project-graph queries.",
     "notClaimed": "The deterministic and manual smoke results prove native search-route wiring and bounded work presentation; they are not repeated interaction-latency measurements or approved performance baselines.",
-    "remaining": "Migrate project open, map edit, save, playtest launch, and package to bounded asynchronous work; move asset ingestion/index rebuilding and project-graph discovery, parsing, and mutation rebuilds off interactive routes; instrument real acknowledgements and completions for all eight routes; capture at least 20 samples per route on each target hardware class; approve budgets; emit measured reports; and obtain release signoff."
+    "remaining": "Migrate project open, map edit, save, playtest launch, and package to bounded asynchronous work; route default asset report/shard file discovery and JSON parsing through the bounded catalog job; move project-graph discovery, parsing, and mutation rebuilds off interactive routes; instrument real acknowledgements and completions for all eight routes; capture at least 20 samples per route on each target hardware class; approve budgets; emit measured reports; and obtain release signoff."
   }
 }

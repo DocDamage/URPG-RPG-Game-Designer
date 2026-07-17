@@ -32,6 +32,40 @@ TEST_CASE("AssetLibraryPanel renders cleanup preview summary", "[assets][asset_l
     REQUIRE(panel.lastRenderSnapshot().status_message.empty());
 }
 
+TEST_CASE("AssetLibraryPanel advances one governed catalog slice per visible frame",
+          "[assets][asset_library][editor][pcq701][perf][primary_routes]") {
+    urpg::editor::AssetLibraryPanel panel;
+    nlohmann::json assets = nlohmann::json::array();
+    for (size_t index = 0; index < 65; ++index) {
+        assets.push_back({
+            {"source_path", "imports/raw/panel/asset_" + std::to_string(index) + ".png"},
+            {"normalized_path", "asset://panel/asset_" + std::to_string(index) + ".png"},
+            {"media_kind", "image"},
+            {"category", "characters"},
+            {"license", "cc0"},
+        });
+    }
+    REQUIRE(panel.beginPromotionCatalogIngest(
+        nlohmann::json{{"source_root", "imports/raw/panel"}, {"assets", std::move(assets)}}));
+
+    panel.render();
+    REQUIRE(panel.model().promotionCatalogIngestActive());
+    REQUIRE(panel.lastRenderSnapshot().asset_count == 0);
+    REQUIRE(panel.lastRenderSnapshot().catalog_ingest_progress["last_slice_items"] == 64);
+    REQUIRE(panel.lastRenderSnapshot().catalog_ingest_progress["complete"] == false);
+
+    size_t renderedFrames = 1;
+    while (panel.model().promotionCatalogIngestActive()) {
+        panel.render();
+        ++renderedFrames;
+        REQUIRE(panel.lastRenderSnapshot().catalog_ingest_progress["last_slice_items"].get<size_t>() <= 64);
+    }
+    REQUIRE(renderedFrames == 3);
+    REQUIRE(panel.lastRenderSnapshot().asset_count == 65);
+    REQUIRE(panel.lastRenderSnapshot().catalog_ingest_progress["processed_items"] == 131);
+    REQUIRE(panel.lastRenderSnapshot().catalog_ingest_progress["complete"] == true);
+}
+
 TEST_CASE("AssetLibraryPanel load error snapshot includes remediation", "[assets][asset_library][editor][error]") {
     const auto root = uniqueTempRoot("urpg_asset_library_missing_reports");
     std::filesystem::remove_all(root);
