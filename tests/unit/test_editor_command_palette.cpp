@@ -51,3 +51,32 @@ TEST_CASE("Editor command palette maintains deterministic enabled recent actions
     REQUIRE(saved != search.end());
     REQUIRE(saved->recent);
 }
+
+TEST_CASE("Editor command palette maintains an incremental candidate search index",
+          "[editor][command_palette][search][pcq701][perf][primary_routes]") {
+    urpg::editor::EditorCommandPalette palette;
+    for (int index = 0; index < 256; ++index) {
+        const auto suffix = std::to_string(1000 + index);
+        REQUIRE(palette.registerCommand({"generated.command." + suffix,
+                                         "Generated Command " + suffix,
+                                         "Generated",
+                                         {"route-token-" + suffix},
+                                         {},
+                                         "Generated route is available.",
+                                         "Exercise deterministic indexed command search."}));
+    }
+    REQUIRE(palette.searchIndexRevision() == 256);
+    REQUIRE_FALSE(palette.registerCommand({"generated.command.1000", "Duplicate", "Generated", {}, {}, {}, "Help"}));
+    REQUIRE(palette.searchIndexRevision() == 256);
+
+    const auto result = palette.search("route-token-1137");
+    REQUIRE(result.size() == 1);
+    REQUIRE(result.front().command.id == "generated.command.1137");
+    REQUIRE(palette.lastSearchCandidateCount() == 1);
+
+    const auto empty = palette.search({}, 5);
+    REQUIRE(empty.size() == 5);
+    REQUIRE(palette.lastSearchCandidateCount() == 256);
+    REQUIRE(palette.search("route-token-1137", 0).empty());
+    REQUIRE(palette.lastSearchCandidateCount() == 0);
+}

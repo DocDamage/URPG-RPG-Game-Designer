@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cctype>
+#include <numeric>
+#include <set>
 #include <utility>
 
 namespace urpg::editor {
@@ -34,22 +36,73 @@ int matchScore(const EditorCommandDescriptor& command, const std::string& query)
     return 0;
 }
 
+std::string searchableText(const EditorCommandDescriptor& command) {
+    std::string text = command.id + "\n" + command.label + "\n" + command.category + "\n" + command.help +
+                       "\n" + command.requirement;
+    for (const auto& keyword : command.keywords) text += "\n" + keyword;
+    return normalized(text);
+}
+
+std::set<std::string> searchGrams(const std::string& text) {
+    std::set<std::string> grams;
+    for (std::size_t length = 1; length <= 3; ++length) {
+        if (text.size() < length) break;
+        for (std::size_t offset = 0; offset + length <= text.size(); ++offset) {
+            grams.insert(text.substr(offset, length));
+        }
+    }
+    return grams;
+}
+
 } // namespace
 
 bool EditorCommandPalette::registerCommand(EditorCommandDescriptor command) {
     if (command.id.empty() || command.label.empty() || command.category.empty() || command.help.empty() ||
-        std::any_of(commands_.begin(), commands_.end(), [&](const auto& existing) { return existing.id == command.id; })) {
+        command_index_by_id_.contains(command.id)) {
         return false;
     }
+    const auto commandIndex = commands_.size();
     commands_.push_back(std::move(command));
+    command_index_by_id_.emplace(commands_.back().id, commandIndex);
+    for (const auto& gram : searchGrams(searchableText(commands_.back()))) {
+        search_postings_[gram].push_back(commandIndex);
+    }
+    ++search_index_revision_;
     return true;
 }
 
 std::vector<EditorCommandSearchResult> EditorCommandPalette::search(const std::string_view query,
                                                                      const std::size_t limit) const {
+    last_search_candidate_count_ = 0;
+    if (limit == 0) return {};
     const auto needle = normalized(query);
+    std::vector<std::size_t> candidates;
+    if (needle.empty()) {
+        candidates.resize(commands_.size());
+        std::iota(candidates.begin(), candidates.end(), 0);
+    } else {
+        const auto gramLength = std::min<std::size_t>(3, needle.size());
+        bool first = true;
+        for (std::size_t offset = 0; offset + gramLength <= needle.size(); ++offset) {
+            const auto posting = search_postings_.find(needle.substr(offset, gramLength));
+            if (posting == search_postings_.end()) return {};
+            if (first) {
+                candidates = posting->second;
+                first = false;
+                continue;
+            }
+            std::vector<std::size_t> intersection;
+            std::set_intersection(candidates.begin(), candidates.end(), posting->second.begin(), posting->second.end(),
+                                  std::back_inserter(intersection));
+            candidates = std::move(intersection);
+            if (candidates.empty()) return {};
+        }
+    }
+    last_search_candidate_count_ = candidates.size();
     std::vector<EditorCommandSearchResult> results;
-    for (const auto& command : commands_) {
+    results.reserve(std::min(limit, candidates.size()));
+    for (const auto commandIndex : candidates) {
+        const auto& command = commands_[commandIndex];
         const int score = matchScore(command, needle);
         if (score == 0) continue;
         const bool recent = std::find(recent_ids_.begin(), recent_ids_.end(), command.id) != recent_ids_.end();
@@ -65,9 +118,8 @@ std::vector<EditorCommandSearchResult> EditorCommandPalette::search(const std::s
 }
 
 bool EditorCommandPalette::recordAction(const std::string_view command_id) {
-    const auto command = std::find_if(commands_.begin(), commands_.end(),
-                                      [&](const auto& candidate) { return candidate.id == command_id; });
-    if (command == commands_.end() || !command->enabled) return false;
+    const auto command = command_index_by_id_.find(std::string(command_id));
+    if (command == command_index_by_id_.end() || !commands_[command->second].enabled) return false;
     recent_ids_.erase(std::remove(recent_ids_.begin(), recent_ids_.end(), command_id), recent_ids_.end());
     recent_ids_.insert(recent_ids_.begin(), std::string(command_id));
     if (recent_ids_.size() > 20) recent_ids_.resize(20);
@@ -77,8 +129,8 @@ bool EditorCommandPalette::recordAction(const std::string_view command_id) {
 std::vector<EditorCommandDescriptor> EditorCommandPalette::recentActions(const std::size_t limit) const {
     std::vector<EditorCommandDescriptor> result;
     for (const auto& id : recent_ids_) {
-        const auto command = std::find_if(commands_.begin(), commands_.end(), [&](const auto& row) { return row.id == id; });
-        if (command != commands_.end()) result.push_back(*command);
+        const auto command = command_index_by_id_.find(id);
+        if (command != command_index_by_id_.end()) result.push_back(commands_[command->second]);
         if (result.size() == limit) break;
     }
     return result;

@@ -3,7 +3,7 @@
   "requirementId": "PCQ-701",
   "status": "in_progress",
   "date": "2026-07-16",
-  "baseCommit": "3082cd231e62e71aeef3dfa8315a307914373409",
+  "baseCommit": "e84b7304f0de960a3cb2bc3d4c20872f14a75415",
   "dirtyState": "dirty",
   "governedPlan": {
     "path": "content/benchmarks/primary_route_latency_plan_v1.json",
@@ -35,10 +35,28 @@
       "emits every raw sample, route summary, budget, diagnostic, and qualification state in versioned JSON"
     ]
   },
+  "concreteAdoption": {
+    "search": {
+      "source": "editor/ui/editor_command_palette.cpp",
+      "status": "incremental_index_adopted",
+      "properties": [
+        "successful command registration incrementally updates stable ID and normalized 1-3-gram posting indexes",
+        "non-empty queries intersect sorted posting lists before applying the existing field-aware ranking rules",
+        "duplicate registration does not mutate the index or advance its revision",
+        "recent-action lookup uses the stable ID index instead of rescanning command descriptors",
+        "index revision and last-query candidate count are observable for trace capture",
+        "a 256-command fixture narrows an exact route-token query to one scored candidate"
+      ]
+    }
+  },
   "verification": [
     {
       "command": "build/dev-ninja-debug/urpg_tests.exe [perf][primary_routes][pcq701] --reporter compact",
-      "result": "passed; 47 assertions in 4 cases"
+      "result": "passed; 313 assertions in 5 cases"
+    },
+    {
+      "command": "build/dev-ninja-debug/urpg_tests.exe [editor][command_palette] --reporter compact",
+      "result": "passed; 319 assertions in 3 cases"
     },
     {
       "command": "cmake --build build/dev-ninja-debug --target urpg_tests urpg_runtime urpg_editor -j 8",
@@ -46,8 +64,8 @@
     }
   ],
   "interpretation": {
-    "completed": "PCQ-701 now has a file-backed policy and a native raw-sample-to-versioned-report path instead of relying only on hand-authored aggregate trace structs.",
+    "completed": "PCQ-701 now has a file-backed policy, a native raw-sample-to-versioned-report path, and concrete incremental-index adoption for command-palette search candidate selection.",
     "notClaimed": "The passing deterministic samples prove the trace contract and failure behavior; they are not measurements of the shipping editor routes and are not approved performance baselines.",
-    "remaining": "Migrate each declared editor route to bounded asynchronous work and its declared incremental index where required, instrument real acknowledgements and completions, capture at least 20 samples per route on each target hardware class, approve budgets, emit measured reports, and obtain release signoff."
+    "remaining": "Migrate all declared routes to bounded asynchronous work where a candidate set or I/O operation can exceed its per-slice budget, adopt the asset-browse/project-graph indexes, instrument real acknowledgements and completions for all eight routes, capture at least 20 samples per route on each target hardware class, approve budgets, emit measured reports, and obtain release signoff."
   }
 }
