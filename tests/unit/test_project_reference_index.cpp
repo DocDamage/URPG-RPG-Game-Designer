@@ -57,6 +57,50 @@ TEST_CASE("ProjectReferenceIndex rebuild and incremental replacement are identic
     REQUIRE_FALSE(incremental.findUses("", "voice.guide").success);
 }
 
+TEST_CASE("ProjectReferenceIndex narrows stable object queries through maintained postings",
+          "[project][reference_index][pcq701][perf][primary_routes]") {
+    ProjectReferenceDocument document;
+    document.document_path = "content/maps/large.p2d.json";
+    for (size_t index = 0; index < 256; ++index) {
+        document.edges.push_back({"event", "map_001/event_" + std::to_string(index), "asset",
+                                  "asset_" + std::to_string(index), "event_sprite_asset", {},
+                                  "event:" + std::to_string(index), index % 2 == 0});
+    }
+
+    ProjectReferenceIndex index;
+    REQUIRE(index.replaceDocument(document).success);
+    REQUIRE(index.indexRevision() == 1);
+
+    const auto uses = index.findUses("asset", "asset_193");
+    REQUIRE(uses.success);
+    REQUIRE(uses.matches.size() == 1);
+    REQUIRE(uses.matches.front().source_id == "map_001/event_193");
+    REQUIRE(index.lastQueryCandidateCount() == 1);
+
+    const auto references = index.findReferences("event", "map_001/event_64");
+    REQUIRE(references.success);
+    REQUIRE(references.matches.size() == 1);
+    REQUIRE(references.matches.front().target_id == "asset_64");
+    REQUIRE(index.lastQueryCandidateCount() == 1);
+
+    const auto included = index.explainInclusion("asset", "asset_64");
+    REQUIRE(included.success);
+    REQUIRE(included.matches.size() == 1);
+    REQUIRE(index.lastQueryCandidateCount() == 1);
+
+    const auto excluded = index.explainInclusion("asset", "asset_193");
+    REQUIRE(excluded.success);
+    REQUIRE(excluded.matches.empty());
+    REQUIRE(index.lastQueryCandidateCount() == 0);
+    REQUIRE_FALSE(index.findUses("", "asset_193").success);
+    REQUIRE(index.lastQueryCandidateCount() == 0);
+
+    const auto revision = index.indexRevision();
+    index.removeDocument(document.document_path);
+    REQUIRE(index.indexRevision() == revision + 1);
+    REQUIRE(index.findUses("asset", "asset_193").matches.empty());
+}
+
 TEST_CASE("ProjectReferenceIndex rejects invalid replacement without partial mutation", "[project][reference_index]") {
     ProjectReferenceIndex index;
     REQUIRE(index.replaceDocument({"content/maps/start.p2d.json",

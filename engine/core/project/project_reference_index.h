@@ -1,7 +1,10 @@
 #pragma once
 
 #include <filesystem>
+#include <cstdint>
+#include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <nlohmann/json_fwd.hpp>
@@ -62,9 +65,22 @@ public:
     ProjectReferenceQueryResult findUses(std::string_view target_type, std::string_view target_id) const;
     ProjectReferenceQueryResult findReferences(std::string_view source_type, std::string_view source_id) const;
     ProjectReferenceQueryResult explainInclusion(std::string_view target_type, std::string_view target_id) const;
+    uint64_t indexRevision() const { return index_revision_; }
+    size_t lastQueryCandidateCount() const { return last_query_candidate_count_; }
 
 private:
+    using ObjectKey = std::pair<std::string, std::string>;
+    void rebuildQueryIndexes();
+    std::vector<ProjectReferenceEdge> queryPosting(const std::map<ObjectKey, std::vector<size_t>>& index,
+                                                   std::string_view object_type,
+                                                   std::string_view object_id) const;
+
     std::vector<ProjectReferenceEdge> edges_;
+    std::map<ObjectKey, std::vector<size_t>> inbound_index_;
+    std::map<ObjectKey, std::vector<size_t>> outbound_index_;
+    std::map<ObjectKey, std::vector<size_t>> package_inclusion_index_;
+    uint64_t index_revision_ = 0;
+    mutable size_t last_query_candidate_count_ = 0;
 };
 
 struct ProjectReferenceBuildResult {

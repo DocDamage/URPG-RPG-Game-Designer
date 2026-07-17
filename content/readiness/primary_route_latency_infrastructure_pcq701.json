@@ -3,7 +3,7 @@
   "requirementId": "PCQ-701",
   "status": "in_progress",
   "date": "2026-07-16",
-  "baseCommit": "f3d9853dc2f798349ef50efc9dad9bdfc845f3ef",
+  "baseCommit": "48c83f89e22bcfe4be6b678a0e1e60bb5dfb3e98",
   "dirtyState": "dirty",
   "governedPlan": {
     "path": "content/benchmarks/primary_route_latency_plan_v1.json",
@@ -64,12 +64,27 @@
         "asset-library model refreshes cache global action and project-picker rows by asset index revision so filter-only changes rebuild visible rows rather than global rows",
         "mutation regression coverage proves status changes advance the index revision and immediately become queryable"
       ]
+    },
+    "project_graph": {
+      "source": "engine/core/project/project_reference_index.cpp",
+      "status": "indexed_stable_object_queries_adopted",
+      "properties": [
+        "successful document mutations rebuild revisioned inbound, outbound, and package-inclusion postings over stable object type and ID pairs",
+        "find uses and find references materialize only the matching posting instead of scanning every project edge",
+        "inclusion explanations use a dedicated package-inclusion posting instead of filtering all inbound references",
+        "query candidate count and index revision are observable for governed trace capture",
+        "a 256-edge fixture narrows inbound, outbound, and inclusion queries to one candidate while absent and invalid queries report zero candidates"
+      ]
     }
   },
   "verification": [
     {
       "command": "build/dev-ninja-debug/urpg_tests.exe [perf][primary_routes][pcq701] --reporter compact",
-      "result": "passed; 343 assertions in 6 cases"
+      "result": "passed; 363 assertions in 7 cases"
+    },
+    {
+      "command": "build/dev-ninja-debug/urpg_tests.exe [project][reference_index] --reporter compact",
+      "result": "passed; 88 assertions in 8 cases"
     },
     {
       "command": "build/dev-ninja-debug/urpg_tests.exe [assets][asset_library][browser] --reporter compact",
@@ -97,8 +112,8 @@
     }
   ],
   "interpretation": {
-    "completed": "PCQ-701 now has a file-backed policy, a native raw-sample-to-versioned-report path, incremental command-search candidate indexing, a resumable search job with the governed 64-candidate default slice, a production editor-chrome route that advances one slice per frame, and revisioned posting-index adoption for asset-library filtering with revision-cached global rows.",
+    "completed": "PCQ-701 now has a file-backed policy, a native raw-sample-to-versioned-report path, incremental command-search candidate indexing, a resumable search job with the governed 64-candidate default slice, a production editor-chrome route that advances one slice per frame, revisioned posting-index adoption for asset-library filtering with revision-cached global rows, and revisioned stable-object postings for project-graph queries.",
     "notClaimed": "The deterministic and manual smoke results prove native search-route wiring and bounded work presentation; they are not repeated interaction-latency measurements or approved performance baselines.",
-    "remaining": "Migrate project open, map edit, save, playtest launch, package, and project graph to bounded asynchronous work; move asset ingestion/index rebuilding off the interactive route; adopt the project-graph index; instrument real acknowledgements and completions for all eight routes; capture at least 20 samples per route on each target hardware class; approve budgets; emit measured reports; and obtain release signoff."
+    "remaining": "Migrate project open, map edit, save, playtest launch, and package to bounded asynchronous work; move asset ingestion/index rebuilding and project-graph discovery, parsing, and mutation rebuilds off interactive routes; instrument real acknowledgements and completions for all eight routes; capture at least 20 samples per route on each target hardware class; approve budgets; emit measured reports; and obtain release signoff."
   }
 }

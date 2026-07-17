@@ -91,6 +91,7 @@ ProjectReferenceUpdateResult ProjectReferenceIndex::rebuild(const std::vector<Pr
         if (!result.success) return result;
     }
     edges_ = std::move(candidate.edges_);
+    rebuildQueryIndexes();
     return {true, "project_reference_index_rebuilt", "Project reference index rebuilt deterministically."};
 }
 
@@ -106,37 +107,30 @@ ProjectReferenceUpdateResult ProjectReferenceIndex::replaceDocument(const Projec
         return edgeKey(left) < edgeKey(right);
     });
     edges_ = std::move(candidate);
+    rebuildQueryIndexes();
     return {true, "project_reference_document_replaced", "Document reference edges replaced atomically."};
 }
 
 void ProjectReferenceIndex::removeDocument(const std::filesystem::path& document_path) {
     const auto path = document_path.lexically_normal();
+    const auto previousSize = edges_.size();
     std::erase_if(edges_, [&](const auto& edge) { return edge.document_path.lexically_normal() == path; });
+    if (edges_.size() != previousSize) rebuildQueryIndexes();
 }
 
 std::vector<ProjectReferenceEdge> ProjectReferenceIndex::inbound(const std::string_view target_type,
                                                                  const std::string_view target_id) const {
-    std::vector<ProjectReferenceEdge> result;
-    std::copy_if(edges_.begin(), edges_.end(), std::back_inserter(result), [&](const auto& edge) {
-        return edge.target_type == target_type && edge.target_id == target_id;
-    });
-    return result;
+    return queryPosting(inbound_index_, target_type, target_id);
 }
 
 std::vector<ProjectReferenceEdge> ProjectReferenceIndex::outbound(const std::string_view source_type,
                                                                   const std::string_view source_id) const {
-    std::vector<ProjectReferenceEdge> result;
-    std::copy_if(edges_.begin(), edges_.end(), std::back_inserter(result), [&](const auto& edge) {
-        return edge.source_type == source_type && edge.source_id == source_id;
-    });
-    return result;
+    return queryPosting(outbound_index_, source_type, source_id);
 }
 
 std::vector<ProjectReferenceEdge> ProjectReferenceIndex::whyIncluded(const std::string_view target_type,
                                                                      const std::string_view target_id) const {
-    auto result = inbound(target_type, target_id);
-    std::erase_if(result, [](const auto& edge) { return !edge.package_inclusion; });
-    return result;
+    return queryPosting(package_inclusion_index_, target_type, target_id);
 }
 
 ProjectReferenceQueryResult ProjectReferenceIndex::findUses(const std::string_view target_type,
@@ -145,6 +139,7 @@ ProjectReferenceQueryResult ProjectReferenceIndex::findUses(const std::string_vi
     result.object_type = target_type;
     result.object_id = target_id;
     if (target_type.empty() || target_id.empty()) {
+        last_query_candidate_count_ = 0;
         result.code = "project_reference_query_object_missing";
         return result;
     }
@@ -160,6 +155,7 @@ ProjectReferenceQueryResult ProjectReferenceIndex::findReferences(const std::str
     result.object_type = source_type;
     result.object_id = source_id;
     if (source_type.empty() || source_id.empty()) {
+        last_query_candidate_count_ = 0;
         result.code = "project_reference_query_object_missing";
         return result;
     }
@@ -172,11 +168,49 @@ ProjectReferenceQueryResult ProjectReferenceIndex::findReferences(const std::str
 
 ProjectReferenceQueryResult ProjectReferenceIndex::explainInclusion(const std::string_view target_type,
                                                                     const std::string_view target_id) const {
-    auto result = findUses(target_type, target_id);
-    if (!result.success) return result;
-    std::erase_if(result.matches, [](const auto& edge) { return !edge.package_inclusion; });
+    ProjectReferenceQueryResult result;
+    result.object_type = target_type;
+    result.object_id = target_id;
+    if (target_type.empty() || target_id.empty()) {
+        last_query_candidate_count_ = 0;
+        result.code = "project_reference_query_object_missing";
+        return result;
+    }
+    result.matches = whyIncluded(target_type, target_id);
+    result.success = true;
     result.code = result.matches.empty() ? "project_reference_query_not_package_included"
                                          : "project_reference_query_inclusion_explained";
+    return result;
+}
+
+void ProjectReferenceIndex::rebuildQueryIndexes() {
+    inbound_index_.clear();
+    outbound_index_.clear();
+    package_inclusion_index_.clear();
+    for (size_t index = 0; index < edges_.size(); ++index) {
+        const auto& edge = edges_[index];
+        inbound_index_[{edge.target_type, edge.target_id}].push_back(index);
+        outbound_index_[{edge.source_type, edge.source_id}].push_back(index);
+        if (edge.package_inclusion) {
+            package_inclusion_index_[{edge.target_type, edge.target_id}].push_back(index);
+        }
+    }
+    last_query_candidate_count_ = 0;
+    ++index_revision_;
+}
+
+std::vector<ProjectReferenceEdge>
+ProjectReferenceIndex::queryPosting(const std::map<ObjectKey, std::vector<size_t>>& index,
+                                    const std::string_view object_type, const std::string_view object_id) const {
+    const auto found = index.find({std::string(object_type), std::string(object_id)});
+    if (found == index.end()) {
+        last_query_candidate_count_ = 0;
+        return {};
+    }
+    last_query_candidate_count_ = found->second.size();
+    std::vector<ProjectReferenceEdge> result;
+    result.reserve(found->second.size());
+    for (const auto edgeIndex : found->second) result.push_back(edges_[edgeIndex]);
     return result;
 }
 
