@@ -1,0 +1,87 @@
+{
+  "schema": "urpg.primary_route_latency_plan.v1",
+  "version": "pcq701.v1",
+  "budget_status": "provisional_pending_route_adoption_target_hardware_capture_and_owner_approval",
+  "routes": [
+    {
+      "id": "project_open",
+      "owner": "editor/project",
+      "source": "editor/project/editor_project_session.cpp",
+      "requires_incremental_index": false,
+      "acknowledgement_budget_us": 50000,
+      "interaction_budget_us": 500000,
+      "maximum_items_per_slice": 32,
+      "minimum_samples": 20
+    },
+    {
+      "id": "asset_browse",
+      "owner": "editor/assets",
+      "source": "editor/assets/asset_library_model.cpp",
+      "requires_incremental_index": true,
+      "acknowledgement_budget_us": 50000,
+      "interaction_budget_us": 100000,
+      "maximum_items_per_slice": 64,
+      "minimum_samples": 20
+    },
+    {
+      "id": "search",
+      "owner": "editor/ui",
+      "source": "editor/ui/editor_command_palette.cpp",
+      "requires_incremental_index": true,
+      "acknowledgement_budget_us": 50000,
+      "interaction_budget_us": 50000,
+      "maximum_items_per_slice": 64,
+      "minimum_samples": 20
+    },
+    {
+      "id": "map_edit",
+      "owner": "editor/spatial",
+      "source": "editor/spatial/map_authoring_workspace.cpp",
+      "requires_incremental_index": false,
+      "acknowledgement_budget_us": 50000,
+      "interaction_budget_us": 50000,
+      "maximum_items_per_slice": 256,
+      "minimum_samples": 20
+    },
+    {
+      "id": "save",
+      "owner": "editor/project",
+      "source": "editor/project/editor_dirty_state_registry.cpp",
+      "requires_incremental_index": false,
+      "acknowledgement_budget_us": 50000,
+      "interaction_budget_us": 250000,
+      "maximum_items_per_slice": 32,
+      "minimum_samples": 20
+    },
+    {
+      "id": "playtest_launch",
+      "owner": "editor/playtest",
+      "source": "editor/playtest/playtest_session_controller.cpp",
+      "requires_incremental_index": false,
+      "acknowledgement_budget_us": 50000,
+      "interaction_budget_us": 500000,
+      "maximum_items_per_slice": 32,
+      "minimum_samples": 20
+    },
+    {
+      "id": "package",
+      "owner": "engine/core/tools",
+      "source": "engine/core/tools/export_packager.cpp",
+      "requires_incremental_index": false,
+      "acknowledgement_budget_us": 50000,
+      "interaction_budget_us": 1000000,
+      "maximum_items_per_slice": 32,
+      "minimum_samples": 20
+    },
+    {
+      "id": "project_graph",
+      "owner": "engine/core/project",
+      "source": "engine/core/project/project_reference_index.cpp",
+      "requires_incremental_index": true,
+      "acknowledgement_budget_us": 50000,
+      "interaction_budget_us": 100000,
+      "maximum_items_per_slice": 64,
+      "minimum_samples": 20
+    }
+  ]
+}

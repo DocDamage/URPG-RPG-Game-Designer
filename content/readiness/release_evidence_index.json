@@ -939,14 +939,14 @@
       "requirementId": "PCQ-701",
       "status": "in_progress",
       "command": ".\\build\\dev-ninja-debug\\urpg_tests.exe \"[perf][primary_routes][pcq701]\" --reporter console",
-      "reports": [],
+      "reports": ["content/readiness/primary_route_latency_infrastructure_pcq701.json"],
       "screenshots": [],
       "recordings": [],
       "hardware": "Windows desktop; MinGW GNU 15.2.0",
-      "sourceCommit": "51a3f8a9d60d319b4d3360141768dfb65fe6dbba",
+      "sourceCommit": "3082cd231e62e71aeef3dfa8315a307914373409",
       "dirtyState": "dirty",
       "evidenceDate": "2026-07-16",
-      "notes": "PrimaryRouteWorkAudit covers project open, asset browse, search, map edit, save, playtest launch, package, and project graph. It rejects main-thread scans, blocking I/O, unbounded jobs, absent incremental indexes on scan-heavy routes, acknowledgement above 50 ms, and p95 latency beyond an authored budget. BoundedWorkQueue enforces FIFO work-unit slices and queue capacity; IncrementalRouteIndex applies stable-key updates and bounded deterministic search. The combined batch run passes 526 assertions in 45 cases. Concrete adoption by every primary route, instrumented interaction traces, approved budgets, clean-commit evidence, and release signoff remain pending."
+      "notes": "PCQ-701 now has one file-backed pcq701.v1 policy naming the exact eight primary routes, stable owner and source custody, provisional acknowledgement and interaction budgets, maximum work-slice sizes, index requirements, and a 20-sample minimum. PrimaryRouteWorkAudit parses that policy and aggregates raw interaction samples into urpg.primary_route_latency_report.v1 using nearest-rank p95. It rejects blank or duplicate sample IDs, insufficient route samples, main-thread scans, blocking I/O, unbounded or oversize slices, missing incremental indexes or zero index revisions, slow acknowledgement, and p95 regressions while keeping complete captures distinct from budget outcomes. The deterministic contract suite passes 47 assertions in 4 cases, and the grouped test/runtime/editor build passes. Those deterministic samples validate governance and report behavior; they are not shipping-route measurements. Concrete bounded asynchronous adoption by every route, real instrumentation, repeated target-hardware capture, approved budgets, measured report artifacts, clean-candidate evidence, and release signoff remain pending."
     },
     {
       "requirementId": "PCQ-702",

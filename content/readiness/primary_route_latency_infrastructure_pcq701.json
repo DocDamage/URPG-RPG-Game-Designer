@@ -1,0 +1,53 @@
+{
+  "schema": "urpg.primary_route_latency_infrastructure_evidence.v1",
+  "requirementId": "PCQ-701",
+  "status": "in_progress",
+  "date": "2026-07-16",
+  "baseCommit": "3082cd231e62e71aeef3dfa8315a307914373409",
+  "dirtyState": "dirty",
+  "governedPlan": {
+    "path": "content/benchmarks/primary_route_latency_plan_v1.json",
+    "schema": "urpg.primary_route_latency_plan.v1",
+    "version": "pcq701.v1",
+    "budgetStatus": "provisional_pending_route_adoption_target_hardware_capture_and_owner_approval",
+    "routeCount": 8,
+    "routes": [
+      "project_open",
+      "asset_browse",
+      "search",
+      "map_edit",
+      "save",
+      "playtest_launch",
+      "package",
+      "project_graph"
+    ]
+  },
+  "nativeTraceContract": {
+    "source": "engine/core/perf/primary_route_work.cpp",
+    "reportSchema": "urpg.primary_route_latency_report.v1",
+    "properties": [
+      "requires the exact eight-route policy with stable owners and source paths",
+      "requires at least 20 raw interaction samples per route",
+      "aggregates interaction latency with nearest-rank p95",
+      "compares acknowledgement maximum and interaction p95 against provisional route budgets",
+      "rejects main-thread scans, blocking I/O, unbounded or oversize work slices, missing incremental indexes, and zero index revisions",
+      "rejects blank or duplicate sample IDs and incomplete route capture",
+      "emits every raw sample, route summary, budget, diagnostic, and qualification state in versioned JSON"
+    ]
+  },
+  "verification": [
+    {
+      "command": "build/dev-ninja-debug/urpg_tests.exe [perf][primary_routes][pcq701] --reporter compact",
+      "result": "passed; 47 assertions in 4 cases"
+    },
+    {
+      "command": "cmake --build build/dev-ninja-debug --target urpg_tests urpg_runtime urpg_editor -j 8",
+      "result": "passed"
+    }
+  ],
+  "interpretation": {
+    "completed": "PCQ-701 now has a file-backed policy and a native raw-sample-to-versioned-report path instead of relying only on hand-authored aggregate trace structs.",
+    "notClaimed": "The passing deterministic samples prove the trace contract and failure behavior; they are not measurements of the shipping editor routes and are not approved performance baselines.",
+    "remaining": "Migrate each declared editor route to bounded asynchronous work and its declared incremental index where required, instrument real acknowledgements and completions, capture at least 20 samples per route on each target hardware class, approve budgets, emit measured reports, and obtain release signoff."
+  }
+}

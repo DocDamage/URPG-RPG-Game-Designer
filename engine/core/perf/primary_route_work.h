@@ -1,5 +1,7 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <cstdint>
 #include <deque>
 #include <map>
@@ -35,11 +37,47 @@ struct PrimaryRouteAuditResult {
     bool complete = false;
     bool within_budgets = false;
     std::vector<std::string> diagnostics;
+    nlohmann::json report = nlohmann::json::object();
+};
+
+struct PrimaryRoutePolicy {
+    PrimaryRoute route = PrimaryRoute::ProjectOpen;
+    std::string owner;
+    std::string source;
+    bool requires_incremental_index = false;
+    uint32_t acknowledgement_budget_us = 0;
+    uint32_t interaction_budget_us = 0;
+    uint32_t maximum_items_per_slice = 0;
+    uint32_t minimum_samples = 0;
+};
+
+struct PrimaryRoutePlan {
+    bool valid = false;
+    std::string version;
+    std::string budget_status;
+    std::vector<PrimaryRoutePolicy> policies;
+    std::vector<std::string> diagnostics;
+};
+
+struct PrimaryRouteInteractionSample {
+    std::string id;
+    PrimaryRoute route = PrimaryRoute::ProjectOpen;
+    bool main_thread_scan = false;
+    bool blocking_io = false;
+    bool bounded_job = false;
+    bool incremental_index = false;
+    uint64_t index_revision = 0;
+    uint32_t acknowledgement_us = 0;
+    uint32_t interaction_us = 0;
+    uint32_t processed_items = 0;
 };
 
 class PrimaryRouteWorkAudit {
 public:
     PrimaryRouteAuditResult evaluate(const std::vector<PrimaryRouteTrace>& traces) const;
+    PrimaryRouteAuditResult evaluate(const PrimaryRoutePlan& plan,
+                                     const std::vector<PrimaryRouteInteractionSample>& samples) const;
+    static PrimaryRoutePlan parsePlan(const nlohmann::json& value);
 };
 
 struct BoundedWorkItem {
